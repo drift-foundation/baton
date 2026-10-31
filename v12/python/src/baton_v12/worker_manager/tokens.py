@@ -255,9 +255,13 @@ def _document(control, operation_id, kind):
                 "integrity", "schema",
                 f"a resource-token judgement record at {name_value(operation_id)} names "
                 f"{member} {name_value(taken[member])} and was signed for {name_value(value)}")
-    for member in _DECIDED_MEMBERS[kind]:
-        if member != "revision":
-            boundaries.instant(taken[member], f"a resource-token judgement record's {member}")
+    # Each decided instant by name, so the inventory's owner labels are exact.
+    if kind == RENEWED_KIND:
+        boundaries.instant(taken["renewed_at"], "a resource-token judgement record's renewed_at")
+    else:
+        boundaries.instant(taken["observed_at"], "a resource-token judgement record's observed_at")
+        boundaries.instant(taken["decided_at"], "a resource-token judgement record's decided_at")
+    boundaries.instant(taken["expires_at"], "a resource-token judgement record's expires_at")
     return taken
 
 

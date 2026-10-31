@@ -1,0 +1,36 @@
+test_a_home_whose_every_directory_is_frozen_is_removed_deepest_first (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_a_home_whose_every_directory_is_frozen_is_removed_deepest_first)
+M384981 (W384944 review 2026-10-31T02:51:05Z): the parent is thawed before its child goes. ... ERROR
+
+======================================================================
+ERROR: test_a_home_whose_every_directory_is_frozen_is_removed_deepest_first (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_a_home_whose_every_directory_is_frozen_is_removed_deepest_first)
+M384981 (W384944 review 2026-10-31T02:51:05Z): the parent is thawed before its child goes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384870-c/before-m384981/tests/manager/test_workspaces.py", line 1019, in test_a_home_whose_every_directory_is_frozen_is_removed_deepest_first
+    self.assertTrue(discard_workspace(self.storage, "assignment-going", control=self.store))
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384870-c/before-m384981/src/baton_v12/worker_manager/workspaces.py", line 6253, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/work/scratch/w384870-c/before-m384981/src/baton_v12/worker_manager/workspaces.py", line 4812, in _serialized_removal
+    value = removing()
+  File "/home/sl/src/baton/work/scratch/w384870-c/before-m384981/src/baton_v12/worker_manager/workspaces.py", line 6256, in <lambda>
+    lambda: (_removed_pinned_home(root, assignment_id, pinned=authorized,
+             ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  what="removing this attempt's workspace home"),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384870-c/before-m384981/src/baton_v12/worker_manager/workspaces.py", line 6831, in _removed_pinned_home
+    _removed_through_handles(home, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384870-c/before-m384981/src/baton_v12/worker_manager/workspaces.py", line 6911, in _removed_through_handles
+    os.rmdir(name, dir_fd=parent)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'deeper'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.020s
+
+FAILED (errors=1)

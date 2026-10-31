@@ -2448,11 +2448,15 @@ def allowed(seconds, most):
 
 
 def _finite_seconds(value, which):
-    """A finite int or float number of seconds, or a refusal in this module's words."""
-    import math
+    """A finite int or float number of seconds, or a refusal in this module's words.
 
+    Finiteness is decided without `math` (the manager's dependency rule names its
+    standard-library modules exactly): a NaN is the one float unequal to itself, and
+    the two infinities are the two floats that compare equal to `float("inf")` or its
+    negation.
+    """
     if type(value) is bool or type(value) not in (int, float) \
-            or (type(value) is float and not math.isfinite(value)):
+            or (type(value) is float and (value != value or value in (float("inf"), float("-inf")))):
         raise ContractRefusal(
             "integrity", "schema",
             f"an engine {which} is a finite number of seconds; this is "

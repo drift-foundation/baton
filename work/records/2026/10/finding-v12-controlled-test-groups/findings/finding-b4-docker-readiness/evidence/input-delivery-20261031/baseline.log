@@ -1,0 +1,214 @@
+{"argv": ["just", "test-one", "tests.manager.test_input_delivery.TheModeIsEstablishedRatherThanRequested", "tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles", "tests.manager.test_input_delivery.TheWholeDeliveryIsFrozenAndNotOnlyTheRoot", "tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo", "tests.manager.test_input_delivery.TheHomeLayoutIsDeclaredWhereItIsFrozen", "tests.manager.test_input_delivery.TheRuledTrustModel"], "cwd": "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12", "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python", "tmp_root": "/var/tmp/baton-w384944-input-baseline-ejpts4oc", "snapshot_commit": "a8cbc9745d1eff51bcfb04d2fe4bb96a5ea3b12d"}
+test_a_restrictive_umask_cannot_author_an_unreadable_document (tests.manager.test_input_delivery.TheModeIsEstablishedRatherThanRequested.test_a_restrictive_umask_cannot_author_an_unreadable_document) ... ok
+test_the_delivered_mode_grants_read_and_no_write_to_anybody (tests.manager.test_input_delivery.TheModeIsEstablishedRatherThanRequested.test_the_delivered_mode_grants_read_and_no_write_to_anybody)
+The claim the mode itself makes, stated as bits. ... ok
+test_cleanup_removes_a_frozen_root_and_thaws_nothing_else (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_cleanup_removes_a_frozen_root_and_thaws_nothing_else)
+Retry and cleanup still work, and reach exactly one tree. ... ERROR
+test_recomposition_is_still_refused_rather_than_forced (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_recomposition_is_still_refused_rather_than_forced)
+The freeze is not what makes a second composition impossible, and ... ok
+test_the_frozen_root_denies_create_unlink_rename_and_replacement (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_the_frozen_root_denies_create_unlink_rename_and_replacement)
+The four ways a directory's write bit lets somebody change what a ... ok
+test_the_manager_can_still_read_and_traverse_what_it_froze (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_the_manager_can_still_read_and_traverse_what_it_froze)
+0555 and not 0500: the container's fixed uid is not this manager's, ... ok
+test_the_root_is_frozen_to_the_declared_mode (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_the_root_is_frozen_to_the_declared_mode) ... ok
+test_a_party_that_is_neither_owner_nor_group_can_still_read_it (tests.manager.test_input_delivery.TheWholeDeliveryIsFrozenAndNotOnlyTheRoot.test_a_party_that_is_neither_owner_nor_group_can_still_read_it)
+WHICH IS THE POINT, and the half that was missing. ... ok
+test_every_staged_file_and_directory_carries_the_declared_mode (tests.manager.test_input_delivery.TheWholeDeliveryIsFrozenAndNotOnlyTheRoot.test_every_staged_file_and_directory_carries_the_declared_mode)
+Whatever the umask was when the copier ran. ... ok
+test_cleanup_reaches_exactly_one_frozen_home (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_cleanup_reaches_exactly_one_frozen_home) ... ERROR
+test_the_home_is_frozen_once_its_entries_exist (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_the_home_is_frozen_once_its_entries_exist) ... ok
+test_the_root_entry_itself_cannot_be_renamed_or_replaced (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_the_root_entry_itself_cannot_be_renamed_or_replaced)
+The reviewer's reproduction, as a permanent case. ... ok
+test_what_the_frozen_home_still_permits (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_what_the_frozen_home_still_permits)
+The home's mode governs its ENTRIES and nothing deeper. ... ok
+test_every_home_entry_the_other_components_name_is_declared (tests.manager.test_input_delivery.TheHomeLayoutIsDeclaredWhereItIsFrozen.test_every_home_entry_the_other_components_name_is_declared) ... ok
+test_a_colliding_home_cannot_alias_another_attempts_home (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_colliding_home_cannot_alias_another_attempts_home)
+The attempt home itself is part of the exclusive boundary. ... ok
+test_a_colliding_home_cannot_alias_another_attempts_root (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_colliding_home_cannot_alias_another_attempts_root)
+Exclusive allocation refuses stale names rather than adopting them. ... ok
+test_a_home_that_is_not_a_directory_is_refused (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_home_that_is_not_a_directory_is_refused) ... ok
+test_a_partial_pair_is_never_published (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_partial_pair_is_never_published)
+Both documents or neither: §7.0's order, and the rule that a mount ... ok
+test_a_published_delivery_is_not_recomposed (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_published_delivery_is_not_recomposed) ... ok
+test_a_second_attempt_cannot_publish_over_a_published_delivery (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_second_attempt_cannot_publish_over_a_published_delivery)
+The collision refusal, at the boundary where a collision is ... ok
+test_a_stale_entry_of_any_other_kind_is_refused_too (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_stale_entry_of_any_other_kind_is_refused_too)
+The alias is one shape of stale state; these are the others. ... ok
+test_an_aliased_home_is_refused_by_every_shape_it_can_take (tests.manager.test_input_delivery.TheRuledTrustModel.test_an_aliased_home_is_refused_by_every_shape_it_can_take)
+The reviewer's whole-home case, and its siblings. ... ok
+test_cleanup_never_reaches_outside_the_storage_root (tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_never_reaches_outside_the_storage_root) ... ok
+test_cleanup_reaches_one_attempt_and_retries_cleanly (tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_reaches_one_attempt_and_retries_cleanly) ... ERROR
+test_first_allocation_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_first_allocation_race_answers_or_refuses_in_contract)
+An exclusive mkdir collision is a refusal, not a raw OS fault. ... FAIL
+test_provisioning_is_idempotent_because_a_restart_needs_it (tests.manager.test_input_delivery.TheRuledTrustModel.test_provisioning_is_idempotent_because_a_restart_needs_it)
+Asking twice is not reusing an identity. ... ok
+test_the_child_create_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_child_create_race_answers_or_refuses_in_contract)
+The same contract one level down, which the review asks for by name. ... FAIL
+test_the_home_create_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_home_create_race_answers_or_refuses_in_contract) ... FAIL
+test_the_loser_of_a_create_race_reopens_rather_than_refusing (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_loser_of_a_create_race_reopens_rather_than_refusing)
+Both callers get roots, because both are the same attempt. ... FAIL
+test_the_published_documents_carry_no_write_bit_for_anybody (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_published_documents_carry_no_write_bit_for_anybody) ... ok
+test_the_restart_lookup_still_answers_the_same_roots (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_restart_lookup_still_answers_the_same_roots)
+The path the previous cut broke, kept green beside the new guard. ... ok
+test_two_attempts_receive_two_private_roots (tests.manager.test_input_delivery.TheRuledTrustModel.test_two_attempts_receive_two_private_roots) ... ok
+
+======================================================================
+ERROR: test_cleanup_removes_a_frozen_root_and_thaws_nothing_else (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_cleanup_removes_a_frozen_root_and_thaws_nothing_else)
+Retry and cleanup still work, and reach exactly one tree.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 611, in test_cleanup_removes_a_frozen_root_and_thaws_nothing_else
+    workspaces.discard_workspace(self.storage, "assignment-going", control=self.store))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4786, in _serialized_removal
+    refuse_if_held(control, storage, assignment_id, what, under)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5055, in refuse_if_held
+    recorded = configured_workspace_storage(control).place
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1475, in configured_workspace_storage
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1491, in _agreed_storage_place
+    _denied("this manager has no configured workspace store; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment records the one directory attempts are allocated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "under before any custody act, and a store taken from a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "caller's operand is not a deployment's decision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+======================================================================
+ERROR: test_cleanup_reaches_exactly_one_frozen_home (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_cleanup_reaches_exactly_one_frozen_home)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 887, in test_cleanup_reaches_exactly_one_frozen_home
+    workspaces.discard_workspace(self.storage, "assignment-going", control=self.store))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4786, in _serialized_removal
+    refuse_if_held(control, storage, assignment_id, what, under)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5055, in refuse_if_held
+    recorded = configured_workspace_storage(control).place
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1475, in configured_workspace_storage
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1491, in _agreed_storage_place
+    _denied("this manager has no configured workspace store; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment records the one directory attempts are allocated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "under before any custody act, and a store taken from a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "caller's operand is not a deployment's decision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+======================================================================
+ERROR: test_cleanup_reaches_one_attempt_and_retries_cleanly (tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_reaches_one_attempt_and_retries_cleanly)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1155, in test_cleanup_reaches_one_attempt_and_retries_cleanly
+    workspaces.discard_workspace(self.storage, "attempt-going", control=self.store))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4786, in _serialized_removal
+    refuse_if_held(control, storage, assignment_id, what, under)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5055, in refuse_if_held
+    recorded = configured_workspace_storage(control).place
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1475, in configured_workspace_storage
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1491, in _agreed_storage_place
+    _denied("this manager has no configured workspace store; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment records the one directory attempts are allocated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "under before any custody act, and a store taken from a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "caller's operand is not a deployment's decision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+======================================================================
+FAIL: test_first_allocation_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_first_allocation_race_answers_or_refuses_in_contract)
+An exclusive mkdir collision is a refusal, not a raw OS fault.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1065, in test_first_allocation_race_answers_or_refuses_in_contract
+    self.assertTrue(answers, results)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true : [('refusal', ContractRefusal("allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/var/tmp/baton-w384944-input-baseline-ejpts4oc/v12-w33935-t… is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")), ('refusal', ContractRefusal("allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/var/tmp/baton-w384944-input-baseline-ejpts4oc/v12-w33935-t… is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"))]
+
+======================================================================
+FAIL: test_the_child_create_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_child_create_race_answers_or_refuses_in_contract)
+The same contract one level down, which the review asks for by name.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1316, in test_the_child_create_race_answers_or_refuses_in_contract
+    self.assertTrue(answers, results)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true : [('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/var/tmp/baton-w384944-input-baseline-ejpts4oc/v12-w33935-t… is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"), ('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/var/tmp/baton-w384944-input-baseline-ejpts4oc/v12-w33935-t… is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")]
+
+======================================================================
+FAIL: test_the_home_create_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_home_create_race_answers_or_refuses_in_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1298, in test_the_home_create_race_answers_or_refuses_in_contract
+    self.assertTrue(answers, results)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true : [('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/var/tmp/baton-w384944-input-baseline-ejpts4oc/v12-w33935-t… is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"), ('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/var/tmp/baton-w384944-input-baseline-ejpts4oc/v12-w33935-t… is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")]
+
+======================================================================
+FAIL: test_the_loser_of_a_create_race_reopens_rather_than_refusing (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_loser_of_a_create_race_reopens_rather_than_refusing)
+Both callers get roots, because both are the same attempt.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1330, in test_the_loser_of_a_create_race_reopens_rather_than_refusing
+    self.assertEqual([kind for kind, _ in results], ["answer", "answer"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     results)
+                     ^^^^^^^^
+AssertionError: Lists differ: ['refusal', 'refusal'] != ['answer', 'answer']
+
+First differing element 0:
+'refusal'
+'answer'
+
+- ['refusal', 'refusal']
++ ['answer', 'answer'] : [('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/var/tmp/baton-w384944-input-baseline-ejpts4oc/v12-w33935-t… is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"), ('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/var/tmp/baton-w384944-input-baseline-ejpts4oc/v12-w33935-t… is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")]
+
+----------------------------------------------------------------------
+Ran 32 tests in 0.320s
+
+FAILED (failures=4, errors=3)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

@@ -1,0 +1,7 @@
+{
+  "v12/python/tests/manager/test_lifecycle_composition.py": "29343d6fdb20fe61eea0a6fa7fae9498a8044729aaff94845ad7191c9137ea35",
+  "v12/worker/Dockerfile": "0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f",
+  "v12/worker/baton_worker.py": "9596a1292da3f55fba118e4aecff5af3e5ddf545c7d47c0167e9455abf0cdd4e",
+  "v12/worker/scripted_agent.py": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+  "v12/worker/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+}

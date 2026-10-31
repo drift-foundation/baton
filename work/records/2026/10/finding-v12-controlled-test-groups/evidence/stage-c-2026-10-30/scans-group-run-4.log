@@ -1,0 +1,159 @@
+[collect] start 1/5 tests.manager.test_boundary_inventory
+[collect] start 2/5 tests.manager.test_contracts_inventory
+[collect] start 3/5 tests.manager.test_dependencies
+[collect] start 4/5 tests.manager.test_text_sweep
+[collect] start 5/5 tests.manager.test_source_boundary
+[collect] done  1/5 tests.manager.test_contracts_inventory rc=0 in 0.17s
+[collect] done  2/5 tests.manager.test_dependencies rc=0 in 0.17s
+[collect] done  3/5 tests.manager.test_text_sweep rc=0 in 0.17s
+[collect] done  4/5 tests.manager.test_boundary_inventory rc=0 in 0.19s
+[collect] done  5/5 tests.manager.test_source_boundary rc=0 in 0.19s
+[parallel] start 1/75 tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual
+[parallel] start 2/75 tests.manager.test_boundary_inventory.AnAdoptedRowIsAWholeRow
+[parallel] start 3/75 tests.manager.test_boundary_inventory.AnIdentityIsMoreThanAShape
+[parallel] start 4/75 tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays
+[parallel] start 5/75 tests.manager.test_boundary_inventory.ClosedShapesAreClosedBothWays
+[parallel] start 6/75 tests.manager.test_boundary_inventory.ConsumptionEntriesReachTheirOwners
+[parallel] start 7/75 tests.manager.test_boundary_inventory.DeadlineBoundaryOwnership
+[parallel] start 8/75 tests.manager.test_boundary_inventory.DeadlineForwardingInventory
+[parallel] start 9/75 tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements
+[parallel] start 10/75 tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses
+[parallel] start 11/75 tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible
+[parallel] start 12/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails
+[parallel] start 13/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first
+[parallel] start 14/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_cleanup_of_refuses_a_spoiled_operation_under_its_own_label_first
+[parallel] start 15/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary
+[parallel] start 16/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe
+[parallel] start 17/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_shadowed_pair_is_real_and_its_shadow_refuses_first
+[parallel] start 18/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry
+[parallel] start 19/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary
+[parallel] start 20/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_custody_journal_probes_reach_their_named_boundaries
+[parallel] start 21/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_line_launch_proof_has_an_exact_live_capability_probe
+[parallel] start 22/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner
+[parallel] start 23/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_context_delivery_attempt_is_compared_before_it_is_typed
+[parallel] start 24/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_meta_group_record_owner_cannot_be_driven
+[parallel] start 25/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail
+[parallel] start 26/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_pin_members_are_refused_by_the_pin_owner_first
+[parallel] start 27/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_a_required_member_of_a_constructed_operand_is_owned_once_at_the_site
+[parallel] start 28/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared
+[parallel] start 29/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds
+[parallel] start 30/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator
+[parallel] start 31/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical
+[parallel] start 32/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale
+[parallel] done  1/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_context_delivery_attempt_is_compared_before_it_is_typed rc=0 in 0.37s
+[parallel] start 33/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale
+[parallel] done  2/75 tests.manager.test_boundary_inventory.AnAdoptedRowIsAWholeRow rc=0 in 0.44s
+[parallel] done  3/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails rc=0 in 0.44s
+[parallel] done  4/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_meta_group_record_owner_cannot_be_driven rc=0 in 0.44s
+[parallel] start 34/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice
+[parallel] start 35/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_re_validating_a_constructed_operand_is_still_owned_twice
+[parallel] start 36/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail
+[parallel] done  5/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first rc=0 in 0.46s
+[parallel] start 37/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators
+[parallel] done  6/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner rc=0 in 0.56s
+[parallel] done  7/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_pin_members_are_refused_by_the_pin_owner_first rc=0 in 0.56s
+[parallel] start 38/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+[parallel] start 39/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_the_engine_answer_and_every_consumed_member
+[parallel] done  8/75 tests.manager.test_boundary_inventory.ClosedShapesAreClosedBothWays rc=0 in 0.60s
+[parallel] start 40/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too
+[parallel] done  9/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_cleanup_of_refuses_a_spoiled_operation_under_its_own_label_first rc=0 in 0.66s
+[parallel] start 41/75 tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness
+[parallel] done  10/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_re_validating_a_constructed_operand_is_still_owned_twice rc=0 in 0.35s
+[parallel] start 42/75 tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting
+[parallel] done  11/75 tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness rc=0 in 1.04s
+[parallel] start 43/75 tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage
+[parallel] done  12/75 tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting rc=0 in 1.08s
+[parallel] start 44/75 tests.manager.test_boundary_inventory.OptionalCapabilityAliasesKeepTheirCrossing
+[parallel] done  13/75 tests.manager.test_boundary_inventory.OptionalCapabilityAliasesKeepTheirCrossing rc=0 in 0.36s
+[parallel] start 45/75 tests.manager.test_boundary_inventory.ProviderLabelsStayWithTheirSubdocuments
+[parallel] done  14/75 tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements rc=0 in 4.51s
+[parallel] start 46/75 tests.manager.test_boundary_inventory.ReviewReaderIdentitiesReachTheirOwners
+[parallel] done  15/75 tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual rc=0 in 8.26s
+[parallel] start 47/75 tests.manager.test_boundary_inventory.StageCProtections
+[parallel] done  16/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale rc=0 in 10.04s
+[parallel] start 48/75 tests.manager.test_boundary_inventory.StatedRules
+[parallel] done  17/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_custody_journal_probes_reach_their_named_boundaries rc=0 in 10.06s
+[parallel] start 49/75 tests.manager.test_boundary_inventory.StoppedSettlementInventory
+[parallel] done  18/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail rc=0 in 9.69s
+[parallel] start 50/75 tests.manager.test_boundary_inventory.TheAttachmentKeyProbeReachesAdoption
+[parallel] done  19/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary rc=0 in 10.19s
+[parallel] start 51/75 tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption
+[parallel] done  20/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical rc=0 in 10.83s
+[parallel] start 52/75 tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable
+[parallel] done  21/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators rc=0 in 10.63s
+[parallel] start 53/75 tests.manager.test_boundary_inventory.TheInstantRuleIsThreeProperties
+[parallel] done  22/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_the_engine_answer_and_every_consumed_member rc=0 in 10.74s
+[parallel] start 54/75 tests.manager.test_boundary_inventory.TheProbeDriverIsBounded
+[parallel] done  23/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read rc=0 in 10.75s
+[parallel] start 55/75 tests.manager.test_boundary_inventory.TheProjectionContractMatchesTheAuthorityItReads
+[parallel] done  24/75 tests.manager.test_boundary_inventory.TheInstantRuleIsThreeProperties rc=0 in 0.36s
+[parallel] start 56/75 tests.manager.test_boundary_inventory.TheWorkerEntryTransportIsFullyInventoried
+[parallel] done  25/75 tests.manager.test_boundary_inventory.TheProjectionContractMatchesTheAuthorityItReads rc=0 in 0.35s
+[parallel] start 57/75 tests.manager.test_boundary_inventory.TheWriterKeyProbeReachesAdoption
+[parallel] done  26/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too rc=0 in 11.11s
+[parallel] start 58/75 tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion
+[parallel] done  27/75 tests.manager.test_boundary_inventory.TheProbeDriverIsBounded rc=0 in 0.65s
+[parallel] start 59/75 tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe
+[parallel] done  28/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale rc=0 in 12.17s
+[parallel] done  29/75 tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion rc=0 in 0.83s
+[parallel] start 60/75 tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally
+[parallel] start 61/75 tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared
+[parallel] done  30/75 tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe rc=0 in 0.90s
+[parallel] start 62/75 tests.manager.test_dependencies.AnExportedLabelIsCallerInput
+[parallel] done  31/75 tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally rc=0 in 0.39s
+[parallel] start 63/75 tests.manager.test_dependencies.NoPublicOperationTakesInternalState
+[parallel] done  32/75 tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared rc=0 in 0.41s
+[parallel] start 64/75 tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn
+[parallel] done  33/75 tests.manager.test_boundary_inventory.ProviderLabelsStayWithTheirSubdocuments rc=0 in 10.73s
+[parallel] start 65/75 tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure
+[parallel] done  34/75 tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn rc=0 in 0.30s
+[parallel] start 66/75 tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency
+[parallel] done  35/75 tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure rc=0 in 0.29s
+[parallel] start 67/75 tests.manager.test_source_boundary.ARestartAdoptsTheExactManagerOwnedWorkspace
+[parallel] done  36/75 tests.manager.test_source_boundary.ARestartAdoptsTheExactManagerOwnedWorkspace rc=0 in 0.47s
+[parallel] start 68/75 tests.manager.test_source_boundary.CleanupNeverRemovesMaterialThisManagerDidNotCreate
+[parallel] done  37/75 tests.manager.test_dependencies.AnExportedLabelIsCallerInput rc=0 in 0.88s
+[parallel] start 69/75 tests.manager.test_source_boundary.ForeignSymlinkedOrReplacedPathsRefuseBeforeTheStart
+[parallel] done  38/75 tests.manager.test_dependencies.NoPublicOperationTakesInternalState rc=0 in 0.94s
+[parallel] start 70/75 tests.manager.test_source_boundary.NothingReadsTheNominatedSource
+[parallel] done  39/75 tests.manager.test_source_boundary.CleanupNeverRemovesMaterialThisManagerDidNotCreate rc=0 in 0.44s
+[parallel] start 71/75 tests.manager.test_source_boundary.TheManagerTakesNoViewOfVersionControl
+[parallel] done  40/75 tests.manager.test_source_boundary.NothingReadsTheNominatedSource rc=0 in 0.37s
+[parallel] start 72/75 tests.manager.test_source_boundary.TheProfilesAreOwnedOutsideTheManager
+[parallel] done  41/75 tests.manager.test_source_boundary.ForeignSymlinkedOrReplacedPathsRefuseBeforeTheStart rc=0 in 0.57s
+[parallel] start 73/75 tests.manager.test_source_boundary.TheRuntimeReceivesOneMountedSourceAndOneWritableWorkspace
+[parallel] done  42/75 tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency rc=0 in 1.08s
+[parallel] start 74/75 tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded
+[parallel] done  43/75 tests.manager.test_boundary_inventory.DeadlineForwardingInventory rc=0 in 14.70s
+[parallel] start 75/75 tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText
+[parallel] done  44/75 tests.manager.test_source_boundary.TheManagerTakesNoViewOfVersionControl rc=0 in 1.22s
+[parallel] done  45/75 tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText rc=0 in 0.87s
+[parallel] done  46/75 tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded rc=0 in 1.44s
+[parallel] done  47/75 tests.manager.test_source_boundary.TheRuntimeReceivesOneMountedSourceAndOneWritableWorkspace rc=0 in 1.69s
+[parallel] done  48/75 tests.manager.test_source_boundary.TheProfilesAreOwnedOutsideTheManager rc=0 in 2.18s
+[parallel] done  49/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared rc=0 in 16.68s
+[parallel] done  50/75 tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible rc=0 in 16.88s
+[parallel] done  51/75 tests.manager.test_boundary_inventory.AnIdentityIsMoreThanAShape rc=0 in 17.13s
+[parallel] done  52/75 tests.manager.test_boundary_inventory.DeadlineBoundaryOwnership rc=0 in 17.17s
+[parallel] done  53/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_shadowed_pair_is_real_and_its_shadow_refuses_first rc=0 in 17.20s
+[parallel] done  54/75 tests.manager.test_boundary_inventory.ConsumptionEntriesReachTheirOwners rc=0 in 17.49s
+[parallel] done  55/75 tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays rc=0 in 17.50s
+[parallel] done  56/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry rc=0 in 17.57s
+[parallel] done  57/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds rc=0 in 17.56s
+[parallel] done  58/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_a_required_member_of_a_constructed_operand_is_owned_once_at_the_site rc=0 in 17.85s
+[parallel] done  59/75 tests.manager.test_boundary_inventory.TheAttachmentKeyProbeReachesAdoption rc=0 in 8.36s
+[parallel] done  60/75 tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption rc=0 in 8.40s
+[parallel] done  61/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_line_launch_proof_has_an_exact_live_capability_probe rc=0 in 18.98s
+[parallel] done  62/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator rc=0 in 19.10s
+[parallel] done  63/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe rc=0 in 19.35s
+[parallel] done  64/75 tests.manager.test_boundary_inventory.ReviewReaderIdentitiesReachTheirOwners rc=0 in 14.96s
+[parallel] done  65/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail rc=0 in 19.57s
+[parallel] done  66/75 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice rc=0 in 19.44s
+[parallel] done  67/75 tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses rc=0 in 19.99s
+[parallel] done  68/75 tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage rc=0 in 18.42s
+[parallel] done  69/75 tests.manager.test_boundary_inventory.StatedRules rc=0 in 10.36s
+[parallel] done  70/75 tests.manager.test_boundary_inventory.TheWorkerEntryTransportIsFullyInventoried rc=0 in 10.19s
+[parallel] done  71/75 tests.manager.test_boundary_inventory.TheWriterKeyProbeReachesAdoption rc=0 in 10.35s
+[parallel] done  72/75 tests.manager.test_boundary_inventory.StoppedSettlementInventory rc=0 in 14.65s
+[parallel] done  73/75 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary rc=0 in 41.93s
+[parallel] done  74/75 tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable rc=0 in 35.04s

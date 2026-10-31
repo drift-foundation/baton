@@ -1,0 +1,41 @@
+diff --git a/v12/python/tests/manager/test_workspaces.py b/v12/python/tests/manager/test_workspaces.py
+index 977b16f8..86c860a7 100644
+--- a/v12/python/tests/manager/test_workspaces.py
++++ b/v12/python/tests/manager/test_workspaces.py
+@@ -992,6 +992,36 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
+         self.assertFalse(os.path.exists(mine["workspace"]),
+                          "the worker's own tree survived the removal")
+ 
++    def test_a_home_whose_every_directory_is_frozen_is_removed_deepest_first(self):
++        """M384981 (W384944 review 2026-10-31T02:51:05Z): the parent is thawed before its child goes.
++
++        A delivery freezes the home and every directory under it (0o555), not only
++        the leaves. The removal pass unlinks a child's entry FROM ITS PARENT, so the
++        parent has to be writable when the child is removed; the first shape thawed
++        each admitted directory only on its own, later turn of the deepest-first pass
++        and failed with EACCES at the first nested `rmdir`, leaving a half-emptied,
++        still-frozen tree. The sibling's modes and content are untouched.
++        """
++        kept = self.workspace("assignment-kept")
++        going = self.workspace("assignment-going")
++        nested = os.path.join(going["inputs"], "deep", "deeper")
++        os.makedirs(nested)
++        with open(os.path.join(nested, "frozen.txt"), "w", encoding="utf-8") as writing:
++            writing.write("a delivered byte")
++        with open(os.path.join(kept["inputs"], "kept.txt"), "w", encoding="utf-8") as writing:
++            writing.write("a kept byte")
++        home = os.path.dirname(going["inputs"])
++        for place in (nested, os.path.dirname(nested), going["inputs"], going["workspace"], home,
++                      kept["inputs"]):
++            os.chmod(place, workspaces.READ_ONLY_DIR)
++        self.assertEqual(os.stat(home).st_mode & 0o777, workspaces.READ_ONLY_DIR)
++
++        self.assertTrue(discard_workspace(self.storage, "assignment-going", control=self.store))
++
++        self.assertFalse(os.path.exists(home), "the frozen home was not removed whole")
++        self.assertEqual(os.stat(kept["inputs"]).st_mode & 0o777, workspaces.READ_ONLY_DIR)
++        self.assertEqual(os.listdir(kept["inputs"]), ["kept.txt"])
++
+     def test_the_thaw_still_happens_on_a_root_this_manager_does_own(self):
+         """The other half: an owned directory is repaired, as it always was.
+ 

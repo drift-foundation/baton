@@ -132,6 +132,7 @@ def replayed_as_signed(store, operation_id, kind, *, what):
     signature's own operands are the verifiable account: a result that differs
     from them is refused rather than read.
     """
+    boundaries.identity(operation_id, "an operation identity")
     record = store.operation_record(operation_id)
     if record is None:
         return None

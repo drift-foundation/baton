@@ -1,3 +1,15 @@
+## 2026-10-31T02-58-25Z — Docker input-delivery partial correction accepted
+
+Review review-2026-10-31T02-58-25Z.md: author24 cases23 pass/1 known K cleanup error; independent code/evidence/hash/resource review completed, no new Docker rerun. Four total input-delivery cleanup cases await K product fix. Next codexpc allocation: test_worker_entry_engine.py five cases, same isolated source, one bounded offline reference-worker build, exact cleanup; no shared/K edits. Joined/full acceptance remains open.
+
+## 2026-10-31T02-51-05Z — input-delivery fixture correction accepted; cleanup product defect assigned to K
+
+Read child review-2026-10-31T02-51-05Z.md. Independent32:29 pass/3 cleanup errors; four races corrected. K retains workspaces.py and owns frozen-parent removal ordering correction. Codexpc continues the two input-delivery Docker classes on isolated source, with one explicitly selected local worker build from recorded inputs, installed pinned base only, no pulls/shared edits. Three cleanup cases and joined/full acceptance remain open.
+
+## 2026-10-31T02-46-12Z — required initial access accepted; input-delivery fixture slice next
+
+Read review-2026-10-31T02-46-12Z.md: independent 4/4 pass, zero skips, 2.266s wall, exact resources cleaned. Codexpc next owns test_input_delivery.py for focused non-engine cleanup/race fixture corrections on the unchanged isolated snapshot; preserve both accepted overlays. No inherited Docker image build authorized. Report precise engine continuation requirements. K ownership and final joined/full acceptance remain unchanged.
+
 ## 2026-10-31T02-39-14Z — C4 module accepted; required initial-access slice released
 
 Read review-2026-10-31T02-39-14Z.md: independent 83/83 pass; 1133 snapshot files stable and root clean.

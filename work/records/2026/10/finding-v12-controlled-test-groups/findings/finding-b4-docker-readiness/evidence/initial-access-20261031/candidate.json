@@ -1,0 +1,9 @@
+{
+  "path": "v12/python/tests/manager/test_private_line_access_engine.py",
+  "base_sha256": "20981569e64054222404b4765d3114c4dbb7630c02aa70e81ac7ee0ec06ae2d7",
+  "candidate_sha256": "537368420a756891689c2aa5449a77e6e28eb6efbb4331e93f7e8097a21c7d17",
+  "snapshot_commit": "a8cbc9745d1eff51bcfb04d2fe4bb96a5ea3b12d",
+  "preserved_integration_overlay": "a2ffd5dce0c41fb37c1f54f45589e992ad18bb3c9e2d9dd7df2e8a16a8c713f3",
+  "shared_mode": "0o664",
+  "claim": "E384969"
+}

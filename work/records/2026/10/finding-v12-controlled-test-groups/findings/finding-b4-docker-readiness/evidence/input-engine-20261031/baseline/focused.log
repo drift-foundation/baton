@@ -1,0 +1,365 @@
+test_a_restarted_manager_reuses_a_delivery_that_is_still_readable (tests.manager.test_input_delivery.DockerDelivery.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable)
+Restart and retry reuse. ... FAIL
+test_neither_document_is_writable_and_neither_is_the_root (tests.manager.test_input_delivery.DockerDelivery.test_neither_document_is_writable_and_neither_is_the_root)
+Readable did not become writable -- asked TWICE, of two different ... FAIL
+test_one_runtime_reaches_no_other_assignments_input_root (tests.manager.test_input_delivery.DockerDelivery.test_one_runtime_reaches_no_other_assignments_input_root)
+Sibling isolation. ... FAIL
+test_the_launch_document_and_the_input_pair_agree_on_the_mode (tests.manager.test_input_delivery.DockerDelivery.test_the_launch_document_and_the_input_pair_agree_on_the_mode)
+Two manager-owned read-only deliveries, one rule. ... ok
+test_the_worker_identity_reads_both_delivered_documents (tests.manager.test_input_delivery.DockerDelivery.test_the_worker_identity_reads_both_delivered_documents)
+The defect, kept. ... FAIL
+test_a_consent_runtime_is_given_no_supplementary_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_consent_runtime_is_given_no_supplementary_group) ... ok
+test_a_restarted_manager_reuses_a_delivery_that_is_still_readable (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable)
+Restart and retry reuse. ... FAIL
+test_a_root_that_left_the_group_refuses_before_the_engine (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_root_that_left_the_group_refuses_before_the_engine)
+The pre-launch proof, driven by the thing it exists to catch. ... ok
+test_a_second_held_group_refuses_despite_being_usable (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_second_held_group_refuses_despite_being_usable)
+THE REVIEW'S NAMED NEGATIVE. ... ok
+test_allocation_puts_the_workspace_in_the_configured_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_allocation_puts_the_workspace_in_the_configured_group)
+The wiring the review found missing, at the canonical boundary. ... ok
+test_an_allocation_takes_only_the_deployments_own_answer (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_allocation_takes_only_the_deployments_own_answer)
+Review [P1], and this is the case it asked for. ... ok
+test_an_owner_only_output_fails_closed_rather_than_widening (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_owner_only_output_fails_closed_rather_than_widening)
+The ruling's negative half. ... FAIL
+test_an_unconfigured_execution_refuses_before_the_engine (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_unconfigured_execution_refuses_before_the_engine)
+Review [P0], and my last cut had this exactly backwards. ... ok
+test_manager_cleanup_of_worker_content_is_measured_not_assumed (tests.manager.test_input_delivery.DockerConfiguredGroup.test_manager_cleanup_of_worker_content_is_measured_not_assumed)
+The cleanup half of the acceptance, and it does NOT come out clean. ... FAIL
+test_neither_document_is_writable_and_neither_is_the_root (tests.manager.test_input_delivery.DockerConfiguredGroup.test_neither_document_is_writable_and_neither_is_the_root)
+Readable did not become writable -- asked TWICE, of two different ... FAIL
+test_one_assignment_workspace_reaches_no_other (tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_assignment_workspace_reaches_no_other)
+Sibling isolation, with both roots in the SAME configured group. ... FAIL
+test_one_runtime_reaches_no_other_assignments_input_root (tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_runtime_reaches_no_other_assignments_input_root)
+Sibling isolation. ... FAIL
+test_the_applied_group_is_asked_of_the_engine_and_the_process (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_applied_group_is_asked_of_the_engine_and_the_process)
+`--group-add` composed is one fact; applied is the one that counts. ... FAIL
+test_the_grant_reaches_no_surface_but_the_workspace (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_grant_reaches_no_surface_but_the_workspace)
+Correction boundary: the group grants write HERE and nowhere else. ... FAIL
+test_the_group_is_validated_and_never_inferred (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_group_is_validated_and_never_inferred) ... ok
+test_the_launch_document_and_the_input_pair_agree_on_the_mode (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_launch_document_and_the_input_pair_agree_on_the_mode)
+Two manager-owned read-only deliveries, one rule. ... ok
+test_the_worker_creates_updates_and_removes_in_its_workspace (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_creates_updates_and_removes_in_its_workspace)
+THE ACCEPTANCE, positive, in the exact composed container. ... FAIL
+test_the_worker_identity_reads_both_delivered_documents (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_identity_reads_both_delivered_documents)
+The defect, kept. ... FAIL
+test_what_the_worker_creates_inherits_the_workspace_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_what_the_worker_creates_inherits_the_workspace_group)
+The ruling's own required proof, and the reason for the setgid bit. ... FAIL
+
+======================================================================
+FAIL: test_a_restarted_manager_reuses_a_delivery_that_is_still_readable (tests.manager.test_input_delivery.DockerDelivery.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable)
+Restart and retry reuse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 368, in test_a_restarted_manager_reuses_a_delivery_that_is_still_readable
+    first = self.inside([f"/input/{name}" for name in INPUT_NAMES])
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:a61ad5f4a75cf6ceadbf6d126d351ffd81a50e962c1f706c2fa60c272cb51712","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-f868435107","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+======================================================================
+FAIL: test_neither_document_is_writable_and_neither_is_the_root (tests.manager.test_input_delivery.DockerDelivery.test_neither_document_is_writable_and_neither_is_the_root)
+Readable did not become writable -- asked TWICE, of two different
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 346, in test_neither_document_is_writable_and_neither_is_the_root
+    answered = self.inside(targets)
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/input': {'mode': '0o555', 'uid': 1000, 'read': None, 'read_error': 'IsADirectoryError: 21', 'wrote': False, 'write_error': 'IsADirectoryError: 21'}, '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:eb301b1b5da4a06413f9618655822707a5033ff43aff239fc445fca7bd693139","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-c49ae10782","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+======================================================================
+FAIL: test_one_runtime_reaches_no_other_assignments_input_root (tests.manager.test_input_delivery.DockerDelivery.test_one_runtime_reaches_no_other_assignments_input_root)
+Sibling isolation.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 413, in test_one_runtime_reaches_no_other_assignments_input_root
+    answered = self.inside(neighbour)
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/var/tmp/baton-w384944-input-engine-hzwudvfj/v12-w6636-95e_6awk/storage/attempt-0b396d1204-stranger/inputs/input.json': {'stat': 'FileNotFoundError'}, '/var/tmp/baton-w384944-input-engine-hzwudvfj/v12-w6636-95e_6awk/storage/attempt-0b396d1204-stranger/inputs/assignment.json': {'stat': 'FileNotFoundError'}}
+
+======================================================================
+FAIL: test_the_worker_identity_reads_both_delivered_documents (tests.manager.test_input_delivery.DockerDelivery.test_the_worker_identity_reads_both_delivered_documents)
+The defect, kept.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 294, in test_the_worker_identity_reads_both_delivered_documents
+    answered = self.inside(targets)
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:82bb8c2129033b23a8bd22b1a27bbce2999d5ab590e248ac114027eddd586cdf","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-e4e3131173","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+======================================================================
+FAIL: test_a_restarted_manager_reuses_a_delivery_that_is_still_readable (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable)
+Restart and retry reuse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 368, in test_a_restarted_manager_reuses_a_delivery_that_is_still_readable
+    first = self.inside([f"/input/{name}" for name in INPUT_NAMES])
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:074bdb9762c13fb818581c61a02f1036aa030427f63e91c9a13c1411cf7c1763","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-357256aa00","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+======================================================================
+FAIL: test_an_owner_only_output_fails_closed_rather_than_widening (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_owner_only_output_fails_closed_rather_than_widening)
+The ruling's negative half.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1535, in test_an_owner_only_output_fails_closed_rather_than_widening
+    self.inside(["/workspace"], program=workspace_program("/workspace"))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], 'groups': [1001, 1001], 'root': {'mode': '0o2770', 'gid': 1001}, 'created': True, 'updated': True, 'made': {'gid': 1001, 'uid': 1000, 'mode': '0o644'}, 'inner': {'gid': 1001, 'mode': '0o2755', 'setgid': True}, 'removed': True}
+
+======================================================================
+FAIL: test_manager_cleanup_of_worker_content_is_measured_not_assumed (tests.manager.test_input_delivery.DockerConfiguredGroup.test_manager_cleanup_of_worker_content_is_measured_not_assumed)
+The cleanup half of the acceptance, and it does NOT come out clean.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1676, in test_manager_cleanup_of_worker_content_is_measured_not_assumed
+    self.inside(["/workspace"], program=workspace_program("/workspace"))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], 'groups': [1001, 1001], 'root': {'mode': '0o2770', 'gid': 1001}, 'created': True, 'updated': True, 'made': {'gid': 1001, 'uid': 1000, 'mode': '0o644'}, 'inner': {'gid': 1001, 'mode': '0o2755', 'setgid': True}, 'removed': True}
+
+======================================================================
+FAIL: test_neither_document_is_writable_and_neither_is_the_root (tests.manager.test_input_delivery.DockerConfiguredGroup.test_neither_document_is_writable_and_neither_is_the_root)
+Readable did not become writable -- asked TWICE, of two different
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 346, in test_neither_document_is_writable_and_neither_is_the_root
+    answered = self.inside(targets)
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/input': {'mode': '0o555', 'uid': 1000, 'read': None, 'read_error': 'IsADirectoryError: 21', 'wrote': False, 'write_error': 'IsADirectoryError: 21'}, '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:6ea3189019af3dad0175e8cb98123fe618eb95cb4c611a277d9c341b2726d531","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-b9afb67d01","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+======================================================================
+FAIL: test_one_assignment_workspace_reaches_no_other (tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_assignment_workspace_reaches_no_other)
+Sibling isolation, with both roots in the SAME configured group.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1719, in test_one_assignment_workspace_reaches_no_other
+    answered = self.inside([stranger])
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/var/tmp/baton-w384944-input-engine-hzwudvfj/v12-w6636-30sg3nin/storage/another-assignment/workspace': {'stat': 'FileNotFoundError'}}
+
+======================================================================
+FAIL: test_one_runtime_reaches_no_other_assignments_input_root (tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_runtime_reaches_no_other_assignments_input_root)
+Sibling isolation.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 413, in test_one_runtime_reaches_no_other_assignments_input_root
+    answered = self.inside(neighbour)
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/var/tmp/baton-w384944-input-engine-hzwudvfj/v12-w6636-gtbdneut/storage/attempt-fa77c6797e-stranger/inputs/input.json': {'stat': 'FileNotFoundError'}, '/var/tmp/baton-w384944-input-engine-hzwudvfj/v12-w6636-gtbdneut/storage/attempt-fa77c6797e-stranger/inputs/assignment.json': {'stat': 'FileNotFoundError'}}
+
+======================================================================
+FAIL: test_the_applied_group_is_asked_of_the_engine_and_the_process (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_applied_group_is_asked_of_the_engine_and_the_process)
+`--group-add` composed is one fact; applied is the one that counts.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1558, in test_the_applied_group_is_asked_of_the_engine_and_the_process
+    self.assertEqual(argv[argv.index("--user") + 1], "65532:65532")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '1000:1001' != '65532:65532'
+- 1000:1001
++ 65532:65532
+
+
+======================================================================
+FAIL: test_the_grant_reaches_no_surface_but_the_workspace (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_grant_reaches_no_surface_but_the_workspace)
+Correction boundary: the group grants write HERE and nowhere else.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1575, in test_the_grant_reaches_no_surface_but_the_workspace
+    answered = self.inside(["/input", "/input/input-manifest.json",
+                            "/run/baton/launch.json"])
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/input': {'mode': '0o555', 'uid': 1000, 'read': None, 'read_error': 'IsADirectoryError: 21', 'wrote': False, 'write_error': 'IsADirectoryError: 21'}, '/input/input-manifest.json': {'stat': 'FileNotFoundError'}, '/run/baton/launch.json': {'mode': '0o444', 'uid': 1000, 'read': '{"contract":"compose the local OCI lifecycle","role":"implementer","schema":"baton.worker-launch/1","session":"session-attempt-6954a7f6b2"}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+======================================================================
+FAIL: test_the_worker_creates_updates_and_removes_in_its_workspace (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_creates_updates_and_removes_in_its_workspace)
+THE ACCEPTANCE, positive, in the exact composed container.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1491, in test_the_worker_creates_updates_and_removes_in_its_workspace
+    answered = self.inside(["/workspace"],
+                           program=workspace_program("/workspace"))
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], 'groups': [1001, 1001], 'root': {'mode': '0o2770', 'gid': 1001}, 'created': True, 'updated': True, 'made': {'gid': 1001, 'uid': 1000, 'mode': '0o644'}, 'inner': {'gid': 1001, 'mode': '0o2755', 'setgid': True}, 'removed': True}
+
+======================================================================
+FAIL: test_the_worker_identity_reads_both_delivered_documents (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_identity_reads_both_delivered_documents)
+The defect, kept.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 294, in test_the_worker_identity_reads_both_delivered_documents
+    answered = self.inside(targets)
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:e4e4fa5f954a42f41fcac00898f9048323ec8696f08a1c28fff41e922998a569","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-15b1622c19","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+======================================================================
+FAIL: test_what_the_worker_creates_inherits_the_workspace_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_what_the_worker_creates_inherits_the_workspace_group)
+The ruling's own required proof, and the reason for the setgid bit.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1511, in test_what_the_worker_creates_inherits_the_workspace_group
+    answered = self.inside(["/workspace"],
+                           program=workspace_program("/workspace"))
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 279, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1001] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1001]
++ [65532, 65532] : {'running_as': [1000, 1001], 'groups': [1001, 1001], 'root': {'mode': '0o2770', 'gid': 1001}, 'created': True, 'updated': True, 'made': {'gid': 1001, 'uid': 1000, 'mode': '0o644'}, 'inner': {'gid': 1001, 'mode': '0o2755', 'setgid': True}, 'removed': True}
+
+----------------------------------------------------------------------
+Ran 24 tests in 5.055s
+
+FAILED (failures=15)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

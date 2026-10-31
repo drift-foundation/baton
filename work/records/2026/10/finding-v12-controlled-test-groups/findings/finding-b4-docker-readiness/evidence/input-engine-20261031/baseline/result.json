@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_input_delivery.DockerDelivery",
+    "tests.manager.test_input_delivery.DockerConfiguredGroup"
+  ],
+  "exit": 1,
+  "timed_out": false,
+  "seconds": 5.270090063997486,
+  "source_drift": [],
+  "emergency_cleanup": [],
+  "task_containers_remaining": [],
+  "old_containers_preserved": true,
+  "temporary_root": "/var/tmp/baton-w384944-input-engine-hzwudvfj",
+  "leftovers": [],
+  "root_removed": true
+}

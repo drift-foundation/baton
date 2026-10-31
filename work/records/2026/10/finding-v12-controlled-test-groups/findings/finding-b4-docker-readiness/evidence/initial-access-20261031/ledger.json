@@ -1,0 +1,21 @@
+{
+  "passed": [
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_correction_runtime_advances_the_same_line",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_reviewer_runtime_cannot_write_the_checkpoint_it_reads",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_initial_populated_line_is_writable_by_the_fixed_runtime",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_the_composed_ending_consumes_reviews_and_corrects_one_line"
+  ],
+  "failed": [],
+  "errors": [],
+  "skipped": [],
+  "containers_created_and_removed": [
+    "f09262d86ab9065f51abf28d710636b1ed1924f203b38dbbabb5568dbe5c91b3",
+    "fc51e1f3058facac1a639003b3a0c30ac3c4bba972be94d5fdc6f963337d04fd",
+    "44e0c95822421c2dbc63b54e83040fbd8b3c6fe734ace089c94efc21746f554a",
+    "2d6b2a6ea8cf06bc60e612bbbaa33201dea71281b941efc11cb4902cb6db5c7c",
+    "7b8bde9eec8fa545cd99255277ce9c96d3c5be5431053282cbb7877e2623a12d",
+    "06f4f4106b604afe9070ceeecc325c9e24c96fda6dec53addd681e3109e1a423"
+  ],
+  "prepared_interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "python_version": "3.13.7"
+}

@@ -15,9 +15,13 @@ visible only to a different uid inside a container is not reachable from a
 suite that never leaves the host, and the correction is only established by a
 case that reads them the way a worker does.
 
+The historical split-UID defect above predates HOST-5 and the September 17
+trusted shared-identity ruling. Current execution uses the manager UID and
+configured workspace GID; mount isolation remains independently required.
+
 WHAT IT PINS, and each is a different way for the delivery to be wrong:
 
-  * both documents are READ by uid 65532 inside the runtime the manager
+  * both documents are READ by the trusted shared identity in the runtime the manager
     composed, and what comes back is the manager's exact bytes;
   * neither is writable, the root is not writable, and the reason for each is
     the one that protects it -- `EROFS` from the read-only bind at the
@@ -31,6 +35,7 @@ WHAT IT PINS, and each is a different way for the delivery to be wrong:
 
 import concurrent.futures
 import json
+import re
 import os
 import tempfile
 import subprocess
@@ -52,12 +57,8 @@ from .test_lifecycle_composition import MARK, Composition
 
 INPUT_NAMES = (workspaces.INPUT_MANIFEST, workspaces.ASSIGNMENT_MANIFEST)
 
-# The identity the adapter's own `--user` restriction names, written out here
-# rather than read from the adapter: a case that asked the adapter which uid it
-# uses and then checked for that uid would agree with the adapter whatever
-# either of them did.  W6633's recipe and W6632's restriction agree on this
-# number because they were written from one decision.
-WORKER_UID = 65532
+# HOST-5: execution shares the manager UID and configured workspace GID.
+# The image default and consent identity remain separate contracts.
 
 
 def probe_program(paths):
@@ -89,6 +90,11 @@ def probe_program(paths):
         "        answer['wrote'] = False\n"
         "        answer['write_error'] = f'{type(error).__name__}:"
         " {error.errno}'\n"
+        "    try:\n"
+        "        os.chmod(one, (held.st_mode & 0o777) | 0o200)\n"
+        "        answer['chmod_denied'] = None\n"
+        "    except OSError as error:\n"
+        "        answer['chmod_denied'] = error.errno\n"
         "    out[one] = answer\n"
         "print(json.dumps(out))\n")
 
@@ -183,6 +189,28 @@ class Delivery(composition.Lifecycle):
     changes, and it is short enough to read.
     """
 
+    @classmethod
+    def setUpClass(cls):
+        selected = os.environ.get("BATON_V12_INPUT_DELIVERY_IMAGE")
+        if not selected:
+            return super().setUpClass()
+        # An explicitly selected installed artifact is shared by both classes;
+        # the selecting run owns its tag and cleanup, not either test class.
+        if not re.fullmatch(r"sha256:[0-9a-f]{64}", selected):
+            raise AssertionError("input-delivery image must be an immutable local ID")
+        usable, why = composition.reachable(cls.engine)
+        if not usable:
+            raise AssertionError(why)
+        cls.server = why
+        found = subprocess.run([cls.engine, "image", "inspect", selected],
+                               capture_output=True, text=True, timeout=30)
+        if found.returncode:
+            raise AssertionError(found.stderr)
+        image = json.loads(found.stdout)[0]
+        if image["Id"] != selected or image["Config"].get("Volumes"):
+            raise AssertionError("selected image identity or writable volumes differ")
+        cls.image = cls.image_digest = selected
+
     roots = Composition.roots
     adapter = Composition.adapter
     plan = Composition.plan
@@ -253,7 +281,7 @@ class Delivery(composition.Lifecycle):
         # THE PROBE IS THE WORKER'S IDENTITY OR IT MEASURES NOTHING.  A probe
         # that had somehow run as root would read a 0400 file happily and this
         # whole module would pass over the defect it exists to keep out.
-        self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+        self.assertEqual(answered["running_as"], [os.geteuid(), self.group.gid],
                          answered)
         return answered
 
@@ -263,7 +291,7 @@ class Delivery(composition.Lifecycle):
         """The defect, kept.
 
         Not "the mode is 0444" -- that is the manager agreeing with itself
-        about a number.  This opens both files as uid 65532 inside the runtime
+        about a number. This opens both files as the shared execution identity
         and compares what comes back against the bytes the manager wrote.
         """
         _adapter, roots, _inputs = self.started()
@@ -304,14 +332,15 @@ class Delivery(composition.Lifecycle):
         the guard that actually protects this material and the only one a
         mutation can move: the mutation harness dropped the read-only flag from
         the production run vector and the in-container write STILL failed,
-        because the documents are owned by the manager's uid and the container
-        is 65532 -- so ownership refuses the write before the bind is reached,
+        because the documents have no write bits -- permissions can refuse the
+        write before the bind is reached,
         and a case that asked only the container would have reported the bind
         established while it was gone.
 
         AND THE CONTAINER IS ASKED anyway, because the engine agreeing to a
         flag and a process actually being denied are two facts and only the
-        second one protects anything.
+        second one protects anything. The shared owner also attempts chmod;
+        EROFS proves the mount prevents restoring write permission.
         """
         self.started()
         held = self.inspected(self.attempt_row()["runtime_id"])
@@ -325,6 +354,7 @@ class Delivery(composition.Lifecycle):
             with self.subTest(target=target):
                 self.assertFalse(answered[target]["wrote"], answered[target])
                 self.assertIn("Error", answered[target]["write_error"])
+                self.assertEqual(answered[target]["chmod_denied"], 30, answered[target])
 
     def test_a_restarted_manager_reuses_a_delivery_that_is_still_readable(
             self):
@@ -518,6 +548,7 @@ class TheInputRootIsFrozenAndNotOnlyItsFiles(Configured):
         self.addCleanup(self._root.cleanup)
         self.storage = os.path.join(self._root.name, "storage")
         os.makedirs(self.storage)
+        workspaces.configure_workspace_storage(self.store, self.storage)
 
     def composed(self, assignment="assignment-1", umask=None):
         roots = workspaces.assignment_workspace(self.group, self.storage, assignment)
@@ -781,6 +812,7 @@ class TheRootsOwnENTRYIsFrozenToo(Configured):
         self.addCleanup(self._root.cleanup)
         self.storage = os.path.join(self._root.name, "storage")
         os.makedirs(self.storage)
+        workspaces.configure_workspace_storage(self.store, self.storage)
 
     def composed(self, assignment="assignment-1"):
         roots = workspaces.assignment_workspace(self.group, self.storage, assignment)
@@ -963,6 +995,7 @@ class TheRuledTrustModel(unittest.TestCase):
             clock=lambda: "2026-08-24T00:00:00.000Z")
         self.addCleanup(self.store.close)
         self.group = composition.input_roots.configured_group(self.store)
+        workspaces.configure_workspace_storage(self.store, self.storage)
 
     def documents(self, attempt):
         return composition.input_roots.documents(
@@ -1036,29 +1069,8 @@ class TheRuledTrustModel(unittest.TestCase):
     def test_first_allocation_race_answers_or_refuses_in_contract(self):
         """An exclusive mkdir collision is a refusal, not a raw OS fault."""
         attempt = "attempt-allocation-race"
-        home = os.path.join(self.storage, attempt)
-        rendezvous = threading.Barrier(2)
-        real_lexists = os.path.lexists
-
-        def simultaneous_absence(place):
-            found = real_lexists(place)
-            if place == home:
-                rendezvous.wait(timeout=2)
-            return found
-
-        def allocate():
-            try:
-                return "answer", workspaces.assignment_workspace(
-                    self.group, self.storage, attempt)
-            except ContractRefusal as refusal:
-                return "refusal", refusal
-            except Exception as error:
-                return "leak", error
-
-        with mock.patch.object(workspaces.os.path, "lexists",
-                               side_effect=simultaneous_absence):
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-                results = list(pool.map(lambda _: allocate(), range(2)))
+        # Synchronize the actual create seam, not the obsolete lexists check.
+        results = self._race_on(os.path.join(self.storage, attempt), attempt)
         self.addCleanup(self._thaw_and_remove, attempt)
         self.assertNotIn("leak", [kind for kind, _ in results], results)
         answers = [value for kind, value in results if kind == "answer"]
@@ -1269,16 +1281,28 @@ class TheRuledTrustModel(unittest.TestCase):
         """
         real_mkdir = os.mkdir
         rendezvous = threading.Barrier(2)
+        arrivals = []
 
         def simultaneous_create(place, *rest, **named):
             if place == target:
+                arrivals.append(place)
                 rendezvous.wait(timeout=5)
             return real_mkdir(place, *rest, **named)
 
         def allocate(_):
             try:
-                return "answer", workspaces.assignment_workspace(
-                    self.group, self.storage, attempt)
+                # Each caller owns a usable journal connection on its thread.
+                from baton_v12.worker_manager import ControlStore
+                control = ControlStore.open(
+                    os.path.join(self._root.name, "control.sqlite3"),
+                    incarnation="trust-1",
+                    clock=lambda: "2026-08-24T00:00:00.000Z")
+                try:
+                    group = workspaces.configured_workspace_group(control)
+                    return "answer", workspaces.assignment_workspace(
+                        group, self.storage, attempt, control=control)
+                finally:
+                    control.close()
             except ContractRefusal as refusal:
                 return "refusal", str(refusal)
             except Exception as error:                     # noqa: BLE001
@@ -1287,7 +1311,9 @@ class TheRuledTrustModel(unittest.TestCase):
         with mock.patch.object(workspaces.os, "mkdir",
                                side_effect=simultaneous_create):
             with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-                return list(pool.map(allocate, range(2)))
+                results = list(pool.map(allocate, range(2)))
+        self.assertEqual(arrivals, [target, target], "both callers must reach the create seam")
+        return results
 
     def test_the_home_create_race_answers_or_refuses_in_contract(self):
         attempt = "attempt-home-race"
@@ -1471,7 +1497,7 @@ class TheConfiguredWorkspaceGroup(Delivery):
                               attempt_id=self.attempt, inputs=inputs)
         answered = self.inside(["/workspace"],
                                program=workspace_program("/workspace"))
-        self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID])
+        self.assertEqual(answered["running_as"], [os.geteuid(), self.group.gid])
         self.assertIn(self.PROOF_GROUP.gid, answered["groups"])
         self.assertEqual(answered["root"]["mode"], "0o2770")
         self.assertTrue(answered["created"], answered)
@@ -1493,7 +1519,7 @@ class TheConfiguredWorkspaceGroup(Delivery):
                                program=workspace_program("/workspace"))
         self.assertEqual(answered["made"]["gid"], self.PROOF_GROUP.gid,
                          answered)
-        self.assertNotEqual(answered["made"]["uid"], os.getuid())
+        self.assertEqual(answered["made"]["uid"], os.geteuid())
         self.assertEqual(answered["inner"]["gid"], self.PROOF_GROUP.gid,
                          answered)
         self.assertTrue(answered["inner"]["setgid"], answered)
@@ -1502,33 +1528,34 @@ class TheConfiguredWorkspaceGroup(Delivery):
         with open(collected, "rb") as handle:
             self.assertEqual(handle.read(), b"collect me")
 
-    def test_an_owner_only_output_fails_closed_rather_than_widening(self):
-        """The ruling's negative half.
-
-        A worker file at 0600 is the worker's alone: the manager shares the
-        group and the group has no bits. The right answer is that the manager
-        cannot read it and does not chmod it -- widening permission to collect
-        an output would make the grant unbounded whenever a worker asked.
-        """
+    def test_an_owner_only_output_is_read_without_widening(self):
+        """HOST-5: shared ownership makes 0600 output readable without chmod."""
         roots, inputs = self.allocated()
         request_runtime_start(self.store, self.executing(roots),
                               attempt_id=self.attempt, inputs=inputs)
         self.inside(["/workspace"], program=workspace_program("/workspace"))
         shut = os.path.join(roots["workspace"], "owner-only.txt")
-        before = os.lstat(shut).st_mode & 0o7777
-        self.assertEqual(before, 0o600)
-        with self.assertRaises(PermissionError):
-            open(shut, "rb").close()
-        # NOTHING WIDENED IT.  The mode after the failed read is the mode the
-        # worker set, which is what "fails closed" has to mean if it means
-        # anything.
-        self.assertEqual(os.lstat(shut).st_mode & 0o7777, before)
+        before = os.lstat(shut)
+        self.assertEqual(before.st_mode & 0o7777, 0o600)
+        self.assertEqual(before.st_uid, os.geteuid())
+        with open(shut, "rb") as handle:
+            self.assertEqual(handle.read(), b"mine alone")
+        self.assertEqual(os.lstat(shut).st_mode, before.st_mode)
+        # A genuinely inaccessible output still refuses; shared UID is not root.
+        os.chmod(shut, 0)
+        try:
+            with self.assertRaises(PermissionError):
+                with open(shut, "rb"):
+                    pass
+            self.assertEqual(os.lstat(shut).st_mode & 0o7777, 0)
+        finally:
+            os.chmod(shut, 0o600)
 
     def test_the_applied_group_is_asked_of_the_engine_and_the_process(self):
         """`--group-add` composed is one fact; applied is the one that counts.
 
-        And the pinned identity is untouched, which is the whole difference
-        from the rejected `--user 65532:<gid>` design.
+        The engine must apply the trusted shared execution UID/GID, while
+        the configured supplementary group remains explicitly composed.
         """
         roots, inputs = self.allocated()
         request_runtime_start(self.store, self.executing(roots),
@@ -1536,13 +1563,13 @@ class TheConfiguredWorkspaceGroup(Delivery):
         argv = next(one for one in reversed(self.engine_calls) if "run" in one)
         self.assertEqual(argv[argv.index("--group-add") + 1],
                          str(self.PROOF_GROUP.gid))
-        self.assertEqual(argv[argv.index("--user") + 1], "65532:65532")
+        self.assertEqual(argv[argv.index("--user") + 1], f"{os.geteuid()}:{self.group.gid}")
         held = self.inspected(self.attempt_row()["runtime_id"])
         self.assertIn(str(self.PROOF_GROUP.gid),
                       [str(one) for one in
                        (held["HostConfig"].get("GroupAdd") or [])],
                       held["HostConfig"].get("GroupAdd"))
-        self.assertEqual(held["Config"]["User"], "65532:65532")
+        self.assertEqual(held["Config"]["User"], f"{os.geteuid()}:{self.group.gid}")
 
     def test_the_grant_reaches_no_surface_but_the_workspace(self):
         """Correction boundary: the group grants write HERE and nowhere else.
@@ -1555,7 +1582,7 @@ class TheConfiguredWorkspaceGroup(Delivery):
                               attempt_id=self.attempt, inputs=inputs)
         answered = self.inside(["/input", "/input/input-manifest.json",
                                 "/run/baton/launch.json"])
-        self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID])
+        self.assertEqual(answered["running_as"], [os.geteuid(), self.group.gid])
         for place in ("/input", "/input/input-manifest.json",
                       "/run/baton/launch.json"):
             with self.subTest(place=place):
@@ -1626,30 +1653,11 @@ class TheConfiguredWorkspaceGroup(Delivery):
             "the engine was invoked for a start that had to refuse")
 
     def test_manager_cleanup_of_worker_content_is_measured_not_assumed(self):
-        """The cleanup half of the acceptance, and it does NOT come out clean.
+        """Shared execution ownership permits exact worker-output cleanup.
 
-        MEASURED, on a real daemon, with the corrected mechanism in place:
-
-          * a FILE the worker created at the workspace root is removable by the
-            manager -- the root is group-writable and unlinking is a write to
-            the ROOT;
-          * an EMPTY directory the worker created is also removable, for the
-            same reason -- `rmdir` is a write to the parent;
-          * a directory the worker created WITH CONTENT IN IT is not. Its mode
-            comes from the worker's umask (`drwxr-sr-x` here), so the group has
-            no write, and the manager owns neither the directory nor a way to
-            `chmod` it. `os.chmod` is EPERM and unlinking inside it is EACCES.
-
-        So a worker that creates a populated subdirectory -- which is what any
-        real worker does -- leaves a tree this manager cannot remove. That is a CONSEQUENCE of the approved mechanism rather
-        than a defect in it, and it is not this Work's to decide: making the
-        root `02777` widens what the ruling narrowed, and running cleanup as
-        the worker identity is a new mechanism. It is raised for a ruling and
-        recorded here as the measurement that raised it.
-
-        What this cut DOES own is the failure's shape: it fails closed, and it
-        names which party owns the thing in the way instead of surfacing a raw
-        errno from inside a walk.
+        Actual runtime-created nested content must be removable by the manager.
+        The frozen input/home cleanup still goes through the product boundary;
+        this fixture must not pre-thaw it to conceal a removal-ordering defect.
         """
         roots, inputs = self.allocated()
         request_runtime_start(self.store, self.executing(roots),
@@ -1665,21 +1673,16 @@ class TheConfiguredWorkspaceGroup(Delivery):
         # is a write to the group-writable ROOT rather than to the directory.
         empty = os.path.join(place, "empty-worker-dir")
         os.rmdir(empty) if os.path.isdir(empty) else None
-        # THE DIRECTORY-WITH-CONTENT HALF, and it is not.
+        # Nested output is owned by the shared identity, not a foreign UID.
         inner = os.path.join(place, "worker-made-dir")
         held = os.lstat(inner)
-        self.assertNotEqual(held.st_uid, os.getuid(),
-                            "the worker did not create this; the case proves "
-                            "nothing about ownership it does not have")
-        with self.assertRaises(PermissionError):
-            os.chmod(inner, 0o700)
-        with self.assertRaises(ContractRefusal) as caught:
-            workspaces.discard_workspace(self.storage, self.attempt, control=self.store)
-        self.assertIn("owned by uid", str(caught.exception))
-        self.assertIn("fails closed", str(caught.exception))
-        # AND NOTHING WAS WIDENED on the way to that refusal.
-        self.assertEqual(os.lstat(inner).st_mode & 0o7777,
-                         held.st_mode & 0o7777)
+        self.assertEqual(held.st_uid, os.geteuid())
+        with open(os.path.join(inner, "nested.txt"), "rb") as handle:
+            self.assertEqual(handle.read(), b"nested")
+        self.assertTrue(workspaces.discard_workspace(
+            self.storage, self.attempt, control=self.store))
+        self.assertFalse(os.path.exists(os.path.dirname(place)))
+
 
     def test_one_assignment_workspace_reaches_no_other(self):
         """Sibling isolation, with both roots in the SAME configured group.

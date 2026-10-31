@@ -1,0 +1,26 @@
+test_a_home_whose_every_directory_is_frozen_is_removed_deepest_first (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_a_home_whose_every_directory_is_frozen_is_removed_deepest_first)
+M384981 (W384944 review 2026-10-31T02:51:05Z): the parent is thawed before its child goes. ... ok
+test_a_root_replaced_at_the_real_seam_is_a_typed_refusal (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_a_root_replaced_at_the_real_seam_is_a_typed_refusal)
+The reviewer's property, at the seam the descriptor design leaves. ... ok
+test_a_workspace_is_removed_including_its_read_only_trees (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_a_workspace_is_removed_including_its_read_only_trees) ... ok
+test_cleanup_never_reaches_outside_its_storage (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_cleanup_never_reaches_outside_its_storage) ... ok
+test_execution_cleanup_does_not_follow_a_root_replaced_after_proof (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_execution_cleanup_does_not_follow_a_root_replaced_after_proof)
+The ownership proof and destructive use are one boundary. ... ok
+test_execution_cleanup_proves_every_root_before_removing_one (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_execution_cleanup_proves_every_root_before_removing_one)
+One invalid root refuses the whole selective removal up front. ... ok
+test_execution_cleanup_refuses_a_home_alias_to_a_sibling (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_execution_cleanup_refuses_a_home_alias_to_a_sibling)
+Containment inside the store is not ownership of this attempt. ... ok
+test_removing_what_is_already_gone_is_an_answer_not_a_fault (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_removing_what_is_already_gone_is_an_answer_not_a_fault) ... ok
+test_the_thaw_is_skipped_for_a_directory_this_manager_does_not_own (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_the_thaw_is_skipped_for_a_directory_this_manager_does_not_own)
+W39358, measured against a real daemon before it was written here. ... ok
+test_the_thaw_still_happens_on_a_root_this_manager_does_own (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_the_thaw_still_happens_on_a_root_this_manager_does_own)
+The other half: an owned directory is repaired, as it always was. ... ok
+test_cleanup_removes_a_frozen_root_and_thaws_nothing_else (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_cleanup_removes_a_frozen_root_and_thaws_nothing_else)
+Retry and cleanup still work, and reach exactly one tree. ... ok
+test_cleanup_reaches_exactly_one_frozen_home (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_cleanup_reaches_exactly_one_frozen_home) ... ok
+test_cleanup_reaches_one_attempt_and_retries_cleanly (tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_reaches_one_attempt_and_retries_cleanly) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.223s
+
+OK

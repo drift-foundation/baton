@@ -1,0 +1,72 @@
+--- base/v12/python/tests/manager/test_private_line_access_engine.py
++++ candidate/v12/python/tests/manager/test_private_line_access_engine.py
+@@ -150,8 +150,9 @@
+         stopped = json.loads(self.command(["docker", "inspect", container]))[0]
+         self.assertFalse(stopped["State"]["Running"])
+         self.assertEqual(stopped["State"]["Pid"], 0)
++        self.assertEqual(stopped["Config"]["User"], f"{os.geteuid()}:{fixture.group.gid}")
+         facts = json.loads(self.command(["docker", "logs", container]))
+-        self.assertEqual((facts["uid"], facts["gid"]), (65532, 65532))
++        self.assertEqual((facts["uid"], facts["gid"]), (os.geteuid(), fixture.group.gid))
+         return adapter, facts
+ 
+     def composed_writer(self):
+@@ -255,8 +256,9 @@
+         stopped = json.loads(self.command(["docker", "inspect", self.container]))[0]
+         self.assertFalse(stopped["State"]["Running"])
+         self.assertEqual(stopped["State"]["Pid"], 0)
++        self.assertEqual(stopped["Config"]["User"], f"{os.geteuid()}:{fixture.group.gid}")
+         facts = json.loads(self.command(["docker", "logs", self.container]))
+-        self.assertEqual((facts["uid"], facts["gid"]), (65532, 65532))
++        self.assertEqual((facts["uid"], facts["gid"]), (os.geteuid(), fixture.group.gid))
+         self.assertIn(fixture.group.gid, facts["groups"])
+         return {"fixture": fixture, "source": source, "base": base,
+                 "line": line, "writer": writer, "adapter": adapter,
+@@ -267,7 +269,7 @@
+         fixture, line, source = held["fixture"], held["line"], held["source"]
+         base, before = held["base"], held["before"]
+         created = Path(line["path"], "nested/new").stat()
+-        self.assertNotEqual(created.st_uid, os.geteuid(), "same-owner writes are not the runtime proof")
++        self.assertEqual(created.st_uid, os.geteuid(), "execution shares the configured manager identity")
+         self.assertEqual(created.st_gid, fixture.group.gid)
+         self.assertEqual(created.st_mode & 0o7777, 0o664)
+         self.assertEqual(Path(line["path"], "nested").stat().st_mode & 0o7777, 0o2775)
+@@ -285,22 +287,21 @@
+         """W105706's remaining proof, over the tree a real runtime just wrote.
+ 
+         The initial case proves the runtime could WRITE the line. This proves
+-        the manager can then finish with it: read back what a foreign uid left
++        the manager can then finish with it: read back what the shared execution identity left
+         behind, freeze an immutable checkpoint over that exact commit, hand a
+         reviewer a read-only view without touching the line, and admit a
+         correction writer to the SAME line rather than to a second checkout.
+ 
+-        Each step is one a host fixture cannot establish. The worker wrote as
+-        uid 65532 under its own creation mask; whether this manager can then
+-        traverse and open the result is a question only a genuinely
+-        foreign-owned tree can answer, and it is exactly the question
+-        W105982's consumption gate exists to ask.
++        The runtime writes under the trusted manager UID/workspace GID
++        arrangement (HOST-5). Actual container writes and read-only mount
++        denials prove access and isolation; different ownership is not required.
++        The manager must still consume and retain the exact runtime result.
+         """
+         held = self.composed_writer()
+         fixture, line, writer = held["fixture"], held["line"], held["writer"]
+         adapter, before = held["adapter"], held["before"]
+         runtime_head = self.head_of(line["path"])
+-        self.assertNotEqual(Path(line["path"], "nested/new").stat().st_uid,
++        self.assertEqual(Path(line["path"], "nested/new").stat().st_uid,
+                             os.geteuid())
+ 
+         # CONFIRMED STOP FIRST. `composed_writer` already proved the container
+@@ -308,8 +309,7 @@
+         # ending observes before it reads anything.
+         fixture.complete("writer-attempt-1")
+ 
+-        # THE CONSUMPTION GATE, over foreign-owned bytes rather than a
+-        # fixture's own.
++        # THE CONSUMPTION GATE, over bytes actually written by the runtime.
+         subject = adapter.prove_line_consumable(
+             fixture.store, assignment_id="writer-attempt-1", generation=1)
+         self.assertEqual(subject["line_path"], line["path"])

@@ -2,7 +2,8 @@ diff --git a/v12/python/src/baton_v12/worker_manager/attempt_logs.py b/v12/pytho
 index 87339393..bbd402df 100644
 --- a/v12/python/src/baton_v12/worker_manager/attempt_logs.py
 +++ b/v12/python/src/baton_v12/worker_manager/attempt_logs.py
-@@ -251,4 +251,17 @@ def _gid(workspace_group):
+@@ -250,6 +250,19 @@ def _gid(workspace_group):
+     return workspace_group.gid
  
  
 +def _delivery(delivery):
@@ -20,19 +21,25 @@ index 87339393..bbd402df 100644
 +
  def named(stream):
      """The format's allowlist, in this manager's own refusal vocabulary.
-@@ -283,4 +296,5 @@ def record_capture(delivery, stream, state, *, reason=None):
+ 
+@@ -282,6 +295,7 @@ def record_capture(delivery, stream, state, *, reason=None):
+     whole. What this function owns is the manager's half -- the typed delivery,
      the room, and the refusal vocabulary.
      """
 +    _delivery(delivery)
      named(stream)
      room = _room(delivery)
-@@ -339,4 +353,5 @@ def capture_state(delivery, stream, *, reported=None):
+     try:
+@@ -338,6 +352,7 @@ def capture_state(delivery, stream, *, reported=None):
+     finished. `captured` is reached only when a writer declared `finished`,
      because file existence and a momentary end of file prove neither.
      """
 +    _delivery(delivery)
      named(stream)
      if reported is not None and reported not in CAPTURE_STATES \
-@@ -443,4 +458,8 @@ def locators(delivery, *, reported=None):
+             and reported not in DECLARABLE:
+@@ -442,6 +457,10 @@ def locators(delivery, *, reported=None):
+     manager's own and are readable whether the container is running, stopped or
      gone.
      """
 +    _delivery(delivery)
@@ -41,83 +48,147 @@ index 87339393..bbd402df 100644
 +                f"{name_value(reported)}")
      said = dict(reported or {})
      found = {"attempt_id": delivery.attempt_id,
-@@ -588,4 +607,5 @@ def read(delivery, stream, *, from_byte=0, limit=MAX_READ):
+              "log_root": delivery.log_root,
+@@ -587,6 +606,7 @@ def read(delivery, stream, *, from_byte=0, limit=MAX_READ):
+     opened, and `O_NONBLOCK` is what keeps a special file from wedging a reader
      that promised to be bounded.
      """
 +    _delivery(delivery)
      named(stream)
      if type(from_byte) is not int or from_byte < 0:
-@@ -662,4 +682,5 @@ def follow(delivery, stream, *, from_byte=0, bound=MAX_FOLLOW):
+         _denied("a log read starts at a whole number of bytes")
+@@ -661,6 +681,7 @@ def follow(delivery, stream, *, from_byte=0, bound=MAX_FOLLOW):
+     What crosses here is a position in a named file the caller already read,
      spelled the way this package spells `from_instant`.
      """
 +    _delivery(delivery)
      named(stream)
      found = read(delivery, stream, from_byte=from_byte, limit=bound)
+     return {**found, "next_from_byte": from_byte + found["bytes_read"],
 diff --git a/v12/python/src/baton_v12/worker_manager/attempts.py b/v12/python/src/baton_v12/worker_manager/attempts.py
 index 7266c20d..58d351c1 100644
 --- a/v12/python/src/baton_v12/worker_manager/attempts.py
 +++ b/v12/python/src/baton_v12/worker_manager/attempts.py
-@@ -3840,4 +3840,6 @@ def finalize_quiescent_assignment(store, port, *, attempt_id, reason,
+@@ -3839,6 +3839,8 @@ def finalize_quiescent_assignment(store, port, *, attempt_id, reason,
+     in custody, pending an explicit retention decision, and the runtime stays
      where it is for the existing exact cleanup to prove absent.
      """
 +    if govern is not None:
 +        boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
      boundaries.identity(attempt_id, "a runtime attempt id")
      reason = boundaries.text(reason, "a finalization reason")
+     # A BLANK SENTENCE IS A DECISION NOBODY MADE, on the rule `abandon_attempt`
 diff --git a/v12/python/src/baton_v12/worker_manager/custody.py b/v12/python/src/baton_v12/worker_manager/custody.py
-index c9723eea..9fdec630 100644
+index c9723eea..228f443c 100644
 --- a/v12/python/src/baton_v12/worker_manager/custody.py
 +++ b/v12/python/src/baton_v12/worker_manager/custody.py
-@@ -1456,4 +1456,6 @@ def custody_holds(store, assignment_id, which):
+@@ -1455,6 +1455,8 @@ def custody_holds(store, assignment_id, which):
+     answers is which episodes exist and which of them an operator has
      cleared, so a caller can refuse rather than guess.
      """
 +    boundaries.identity(assignment_id, "an assignment identity")
 +    check_custody_root(which)
      import json as _json
  
-@@ -2436,4 +2438,13 @@ def allowed(seconds, most):
+     held = []
+@@ -2430,26 +2432,32 @@ def allowed(seconds, most):
+     "do not start" rather than "wait forever" -- the caller checked before
+     calling, and this is the second reading that makes the race harmless.
+     """
++    # W384870 stage C (review 2026-10-31T02:06:09Z): THE CEILING IS A FINITE
++    # NUMBER ON EVERY PATH, including the unbounded one that hands it back, and
++    # a remainder that is not a finite number is refused through the declared
++    # vocabulary rather than escaping as `int()`'s ValueError or OverflowError.
++    # None stays today's unbounded answer; flooring and the non-positive-answers-
++    # zero rule are unchanged.
++    ceiling = _finite_seconds(most, "allowance ceiling")
+     if seconds is None:
+         return most
+     left = seconds() if callable(seconds) else seconds
      if left is None:
          return most
-+    # W384870 stage C: A REMAINDER OR CEILING THAT IS NOT A NUMBER IS REFUSED
-+    # rather than escaping as `int()`'s own `ValueError`; a whole number of
-+    # seconds is what the engine port takes, and what this answers.
-+    for value, which in ((left, "remaining allowance"), (most, "allowance ceiling")):
-+        if type(value) is bool or type(value) not in (int, float):
-+            raise ContractRefusal(
-+                "integrity", "schema",
-+                f"an engine {which} is a number of seconds; this is "
-+                f"{name_value(value)}")
-     # A WHOLE NUMBER, because `EnginePort` refuses anything else -- "an engine
-     # deadline is a positive whole number of seconds" -- and rounded DOWN.
+-    # A WHOLE NUMBER, because `EnginePort` refuses anything else -- "an engine
+-    # deadline is a positive whole number of seconds" -- and rounded DOWN.
+-    #
+-    # Review 2026-09-24T11:02:29Z [R1] reproduced the defect exactly:
+-    # `allowed(lambda: 0.1, 120)` answered 1. Rounding UP hands a boundary
+-    # MORE time than the caller has left, which is the one direction an
+-    # allowance may never round. My reasoning for it -- that rounding down
+-    # turns a real remainder into an immediate refusal -- was solving the
+-    # wrong problem: a caller with a tenth of a second left should not be
+-    # STARTING anything, and that is the admission reserve's job rather than
+-    # this function's.
+-    #
+-    # SO A SUB-SECOND REMAINDER ANSWERS ZERO, and every boundary reads zero as
+-    # "do not start". The allowance never exceeds what is left.
+-    return max(0, min(int(left), int(most)))
++    return max(0, min(int(_finite_seconds(left, "remaining allowance")), int(ceiling)))
++
++
++def _finite_seconds(value, which):
++    """A finite int or float number of seconds, or a refusal in this module's words."""
++    import math
++
++    if type(value) is bool or type(value) not in (int, float) \
++            or (type(value) is float and not math.isfinite(value)):
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"an engine {which} is a finite number of seconds; this is "
++            f"{name_value(value)}")
++    return value
+ 
+ 
+ def custody_act(engine, run, *, image_digest, store, assignment_id,
 diff --git a/v12/python/src/baton_v12/worker_manager/exchange.py b/v12/python/src/baton_v12/worker_manager/exchange.py
 index d85aa577..ace049c8 100644
 --- a/v12/python/src/baton_v12/worker_manager/exchange.py
 +++ b/v12/python/src/baton_v12/worker_manager/exchange.py
-@@ -1488,4 +1488,5 @@ def discard(root):
+@@ -1487,6 +1487,7 @@ def discard(root):
+     remove: this runs on the ending path, where the caller's next act depends
      on what is actually left rather than on an exception.
      """
 +    boundaries.text(root, "an exchange delivery root")
      for name in (COMMAND_DIRECTORY, EVENT_DIRECTORY):
          place = os.path.join(root, name)
+         if not os.path.lexists(place):
 diff --git a/v12/python/src/baton_v12/worker_manager/intake.py b/v12/python/src/baton_v12/worker_manager/intake.py
-index ddf4eced..25d334b3 100644
+index ddf4eced..2f12a944 100644
 --- a/v12/python/src/baton_v12/worker_manager/intake.py
 +++ b/v12/python/src/baton_v12/worker_manager/intake.py
-@@ -1218,4 +1218,6 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
+@@ -1152,6 +1152,13 @@ def _resource_cessation(store, settled, attempt, attempt_id):
+             return None
+         if _writer_cessation_of(store, settled) is None:
+             return None
++    elif _custody_already_committed(store, attempt_id) is None:
++        # W384870 stage C (review 2026-10-31T02:06:09Z): THE MEMBER IS NOT THE
++        # EVIDENCE. The ending records `directory_custody` from
++        # `_custody_already_committed`, and `replay` does not bind result bytes,
++        # so a member forged into a committed ending must not release what the
++        # committed normalizations, read through their own owner, do not prove.
++        return None
+     if attempt["runtime_id"] is None:
+         return None
+     return {"container": attempt["runtime_id"], "stopped": True, "helpers": []}
+@@ -1217,6 +1224,8 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
+     material cleaned up are different endings, and reporting retention as
      completion would erase the reason the material still exists.
      """
 +    if govern is not None:
 +        boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
      boundaries.identity(attempt_id, "a runtime attempt id")
      boundaries.text(retention_policy_digest, "a retention policy digest")
-@@ -2704,4 +2706,6 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
+     boundaries.capability(getattr(adapter, "destroy", None),
+@@ -2703,6 +2712,8 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
+     stays untrusted. This ends at `retained` and deletes nothing, freezes
      nothing, and admits not one byte to the proposal pipeline.
      """
 +    if govern is not None:
 +        boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
      boundaries.identity(attempt_id, "a runtime attempt id")
      reason = boundaries.text(reason, "an abandonment reason")
-@@ -5642,4 +5646,9 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
+     if not reason.strip():
+@@ -5641,6 +5652,11 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
+     # is the shape this narrower verb exists to avoid.
      boundaries.capability(getattr(adapter, "stop_expired", None),
                            "the runtime adapter's expiry stop")
 +    boundaries.identity(attempt_id, "a runtime attempt id")
@@ -127,7 +198,9 @@ index ddf4eced..25d334b3 100644
 +        boundaries.capability(getattr(govern, act, None), f"the resource governor's {act}")
      attempt = _attempt_of(store._connection, attempt_id)
      operation_id = attempts._start_operation_id(attempt)
-@@ -5953,4 +5962,8 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
+     overdue = govern.overdue(store, attempt, operation=operation_id)
+@@ -5952,6 +5968,10 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
+ 
      boundaries.capability(getattr(adapter, "observe", None),
                            "the runtime adapter's observe")
 +    boundaries.identity(attempt_id, "a runtime attempt id")
@@ -136,37 +209,257 @@ index ddf4eced..25d334b3 100644
 +        boundaries.capability(getattr(govern, act, None), f"the resource governor's {act}")
      attempt = _attempt_of(store._connection, attempt_id)
      operation_id = attempts._start_operation_id(attempt)
+     domain = tokens.domain_of(govern.resource_kind, govern.identity(attempt))
 diff --git a/v12/python/src/baton_v12/worker_manager/oci.py b/v12/python/src/baton_v12/worker_manager/oci.py
 index a5aadbe3..33784c8f 100644
 --- a/v12/python/src/baton_v12/worker_manager/oci.py
 +++ b/v12/python/src/baton_v12/worker_manager/oci.py
-@@ -2596,4 +2596,6 @@ class OciAdapter:
+@@ -2595,6 +2595,8 @@ class OciAdapter:
+         Without `bind` the historical single act is unchanged, because an
          assignment governed by no resource token has nothing to bind to.
          """
 +        if bind is not None:
 +            boundaries.capability(bind, "an activation binding")
          # W194457, owner decision 2026-09-17 (OWNER-TRUSTED-IDENTITY): THERE IS
          # NO RUNTIME PROBE HERE AND THERE IS NOTHING TO ACTIVATE.
+         #
+diff --git a/v12/python/src/baton_v12/worker_manager/stopped_settlement.py b/v12/python/src/baton_v12/worker_manager/stopped_settlement.py
+index 0e3a0759..115974fb 100644
+--- a/v12/python/src/baton_v12/worker_manager/stopped_settlement.py
++++ b/v12/python/src/baton_v12/worker_manager/stopped_settlement.py
+@@ -23,6 +23,13 @@ def _id(kind, identity):
+ 
+ 
+ def _read(store, operation, kind):
++    if kind == SELECTED:
++        # W384870 stage C: the selection records its signed operands, so they verify it.
++        from .store import replayed_as_signed
++
++        return replayed_as_signed(store, operation, kind, what="a settlement selection record")
++    # The outcome and receipt record this manager's own observation beside a
++    # signature over the request: not signature-bound (W375444 REPLAY_DEBT).
+     record = store.operation_record(operation)
+     if record is None:
+         return None
+diff --git a/v12/python/src/baton_v12/worker_manager/store.py b/v12/python/src/baton_v12/worker_manager/store.py
+index 8dbfdaf7..60801f96 100644
+--- a/v12/python/src/baton_v12/worker_manager/store.py
++++ b/v12/python/src/baton_v12/worker_manager/store.py
+@@ -121,6 +121,32 @@ def manager_signature(kind, operands):
+     return canonical_text({"kind": kind, "operands": operands})
+ 
+ 
++def replayed_as_signed(store, operation_id, kind, *, what):
++    """The committed result of an operation whose result IS its signed operands, or None when absent.
++
++    W384870 stage C (review 2026-10-31T02:06:09Z): `replay` binds the SIGNATURE,
++    not the result bytes, so a record whose reader decides on a result member --
++    a token's `expires_at`, a removal owner, a lock's pinned object -- could be
++    changed in place without the signature noticing. For the journal families
++    whose writers record the signed operands themselves as the result, the
++    signature's own operands are the verifiable account: a result that differs
++    from them is refused rather than read.
++    """
++    boundaries.identity(operation_id, "an operation identity")
++    record = store.operation_record(operation_id)
++    if record is None:
++        return None
++    _, document = store.replay(operation_id, record["signature"], kind=kind)
++    signed = json.loads(record["signature"])["operands"]
++    if document != signed:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} at {name_value(operation_id)} records a result that differs from "
++            f"its signed operands; a committed record this manager cannot bind to its "
++            f"own act is not evidence about it")
++    return document
++
++
+ def _recorded(value):
+     """The exact text to journal for a committed result.
+ 
+diff --git a/v12/python/src/baton_v12/worker_manager/tokens.py b/v12/python/src/baton_v12/worker_manager/tokens.py
+index ab67d351..b2a8cddd 100644
+--- a/v12/python/src/baton_v12/worker_manager/tokens.py
++++ b/v12/python/src/baton_v12/worker_manager/tokens.py
+@@ -18,6 +18,8 @@ no container and stops none: it decides permission and records evidence. The
+ governed effects belong behind a token-bound maintenance execution (TOK-7), which is
+ G2, and the removal consumer is G3. Both are excluded from this Work by owner 275617.
+ """
++import json
++
+ from ..contracts import ContractRefusal
+ from ..contracts.errors import name_value
+ from . import boundaries
+@@ -202,17 +204,65 @@ def _fence_settlement(control, token, selection):
+     return document
+ 
+ 
+-def _document(control, operation_id, kind):
+-    """A committed record's own document, read back through `replay`.
++# The kinds whose writers record the signed operands themselves as the result,
++# so the signature's operands verify every member on read (W384870 stage C).
++# The three judgement kinds record a DECIDED instant the signature does not
++# cover (RENEWED's new deadline, EXPIRED's and TIMING_AMBIGUOUS's observation);
++# binding those needs the operands to carry the decided instant, which is a
++# W275775 identity/replay question for the owner -- recorded in the stage C
++# evidence, not decided here. Their shape is owned below.
++_SELF_SIGNED_KINDS = frozenset((
++    ACQUIRED_KIND, LAUNCH_KIND, BOUND_KIND, RETURNED_KIND, REVOKED_KIND,
++    ACTIVATING_KIND, ACTIVATION_SETTLED_KIND, SETTLEMENT_FENCE_KIND))
++# The members a judgement record DECIDES beside the operands it was signed for:
++# the renewal's new deadline and its instant; the expiry and ambiguity
++# judgements' observed deadline, revision and instants.
++_DECIDED_MEMBERS = {
++    RENEWED_KIND: ("renewed_at", "expires_at"),
++    EXPIRED_KIND: ("expires_at", "revision", "observed_at", "decided_at"),
++    TIMING_AMBIGUOUS_KIND: ("expires_at", "revision", "observed_at", "decided_at"),
++}
+ 
+-    Never the `result` column read raw: `replay` recomputes the signature, so a row
+-    edited in place to name another owner or container no longer answers.
++
++def _document(control, operation_id, kind):
++    """A committed record's own document, read back through `replay` and VERIFIED.
++
++    W384870 stage C (review 2026-10-31T02:06:09Z): `replay` binds the signature
++    and not the result bytes, so an acquisition whose `expires_at` was rewritten
++    in place still answered -- and `token_of` decided `expired` from it. The
++    acquisition, launch, binding, return, revocation, activation and settlement
++    records all record their signed operands as their result, so the signature's
++    operands verify them member by member here. A judgement record is owned by
++    its closed shape and its identity-bound members; its decided instant is not
++    signature-bound (see `_JUDGED_MEMBERS`).
+     """
++    from .store import replayed_as_signed
++
++    if kind in _SELF_SIGNED_KINDS:
++        return replayed_as_signed(control, operation_id, kind, what="a resource-token record")
+     found = control.operation_record(operation_id)
+     if found is None:
+         return None
+     _, document = control.replay(operation_id, found["signature"], kind=kind)
+-    return document
++    # THE SIGNED OPERANDS ARE A SUBSET OF THE RESULT and verify member by member;
++    # the decided instants beyond them are owned by shape (not signature-bound).
++    signed = json.loads(found["signature"])["operands"]
++    taken = boundaries.document(document, "a resource-token judgement record",
++                                required=tuple(signed) + _DECIDED_MEMBERS[kind])
++    for member, value in signed.items():
++        if taken[member] != value:
++            raise ContractRefusal(
++                "integrity", "schema",
++                f"a resource-token judgement record at {name_value(operation_id)} names "
++                f"{member} {name_value(taken[member])} and was signed for {name_value(value)}")
++    # Each decided instant by name, so the inventory's owner labels are exact.
++    if kind == RENEWED_KIND:
++        boundaries.instant(taken["renewed_at"], "a resource-token judgement record's renewed_at")
++    else:
++        boundaries.instant(taken["observed_at"], "a resource-token judgement record's observed_at")
++        boundaries.instant(taken["decided_at"], "a resource-token judgement record's decided_at")
++    boundaries.instant(taken["expires_at"], "a resource-token judgement record's expires_at")
++    return taken
+ 
+ 
+ def outstanding(control, domain):
 diff --git a/v12/python/src/baton_v12/worker_manager/workspaces.py b/v12/python/src/baton_v12/worker_manager/workspaces.py
-index b56fbf20..375ea668 100644
+index b56fbf20..5a1bf134 100644
 --- a/v12/python/src/baton_v12/worker_manager/workspaces.py
 +++ b/v12/python/src/baton_v12/worker_manager/workspaces.py
-@@ -2612,4 +2612,5 @@ def admit_cleanup(control, assignment_id, settlement, what, cessation=None):
+@@ -2239,8 +2239,10 @@ def _restoration_lock_identity(control, line_id, observed, what):
+     if recorded is None:
+         return control.transact(operation_id, RESTORATION_LOCK_KIND, signature,
+                                 lambda connection: dict(document))
+-    _, pinned = control.replay(operation_id, recorded["signature"],
+-                               kind=RESTORATION_LOCK_KIND)
++    from .store import replayed_as_signed
++
++    pinned = replayed_as_signed(control, operation_id, RESTORATION_LOCK_KIND,
++                                what="a restoration lock record")
+     if pinned is None:
+         _refuse(f"{what} has a recorded lock identity with no answer to replay",
+                 code="schema")
+@@ -2520,9 +2522,10 @@ def _current_cleanup_owner(control, assignment_id, ordinal, admitted_owner):
+             _cleanup_takeover_id(assignment_id, ordinal, generation))
+         if record is None:
+             return owner, generation
+-        _, document = control.replay(
+-            _cleanup_takeover_id(assignment_id, ordinal, generation),
+-            record["signature"], kind=CLEANUP_TAKEOVER_KIND)
++        from .store import replayed_as_signed
++
++        document = replayed_as_signed(control, _cleanup_takeover_id(assignment_id, ordinal, generation),
++                                      CLEANUP_TAKEOVER_KIND, what="a cleanup takeover record")
+         if document is not None and document.get("owner"):
+             owner = document["owner"]
+         generation += 1
+@@ -2563,10 +2566,10 @@ def _admitted_cleanup_document(control, assignment_id, ordinal, record):
+     Never the record's `result` column read raw: `replay` recomputes the signature,
+     so an admission edited in place to name another operation no longer answers.
+     """
+-    _, document = control.replay(
+-        _cleanup_admission_id(assignment_id, ordinal), record["signature"],
+-        kind=CLEANUP_ADMISSION_KIND)
+-    return document
++    from .store import replayed_as_signed
++
++    return replayed_as_signed(control, _cleanup_admission_id(assignment_id, ordinal),
++                              CLEANUP_ADMISSION_KIND, what="a cleanup admission record")
+ 
+ 
+ def admit_cleanup(control, assignment_id, settlement, what, cessation=None):
+@@ -2611,6 +2614,7 @@ def admit_cleanup(control, assignment_id, settlement, what, cessation=None):
+     `_admitted_removal` are the precedent. `transact` replays by identity and so
      cannot make a fresh decision; this decision is fresh.
      """
 +    _assignment_identity(assignment_id)
      # W285465 review 2026-09-28T07-26-54Z: A PRESENTED CESSATION IS REFUSED OUTRIGHT.
      #
-@@ -3059,4 +3060,5 @@ def bind_token_container(control, assignment_id, ordinal, owned, container):
+     # The keyword stays because the reviewer's immutable probe names it, and because saying
+@@ -3013,11 +3017,10 @@ def _token_ceased_id(assignment_id, ordinal):
+ 
+ def _recorded_document(control, operation_id, kind):
+     """A committed record's own document, read back through `replay`."""
+-    found = control.operation_record(operation_id)
+-    if found is None:
+-        return None
+-    _, document = control.replay(operation_id, found["signature"], kind=kind)
+-    return document
++    # W384870 stage C: the record's own signed operands verify the document.
++    from .store import replayed_as_signed
++
++    return replayed_as_signed(control, operation_id, kind, what="a workspace journal record")
+ 
+ 
+ def token_of(control, assignment_id, ordinal):
+@@ -3058,6 +3061,7 @@ def bind_token_container(control, assignment_id, ordinal, owned, container):
+     to a generation it no longer owns, which is what would otherwise let an expiry revocation
      stop somebody else's container.
      """
 +    _assignment_identity(assignment_id)
      from .store import manager_signature
  
-@@ -3098,4 +3100,6 @@ def revoke_expired_token(control, assignment_id, ordinal, stop):
+     container = boundaries.text(container, "a bound container identity")
+@@ -3097,6 +3101,8 @@ def revoke_expired_token(control, assignment_id, ordinal, stop):
+     refused, and an operator reconciles. Issuing a stop request is not cessation, and this
      function's answer is the record, not the request.
      """
 +    _assignment_identity(assignment_id)
 +    boundaries.capability(stop, "a container stop")
      from .store import manager_signature
  
+     token = token_of(control, assignment_id, ordinal)
+@@ -4655,9 +4661,10 @@ def _completed_removal(control, assignment_id, owned, value, what):
+                 "integrity", "schema",
+                 f"{what}'s removal ownership {ordinal} is no longer recorded, so this "
+                 f"act cannot be attributed to the authority it was performed under")
+-        _, held_by = control.replay(
+-            _removal_ownership_id(assignment_id, ordinal), recorded["signature"],
+-            kind=REMOVAL_OWNERSHIP_KIND)
++        from .store import replayed_as_signed
++
++        held_by = replayed_as_signed(control, _removal_ownership_id(assignment_id, ordinal),
++                                     REMOVAL_OWNERSHIP_KIND, what="a removal ownership record")
+         if held_by is None or held_by.get("owner") != owned["owner"]:
+             raise ContractRefusal(
+                 "runtime-observation", "identity-mismatch",

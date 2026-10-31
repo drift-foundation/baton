@@ -200,7 +200,25 @@ synthetic witnesses: the reviewer's raw-row sample is rejected ("no owner
 answers"), an unowned public operand and an unresolved name are rejected, an
 owned row / typed operand / composition are accepted. Every
 STAGE_C_ADOPTED_ROW_DOORS and STAGE_C_INTERNAL row was re-evaluated under the
-trace: RESULTS_P1A.
+trace: all 29 operands of the 22 rows (19 STAGE_C_INTERNAL operands, 5 adopted-row
+doors with their row operand, plus the member rows beneath them) are proved at every
+call site; no row had to be un-stated. Three rows were proved only after the trace
+learned real binding shapes the first version could not follow, each a soundness gap
+in the TRACE, not in the code: tuple unpacking (`chain, admitted = _use(...)`,
+`bound, _domain, generation, _token = token_bound_runtime(...)`), comprehension and
+`with` targets, a parameter read inside a nested closure (`asking(_connection)` in
+`_eligible`, the `transact` closures in `prepared_workspace_governance`), and a
+lambda's parameter, which is whatever the package call the lambda is handed to
+invokes it with (`attempt_cessation_outcome_of` hands `_read` the identity builder;
+its `row` and `generation` are `_read`'s own `_attempt_row` read and
+`token_bound_runtime` result). A public door's parameter that is not a receiving
+entry at all (the store handle, a callable) is not an input the inventory tracks.
+The loop guard is per (helper, parameter) hop with an eight-hop depth bound, so a
+lambda's invoker may legitimately lead back to its caller's own operands. The
+forwarded row for `replayed_as_signed`'s `operation_id` was NOT provable (the
+forwarding check cannot see a method call through a handle, so it was asserted,
+not held); the read now validates the identity itself (`boundaries.identity`) and
+the row is layer-owned and probed.
 
 ### P1 -- replay protection demonstrated, and the token gap closed
 
@@ -261,12 +279,56 @@ table rows and the positive cases in `test_stated_rules_refuse_what_they_say`).
 
 ### Rows and files affected
 
-The journal rows moved with the read: the thirteen `tokens._document` and the
-workspace reader rows are now the `store.py:replayed_as_signed` rows (the one
-verified read), each witnessed by the corruption test; `_document` keeps the
-judgement path as layer-owned pairs with probes. Product files touched by this
+The journal rows moved with the read: the self-signed `tokens._document`,
+workspace reader and settlement selection rows are now the 24 stated
+`store.py:replayed_as_signed` rows (the one verified read: `replay` and 20 members,
+`kind` compared by `replay`, `what` a label; `operation_id` layer-owned by
+`boundaries.identity`), each stated row witnessed by the corruption test and the
+identity by a caller probe. `_document` keeps the judgement path as 14 layer-owned
+entries (`replay` and 13 members) with 17 probes: the whole record replaced, each
+required member dropped, each decided instant (`renewed_at`, `expires_at`,
+`observed_at`, `decided_at`, named explicitly in the product now so the owner labels
+are exact) replaced by a non-instant, driven through `token_of` (renewal) and
+`journal_launch` (expiry judgement written by a refused late renewal). Members no
+judgement record carries (`container`, `launch`, `permission`, `started`,
+`expired_at` -- read from the self-signed records, verified whole) are probed by
+spoiling the judgement document itself, as the Stage B `both(...)` rows do. Product files touched by this
 correction: store.py (the shared read), tokens.py, workspaces.py,
 stopped_settlement.py, custody.py, intake.py. Digests refreshed in
 CANDIDATE-SHA256.txt.
 
-VERIFICATION_M384941
+### Verification of the correction
+
+- Reviewer's reproduction rerun (`reviewer-counterexamples-after.log`): the token case
+  now raises ContractRefusal "records a result that differs from its signed operands";
+  the owned-input sample is rejected by the trace ("no owner answers").
+- `forged-custody-member-after.log`: honest ending 1 release, no evidence 0, forged
+  member 0. `allowance-after.log`: None/'bad', 1/inf, nan/120 refuse; None/120 -> 120,
+  lambda/120 -> 0, 5.9/3 -> 3.
+- Gate classes (`focused-m384941.log`): EveryReceivingEntryHasOneOwner,
+  EveryProbeProvesItArrived, StageCProtections, EveryStatedOwnerHasAWitness,
+  LanesHaveCompleteReceivingCoverage, StoppedSettlementInventory,
+  CallerResolvedReadsClosuresAndReplays, DynamicTableReadsStayVisible, StatedRules,
+  HelperDeclarationsHaveExactAccounting: 191 run, OK, 152.8 s.
+- Product modules of every touched module (`product-modules-m384941.log`:
+  attempt_failure_cause, attempts, authoring_enforcement, custody, intake, maintenance,
+  review_cycles, runtime_deadlines, stopped_settlement, workspaces, store, sessions):
+  1557 run, OK. An earlier batch that also took test_ended_runtime_adoption and
+  tools.test_single_worker showed only the 2026-10-29 baseline ids (two
+  DockerEndedRuntimeAdoption cases, the single-worker status run); nothing regressed.
+- Lists (`audit-after-m384941.txt`, `export-m3` in scratch): receiving entries 2591
+  (2580 + the shared read's rows), unowned 0, orphan calls 0; owner kinds layer 1078,
+  stated 968, delegated 374, constructed 171; probes 1473 declared for 1476 wanted
+  pairs, 0 owned-never-probed, 0 probed-never-owned. `disposition-map.md` regenerated
+  (2591 entries, 0 unowned, 0 orphans; calls claimed 99, declared 66).
+- Scans group run 3 (`scans-group-run-3.log`): collected 485 = executed 485, passed
+  482, optional skipped 2, failed 1: `test_dependencies...test_the_manager_imports_only_the_ruled_validator`
+  -- the allowance correction had imported `math` in custody.py and the manager's
+  dependency rule names its standard-library modules exactly. The rule was kept and
+  the import removed (`_finite_seconds` tests NaN by self-inequality and the two
+  infinities by equality). Run 4 (`scans-group-run-4.log`), after that removal and the
+  M384981 ordering correction (`evidence/cleanup-ordering-20261031/RESULT.md`): SCANS4
+- Owner Git checkpoint 4989ce76 ("WIP: checkpoint Stage C corrections and accepted B4
+  integration-worker repairs") landed mid-correction; `product.diff` is against
+  a8cbc974 (the Stage C base) and `CANDIDATE-SHA256.txt` names the current bytes of
+  the two test files and ten product modules.

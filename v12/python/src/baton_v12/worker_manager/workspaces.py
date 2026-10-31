@@ -6908,6 +6908,13 @@ def _removed_through_handles(root, what):
                 else:
                     os.unlink(member, dir_fd=handle)
             if parent is not None:
+                # M384981 (child review 2026-10-31T02:51:05Z): the child's entry is removed
+                # FROM THE PARENT, so the parent must be writable NOW -- its own turn in this
+                # deepest-first pass comes later, and a delivery freezes every directory of
+                # the home (0o555), not only the leaves. The parent is an admitted handle of
+                # this same tree, so thawing it here changes nothing outside what is being
+                # removed; its own pass repeats the same mode, which is idempotent.
+                _thaw_handle(parent, what)
                 os.rmdir(name, dir_fd=parent)
     finally:
         for held in opened:

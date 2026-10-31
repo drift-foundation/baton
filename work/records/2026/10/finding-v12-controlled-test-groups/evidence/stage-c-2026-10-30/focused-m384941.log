@@ -1,0 +1,314 @@
+test_a_required_member_of_a_constructed_operand_is_owned_once_at_the_site (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_a_required_member_of_a_constructed_operand_is_owned_once_at_the_site)
+W384870 stage A: `port` at the two discharge gates. ... ok
+test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+Every exact source call has an entry claim or a named exception. ... ok
+test_every_named_constructor_exists_and_owns_what_it_holds (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds)
+An exception has to point at a constructor that is THERE. ... ok
+test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator) ... ok
+test_every_site_is_lexical (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical)
+Module, class and function -- because a name alone collapses methods. ... ok
+test_no_declared_exception_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale) ... ok
+test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) ... ok
+test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice)
+4bz forbids blanket revalidation, and this is where it shows. ... ok
+test_re_validating_a_constructed_operand_is_still_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_re_validating_a_constructed_operand_is_still_owned_twice)
+The negative for the rule above: only a member requirement coexists. ... ok
+test_the_double_ownership_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail) ... ok
+test_the_universe_is_not_derived_from_the_validators (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators)
+The property that distinguishes this from what it replaces. ... ok
+test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+The anti-circularity check for the adopted member universe. ... ok
+test_the_universe_sees_the_engine_answer_and_every_consumed_member (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_the_engine_answer_and_every_consumed_member)
+The branch join must not hide members of an injected answer. ... ok
+test_variadic_public_parameters_are_receiving_entries_too (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too) ... ok
+test_a_probe_that_is_refused_earlier_fails (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails)
+The vacuity guard, proved rather than promised. ... ok
+test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first) ... ok
+test_cleanup_of_refuses_a_spoiled_operation_under_its_own_label_first (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_cleanup_of_refuses_a_spoiled_operation_under_its_own_label_first) ... ok
+test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) ... ok
+test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe) ... ok
+test_every_shadowed_pair_is_real_and_its_shadow_refuses_first (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_shadowed_pair_is_real_and_its_shadow_refuses_first)
+A shadowed pair names a real owned label and a witness that drives it. ... ok
+test_every_unprobed_entry_is_a_real_owned_entry (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry)
+An exemption has to name something that exists and IS owned. ... ok
+test_historical_cleanup_document_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary)
+The exact chained journal validator still needs a reaching probe. ... ok
+test_historical_custody_journal_probes_reach_their_named_boundaries (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_custody_journal_probes_reach_their_named_boundaries) ... ok
+test_line_launch_proof_has_an_exact_live_capability_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_line_launch_proof_has_an_exact_live_capability_probe) ... ok
+test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner) ... ok
+test_the_context_delivery_attempt_is_compared_before_it_is_typed (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_context_delivery_attempt_is_compared_before_it_is_typed) ... ok
+test_the_meta_group_record_owner_cannot_be_driven (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_meta_group_record_owner_cannot_be_driven)
+NO_PROBE witness: `meta.value` is STRICT TEXT, so the text rule over a digit-like value never refuses. ... ok
+test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+Every entry has a probe today, so relaxing the check changes no ... ok
+test_the_pin_members_are_refused_by_the_pin_owner_first (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_pin_members_are_refused_by_the_pin_owner_first) ... ok
+test_a_corrupted_self_signed_record_refuses (tests.manager.test_boundary_inventory.StageCProtections.test_a_corrupted_self_signed_record_refuses)
+The reviewer's token counterexample, and the same proof for every self-signed journal family. ... ok
+test_a_forged_custody_member_releases_nothing (tests.manager.test_boundary_inventory.StageCProtections.test_a_forged_custody_member_releases_nothing)
+A `directory_custody` member forged into a committed ending must not release the resource. ... ok
+test_a_pass_through_replay_reads_no_member (tests.manager.test_boundary_inventory.StageCProtections.test_a_pass_through_replay_reads_no_member) ... ok
+test_every_adopted_row_door_is_handed_an_owned_row (tests.manager.test_boundary_inventory.StageCProtections.test_every_adopted_row_door_is_handed_an_owned_row) ... ok
+test_every_forwarded_entry_reaches_an_owned_target (tests.manager.test_boundary_inventory.StageCProtections.test_every_forwarded_entry_reaches_an_owned_target) ... ok
+test_every_internal_operand_arrives_owned (tests.manager.test_boundary_inventory.StageCProtections.test_every_internal_operand_arrives_owned) ... ok
+test_every_mint_is_package_private (tests.manager.test_boundary_inventory.StageCProtections.test_every_mint_is_package_private) ... ok
+test_label_operands_reach_only_the_refusal_prose (tests.manager.test_boundary_inventory.StageCProtections.test_label_operands_reach_only_the_refusal_prose)
+A `what` operand is this manager's own noun: it names the refusal and decides nothing. ... ok
+test_outbound_constructors_have_no_caller_outside_the_package (tests.manager.test_boundary_inventory.StageCProtections.test_outbound_constructors_have_no_caller_outside_the_package) ... ok
+test_replayed_or_keyed_members_are_compared_carried_or_re_read (tests.manager.test_boundary_inventory.StageCProtections.test_replayed_or_keyed_members_are_compared_carried_or_re_read)
+Every remaining stated read of a journal or key column is used as a comparison operand, ... ok
+test_stated_rules_refuse_what_they_say (tests.manager.test_boundary_inventory.StageCProtections.test_stated_rules_refuse_what_they_say) ... ok
+test_strict_columns_are_read_as_their_declared_type (tests.manager.test_boundary_inventory.StageCProtections.test_strict_columns_are_read_as_their_declared_type)
+`COALESCE(MAX(c), 0) + 1` over a STRICT INTEGER and a STRICT TEXT key listing. ... ok
+test_the_owned_input_trace_accepts_an_owned_read_operand_and_composition (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_accepts_an_owned_read_operand_and_composition) ... ok
+test_the_owned_input_trace_rejects_an_unowned_public_operand_and_an_unresolved_name (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_rejects_an_unowned_public_operand_and_an_unresolved_name) ... ok
+test_the_owned_input_trace_rejects_an_unowned_read (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_rejects_an_unowned_read)
+The reviewer's counterexample: a raw row handed to a helper, no validator anywhere. ... ok
+test_the_reclaim_answers_are_never_read (tests.manager.test_boundary_inventory.StageCProtections.test_the_reclaim_answers_are_never_read) ... ok
+test_every_stated_owner_names_a_witness_that_exists (tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness.test_every_stated_owner_names_a_witness_that_exists) ... ok
+test_all_lane_probes_reach_their_named_boundary (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_all_lane_probes_reach_their_named_boundary) ... ok
+test_lane_entries_have_exactly_one_owner_and_no_unaccounted_calls (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_lane_entries_have_exactly_one_owner_and_no_unaccounted_calls) ... ok
+test_lane_probe_catalog_matches_every_actual_owner (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_lane_probe_catalog_matches_every_actual_owner) ... ok
+test_lane_projection_and_lookup_positive_and_earlier_refusal_controls (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_lane_projection_and_lookup_positive_and_earlier_refusal_controls) ... ok
+test_private_lane_checks_refuse_before_sql (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_private_lane_checks_refuse_before_sql) ... ok
+test_private_lane_writer_provenance (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_private_lane_writer_provenance) ... ok
+test_public_start_and_cleanup_supply_owned_lane_values (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_public_start_and_cleanup_supply_owned_lane_values) ... ok
+test_entries_calls_and_probes_are_owned (tests.manager.test_boundary_inventory.StoppedSettlementInventory.test_entries_calls_and_probes_are_owned) ... ok
+test_a_closure_that_rebinds_the_name_owns_its_own_parameter_not_the_callers (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_closure_that_rebinds_the_name_owns_its_own_parameter_not_the_callers) ... ok
+test_a_dynamic_read_is_named_by_every_caller_and_the_placeholder_retired (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_dynamic_read_is_named_by_every_caller_and_the_placeholder_retired) ... ok
+test_a_replayed_document_is_an_adopted_read_its_reader_owns_or_does_not (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_replayed_document_is_an_adopted_read_its_reader_owns_or_does_not) ... ok
+test_a_twice_nested_closure_is_visited_once_with_its_own_bindings (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_twice_nested_closure_is_visited_once_with_its_own_bindings) ... ok
+test_an_owner_inside_a_closure_is_the_enclosing_functions_owner (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_an_owner_inside_a_closure_is_the_enclosing_functions_owner) ... ok
+test_one_unnamed_caller_keeps_the_placeholder_as_visible_debt (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_one_unnamed_caller_keeps_the_placeholder_as_visible_debt) ... ok
+test_the_placeholder_resolver_only_fills_from_literals (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_the_placeholder_resolver_only_fills_from_literals) ... ok
+test_the_real_tree_pins_all_three (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_the_real_tree_pins_all_three) ... ok
+test_a_dynamic_from_resolves_through_a_literal_binding (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_a_dynamic_from_resolves_through_a_literal_binding) ... ok
+test_a_static_from_keeps_its_table_under_a_dynamic_predicate (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_a_static_from_keeps_its_table_under_a_dynamic_predicate) ... ok
+test_an_unresolved_dynamic_from_is_a_read_with_a_placeholder_table (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_an_unresolved_dynamic_from_is_a_read_with_a_placeholder_table) ... ok
+test_the_real_one_by_attempt_read_is_inventoried_and_pinned (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_the_real_one_by_attempt_read_is_inventoried_and_pinned)
+The row read and every column its callers take from the returned ... ok
+test_what_is_not_a_select_is_not_a_read (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_what_is_not_a_select_is_not_a_read) ... ok
+test_a_boundary_pin_proves_the_attempt_row_before_anything_else (tests.manager.test_boundary_inventory.StatedRules.test_a_boundary_pin_proves_the_attempt_row_before_anything_else)
+Forwarded to `_require_attempt`: an attempt that is not there is ... ok
+test_a_carried_token_document_is_reread_before_it_is_acted_on (tests.manager.test_boundary_inventory.StatedRules.test_a_carried_token_document_is_reread_before_it_is_acted_on)
+WITNESS: the token document a caller holds is checked, never trusted. ... ok
+test_a_committed_claim_for_another_work_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_committed_claim_for_another_work_is_refused)
+The Work operand is the COMPARISON, and it comes from an owned row. ... ok
+test_a_composition_takes_only_capabilities_this_build_minted (tests.manager.test_boundary_inventory.StatedRules.test_a_composition_takes_only_capabilities_this_build_minted)
+An EXACT type check at each of the three, before any member is read. ... ok
+test_a_conversation_asks_for_a_sequence_of_known_operations (tests.manager.test_boundary_inventory.StatedRules.test_a_conversation_asks_for_a_sequence_of_known_operations)
+Shape, emptiness and the closed vocabulary -- all three, one owner. ... ok
+test_a_conversations_program_is_held_to_the_exec_program_rule (tests.manager.test_boundary_inventory.StatedRules.test_a_conversations_program_is_held_to_the_exec_program_rule)
+The forward reaches that owner, from the public operation. ... ok
+test_a_credential_mount_is_an_entry_of_the_fixed_root (tests.manager.test_boundary_inventory.StatedRules.test_a_credential_mount_is_an_entry_of_the_fixed_root)
+A SEPARATE OWNER FROM `_mounts`, and the separation is the point. ... ok
+test_a_credential_sequence_is_a_list_of_owned_members (tests.manager.test_boundary_inventory.StatedRules.test_a_credential_sequence_is_a_list_of_owned_members)
+A LIST IS NOT A CROSSING; its members are. ... ok
+test_a_decision_is_accept_or_decline (tests.manager.test_boundary_inventory.StatedRules.test_a_decision_is_accept_or_decline) ... ok
+test_a_decision_names_this_offers_own_attempt_and_work (tests.manager.test_boundary_inventory.StatedRules.test_a_decision_names_this_offers_own_attempt_and_work) ... ok
+test_a_declaration_is_owned_once_at_construction (tests.manager.test_boundary_inventory.StatedRules.test_a_declaration_is_owned_once_at_construction)
+W6634. `sealing.py` is a pure function over data whose caller is the ... ok
+test_a_declared_capacity_a_caller_minted_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_declared_capacity_a_caller_minted_is_refused) ... ok
+test_a_declared_capacity_is_held_to_this_builds_floor_and_ceiling (tests.manager.test_boundary_inventory.StatedRules.test_a_declared_capacity_is_held_to_this_builds_floor_and_ceiling)
+A range rather than a shape, which is why it is stated here. ... ok
+test_a_delivery_is_one_of_the_closed_lifecycle_states (tests.manager.test_boundary_inventory.StatedRules.test_a_delivery_is_one_of_the_closed_lifecycle_states)
+A comparison against this module's own constant, not a boundary. ... ok
+test_a_deliverys_bearers_are_keyed_by_a_proved_slot (tests.manager.test_boundary_inventory.StatedRules.test_a_deliverys_bearers_are_keyed_by_a_proved_slot)
+The keys are owned; the VALUES are never named in a refusal. ... ok
+test_a_diagnostic_noun_names_the_subject_and_decides_nothing (tests.manager.test_boundary_inventory.StatedRules.test_a_diagnostic_noun_names_the_subject_and_decides_nothing)
+The noun is bounded at each PUBLIC door, driven with caller data. ... ok
+test_a_fence_that_ended_another_assignment_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_fence_that_ended_another_assignment_is_refused)
+The Work and the authority are the COMPARISON operands. ... ok
+test_a_forwarded_operand_reaches_the_authority_unchanged (tests.manager.test_boundary_inventory.StatedRules.test_a_forwarded_operand_reaches_the_authority_unchanged)
+The port forwards; the authority owns. ... ok
+test_a_governed_attempt_row_is_its_own_owners (tests.manager.test_boundary_inventory.StatedRules.test_a_governed_attempt_row_is_its_own_owners)
+WITNESS: the governance reads a row somebody else already validated. ... ok
+test_a_launch_mount_acts_on_a_delivery_this_manager_materialized (tests.manager.test_boundary_inventory.StatedRules.test_a_launch_mount_acts_on_a_delivery_this_manager_materialized)
+What proves a launch delivery is that it IS one. ... ok
+test_a_launch_value_is_bounded_text_with_no_nul (tests.manager.test_boundary_inventory.StatedRules.test_a_launch_value_is_bounded_text_with_no_nul)
+W26291. One owner for all three values, and one literal label. ... ok
+test_a_maintenance_allowance_may_only_lower_this_modules_bound (tests.manager.test_boundary_inventory.StatedRules.test_a_maintenance_allowance_may_only_lower_this_modules_bound)
+WITNESS: the preparation allowance, exercised at both directions. ... ok
+test_a_maintenance_window_reader_is_a_capability_proven_by_use (tests.manager.test_boundary_inventory.StatedRules.test_a_maintenance_window_reader_is_a_capability_proven_by_use)
+WITNESS: the control store is exercised, not validated by shape. ... ok
+test_a_manager_guard_is_its_own_modules_composition (tests.manager.test_boundary_inventory.StatedRules.test_a_manager_guard_is_its_own_modules_composition)
+WITNESS: the HOST-8 guard's operands are composed here, and the LOCK is it. ... /home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py:14315: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py' mode='r' encoding='UTF-8'>
+  source = ast.parse(open(_ws.__file__).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_manager_reclaim_selector_is_exactly_boolean (tests.manager.test_boundary_inventory.StatedRules.test_a_manager_reclaim_selector_is_exactly_boolean)
+WITNESS: the privileged mode switch is typed locally, not truthily. ... ok
+test_a_manifest_is_owned_by_the_contracts_own_composite (tests.manager.test_boundary_inventory.StatedRules.test_a_manifest_is_owned_by_the_contracts_own_composite)
+A DIFFERENT OWNER FROM `boundaries`, and a stronger one: schema ... ok
+test_a_minted_sequence_is_whole_because_the_column_is (tests.manager.test_boundary_inventory.StatedRules.test_a_minted_sequence_is_whole_because_the_column_is)
+The store's own typing is the owner, and it is worth checking. ... ok
+test_a_mount_sequence_is_iterated_and_never_read (tests.manager.test_boundary_inventory.StatedRules.test_a_mount_sequence_is_iterated_and_never_read)
+The container is walked; every mount inside it is owned. Any ... ok
+test_a_nominated_source_a_caller_minted_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_nominated_source_a_caller_minted_is_refused)
+The stated rule for all four of this constructor's operands. ... ok
+test_a_pinned_identity_is_the_two_pairs_an_incarnation_proved (tests.manager.test_boundary_inventory.StatedRules.test_a_pinned_identity_is_the_two_pairs_an_incarnation_proved)
+Half an identity compares against nothing, so it is refused rather ... ok
+test_a_pinned_pair_is_two_non_negative_whole_numbers (tests.manager.test_boundary_inventory.StatedRules.test_a_pinned_pair_is_two_non_negative_whole_numbers) ... ok
+test_a_preparation_refusal_is_this_packages_own_closed_type (tests.manager.test_boundary_inventory.StatedRules.test_a_preparation_refusal_is_this_packages_own_closed_type)
+The stated rule, exercised rather than asserted in prose. ... ok
+test_a_published_offer_row_is_owned_where_it_leaves_the_table (tests.manager.test_boundary_inventory.StatedRules.test_a_published_offer_row_is_owned_where_it_leaves_the_table)
+The publisher never sees an offer value nobody proved. ... ok
+test_a_quiet_engine_stderr_is_not_a_fault (tests.manager.test_boundary_inventory.StatedRules.test_a_quiet_engine_stderr_is_not_a_fault)
+The same owner at the other stream, witnessed independently: two ... ok
+test_a_reader_only_ever_receives_a_channel_the_port_proved (tests.manager.test_boundary_inventory.StatedRules.test_a_reader_only_ever_receives_a_channel_the_port_proved)
+The stated rule is that nothing unproved reaches `_Reader`. ... ok
+test_a_refused_open_leaves_no_handle_and_no_store (tests.manager.test_boundary_inventory.StatedRules.test_a_refused_open_leaves_no_handle_and_no_store)
+The handle is assembled by `open`, which closes it on every refused ... ok
+test_a_replay_of_other_operands_is_an_operation_collision (tests.manager.test_boundary_inventory.StatedRules.test_a_replay_of_other_operands_is_an_operation_collision)
+Replay compares; it does not re-derive. ... ok
+test_a_retention_names_artifacts_and_owns_every_one_of_them (tests.manager.test_boundary_inventory.StatedRules.test_a_retention_names_artifacts_and_owns_every_one_of_them)
+A LIST IS NOT A BOUNDARY -- what crosses is the members. ... ok
+test_a_session_epoch_counts_from_one (tests.manager.test_boundary_inventory.StatedRules.test_a_session_epoch_counts_from_one)
+`posture_slots._epoch` owns the frozen `positiveInt`, and it is not ... ok
+test_a_settlement_rides_back_exactly_as_the_boundary_gave_it (tests.manager.test_boundary_inventory.StatedRules.test_a_settlement_rides_back_exactly_as_the_boundary_gave_it)
+ORDERED, not done. ... ok
+test_a_source_boundary_a_caller_minted_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_source_boundary_a_caller_minted_is_refused) ... ok
+test_a_source_delivery_is_owned_at_the_constructor_it_is_given_to (tests.manager.test_boundary_inventory.StatedRules.test_a_source_delivery_is_owned_at_the_constructor_it_is_given_to)
+The CONSTRUCTOR's own rule, and then the held value reaching a ... ok
+test_a_source_sequence_counts_from_zero (tests.manager.test_boundary_inventory.StatedRules.test_a_source_sequence_counts_from_zero)
+The sequence is half of a DURABLE IDENTITY, not a shape. ... ok
+test_a_stop_timeout_is_a_positive_whole_number (tests.manager.test_boundary_inventory.StatedRules.test_a_stop_timeout_is_a_positive_whole_number) ... ok
+test_a_teardown_acts_on_a_delivery_this_manager_materialized (tests.manager.test_boundary_inventory.StatedRules.test_a_teardown_acts_on_a_delivery_this_manager_materialized)
+What proves a delivery is that it IS one. ... ok
+test_a_token_control_capability_is_proven_by_use (tests.manager.test_boundary_inventory.StatedRules.test_a_token_control_capability_is_proven_by_use)
+WITNESS: the control store is a capability, exercised rather than validated. ... ok
+test_a_worker_entry_bound_is_a_positive_whole_number (tests.manager.test_boundary_inventory.StatedRules.test_a_worker_entry_bound_is_a_positive_whole_number)
+Owned at the port, where the bound is handed to the world. ... ok
+test_a_writable_flag_is_a_yes_or_a_no (tests.manager.test_boundary_inventory.StatedRules.test_a_writable_flag_is_a_yes_or_a_no)
+`type(value) is bool`, so a truthy substitute is refused rather ... ok
+test_activation_asks_the_authority_for_the_live_assignment (tests.manager.test_boundary_inventory.StatedRules.test_activation_asks_the_authority_for_the_live_assignment)
+Three things must agree, and the third is the authority's own answer. ... ok
+test_an_absent_observation_is_omitted_and_not_nulled (tests.manager.test_boundary_inventory.StatedRules.test_an_absent_observation_is_omitted_and_not_nulled)
+An inquiry never observes anything, and the view says so by not ... ok
+test_an_activation_outcome_is_exactly_boolean_and_unknown_stays_held (tests.manager.test_boundary_inventory.StatedRules.test_an_activation_outcome_is_exactly_boolean_and_unknown_stays_held)
+WITNESS: the activation outcome is typed, and unknown is not false. ... ok
+test_an_adoption_takes_only_capabilities_this_build_minted (tests.manager.test_boundary_inventory.StatedRules.test_an_adoption_takes_only_capabilities_this_build_minted) ... ok
+test_an_answer_is_published_by_the_manager_and_never_the_worker (tests.manager.test_boundary_inventory.StatedRules.test_an_answer_is_published_by_the_manager_and_never_the_worker)
+The whole isolation topology exists so that a worker holds no Baton ... ok
+test_an_assignment_from_another_authority_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_an_assignment_from_another_authority_is_refused)
+The relationship the type check left unowned. ... ok
+test_an_engine_status_is_a_whole_number_and_zero_is_ordinary (tests.manager.test_boundary_inventory.StatedRules.test_an_engine_status_is_a_whole_number_and_zero_is_ordinary)
+`_status` owns it, and ZERO is what success looks like. ... ok
+test_an_engine_stream_is_text_that_may_be_empty (tests.manager.test_boundary_inventory.StatedRules.test_an_engine_stream_is_text_that_may_be_empty)
+`_stream` owns it, and the EMPTY string is admitted on purpose. ... ok
+test_an_exec_program_is_a_sequence_of_words_and_not_a_string (tests.manager.test_boundary_inventory.StatedRules.test_an_exec_program_is_a_sequence_of_words_and_not_a_string)
+`exec_vector` owns the whole operand, not one word of it. ... ok
+test_an_identification_adapter_is_owned_by_the_reconciliation (tests.manager.test_boundary_inventory.StatedRules.test_an_identification_adapter_is_owned_by_the_reconciliation)
+The stated rule, exercised at both halves of what it claims. ... ok
+test_an_interrogation_discriminator_decides_before_anything_is_read (tests.manager.test_boundary_inventory.StatedRules.test_an_interrogation_discriminator_decides_before_anything_is_read)
+An unrecognised answer is refused rather than read as the least ... ok
+test_an_observation_names_a_frozen_axis_and_one_of_its_values (tests.manager.test_boundary_inventory.StatedRules.test_an_observation_names_a_frozen_axis_and_one_of_its_values)
+Two closed sets, and the second depends on the first. ... ok
+test_an_offer_is_issued_only_against_open_queued_unclaimed_work (tests.manager.test_boundary_inventory.StatedRules.test_an_offer_is_issued_only_against_open_queued_unclaimed_work)
+The four projection members the manager COMPARES rather than shapes. ... ok
+test_an_offer_naming_another_participant_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_an_offer_naming_another_participant_is_refused) ... ok
+test_an_outbound_constructor_owns_its_member_set (tests.manager.test_boundary_inventory.StatedRules.test_an_outbound_constructor_owns_its_member_set)
+4bz's outbound half: the contract owns the SHAPE. ... ok
+test_an_outbound_constructor_refuses_a_shape_its_contract_omits (tests.manager.test_boundary_inventory.StatedRules.test_an_outbound_constructor_refuses_a_shape_its_contract_omits)
+4bz's outbound half: the constructor owns the SHAPE. ... ok
+test_an_outbound_document_is_built_in_its_contract_order (tests.manager.test_boundary_inventory.StatedRules.test_an_outbound_document_is_built_in_its_contract_order)
+Two paths building one document must build the same bytes. ... ok
+test_an_unfenced_answer_stops_the_cancellation (tests.manager.test_boundary_inventory.StatedRules.test_an_unfenced_answer_stops_the_cancellation)
+`fenced` is a closed value, and false is not a smaller yes. ... ok
+test_an_unrecognised_running_member_is_uncertain_and_never_absent (tests.manager.test_boundary_inventory.StatedRules.test_an_unrecognised_running_member_is_uncertain_and_never_absent)
+This read CANNOT refuse, and that is the rule rather than an ... ok
+test_an_unrecorded_window_ordinal_answers_absence (tests.manager.test_boundary_inventory.StatedRules.test_an_unrecorded_window_ordinal_answers_absence)
+WITNESS: an ordinal SELECTS nothing it does not name. ... ok
+test_cancellation_fences_before_it_orders_anything (tests.manager.test_boundary_inventory.StatedRules.test_cancellation_fences_before_it_orders_anything)
+FENCE, THEN STOP -- and the operands the fence needs are forwarded. ... ok
+test_consumption_requires_one_live_writer_before_delegating (tests.manager.test_boundary_inventory.StatedRules.test_consumption_requires_one_live_writer_before_delegating) ... ok
+test_deadline_capability_owners (tests.manager.test_boundary_inventory.StatedRules.test_deadline_capability_owners) ... ok
+test_deadline_closed_document_owners (tests.manager.test_boundary_inventory.StatedRules.test_deadline_closed_document_owners) ... ok
+test_deadline_destroy_response_owners (tests.manager.test_boundary_inventory.StatedRules.test_deadline_destroy_response_owners) ... ok
+test_deadline_policy_owner (tests.manager.test_boundary_inventory.StatedRules.test_deadline_policy_owner) ... ok
+test_deadline_public_operand_owners (tests.manager.test_boundary_inventory.StatedRules.test_deadline_public_operand_owners) ... ok
+test_discarding_a_root_this_module_did_not_make_is_absence (tests.manager.test_boundary_inventory.StatedRules.test_discarding_a_root_this_module_did_not_make_is_absence)
+W26291. `discard` answers whether the root is gone. ... ok
+test_every_operation_the_port_names_is_typed_at_construction (tests.manager.test_boundary_inventory.StatedRules.test_every_operation_the_port_names_is_typed_at_construction)
+A capability discovered to be missing once durable state depends on ... ok
+test_every_outbound_constructor_holds_its_contract (tests.manager.test_boundary_inventory.StatedRules.test_every_outbound_constructor_holds_its_contract)
+All nine, derived from the table rather than listed here. ... ok
+test_every_settlement_variant_carries_its_own_members (tests.manager.test_boundary_inventory.StatedRules.test_every_settlement_variant_carries_its_own_members)
+The discriminator is owned by the closed set that reads it. ... ok
+test_line_launch_metadata_keeps_mint_and_durable_binding (tests.manager.test_boundary_inventory.StatedRules.test_line_launch_metadata_keeps_mint_and_durable_binding) ... ok
+test_one_delivery_belongs_to_one_attempt (tests.manager.test_boundary_inventory.StatedRules.test_one_delivery_belongs_to_one_attempt)
+A mounted credential root is keyed by attempt, and so is the runtime ... ok
+test_only_the_HOLDER_of_a_preparation_ownership_continues_it (tests.manager.test_boundary_inventory.StatedRules.test_only_the_HOLDER_of_a_preparation_ownership_continues_it)
+WITNESS: the ownership capability and the operand that presents it. ... ok
+test_only_the_same_execution_or_a_proved_ending_takes_a_window (tests.manager.test_boundary_inventory.StatedRules.test_only_the_same_execution_or_a_proved_ending_takes_a_window)
+WITNESS: the execution identity an adoption is compared against. ... ok
+test_open_refuses_its_own_operands_with_its_own_closed_pair (tests.manager.test_boundary_inventory.StatedRules.test_open_refuses_its_own_operands_with_its_own_closed_pair)
+A path this build must not touch is integrity/PATH, not a schema ... ok
+test_operation_identities_are_a_sequence_one_per_operation (tests.manager.test_boundary_inventory.StatedRules.test_operation_identities_are_a_sequence_one_per_operation)
+Shape, cardinality, each identity, its ceiling, and distinctness. ... ok
+test_prose_rides_the_signature_that_records_it (tests.manager.test_boundary_inventory.StatedRules.test_prose_rides_the_signature_that_records_it)
+Prose is not owned at entry; the act that records it owns it. ... ok
+test_public_sealing_owns_the_refusal_before_reading_it (tests.manager.test_boundary_inventory.StatedRules.test_public_sealing_owns_the_refusal_before_reading_it)
+The public sealing door types its operand BEFORE reading a member. ... ok
+test_restore_abandoned_correction_profile_owner (tests.manager.test_boundary_inventory.StatedRules.test_restore_abandoned_correction_profile_owner) ... ok
+test_review_cycle_stated_owners (tests.manager.test_boundary_inventory.StatedRules.test_review_cycle_stated_owners)
+The aggregate owners are live and the focused lifecycle suite runs. ... ok
+test_settle_restoration_execution_profile_owner (tests.manager.test_boundary_inventory.StatedRules.test_settle_restoration_execution_profile_owner) ... ok
+test_settlement_authority_is_asserted_not_inherited (tests.manager.test_boundary_inventory.StatedRules.test_settlement_authority_is_asserted_not_inherited)
+`may_retire` is computed here and forwarded, never defaulted. ... ok
+test_signature_operands_are_canonicalized (tests.manager.test_boundary_inventory.StatedRules.test_signature_operands_are_canonicalized)
+Canonicalization is the owner: it refuses what it cannot carry. ... ok
+test_stopped_settlement_preview_stated_owners (tests.manager.test_boundary_inventory.StatedRules.test_stopped_settlement_preview_stated_owners) ... ok
+test_stopped_settlement_stated_owners (tests.manager.test_boundary_inventory.StatedRules.test_stopped_settlement_stated_owners) ... ok
+test_the_advertised_capability_is_owned_by_2_2s_own_rule (tests.manager.test_boundary_inventory.StatedRules.test_the_advertised_capability_is_owned_by_2_2s_own_rule)
+Owned, and deliberately NOT by the layer. ... ok
+test_the_agents_capability_answer_is_owned_before_it_is_walked (tests.manager.test_boundary_inventory.StatedRules.test_the_agents_capability_answer_is_owned_before_it_is_walked)
+An operand this manager iterates is one it can be handed a ... ok
+test_the_answered_wire_version_is_compared_against_the_pin (tests.manager.test_boundary_inventory.StatedRules.test_the_answered_wire_version_is_compared_against_the_pin)
+An answer is an announcement, not a negotiation. ... ok
+test_the_bearer_is_acceptances_capability_and_no_declines (tests.manager.test_boundary_inventory.StatedRules.test_the_bearer_is_acceptances_capability_and_no_declines)
+W33937: ONE OPERAND, TWO RULES, chosen by the decision it rides. ... ok
+test_the_catalogue_decides_one_membership_question (tests.manager.test_boundary_inventory.StatedRules.test_the_catalogue_decides_one_membership_question)
+Nothing to own, and the membership answer is what matters. ... ok
+test_the_claim_operation_id_is_a_derivation_of_its_operands (tests.manager.test_boundary_inventory.StatedRules.test_the_claim_operation_id_is_a_derivation_of_its_operands)
+Same operands, same id; different operands, different id. ... ok
+test_the_input_pair_is_owned_by_the_contracts_own_composite (tests.manager.test_boundary_inventory.StatedRules.test_the_input_pair_is_owned_by_the_contracts_own_composite)
+W19784. The same owner as a retained manifest, answering a question ... ok
+test_the_next_epoch_is_a_whole_number_by_construction (tests.manager.test_boundary_inventory.StatedRules.test_the_next_epoch_is_a_whole_number_by_construction)
+`COALESCE(MAX(x), 0) + 1` over a STRICT INTEGER column: there is ... ok
+test_the_nine_frozen_states_are_a_closed_vocabulary (tests.manager.test_boundary_inventory.StatedRules.test_the_nine_frozen_states_are_a_closed_vocabulary)
+`sessions._state` answers ONE membership question and raises the ... ok
+test_the_observation_discriminator_decides_before_anything_is_read (tests.manager.test_boundary_inventory.StatedRules.test_the_observation_discriminator_decides_before_anything_is_read)
+`boundaries.alternative` reads `kind` to decide WHICH contract the ... ok
+test_the_observed_revision_is_a_whole_number_including_zero (tests.manager.test_boundary_inventory.StatedRules.test_the_observed_revision_is_a_whole_number_including_zero)
+WITNESS: `renew`'s condition is the reader's own revision, typed locally. ... ok
+test_the_preparation_gate_distrusts_the_roots_it_is_handed (tests.manager.test_boundary_inventory.StatedRules.test_the_preparation_gate_distrusts_the_roots_it_is_handed)
+WITNESS: the host-preparation account and its admission gate. ... ok
+test_the_preparation_window_only_exempts_the_act_that_owns_it (tests.manager.test_boundary_inventory.StatedRules.test_the_preparation_window_only_exempts_the_act_that_owns_it)
+WITNESS: the preparation ownership window and its exemption. ... ok
+test_the_runtime_binds_come_from_a_boundary_this_build_composed (tests.manager.test_boundary_inventory.StatedRules.test_the_runtime_binds_come_from_a_boundary_this_build_composed) ... ok
+test_the_task_acquisition_carries_the_preparation_condition (tests.manager.test_boundary_inventory.StatedRules.test_the_task_acquisition_carries_the_preparation_condition)
+WITNESS: the governance that decides the preparation condition under the ... ok
+test_what_the_adapter_collects_is_owned_where_it_arrives (tests.manager.test_boundary_inventory.StatedRules.test_what_the_adapter_collects_is_owned_where_it_arrives)
+The same rule as the seal above, one boundary later. ... ok
+test_what_the_adapter_seals_is_owned_where_it_arrives (tests.manager.test_boundary_inventory.StatedRules.test_what_the_adapter_seals_is_owned_where_it_arrives)
+An adapter's account of its own success decides NOTHING here. ... ok
+test_what_the_retain_adapter_answers_decides_nothing (tests.manager.test_boundary_inventory.StatedRules.test_what_the_retain_adapter_answers_decides_nothing)
+The command is DELIVERED and its reply is discarded. ... ok
+test_whether_a_turn_was_in_flight_is_an_exact_boolean (tests.manager.test_boundary_inventory.StatedRules.test_whether_a_turn_was_in_flight_is_an_exact_boolean)
+§8.4 makes the reported turn outcome depend on this, and `?? false` ... ok
+test_deleting_validator_preserves_independent_entry_and_missing_owner_failure (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_deleting_validator_preserves_independent_entry_and_missing_owner_failure) ... ok
+test_double_ownership_assertion_still_rejects_second_owner (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_double_ownership_assertion_still_rejects_second_owner) ... ok
+test_exact_declaration_links_to_real_adopted_owner (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_exact_declaration_links_to_real_adopted_owner) ... ok
+test_no_entry_claim_means_no_declaration_exemption (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_no_entry_claim_means_no_declaration_exemption) ... ok
+test_one_claimed_context_cannot_hide_an_unclaimed_context (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_one_claimed_context_cannot_hide_an_unclaimed_context) ... ok
+test_projection_keeps_existing_owner_triples (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_projection_keeps_existing_owner_triples) ... ok
+test_same_adopted_call_and_origin_can_be_projected_at_several_sites (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_same_adopted_call_and_origin_can_be_projected_at_several_sites) ... ok
+test_same_call_and_origin_with_another_label_cannot_borrow_claim (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_same_call_and_origin_with_another_label_cannot_borrow_claim) ... ok
+test_same_label_at_unrelated_helper_is_still_orphan (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_same_label_at_unrelated_helper_is_still_orphan) ... ok
+test_same_site_and_label_do_not_claim_an_unrelated_subject (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_same_site_and_label_do_not_claim_an_unrelated_subject) ... ok
+test_unreachable_helper_call_does_not_supply_a_link (tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting.test_unreachable_helper_call_does_not_supply_a_link) ... ok
+
+----------------------------------------------------------------------
+Ran 191 tests in 152.805s
+
+OK

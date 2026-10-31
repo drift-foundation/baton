@@ -1,0 +1,726 @@
+test_cleanup_removes_a_frozen_root_and_thaws_nothing_else (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_cleanup_removes_a_frozen_root_and_thaws_nothing_else)
+Retry and cleanup still work, and reach exactly one tree. ... ok
+test_recomposition_is_still_refused_rather_than_forced (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_recomposition_is_still_refused_rather_than_forced)
+The freeze is not what makes a second composition impossible, and ... ok
+test_the_frozen_root_denies_create_unlink_rename_and_replacement (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_the_frozen_root_denies_create_unlink_rename_and_replacement)
+The four ways a directory's write bit lets somebody change what a ... ok
+test_the_manager_can_still_read_and_traverse_what_it_froze (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_the_manager_can_still_read_and_traverse_what_it_froze)
+0555 and not 0500: the container's fixed uid is not this manager's, ... ok
+test_the_root_is_frozen_to_the_declared_mode (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_the_root_is_frozen_to_the_declared_mode) ... ok
+test_cleanup_reaches_exactly_one_frozen_home (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_cleanup_reaches_exactly_one_frozen_home) ... ok
+test_the_home_is_frozen_once_its_entries_exist (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_the_home_is_frozen_once_its_entries_exist) ... ok
+test_the_root_entry_itself_cannot_be_renamed_or_replaced (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_the_root_entry_itself_cannot_be_renamed_or_replaced)
+The reviewer's reproduction, as a permanent case. ... ok
+test_what_the_frozen_home_still_permits (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_what_the_frozen_home_still_permits)
+The home's mode governs its ENTRIES and nothing deeper. ... ok
+test_a_colliding_home_cannot_alias_another_attempts_home (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_colliding_home_cannot_alias_another_attempts_home)
+The attempt home itself is part of the exclusive boundary. ... ok
+test_a_colliding_home_cannot_alias_another_attempts_root (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_colliding_home_cannot_alias_another_attempts_root)
+Exclusive allocation refuses stale names rather than adopting them. ... ok
+test_a_home_that_is_not_a_directory_is_refused (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_home_that_is_not_a_directory_is_refused) ... ok
+test_a_partial_pair_is_never_published (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_partial_pair_is_never_published)
+Both documents or neither: §7.0's order, and the rule that a mount ... ok
+test_a_published_delivery_is_not_recomposed (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_published_delivery_is_not_recomposed) ... ok
+test_a_second_attempt_cannot_publish_over_a_published_delivery (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_second_attempt_cannot_publish_over_a_published_delivery)
+The collision refusal, at the boundary where a collision is ... ok
+test_a_stale_entry_of_any_other_kind_is_refused_too (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_stale_entry_of_any_other_kind_is_refused_too)
+The alias is one shape of stale state; these are the others. ... ok
+test_an_aliased_home_is_refused_by_every_shape_it_can_take (tests.manager.test_input_delivery.TheRuledTrustModel.test_an_aliased_home_is_refused_by_every_shape_it_can_take)
+The reviewer's whole-home case, and its siblings. ... ok
+test_cleanup_never_reaches_outside_the_storage_root (tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_never_reaches_outside_the_storage_root) ... ok
+test_cleanup_reaches_one_attempt_and_retries_cleanly (tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_reaches_one_attempt_and_retries_cleanly) ... ok
+test_first_allocation_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_first_allocation_race_answers_or_refuses_in_contract)
+An exclusive mkdir collision is a refusal, not a raw OS fault. ... ok
+test_provisioning_is_idempotent_because_a_restart_needs_it (tests.manager.test_input_delivery.TheRuledTrustModel.test_provisioning_is_idempotent_because_a_restart_needs_it)
+Asking twice is not reusing an identity. ... ok
+test_the_child_create_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_child_create_race_answers_or_refuses_in_contract)
+The same contract one level down, which the review asks for by name. ... ok
+test_the_home_create_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_home_create_race_answers_or_refuses_in_contract) ... ok
+test_the_loser_of_a_create_race_reopens_rather_than_refusing (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_loser_of_a_create_race_reopens_rather_than_refusing)
+Both callers get roots, because both are the same attempt. ... ok
+test_the_published_documents_carry_no_write_bit_for_anybody (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_published_documents_carry_no_write_bit_for_anybody) ... ok
+test_the_restart_lookup_still_answers_the_same_roots (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_restart_lookup_still_answers_the_same_roots)
+The path the previous cut broke, kept green beside the new guard. ... ok
+test_two_attempts_receive_two_private_roots (tests.manager.test_input_delivery.TheRuledTrustModel.test_two_attempts_receive_two_private_roots) ... ok
+test_a_party_that_is_neither_owner_nor_group_can_still_read_it (tests.manager.test_input_delivery.TheWholeDeliveryIsFrozenAndNotOnlyTheRoot.test_a_party_that_is_neither_owner_nor_group_can_still_read_it)
+WHICH IS THE POINT, and the half that was missing. ... ok
+test_every_staged_file_and_directory_carries_the_declared_mode (tests.manager.test_input_delivery.TheWholeDeliveryIsFrozenAndNotOnlyTheRoot.test_every_staged_file_and_directory_carries_the_declared_mode)
+Whatever the umask was when the copier ran. ... ok
+test_a_restrictive_umask_cannot_author_an_unreadable_document (tests.manager.test_input_delivery.TheModeIsEstablishedRatherThanRequested.test_a_restrictive_umask_cannot_author_an_unreadable_document) ... ok
+test_the_delivered_mode_grants_read_and_no_write_to_anybody (tests.manager.test_input_delivery.TheModeIsEstablishedRatherThanRequested.test_the_delivered_mode_grants_read_and_no_write_to_anybody)
+The claim the mode itself makes, stated as bits. ... ok
+test_a_declared_ceiling_bounds_the_read_it_is_smaller_than (tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses.test_a_declared_ceiling_bounds_the_read_it_is_smaller_than)
+The allowance is the SMALLER of the two remaining ones. ... ok
+test_a_file_that_never_stops_growing_cannot_outrun_the_byte_ceiling (tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses.test_a_file_that_never_stops_growing_cannot_outrun_the_byte_ceiling)
+The `fstat` size is an observation, and the read needs a BOUND. ... ok
+test_an_equal_byte_crossing_still_answers_as_policy (tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses.test_an_equal_byte_crossing_still_answers_as_policy)
+Precedence is preserved by the correction rather than reordered. ... ok
+test_an_equal_entry_crossing_still_answers_as_policy (tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses.test_an_equal_entry_crossing_still_answers_as_policy)
+The same precedence on the ceiling that now runs before the read. ... ok
+test_the_file_that_crosses_a_declared_entry_ceiling_is_never_read (tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses.test_the_file_that_crosses_a_declared_entry_ceiling_is_never_read)
+The over-limit file is not opened, not read and not held. ... ok
+test_the_file_that_crosses_this_builds_entry_ceiling_is_never_read (tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses.test_the_file_that_crosses_this_builds_entry_ceiling_is_never_read)
+The same order for the POLICY ceiling, and the same taxonomy. ... ok
+test_the_measuring_pass_also_refuses_before_it_reads (tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses.test_the_measuring_pass_also_refuses_before_it_reads)
+`directory_manifest` measures worker-controlled trees too. ... ok
+test_the_measuring_pass_is_bounded_by_the_same_allowance (tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses.test_the_measuring_pass_is_bounded_by_the_same_allowance) ... ok
+test_a_tree_deeper_than_the_limit_is_refused (tests.manager.test_workspaces.ALimitIsARefusalRatherThanAWalk.test_a_tree_deeper_than_the_limit_is_refused) ... ok
+test_the_entry_and_byte_limits_are_the_frozen_contracts_own (tests.manager.test_workspaces.ALimitIsARefusalRatherThanAWalk.test_the_entry_and_byte_limits_are_the_frozen_contracts_own)
+Stated rather than probed with a hundred thousand files. ... ok
+test_an_empty_tree_is_a_manifest_and_not_a_refusal (tests.manager.test_workspaces.AManifestIsMeasuredRatherThanDeclared.test_an_empty_tree_is_a_manifest_and_not_a_refusal) ... ok
+test_measuring_nested_directories_closes_every_descriptor (tests.manager.test_workspaces.AManifestIsMeasuredRatherThanDeclared.test_measuring_nested_directories_closes_every_descriptor)
+Opened-directory identity is authority only while the walk runs. ... ok
+test_the_manifest_is_the_frozen_contracts_own_shape (tests.manager.test_workspaces.AManifestIsMeasuredRatherThanDeclared.test_the_manifest_is_the_frozen_contracts_own_shape) ... ok
+test_the_same_tree_measures_the_same_digest_twice_over (tests.manager.test_workspaces.AManifestIsMeasuredRatherThanDeclared.test_the_same_tree_measures_the_same_digest_twice_over)
+DETERMINISTIC, and not merely stable within one process. ... ok
+test_a_root_replaced_at_the_real_seam_is_a_typed_refusal (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_a_root_replaced_at_the_real_seam_is_a_typed_refusal)
+The reviewer's property, at the seam the descriptor design leaves. ... ok
+test_a_workspace_is_removed_including_its_read_only_trees (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_a_workspace_is_removed_including_its_read_only_trees) ... ok
+test_cleanup_never_reaches_outside_its_storage (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_cleanup_never_reaches_outside_its_storage) ... ok
+test_execution_cleanup_does_not_follow_a_root_replaced_after_proof (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_execution_cleanup_does_not_follow_a_root_replaced_after_proof)
+The ownership proof and destructive use are one boundary. ... ok
+test_execution_cleanup_proves_every_root_before_removing_one (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_execution_cleanup_proves_every_root_before_removing_one)
+One invalid root refuses the whole selective removal up front. ... ok
+test_execution_cleanup_refuses_a_home_alias_to_a_sibling (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_execution_cleanup_refuses_a_home_alias_to_a_sibling)
+Containment inside the store is not ownership of this attempt. ... ok
+test_removing_what_is_already_gone_is_an_answer_not_a_fault (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_removing_what_is_already_gone_is_an_answer_not_a_fault) ... ok
+test_the_thaw_is_skipped_for_a_directory_this_manager_does_not_own (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_the_thaw_is_skipped_for_a_directory_this_manager_does_not_own)
+W39358, measured against a real daemon before it was written here. ... ok
+test_the_thaw_still_happens_on_a_root_this_manager_does_own (tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated.test_the_thaw_still_happens_on_a_root_this_manager_does_own)
+The other half: an owned directory is repaired, as it always was. ... ok
+test_NO_permission_walk_touches_unrelated_entries (tests.manager.test_workspaces.InitialStableLineAccess.test_NO_permission_walk_touches_unrelated_entries)
+The other half of the same property: what the worker created keeps ... ok
+test_REPEATED_preparation_is_idempotent_and_still_two_acts (tests.manager.test_workspaces.InitialStableLineAccess.test_REPEATED_preparation_is_idempotent_and_still_two_acts) ... ok
+test_a_STABLE_symlink_still_passes_and_is_still_NOT_followed (tests.manager.test_workspaces.InitialStableLineAccess.test_a_STABLE_symlink_still_passes_and_is_still_NOT_followed)
+The control for the two above: what is refused is a CHANGE, not a ... ok
+test_a_bad_identity_root_or_pin_refuses_before_any_act (tests.manager.test_workspaces.InitialStableLineAccess.test_a_bad_identity_root_or_pin_refuses_before_any_act) ... ok
+test_a_directory_that_cannot_be_LISTED_names_that_operation (tests.manager.test_workspaces.InitialStableLineAccess.test_a_directory_that_cannot_be_LISTED_names_that_operation)
+The enumeration boundary, which no real fixture reaches on this ... ok
+test_a_failure_that_is_NOT_a_permission_one_gets_no_mapping_hint (tests.manager.test_workspaces.InitialStableLineAccess.test_a_failure_that_is_NOT_a_permission_one_gets_no_mapping_hint)
+An `ENOSPC` is not an identity arrangement, and saying so would send ... ok
+test_a_failure_while_establishing_NAMES_its_errno (tests.manager.test_workspaces.InitialStableLineAccess.test_a_failure_while_establishing_NAMES_its_errno)
+The incident lost the errno. The refusal carries all of it now. ... ok
+test_a_link_added_AFTER_an_entry_was_checked_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_a_link_added_AFTER_an_entry_was_checked_is_refused)
+Review 2026-09-17T12-47-56Z finding 1, and it was a real regression. ... ok
+test_a_proof_failure_that_is_NOT_a_permission_one_gets_no_hint (tests.manager.test_workspaces.InitialStableLineAccess.test_a_proof_failure_that_is_NOT_a_permission_one_gets_no_hint)
+An `ENOSPC` while walking is not an identity arrangement either. ... ok
+test_a_shared_identity_is_MINTED_and_never_root (tests.manager.test_workspaces.InitialStableLineAccess.test_a_shared_identity_is_MINTED_and_never_root)
+The `WorkspaceGroup` shape, for the same reason: a pair a caller can ... ok
+test_a_symlink_that_becomes_a_REGULAR_FILE_is_refused_too (tests.manager.test_workspaces.InitialStableLineAccess.test_a_symlink_that_becomes_a_REGULAR_FILE_is_refused_too)
+The transition is refused in BOTH directions, because the recorded ... ok
+test_an_entry_REPLACED_during_the_walk_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_REPLACED_during_the_walk_is_refused)
+The other half of the same invariant: same path, different object. ... ok
+test_an_entry_that_APPEARS_during_the_walk_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_that_APPEARS_during_the_walk_is_refused) ... ok
+test_an_entry_that_DISAPPEARS_during_the_walk_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_that_DISAPPEARS_during_the_walk_is_refused)
+A reversal probe earned this one. Removing the directory ... ok
+test_an_entry_that_becomes_a_SYMLINK_during_the_walk_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_that_becomes_a_SYMLINK_during_the_walk_is_refused)
+Review 2026-09-17T15-42-06Z finding 1, and it was the same ... ok
+test_an_unchanged_tree_still_passes_BOTH_passes (tests.manager.test_workspaces.InitialStableLineAccess.test_an_unchanged_tree_still_passes_BOTH_passes)
+The control: revalidation refuses change, not stability. ... ok
+test_an_unreadable_entry_NAMES_the_operation_and_the_entry (tests.manager.test_workspaces.InitialStableLineAccess.test_an_unreadable_entry_NAMES_the_operation_and_the_entry)
+Review 2026-09-17T15-42-06Z finding 2. This is the FIRST ... ok
+test_an_unreadable_line_ROOT_names_the_operation_and_the_root (tests.manager.test_workspaces.InitialStableLineAccess.test_an_unreadable_line_ROOT_names_the_operation_and_the_root)
+The same refusal one level up, where there is no relative entry to ... ok
+test_hardlinks_and_special_files_are_STILL_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_hardlinks_and_special_files_are_STILL_refused)
+Kept from the removed pass, and still changing nothing. ... ok
+test_it_runs_UNDER_a_soft_limit_the_old_pass_exhausted (tests.manager.test_workspaces.InitialStableLineAccess.test_it_runs_UNDER_a_soft_limit_the_old_pass_exhausted)
+The incident's shape, in a child with the incident's limit. ... ok
+test_the_ceilings_and_a_foreign_owner_are_STILL_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_the_ceilings_and_a_foreign_owner_are_STILL_refused) ... ok
+test_the_peak_descriptor_count_is_bounded_by_DEPTH (tests.manager.test_workspaces.InitialStableLineAccess.test_the_peak_descriptor_count_is_bounded_by_DEPTH)
+W194457 review finding 1: the removed pass peaked at one descriptor ... ok
+test_the_permission_work_is_TWO_ACTS_whatever_the_tree_holds (tests.manager.test_workspaces.InitialStableLineAccess.test_the_permission_work_is_TWO_ACTS_whatever_the_tree_holds)
+THE PROPERTY THIS WORK EXISTS FOR, and it is a COUNT rather than a ... ok
+test_the_proof_does_not_retrofit_an_unestablished_line (tests.manager.test_workspaces.InitialStableLineAccess.test_the_proof_does_not_retrofit_an_unestablished_line) ... ok
+test_a_hard_link_is_refused_although_nothing_shows_on_the_entry (tests.manager.test_workspaces.NothingButRegularFilesIsDelivered.test_a_hard_link_is_refused_although_nothing_shows_on_the_entry)
+The same disclosure as a symlink, with no link to see. ... ok
+test_a_root_that_is_itself_a_link_is_resolved_before_it_is_walked (tests.manager.test_workspaces.NothingButRegularFilesIsDelivered.test_a_root_that_is_itself_a_link_is_resolved_before_it_is_walked)
+Lexical containment is not containment. ... ok
+test_a_special_file_is_neither_a_regular_file_nor_a_directory (tests.manager.test_workspaces.NothingButRegularFilesIsDelivered.test_a_special_file_is_neither_a_regular_file_nor_a_directory) ... ok
+test_a_symbolic_link_is_refused_wherever_it_sits (tests.manager.test_workspaces.NothingButRegularFilesIsDelivered.test_a_symbolic_link_is_refused_wherever_it_sits)
+The lesson the frozen host's own module opens with. ... ok
+test_concurrent_assignments_never_share_a_root (tests.manager.test_workspaces.OneAssignmentOneWorkspace.test_concurrent_assignments_never_share_a_root)
+CONCURRENCY, measured rather than reasoned about. ... ok
+test_storage_this_manager_does_not_own_is_refused (tests.manager.test_workspaces.OneAssignmentOneWorkspace.test_storage_this_manager_does_not_own_is_refused) ... ok
+test_the_original_shared_group_pattern_is_refused_off_thread (tests.manager.test_workspaces.OneAssignmentOneWorkspace.test_the_original_shared_group_pattern_is_refused_off_thread)
+THE OLD PATTERN'S COVERAGE, RETAINED AS THE COMPATIBILITY IT NOW IS. ... ok
+test_the_same_assignment_asked_twice_gets_the_same_roots (tests.manager.test_workspaces.OneAssignmentOneWorkspace.test_the_same_assignment_asked_twice_gets_the_same_roots)
+Recoverable rather than exclusive: a manager that crashed after ... ok
+test_the_two_roots_are_siblings_and_never_nested (tests.manager.test_workspaces.OneAssignmentOneWorkspace.test_the_two_roots_are_siblings_and_never_nested)
+A worker that could write into its own inputs would make the seal ... ok
+test_two_assignments_share_nothing (tests.manager.test_workspaces.OneAssignmentOneWorkspace.test_two_assignments_share_nothing) ... ok
+test_missing_configuration_is_not_minted_or_repaired (tests.manager.test_workspaces.ReadonlyConfiguredGroup.test_missing_configuration_is_not_minted_or_repaired) ... ok
+test_real_group_capability_is_read_in_a_coherent_snapshot (tests.manager.test_workspaces.ReadonlyConfiguredGroup.test_real_group_capability_is_read_in_a_coherent_snapshot) ... ok
+test_every_operation_this_cut_adds_is_exported (tests.manager.test_workspaces.TheComponentIsOnThePublicSurface.test_every_operation_this_cut_adds_is_exported) ... ok
+test_a_committed_answer_of_another_shape_is_not_read_for_a_group (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_committed_answer_of_another_shape_is_not_read_for_a_group) ... ok
+test_a_configuration_whose_record_is_gone_mints_nothing (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_configuration_whose_record_is_gone_mints_nothing)
+Fail closed in BOTH directions. ... ok
+test_a_record_nobody_configured_mints_nothing (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_record_nobody_configured_mints_nothing)
+`meta` written directly, with no deployment act behind it. ... ok
+test_a_refused_configuration_replays_as_the_refusal_it_was (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_refused_configuration_replays_as_the_refusal_it_was)
+The committed answer is decoded by the journal's own reader. ... ok
+test_a_rewritten_result_no_longer_agrees_with_its_signature (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_rewritten_result_no_longer_agrees_with_its_signature)
+The journal is not believed just for being the journal. ... ok
+test_a_rewritten_result_with_a_matching_signature_is_still_checked (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_rewritten_result_with_a_matching_signature_is_still_checked)
+The gid rules apply to the journal's own answer. ... ok
+test_a_row_of_another_kind_is_not_a_configuration (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_row_of_another_kind_is_not_a_configuration)
+The identity is derived, so what sits at it must be asked. ... ok
+test_an_unconfigured_manager_is_denied_rather_than_faulted (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_an_unconfigured_manager_is_denied_rather_than_faulted)
+The ordinary un-provisioned case keeps its own answer. ... ok
+test_the_agreeing_accounts_still_mint_the_capability (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_the_agreeing_accounts_still_mint_the_capability)
+The correction refuses divergence and nothing else. ... ok
+test_the_projection_cannot_rewrite_the_journalled_group (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_the_projection_cannot_rewrite_the_journalled_group)
+A second held service group is not a deployment configuration. ... ok
+test_the_projection_cannot_unlock_reconfiguration (tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_the_projection_cannot_unlock_reconfiguration)
+The other door onto the same defect. ... ok
+test_a_committed_act_whose_projection_is_gone_is_refused (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_a_committed_act_whose_projection_is_gone_is_refused) ... ok
+test_a_projection_with_no_committed_act_behind_it_is_refused (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_a_projection_with_no_committed_act_behind_it_is_refused) ... ok
+test_a_rewritten_result_no_longer_agrees_with_its_signature (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_a_rewritten_result_no_longer_agrees_with_its_signature)
+The signature is a deterministic function of the operands, so an ... ok
+test_a_row_of_another_kind_is_not_a_configuration (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_a_row_of_another_kind_is_not_a_configuration) ... ok
+test_a_store_cannot_be_constructed_by_a_caller (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_a_store_cannot_be_constructed_by_a_caller)
+The whole point: a path a caller can name is a path a caller ... ok
+test_a_store_that_is_not_a_manager_owned_directory_is_refused (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_a_store_that_is_not_a_manager_owned_directory_is_refused) ... ok
+test_an_unconfigured_manager_mints_nothing (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_an_unconfigured_manager_mints_nothing) ... ok
+test_reconfiguring_to_another_store_is_refused (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_reconfiguring_to_another_store_is_refused)
+Every attempt already allocated under the first store would become ... ok
+test_the_configured_store_is_minted_from_the_deployments_record (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_the_configured_store_is_minted_from_the_deployments_record) ... ok
+test_the_projection_cannot_rewrite_the_journalled_store (tests.manager.test_workspaces.TheConfiguredWorkspaceStoreRecord.test_the_projection_cannot_rewrite_the_journalled_store)
+The exact defect the group's own case covers, one record over. ... ok
+test_a_wide_tree_is_consumed_with_a_handful_of_descriptors (tests.manager.test_workspaces.TheConsumptionWalkIsBoundedToo.test_a_wide_tree_is_consumed_with_a_handful_of_descriptors) ... ok
+test_it_reads_the_wide_tree_UNDER_the_incident_soft_limit (tests.manager.test_workspaces.TheConsumptionWalkIsBoundedToo.test_it_reads_the_wide_tree_UNDER_the_incident_soft_limit) ... ok
+test_a_ceiling_stops_the_pass_rather_than_the_whole_tree (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_a_ceiling_stops_the_pass_rather_than_the_whole_tree)
+Enforced AS THE WALK RUNS. A tree copied whole and refused ... ok
+test_a_declared_ceiling_refuses_as_a_limit_not_as_a_denial (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_a_declared_ceiling_refuses_as_a_limit_not_as_a_denial)
+TWO CEILINGS, TWO REFUSALS. This module's own MAX_* are policy -- ... ok
+test_a_destination_that_is_a_link_is_not_written_through (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_a_destination_that_is_a_link_is_not_written_through)
+The copy makes bytes the caller's OWN, so a link left at a ... ok
+test_a_directory_replaced_by_a_link_after_listing_is_not_entered (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_a_directory_replaced_by_a_link_after_listing_is_not_entered)
+THE HARM, at this boundary. A path-based copy resolves the whole ... ok
+test_a_file_replaced_by_a_pipe_after_listing_does_not_block (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_a_file_replaced_by_a_pipe_after_listing_does_not_block)
+THE INTERVAL the case above does NOT establish. ... ok
+test_a_hard_link_is_refused (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_a_hard_link_is_refused)
+A second name for one inode delivers content the caller was never ... ok
+test_a_named_pipe_is_refused_rather_than_opened (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_a_named_pipe_is_refused_rather_than_opened)
+A plain `open` on a FIFO blocks until somebody writes. The walk ... ok
+test_a_symbolic_link_is_refused_where_it_is_found (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_a_symbolic_link_is_refused_where_it_is_found) ... ok
+test_an_empty_tree_copies_to_an_empty_manifest (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_an_empty_tree_copies_to_an_empty_manifest) ... ok
+test_an_entry_already_at_the_destination_refuses (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_an_entry_already_at_the_destination_refuses)
+`O_EXCL`, and the reason is ownership rather than tidiness. ... ok
+test_the_caller_rule_runs_before_the_write_and_refusing_writes_none (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_the_caller_rule_runs_before_the_write_and_refusing_writes_none)
+`admits` exists so a caller's own content rule runs at the one ... ok
+test_the_copy_answers_what_a_fresh_measurement_of_it_answers (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_the_copy_answers_what_a_fresh_measurement_of_it_answers)
+The one pass and the two passes agree, or the manifest describes ... ok
+test_this_builds_own_ceilings_refuse_as_policy (tests.manager.test_workspaces.TheCopyIsTheMeasurement.test_this_builds_own_ceilings_refuse_as_policy)
+The OTHER half of the two-ceilings rule. ... ok
+test_no_acquisition_descriptor_is_interpreted_here (tests.manager.test_workspaces.TheCoreManagerDoesNotAcquireSources.test_no_acquisition_descriptor_is_interpreted_here)
+The other half, and the one a re-added helper would trip. ... ok
+test_no_acquisition_operation_survives_on_the_manager (tests.manager.test_workspaces.TheCoreManagerDoesNotAcquireSources.test_no_acquisition_operation_survives_on_the_manager) ... ok
+test_no_git_metadata_root_survives_the_acquisition_cut (tests.manager.test_workspaces.TheCoreManagerDoesNotAcquireSources.test_no_git_metadata_root_survives_the_acquisition_cut)
+A retained helper cannot keep provisioning an acquisition-specific ... ok
+test_no_surface_still_describes_the_acquisition_specific_root (tests.manager.test_workspaces.TheCoreManagerDoesNotAcquireSources.test_no_surface_still_describes_the_acquisition_specific_root)
+W15232 review [P2], and the second time this campaign that I ... ok
+test_the_generic_duties_this_manager_keeps_are_still_here (tests.manager.test_workspaces.TheCoreManagerDoesNotAcquireSources.test_the_generic_duties_this_manager_keeps_are_still_here)
+Removal, not amputation. Assignment-private paths, the measured ... ok
+test_a_composed_document_is_evidence_rather_than_scratch (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_a_composed_document_is_evidence_rather_than_scratch)
+The mode says on disk what the contract says in prose. A read-only ... ok
+test_a_half_composed_root_is_refused_rather_than_completed (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_a_half_composed_root_is_refused_rather_than_completed)
+The interrupted case, and it is NOT repaired here. A manager that ... ok
+test_a_mis_composed_pair_writes_NOTHING (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_a_mis_composed_pair_writes_NOTHING)
+Two documents that are not one delivery must never exist together on ... ok
+test_a_root_edited_after_composition_does_not_read_back_clean (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_a_root_edited_after_composition_does_not_read_back_clean)
+WHY THE READ REVALIDATES. Composition proved the pair; the disk is ... ok
+test_a_root_that_is_not_a_composed_pair_cannot_be_read_back (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_a_root_that_is_not_a_composed_pair_cannot_be_read_back) ... ok
+test_a_root_this_manager_did_not_allocate_is_refused (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_a_root_this_manager_did_not_allocate_is_refused)
+A refusal rather than an `OSError` out of `os.open`. This boundary's ... ok
+test_a_self_consistent_pair_for_another_delivery_writes_NOTHING (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_a_self_consistent_pair_for_another_delivery_writes_NOTHING)
+W19784 review [P0]. THE PAIR RULE IS NOT AN AUTHORIZATION. ... ok
+test_an_interrupted_write_publishes_no_protocol_document (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_an_interrupted_write_publishes_no_protocol_document)
+A half-written protocol document under its final name is ... ok
+test_both_documents_land_at_their_fixed_names (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_both_documents_land_at_their_fixed_names) ... ok
+test_no_partial_document_survives_under_a_final_name (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_no_partial_document_survives_under_a_final_name)
+Publication is atomic: a half-written protocol document under its ... ok
+test_the_composed_root_reads_back_as_the_pair_that_was_written (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_the_composed_root_reads_back_as_the_pair_that_was_written)
+The launch path proves the root off DISK, because what a runtime ... ok
+test_the_generation_reaches_the_root_and_the_input_side_has_none (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_the_generation_reaches_the_root_and_the_input_side_has_none)
+The member the whole Work is about, observed where it lands. ... ok
+test_the_root_is_composed_once (tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen.test_the_root_is_composed_once)
+Rewriting `input.json` after a claim was made against it would ... ok
+test_a_line_that_is_not_its_own_canonical_directory_refuses (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_a_line_that_is_not_its_own_canonical_directory_refuses) ... ok
+test_a_readable_line_including_its_private_metadata_is_proved (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_a_readable_line_including_its_private_metadata_is_proved) ... ok
+test_a_replaced_line_object_refuses_before_the_walk (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_a_replaced_line_object_refuses_before_the_walk) ... ok
+test_a_special_file_in_the_line_refuses (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_a_special_file_in_the_line_refuses) ... ok
+test_a_symlink_is_counted_and_never_followed (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_a_symlink_is_counted_and_never_followed) ... ok
+test_a_trailing_run_of_links_cannot_outrun_the_ceiling (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_a_trailing_run_of_links_cannot_outrun_the_ceiling)
+W105982 candidate review: the bound was tested only for entries the ... ok
+test_an_OWNER_ONLY_manager_file_is_reachable_by_the_worker_identity (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_an_OWNER_ONLY_manager_file_is_reachable_by_the_worker_identity)
+AND THE OTHER DIRECTION, which is the one a reviewer asked twice for. ... ok
+test_an_OWNER_ONLY_worker_file_is_consumed_under_the_shared_identity (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_an_OWNER_ONLY_worker_file_is_consumed_under_the_shared_identity)
+THE DIRECTION THIS WORK EXISTS TO FIX, and it is the whole point. ... ok
+test_an_unreadable_worker_directory_refuses_and_is_left_alone (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_an_unreadable_worker_directory_refuses_and_is_left_alone)
+Exactly the case initial provisioning cannot cover: the worker made ... ok
+test_an_unreadable_worker_file_refuses_too (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_an_unreadable_worker_file_refuses_too) ... ok
+test_the_proof_changes_no_mode_and_no_byte (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_the_proof_changes_no_mode_and_no_byte) ... ok
+test_the_walk_is_bounded_by_this_managers_own_ceiling (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_the_walk_is_bounded_by_this_managers_own_ceiling) ... ok
+test_the_workers_PRIVATE_HOME_AND_CACHE_do_not_depend_on_the_identity (tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes.test_the_workers_PRIVATE_HOME_AND_CACHE_do_not_depend_on_the_identity)
+The scope item, and the answer is that it is PRESERVED, not rebuilt. ... ok
+test_a_CONSENT_vector_keeps_the_pinned_pair (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_CONSENT_vector_keeps_the_pinned_pair)
+It mounts nothing and writes nothing this manager reads back, so it ... ok
+test_a_DECLARATION_that_is_not_a_pair_at_all_is_refused (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_DECLARATION_that_is_not_a_pair_at_all_is_refused) ... ok
+test_a_DECLARED_pair_that_is_not_the_minted_one_is_refused (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_DECLARED_pair_that_is_not_the_minted_one_is_refused)
+The owner's cheap structural check, and the only one there is now. ... ok
+test_a_root_manager_gets_no_shared_identity (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_root_manager_gets_no_shared_identity) ... ok
+test_an_EXECUTION_vector_runs_as_the_shared_identity (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_EXECUTION_vector_runs_as_the_shared_identity) ... ok
+test_it_is_asked_of_the_MINTED_capability_and_not_an_integer (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_it_is_asked_of_the_MINTED_capability_and_not_an_integer) ... ok
+test_it_is_derived_from_the_MINTED_group_and_this_manager (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_it_is_derived_from_the_MINTED_group_and_this_manager) ... ok
+test_the_SUPPORTED_ARRANGEMENT_is_written_down_where_it_is_used (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_the_SUPPORTED_ARRANGEMENT_is_written_down_where_it_is_used)
+The owner asked for the mapping to be DOCUMENTED and trusted. ... ok
+test_the_check_reaches_NO_ENGINE_AND_NO_FILESYSTEM (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_the_check_reaches_NO_ENGINE_AND_NO_FILESYSTEM)
+It is a string comparison, and the owner's word for that is cheap. ... ok
+test_the_minted_pair_is_ACCEPTED_and_answered_back (tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_the_minted_pair_is_ACCEPTED_and_answered_back) ... ok
+test_discard_unlinks_a_directory_symlink_but_keeps_its_target (tests.manager.test_custody.EveryObjectMeansLinksToo.test_discard_unlinks_a_directory_symlink_but_keeps_its_target) ... ok
+test_inspect_reports_a_directory_symlink_without_following_it (tests.manager.test_custody.EveryObjectMeansLinksToo.test_inspect_reports_a_directory_symlink_without_following_it) ... ok
+test_a_caller_cannot_forge_the_expected_directory_shape (tests.manager.test_custody.OneMountAndNothingElse.test_a_caller_cannot_forge_the_expected_directory_shape)
+Reproducing the layout somewhere else buys nothing any more. ... ok
+test_a_caller_cannot_retarget_authentic_allocated_roots (tests.manager.test_custody.OneMountAndNothingElse.test_a_caller_cannot_retarget_authentic_allocated_roots)
+Nominal provenance is not authority while its paths are mutable. ... ok
+test_a_caller_cannot_select_an_unrelated_storage_root (tests.manager.test_custody.OneMountAndNothingElse.test_a_caller_cannot_select_an_unrelated_storage_root)
+Derivation below a caller path is still caller path selection. ... ok
+test_a_caller_mapping_cannot_launder_an_unrelated_host_root (tests.manager.test_custody.OneMountAndNothingElse.test_a_caller_mapping_cannot_launder_an_unrelated_host_root)
+There is no mapping operand left to launder anything through. ... ok
+test_a_configured_store_capability_cannot_be_retargeted (tests.manager.test_custody.OneMountAndNothingElse.test_a_configured_store_capability_cannot_be_retargeted)
+A caller-held wrapper cannot be the durable storage authority. ... ok
+test_a_custody_answer_cannot_be_minted_by_a_caller (tests.manager.test_custody.OneMountAndNothingElse.test_a_custody_answer_cannot_be_minted_by_a_caller)
+An answer is what one act REPORTED, so a caller that could mint one ... ok
+test_a_custody_answer_is_not_revised_by_its_holder (tests.manager.test_custody.OneMountAndNothingElse.test_a_custody_answer_is_not_revised_by_its_holder)
+An answer somebody can edit is an account that disagrees with what ... ok
+test_a_dictionary_nested_inside_a_list_is_frozen_too (tests.manager.test_custody.OneMountAndNothingElse.test_a_dictionary_nested_inside_a_list_is_frozen_too)
+The reviewer's case reaches one level; an `inspect` account nests ... ok
+test_a_document_for_another_verb_is_not_a_successful_account (tests.manager.test_custody.OneMountAndNothingElse.test_a_document_for_another_verb_is_not_a_successful_account)
+Zero plus arbitrary JSON does not prove the requested custody act. ... ok
+test_a_failed_act_carries_a_bounded_diagnostic (tests.manager.test_custody.OneMountAndNothingElse.test_a_failed_act_carries_a_bounded_diagnostic) ... ok
+test_a_missing_result_root_is_a_contradiction_and_not_repaired (tests.manager.test_custody.OneMountAndNothingElse.test_a_missing_result_root_is_a_contradiction_and_not_repaired)
+The other half of the ruling: never create a missing result root. ... ok
+test_a_refused_parent_link_creates_nothing_through_its_target (tests.manager.test_custody.OneMountAndNothingElse.test_a_refused_parent_link_creates_nothing_through_its_target)
+Validate every parent before creating the optional result root. ... ok
+test_a_symlink_at_the_RULED_result_locator_cannot_choose_the_mount (tests.manager.test_custody.OneMountAndNothingElse.test_a_symlink_at_the_RULED_result_locator_cannot_choose_the_mount)
+The case above's property, at the locator the approver ruled. ... ok
+test_a_worker_created_result_symlink_cannot_choose_the_mount (tests.manager.test_custody.OneMountAndNothingElse.test_a_worker_created_result_symlink_cannot_choose_the_mount) ... ok
+test_an_act_that_answered_nothing_is_not_reported_as_custody (tests.manager.test_custody.OneMountAndNothingElse.test_an_act_that_answered_nothing_is_not_reported_as_custody)
+A zero exit with no readable document is an act this manager cannot ... ok
+test_an_arbitrary_absolute_path_is_not_a_custody_capability (tests.manager.test_custody.OneMountAndNothingElse.test_an_arbitrary_absolute_path_is_not_a_custody_capability)
+A repository, a credential root or an unrelated sibling cannot be ... ok
+test_an_attempt_identity_cannot_carry_a_path (tests.manager.test_custody.OneMountAndNothingElse.test_an_attempt_identity_cannot_carry_a_path)
+An attempt is NAMED. `boundaries.identity` owns durable text and ... ok
+test_base_dict_methods_cannot_bypass_the_capability_boundary (tests.manager.test_custody.OneMountAndNothingElse.test_base_dict_methods_cannot_bypass_the_capability_boundary) ... ok
+test_base_dict_update_cannot_mint_an_unrelated_custody_root (tests.manager.test_custody.OneMountAndNothingElse.test_base_dict_update_cannot_mint_an_unrelated_custody_root) ... ok
+test_exactly_one_mount_is_composed (tests.manager.test_custody.OneMountAndNothingElse.test_exactly_one_mount_is_composed) ... ok
+test_in_place_union_cannot_retarget_allocated_roots (tests.manager.test_custody.OneMountAndNothingElse.test_in_place_union_cannot_retarget_allocated_roots) ... ok
+test_nested_custody_evidence_is_not_revised_by_its_holder (tests.manager.test_custody.OneMountAndNothingElse.test_nested_custody_evidence_is_not_revised_by_its_holder)
+A top-level mapping proxy must not leave its nested account live. ... ok
+test_no_operand_of_the_composition_can_carry_a_path (tests.manager.test_custody.OneMountAndNothingElse.test_no_operand_of_the_composition_can_carry_a_path)
+Nine rounds of this Work, asserted as a signature. ... ok
+test_the_answer_a_caller_keeps_carries_no_host_path (tests.manager.test_custody.OneMountAndNothingElse.test_the_answer_a_caller_keeps_carries_no_host_path)
+The custodian answers paths relative to its own mount, which is the ... ok
+test_the_authenticated_mount_is_not_returned_as_a_mutable_handoff (tests.manager.test_custody.OneMountAndNothingElse.test_the_authenticated_mount_is_not_returned_as_a_mutable_handoff)
+Lookup, composition and execution ARE the same owned act. ... ok
+test_the_container_path_is_not_a_caller_operand (tests.manager.test_custody.OneMountAndNothingElse.test_the_container_path_is_not_a_caller_operand)
+A target a caller could choose decides what the program walks. ... ok
+test_the_host_path_is_not_a_raw_caller_operand_either (tests.manager.test_custody.OneMountAndNothingElse.test_the_host_path_is_not_a_raw_caller_operand_either)
+An arbitrary absolute host path is not an attempt capability. ... ok
+test_the_mount_is_the_attempt_root_at_a_fixed_target (tests.manager.test_custody.OneMountAndNothingElse.test_the_mount_is_the_attempt_root_at_a_fixed_target) ... ok
+test_the_mount_is_the_workspace_and_never_its_parent (tests.manager.test_custody.OneMountAndNothingElse.test_the_mount_is_the_workspace_and_never_its_parent)
+The assignment home holds the deliveries; only the attempt's own ... ok
+test_the_private_member_mapping_cannot_retarget_allocated_roots (tests.manager.test_custody.OneMountAndNothingElse.test_the_private_member_mapping_cannot_retarget_allocated_roots)
+A private NAME is not an immutable representation. ... ok
+test_the_rendered_account_is_the_document_that_was_accepted (tests.manager.test_custody.OneMountAndNothingElse.test_the_rendered_account_is_the_document_that_was_accepted)
+A read-only view cannot be handed to `json.dumps`, so the answer ... ok
+test_the_ruled_locator_is_the_one_mounted_and_the_other_is_untouched (tests.manager.test_custody.OneMountAndNothingElse.test_the_ruled_locator_is_the_one_mounted_and_the_other_is_untouched)
+The review's required proof: which directory is authoritative. ... ok
+test_the_vector_takes_no_path_bearing_object_to_retarget (tests.manager.test_custody.OneMountAndNothingElse.test_the_vector_takes_no_path_bearing_object_to_retarget)
+Review [P0] round nine: the handoff is GONE, not hardened again. ... ok
+test_a_changed_custodian_collides_rather_than_replaying (tests.manager.test_custody.OneSignedReceiptPerRoot.test_a_changed_custodian_collides_rather_than_replaying)
+The image is a SIGNATURE input, so a changed helper is a different ... ok
+test_a_retargeted_workspace_store_collides_per_root (tests.manager.test_custody.OneSignedReceiptPerRoot.test_a_retargeted_workspace_store_collides_per_root)
+The store is a SIGNATURE input, not a second operation identity. ... ok
+test_an_exact_retry_replays_without_acting_again (tests.manager.test_custody.OneSignedReceiptPerRoot.test_an_exact_retry_replays_without_acting_again)
+The receipt exists so a resumed ending does not renormalize a tree ... ok
+test_an_unaccountable_answer_commits_nothing (tests.manager.test_custody.OneSignedReceiptPerRoot.test_an_unaccountable_answer_commits_nothing)
+A refused, unaccounted or UNRESOLVED answer records no custody. ... ok
+test_historical_receipt_binds_the_signature_subject_and_recorded_store (tests.manager.test_custody.OneSignedReceiptPerRoot.test_historical_receipt_binds_the_signature_subject_and_recorded_store) ... ok
+test_historical_receipt_requires_its_exact_committed_operation (tests.manager.test_custody.OneSignedReceiptPerRoot.test_historical_receipt_requires_its_exact_committed_operation) ... ok
+test_historical_receipt_requires_the_closed_positive_normalization_account (tests.manager.test_custody.OneSignedReceiptPerRoot.test_historical_receipt_requires_the_closed_positive_normalization_account) ... ok
+test_historical_receipts_reopen_both_roots_without_an_adapter_or_acts (tests.manager.test_custody.OneSignedReceiptPerRoot.test_historical_receipts_reopen_both_roots_without_an_adapter_or_acts) ... ok
+test_one_accountable_act_commits_one_closed_receipt (tests.manager.test_custody.OneSignedReceiptPerRoot.test_one_accountable_act_commits_one_closed_receipt) ... ok
+test_the_adopted_receipt_is_read_from_the_journal (tests.manager.test_custody.OneSignedReceiptPerRoot.test_the_adopted_receipt_is_read_from_the_journal)
+A terminal cleanup binds receipts it READ, never ones it was ... ok
+test_the_two_roots_are_separately_attributable (tests.manager.test_custody.OneSignedReceiptPerRoot.test_the_two_roots_are_separately_attributable)
+One identity per (attempt, root, verb): a crash after one root ... ok
+test_a_lost_act_does_not_claim_an_absence_it_cannot_prove (tests.manager.test_custody.TheActIsBounded.test_a_lost_act_does_not_claim_an_absence_it_cannot_prove)
+SUPERSEDED AND REPLACED. This case is mine, from the round that ... ok
+test_a_post_invocation_contract_refusal_still_reclaims_the_helper (tests.manager.test_custody.TheActIsBounded.test_a_post_invocation_contract_refusal_still_reclaims_the_helper)
+`EnginePort` validates the answer AFTER calling its injected run. ... ok
+test_a_refusal_from_the_port_is_not_turned_into_an_answer (tests.manager.test_custody.TheActIsBounded.test_a_refusal_from_the_port_is_not_turned_into_an_answer)
+A refusal is this manager's own judgement before anything ran, so ... ok
+test_a_wait_that_ended_without_an_engine_answer_reclaims_and_reports (tests.manager.test_custody.TheActIsBounded.test_a_wait_that_ended_without_an_engine_answer_reclaims_and_reports)
+The second deadline: whatever ends the wait, the helper is ... ok
+test_lost_act_does_not_remove_a_same_name_replacement (tests.manager.test_custody.TheActIsBounded.test_lost_act_does_not_remove_a_same_name_replacement)
+A derived name is discoverability, not authority to destroy. ... ok
+test_the_custodian_arms_this_modules_deadline_against_itself (tests.manager.test_custody.TheActIsBounded.test_the_custodian_arms_this_modules_deadline_against_itself) ... ok
+test_the_deadline_refusal_is_an_accountable_document (tests.manager.test_custody.TheActIsBounded.test_the_deadline_refusal_is_an_accountable_document)
+It is one of the two things the program can print, so the answer ... ok
+test_the_real_program_refuses_typed_when_its_deadline_expires (tests.manager.test_custody.TheActIsBounded.test_the_real_program_refuses_typed_when_its_deadline_expires)
+Against the REAL custodian, with the deadline cut to one second and ... ok
+test_a_document_missing_its_verbs_members_is_not_accounted_for (tests.manager.test_custody.TheAnswerContractMatchesTheProgram.test_a_document_missing_its_verbs_members_is_not_accounted_for)
+The half of the finding a verb check alone would not catch. ... ok
+test_a_document_that_names_no_verb_at_all_is_not_accounted_for (tests.manager.test_custody.TheAnswerContractMatchesTheProgram.test_a_document_that_names_no_verb_at_all_is_not_accounted_for)
+`custody` may be missing, or not text; neither is a verb. ... ok
+test_a_document_with_an_unexpected_member_is_not_accounted_for (tests.manager.test_custody.TheAnswerContractMatchesTheProgram.test_a_document_with_an_unexpected_member_is_not_accounted_for)
+A program that is not the one this module ships is not read for the ... ok
+test_a_member_of_the_wrong_type_is_not_accounted_for (tests.manager.test_custody.TheAnswerContractMatchesTheProgram.test_a_member_of_the_wrong_type_is_not_accounted_for)
+`entries` is a COUNT for normalize and a LIST for inspect, so a ... ok
+test_an_unaccounted_document_leaves_no_partial_reading_behind (tests.manager.test_custody.TheAnswerContractMatchesTheProgram.test_an_unaccounted_document_leaves_no_partial_reading_behind)
+Refusals stay accountable WITHOUT guessing at partial documents: ... ok
+test_an_unattributable_identity_is_not_accounted_for (tests.manager.test_custody.TheAnswerContractMatchesTheProgram.test_an_unattributable_identity_is_not_accounted_for)
+`running_as` is how the act says which custodian performed it, and ... ok
+test_every_verb_in_the_vocabulary_has_a_result_shape (tests.manager.test_custody.TheAnswerContractMatchesTheProgram.test_every_verb_in_the_vocabulary_has_a_result_shape)
+A verb with no entry would raise `KeyError` at the moment an act ... ok
+test_every_verbs_real_document_is_accounted_for (tests.manager.test_custody.TheAnswerContractMatchesTheProgram.test_every_verbs_real_document_is_accounted_for) ... ok
+test_the_custodians_own_refusal_is_accountable_and_not_ok (tests.manager.test_custody.TheAnswerContractMatchesTheProgram.test_the_custodians_own_refusal_is_accountable_and_not_ok)
+The other document the program can print, and it is evidence. ... ok
+test_a_capability_that_cannot_take_the_deadline_is_refused (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_a_capability_that_cannot_take_the_deadline_is_refused)
+Refused on the act's FIRST call, which is a read-only listing. ... ok
+test_a_capability_that_honours_it_produces_a_lost_answer (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_a_capability_that_honours_it_produces_a_lost_answer) ... ok
+test_a_reclamation_that_could_not_be_settled_refuses (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_a_reclamation_that_could_not_be_settled_refuses)
+Reclamation is what runs when something has already gone wrong, so ... ok
+test_a_removal_that_could_not_be_settled_refuses (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_a_removal_that_could_not_be_settled_refuses) ... ok
+test_a_timed_out_call_cannot_create_after_absence_was_proved (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_a_timed_out_call_cannot_create_after_absence_was_proved)
+Stopping the wait is not stopping the engine operation. ... ok
+test_every_reclamation_call_carries_one_too (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_every_reclamation_call_carries_one_too) ... ok
+test_process_control_during_reconciliation_is_not_swallowed (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_process_control_during_reconciliation_is_not_swallowed)
+The deadline wrapper must not turn an operator interruption into ... ok
+test_reaping_the_cli_does_not_settle_a_daemon_mutation (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_reaping_the_cli_does_not_settle_a_daemon_mutation)
+THE PROVIDER DEFECT, REPRODUCED -- and why the stopgap must stay ... ok
+test_the_abandoned_thread_watchdog_is_gone (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_the_abandoned_thread_watchdog_is_gone)
+SUPERSEDED AND DELETED, not merely unused. Review 05:28:16Z [P0]: ... ok
+test_the_outer_bound_is_larger_than_the_custodians_own_alarm (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_the_outer_bound_is_larger_than_the_custodians_own_alarm)
+The inner refusal is how an overrun is ordinarily reported, because ... ok
+test_this_managers_own_deadline_is_what_reaches_the_capability (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_this_managers_own_deadline_is_what_reaches_the_capability)
+Not the injector's number and not an optional kindness: every call ... ok
+test_a_crash_between_the_two_acts_keeps_the_first_receipt (tests.manager.test_custody.TheEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_crash_between_the_two_acts_keeps_the_first_receipt)
+The whole reason the receipts are per-root. ... ok
+test_a_custodian_changed_between_the_two_acts_collides (tests.manager.test_custody.TheEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_custodian_changed_between_the_two_acts_collides)
+A helper swapped mid-ending is a different act over the same ... ok
+test_a_restarted_manager_re_derives_both_identities (tests.manager.test_custody.TheEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_restarted_manager_re_derives_both_identities)
+The identity is attempt, root and verb, so a new incarnation over ... ok
+test_an_exact_replay_after_both_receipts_performs_no_act (tests.manager.test_custody.TheEndingSurvivesInterruptionAtEveryDirectoryAct.test_an_exact_replay_after_both_receipts_performs_no_act) ... ok
+test_the_resumed_ending_redoes_only_the_act_that_did_not_settle (tests.manager.test_custody.TheEndingSurvivesInterruptionAtEveryDirectoryAct.test_the_resumed_ending_redoes_only_the_act_that_did_not_settle)
+A restart does not renormalize what its predecessor finished. ... ok
+test_a_pre_invocation_refusal_still_passes_through_recovery (tests.manager.test_custody.TheExceptionalEndingIsHeldToTheSameTable.test_a_pre_invocation_refusal_still_passes_through_recovery)
+Recovery is not conditional on believing the helper ran, because ... ok
+test_an_empty_listing_is_reported_as_what_it_is (tests.manager.test_custody.TheExceptionalEndingIsHeldToTheSameTable.test_an_empty_listing_is_reported_as_what_it_is)
+SUPERSEDED AND REPLACED, and this case is mine. ... ok
+test_process_control_is_not_swallowed_into_an_answer (tests.manager.test_custody.TheExceptionalEndingIsHeldToTheSameTable.test_process_control_is_not_swallowed_into_an_answer)
+`KeyboardInterrupt` is the operator ending the process, and this ... ok
+test_a_different_act_over_the_same_tree_is_a_different_helper (tests.manager.test_custody.TheHelperIdentityIsDerived.test_a_different_act_over_the_same_tree_is_a_different_helper) ... ok
+test_a_different_deployment_derives_a_different_helper (tests.manager.test_custody.TheHelperIdentityIsDerived.test_a_different_deployment_derives_a_different_helper)
+The store is in the digest because two managers on one host with ... ok
+test_the_derived_name_is_one_this_build_composes (tests.manager.test_custody.TheHelperIdentityIsDerived.test_the_derived_name_is_one_this_build_composes) ... ok
+test_the_name_carries_the_recognisable_prefix (tests.manager.test_custody.TheHelperIdentityIsDerived.test_the_name_carries_the_recognisable_prefix) ... ok
+test_the_same_act_derives_the_same_name_from_a_fresh_store (tests.manager.test_custody.TheHelperIdentityIsDerived.test_the_same_act_derives_the_same_name_from_a_fresh_store)
+RESTART DISCOVERY, which is the whole property. A second manager ... ok
+test_an_image_this_build_cannot_name_exactly_is_refused (tests.manager.test_custody.TheHelperIsShortLivedAndRestricted.test_an_image_this_build_cannot_name_exactly_is_refused) ... ok
+test_every_unconditional_restriction_is_composed (tests.manager.test_custody.TheHelperIsShortLivedAndRestricted.test_every_unconditional_restriction_is_composed) ... ok
+test_no_network_credential_or_repository_reaches_it (tests.manager.test_custody.TheHelperIsShortLivedAndRestricted.test_no_network_credential_or_repository_reaches_it)
+ABSENT rather than denied, which is the stronger statement. ... ok
+test_the_engine_removes_it_when_the_act_ends (tests.manager.test_custody.TheHelperIsShortLivedAndRestricted.test_the_engine_removes_it_when_the_act_ends)
+`--rm` and foreground: the NORMAL completion path reclaims itself. ... ok
+test_the_normal_path_asks_the_engine_nothing_but_ps_and_run (tests.manager.test_custody.TheHelperIsShortLivedAndRestricted.test_the_normal_path_asks_the_engine_nothing_but_ps_and_run)
+Reclamation costs one listing and no more when there is nothing to ... ok
+test_it_carries_the_configured_group_it_needs_to_traverse (tests.manager.test_custody.TheIdentityIsWhatMakesItUnconditional.test_it_carries_the_configured_group_it_needs_to_traverse)
+Measured on a real daemon before it was written: without the group ... ok
+test_it_runs_as_the_owning_worker_identity (tests.manager.test_custody.TheIdentityIsWhatMakesItUnconditional.test_it_runs_as_the_owning_worker_identity)
+THE WHOLE MECHANISM, in one assertion. ... ok
+test_nested_mode_zero_directories_cannot_hide_their_contents (tests.manager.test_custody.TheIdentityIsWhatMakesItUnconditional.test_nested_mode_zero_directories_cannot_hide_their_contents) ... ok
+test_the_group_is_read_from_the_record_rather_than_handed_in (tests.manager.test_custody.TheIdentityIsWhatMakesItUnconditional.test_the_group_is_read_from_the_record_rather_than_handed_in)
+W33936's rule, one act further along and one operand fewer. ... ok
+test_a_file_larger_than_the_helpers_memory_bound_is_still_hashed (tests.manager.test_custody.TheReadingActsAreStreamedAndHonestlyBounded.test_a_file_larger_than_the_helpers_memory_bound_is_still_hashed)
+THE PROPERTY A WORKER MUST NOT BE ABLE TO SWITCH OFF. ... ok
+test_a_partial_read_is_declared_rather_than_silently_truncated (tests.manager.test_custody.TheReadingActsAreStreamedAndHonestlyBounded.test_a_partial_read_is_declared_rather_than_silently_truncated) ... ok
+test_archive_says_it_is_a_manifest_rather_than_content (tests.manager.test_custody.TheReadingActsAreStreamedAndHonestlyBounded.test_archive_says_it_is_a_manifest_rather_than_content)
+An open ruling, declared in the answer instead of implied by it. ... ok
+test_read_carries_bytes_unmangled_and_says_when_it_is_partial (tests.manager.test_custody.TheReadingActsAreStreamedAndHonestlyBounded.test_read_carries_bytes_unmangled_and_says_when_it_is_partial)
+Non-UTF-8 bytes are what a worker leaves; U+FFFD is not them. ... ok
+test_the_bound_this_suite_imposes_can_actually_be_reached (tests.manager.test_custody.TheReadingActsAreStreamedAndHonestlyBounded.test_the_bound_this_suite_imposes_can_actually_be_reached)
+A bound nothing can hit proves nothing about the code under it. ... ok
+test_a_candidate_gone_before_it_could_be_observed_is_not_in_the_way (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_a_candidate_gone_before_it_could_be_observed_is_not_in_the_way)
+It reclaimed itself between the two questions, which is the state ... ok
+test_a_candidate_this_manager_could_not_observe_refuses (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_a_candidate_this_manager_could_not_observe_refuses)
+Neither present nor provably absent is not a state to launch in. ... ok
+test_a_helper_running_another_image_refuses (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_a_helper_running_another_image_refuses)
+A name this manager derives is not authority to remove somebody ... ok
+test_a_listing_row_that_names_nothing_refuses (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_a_listing_row_that_names_nothing_refuses) ... ok
+test_a_listing_this_manager_could_not_perform_refuses (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_a_listing_this_manager_could_not_perform_refuses) ... ok
+test_a_record_that_names_the_helper_otherwise_refuses (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_a_record_that_names_the_helper_otherwise_refuses)
+The listing chose the row; the engine's own record is asked to ... ok
+test_a_same_prefix_stranger_is_returned_and_left_untouched (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_a_same_prefix_stranger_is_returned_and_left_untouched)
+The filter is a substring match, so a stranger whose name CONTAINS ... ok
+test_a_stranded_helper_is_stopped_removed_proved_absent_and_redone (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_a_stranded_helper_is_stopped_removed_proved_absent_and_redone) ... ok
+test_an_absence_sentence_about_another_runtime_is_not_proof (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_an_absence_sentence_about_another_runtime_is_not_proof)
+`oci._absent_prose`'s rule, reached through this path: two ... ok
+test_an_exited_helper_is_reclaimed_the_same_way (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_an_exited_helper_is_reclaimed_the_same_way)
+`--rm` does not run for a helper whose client died, so an EXITED ... ok
+test_every_verb_is_safe_to_redo_through_the_reclaiming_path (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_every_verb_is_safe_to_redo_through_the_reclaiming_path)
+RETRY, per verb. Every custody verb is safe to interrupt and ... ok
+test_the_removal_is_only_believed_when_absence_is_proved (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_the_removal_is_only_believed_when_absence_is_proved)
+An engine acknowledgement is not absence. ... ok
+test_two_helpers_of_one_identity_refuse (tests.manager.test_custody.TheStrandedHelperIsReclaimed.test_two_helpers_of_one_identity_refuse) ... ok
+test_a_verb_outside_the_vocabulary_selects_nothing (tests.manager.test_custody.TheVocabularyIsClosed.test_a_verb_outside_the_vocabulary_selects_nothing) ... ok
+test_a_verb_that_is_not_durable_text_is_refused (tests.manager.test_custody.TheVocabularyIsClosed.test_a_verb_that_is_not_durable_text_is_refused) ... ok
+test_every_advertised_operation_is_an_operation_not_a_placeholder (tests.manager.test_custody.TheVocabularyIsClosed.test_every_advertised_operation_is_an_operation_not_a_placeholder)
+A closed vocabulary is a capability claim, not a future-work list. ... ok
+test_the_program_enforces_the_same_set_it_was_composed_from (tests.manager.test_custody.TheVocabularyIsClosed.test_the_program_enforces_the_same_set_it_was_composed_from)
+BOTH ENDS OF THE CROSSING, which is why the program carries its own ... ok
+test_the_six_the_ruling_names_are_the_six_this_build_owns (tests.manager.test_custody.TheVocabularyIsClosed.test_the_six_the_ruling_names_are_the_six_this_build_owns) ... ok
+test_no_caller_operand_reaches_the_argv_as_a_command (tests.manager.test_custody.ThereIsNoCommandOperand.test_no_caller_operand_reaches_the_argv_as_a_command)
+The ruling's "never a worker-supplied command", asserted. ... ok
+test_the_entrypoint_is_the_managers_own (tests.manager.test_custody.ThereIsNoCommandOperand.test_the_entrypoint_is_the_managers_own) ... ok
+test_every_exported_function_bounds_the_label_it_is_given (tests.manager.test_dependencies.AnExportedLabelIsCallerInput.test_every_exported_function_bounds_the_label_it_is_given) ... ok
+test_the_sweep_finds_the_exported_functions_it_claims_to (tests.manager.test_dependencies.AnExportedLabelIsCallerInput.test_the_sweep_finds_the_exported_functions_it_claims_to) ... ok
+test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) ... ok
+test_no_declared_operand_is_bookkeeping_by_nature (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_no_declared_operand_is_bookkeeping_by_nature) ... ok
+test_no_declared_operand_is_stale (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_no_declared_operand_is_stale) ... ok
+test_the_sweep_is_not_vacuous (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_the_sweep_is_not_vacuous) ... ok
+test_every_hash_is_a_sha256_of_something (tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn.test_every_hash_is_a_sha256_of_something) ... ok
+test_no_live_statement_describes_a_removed_mechanism (tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn.test_no_live_statement_describes_a_removed_mechanism)
+Prose is part of the deliverable, and stale prose is a wrong answer. ... ok
+test_the_build_still_enforces_the_hashes_it_pins (tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn.test_the_build_still_enforces_the_hashes_it_pins)
+`--require-hashes` is what makes this a LOCKED build. ... ok
+test_the_locked_stage_is_what_proves_the_pin (tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn.test_the_locked_stage_is_what_proves_the_pin)
+A green SOURCE run does not prove the dependency pin, and says so. ... ok
+test_the_pinned_versions_hold_when_we_are_inside_that_environment (tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn.test_the_pinned_versions_hold_when_we_are_inside_that_environment)
+The retained property, measured where the artifacts now live. ... ok
+test_the_repository_carries_no_dependency_distributions (tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn.test_the_repository_carries_no_dependency_distributions) ... ok
+test_every_pinned_artifact_carries_a_hash (tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure.test_every_pinned_artifact_carries_a_hash) ... ok
+test_every_runtime_distribution_is_pinned_at_the_ruled_version (tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure.test_every_runtime_distribution_is_pinned_at_the_ruled_version) ... ok
+test_nothing_beyond_the_closure_and_the_build_tools_is_pinned (tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure.test_nothing_beyond_the_closure_and_the_build_tools_is_pinned) ... ok
+test_the_declared_dependencies_agree_with_the_lock (tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure.test_the_declared_dependencies_agree_with_the_lock) ... ok
+test_only_one_module_reaches_the_validator_at_all (tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency.test_only_one_module_reaches_the_validator_at_all) ... ok
+test_the_authority_surface_still_exposes_no_manager_capability (tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency.test_the_authority_surface_still_exposes_no_manager_capability) ... ok
+test_the_manager_does_not_import_the_authority (tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency.test_the_manager_does_not_import_the_authority) ... ok
+test_the_manager_imports_only_the_ruled_validator (tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency.test_the_manager_imports_only_the_ruled_validator) ... ok
+test_the_manager_stores_are_not_the_authority_s (tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency.test_the_manager_stores_are_not_the_authority_s) ... ok
+test_a_boundary_pin_proves_the_attempt_row_before_anything_else (tests.manager.test_boundary_inventory.StatedRules.test_a_boundary_pin_proves_the_attempt_row_before_anything_else)
+Forwarded to `_require_attempt`: an attempt that is not there is ... ok
+test_a_carried_token_document_is_reread_before_it_is_acted_on (tests.manager.test_boundary_inventory.StatedRules.test_a_carried_token_document_is_reread_before_it_is_acted_on)
+WITNESS: the token document a caller holds is checked, never trusted. ... ok
+test_a_committed_claim_for_another_work_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_committed_claim_for_another_work_is_refused)
+The Work operand is the COMPARISON, and it comes from an owned row. ... ok
+test_a_composition_takes_only_capabilities_this_build_minted (tests.manager.test_boundary_inventory.StatedRules.test_a_composition_takes_only_capabilities_this_build_minted)
+An EXACT type check at each of the three, before any member is read. ... ok
+test_a_conversation_asks_for_a_sequence_of_known_operations (tests.manager.test_boundary_inventory.StatedRules.test_a_conversation_asks_for_a_sequence_of_known_operations)
+Shape, emptiness and the closed vocabulary -- all three, one owner. ... ok
+test_a_conversations_program_is_held_to_the_exec_program_rule (tests.manager.test_boundary_inventory.StatedRules.test_a_conversations_program_is_held_to_the_exec_program_rule)
+The forward reaches that owner, from the public operation. ... ok
+test_a_credential_mount_is_an_entry_of_the_fixed_root (tests.manager.test_boundary_inventory.StatedRules.test_a_credential_mount_is_an_entry_of_the_fixed_root)
+A SEPARATE OWNER FROM `_mounts`, and the separation is the point. ... ok
+test_a_credential_sequence_is_a_list_of_owned_members (tests.manager.test_boundary_inventory.StatedRules.test_a_credential_sequence_is_a_list_of_owned_members)
+A LIST IS NOT A CROSSING; its members are. ... ok
+test_a_decision_is_accept_or_decline (tests.manager.test_boundary_inventory.StatedRules.test_a_decision_is_accept_or_decline) ... ok
+test_a_decision_names_this_offers_own_attempt_and_work (tests.manager.test_boundary_inventory.StatedRules.test_a_decision_names_this_offers_own_attempt_and_work) ... ok
+test_a_declaration_is_owned_once_at_construction (tests.manager.test_boundary_inventory.StatedRules.test_a_declaration_is_owned_once_at_construction)
+W6634. `sealing.py` is a pure function over data whose caller is the ... ok
+test_a_declared_capacity_a_caller_minted_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_declared_capacity_a_caller_minted_is_refused) ... ok
+test_a_declared_capacity_is_held_to_this_builds_floor_and_ceiling (tests.manager.test_boundary_inventory.StatedRules.test_a_declared_capacity_is_held_to_this_builds_floor_and_ceiling)
+A range rather than a shape, which is why it is stated here. ... ok
+test_a_delivery_is_one_of_the_closed_lifecycle_states (tests.manager.test_boundary_inventory.StatedRules.test_a_delivery_is_one_of_the_closed_lifecycle_states)
+A comparison against this module's own constant, not a boundary. ... ok
+test_a_deliverys_bearers_are_keyed_by_a_proved_slot (tests.manager.test_boundary_inventory.StatedRules.test_a_deliverys_bearers_are_keyed_by_a_proved_slot)
+The keys are owned; the VALUES are never named in a refusal. ... ok
+test_a_diagnostic_noun_names_the_subject_and_decides_nothing (tests.manager.test_boundary_inventory.StatedRules.test_a_diagnostic_noun_names_the_subject_and_decides_nothing)
+The noun is bounded at each PUBLIC door, driven with caller data. ... ok
+test_a_fence_that_ended_another_assignment_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_fence_that_ended_another_assignment_is_refused)
+The Work and the authority are the COMPARISON operands. ... ok
+test_a_forwarded_operand_reaches_the_authority_unchanged (tests.manager.test_boundary_inventory.StatedRules.test_a_forwarded_operand_reaches_the_authority_unchanged)
+The port forwards; the authority owns. ... ok
+test_a_governed_attempt_row_is_its_own_owners (tests.manager.test_boundary_inventory.StatedRules.test_a_governed_attempt_row_is_its_own_owners)
+WITNESS: the governance reads a row somebody else already validated. ... ok
+test_a_launch_mount_acts_on_a_delivery_this_manager_materialized (tests.manager.test_boundary_inventory.StatedRules.test_a_launch_mount_acts_on_a_delivery_this_manager_materialized)
+What proves a launch delivery is that it IS one. ... ok
+test_a_launch_value_is_bounded_text_with_no_nul (tests.manager.test_boundary_inventory.StatedRules.test_a_launch_value_is_bounded_text_with_no_nul)
+W26291. One owner for all three values, and one literal label. ... ok
+test_a_maintenance_allowance_may_only_lower_this_modules_bound (tests.manager.test_boundary_inventory.StatedRules.test_a_maintenance_allowance_may_only_lower_this_modules_bound)
+WITNESS: the preparation allowance, exercised at both directions. ... ok
+test_a_maintenance_window_reader_is_a_capability_proven_by_use (tests.manager.test_boundary_inventory.StatedRules.test_a_maintenance_window_reader_is_a_capability_proven_by_use)
+WITNESS: the control store is exercised, not validated by shape. ... ok
+test_a_manager_guard_is_its_own_modules_composition (tests.manager.test_boundary_inventory.StatedRules.test_a_manager_guard_is_its_own_modules_composition)
+WITNESS: the HOST-8 guard's operands are composed here, and the LOCK is it. ... /home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py:14315: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py' mode='r' encoding='UTF-8'>
+  source = ast.parse(open(_ws.__file__).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_manager_reclaim_selector_is_exactly_boolean (tests.manager.test_boundary_inventory.StatedRules.test_a_manager_reclaim_selector_is_exactly_boolean)
+WITNESS: the privileged mode switch is typed locally, not truthily. ... ok
+test_a_manifest_is_owned_by_the_contracts_own_composite (tests.manager.test_boundary_inventory.StatedRules.test_a_manifest_is_owned_by_the_contracts_own_composite)
+A DIFFERENT OWNER FROM `boundaries`, and a stronger one: schema ... ok
+test_a_minted_sequence_is_whole_because_the_column_is (tests.manager.test_boundary_inventory.StatedRules.test_a_minted_sequence_is_whole_because_the_column_is)
+The store's own typing is the owner, and it is worth checking. ... ok
+test_a_mount_sequence_is_iterated_and_never_read (tests.manager.test_boundary_inventory.StatedRules.test_a_mount_sequence_is_iterated_and_never_read)
+The container is walked; every mount inside it is owned. Any ... ok
+test_a_nominated_source_a_caller_minted_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_nominated_source_a_caller_minted_is_refused)
+The stated rule for all four of this constructor's operands. ... ok
+test_a_pinned_identity_is_the_two_pairs_an_incarnation_proved (tests.manager.test_boundary_inventory.StatedRules.test_a_pinned_identity_is_the_two_pairs_an_incarnation_proved)
+Half an identity compares against nothing, so it is refused rather ... ok
+test_a_pinned_pair_is_two_non_negative_whole_numbers (tests.manager.test_boundary_inventory.StatedRules.test_a_pinned_pair_is_two_non_negative_whole_numbers) ... ok
+test_a_preparation_refusal_is_this_packages_own_closed_type (tests.manager.test_boundary_inventory.StatedRules.test_a_preparation_refusal_is_this_packages_own_closed_type)
+The stated rule, exercised rather than asserted in prose. ... ok
+test_a_published_offer_row_is_owned_where_it_leaves_the_table (tests.manager.test_boundary_inventory.StatedRules.test_a_published_offer_row_is_owned_where_it_leaves_the_table)
+The publisher never sees an offer value nobody proved. ... ok
+test_a_quiet_engine_stderr_is_not_a_fault (tests.manager.test_boundary_inventory.StatedRules.test_a_quiet_engine_stderr_is_not_a_fault)
+The same owner at the other stream, witnessed independently: two ... ok
+test_a_reader_only_ever_receives_a_channel_the_port_proved (tests.manager.test_boundary_inventory.StatedRules.test_a_reader_only_ever_receives_a_channel_the_port_proved)
+The stated rule is that nothing unproved reaches `_Reader`. ... ok
+test_a_refused_open_leaves_no_handle_and_no_store (tests.manager.test_boundary_inventory.StatedRules.test_a_refused_open_leaves_no_handle_and_no_store)
+The handle is assembled by `open`, which closes it on every refused ... ok
+test_a_replay_of_other_operands_is_an_operation_collision (tests.manager.test_boundary_inventory.StatedRules.test_a_replay_of_other_operands_is_an_operation_collision)
+Replay compares; it does not re-derive. ... ok
+test_a_retention_names_artifacts_and_owns_every_one_of_them (tests.manager.test_boundary_inventory.StatedRules.test_a_retention_names_artifacts_and_owns_every_one_of_them)
+A LIST IS NOT A BOUNDARY -- what crosses is the members. ... ok
+test_a_session_epoch_counts_from_one (tests.manager.test_boundary_inventory.StatedRules.test_a_session_epoch_counts_from_one)
+`posture_slots._epoch` owns the frozen `positiveInt`, and it is not ... ok
+test_a_settlement_rides_back_exactly_as_the_boundary_gave_it (tests.manager.test_boundary_inventory.StatedRules.test_a_settlement_rides_back_exactly_as_the_boundary_gave_it)
+ORDERED, not done. ... ok
+test_a_source_boundary_a_caller_minted_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_a_source_boundary_a_caller_minted_is_refused) ... ok
+test_a_source_delivery_is_owned_at_the_constructor_it_is_given_to (tests.manager.test_boundary_inventory.StatedRules.test_a_source_delivery_is_owned_at_the_constructor_it_is_given_to)
+The CONSTRUCTOR's own rule, and then the held value reaching a ... ok
+test_a_source_sequence_counts_from_zero (tests.manager.test_boundary_inventory.StatedRules.test_a_source_sequence_counts_from_zero)
+The sequence is half of a DURABLE IDENTITY, not a shape. ... ok
+test_a_stop_timeout_is_a_positive_whole_number (tests.manager.test_boundary_inventory.StatedRules.test_a_stop_timeout_is_a_positive_whole_number) ... ok
+test_a_teardown_acts_on_a_delivery_this_manager_materialized (tests.manager.test_boundary_inventory.StatedRules.test_a_teardown_acts_on_a_delivery_this_manager_materialized)
+What proves a delivery is that it IS one. ... ok
+test_a_token_control_capability_is_proven_by_use (tests.manager.test_boundary_inventory.StatedRules.test_a_token_control_capability_is_proven_by_use)
+WITNESS: the control store is a capability, exercised rather than validated. ... ok
+test_a_worker_entry_bound_is_a_positive_whole_number (tests.manager.test_boundary_inventory.StatedRules.test_a_worker_entry_bound_is_a_positive_whole_number)
+Owned at the port, where the bound is handed to the world. ... ok
+test_a_writable_flag_is_a_yes_or_a_no (tests.manager.test_boundary_inventory.StatedRules.test_a_writable_flag_is_a_yes_or_a_no)
+`type(value) is bool`, so a truthy substitute is refused rather ... ok
+test_activation_asks_the_authority_for_the_live_assignment (tests.manager.test_boundary_inventory.StatedRules.test_activation_asks_the_authority_for_the_live_assignment)
+Three things must agree, and the third is the authority's own answer. ... ok
+test_an_absent_observation_is_omitted_and_not_nulled (tests.manager.test_boundary_inventory.StatedRules.test_an_absent_observation_is_omitted_and_not_nulled)
+An inquiry never observes anything, and the view says so by not ... ok
+test_an_activation_outcome_is_exactly_boolean_and_unknown_stays_held (tests.manager.test_boundary_inventory.StatedRules.test_an_activation_outcome_is_exactly_boolean_and_unknown_stays_held)
+WITNESS: the activation outcome is typed, and unknown is not false. ... ok
+test_an_adoption_takes_only_capabilities_this_build_minted (tests.manager.test_boundary_inventory.StatedRules.test_an_adoption_takes_only_capabilities_this_build_minted) ... ok
+test_an_answer_is_published_by_the_manager_and_never_the_worker (tests.manager.test_boundary_inventory.StatedRules.test_an_answer_is_published_by_the_manager_and_never_the_worker)
+The whole isolation topology exists so that a worker holds no Baton ... ok
+test_an_assignment_from_another_authority_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_an_assignment_from_another_authority_is_refused)
+The relationship the type check left unowned. ... ok
+test_an_engine_status_is_a_whole_number_and_zero_is_ordinary (tests.manager.test_boundary_inventory.StatedRules.test_an_engine_status_is_a_whole_number_and_zero_is_ordinary)
+`_status` owns it, and ZERO is what success looks like. ... ok
+test_an_engine_stream_is_text_that_may_be_empty (tests.manager.test_boundary_inventory.StatedRules.test_an_engine_stream_is_text_that_may_be_empty)
+`_stream` owns it, and the EMPTY string is admitted on purpose. ... ok
+test_an_exec_program_is_a_sequence_of_words_and_not_a_string (tests.manager.test_boundary_inventory.StatedRules.test_an_exec_program_is_a_sequence_of_words_and_not_a_string)
+`exec_vector` owns the whole operand, not one word of it. ... ok
+test_an_identification_adapter_is_owned_by_the_reconciliation (tests.manager.test_boundary_inventory.StatedRules.test_an_identification_adapter_is_owned_by_the_reconciliation)
+The stated rule, exercised at both halves of what it claims. ... ok
+test_an_interrogation_discriminator_decides_before_anything_is_read (tests.manager.test_boundary_inventory.StatedRules.test_an_interrogation_discriminator_decides_before_anything_is_read)
+An unrecognised answer is refused rather than read as the least ... ok
+test_an_observation_names_a_frozen_axis_and_one_of_its_values (tests.manager.test_boundary_inventory.StatedRules.test_an_observation_names_a_frozen_axis_and_one_of_its_values)
+Two closed sets, and the second depends on the first. ... ok
+test_an_offer_is_issued_only_against_open_queued_unclaimed_work (tests.manager.test_boundary_inventory.StatedRules.test_an_offer_is_issued_only_against_open_queued_unclaimed_work)
+The four projection members the manager COMPARES rather than shapes. ... ok
+test_an_offer_naming_another_participant_is_refused (tests.manager.test_boundary_inventory.StatedRules.test_an_offer_naming_another_participant_is_refused) ... ok
+test_an_outbound_constructor_owns_its_member_set (tests.manager.test_boundary_inventory.StatedRules.test_an_outbound_constructor_owns_its_member_set)
+4bz's outbound half: the contract owns the SHAPE. ... ok
+test_an_outbound_constructor_refuses_a_shape_its_contract_omits (tests.manager.test_boundary_inventory.StatedRules.test_an_outbound_constructor_refuses_a_shape_its_contract_omits)
+4bz's outbound half: the constructor owns the SHAPE. ... ok
+test_an_outbound_document_is_built_in_its_contract_order (tests.manager.test_boundary_inventory.StatedRules.test_an_outbound_document_is_built_in_its_contract_order)
+Two paths building one document must build the same bytes. ... ok
+test_an_unfenced_answer_stops_the_cancellation (tests.manager.test_boundary_inventory.StatedRules.test_an_unfenced_answer_stops_the_cancellation)
+`fenced` is a closed value, and false is not a smaller yes. ... ok
+test_an_unrecognised_running_member_is_uncertain_and_never_absent (tests.manager.test_boundary_inventory.StatedRules.test_an_unrecognised_running_member_is_uncertain_and_never_absent)
+This read CANNOT refuse, and that is the rule rather than an ... ok
+test_an_unrecorded_window_ordinal_answers_absence (tests.manager.test_boundary_inventory.StatedRules.test_an_unrecorded_window_ordinal_answers_absence)
+WITNESS: an ordinal SELECTS nothing it does not name. ... ok
+test_cancellation_fences_before_it_orders_anything (tests.manager.test_boundary_inventory.StatedRules.test_cancellation_fences_before_it_orders_anything)
+FENCE, THEN STOP -- and the operands the fence needs are forwarded. ... ok
+test_consumption_requires_one_live_writer_before_delegating (tests.manager.test_boundary_inventory.StatedRules.test_consumption_requires_one_live_writer_before_delegating) ... ok
+test_deadline_capability_owners (tests.manager.test_boundary_inventory.StatedRules.test_deadline_capability_owners) ... ok
+test_deadline_closed_document_owners (tests.manager.test_boundary_inventory.StatedRules.test_deadline_closed_document_owners) ... ok
+test_deadline_destroy_response_owners (tests.manager.test_boundary_inventory.StatedRules.test_deadline_destroy_response_owners) ... ok
+test_deadline_policy_owner (tests.manager.test_boundary_inventory.StatedRules.test_deadline_policy_owner) ... ok
+test_deadline_public_operand_owners (tests.manager.test_boundary_inventory.StatedRules.test_deadline_public_operand_owners) ... ok
+test_discarding_a_root_this_module_did_not_make_is_absence (tests.manager.test_boundary_inventory.StatedRules.test_discarding_a_root_this_module_did_not_make_is_absence)
+W26291. `discard` answers whether the root is gone. ... ok
+test_every_operation_the_port_names_is_typed_at_construction (tests.manager.test_boundary_inventory.StatedRules.test_every_operation_the_port_names_is_typed_at_construction)
+A capability discovered to be missing once durable state depends on ... ok
+test_every_outbound_constructor_holds_its_contract (tests.manager.test_boundary_inventory.StatedRules.test_every_outbound_constructor_holds_its_contract)
+All nine, derived from the table rather than listed here. ... ok
+test_every_settlement_variant_carries_its_own_members (tests.manager.test_boundary_inventory.StatedRules.test_every_settlement_variant_carries_its_own_members)
+The discriminator is owned by the closed set that reads it. ... ok
+test_line_launch_metadata_keeps_mint_and_durable_binding (tests.manager.test_boundary_inventory.StatedRules.test_line_launch_metadata_keeps_mint_and_durable_binding) ... ok
+test_one_delivery_belongs_to_one_attempt (tests.manager.test_boundary_inventory.StatedRules.test_one_delivery_belongs_to_one_attempt)
+A mounted credential root is keyed by attempt, and so is the runtime ... ok
+test_only_the_HOLDER_of_a_preparation_ownership_continues_it (tests.manager.test_boundary_inventory.StatedRules.test_only_the_HOLDER_of_a_preparation_ownership_continues_it)
+WITNESS: the ownership capability and the operand that presents it. ... ok
+test_only_the_same_execution_or_a_proved_ending_takes_a_window (tests.manager.test_boundary_inventory.StatedRules.test_only_the_same_execution_or_a_proved_ending_takes_a_window)
+WITNESS: the execution identity an adoption is compared against. ... ok
+test_open_refuses_its_own_operands_with_its_own_closed_pair (tests.manager.test_boundary_inventory.StatedRules.test_open_refuses_its_own_operands_with_its_own_closed_pair)
+A path this build must not touch is integrity/PATH, not a schema ... ok
+test_operation_identities_are_a_sequence_one_per_operation (tests.manager.test_boundary_inventory.StatedRules.test_operation_identities_are_a_sequence_one_per_operation)
+Shape, cardinality, each identity, its ceiling, and distinctness. ... ok
+test_prose_rides_the_signature_that_records_it (tests.manager.test_boundary_inventory.StatedRules.test_prose_rides_the_signature_that_records_it)
+Prose is not owned at entry; the act that records it owns it. ... ok
+test_public_sealing_owns_the_refusal_before_reading_it (tests.manager.test_boundary_inventory.StatedRules.test_public_sealing_owns_the_refusal_before_reading_it)
+The public sealing door types its operand BEFORE reading a member. ... ok
+test_restore_abandoned_correction_profile_owner (tests.manager.test_boundary_inventory.StatedRules.test_restore_abandoned_correction_profile_owner) ... ok
+test_review_cycle_stated_owners (tests.manager.test_boundary_inventory.StatedRules.test_review_cycle_stated_owners)
+The aggregate owners are live and the focused lifecycle suite runs. ... ok
+test_settle_restoration_execution_profile_owner (tests.manager.test_boundary_inventory.StatedRules.test_settle_restoration_execution_profile_owner) ... ok
+test_settlement_authority_is_asserted_not_inherited (tests.manager.test_boundary_inventory.StatedRules.test_settlement_authority_is_asserted_not_inherited)
+`may_retire` is computed here and forwarded, never defaulted. ... ok
+test_signature_operands_are_canonicalized (tests.manager.test_boundary_inventory.StatedRules.test_signature_operands_are_canonicalized)
+Canonicalization is the owner: it refuses what it cannot carry. ... ok
+test_stopped_settlement_preview_stated_owners (tests.manager.test_boundary_inventory.StatedRules.test_stopped_settlement_preview_stated_owners) ... ok
+test_stopped_settlement_stated_owners (tests.manager.test_boundary_inventory.StatedRules.test_stopped_settlement_stated_owners) ... ok
+test_the_advertised_capability_is_owned_by_2_2s_own_rule (tests.manager.test_boundary_inventory.StatedRules.test_the_advertised_capability_is_owned_by_2_2s_own_rule)
+Owned, and deliberately NOT by the layer. ... ok
+test_the_agents_capability_answer_is_owned_before_it_is_walked (tests.manager.test_boundary_inventory.StatedRules.test_the_agents_capability_answer_is_owned_before_it_is_walked)
+An operand this manager iterates is one it can be handed a ... ok
+test_the_answered_wire_version_is_compared_against_the_pin (tests.manager.test_boundary_inventory.StatedRules.test_the_answered_wire_version_is_compared_against_the_pin)
+An answer is an announcement, not a negotiation. ... ok
+test_the_bearer_is_acceptances_capability_and_no_declines (tests.manager.test_boundary_inventory.StatedRules.test_the_bearer_is_acceptances_capability_and_no_declines)
+W33937: ONE OPERAND, TWO RULES, chosen by the decision it rides. ... ok
+test_the_catalogue_decides_one_membership_question (tests.manager.test_boundary_inventory.StatedRules.test_the_catalogue_decides_one_membership_question)
+Nothing to own, and the membership answer is what matters. ... ok
+test_the_claim_operation_id_is_a_derivation_of_its_operands (tests.manager.test_boundary_inventory.StatedRules.test_the_claim_operation_id_is_a_derivation_of_its_operands)
+Same operands, same id; different operands, different id. ... ok
+test_the_input_pair_is_owned_by_the_contracts_own_composite (tests.manager.test_boundary_inventory.StatedRules.test_the_input_pair_is_owned_by_the_contracts_own_composite)
+W19784. The same owner as a retained manifest, answering a question ... ok
+test_the_next_epoch_is_a_whole_number_by_construction (tests.manager.test_boundary_inventory.StatedRules.test_the_next_epoch_is_a_whole_number_by_construction)
+`COALESCE(MAX(x), 0) + 1` over a STRICT INTEGER column: there is ... ok
+test_the_nine_frozen_states_are_a_closed_vocabulary (tests.manager.test_boundary_inventory.StatedRules.test_the_nine_frozen_states_are_a_closed_vocabulary)
+`sessions._state` answers ONE membership question and raises the ... ok
+test_the_observation_discriminator_decides_before_anything_is_read (tests.manager.test_boundary_inventory.StatedRules.test_the_observation_discriminator_decides_before_anything_is_read)
+`boundaries.alternative` reads `kind` to decide WHICH contract the ... ok
+test_the_observed_revision_is_a_whole_number_including_zero (tests.manager.test_boundary_inventory.StatedRules.test_the_observed_revision_is_a_whole_number_including_zero)
+WITNESS: `renew`'s condition is the reader's own revision, typed locally. ... ok
+test_the_preparation_gate_distrusts_the_roots_it_is_handed (tests.manager.test_boundary_inventory.StatedRules.test_the_preparation_gate_distrusts_the_roots_it_is_handed)
+WITNESS: the host-preparation account and its admission gate. ... ok
+test_the_preparation_window_only_exempts_the_act_that_owns_it (tests.manager.test_boundary_inventory.StatedRules.test_the_preparation_window_only_exempts_the_act_that_owns_it)
+WITNESS: the preparation ownership window and its exemption. ... ok
+test_the_runtime_binds_come_from_a_boundary_this_build_composed (tests.manager.test_boundary_inventory.StatedRules.test_the_runtime_binds_come_from_a_boundary_this_build_composed) ... ok
+test_the_task_acquisition_carries_the_preparation_condition (tests.manager.test_boundary_inventory.StatedRules.test_the_task_acquisition_carries_the_preparation_condition)
+WITNESS: the governance that decides the preparation condition under the ... ok
+test_what_the_adapter_collects_is_owned_where_it_arrives (tests.manager.test_boundary_inventory.StatedRules.test_what_the_adapter_collects_is_owned_where_it_arrives)
+The same rule as the seal above, one boundary later. ... ok
+test_what_the_adapter_seals_is_owned_where_it_arrives (tests.manager.test_boundary_inventory.StatedRules.test_what_the_adapter_seals_is_owned_where_it_arrives)
+An adapter's account of its own success decides NOTHING here. ... ok
+test_what_the_retain_adapter_answers_decides_nothing (tests.manager.test_boundary_inventory.StatedRules.test_what_the_retain_adapter_answers_decides_nothing)
+The command is DELIVERED and its reply is discarded. ... ok
+test_whether_a_turn_was_in_flight_is_an_exact_boolean (tests.manager.test_boundary_inventory.StatedRules.test_whether_a_turn_was_in_flight_is_an_exact_boolean)
+§8.4 makes the reported turn outcome depend on this, and `?? false` ... ok
+test_stated_rules_refuse_what_they_say (tests.manager.test_boundary_inventory.StageCProtections.test_stated_rules_refuse_what_they_say) ... ok
+
+----------------------------------------------------------------------
+Ran 424 tests in 11.785s
+
+OK

@@ -1,0 +1,84 @@
+test_a_restarted_manager_reuses_a_delivery_that_is_still_readable (tests.manager.test_input_delivery.DockerDelivery.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable)
+Restart and retry reuse. ... ok
+test_neither_document_is_writable_and_neither_is_the_root (tests.manager.test_input_delivery.DockerDelivery.test_neither_document_is_writable_and_neither_is_the_root)
+Readable did not become writable -- asked TWICE, of two different ... ok
+test_one_runtime_reaches_no_other_assignments_input_root (tests.manager.test_input_delivery.DockerDelivery.test_one_runtime_reaches_no_other_assignments_input_root)
+Sibling isolation. ... ok
+test_the_launch_document_and_the_input_pair_agree_on_the_mode (tests.manager.test_input_delivery.DockerDelivery.test_the_launch_document_and_the_input_pair_agree_on_the_mode)
+Two manager-owned read-only deliveries, one rule. ... ok
+test_the_worker_identity_reads_both_delivered_documents (tests.manager.test_input_delivery.DockerDelivery.test_the_worker_identity_reads_both_delivered_documents)
+The defect, kept. ... ok
+test_a_consent_runtime_is_given_no_supplementary_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_consent_runtime_is_given_no_supplementary_group) ... ok
+test_a_restarted_manager_reuses_a_delivery_that_is_still_readable (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable)
+Restart and retry reuse. ... ok
+test_a_root_that_left_the_group_refuses_before_the_engine (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_root_that_left_the_group_refuses_before_the_engine)
+The pre-launch proof, driven by the thing it exists to catch. ... ok
+test_a_second_held_group_refuses_despite_being_usable (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_second_held_group_refuses_despite_being_usable)
+THE REVIEW'S NAMED NEGATIVE. ... ok
+test_allocation_puts_the_workspace_in_the_configured_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_allocation_puts_the_workspace_in_the_configured_group)
+The wiring the review found missing, at the canonical boundary. ... ok
+test_an_allocation_takes_only_the_deployments_own_answer (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_allocation_takes_only_the_deployments_own_answer)
+Review [P1], and this is the case it asked for. ... ok
+test_an_owner_only_output_is_read_without_widening (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_owner_only_output_is_read_without_widening)
+HOST-5: shared ownership makes 0600 output readable without chmod. ... ok
+test_an_unconfigured_execution_refuses_before_the_engine (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_unconfigured_execution_refuses_before_the_engine)
+Review [P0], and my last cut had this exactly backwards. ... ok
+test_manager_cleanup_of_worker_content_is_measured_not_assumed (tests.manager.test_input_delivery.DockerConfiguredGroup.test_manager_cleanup_of_worker_content_is_measured_not_assumed)
+Shared execution ownership permits exact worker-output cleanup. ... ERROR
+test_neither_document_is_writable_and_neither_is_the_root (tests.manager.test_input_delivery.DockerConfiguredGroup.test_neither_document_is_writable_and_neither_is_the_root)
+Readable did not become writable -- asked TWICE, of two different ... ok
+test_one_assignment_workspace_reaches_no_other (tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_assignment_workspace_reaches_no_other)
+Sibling isolation, with both roots in the SAME configured group. ... ok
+test_one_runtime_reaches_no_other_assignments_input_root (tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_runtime_reaches_no_other_assignments_input_root)
+Sibling isolation. ... ok
+test_the_applied_group_is_asked_of_the_engine_and_the_process (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_applied_group_is_asked_of_the_engine_and_the_process)
+`--group-add` composed is one fact; applied is the one that counts. ... ok
+test_the_grant_reaches_no_surface_but_the_workspace (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_grant_reaches_no_surface_but_the_workspace)
+Correction boundary: the group grants write HERE and nowhere else. ... ok
+test_the_group_is_validated_and_never_inferred (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_group_is_validated_and_never_inferred) ... ok
+test_the_launch_document_and_the_input_pair_agree_on_the_mode (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_launch_document_and_the_input_pair_agree_on_the_mode)
+Two manager-owned read-only deliveries, one rule. ... ok
+test_the_worker_creates_updates_and_removes_in_its_workspace (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_creates_updates_and_removes_in_its_workspace)
+THE ACCEPTANCE, positive, in the exact composed container. ... ok
+test_the_worker_identity_reads_both_delivered_documents (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_identity_reads_both_delivered_documents)
+The defect, kept. ... ok
+test_what_the_worker_creates_inherits_the_workspace_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_what_the_worker_creates_inherits_the_workspace_group)
+The ruling's own required proof, and the reason for the setgid bit. ... ok
+
+======================================================================
+ERROR: test_manager_cleanup_of_worker_content_is_measured_not_assumed (tests.manager.test_input_delivery.DockerConfiguredGroup.test_manager_cleanup_of_worker_content_is_measured_not_assumed)
+Shared execution ownership permits exact worker-output cleanup.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_input_delivery.py", line 1671, in test_manager_cleanup_of_worker_content_is_measured_not_assumed
+    self.assertTrue(workspaces.discard_workspace(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.storage, self.attempt, control=self.store))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4805, in _serialized_removal
+    value = removing()
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6249, in <lambda>
+    lambda: (_removed_pinned_home(root, assignment_id, pinned=authorized,
+             ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  what="removing this attempt's workspace home"),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6824, in _removed_pinned_home
+    _removed_through_handles(home, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6904, in _removed_through_handles
+    os.rmdir(name, dir_fd=parent)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'inputs'
+
+----------------------------------------------------------------------
+Ran 24 tests in 5.504s
+
+FAILED (errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

@@ -1,0 +1,74 @@
+def _removed_through_handles(root, what):
+    """Remove an admitted tree through RETAINED DIRECTORY HANDLES, never through names.
+
+    W270664 F2, review 2026-09-26T07:14:23Z's sequence. Every earlier shape stored PATHS and
+    re-checked them, and review 07:07:30Z proved that a descendant replaced between the
+    admission and the effect is resolved through -- a time-of-check test cannot bind an
+    object, however many times it is repeated.
+
+    SO THE ADMISSION KEEPS WHAT IT PROVED. Pass one descends with `scandir` over an open
+    directory handle, opens each child directory `O_NOFOLLOW|O_DIRECTORY` RELATIVE to its
+    parent's handle, and keeps that handle. Pass two operates on those same handles: `fchmod`
+    on the handle, `unlink`/`rmdir` by NAME RELATIVE TO the handle. No name is resolved from
+    the root twice and no absolute path is rebuilt, so nothing a descendant becomes later can
+    redirect a scan, a mode change or a deletion outside the admitted objects.
+
+    THE REVIEWED GUARANTEES ARE PRESERVED. The device comparison and the mount-table check
+    still run over every directory BEFORE anything is removed -- `fstat` on the handle for the
+    device, and the handle's own `/proc/self/fd` link resolved for table membership, which is a
+    read of the kernel's answer rather than a path the caller could swap. The order is still
+    admit-everything-then-remove-deepest-first, so a refusal anywhere precedes every unlink.
+    The worker-owned refusal is kept: a child this manager may not modify stops the act.
+
+    EVERY HANDLE IS CLOSED on success, refusal and failure.
+    """
+    base = os.fstat(root).st_dev
+    mounted = mount_points(what=what)
+    admitted = []
+    opened = []
+    try:
+        pending = [(None, None, root)]
+        while pending:
+            parent, name, handle = pending.pop(0)
+            if os.fstat(handle).st_dev != base:
+                _denied(f"{what} reached a directory on another filesystem than the tree it "
+                        f"is removing, so it is a mount rather than material this manager "
+                        f"created; cleanup removes only what this manager made")
+            if os.path.realpath(f"/proc/self/fd/{handle}") in mounted:
+                _denied(f"{what} reached a mount point in this process's own mount table, "
+                        f"so it is somebody else's material behind a directory this manager "
+                        f"made; a bind mount from the same filesystem keeps the device "
+                        f"number, which is why the table is asked as well")
+            admitted.append((parent, name, handle))
+            with os.scandir(handle) as entries:
+                children = [entry.name for entry in entries
+                            if entry.is_dir(follow_symlinks=False)]
+            for child in children:
+                held = os.open(child, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                               dir_fd=handle)
+                opened.append(held)
+                pending.append((handle, child, held))
+        for parent, name, handle in reversed(admitted):
+            _thaw_handle(handle, what)
+            with os.scandir(handle) as entries:
+                members = [(entry.name, entry.is_dir(follow_symlinks=False),
+                            entry.stat(follow_symlinks=False)) for entry in entries]
+            for member, is_directory, held in members:
+                if held.st_uid != os.getuid() and not os.access(
+                        member, os.W_OK, dir_fd=handle, follow_symlinks=False):
+                    _denied(f"{what} could not remove {name_value(member)}: it is owned by "
+                            f"uid {held.st_uid} and this manager is uid {os.getuid()}; "
+                            f"cleanup fails closed rather than leaving a partly-removed tree")
+                if is_directory:
+                    os.rmdir(member, dir_fd=handle)
+                else:
+                    os.unlink(member, dir_fd=handle)
+            if parent is not None:
+                os.rmdir(name, dir_fd=parent)
+    finally:
+        for held in opened:
+            try:
+                os.close(held)
+            except OSError:
+                pass
+

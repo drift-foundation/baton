@@ -1,0 +1,100 @@
+--- base/v12/python/tests/manager/test_input_delivery.py
++++ candidate/v12/python/tests/manager/test_input_delivery.py
+@@ -518,6 +518,7 @@
+         self.addCleanup(self._root.cleanup)
+         self.storage = os.path.join(self._root.name, "storage")
+         os.makedirs(self.storage)
++        workspaces.configure_workspace_storage(self.store, self.storage)
+ 
+     def composed(self, assignment="assignment-1", umask=None):
+         roots = workspaces.assignment_workspace(self.group, self.storage, assignment)
+@@ -781,6 +782,7 @@
+         self.addCleanup(self._root.cleanup)
+         self.storage = os.path.join(self._root.name, "storage")
+         os.makedirs(self.storage)
++        workspaces.configure_workspace_storage(self.store, self.storage)
+ 
+     def composed(self, assignment="assignment-1"):
+         roots = workspaces.assignment_workspace(self.group, self.storage, assignment)
+@@ -963,6 +965,7 @@
+             clock=lambda: "2026-08-24T00:00:00.000Z")
+         self.addCleanup(self.store.close)
+         self.group = composition.input_roots.configured_group(self.store)
++        workspaces.configure_workspace_storage(self.store, self.storage)
+ 
+     def documents(self, attempt):
+         return composition.input_roots.documents(
+@@ -1036,29 +1039,8 @@
+     def test_first_allocation_race_answers_or_refuses_in_contract(self):
+         """An exclusive mkdir collision is a refusal, not a raw OS fault."""
+         attempt = "attempt-allocation-race"
+-        home = os.path.join(self.storage, attempt)
+-        rendezvous = threading.Barrier(2)
+-        real_lexists = os.path.lexists
+-
+-        def simultaneous_absence(place):
+-            found = real_lexists(place)
+-            if place == home:
+-                rendezvous.wait(timeout=2)
+-            return found
+-
+-        def allocate():
+-            try:
+-                return "answer", workspaces.assignment_workspace(
+-                    self.group, self.storage, attempt)
+-            except ContractRefusal as refusal:
+-                return "refusal", refusal
+-            except Exception as error:
+-                return "leak", error
+-
+-        with mock.patch.object(workspaces.os.path, "lexists",
+-                               side_effect=simultaneous_absence):
+-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+-                results = list(pool.map(lambda _: allocate(), range(2)))
++        # Synchronize the actual create seam, not the obsolete lexists check.
++        results = self._race_on(os.path.join(self.storage, attempt), attempt)
+         self.addCleanup(self._thaw_and_remove, attempt)
+         self.assertNotIn("leak", [kind for kind, _ in results], results)
+         answers = [value for kind, value in results if kind == "answer"]
+@@ -1269,16 +1251,28 @@
+         """
+         real_mkdir = os.mkdir
+         rendezvous = threading.Barrier(2)
++        arrivals = []
+ 
+         def simultaneous_create(place, *rest, **named):
+             if place == target:
++                arrivals.append(place)
+                 rendezvous.wait(timeout=5)
+             return real_mkdir(place, *rest, **named)
+ 
+         def allocate(_):
+             try:
+-                return "answer", workspaces.assignment_workspace(
+-                    self.group, self.storage, attempt)
++                # Each caller owns a usable journal connection on its thread.
++                from baton_v12.worker_manager import ControlStore
++                control = ControlStore.open(
++                    os.path.join(self._root.name, "control.sqlite3"),
++                    incarnation="trust-1",
++                    clock=lambda: "2026-08-24T00:00:00.000Z")
++                try:
++                    group = workspaces.configured_workspace_group(control)
++                    return "answer", workspaces.assignment_workspace(
++                        group, self.storage, attempt, control=control)
++                finally:
++                    control.close()
+             except ContractRefusal as refusal:
+                 return "refusal", str(refusal)
+             except Exception as error:                     # noqa: BLE001
+@@ -1287,7 +1281,9 @@
+         with mock.patch.object(workspaces.os, "mkdir",
+                                side_effect=simultaneous_create):
+             with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+-                return list(pool.map(allocate, range(2)))
++                results = list(pool.map(allocate, range(2)))
++        self.assertEqual(arrivals, [target, target], "both callers must reach the create seam")
++        return results
+ 
+     def test_the_home_create_race_answers_or_refuses_in_contract(self):
+         attempt = "attempt-home-race"

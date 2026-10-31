@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine"
+  ],
+  "exit": 0,
+  "timed_out": false,
+  "seconds": 2.2662184669970884,
+  "source_drift": [],
+  "emergency_cleanup": [],
+  "task_containers_remaining": [],
+  "old_containers_preserved": true,
+  "temporary_root": "/var/tmp/baton-w384944-access-gc5kh_bf",
+  "leftovers": [],
+  "root_removed": true
+}
