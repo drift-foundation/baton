@@ -33,6 +33,7 @@ from baton_v12.worker_manager import (credentials, launch, oci,
 
 from baton_v12.worker_manager import ControlStore
 
+from .test_lifecycle_composition import selected_reference_image, reachable, assert_owned_containers_absent
 from . import input_roots
 from .test_worker_container import ENGINE, ContainerCase
 
@@ -56,6 +57,16 @@ LABELS = {"runtime_attempt_id": "attempt-1",
 
 
 class ARealDaemonNeverHoldsTheBearer(ContainerCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.created_names = set()
+        selected = selected_reference_image(ENGINE)
+        if selected is None:
+            return super().setUpClass()
+        usable, why = reachable(ENGINE)
+        assert usable, why
+        cls.image = selected
 
     def setUp(self):
         self.home_place = tempfile.mkdtemp(prefix="v12-w26284-engine-")
@@ -117,6 +128,7 @@ class ARealDaemonNeverHoldsTheBearer(ContainerCase):
             forget_secret(BEARER)
 
     def _reap(self):
+        type(self).created_names.update(self.made)
         for name in self.made:
             subprocess.run([ENGINE, "rm", "--force", name],
                            capture_output=True, timeout=120)
@@ -416,9 +428,12 @@ class ARealDaemonNeverHoldsTheBearer(ContainerCase):
         self.assertFalse(live_secret(BEARER))
 
     def test_nothing_this_module_made_survives_it(self):
-        found = subprocess.run(
-            [ENGINE, "ps", "--all", "--filter", "name=baton-runtime.start",
-             "--format", "{{.Names}}"], capture_output=True, timeout=120)
-        self.assertEqual(found.returncode, 0,
-                         found.stderr.decode("utf-8", "replace"))
-        self.assertEqual(found.stdout.decode("utf-8").split(), [])
+        """Track this run's names; historical matching containers are not ours."""
+        _home, delivery = self.delivered()
+        self.started(delivery)
+        type(self).created_names.update(self.made)
+        self.assertTrue(self.made)
+        with self.assertRaises(AssertionError):
+            assert_owned_containers_absent(self, ENGINE, type(self).created_names)
+        self._reap()
+        assert_owned_containers_absent(self, ENGINE, type(self).created_names)

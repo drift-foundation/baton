@@ -254,10 +254,11 @@ class NegativeEndings(Lifecycle):
                          retention_policy_digest=RETENTION)
 
         self.session.live_assignment = None
+        preserved = self.preserved_roots(roots)
         settled = authorize_cleanup(self.store, self.port, adapter,
                                     attempt_id=self.attempt,
                                     retention_policy_digest=RETENTION)
-        self.assertEqual(settled["cleanup"], "complete", settled)
+        self.assert_preserved_ending(settled, roots, preserved)
         self.assertEqual(settled["state"], "absent")
         self.assertEqual(self.attempt_row()["execution_runtime"], "destroyed")
         # THE ENGINE, NOT THE ROW.
@@ -299,7 +300,7 @@ class NegativeEndings(Lifecycle):
         inputs = self.composed(roots, given, assignment)
         delivery = self.credential()
         adapter = self.adapter(roots=roots, mounts=self.plan(roots),
-                               credential_delivery=delivery)
+                               credential_delivery=delivery, interactive=True)
 
         # THE MANAGER'S OWN CLOCK, which is what the ruling makes
         # authoritative. The case moves it; it does not move the deadline.
@@ -509,11 +510,11 @@ class NegativeEndings(Lifecycle):
         # successor's activation is a fact about the successor.
         self.attempt = predecessor
         self.session.live_assignment = None
+        preserved = self.preserved_roots(roots)
         done = authorize_cleanup(self.store, self.port, adapter,
                                  attempt_id=self.attempt,
                                  retention_policy_digest=RETENTION)
-        self.assertEqual(done["cleanup"], "complete", done)
-        self.assertEqual(self.attempt_row()["cleanup"], "complete")
+        self.assert_preserved_ending(done, roots, preserved)
         self.assertEqual(self.attempt_row()["execution_runtime"], "destroyed")
         self.assertEqual(self.carrying(self.labels()), [])
         self.assertFalse(runtime_lane(self.store, predecessor)

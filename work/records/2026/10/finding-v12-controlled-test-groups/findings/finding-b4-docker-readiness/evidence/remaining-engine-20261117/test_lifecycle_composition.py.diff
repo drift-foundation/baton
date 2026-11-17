@@ -1,0 +1,181 @@
+--- a/v12/python/tests/manager/test_lifecycle_composition.py
++++ b/v12/python/tests/manager/test_lifecycle_composition.py
+@@ -109,6 +109,27 @@
+     return True, found.stdout.decode("utf-8").strip()
+ 
+ 
++def selected_reference_image(engine):
++    """Reuse only an explicitly selected immutable reference-worker image."""
++    selected = os.environ.get("BATON_V12_LIFECYCLE_IMAGE")
++    if selected is None:
++        return None
++    assert selected.startswith("sha256:") and len(selected) == 71, selected
++    assert all(c in "0123456789abcdef" for c in selected[7:]), selected
++    found = subprocess.run([engine, "image", "inspect", selected], capture_output=True, timeout=120)
++    assert found.returncode == 0, found.stderr.decode("utf-8", "replace")
++    info = json.loads(found.stdout)[0]
++    assert info["Id"] == selected and not info["Config"].get("Volumes"), info["Id"]
++    return selected
++
++
++def assert_owned_containers_absent(case, engine, names):
++    """Ask the daemon about exactly the names registered by this class run."""
++    found = subprocess.run([engine, "ps", "--all", "--format", "{{.Names}}"], capture_output=True, timeout=120)
++    case.assertEqual(found.returncode, 0, found.stderr.decode("utf-8", "replace"))
++    case.assertEqual(set(found.stdout.decode("utf-8").split()) & set(names), set())
++
++
+ class Lifecycle:
+     """One engine, one built worker image, one store per case.
+ 
+@@ -132,6 +153,11 @@
+                     f"a reason to pass without running it.")
+             raise unittest.SkipTest(why)
+         cls.server = why
++        cls.created_names = set()
++        selected = selected_reference_image(cls.engine)
++        if selected is not None:
++            cls.image = cls.image_digest = selected
++            return
+         cls.image = f"{MARK}:{uuid.uuid4().hex[:12]}"
+         cls.addClassCleanup(
+             lambda: subprocess.run(
+@@ -166,6 +192,8 @@
+                             else f"sha256:{resolved}")
+ 
+     def setUp(self):
++        if "created_names" not in type(self).__dict__:
++            type(self).created_names = set()
+         self.made = []
+         self._launches = 0
+         self._credentials = 0
+@@ -254,6 +282,7 @@
+ 
+     def remove_everything(self):
+         """Remove what this case made, and SURFACE a removal that did not."""
++        type(self).created_names.update(self.made)
+         survived = []
+         for name in self.made:
+             removed = subprocess.run([self.engine, "rm", "--force", name],
+@@ -273,6 +302,28 @@
+ 
+     def roots(self):
+         return assignment_workspace(self.group, self.storage, self.attempt)
++
++    def preserved_roots(self, roots):
++        """Capture actual execution-root identity, modes and contents before ending."""
++        captured = {"runtime_launches": sum("run" in argv for argv in self.engine_calls)}
++        for name in ("inputs", "workspace"):
++            root = pathlib.Path(roots[name])
++            self.assertTrue(root.is_dir(), str(root))
++            for place in [root, *sorted(root.rglob("*"))]:
++                info = place.lstat()
++                content = os.readlink(place) if place.is_symlink() else hashlib.sha256(place.read_bytes()).hexdigest() if place.is_file() else None
++                captured[(name, str(place.relative_to(root)))] = (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_gid, content)
++        return captured
++
++    def assert_preserved_ending(self, settled, roots, before):
++        # Discarding intake copies does not delete the execution roots. No
++        # normalization/deletion receipt may be invented for preserved output.
++        self.assertEqual(settled["cleanup"], "retained", settled)
++        self.assertEqual(settled["state"], "absent", settled)
++        self.assertEqual(settled["kept"], [], settled)
++        self.assertIsNone(settled["directory_custody"], settled)
++        self.assertEqual(self.preserved_roots(roots), before)
++        self.assertEqual(self.attempt_row()["cleanup"], "retained")
+ 
+     def declarations(self, given):
+         """The declared outputs, TAKEN FROM THE INPUT MANIFEST this attempt was
+@@ -410,7 +461,7 @@
+ 
+     def adapter(self, posture="execution", roots=None, mounts=(),
+                 image=None, launch_delivery=False, outputs=None,
+-                credential_delivery=None):
++                credential_delivery=None, interactive=False):
+         """The reviewed adapter, under THIS assignment's resolved identity.
+ 
+         W6636 resumed: `outputs` and `credential_delivery` are REAL now. They
+@@ -446,7 +497,7 @@
+             # where it belongs.
+             workspace_group=(self.group if posture == "execution" else None),
+             outputs=list(outputs or ()),
+-            credential_delivery=credential_delivery,
++            credential_delivery=credential_delivery, interactive=interactive,
+             input_manifest_digest=self.input_digest,
+             launch_delivery=(self.launch() if launch_delivery is False
+                              else launch_delivery))
+@@ -540,7 +591,7 @@
+                            runtime_attempt_id=self.attempt)
+         return roots["inputs"]
+ 
+-    def prepared(self, store=None):
++    def prepared(self, store=None, interactive=False):
+         """Everything the first writable adapter call needs, and nothing more.
+ 
+         Answers `(adapter, roots, inputs)`. This is the composition's own
+@@ -550,7 +601,7 @@
+         given, assignment = self.activated(store=store)
+         roots = self.roots()
+         inputs = self.composed(roots, given, assignment)
+-        return (self.adapter(roots=roots, mounts=self.plan(roots)),
++        return (self.adapter(roots=roots, mounts=self.plan(roots), interactive=interactive),
+                 roots, inputs)
+ 
+     def launch(self, **overrides):
+@@ -1380,15 +1431,15 @@
+ 
+         # -- and only now the destroy crossing ----------------------------
+         self.session.live_assignment = None
++        preserved = self.preserved_roots(roots)
+         settled = authorize_cleanup(
+             self.store, self.port, adapter, attempt_id=self.attempt,
+             retention_policy_digest=RETENTION)
+ 
+-        self.assertEqual(settled["cleanup"], "complete", settled)
+-        self.assertEqual(settled["state"], "absent")
++        self.assert_preserved_ending(settled, roots, preserved)
+         row = self.attempt_row()
+         self.assertEqual(row["execution_runtime"], "destroyed")
+-        self.assertEqual(row["cleanup"], "complete")
++        self.assertEqual(row["cleanup"], "retained")
+ 
+         # THE ENGINE IS ASKED, not the store. Cleanup is not inferred from a
+         # row or a zero exit status: the container is gone from the daemon.
+@@ -1600,11 +1651,13 @@
+         same labels, asks the engine, and attaches -- and the engine is asked
+         afterwards whether exactly one container carries them.
+         """
+-        adapter, _roots, inputs = self.prepared()
++        # Keep the real worker waiting for input throughout restart adoption.
++        adapter, _roots, inputs = self.prepared(interactive=True)
+         request_runtime_start(self.store, adapter, attempt_id=self.attempt,
+                               inputs=inputs)
+         runtime_id = self.attempt_row()["runtime_id"]
+ 
++        self.assertEqual(adapter.observe(runtime_id)["state"], "running")
+         restarted = self.open_store(incarnation="manager-w6636-restarted")
+         adopted = reconcile_runtime(restarted, adapter,
+                                     attempt_id=self.attempt)
+@@ -1885,13 +1938,15 @@
+         self.assertEqual(self.attempt_row()["runtime_id"], runtime_id)
+ 
+     def test_nothing_this_module_made_survives_it(self):
+-        """Asked of the engine, by this Work's own mark and by label."""
+-        found = subprocess.run(
+-            [self.engine, "ps", "--all", "--filter", f"name={MARK}",
+-             "--format", "{{.Names}}"], capture_output=True, timeout=120)
+-        self.assertEqual(found.returncode, 0,
+-                         found.stderr.decode("utf-8", "replace"))
+-        self.assertEqual(found.stdout.decode("utf-8").split(), [])
++        """Prove the exact-name sweep detects a leak, then our cleanup removes it."""
++        adapter, _roots, inputs = self.prepared()
++        request_runtime_start(self.store, adapter, attempt_id=self.attempt, inputs=inputs)
++        type(self).created_names.update(self.made)
++        self.assertTrue(self.made)
++        with self.assertRaises(AssertionError):
++            assert_owned_containers_absent(self, self.engine, type(self).created_names)
++        self.remove_everything()
++        assert_owned_containers_absent(self, self.engine, type(self).created_names)
+ 
+ 
+ class Watched:

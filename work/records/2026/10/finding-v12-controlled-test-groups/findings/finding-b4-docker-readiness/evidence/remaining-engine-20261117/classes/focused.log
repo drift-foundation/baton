@@ -1,0 +1,143 @@
+test_a_bearer_in_a_label_never_reaches_the_daemon_at_all (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_bearer_in_a_label_never_reaches_the_daemon_at_all)
+The leak assertions above must be FALSIFIABLE, or they pass for a ... ok
+test_a_delivery_that_launched_nothing_settles_through_the_adapter (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_delivery_that_launched_nothing_settles_through_the_adapter)
+The one runtime-absence question this provider owns, asked of a ... ok
+test_a_runtime_without_the_ruled_group_cannot_read_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_runtime_without_the_ruled_group_cannot_read_it)
+The other half, and the one that says `other` is empty. ... ok
+test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)
+Track this run's names; historical matching containers are not ours. ... ok
+test_teardown_forgets_only_after_the_bytes_are_proved_gone (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_teardown_forgets_only_after_the_bytes_are_proved_gone)
+Cleanup, over a real delivery, in the ruled order — and over a ... ok
+test_the_bearer_stays_live_while_the_container_exists (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_bearer_stays_live_while_the_container_exists)
+The registry is armed THROUGH the container's life. ... ok
+test_the_credential_is_mounted_read_only_at_the_fixed_path (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_credential_is_mounted_read_only_at_the_fixed_path)
+The daemon's own mount table, not the plan this manager composed. ... ok
+test_the_daemon_holds_no_bearer_anywhere_it_records (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_daemon_holds_no_bearer_anywhere_it_records)
+Argv, environment, labels and the mount table, from `inspect`. ... ok
+test_the_execution_runtime_can_actually_READ_its_credential (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_execution_runtime_can_actually_READ_its_credential)
+W52800's acceptance, asked of a real container. ... ok
+test_a_claimed_but_unactivated_attempt_starts_no_container (tests.manager.test_lifecycle_composition.DockerComposition.test_a_claimed_but_unactivated_attempt_starts_no_container)
+Activation gates the first writable adapter call, and the refusal ... ok
+test_a_declined_offer_reaches_neither_workspace_nor_engine (tests.manager.test_lifecycle_composition.DockerComposition.test_a_declined_offer_reaches_neither_workspace_nor_engine)
+DECLINE is a lifecycle ending, and it ends before anything exists. ... ok
+test_a_delivery_that_was_never_made_is_not_reported_torn_down (tests.manager.test_lifecycle_composition.DockerComposition.test_a_delivery_that_was_never_made_is_not_reported_torn_down)
+[MEASURED] `not-delivered` is a different word from `absent`. ... ok
+test_a_lost_claim_cannot_cross_into_execution (tests.manager.test_lifecycle_composition.DockerComposition.test_a_lost_claim_cannot_cross_into_execution)
+The race the atomic claim exists to arbitrate. ... ok
+test_a_plan_that_omits_the_input_root_is_refused_before_the_journal (tests.manager.test_lifecycle_composition.DockerComposition.test_a_plan_that_omits_the_input_root_is_refused_before_the_journal)
+[MEASURED] `_plan_agrees` alone, with the authorization agreeing. ... ok
+test_a_reservation_launches_no_runtime (tests.manager.test_lifecycle_composition.DockerComposition.test_a_reservation_launches_no_runtime)
+THE DIRECT CROSSING, and its first half. ... ok
+test_a_root_composed_for_another_attempt_starts_nothing (tests.manager.test_lifecycle_composition.DockerComposition.test_a_root_composed_for_another_attempt_starts_nothing)
+W19784's authorization holds at the composed boundary too. ... ok
+test_a_root_from_a_superseded_generation_starts_nothing (tests.manager.test_lifecycle_composition.DockerComposition.test_a_root_from_a_superseded_generation_starts_nothing)
+STALE GENERATION, composed rather than described. ... ok
+test_a_runtime_removed_underneath_the_manager_is_observed_absent (tests.manager.test_lifecycle_composition.DockerComposition.test_a_runtime_removed_underneath_the_manager_is_observed_absent)
+W26294 review [P0] INVERTED THIS CASE, and the inversion is the ... ok
+test_a_second_incarnation_adopts_the_running_runtime (tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_incarnation_adopts_the_running_runtime)
+A restart reconciles onto what exists and starts nothing new. ... FAIL
+test_a_second_reconciliation_re_reads_the_state (tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_reconciliation_re_reads_the_state)
+The attachment is effectively-once; the OBSERVATION is not. ... ok
+test_a_second_start_is_refused_and_creates_no_second_container (tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_start_is_refused_and_creates_no_second_container)
+Effectively-once, measured at the engine. ... ok
+test_a_stranger_carrying_this_assignments_labels_cancels (tests.manager.test_lifecycle_composition.DockerComposition.test_a_stranger_carrying_this_assignments_labels_cancels)
+MULTIPLICITY IS A RACE, and the manager's answer is to cancel. ... ok
+test_an_agreeing_plan_over_an_unauthorized_root_starts_nothing (tests.manager.test_lifecycle_composition.DockerComposition.test_an_agreeing_plan_over_an_unauthorized_root_starts_nothing)
+[MEASURED] `authorize_input_root` alone, with the plan agreeing. ... ok
+test_an_engine_that_cannot_start_leaves_no_running_attempt (tests.manager.test_lifecycle_composition.DockerComposition.test_an_engine_that_cannot_start_leaves_no_running_attempt)
+A start the daemon refuses is a failure, never a silent success. ... ok
+test_an_observation_the_adapter_cannot_make_is_never_running (tests.manager.test_lifecycle_composition.DockerComposition.test_an_observation_the_adapter_cannot_make_is_never_running)
+FAIL CLOSED. A failed observation, an unknown engine state and a ... ok
+test_cancellation_fences_the_authority_before_it_stops_the_runtime (tests.manager.test_lifecycle_composition.DockerComposition.test_cancellation_fences_the_authority_before_it_stops_the_runtime)
+FENCE, THEN STOP -- and the order is read from both sides at once. ... ok
+test_cleanup_without_an_intake_receipt_is_blocked_rather_than_run (tests.manager.test_lifecycle_composition.DockerComposition.test_cleanup_without_an_intake_receipt_is_blocked_rather_than_run)
+Cleanup destroys nothing it has no receipt for. ... ok
+test_nothing_this_module_made_survives_it (tests.manager.test_lifecycle_composition.DockerComposition.test_nothing_this_module_made_survives_it)
+Prove the exact-name sweep detects a leak, then our cleanup removes it. ... ok
+test_observe_tells_a_live_runtime_from_a_gone_one (tests.manager.test_lifecycle_composition.DockerComposition.test_observe_tells_a_live_runtime_from_a_gone_one)
+`absent` is the ONE answer that releases an assignment. ... ok
+test_only_a_successful_claim_launches_one_container (tests.manager.test_lifecycle_composition.DockerComposition.test_only_a_successful_claim_launches_one_container)
+...and its second half, read off ONE trace. ... ok
+test_orphan_recovery_cannot_delete_a_siblings_delivery (tests.manager.test_lifecycle_composition.DockerComposition.test_orphan_recovery_cannot_delete_a_siblings_delivery)
+A `CredentialHome` is ASSIGNMENT-scoped and can hold several ... ok
+test_reconciliation_records_what_the_engine_says_the_runtime_is (tests.manager.test_lifecycle_composition.DockerComposition.test_reconciliation_records_what_the_engine_says_the_runtime_is)
+W26294: CONVERTED from this suite's second diagnostic. ... ok
+test_reconciling_again_attaches_the_same_runtime (tests.manager.test_lifecycle_composition.DockerComposition.test_reconciling_again_attaches_the_same_runtime)
+A second reconciliation is not a second runtime. ... ok
+test_the_adapter_refuses_a_mismatched_root_at_its_own_seam (tests.manager.test_lifecycle_composition.DockerComposition.test_the_adapter_refuses_a_mismatched_root_at_its_own_seam)
+[MEASURED] the adapter's own guard, reached directly. ... ok
+test_the_adapter_starts_a_worker_that_actually_runs (tests.manager.test_lifecycle_composition.DockerComposition.test_the_adapter_starts_a_worker_that_actually_runs)
+W26291: REPLACES this suite's expected-failure case. ... ok
+test_the_live_container_cannot_reach_the_authority_or_the_host (tests.manager.test_lifecycle_composition.DockerComposition.test_the_live_container_cannot_reach_the_authority_or_the_host)
+What is ABSENT, which is the half an inspection of what is present ... ok
+test_the_live_container_sees_exactly_the_four_intended_mounts (tests.manager.test_lifecycle_composition.DockerComposition.test_the_live_container_sees_exactly_the_four_intended_mounts)
+THE SECURITY INSPECTION, asked of the DAEMON about a live runtime. ... ok
+test_the_manager_derives_exactly_these_labels (tests.manager.test_lifecycle_composition.DockerComposition.test_the_manager_derives_exactly_these_labels)
+The label set this module states IS the one the manager derives. ... ok
+test_the_ordered_arc_starts_one_runtime_over_the_proved_root (tests.manager.test_lifecycle_composition.DockerComposition.test_the_ordered_arc_starts_one_runtime_over_the_proved_root)
+Offer, accept, claim, activate, compose, start, reconcile. ... ok
+test_the_runtime_boundary_is_the_one_the_launcher_composed (tests.manager.test_lifecycle_composition.DockerComposition.test_the_runtime_boundary_is_the_one_the_launcher_composed)
+The container-level equivalent of W28681's PID namespace. ... ok
+test_the_whole_one_container_arc_reaches_a_clean_settlement (tests.manager.test_lifecycle_composition.DockerComposition.test_the_whole_one_container_arc_reaches_a_clean_settlement)
+THE ARC W6636 EXISTS TO COMPOSE, end to end, on a real engine. ... ok
+test_a_destroy_answer_about_another_runtime_is_refused (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_a_destroy_answer_about_another_runtime_is_refused)
+THE REACHABLE IDENTITY DISAGREEMENT, at the answer boundary. ... ok
+test_a_restart_adopts_the_exact_ended_runtime_as_quiescent (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_a_restart_adopts_the_exact_ended_runtime_as_quiescent)
+NOT running, and NOT absent. ... ok
+test_an_exited_container_does_not_admit_a_replacement (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_exited_container_does_not_admit_a_replacement)
+THE LANE IS NOT REUSABLE while the domain still exists. ... ok
+test_an_observation_the_adapter_cannot_make_never_releases_the_lane (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_observation_the_adapter_cannot_make_never_releases_the_lane)
+Uncertainty preserves the retry obligation. ... ok
+test_an_unrelated_attempts_runtime_survives_the_target_cleanup (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_unrelated_attempts_runtime_survives_the_target_cleanup)
+A SIBLING RUNTIME, not only a sibling root. ... ok
+test_exited_but_present_does_not_satisfy_cleanup (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_exited_but_present_does_not_satisfy_cleanup)
+Cleanup is authorized by an intake receipt, and an exited container ... ok
+test_force_removal_absence_teardown_then_and_only_then_reuse (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_force_removal_absence_teardown_then_and_only_then_reuse)
+THE WHOLE ORDERING, TRACED, WITH A SIBLING BESIDE IT AND THE LANE ... ok
+test_two_ended_restart_candidates_cancel_without_removing_either (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_two_ended_restart_candidates_cancel_without_removing_either)
+MULTIPLICITY AT THE ENDED-RESTART SEAM, which is reachable. ... ok
+test_a_post_create_failure_leaves_no_duplicate_and_no_container (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_post_create_failure_leaves_no_duplicate_and_no_container)
+THE RACE THIS ORDERING EXISTS FOR, with the failure INJECTED. ... ok
+test_a_reached_deadline_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing)
+THE FIFTH NAMED ENDING, and the last one this Work was waiting on. ... FAIL
+test_an_expired_offer_creates_no_runtime_and_no_runtime_delivery (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_an_expired_offer_creates_no_runtime_and_no_runtime_delivery)
+A reservation that timed out is a reservation nobody may execute. ... ok
+test_no_ending_settles_before_every_required_one_is_established (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established)
+THE LANE IS NOT RELEASED EARLY. ... ok
+test_plan_rejected_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing)
+A terminal disposition that is not `completed` ends the same way. ... ok
+
+======================================================================
+FAIL: test_a_second_incarnation_adopts_the_running_runtime (tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_incarnation_adopts_the_running_runtime)
+A restart reconciles onto what exists and starts nothing new.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_lifecycle_composition.py", line 1664, in test_a_second_incarnation_adopts_the_running_runtime
+    self.assertEqual(self.attempt_row(restarted)["execution_runtime"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "running")
+                     ^^^^^^^^^^
+AssertionError: 'quiescent' != 'running'
+- quiescent
++ running
+
+
+======================================================================
+FAIL: test_a_reached_deadline_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing)
+THE FIFTH NAMED ENDING, and the last one this Work was waiting on.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_negative_race_endings.py", line 334, in test_a_reached_deadline_takes_the_same_cleanup_crossing
+    self.assertEqual(adapter.observe(runtime_id)["state"], "running")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'quiescent' != 'running'
+- quiescent
++ running
+
+
+----------------------------------------------------------------------
+Ran 54 tests in 13.512s
+
+FAILED (failures=2)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

@@ -1,0 +1,117 @@
+test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it) ... FAIL
+test_an_unrelated_attempts_runtime_survives_the_target_cleanup (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_unrelated_attempts_runtime_survives_the_target_cleanup)
+A SIBLING RUNTIME, not only a sibling root. ... FAIL
+test_force_removal_absence_teardown_then_and_only_then_reuse (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_force_removal_absence_teardown_then_and_only_then_reuse)
+THE WHOLE ORDERING, TRACED, WITH A SIBLING BESIDE IT AND THE LANE ... FAIL
+test_nothing_this_module_made_survives_it (tests.manager.test_lifecycle_composition.DockerComposition.test_nothing_this_module_made_survives_it)
+Asked of the engine, by this Work's own mark and by label. ... FAIL
+test_the_whole_one_container_arc_reaches_a_clean_settlement (tests.manager.test_lifecycle_composition.DockerComposition.test_the_whole_one_container_arc_reaches_a_clean_settlement)
+THE ARC W6636 EXISTS TO COMPOSE, end to end, on a real engine. ... FAIL
+test_no_ending_settles_before_every_required_one_is_established (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established)
+THE LANE IS NOT RELEASED EARLY. ... FAIL
+test_plan_rejected_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing)
+A terminal disposition that is not `completed` ends the same way. ... FAIL
+
+======================================================================
+FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_credentials_engine.py", line 434, in test_nothing_this_module_made_survives_it
+    self.assertEqual(found.stdout.decode("utf-8").split(), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['baton-runtime.start-461dcc1a00a0d0e01043[3825 chars]e29'] != []
+
+First list contains 44 additional elements.
+First extra element 0:
+'baton-runtime.start-461dcc1a00a0d0e010432d48a99ad049d148890aa8216e6cec67bca695107ec2'
+
+Diff is 4009 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_an_unrelated_attempts_runtime_survives_the_target_cleanup (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_unrelated_attempts_runtime_survives_the_target_cleanup)
+A SIBLING RUNTIME, not only a sibling root.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_ended_runtime_adoption.py", line 353, in test_an_unrelated_attempts_runtime_survives_the_target_cleanup
+    self.assertEqual(settled["cleanup"], "complete", settled)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-019a7bf785', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:afaf8e0d48c09b8659fc76ab11ece2c2c87c1104926a2d4b3b5aec1683d82499', 'signature_digest': 'sha256:72626b10f8cb14794fb5a57784bd56cba8e7e2927de2585d15304484ce325d1d'}, 'directory_custody': None}
+
+======================================================================
+FAIL: test_force_removal_absence_teardown_then_and_only_then_reuse (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_force_removal_absence_teardown_then_and_only_then_reuse)
+THE WHOLE ORDERING, TRACED, WITH A SIBLING BESIDE IT AND THE LANE
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_ended_runtime_adoption.py", line 222, in test_force_removal_absence_teardown_then_and_only_then_reuse
+    self.assertEqual(settled["cleanup"], "complete", settled)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-2c8827e688', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:b51492d94b8f546fff2cd1f0801189b5cc606796103d0365baa09d5bbc7025ab', 'signature_digest': 'sha256:0031dd9cabfaca0cee74cb9f0f182013cd52a46bf7e6e3b742f4de331073434b'}, 'directory_custody': None}
+
+======================================================================
+FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_lifecycle_composition.DockerComposition.test_nothing_this_module_made_survives_it)
+Asked of the engine, by this Work's own mark and by label.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_lifecycle_composition.py", line 1912, in test_nothing_this_module_made_survives_it
+    self.assertEqual(found.stdout.decode("utf-8").split(), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['baton-w6636-lifecycle-sibling-runtime-a6042e8e'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'baton-w6636-lifecycle-sibling-runtime-a6042e8e'
+
+- ['baton-w6636-lifecycle-sibling-runtime-a6042e8e']
++ []
+
+======================================================================
+FAIL: test_the_whole_one_container_arc_reaches_a_clean_settlement (tests.manager.test_lifecycle_composition.DockerComposition.test_the_whole_one_container_arc_reaches_a_clean_settlement)
+THE ARC W6636 EXISTS TO COMPOSE, end to end, on a real engine.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_lifecycle_composition.py", line 1405, in test_the_whole_one_container_arc_reaches_a_clean_settlement
+    self.assertEqual(settled["cleanup"], "complete", settled)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-7663c3cfbb', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:7fa057cc45c263dc99d85bc05e0c67caa1198bfd2dae3fc55356f1794957345d', 'signature_digest': 'sha256:f8330e49ce0b3b2e62eaab4e8668cc33891fbf623c054c80db589ee6dcca4625'}, 'directory_custody': None}
+
+======================================================================
+FAIL: test_no_ending_settles_before_every_required_one_is_established (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established)
+THE LANE IS NOT RELEASED EARLY.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_negative_race_endings.py", line 515, in test_no_ending_settles_before_every_required_one_is_established
+    self.assertEqual(done["cleanup"], "complete", done)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-bf85e790a1', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:2b0a5ae4d70cf222516f7dbe1720572d022f5a51051d846882bd2bc893e90efa', 'signature_digest': 'sha256:6ecaf39de6843841669a53fdd8f29c98f5da78771a171ad9c49cdea779e6e82b'}, 'directory_custody': None}
+
+======================================================================
+FAIL: test_plan_rejected_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing)
+A terminal disposition that is not `completed` ends the same way.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_negative_race_endings.py", line 260, in test_plan_rejected_takes_the_same_cleanup_crossing
+    self.assertEqual(settled["cleanup"], "complete", settled)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-8d0f190e30', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:99adcabd129d1828d094aeea35b2b7ec4d593cb5535a2fb106a6b18f5ece11bf', 'signature_digest': 'sha256:5359909028cdba662e34ac50862f887f333dcee1d0c1b71721ca31857f57d2b2'}, 'directory_custody': None}
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.437s
+
+FAILED (failures=7)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

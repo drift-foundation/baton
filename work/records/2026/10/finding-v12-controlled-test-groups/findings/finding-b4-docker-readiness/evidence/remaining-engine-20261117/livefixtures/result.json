@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_incarnation_adopts_the_running_runtime",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing"
+  ],
+  "exit": 0,
+  "timed_out": false,
+  "seconds": 31.19111412999996,
+  "source_drift": [],
+  "emergency_cleanup": [],
+  "task_containers_remaining": [],
+  "old_containers_preserved": true,
+  "temporary_root": "/var/tmp/baton-w384944-remaining-oclntx3x",
+  "leftovers": [],
+  "root_removed": true
+}

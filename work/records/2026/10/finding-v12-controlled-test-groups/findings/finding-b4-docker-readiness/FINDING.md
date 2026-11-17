@@ -139,3 +139,13 @@ Read child review-2026-10-31T03-10-07Z.md. All four cleanup failures cleared on 
 
 Read child review-2026-10-31T03-15-49Z.md. Three historical custody failures cleared; eight historical engine IDs remain. Last case must separate normalization-before-removal from failed-removal ownership exclusion. Both proofs required; no product guard bypass or new automatic recovery. Codexpc continues same test module, expected additive negative case; K/shared paths untouched.
 
+
+## Resumed — 2026-11-17T19-36-36Z
+
+Owner resumes and selects renewal A plus cleanup connection1. Read RESUME-DECISIONS-20261117.md (parent dossier). K implements those bounded corrections while coordinator reviews committed M385024 bytes at6477a8db. Codexpc custody12/12 historical result accepted; next seven engine IDs/four fixture modules per child review-2026-11-17T19-36-36Z.md, after fresh prerequisite checks. This supersedes shutdown hold for these assignments only. Final acceptance remains open.
+
+
+## 2026-11-17T19-48-23Z — historical engine batch accepted; selective checkpoint
+
+Read review-2026-11-17T19-48-23Z.md:54/54 plus3/3 subtests, exact sources/candidates/resources verified. All historical engine IDs cleared on selected isolated source; full B4/current-tree acceptance still open. Child remains unclaimed at baton.decide while owner checkpoints reviewed four-file batch/evidence. Prepared next slice is five pure image/driver IDs; release follows checkpoint.
+

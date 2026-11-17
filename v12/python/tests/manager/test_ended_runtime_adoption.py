@@ -216,10 +216,11 @@ class EndedRuntimeAdoption(Lifecycle):
 
         self.session.live_assignment = None
         order.clear()
+        preserved = self.preserved_roots(roots)
         settled = authorize_cleanup(again, self.port, adopting,
                                     attempt_id=self.attempt,
                                     retention_policy_digest=RETENTION)
-        self.assertEqual(settled["cleanup"], "complete", settled)
+        self.assert_preserved_ending(settled, roots, preserved)
 
         # THE ORDER ITSELF: force-removal, then the observation that proves
         # absence, and only THEN either provider's teardown.
@@ -346,11 +347,12 @@ class EndedRuntimeAdoption(Lifecycle):
             disposition="discard-after-intake",
             retention_policy_digest=RETENTION)
         self.session.live_assignment = None
+        preserved = self.preserved_roots(roots)
         settled = authorize_cleanup(again, self.port, adopting,
                                     attempt_id=self.attempt,
                                     retention_policy_digest=RETENTION)
 
-        self.assertEqual(settled["cleanup"], "complete", settled)
+        self.assert_preserved_ending(settled, roots, preserved)
         self.assertEqual(self.carrying(self.labels()), [])
         # THE SIBLING IS STILL RUNNING, asked of the daemon by ITS labels.
         surviving = self.carrying(sibling_labels)

@@ -1,0 +1,89 @@
+{
+  "claim": 385031,
+  "assignment": 385029,
+  "uid": 1000,
+  "groups": [
+    4,
+    24,
+    27,
+    30,
+    46,
+    100,
+    113,
+    119,
+    1000,
+    1001
+  ],
+  "source_files": 1133,
+  "source_mismatches": [],
+  "context_mismatches": [],
+  "checks": [
+    {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "-c",
+        "import sys,importlib.metadata;print(sys.version);print(importlib.metadata.version(\"jsonschema\"))"
+      ],
+      "status": 0,
+      "stdout": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]\n4.26.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{.Server.Version}}"
+      ],
+      "status": 0,
+      "stdout": "29.1.3\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc994d3",
+        "--format",
+        "{{.Id}}"
+      ],
+      "status": 0,
+      "stdout": "sha256:9351a9a0a697a69e156f8bd067dd5ef3f9fa9b110abbdbbda1f343c622c7adc0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "df",
+        "-h",
+        "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031",
+        "/var/tmp"
+      ],
+      "status": 0,
+      "stdout": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/nvme0n1p2  915G  291G  579G  34% /\n/dev/nvme0n1p2  915G  291G  579G  34% /\n",
+      "stderr": ""
+    }
+  ],
+  "root_access": {
+    "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031": true,
+    "/var/tmp": true
+  },
+  "bases": {
+    "v12/python/tests/manager/test_credentials_engine.py": {
+      "sha256": "7bd5e077bba6188d5123a1f93aea5ab25b9b6d6173e718d6ba769f09702d2da4",
+      "mode": 436
+    },
+    "v12/python/tests/manager/test_lifecycle_composition.py": {
+      "sha256": "29343d6fdb20fe61eea0a6fa7fae9498a8044729aaff94845ad7191c9137ea35",
+      "mode": 436
+    },
+    "v12/python/tests/manager/test_ended_runtime_adoption.py": {
+      "sha256": "f293058d9803a5082d0911ad2fab4ddec6f9c652a4ae12aff8cf89abb2bd48be",
+      "mode": 436
+    },
+    "v12/python/tests/manager/test_negative_race_endings.py": {
+      "sha256": "fc2a080b566075a690656b4c4374c364b5fb98dbaf8a54479ec9c276ff5aae8b",
+      "mode": 436
+    }
+  }
+}

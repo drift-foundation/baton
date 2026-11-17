@@ -1,0 +1,19 @@
+test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)
+Track this run's names; historical matching containers are not ours. ... ok
+test_an_unrelated_attempts_runtime_survives_the_target_cleanup (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_unrelated_attempts_runtime_survives_the_target_cleanup)
+A SIBLING RUNTIME, not only a sibling root. ... ok
+test_force_removal_absence_teardown_then_and_only_then_reuse (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_force_removal_absence_teardown_then_and_only_then_reuse)
+THE WHOLE ORDERING, TRACED, WITH A SIBLING BESIDE IT AND THE LANE ... ok
+test_nothing_this_module_made_survives_it (tests.manager.test_lifecycle_composition.DockerComposition.test_nothing_this_module_made_survives_it)
+Prove the exact-name sweep detects a leak, then our cleanup removes it. ... ok
+test_the_whole_one_container_arc_reaches_a_clean_settlement (tests.manager.test_lifecycle_composition.DockerComposition.test_the_whole_one_container_arc_reaches_a_clean_settlement)
+THE ARC W6636 EXISTS TO COMPOSE, end to end, on a real engine. ... ok
+test_no_ending_settles_before_every_required_one_is_established (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established)
+THE LANE IS NOT RELEASED EARLY. ... ok
+test_plan_rejected_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing)
+A terminal disposition that is not `completed` ends the same way. ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 4.215s
+
+OK

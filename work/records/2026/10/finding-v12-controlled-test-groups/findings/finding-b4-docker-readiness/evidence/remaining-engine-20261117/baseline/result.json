@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_unrelated_attempts_runtime_survives_the_target_cleanup",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_force_removal_absence_teardown_then_and_only_then_reuse",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_nothing_this_module_made_survives_it",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_the_whole_one_container_arc_reaches_a_clean_settlement",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing"
+  ],
+  "exit": 1,
+  "timed_out": false,
+  "seconds": 3.7181507539999075,
+  "source_drift": [],
+  "emergency_cleanup": [],
+  "task_containers_remaining": [],
+  "old_containers_preserved": true,
+  "temporary_root": "/var/tmp/baton-w384944-remaining-lngweiz2",
+  "leftovers": [],
+  "root_removed": true
+}

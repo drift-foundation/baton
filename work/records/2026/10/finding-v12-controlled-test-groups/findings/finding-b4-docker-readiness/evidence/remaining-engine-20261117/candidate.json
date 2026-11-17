@@ -1,0 +1,26 @@
+{
+  "v12/python/tests/manager/test_credentials_engine.py": {
+    "base_sha256": "7bd5e077bba6188d5123a1f93aea5ab25b9b6d6173e718d6ba769f09702d2da4",
+    "candidate_sha256": "08ad3badce23c7b2f30c13d09e1b0d74d9580f624aa659a3a520727ad10650e9",
+    "mode": 436,
+    "artifact": "candidate-test_credentials_engine.py"
+  },
+  "v12/python/tests/manager/test_lifecycle_composition.py": {
+    "base_sha256": "29343d6fdb20fe61eea0a6fa7fae9498a8044729aaff94845ad7191c9137ea35",
+    "candidate_sha256": "bc2936e6de9620714198975d1f10d4a2c2aa37d06eeff61b487bc6031feb06fe",
+    "mode": 436,
+    "artifact": "candidate-test_lifecycle_composition.py"
+  },
+  "v12/python/tests/manager/test_ended_runtime_adoption.py": {
+    "base_sha256": "f293058d9803a5082d0911ad2fab4ddec6f9c652a4ae12aff8cf89abb2bd48be",
+    "candidate_sha256": "da5e2fabba84e9c4774ef1ed882cc0858d3f56c931b701bedfdcf045d33fd84b",
+    "mode": 436,
+    "artifact": "candidate-test_ended_runtime_adoption.py"
+  },
+  "v12/python/tests/manager/test_negative_race_endings.py": {
+    "base_sha256": "fc2a080b566075a690656b4c4374c364b5fb98dbaf8a54479ec9c276ff5aae8b",
+    "candidate_sha256": "89bb15c84b0fe06992621d4940cb6679a11e2a6de00cb3f483e58a81cd93afb5",
+    "mode": 436,
+    "artifact": "candidate-test_negative_race_endings.py"
+  }
+}

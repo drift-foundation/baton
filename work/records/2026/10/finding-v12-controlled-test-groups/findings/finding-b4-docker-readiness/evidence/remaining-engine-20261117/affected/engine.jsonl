@@ -1,0 +1,176 @@
+{"command": "image", "status": 0}
+{"command": "version", "status": 0}
+{"command": "image", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "2dea39a7f5da59f50252d96db956296c9a9bb45a5e97549cc88b8db146eaa096", "stdout": "2dea39a7f5da59f50252d96db956296c9a9bb45a5e97549cc88b8db146eaa096\n", "stderr": "", "inspect": {"Id": "2dea39a7f5da59f50252d96db956296c9a9bb45a5e97549cc88b8db146eaa096", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 13394, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:39:59.155424435Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w26284-engine-_kyiocjq/credentials/attempt-1/api", "Destination": "/run/baton/credentials/api", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w26284-launch-qa7aeojb/attempt-1/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}], "User": "1000:1001", "Labels": {"baton.v12.adapter_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "baton.v12.authority_uuid": "0123456789abcdef0123456789abcdef", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.runtime_attempt_id": "attempt-1", "baton.v12.work_id": "01234567-W1", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": true, "Privileged": false, "NetworkMode": "none", "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges", "label=disable"], "GroupAdd": ["1001"]}}}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-w26284", "stdout": "baton-runtime.start-w26284\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-w26284", "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-w26284\n"}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-w26284", "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-w26284\n"}
+{"command": "version", "status": 0}
+{"command": "image", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "6ab2ee2ae3601e837d7eb1755bb6f8aa54ca21e1597dfbd831bf44c3c9e5563a", "stdout": "6ab2ee2ae3601e837d7eb1755bb6f8aa54ca21e1597dfbd831bf44c3c9e5563a\n", "stderr": "", "inspect": {"Id": "6ab2ee2ae3601e837d7eb1755bb6f8aa54ca21e1597dfbd831bf44c3c9e5563a", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 13616, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:39:59.428439592Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-y92x8p05/storage/attempt-971efad579/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-y92x8p05/storage/attempt-971efad579/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-y92x8p05/credentials-0/credentials/attempt-971efad579/registry", "Destination": "/run/baton/credentials/registry", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-y92x8p05/launch-1/attempt-971efad579/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}], "User": "1000:1001", "Labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-971efad579", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": true, "Privileged": false, "NetworkMode": "none", "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges", "label=disable"], "GroupAdd": ["1001"]}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "container", "status": 0}
+{"command": "container", "status": 0}
+{"command": "run", "status": 0, "id": "c43b38bcb046893ba78a6c1fd3aa9759f5cffe3b687c2aee4594c009103b8ee4", "stdout": "c43b38bcb046893ba78a6c1fd3aa9759f5cffe3b687c2aee4594c009103b8ee4\n", "stderr": "", "inspect": {"Id": "c43b38bcb046893ba78a6c1fd3aa9759f5cffe3b687c2aee4594c009103b8ee4", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 13758, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:39:59.583297686Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [], "User": "65532:65532", "Labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-971efad579-sibling", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": false, "Privileged": false, "NetworkMode": "bridge", "CapDrop": null, "SecurityOpt": null, "GroupAdd": null}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "rm", "status": 0, "id": "6ab2ee2ae3601e837d7eb1755bb6f8aa54ca21e1597dfbd831bf44c3c9e5563a", "stdout": "6ab2ee2ae3601e837d7eb1755bb6f8aa54ca21e1597dfbd831bf44c3c9e5563a\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "container", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-a6a383c5f9e328640e617b50c3b69ec69fcb541dd4832c5b0efffea187c338c8", "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-a6a383c5f9e328640e617b50c3b69ec69fcb541dd4832c5b0efffea187c338c8\n"}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-sibling-runtime-64e69c3c", "stdout": "baton-w6636-lifecycle-sibling-runtime-64e69c3c\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "7732a6ef0523c9cbd2253a48d9339b388b72136aa00e386bbdbcc8a894a1f583", "stdout": "7732a6ef0523c9cbd2253a48d9339b388b72136aa00e386bbdbcc8a894a1f583\n", "stderr": "", "inspect": {"Id": "7732a6ef0523c9cbd2253a48d9339b388b72136aa00e386bbdbcc8a894a1f583", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 14268, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:40:00.236553425Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-sfuy3cj2/storage/attempt-7833c60dfa/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-sfuy3cj2/storage/attempt-7833c60dfa/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-sfuy3cj2/credentials-0/credentials/attempt-7833c60dfa/registry", "Destination": "/run/baton/credentials/registry", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-sfuy3cj2/launch-1/attempt-7833c60dfa/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}], "User": "1000:1001", "Labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-7833c60dfa", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": true, "Privileged": false, "NetworkMode": "none", "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges", "label=disable"], "GroupAdd": ["1001"]}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "container", "status": 0}
+{"command": "container", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "7732a6ef0523c9cbd2253a48d9339b388b72136aa00e386bbdbcc8a894a1f583", "stdout": "7732a6ef0523c9cbd2253a48d9339b388b72136aa00e386bbdbcc8a894a1f583\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "04eb60c2f455690f6fa02e4de3721ac9ca0ba4120955db125348bebd4f6f6531", "stdout": "04eb60c2f455690f6fa02e4de3721ac9ca0ba4120955db125348bebd4f6f6531\n", "stderr": "", "inspect": {"Id": "04eb60c2f455690f6fa02e4de3721ac9ca0ba4120955db125348bebd4f6f6531", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 14695, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:40:00.79559184Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-sfuy3cj2/storage/attempt-7833c60dfa-next/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-sfuy3cj2/storage/attempt-7833c60dfa-next/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-sfuy3cj2/launch-2/attempt-7833c60dfa-next/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}], "User": "1000:1001", "Labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-7833c60dfa-next", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": true, "Privileged": false, "NetworkMode": "none", "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges", "label=disable"], "GroupAdd": ["1001"]}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-8098f2d724b774d8049100a77e0b37387ea3994bb2319d610d7e30dce009d36b", "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-8098f2d724b774d8049100a77e0b37387ea3994bb2319d610d7e30dce009d36b\n"}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-4636522f3903ab0183a213d7fec7b0c0fc09f11c0ec71284ff08e0bda1478232", "stdout": "baton-runtime.start-4636522f3903ab0183a213d7fec7b0c0fc09f11c0ec71284ff08e0bda1478232\n", "stderr": ""}
+{"command": "version", "status": 0}
+{"command": "image", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "d17dce7fa49a359020fbb597735b263228b87820cd1c4375ecfaa5c314d25445", "stdout": "d17dce7fa49a359020fbb597735b263228b87820cd1c4375ecfaa5c314d25445\n", "stderr": "", "inspect": {"Id": "d17dce7fa49a359020fbb597735b263228b87820cd1c4375ecfaa5c314d25445", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 14900, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:40:01.052681632Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-kbuc9ho2/storage/attempt-533d886b30/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-kbuc9ho2/storage/attempt-533d886b30/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-kbuc9ho2/launch-1/attempt-533d886b30/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}], "User": "1000:1001", "Labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-533d886b30", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": true, "Privileged": false, "NetworkMode": "none", "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges", "label=disable"], "GroupAdd": ["1001"]}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-b533c0f0e4c12262fa5421a118ec3d316b7ef698e21d19c714367544167b9ee4", "stdout": "baton-runtime.start-b533c0f0e4c12262fa5421a118ec3d316b7ef698e21d19c714367544167b9ee4\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-b533c0f0e4c12262fa5421a118ec3d316b7ef698e21d19c714367544167b9ee4", "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-b533c0f0e4c12262fa5421a118ec3d316b7ef698e21d19c714367544167b9ee4\n"}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "80512a46bed804103ba5c1cb3eabc6740a3214e5e2202fd08bfb22de36aa777a", "stdout": "80512a46bed804103ba5c1cb3eabc6740a3214e5e2202fd08bfb22de36aa777a\n", "stderr": "", "inspect": {"Id": "80512a46bed804103ba5c1cb3eabc6740a3214e5e2202fd08bfb22de36aa777a", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 15092, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:40:01.300325483Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-45w07xju/storage/attempt-1e1afdd240/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-45w07xju/credentials-0/credentials/attempt-1e1afdd240/registry", "Destination": "/run/baton/credentials/registry", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-45w07xju/launch-1/attempt-1e1afdd240/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-45w07xju/storage/attempt-1e1afdd240/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}], "User": "1000:1001", "Labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-1e1afdd240", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": true, "Privileged": false, "NetworkMode": "none", "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges", "label=disable"], "GroupAdd": ["1001"]}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "container", "status": 0}
+{"command": "container", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "rm", "status": 0, "id": "80512a46bed804103ba5c1cb3eabc6740a3214e5e2202fd08bfb22de36aa777a", "stdout": "80512a46bed804103ba5c1cb3eabc6740a3214e5e2202fd08bfb22de36aa777a\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-6bda204e067120e2844cce8136203cd97474e17f10846bebeeb63318a5c806e3", "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-6bda204e067120e2844cce8136203cd97474e17f10846bebeeb63318a5c806e3\n"}
+{"command": "version", "status": 0}
+{"command": "image", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "909e7c07e40d55c850f874b6c4cb19f9c9f60c3cc85944cb209c4a2885c08c9e", "stdout": "909e7c07e40d55c850f874b6c4cb19f9c9f60c3cc85944cb209c4a2885c08c9e\n", "stderr": "", "inspect": {"Id": "909e7c07e40d55c850f874b6c4cb19f9c9f60c3cc85944cb209c4a2885c08c9e", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 15575, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:40:01.92515111Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-ntsgh6l7/storage/attempt-ab69124190/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-ntsgh6l7/storage/attempt-ab69124190/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-ntsgh6l7/launch-1/attempt-ab69124190/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}], "User": "1000:1001", "Labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-ab69124190", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": true, "Privileged": false, "NetworkMode": "none", "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges", "label=disable"], "GroupAdd": ["1001"]}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "container", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "rm", "status": 0, "id": "909e7c07e40d55c850f874b6c4cb19f9c9f60c3cc85944cb209c4a2885c08c9e", "stdout": "909e7c07e40d55c850f874b6c4cb19f9c9f60c3cc85944cb209c4a2885c08c9e\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "909e7c07e40d55c850f874b6c4cb19f9c9f60c3cc85944cb209c4a2885c08c9e", "stdout": "", "stderr": "Error response from daemon: No such container: 909e7c07e40d55c850f874b6c4cb19f9c9f60c3cc85944cb209c4a2885c08c9e\n"}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "0448f82694bbf7dc68bfeeb87004d2fa5d0a4b4adccd922c1464b5173abb70e4", "stdout": "0448f82694bbf7dc68bfeeb87004d2fa5d0a4b4adccd922c1464b5173abb70e4\n", "stderr": "", "inspect": {"Id": "0448f82694bbf7dc68bfeeb87004d2fa5d0a4b4adccd922c1464b5173abb70e4", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 16060, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:40:02.547706774Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-ntsgh6l7/storage/attempt-ab69124190-successor/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-ntsgh6l7/storage/attempt-ab69124190-successor/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-ntsgh6l7/launch-2/attempt-ab69124190-successor/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}], "User": "1000:1001", "Labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-ab69124190-successor", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": true, "Privileged": false, "NetworkMode": "none", "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges", "label=disable"], "GroupAdd": ["1001"]}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-90b799d302817b403faa915063d446d13e8d913be49f85e7babfd1c754f43b35", "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-90b799d302817b403faa915063d446d13e8d913be49f85e7babfd1c754f43b35\n"}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-d7b064eece826cc62f5dac25837bea7cf7e52f908e941e5ccb1e98c204c0c7dd", "stdout": "baton-runtime.start-d7b064eece826cc62f5dac25837bea7cf7e52f908e941e5ccb1e98c204c0c7dd\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "8509b2c1ed9b2921e3adcfe3ff3fd582af86cac1eed841ae56b3d403f4e61679", "stdout": "8509b2c1ed9b2921e3adcfe3ff3fd582af86cac1eed841ae56b3d403f4e61679\n", "stderr": "", "inspect": {"Id": "8509b2c1ed9b2921e3adcfe3ff3fd582af86cac1eed841ae56b3d403f4e61679", "Image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 16233, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-17T19:40:02.767561312Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-eusg0_79/credentials-0/credentials/attempt-b267eae720/registry", "Destination": "/run/baton/credentials/registry", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-eusg0_79/launch-1/attempt-b267eae720/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-eusg0_79/storage/attempt-b267eae720/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-remaining-hi7rs9u0/v12-w6636-eusg0_79/storage/attempt-b267eae720/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}], "User": "1000:1001", "Labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-b267eae720", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "935186c70c82427dbcc5ac912a64a5e4"}, "HostConfig": {"ReadonlyRootfs": true, "Privileged": false, "NetworkMode": "none", "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges", "label=disable"], "GroupAdd": ["1001"]}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "container", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "rm", "status": 0, "id": "8509b2c1ed9b2921e3adcfe3ff3fd582af86cac1eed841ae56b3d403f4e61679", "stdout": "8509b2c1ed9b2921e3adcfe3ff3fd582af86cac1eed841ae56b3d403f4e61679\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-runtime.start-046d763d1f5df2aa702c49c4bb98510d0d210111bdf9401b4ca7f7fe022d3a67", "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-046d763d1f5df2aa702c49c4bb98510d0d210111bdf9401b4ca7f7fe022d3a67\n"}

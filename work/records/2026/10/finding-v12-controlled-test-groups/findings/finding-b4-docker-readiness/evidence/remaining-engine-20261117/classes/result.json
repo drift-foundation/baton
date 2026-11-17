@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer",
+    "tests.manager.test_lifecycle_composition.DockerComposition",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings"
+  ],
+  "exit": 1,
+  "timed_out": false,
+  "seconds": 13.780358616000058,
+  "source_drift": [],
+  "emergency_cleanup": [],
+  "task_containers_remaining": [],
+  "old_containers_preserved": true,
+  "temporary_root": "/var/tmp/baton-w384944-remaining-bh9d76_4",
+  "leftovers": [],
+  "root_removed": true
+}

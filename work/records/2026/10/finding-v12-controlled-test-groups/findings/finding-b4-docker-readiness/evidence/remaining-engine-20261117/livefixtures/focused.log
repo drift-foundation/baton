@@ -1,0 +1,9 @@
+test_a_second_incarnation_adopts_the_running_runtime (tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_incarnation_adopts_the_running_runtime)
+A restart reconciles onto what exists and starts nothing new. ... ok
+test_a_reached_deadline_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing)
+THE FIFTH NAMED ENDING, and the last one this Work was waiting on. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 30.938s
+
+OK
