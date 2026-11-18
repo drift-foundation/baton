@@ -967,3 +967,15 @@ Owner checkpoint f896bab03925ff1eb520adc3283da265137d5130 confirmed, clean tree 
 ## 2026-11-18T18-29-23Z — FINAL TECHNICAL ACCEPTANCE; owner closure/check-in pending
 
 Read `review-2026-11-18T18-29-23Z.md`. Full r4 at f896bab0:11277 accounted/executed,11275 passed+2 approved optional skips,zero adverse outcomes; source unchanged; zero residue. All required groups/engine/packaged/supervised tests accounted. Supersedes all prior pending repair/full-run acceptance statuses; historical failures remain evidence. W384944 and W385124 delivered/accepted; owner closes both then W384870, followed by final evidence commit. No more tests/repairs. W383215 remains held until closure and final check-in confirmed.
+
+## Final evidence commit precedes ledger closure
+
+Owner commit de28d7be contains final acceptance evidence, but canonical readback still has all three Works open and no closure receipt. Closure helper now permits documentation-only commits by comparing v12 against tested f896bab0 and checking every declared input digest, rather than requiring identical HEAD. No acceptance weakened; no tests needed. Owner --close and a final receipt commit remain.
+
+## Closure helper correction: route-authorized close needs no child claim
+
+The prior helper incorrectly claimed a child while slaw held the parent; Baton correctly refused under its one-active-claim invariant. No child claim or close occurred. Protocol close uses route-handler authority (_handler_gate), and its tests cover direct closure of unclaimed children. Removed unnecessary claim calls: owner directly closes each accepted unclaimed child, then the parent. No release/reclaim or alternate identity is required. This explicitly supersedes the helper description promising child claims. Coordinator error; acceptance evidence unchanged.
+
+## 2026-11-18T18:32:29.902927+00:00 — ledger closure confirmed
+
+Canonical readback confirms W384944, W385124 and W384870 CLOSED with outcome satisfying, no handler or phase. Owner closure receipts preserved in OWNER-CLOSURE-RECEIPTS.json. Full-suite acceptance remains11275 passed+2 approved optional skips=11277, zero failures/errors/unaccounted/residue. This supersedes prior pending-ledger-closure status. Only final receipt/documentation commit remains; no tests or implementation. K/codexpc idle. W383215 not released until final check-in confirmed.

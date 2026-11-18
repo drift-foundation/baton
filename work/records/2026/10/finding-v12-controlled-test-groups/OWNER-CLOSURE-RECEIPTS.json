@@ -1,0 +1,441 @@
+[
+  {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.slaw",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "kind": "close_work",
+      "operation": {
+        "id": "owner-final-close-W384944-f896bab0",
+        "state": "committed"
+      },
+      "seq": 385139
+    },
+    "snapshot_seq": 385139
+  },
+  {
+    "work": "W384944",
+    "readback": {
+      "agent": null,
+      "available_transitions": [],
+      "binding": {
+        "actor": "baton.slaw",
+        "created_ts": "2026-10-31T02:14:10Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-controlled-test-groups/findings/finding-b4-docker-readiness",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 384944
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.slaw",
+          "created_ts": "2026-10-31T02:14:10Z",
+          "git_provenance": null,
+          "path": "work/records/2026/10/finding-v12-controlled-test-groups/findings/finding-b4-docker-readiness",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 384944
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W384870",
+          "title": "V12: controlled test groups and a clean full-suite baseline"
+        },
+        {
+          "id": "2b077949-W384944",
+          "title": "V12 B4: Docker and environment readiness for W384870"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 385083,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-11-18T02:23:29Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W384944",
+      "last_change_seq": 385139,
+      "last_changed_at": "2026-11-18T18:32:04.649Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W384944",
+        "parent": {
+          "handler": {
+            "member": "slaw",
+            "participant": "baton.slaw",
+            "team": "baton"
+          },
+          "id": "2b077949-W384870",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.decide",
+            "handlers": [
+              "slaw"
+            ],
+            "role": "approv",
+            "route": "approv"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12: controlled test groups and a clean full-suite baseline"
+        }
+      },
+      "local_id": "W384944",
+      "message_count": 45,
+      "my_pending_obligations": 0,
+      "new": 45,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W384944",
+        "overlap": 0,
+        "own": 45,
+        "snapshot_seq": 385139,
+        "subtree_total": 45
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "decomposition",
+      "outcome": "satisfying",
+      "phase": null,
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": "Independently accepted W384870 delivery: final r4 at f896bab0 accounts for11277 tests,11275 passed and2 approved optional skips,zero adverse outcomes,stable source,zero residue. B4 and signal-order review delivered; durable parent final acceptance review records evidence.",
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": null,
+      "status": "closed",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 384944,
+          "id": "2b077949-T384944",
+          "last_seq": 385137,
+          "new": 45,
+          "subject": "V12 B4: Docker and environment readiness for W384870"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12 B4: Docker and environment readiness for W384870",
+      "trials": []
+    }
+  },
+  {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.slaw",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "kind": "close_work",
+      "operation": {
+        "id": "owner-final-close-W385124-f896bab0",
+        "state": "committed"
+      },
+      "seq": 385140
+    },
+    "snapshot_seq": 385140
+  },
+  {
+    "work": "W385124",
+    "readback": {
+      "agent": null,
+      "available_transitions": [],
+      "binding": null,
+      "binding_count": 0,
+      "bindings": [],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W384870",
+          "title": "V12: controlled test groups and a clean full-suite baseline"
+        },
+        {
+          "id": "2b077949-W385124",
+          "title": "V12: independent review of shutdown signal-count failure"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "suspected-defect",
+      "duplicate_of": null,
+      "episode_seq": 385130,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-11-18T16:51:55Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W385124",
+      "last_change_seq": 385140,
+      "last_changed_at": "2026-11-18T18:32:04.991Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W385124",
+        "parent": {
+          "handler": {
+            "member": "slaw",
+            "participant": "baton.slaw",
+            "team": "baton"
+          },
+          "id": "2b077949-W384870",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.decide",
+            "handlers": [
+              "slaw"
+            ],
+            "role": "approv",
+            "route": "approv"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12: controlled test groups and a clean full-suite baseline"
+        }
+      },
+      "local_id": "W385124",
+      "message_count": 5,
+      "my_pending_obligations": 0,
+      "new": 5,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W385124",
+        "overlap": 0,
+        "own": 5,
+        "snapshot_seq": 385140,
+        "subtree_total": 5
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "decomposition",
+      "outcome": "satisfying",
+      "phase": null,
+      "pickup": null,
+      "priority": "high",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": "Independently accepted W384870 delivery: final r4 at f896bab0 accounts for11277 tests,11275 passed and2 approved optional skips,zero adverse outcomes,stable source,zero residue. B4 and signal-order review delivered; durable parent final acceptance review records evidence.",
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": null,
+      "status": "closed",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 385124,
+          "id": "2b077949-T385124",
+          "last_seq": 385138,
+          "new": 5,
+          "subject": "V12: independent review of shutdown signal-count failure"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: independent review of shutdown signal-count failure",
+      "trials": []
+    }
+  },
+  {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.slaw",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "kind": "close_work",
+      "operation": {
+        "id": "owner-final-close-W384870-f896bab0",
+        "state": "committed"
+      },
+      "seq": 385141
+    },
+    "snapshot_seq": 385141
+  },
+  {
+    "work": "W384870",
+    "readback": {
+      "agent": null,
+      "available_transitions": [],
+      "binding": {
+        "actor": "baton.slaw",
+        "created_ts": "2026-10-29T22:32:22Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-controlled-test-groups",
+        "prior": 0,
+        "rationale": "Attach the permanent W384870 dossier created 2026-10-29",
+        "revision": 1,
+        "root": "baton",
+        "seq": 384873
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.slaw",
+          "created_ts": "2026-10-29T22:32:22Z",
+          "git_provenance": null,
+          "path": "work/records/2026/10/finding-v12-controlled-test-groups",
+          "prior": 0,
+          "rationale": "Attach the permanent W384870 dossier created 2026-10-29",
+          "revision": 1,
+          "root": "baton",
+          "seq": 384873
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W384870",
+          "title": "V12: controlled test groups and a clean full-suite baseline"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 384905,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-10-29T22:48:04Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W384870",
+      "last_change_seq": 385141,
+      "last_changed_at": "2026-11-18T18:32:05.347Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [],
+        "contains": [
+          {
+            "handler": null,
+            "id": "2b077949-W384944",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12 B4: Docker and environment readiness for W384870"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W385124",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: independent review of shutdown signal-count failure"
+          }
+        ],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W384870",
+        "parent": null
+      },
+      "local_id": "W384870",
+      "message_count": 159,
+      "my_pending_obligations": 0,
+      "new": 159,
+      "new_breakdown": {
+        "children": [
+          {
+            "id": "2b077949-W384944",
+            "new": 45
+          },
+          {
+            "id": "2b077949-W385124",
+            "new": 5
+          }
+        ],
+        "id": "2b077949-W384870",
+        "overlap": 0,
+        "own": 159,
+        "snapshot_seq": 385141,
+        "subtree_total": 209
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "external-report",
+      "outcome": "satisfying",
+      "phase": null,
+      "pickup": null,
+      "priority": "high",
+      "progress": {
+        "children": 2,
+        "closed": 2
+      },
+      "rationale": "Independently accepted W384870 delivery: final r4 at f896bab0 accounts for11277 tests,11275 passed and2 approved optional skips,zero adverse outcomes,stable source,zero residue. B4 and signal-order review delivered; durable parent final acceptance review records evidence.",
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": null,
+      "status": "closed",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 384870,
+          "id": "2b077949-T384870",
+          "last_seq": 385136,
+          "new": 159,
+          "subject": "V12: controlled test groups and a clean full-suite baseline"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: controlled test groups and a clean full-suite baseline",
+      "trials": []
+    }
+  }
+]
