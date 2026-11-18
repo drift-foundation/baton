@@ -183,3 +183,7 @@ Child `review-2026-11-18T02-21-34Z.md` verifies22 passes (9OCI+13packaged), stab
 ## 2026-11-18T02-26-07Z — follow-on30/30 accepted; codexpc verification complete
 
 Child `review-2026-11-18T02-26-07Z.md` independently verifies8 resumed+22 prior =30 unique passes, stable438eefa6 source/evidence and9 created containers absent. Prior242 acceptance remains. The25 historical unverified environment/package entries are resolved by current30-ID coverage. Codexpc waits unclaimed at baton.decide, no new tests. K G4/G5 and remaining B5/final gates continue.
+
+## 2026-11-18T18-29-23Z — joined final acceptance
+
+Parent `review-2026-11-18T18-29-23Z.md` accepts full r4 at f896bab0, including required Docker/initial-access/packaged coverage. B4 delivery accepted; W384944 ready for owner satisfying closure. No execution remains.

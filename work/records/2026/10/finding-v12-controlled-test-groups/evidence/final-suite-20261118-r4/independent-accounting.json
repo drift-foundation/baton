@@ -1,0 +1,46 @@
+{
+  "collected": 11277,
+  "executed": 11277,
+  "passed": 11275,
+  "optional_skipped": {
+    "tests.manager.test_source_boundary.CleanupNeverRemovesMaterialThisManagerDidNotCreate.test_a_real_same_filesystem_bind_mount_is_refused": "this run cannot create a mount namespace, so the REAL same-filesystem bind mount is not exercised here; test_a_same_filesystem_mount_is_refused_though_its_device_matches proves the same boundary from the kernel's table without the capability",
+    "tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_more_than_the_scratch_bound_really_fits_in_the_workspace": "the >64 MiB disk-workspace proof writes more than the bootstrap container's whole 64 MiB tmpfs; set BATON_V12_LARGE_WORKSPACE_PROOF=1 on a host with room to run it"
+  },
+  "unique_collection": true,
+  "unique_execution": true,
+  "exact_execution": true,
+  "disjoint_complete_outcomes": true,
+  "adverse_counts": {
+    "failed": 0,
+    "errors": 0,
+    "required_skipped": 0,
+    "fixture_skipped": 0,
+    "fixture_errors": 0,
+    "duplicates": 0,
+    "unaccounted": 0,
+    "uncollected": 0,
+    "stray_errors": 0,
+    "unexpected_successes": 0,
+    "expected_failures": 0
+  },
+  "groups": {
+    "authority": 423,
+    "integration": 796,
+    "job_manager": 1524,
+    "manager-engine": 237,
+    "manager-pure": 4433,
+    "scans": 494,
+    "supervised": 1,
+    "tools-packaged": 24,
+    "tools-pure": 3345
+  },
+  "source_stable": true,
+  "head": "f896bab03925ff1eb520adc3283da265137d5130",
+  "changed_before": 0,
+  "changed_after": 0,
+  "roots_equal": true,
+  "docker-ps-a_added": [],
+  "docker-ps-a_removed": [],
+  "docker-images_added": [],
+  "docker-images_removed": []
+}
