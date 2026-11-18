@@ -1,4 +1,14 @@
 
+## 2026-11-18T17-42-44Z — deferred-signal witness accepted
+
+Read `review-2026-11-18T17-42-44Z.md`. Exact2-file fixture candidate; independent16/16 in62.4s, stable source, zero residue. Actual injected acknowledgment, both orderings, repeat-signal and negative witnesses preserve lifecycle coverage. Priority advance to owner checkpoint/fresh full run. No product/spec change or new owner decision. K/codexpc idle; coordinator prepares wrapper after commit. Final complete green acceptance and child/parent closure still pending.
+
+
+## 2026-11-18T16-52-54Z — codexpc review accepted; K acknowledgment correction released
+
+Read `review-2026-11-18T16-52-54Z.md` and evidence/review-r3-signal-count-20261118T165143Z.md. Unsupported exact-two delivery assumption confirmed; precise r3 interleaving unknown, no product regression established. W385124 delivered/unclaimed at decide; owner closure pending. K next bounded fixture acknowledgment/order proof, preserving repeated-signal and all lifecycle/deadline negatives; focused deterministic only, no full/group run. Priority CONTINUE; codexpc idle.
+
+
 ## 2026-11-18T16-29-13Z — exit-ordering product correction accepted
 
 Read `review-2026-11-18T16-29-13Z.md`. Independent46/46 in51.6s, stable source/no residue; exact3-file candidate verified. Late cooperative signal is absorbed through process exit; hung child still killed/held. Priority advance to human checkpoint and next accounted full run. Coordinator prepares next packet directly after checkpoint; K/codexpc idle. Supersedes pending exit-race review; final acceptance/closure still outstanding.

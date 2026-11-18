@@ -1,0 +1,92 @@
+# pre-fix shutdown_fixture (c2cb0887 bytes), mode absent_cleanup, one ad-hoc run via probe-run-one-mode.py; times relative to controller main entry
+  0.000 pid=748255 process_entry {"child": false}
+  0.000 pid=748255 trace {"function": "main", "kind": "call"}
+  0.002 pid=748255 manager_started {"manager": 748264}
+  0.159 pid=748264 process_entry {"child": true}
+  0.159 pid=748264 trace {"function": "main", "kind": "call"}
+  0.160 pid=748264 trace {"function": "child_main", "kind": "call"}
+  0.161 pid=748264 trace {"function": "start", "kind": "call"}
+  0.178 pid=748264 manager_guard_held {"guard_pid": 748264}
+  0.200 pid=748264 snapshot_replaced {"finished": false}
+  0.200 pid=748264 trace {"function": "start", "kind": "return"}
+  0.202 pid=748264 trace {"function": "main", "kind": "call"}
+  0.216 pid=748264 trace {"function": "supervise", "kind": "call"}
+  0.216 pid=748264 trace {"function": "install", "kind": "call"}
+  0.216 pid=748264 trace {"function": "install", "kind": "return"}
+  0.216 pid=748264 trace {"function": "_supervise", "kind": "call"}
+  0.451 pid=748264 snapshot_replaced {"finished": false}
+  0.701 pid=748264 snapshot_replaced {"finished": false}
+  0.951 pid=748264 snapshot_replaced {"finished": false}
+  1.202 pid=748264 snapshot_replaced {"finished": false}
+  1.261 pid=748264 fixture_materialize {"repository": "/var/tmp/w384870-deferred-probe-1/absent_cleanup/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293
+  1.292 pid=748264 token_acquire {"operands": ["attempt", "eligible", "execution", "operation", "permission"], "permission": true}
+  1.298 pid=748264 fake_engine {"argv": ["docker", "ps", "--all", "--no-trunc", "--format", "{{json .}}", "--filter", "label=baton.v12.runtime_attempt_id=attempt-7b5e070a7
+  1.305 pid=748264 fake_engine {"argv": ["docker", "create", "--name", "baton-runtime.start-50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b", "--interacti
+  1.306 pid=748264 fake_engine {"argv": ["docker", "start", "runtime-single-1"]}
+  1.308 pid=748264 fake_engine {"argv": ["docker", "ps", "--all", "--no-trunc", "--format", "{{json .}}", "--filter", "label=baton.v12.runtime_attempt_id=attempt-7b5e070a7
+  1.308 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  1.454 pid=748264 snapshot_replaced {"finished": false}
+  1.705 pid=748264 snapshot_replaced {"finished": false}
+  1.957 pid=748264 snapshot_replaced {"finished": false}
+  2.209 pid=748264 snapshot_replaced {"finished": false}
+  2.338 pid=748264 fake_engine {"argv": ["docker", "ps", "--all", "--no-trunc", "--format", "{{json .}}", "--filter", "label=baton.v12.runtime_attempt_id=attempt-7b5e070a7
+  2.338 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  2.461 pid=748264 snapshot_replaced {"finished": false}
+  2.712 pid=748264 snapshot_replaced {"finished": false}
+  2.964 pid=748264 snapshot_replaced {"finished": false}
+  3.216 pid=748264 snapshot_replaced {"finished": false}
+  3.374 pid=748264 fake_engine {"argv": ["docker", "ps", "--all", "--no-trunc", "--format", "{{json .}}", "--filter", "label=baton.v12.runtime_attempt_id=attempt-7b5e070a7
+  3.374 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  3.468 pid=748264 snapshot_replaced {"finished": false}
+  3.720 pid=748264 snapshot_replaced {"finished": false}
+  3.971 pid=748264 snapshot_replaced {"finished": false}
+  4.223 pid=748264 snapshot_replaced {"finished": false}
+  4.409 pid=748264 fake_engine {"argv": ["docker", "ps", "--all", "--no-trunc", "--format", "{{json .}}", "--filter", "label=baton.v12.runtime_attempt_id=attempt-7b5e070a7
+  4.409 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  4.475 pid=748264 snapshot_replaced {"finished": false}
+  4.727 pid=748264 snapshot_replaced {"finished": false}
+  4.979 pid=748264 snapshot_replaced {"finished": false}
+  5.231 pid=748264 snapshot_replaced {"finished": false}
+  5.444 pid=748264 fake_engine {"argv": ["docker", "ps", "--all", "--no-trunc", "--format", "{{json .}}", "--filter", "label=baton.v12.runtime_attempt_id=attempt-7b5e070a7
+  5.444 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  5.482 pid=748264 snapshot_replaced {"finished": false}
+  5.735 pid=748264 snapshot_replaced {"finished": false}
+  5.986 pid=748264 snapshot_replaced {"finished": false}
+  6.242 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  6.247 pid=748264 fake_engine {"argv": ["docker", "stop", "--time", "30", "runtime-single-1"]}
+  6.247 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  6.248 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  6.250 pid=748264 snapshot_replaced {"finished": false}
+  6.255 pid=748255 outer_signal {"manager": 748264, "signal": 15}
+  6.255 pid=748264 trace {"function": "_handle", "kind": "call"}
+  6.256 pid=748264 trace {"function": "_handle", "kind": "return"}
+  6.256 pid=748264 trace {"function": "defer", "kind": "call"}
+  6.256 pid=748264 trace {"function": "defer", "kind": "return"}
+  6.256 pid=748264 deferred_signal_returned {"received": ["signal 15", "signal 15"]}
+  6.265 pid=748264 fake_engine {"argv": ["docker", "stop", "--time", "30", "runtime-single-1"]}
+  6.265 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  6.275 pid=748264 fake_engine {"argv": ["docker", "ps", "--all", "--no-trunc", "--format", "{{json .}}", "--filter", "label=baton.v12.runtime_attempt_id=attempt-7b5e070a7
+  6.275 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  6.501 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  6.501 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  6.506 pid=748264 snapshot_replaced {"finished": false}
+  6.758 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  6.758 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  6.759 pid=748264 snapshot_replaced {"finished": false}
+  7.011 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  7.011 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  7.012 pid=748264 snapshot_replaced {"finished": false}
+  7.236 pid=748264 trace {"function": "_supervise", "kind": "return"}
+  7.236 pid=748264 trace {"function": "restore", "kind": "call"}
+  7.236 pid=748264 trace {"function": "restore", "kind": "return"}
+  7.236 pid=748264 trace {"function": "supervise", "kind": "return"}
+  7.237 pid=748264 trace {"function": "main", "kind": "return"}
+  7.238 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  7.238 pid=748264 fake_engine {"argv": ["docker", "inspect", "--type", "container", "--format", "{{json .}}", "runtime-single-1"]}
+  7.242 pid=748264 snapshot_replaced {"finished": true}
+  7.242 pid=748264 snapshot_replaced {"finished": true}
+  7.242 pid=748264 trace {"function": "child_main", "kind": "return"}
+  7.243 pid=748264 trace {"function": "main", "kind": "return"}
+  7.506 pid=748255 outer_signal {"manager": 748264, "signal": 9}
+  7.506 pid=748255 manager_reaped {"manager": 748264, "status": 130}
+  7.507 pid=748255 trace {"function": "main", "kind": "return"}

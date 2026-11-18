@@ -1256,3 +1256,22 @@ native_permission), 146 tests, OK under both the full-run and default environmen
 containers per run. Candidate 3 files (+102/-12) over 5b9659f0, identity f079e729…; no existing assertion changed. r2
 evidence untouched; no group/full/live/Docker run; no Git mutation.
 - Handoff posted: T384870 seq 385120. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: third full run's one failure repaired (M385131): deferred-injection witness, fixture/test only
+
+`evidence/deferred-signal-witness-20261118/RESULT.md`. Measured the race the old `absent_cleanup` assertion assumed away
+(`pre-fix-probe-absent_cleanup-timeline.txt`): the controller's stop at `deadline - reserve` lands at 6.0–6.25 s; the
+manager's `_supervise` starts at 0.216 s so its own serving bound trips at 6.216 s on its next ~1 s tick (or the
+cancelled runtime's terminal state is seen there); the exact-two copy at `defer` therefore depended on the tick phase.
+Fixture: `Journal`, `observed_termination` (real `Termination._handle` journaled: number/mode/raised/received),
+`inject` (SIGINT to self, bounded acknowledgment of ITS callback, `deferred_signal_sent`/`_returned` rows), injection
+moved from the trace hook to a wrapper after the real `defer`, `deferred_injection_unreached`, `controller_ordering`.
+Test: composition asserts the witness and a seen ordering, records it in `summary.json`; new `DeferredInjectionWitness`
+(stop-before, stop-after, same-number-twice, missing-injection and still-raising controls, synthetic journals). All
+other `absent_cleanup` lifecycle assertions unchanged. Verification, full-run environment: in-process 15 OK; module
+16 OK ×2 (62 s each, journals of pass 1 retained compactly); `tests.tools.test_next_run_flow` 5 OK; 5 natural
+composition probes stop-before; 3 forced stop-after probes (probe-only controller gate) witness `[]`, lifecycle
+intact, 0.82 s to the request deadline; 0 /var/tmp residue. Candidate 2 files (+284/-9) over c2cb0887, identity
+0f5ad56f…; no product/spec change; the ~0.8 s late-loop shutdown margin is reported for the owner. r1/r2/r3 evidence
+untouched; no group/full/live/Docker run; no Git mutation.
+- Handoff posted: T384870 seq 385133. detail: W384870 remains active under the owner claim (handler slaw, route baton.decide); K holds no claim.

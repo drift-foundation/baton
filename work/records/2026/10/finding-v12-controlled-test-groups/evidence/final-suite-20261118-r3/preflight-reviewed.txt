@@ -1,0 +1,32 @@
+== source
+c2cb0887 fix(v12): preserve cooperative signal handling through manager exit
+status lines under v12: 0 (0 expected for a committed candidate); selected checkpoint c2cb08877495b3124f426dc31e6fa76e37e8e1d9
+prepared interpreter: /home/sl/.local/state/baton-v12-venv/bin/python
+ok    test -x /home/sl/.local/state/baton-v12-venv/bin/python
+ok    source identity composes (declared inputs present)
+== tools
+ok    command -v just
+ok    command -v git
+ok    command -v docker
+== docker
+ok    docker version
+ok    docker image inspect sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8
+      reference worker image (BATON_W32577_IMAGE_DIGEST) sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8
+ok    docker image inspect sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+      private line image (BATON_V12_PRIVATE_LINE_IMAGE) sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+      containers now: 70 total, 1 running (pre-existing; recorded as baseline by run-final-suite.sh)
+== workspace group
+ok    getent group 1001
+      baton-workspace:x:1001:sl ; caller in it: 1
+== sg (the maintenance fixture runs the real program under the selected group through sg when it is not the primary gid)
+ok    command -v sg
+ok    sg baton-workspace -c 'id -g' -> 1001 (the child really runs with the selected gid)
+ok    sg keeps uid 1000 (running_as stays the program's own account)
+== storage
+      /tmp fstype tmpfs ; /var/tmp fstype ext4 ; free 577G
+      /var/tmp entries now: 376 (baseline 376 on 2026-11-18)
+== bundle
+      BATON_V12_STACK_DISTRO unset: test-all builds a fresh bundle (default; build/out/distro currently from "commit": "5b9659f0b44cbabdc3b8ef1b242375b911f071c7", will be replaced)
+== host
+      cpus 32 ; mem 28G available ; userns no ; python 3.13.7
+== result: 11 ok, 0 failing

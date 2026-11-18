@@ -1,0 +1,9 @@
+{
+  "collected": 11271,
+  "executed": 11271,
+  "unique_execution": true,
+  "exact_execution": true,
+  "disjoint_complete_outcomes": true,
+  "source_stable": true,
+  "root_baseline_restored": true
+}

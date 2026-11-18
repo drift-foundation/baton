@@ -1,0 +1,3 @@
+# Completed run timing and status
+
+Third owner run complete:426s versus r2 418s and r1 422s.11271 collected/executed,11268 passed,2 optional skips,1 failure (shutdown matrix absent_cleanup signal-count),0 errors; exact accounting/source stable/root baseline restored, no new containers/images. Original next_run_flow and new exit-race cases pass. Near completion host sample98-100%CPU idle,28GiB available,no swap or I/O wait; no competing heavy process seen. Historical load at failure not captured; do not infer overload or timing cause from final sample. Docker retry_engine duration91.64s unchanged. Codexpc has claimed W385124; continue existing read-only review using now-complete r3 logs. No tests/edits released, K idle, no full retry.

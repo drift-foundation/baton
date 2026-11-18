@@ -1,0 +1,17 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-dh6wux0i",
+      "root_length": 20,
+      "ids": [
+        "tests.manager.test_authoring_shutdown_deadline"
+      ],
+      "exit": 0,
+      "seconds": 62.4271900820022,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

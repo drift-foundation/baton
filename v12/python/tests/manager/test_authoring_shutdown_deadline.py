@@ -110,6 +110,117 @@ class IntendedScenarioGuard(unittest.TestCase):
         self.assertEqual(shutdown_fixture.unreached('unlisted', self.journal('unlisted')), ['mode unlisted declares no intended scenario'])
 
 
+class DeferredInjectionWitness(unittest.TestCase):
+    """W384870 M385131: the deferred injection at the REAL `Termination` boundary, in this process.
+
+    HANDLER-LEVEL AND OS-DELIVERY EVIDENCE, DETERMINISTICALLY ORDERED. Each case installs
+    the real handler, delivers real signals to itself with `os.kill`, and acknowledges every
+    delivery before the next send, so the stop-before and stop-after orderings the composition
+    can only observe are each forced here. The SIGTERM a case sends stands in for the
+    controller's stop; it is not the controller's send, which only the composition exercises.
+    """
+    def setUp(self):
+        from tools.authoring_baseline import Termination
+        self.journal = shutdown_fixture.Journal()
+        observed = shutdown_fixture.observed_termination(self.journal)
+        observed.start()
+        self.addCleanup(observed.stop)
+        self.termination = Termination().install()
+        self.addCleanup(self.termination.restore)
+        for number in (signal.SIGTERM, signal.SIGINT):
+            self.assertEqual(signal.getsignal(number), self.termination._handle, 'the real handler must own the number before this process signals itself')
+
+    def callbacks(self):
+        return [(row['signal'], row['mode'], row['raised']) for row in self.journal.rows if row['event'] == 'termination_callback']
+
+    def stop(self):
+        """The stand-in controller stop: one real SIGTERM to this process, acknowledged by its callback."""
+        seen = len(self.journal.rows)
+        os.kill(os.getpid(), signal.SIGTERM)
+        deadline = time.monotonic() + shutdown_fixture.ACKNOWLEDGEMENT_SECONDS
+        while time.monotonic() < deadline:
+            if any(row['event'] == 'termination_callback' and row['signal'] == signal.SIGTERM for row in self.journal.rows[seen:]):
+                return
+        self.fail('the stand-in controller stop was never handled')
+
+    def test_a_stop_before_the_injection_interrupts_and_the_deferred_injection_returns(self):
+        with self.assertRaises(KeyboardInterrupt):
+            self.stop()
+        self.assertEqual(self.termination.received, ['signal 15'])
+        self.termination.defer()
+        returned = shutdown_fixture.inject(self.termination, self.journal)
+        self.assertEqual(shutdown_fixture.deferred_injection_unreached(self.journal.rows), [])
+        self.assertEqual(shutdown_fixture.controller_ordering(self.journal.rows), 'controller stop before the injection')
+        self.assertTrue(returned['acknowledged'])
+        self.assertEqual(self.termination.received, ['signal 15', 'signal 2'])
+        self.assertEqual(self.callbacks(), [(15, 'raise', 'KeyboardInterrupt'), (2, 'defer', None)])
+
+    def test_a_stop_after_the_injection_is_recorded_while_deferring_and_returns(self):
+        self.termination.defer()
+        shutdown_fixture.inject(self.termination, self.journal)
+        self.stop()
+        self.assertEqual(shutdown_fixture.deferred_injection_unreached(self.journal.rows), [])
+        self.assertEqual(shutdown_fixture.controller_ordering(self.journal.rows), 'controller stop after the injection, while deferring')
+        self.assertEqual(self.termination.received, ['signal 2', 'signal 15'])
+        self.assertEqual(self.callbacks(), [(2, 'defer', None), (15, 'defer', None)])
+
+    def test_the_same_number_delivered_twice_is_recorded_twice_in_order(self):
+        # The historical exact-two expectation, kept where it is deterministic: both
+        # deliveries are this process's own and each is acknowledged before the next send.
+        with self.assertRaises(KeyboardInterrupt):
+            self.stop()
+        self.termination.defer()
+        self.stop()
+        self.assertEqual(self.termination.received, ['signal 15', 'signal 15'])
+        self.assertEqual(self.callbacks(), [(15, 'raise', 'KeyboardInterrupt'), (15, 'defer', None)])
+
+    def test_a_missing_injection_fails_the_witness_despite_a_prior_callback(self):
+        with self.assertRaises(KeyboardInterrupt):
+            self.stop()
+        self.termination.defer()
+        started = time.monotonic()
+        returned = shutdown_fixture.inject(self.termination, self.journal, send=lambda pid, number: None)
+        self.assertFalse(returned['acknowledged'])
+        self.assertGreaterEqual(time.monotonic() - started, shutdown_fixture.ACKNOWLEDGEMENT_SECONDS)
+        missing = shutdown_fixture.deferred_injection_unreached(self.journal.rows)
+        self.assertTrue(any('never acknowledged' in fact for fact in missing), missing)
+        self.assertTrue(any('no handler callback for the injected number' in fact for fact in missing), missing)
+        self.assertTrue(any('0 injected records appended' in fact for fact in missing), missing)
+        self.assertEqual(self.termination.received, ['signal 15'])
+        self.assertEqual(shutdown_fixture.controller_ordering(self.journal.rows), 'controller stop before the injection')
+
+    def test_a_handler_that_still_raises_at_the_injection_fails_the_witness(self):
+        # No `defer()`: the handler is still in raise mode when the injection lands, so the
+        # interruption escapes `inject` and the injection never returns.
+        with self.assertRaises(KeyboardInterrupt):
+            shutdown_fixture.inject(self.termination, self.journal)
+        missing = shutdown_fixture.deferred_injection_unreached(self.journal.rows)
+        self.assertTrue(any('0 deferred injections returned' in fact for fact in missing), missing)
+        self.assertTrue(any('still in raise mode' in fact for fact in missing), missing)
+        self.assertTrue(any('raised KeyboardInterrupt' in fact for fact in missing), missing)
+        self.assertEqual([row['event'] for row in self.journal.rows], ['deferred_signal_sent', 'termination_callback'])
+        self.assertEqual(self.callbacks(), [(2, 'raise', 'KeyboardInterrupt')])
+
+    def test_synthetic_journals_name_a_prior_record_a_double_delivery_and_a_rewritten_list(self):
+        def rows(before, after, **callback):
+            callback = dict(dict(event='termination_callback', signal=2, mode='defer', raised=None, received=after, main_thread=True), **callback)
+            return [dict(event='deferred_signal_sent', signal=2, mode='defer', received_before=before, main_thread=True), callback,
+                    dict(event='deferred_signal_returned', signal=2, acknowledged=True, callback=callback, received_before=before, received=after)]
+        self.assertEqual(shutdown_fixture.deferred_injection_unreached(rows(['signal 15'], ['signal 15', 'signal 2'])), [])
+        self.assertEqual(shutdown_fixture.deferred_injection_unreached(rows([], ['signal 2', 'signal 15'])), [])
+        prior = shutdown_fixture.deferred_injection_unreached(rows(['signal 2'], ['signal 2', 'signal 2']))
+        self.assertTrue(any('a prior callback cannot witness it' in fact for fact in prior), prior)
+        doubled = shutdown_fixture.deferred_injection_unreached(rows([], ['signal 2', 'signal 2']))
+        self.assertTrue(any('2 injected records appended' in fact for fact in doubled), doubled)
+        rewritten = shutdown_fixture.deferred_injection_unreached(rows(['signal 15'], ['signal 2']))
+        self.assertTrue(any('rewritten' in fact for fact in rewritten), rewritten)
+        raised = shutdown_fixture.deferred_injection_unreached(rows([], ['signal 2'], raised='KeyboardInterrupt'))
+        self.assertTrue(any('raised KeyboardInterrupt' in fact for fact in raised), raised)
+        self.assertEqual(shutdown_fixture.controller_ordering(rows([], ['signal 2'])), 'no controller stop')
+        self.assertEqual(shutdown_fixture.controller_ordering(rows([], ['signal 2']) + [dict(event='outer_signal', signal=15)]), 'controller stop sent, not seen by the Termination handler')
+        self.assertEqual(shutdown_fixture.controller_ordering([]), 'no deferred injection')
+
+
 class Composition(unittest.TestCase):
     def test_real_baseline_shutdown_matrix(self):
         source = Path(__file__).resolve().parents[4]
@@ -200,8 +311,15 @@ class Composition(unittest.TestCase):
                     if mode in ('stuck_cleanup', 'stuck_accounting'):
                         self.assertIn('timed out', str(workload))
                     if mode == 'absent_cleanup':
-                        signals = [row for row in events if row['event'] == 'deferred_signal_returned']
-                        self.assertEqual(signals[0]['received'], ['signal 15', 'signal 15'])
+                        # M385131: the injected deferred signal is acknowledged by ITS OWN
+                        # handler callback and returns normally; the controller's stop is
+                        # its own evidence (sent, and runtime stopped/retained/published
+                        # above), landing before or after the injection as the serving
+                        # tick phase decides. Both orderings are forced deterministically
+                        # in `DeferredInjectionWitness`; here the one seen is recorded.
+                        self.assertEqual(shutdown_fixture.deferred_injection_unreached(events), [])
+                        ordering = shutdown_fixture.controller_ordering(events)
+                        self.assertNotIn(ordering, ('no deferred injection', 'no controller stop'), ordering)
                     if mode == 'unknown':
                         rows = list(report['enforcement']['attempts'].values())
                         # W384870 C7: an engine that cannot be asked preserves the fence and the
@@ -227,7 +345,8 @@ class Composition(unittest.TestCase):
                 self.assertLess(elapsed, 15)
                 results.append(dict(case=mode, code=code, seconds=elapsed, managers_reaped=reaped,
                                     manager_pids_absent=managers, guard_reacquired=True,
-                                    outcome_present=outcome, final_snapshot=final))
+                                    outcome_present=outcome, final_snapshot=final,
+                                    controller_ordering=shutdown_fixture.controller_ordering(events) if mode == 'absent_cleanup' else None))
                 (output / 'summary.json').write_text(json.dumps(results, indent=2) + '\n')
 
 

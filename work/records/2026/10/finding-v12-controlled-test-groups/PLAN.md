@@ -1,4 +1,42 @@
 
+## 2026-11-18T17-42-44Z — deferred-signal witness accepted
+
+Read `review-2026-11-18T17-42-44Z.md`. Exact2-file fixture candidate; independent16/16 in62.4s, stable source, zero residue. Actual injected acknowledgment, both orderings, repeat-signal and negative witnesses preserve lifecycle coverage. Priority advance to owner checkpoint/fresh full run. No product/spec change or new owner decision. K/codexpc idle; coordinator prepares wrapper after commit. Final complete green acceptance and child/parent closure still pending.
+
+
+## 2026-11-18 — K: third full run's one failure repaired (M385131); awaiting technical + priority review
+
+`evidence/deferred-signal-witness-20261118/RESULT.md`. Fixture ordering assumption, measured: the controller's stop
+fires at 6.0–6.25 s while the manager's own serving loop ends at 6.216 s plus its tick phase, so which ends serving is
+a coin flip and the old exact-two copy at `defer` saw one entry when the loop won. Correction (2 test files, no product
+change): the injection is a separately identifiable signal (SIGINT) acknowledged by its own journaled handler callback
+(bounded wait, not a sleep); `deferred_injection_unreached` names missing/raising/prior-callback cases; the controller's
+ordering is observed and recorded. `DeferredInjectionWitness` forces stop-before, stop-after and same-number-twice at
+the real `Termination` boundary with real OS self-delivery, plus missing-injection and still-raising controls. Module
+16/16 OK twice, next_run_flow 5/5, 0 residue; both orderings witnessed in the real composition (late one forced by a
+probe-only gate), lifecycle intact. Reported, not changed: the manager's late loop end can leave ~0.8 s of shutdown
+budget. Next: review; owner checkpoint; fresh wrapper; final accounting; closure. W383215 stays gated.
+
+## 2026-11-18T16-52-54Z — codexpc review accepted; K acknowledgment correction released
+
+Read `review-2026-11-18T16-52-54Z.md` and evidence/review-r3-signal-count-20261118T165143Z.md. Unsupported exact-two delivery assumption confirmed; precise r3 interleaving unknown, no product regression established. W385124 delivered/unclaimed at decide; owner closure pending. K next bounded fixture acknowledgment/order proof, preserving repeated-signal and all lifecycle/deadline negatives; focused deterministic only, no full/group run. Priority CONTINUE; codexpc idle.
+
+
+## Third full run complete; W385124 reviewing
+
+Third owner run complete:426s versus r2 418s and r1 422s.11271 collected/executed,11268 passed,2 optional skips,1 failure (shutdown matrix absent_cleanup signal-count),0 errors; exact accounting/source stable/root baseline restored, no new containers/images. Original next_run_flow and new exit-race cases pass. Near completion host sample98-100%CPU idle,28GiB available,no swap or I/O wait; no competing heavy process seen. Historical load at failure not captured; do not infer overload or timing cause from final sample. Docker retry_engine duration91.64s unchanged. Codexpc has claimed W385124; continue existing read-only review using now-complete r3 logs. No tests/edits released, K idle, no full retry.
+
+
+## Owner selects codexpc read-only r3 failure review
+
+User requests codexpc review now to accelerate diagnosis during the active full run. Assignment: CODEXPC-R3-REVIEW-ASSIGNMENT.md. No edits/tests/engine operations; unique review report only. Child creation by baton.prompt was refused: attaching to owner-held W384870 requires its route handler. Owner command prepared in owner-create-r3-review.py; not executed by coordinator. Existing B4 Work is not repurposed.
+
+
+## 2026-11-18T16:39:37.270439+00:00 — third owner-run packet ready
+
+Owner checkpoint c2cb08877495b3124f426dc31e6fa76e37e8e1d9 confirmed; clean tree before preparation. Coordinator prepared final-suite-20261118-r3 from reviewed r2 wrapper, changing only checkpoint/output location/comments. Shell syntax and read-only preflight pass11/11. Owner may run bash /home/sl/src/baton/work/records/2026/10/finding-v12-controlled-test-groups/evidence/final-suite-20261118-r3/run-final-suite.sh once. No suite/build executed by coordinator. K/codexpc idle; source/HEAD held unchanged. Prior failed evidence preserved; final accounting, closure and check-in remain pending.
+
+
 ## 2026-11-18T16-29-13Z — exit-ordering product correction accepted
 
 Read `review-2026-11-18T16-29-13Z.md`. Independent46/46 in51.6s, stable source/no residue; exact3-file candidate verified. Late cooperative signal is absorbed through process exit; hung child still killed/held. Priority advance to human checkpoint and next accounted full run. Coordinator prepares next packet directly after checkpoint; K/codexpc idle. Supersedes pending exit-race review; final acceptance/closure still outstanding.

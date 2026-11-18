@@ -17,13 +17,161 @@ from unittest.mock import patch
 CONTROLLER = 'v12/python/tools/authoring_enforcement.py'
 
 
-def event(root, name, **data):
-    row = dict(event=name, monotonic=time.monotonic(), pid=os.getpid(), thread=threading.get_ident(), **data)
+def _row(name, **data):
+    return dict(event=name, monotonic=time.monotonic(), pid=os.getpid(), thread=threading.get_ident(), **data)
+
+
+def _write(root, row):
     fd = os.open(root / 'events.jsonl', os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
     try:
         os.write(fd, (json.dumps(row, sort_keys=True) + '\n').encode())
     finally:
         os.close(fd)
+
+
+def event(root, name, **data):
+    _write(root, _row(name, **data))
+
+
+class Journal:
+    """The fixture's event rows: appended on disk for the test, kept in memory for an acknowledgement."""
+    def __init__(self, root=None):
+        self.root, self.rows = root, []
+
+    def record(self, name, **data):
+        row = _row(name, **data)
+        self.rows.append(row)
+        if self.root is not None:
+            _write(self.root, row)
+        return row
+
+
+# W384870 M385131: THE DEFERRED INJECTION IS IDENTIFIED AND ACKNOWLEDGED, NOT COUNTED.
+# `absent_cleanup` used to self-send one SIGTERM at `defer`'s return and copy
+# `received`, and the matrix expected two entries: the controller's stop and the
+# injection. Nothing orders the controller's SIGTERM before that copy. Its stop
+# lands at `deadline - reserve` (6.0-6.25 s after its start) while the manager's
+# own serving bound trips at 6.2 s plus up to one serving tick, so which of the
+# two ends serving is a tick-phase coin flip, and the third owner full run saw
+# one entry. Now the injection is a DIFFERENT number from the controller's, so
+# its callback is its own and can be neither coalesced with nor satisfied by the
+# controller's delivery; the fixture waits, bounded, for THAT callback's journal
+# row before reporting the injection returned; and the controller's ordering is
+# observed and named, never assumed. `termination_callback` rows are handler-level
+# evidence; `outer_signal` rows are the controller's OS send. Neither is the other.
+INJECTED_SIGNAL = signal.SIGINT
+ACKNOWLEDGEMENT_SECONDS = 2
+DEFERRED_RECORD = 'signal ' + str(int(INJECTED_SIGNAL))
+CONTROLLER_RECORD = 'signal ' + str(int(signal.SIGTERM))
+
+
+def observed_termination(journal):
+    """Patch `Termination._handle` so every callback is journaled as handler-level evidence.
+
+    The number, the mode the handler ran in, whether it raised (raise mode interrupts)
+    and `received` after it appended. Install it before `Termination.install` binds
+    the method.
+    """
+    from tools import authoring_baseline as baseline
+    real = baseline.Termination._handle
+    def handle(self, number, frame):
+        mode = self._mode
+        try:
+            real(self, number, frame)
+        except BaseException as raised:
+            journal.record('termination_callback', signal=int(number), mode=mode, raised=type(raised).__name__, received=list(self.received), main_thread=threading.current_thread() is threading.main_thread())
+            raise
+        journal.record('termination_callback', signal=int(number), mode=mode, raised=None, received=list(self.received), main_thread=threading.current_thread() is threading.main_thread())
+    return patch.object(baseline.Termination, '_handle', handle)
+
+
+def inject(termination, journal, *, send=os.kill):
+    """Deliver the deferred signal to this process and wait for ITS callback to be journaled.
+
+    AN ACKNOWLEDGEMENT, NOT A SLEEP. The Python-level handler runs on the main thread at
+    its next bytecode boundary, so this spins on the journal until a `termination_callback`
+    for the injected number appears after the send, bounded so a lost delivery is reported
+    rather than waited for forever. A callback that precedes the send cannot satisfy it.
+    A handler still in raise mode propagates its interruption out of here, and
+    `deferred_signal_returned` is then never recorded.
+    """
+    before = list(termination.received)
+    seen = len(journal.rows)
+    journal.record('deferred_signal_sent', signal=int(INJECTED_SIGNAL), mode=termination._mode, received_before=before, main_thread=threading.current_thread() is threading.main_thread())
+    send(os.getpid(), INJECTED_SIGNAL)
+    deadline = time.monotonic() + ACKNOWLEDGEMENT_SECONDS
+    callback = None
+    while callback is None and time.monotonic() < deadline:
+        callback = next((row for row in journal.rows[seen:] if row['event'] == 'termination_callback' and row['signal'] == int(INJECTED_SIGNAL)), None)
+    return journal.record('deferred_signal_returned', signal=int(INJECTED_SIGNAL), acknowledged=callback is not None, callback=callback, received_before=before, received=list(termination.received), waited=round(ACKNOWLEDGEMENT_SECONDS - max(0, deadline - time.monotonic()), 4))
+
+
+def deferred_injection_unreached(events):
+    """Every fact the `absent_cleanup` journal fails to establish about the deferred injection.
+
+    Mirrors `unreached`: the composition asserts an empty list, and the in-process cases
+    drive the same rows through the real `Termination`, so a missing delivery, a handler
+    that still raises or a prior callback standing in for the injection is named, not counted.
+    """
+    missing = []
+    sent = [row for row in events if row['event'] == 'deferred_signal_sent']
+    returned = [row for row in events if row['event'] == 'deferred_signal_returned']
+    callbacks = [row for row in events if row['event'] == 'termination_callback' and row['signal'] == int(INJECTED_SIGNAL)]
+    if len(sent) != 1:
+        missing.append(str(len(sent)) + ' deferred injections sent, expected exactly one')
+    if len(returned) != 1:
+        missing.append(str(len(returned)) + ' deferred injections returned, expected exactly one')
+    for row in sent:
+        if row['mode'] != 'defer':
+            missing.append('the injection was sent while the handler was still in ' + row['mode'] + ' mode')
+        if not row['main_thread']:
+            missing.append('the injection was sent off the main thread, where no Python handler runs')
+        if DEFERRED_RECORD in row['received_before']:
+            missing.append('the injected number was already recorded before the injection; a prior callback cannot witness it')
+        if any(said != CONTROLLER_RECORD for said in row['received_before']):
+            missing.append('an unexpected earlier record: ' + ', '.join(row['received_before']))
+    for row in returned:
+        if not row['acknowledged'] or row['callback'] is None:
+            missing.append('the injected signal was never acknowledged by its own handler callback')
+        else:
+            if row['callback']['mode'] != 'defer':
+                missing.append('the injected callback ran in ' + row['callback']['mode'] + ' mode')
+            if row['callback']['raised'] is not None:
+                missing.append('the injected callback raised ' + row['callback']['raised'])
+        before = row['received_before']
+        added = row['received'][len(before):]
+        if row['received'][:len(before)] != before:
+            missing.append('the received list was rewritten under the injection')
+        if added.count(DEFERRED_RECORD) != 1:
+            missing.append(str(added.count(DEFERRED_RECORD)) + ' injected records appended, expected exactly one: ' + ', '.join(added))
+        if any(said not in (DEFERRED_RECORD, CONTROLLER_RECORD) for said in added):
+            missing.append('an unexpected record appended alongside the injection: ' + ', '.join(added))
+    for row in callbacks:
+        if row['mode'] != 'defer' or row['raised'] is not None:
+            missing.append('an injected-number callback ran in ' + row['mode'] + ' mode' + (' and raised ' + row['raised'] if row['raised'] else ''))
+    if not callbacks:
+        missing.append('no handler callback for the injected number was journaled')
+    return missing
+
+
+def controller_ordering(events):
+    """Where the controller's stop landed against the deferred injection: OBSERVED, never forced.
+
+    The controller stops at `deadline - reserve`; the manager's own serving bound trips
+    about as late plus up to one serving tick. Either may end serving, so the matrix names
+    which it saw. In-process cases send the SIGTERM themselves in the controller's stead.
+    """
+    sent = next((index for index, row in enumerate(events) if row['event'] == 'deferred_signal_sent'), None)
+    if sent is None:
+        return 'no deferred injection'
+    stops = [index for index, row in enumerate(events) if row['event'] == 'termination_callback' and row['signal'] == int(signal.SIGTERM)]
+    if any(index < sent for index in stops):
+        return 'controller stop before the injection'
+    if stops:
+        return 'controller stop after the injection, while deferring'
+    if any(row['event'] == 'outer_signal' and row['signal'] == int(signal.SIGTERM) for row in events):
+        return 'controller stop sent, not seen by the Termination handler'
+    return 'no controller stop'
 
 
 # W384870 C7 review 2026-10-30T17:17:47Z: WHAT EACH MODE MUST PROVABLY REACH.
@@ -135,7 +283,8 @@ def fixture(source, argv):
     root = Path(argv[argv.index('--packet') + 1]).parent
     packet = json.loads((root / 'packet.json').read_text())
     mode = packet['diagnostic_mode']
-    event(root, 'process_entry', child='--child-of' in argv)
+    journal = Journal(root)
+    journal.record('process_entry', child='--child-of' in argv)
 
     # Instrument original functions without replacing their control flow.
     traced = {'start', 'child_main', 'supervise', '_supervise', '_handle', 'install', 'restore', 'defer', '_run', 'stop', 'publish_guard', '_publish', 'main'}
@@ -148,9 +297,6 @@ def fixture(source, argv):
             event(root, 'trace', function=name, kind=kind)
             if name == 'defer' and kind == 'return':
                 phase['cleanup'] = True
-                if mode == 'absent_cleanup':
-                    os.kill(os.getpid(), signal.SIGTERM)
-                    event(root, 'deferred_signal_returned', received=list(frame.f_locals['self'].received))
             if name == 'start' and kind == 'return' and mode == 'pre_signal' and not phase['injected']:
                 phase['injected'] = True
                 event(root, 'injected_pre_supervision_signal')
@@ -259,6 +405,14 @@ def fixture(source, argv):
         except Exception as refusal:
             event(root, 'start_refused', refusal=type(refusal).__name__ + ': ' + str(refusal))
             raise
+    # M385131: the deferred injection happens AFTER the real `defer` returns, outside
+    # the trace hook, so its handler callback is itself traced and journaled.
+    real_defer = baseline.Termination.defer
+    def defer(self):
+        real_defer(self)
+        if mode == 'absent_cleanup':
+            inject(self, journal)
+
     real_prepare = e.prepare_manager
     def prepare_manager(control, packet):
         result = real_prepare(control, packet)
@@ -277,6 +431,8 @@ def fixture(source, argv):
         stack.enter_context(patch.object(single_worker, 'UserCredentialSources', lambda *args, **kwargs: lambda *args: 'fake-no-credential-read'))
         stack.enter_context(patch.object(baseline, '_publish', workload_publish))
         stack.enter_context(patch.object(baseline, '_workload_evidence', evidence))
+        stack.enter_context(observed_termination(journal))
+        stack.enter_context(patch.object(baseline.Termination, 'defer', defer))
         stack.enter_context(patch.object(e, 'Process', Process))
         stack.enter_context(patch.object(e, 'publish_guard', publish))
         stack.enter_context(patch.object(e, 'prepare_manager', prepare_manager))
