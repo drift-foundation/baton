@@ -1,0 +1,18 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-dudlxqrw",
+      "root_length": 20,
+      "ids": [
+        "tests.manager.test_maintenance",
+        "tests.manager.test_attempts"
+      ],
+      "exit": 0,
+      "seconds": 11.404078735009534,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

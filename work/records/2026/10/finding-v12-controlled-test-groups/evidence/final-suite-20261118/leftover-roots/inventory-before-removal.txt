@@ -1,0 +1,55 @@
+== v12-w39358-arc-p1ma63lu
+drwx------ 1000:1000 4096 2026-11-18 07:09:31.001201509 +0000 v12-w39358-arc-p1ma63lu
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:30.772205399 -0700 v12-w39358-arc-p1ma63lu/storage
+dr-xr-xr-x 1000:1000 4096 2026-11-18 00:09:30.773403571 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:30.773372373 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/scratch
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:30.772205399 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/credentials
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:30.773360341 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/custody
+drwxrws--- 1000:1001 4096 2026-11-18 00:09:31.001201509 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/workspace
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:30.772205399 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/credential-state
+dr-xr-xr-x 1000:1000 4096 2026-11-18 00:09:30.778205297 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/inputs
+dr-xr-xr-x 1000:1000 4096 2026-11-18 00:09:30.773531930 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/inputs/source
+-r--r--r-- 1000:1000 251 2026-11-18 00:09:30.777078769 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/inputs/task.json
+-r--r--r-- 1000:1000 994 2026-11-18 00:09:30.778205297 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/inputs/assignment.json
+-r--r--r-- 1000:1000 2649 2026-11-18 00:09:30.778205297 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/inputs/input.json
+-r--r--r-- 1000:1000 28 2026-11-18 00:09:30.773531930 -0700 v12-w39358-arc-p1ma63lu/storage/attempt-58589b5115/inputs/source/harness.py
+== v12-w39358-arc-qdt5r4ho
+drwx------ 1000:1000 4096 2026-11-18 07:09:31.235197533 +0000 v12-w39358-arc-qdt5r4ho
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:31.007201406 -0700 v12-w39358-arc-qdt5r4ho/storage
+dr-xr-xr-x 1000:1000 4096 2026-11-18 00:09:31.008646701 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:31.008575038 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/scratch
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:31.007201406 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/credentials
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:31.008563065 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/custody
+drwxrws--- 1000:1001 4096 2026-11-18 00:09:31.235197533 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/workspace
+drwxrwxr-x 1000:1000 4096 2026-11-18 00:09:31.007201406 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/credential-state
+dr-xr-xr-x 1000:1000 4096 2026-11-18 00:09:31.013201305 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/inputs
+dr-xr-xr-x 1000:1000 4096 2026-11-18 00:09:31.008751596 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/inputs/source
+-r--r--r-- 1000:1000 251 2026-11-18 00:09:31.012221762 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/inputs/task.json
+-r--r--r-- 1000:1000 994 2026-11-18 00:09:31.013201305 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/inputs/assignment.json
+-r--r--r-- 1000:1000 2649 2026-11-18 00:09:31.013201305 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/inputs/input.json
+-r--r--r-- 1000:1000 28 2026-11-18 00:09:31.008751596 -0700 v12-w39358-arc-qdt5r4ho/storage/attempt-3bfdd8b2ca/inputs/source/harness.py
+== v12-worker-roots-78ca8ao8
+drwx------ 1000:1000 4096 2026-11-18 07:08:10.951561574 +0000 v12-worker-roots-78ca8ao8
+drwxrwxrwx 1000:1000 4096 2026-11-18 00:08:10.929561948 -0700 v12-worker-roots-78ca8ao8/output
+drwxr-xr-x 65532:65532 4096 2026-11-18 00:08:10.929561948 -0700 v12-worker-roots-78ca8ao8/output/out
+lrwxrwxrwx 65532:65532 7 2026-11-18 00:08:10.929561948 -0700 v12-worker-roots-78ca8ao8/output/out/linked
+== v12-worker-roots-hhy37lad
+drwx------ 1000:1000 4096 2026-11-18 07:08:13.065525658 +0000 v12-worker-roots-hhy37lad
+drwxrwxrwx 1000:1000 4096 2026-11-18 00:08:13.065525658 -0700 v12-worker-roots-hhy37lad/output
+drwxr-xr-x 65532:65532 4096 2026-11-18 00:08:13.042526048 -0700 v12-worker-roots-hhy37lad/output/out
+-rw-r--r-- 65532:65532 34 2026-11-18 00:08:13.043052954 -0700 v12-worker-roots-hhy37lad/output/out/result.txt
+== v12-worker-roots-nz4ckmfp
+drwx------ 1000:1000 4096 2026-11-18 07:08:13.200523364 +0000 v12-worker-roots-nz4ckmfp
+drwxrwxrwx 1000:1000 4096 2026-11-18 00:08:13.200523364 -0700 v12-worker-roots-nz4ckmfp/output
+drwxr-xr-x 65532:65532 4096 2026-11-18 00:08:13.177523755 -0700 v12-worker-roots-nz4ckmfp/output/out
+-rw-r--r-- 65532:65532 34 2026-11-18 00:08:13.178558111 -0700 v12-worker-roots-nz4ckmfp/output/out/result.txt
+== v12-worker-roots-pbqsu9nz
+drwx------ 1000:1000 4096 2026-11-18 07:08:10.289572822 +0000 v12-worker-roots-pbqsu9nz
+drwxrwxrwx 1000:1000 4096 2026-11-18 00:08:10.289572822 -0700 v12-worker-roots-pbqsu9nz/output
+drwxr-xr-x 65532:65532 4096 2026-11-18 00:08:10.266573213 -0700 v12-worker-roots-pbqsu9nz/output/out
+-rw-r--r-- 65532:65532 34 2026-11-18 00:08:10.267346815 -0700 v12-worker-roots-pbqsu9nz/output/out/result.txt
+== v12-worker-roots-xjbhv9_v
+drwx------ 1000:1000 4096 2026-11-18 07:08:12.662532505 +0000 v12-worker-roots-xjbhv9_v
+drwxrwxrwx 1000:1000 4096 2026-11-18 00:08:12.639532896 -0700 v12-worker-roots-xjbhv9_v/output
+drwxr-xr-x 65532:65532 4096 2026-11-18 00:08:12.639532896 -0700 v12-worker-roots-xjbhv9_v/output/out
+-rw-r--r-- 65532:65532 34 2026-11-18 00:08:12.640079593 -0700 v12-worker-roots-xjbhv9_v/output/out/result.txt

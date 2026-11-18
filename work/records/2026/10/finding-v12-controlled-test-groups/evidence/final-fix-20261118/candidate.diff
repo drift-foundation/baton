@@ -1,0 +1,194 @@
+diff --git a/v12/python/tests/manager/test_attempts.py b/v12/python/tests/manager/test_attempts.py
+index 14b9b8bf..7951a71c 100644
+--- a/v12/python/tests/manager/test_attempts.py
++++ b/v12/python/tests/manager/test_attempts.py
+@@ -3753,7 +3753,10 @@ class TheFailedStartReachesTheRuledEnding(
+         cleanup must refuse before crossing the adapter rather than combining
+         the old authorization digest with the new target identity.
+         """
+-        worker_manager.configure_workspace_group(self.store, os.getgid())
++        # W384870 (final-suite-20261118): the store was configured in `AttemptCase.setUp`
++        # with the deployment's group; telling it `os.getgid()` again is a RECONFIGURATION,
++        # which the product refuses whenever `BATON_V12_WORKSPACE_GROUP` names a dedicated
++        # group -- that refusal is right and is not this case's subject.
+         self.failed()
+         self.store._connection.execute(
+             "UPDATE attempts SET runtime_id = ? WHERE runtime_attempt_id = ?",
+diff --git a/v12/python/tests/manager/test_maintenance.py b/v12/python/tests/manager/test_maintenance.py
+index 55510551..73790132 100644
+--- a/v12/python/tests/manager/test_maintenance.py
++++ b/v12/python/tests/manager/test_maintenance.py
+@@ -261,8 +261,9 @@ class MaintenanceCase(unittest.TestCase):
+         program = argv[argv.index("-c") + 1].replace(
+             'ROOT = "/maintenance"', f"ROOT = {source!r}", 1)
+         operands = argv[argv.index("-c") + 2:]
+-        done = subprocess.run([sys.executable, "-c", program, *operands],
+-                              capture_output=True, timeout=120)
++        done = subprocess.run(
++            self.under_composed_identity([sys.executable, "-c", program, *operands]),
++            capture_output=True, timeout=120)
+         # A CHILD FAILURE SURFACES AS A CHILD FAILURE. Discarding `returncode`
+         # and `stderr` turned a program that could not run at all into empty
+         # stdout, and the caller's indexing then reported `IndexError: list
+@@ -282,6 +283,38 @@ class MaintenanceCase(unittest.TestCase):
+                 f"was:\n{done.stderr.decode('utf-8', 'replace')}")
+         return done.stdout.decode("utf-8", "replace")
+ 
++    def under_composed_identity(self, command, gid=None):
++        """The host command that runs `command` AS THE IDENTITY THE ACT DECLARED.
++
++        W384870 (final-suite-20261118, review 2026-11-18T07-13-25Z): the product composes
++        the maintenance container with `--user <uid>:<configured gid>` and the program
++        reports `running_as` truthfully; this double runs the same program as a HOST
++        subprocess, which inherits the test process's primary group. Under the full-run
++        environment the deployment configures `BATON_V12_WORKSPACE_GROUP=1001` while the
++        process runs as gid 1000, so every account said `(1000, 1000)` against a declared
++        `[1000, 1001]` and the manager rightly held the resource: 24 ids failed on the
++        fixture's identity, not the product's. The child now switches its primary group
++        to the configured one through `sg` -- the same group the deployment provisioned
++        and this process is a member of -- so the account is the real program's own
++        under the real composed identity. Nothing rewrites `running_as`. When the
++        configured group is already this process's primary group (the default,
++        `os.getgid()`), the command runs unchanged. A group this process cannot adopt is a
++        fixture-configuration refusal, stated, never a silent pass.
++        """
++        import grp
++        import shlex
++        gid = self.group.gid if gid is None else gid
++        if gid == os.getgid():
++            return list(command)
++        if gid not in os.getgroups():
++            raise AssertionError(
++                f"the fixture cannot run the manager's own program under workspace group "
++                f"{gid}: this process (gid {os.getgid()}, groups {sorted(os.getgroups())}) "
++                f"is not a member, so no truthful account could say it ran as [{os.getuid()}, "
++                f"{gid}]; set BATON_V12_WORKSPACE_GROUP to a provisioned group this process "
++                f"belongs to, or unset it")
++        return ["sg", grp.getgrgid(gid).gr_name, "-c", shlex.join(command)]
++
+     # -- the act ----------------------------------------------------------
+ 
+     def prepared(self, engine=None, **overrides):
+@@ -3760,3 +3793,46 @@ def intake_module():
+ 
+ if __name__ == "__main__":       # pragma: no cover
+     unittest.main()
++
++
++class TheDoubleRunsTheProgramAsTheDeclaredIdentity(MaintenanceCase):
++    """W384870 (final-suite-20261118): the host double adopts the composed group.
++
++    The failed full run configured workspace group 1001 for a process whose primary
++    group is 1000; the double ran the real program with the process's own identity
++    and the manager correctly held every resource. These cases pin the correction and
++    its refusal, under whatever `BATON_V12_WORKSPACE_GROUP` this run selects.
++    """
++
++    def test_the_real_program_reports_the_declared_identity(self):
++        """Whatever group the deployment configured, the account's `running_as` is the
++        declared `[uid, gid]` -- the full-run defect, stated positively."""
++        answered = self.prepared()
++        self.assertTrue(answered.ok, answered.diagnostic)
++        self.assertEqual(list(answered.answer["running_as"]), list(self.identity()))
++        self.assertEqual(answered.answer["running_as"][1], self.group.gid)
++
++    def test_the_command_is_unchanged_when_the_group_is_already_primary(self):
++        command = [sys.executable, "-c", "print(1)", "x y"]
++        self.assertEqual(self.under_composed_identity(command, gid=os.getgid()), command)
++
++    def test_a_member_group_is_adopted_through_sg_and_really_takes_effect(self):
++        import grp
++        others = [one for one in os.getgroups() if one != os.getgid()]
++        if not others:
++            self.skipTest("this process has no supplementary group to adopt")  # pragma: no cover
++        gid = others[0]
++        command = [sys.executable, "-c", "import os; print(os.getgid())"]
++        composed = self.under_composed_identity(command, gid=gid)
++        self.assertEqual(composed[:2], ["sg", grp.getgrgid(gid).gr_name])
++        done = subprocess.run(composed, capture_output=True, timeout=60)
++        self.assertEqual(done.returncode, 0, done.stderr.decode("utf-8", "replace"))
++        self.assertEqual(done.stdout.decode("utf-8").strip(), str(gid))
++
++    def test_a_group_this_process_cannot_adopt_is_refused_not_faked(self):
++        foreign = max(os.getgroups() + [os.getgid()]) + 1
++        with self.assertRaises(AssertionError) as refused:
++            self.under_composed_identity([sys.executable, "-c", "pass"], gid=foreign)
++        self.assertIn(f"workspace group {foreign}", str(refused.exception))
++        self.assertIn("is not a member", str(refused.exception))
++
+diff --git a/v12/python/tests/manager/test_worker_container.py b/v12/python/tests/manager/test_worker_container.py
+index 11e41dfc..d22dce2e 100644
+--- a/v12/python/tests/manager/test_worker_container.py
++++ b/v12/python/tests/manager/test_worker_container.py
+@@ -38,6 +38,8 @@ import tempfile
+ import subprocess
+ import time
+ import unittest
++
++from tests.manager import disk_roots
+ import uuid
+ from unittest.mock import patch
+ 
+@@ -281,6 +283,26 @@ class ContainerCase(unittest.TestCase):
+         found = engine("image", "inspect", self.image)
+         return json.loads(found.stdout.decode("utf-8"))[0]
+ 
++    def remove_roots(self, home, outputs):
++        """Take the fixture's roots away, INCLUDING WHAT THE CONTAINER WROTE.
++
++        W384870 (final-suite-20261118): `rmtree(ignore_errors=True)` left five of these
++        roots behind in one full run. The image runs as 65532, a uid this host does not
++        have, and what it wrote under the world-writable `/output` is owned by that uid
++        with modes the host user cannot change -- so the HOST cannot remove it, and the
++        silent form hid exactly that. The same image, under the same restricted posture
++        and identity, removes what it wrote; the host then removes its own roots and is
++        not allowed to fail quietly.
++        """
++        if os.path.isdir(outputs) and any(
++                entry.stat(follow_symlinks=False).st_uid != os.getuid()
++                for entry in os.scandir(outputs)):
++            engine(*restricted("run", "--rm", "--entrypoint", "/bin/sh"),
++                   "--mount", f"type=bind,source={outputs},target=/output,readonly=false",
++                   self.image, "-c", "rm -rf /output/* /output/.[!.]* 2>/dev/null; true",
++                   timeout=120)
++        disk_roots.remove_owned_root(home)
++
+     def roots(self, given=None, assignment=None):
+         """A host `/input/` carrying BOTH manager-authored documents, and a
+         writable `/output/`, as mount triples for `talk`.
+@@ -296,9 +318,9 @@ class ContainerCase(unittest.TestCase):
+         input side is read-only.
+         """
+         home = tempfile.mkdtemp(prefix="v12-worker-roots-")
+-        self.addCleanup(shutil.rmtree, home, True)
+         inputs = os.path.join(home, "input")
+         outputs = os.path.join(home, "output")
++        self.addCleanup(self.remove_roots, home, outputs)
+         os.makedirs(inputs)
+         os.makedirs(outputs)
+         os.chmod(outputs, 0o777)
+diff --git a/v12/python/tests/tools/test_dogfood_arc_engine.py b/v12/python/tests/tools/test_dogfood_arc_engine.py
+index bc9e82f7..c56cc5ae 100644
+--- a/v12/python/tests/tools/test_dogfood_arc_engine.py
++++ b/v12/python/tests/tools/test_dogfood_arc_engine.py
+@@ -41,6 +41,8 @@ import tempfile
+ import unittest
+ import uuid
+ 
++from tests.manager import disk_roots
++
+ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools"))
+ 
+ import dogfood_operator                                    # noqa: E402
+@@ -125,7 +127,10 @@ class TheArcRunsAgainstARealDaemon(unittest.TestCase):
+ 
+     def setUp(self):
+         self.home = tempfile.mkdtemp(prefix="v12-w39358-arc-")
+-        self.addCleanup(shutil.rmtree, self.home, True)
++        # W384870 (final-suite-20261118): `storage/attempt-*` under here is frozen by the
++        # product, so `rmtree(ignore_errors)` left two roots in one full run; the owned
++        # root goes whole, and a failure to remove it is reported.
++        self.addCleanup(disk_roots.remove_owned_root, self.home)
+         self.made = []
+         self.addCleanup(self.remove_everything)
+         for name in ("storage", "launch", "source"):

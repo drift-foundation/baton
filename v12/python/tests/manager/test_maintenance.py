@@ -261,8 +261,9 @@ class MaintenanceCase(unittest.TestCase):
         program = argv[argv.index("-c") + 1].replace(
             'ROOT = "/maintenance"', f"ROOT = {source!r}", 1)
         operands = argv[argv.index("-c") + 2:]
-        done = subprocess.run([sys.executable, "-c", program, *operands],
-                              capture_output=True, timeout=120)
+        done = subprocess.run(
+            self.under_composed_identity([sys.executable, "-c", program, *operands]),
+            capture_output=True, timeout=120)
         # A CHILD FAILURE SURFACES AS A CHILD FAILURE. Discarding `returncode`
         # and `stderr` turned a program that could not run at all into empty
         # stdout, and the caller's indexing then reported `IndexError: list
@@ -281,6 +282,38 @@ class MaintenanceCase(unittest.TestCase):
                 f"{source!r}: it exited {done.returncode} and its stderr "
                 f"was:\n{done.stderr.decode('utf-8', 'replace')}")
         return done.stdout.decode("utf-8", "replace")
+
+    def under_composed_identity(self, command, gid=None):
+        """The host command that runs `command` AS THE IDENTITY THE ACT DECLARED.
+
+        W384870 (final-suite-20261118, review 2026-11-18T07-13-25Z): the product composes
+        the maintenance container with `--user <uid>:<configured gid>` and the program
+        reports `running_as` truthfully; this double runs the same program as a HOST
+        subprocess, which inherits the test process's primary group. Under the full-run
+        environment the deployment configures `BATON_V12_WORKSPACE_GROUP=1001` while the
+        process runs as gid 1000, so every account said `(1000, 1000)` against a declared
+        `[1000, 1001]` and the manager rightly held the resource: 24 ids failed on the
+        fixture's identity, not the product's. The child now switches its primary group
+        to the configured one through `sg` -- the same group the deployment provisioned
+        and this process is a member of -- so the account is the real program's own
+        under the real composed identity. Nothing rewrites `running_as`. When the
+        configured group is already this process's primary group (the default,
+        `os.getgid()`), the command runs unchanged. A group this process cannot adopt is a
+        fixture-configuration refusal, stated, never a silent pass.
+        """
+        import grp
+        import shlex
+        gid = self.group.gid if gid is None else gid
+        if gid == os.getgid():
+            return list(command)
+        if gid not in os.getgroups():
+            raise AssertionError(
+                f"the fixture cannot run the manager's own program under workspace group "
+                f"{gid}: this process (gid {os.getgid()}, groups {sorted(os.getgroups())}) "
+                f"is not a member, so no truthful account could say it ran as [{os.getuid()}, "
+                f"{gid}]; set BATON_V12_WORKSPACE_GROUP to a provisioned group this process "
+                f"belongs to, or unset it")
+        return ["sg", grp.getgrgid(gid).gr_name, "-c", shlex.join(command)]
 
     # -- the act ----------------------------------------------------------
 
@@ -3760,3 +3793,46 @@ def intake_module():
 
 if __name__ == "__main__":       # pragma: no cover
     unittest.main()
+
+
+class TheDoubleRunsTheProgramAsTheDeclaredIdentity(MaintenanceCase):
+    """W384870 (final-suite-20261118): the host double adopts the composed group.
+
+    The failed full run configured workspace group 1001 for a process whose primary
+    group is 1000; the double ran the real program with the process's own identity
+    and the manager correctly held every resource. These cases pin the correction and
+    its refusal, under whatever `BATON_V12_WORKSPACE_GROUP` this run selects.
+    """
+
+    def test_the_real_program_reports_the_declared_identity(self):
+        """Whatever group the deployment configured, the account's `running_as` is the
+        declared `[uid, gid]` -- the full-run defect, stated positively."""
+        answered = self.prepared()
+        self.assertTrue(answered.ok, answered.diagnostic)
+        self.assertEqual(list(answered.answer["running_as"]), list(self.identity()))
+        self.assertEqual(answered.answer["running_as"][1], self.group.gid)
+
+    def test_the_command_is_unchanged_when_the_group_is_already_primary(self):
+        command = [sys.executable, "-c", "print(1)", "x y"]
+        self.assertEqual(self.under_composed_identity(command, gid=os.getgid()), command)
+
+    def test_a_member_group_is_adopted_through_sg_and_really_takes_effect(self):
+        import grp
+        others = [one for one in os.getgroups() if one != os.getgid()]
+        if not others:
+            self.skipTest("this process has no supplementary group to adopt")  # pragma: no cover
+        gid = others[0]
+        command = [sys.executable, "-c", "import os; print(os.getgid())"]
+        composed = self.under_composed_identity(command, gid=gid)
+        self.assertEqual(composed[:2], ["sg", grp.getgrgid(gid).gr_name])
+        done = subprocess.run(composed, capture_output=True, timeout=60)
+        self.assertEqual(done.returncode, 0, done.stderr.decode("utf-8", "replace"))
+        self.assertEqual(done.stdout.decode("utf-8").strip(), str(gid))
+
+    def test_a_group_this_process_cannot_adopt_is_refused_not_faked(self):
+        foreign = max(os.getgroups() + [os.getgid()]) + 1
+        with self.assertRaises(AssertionError) as refused:
+            self.under_composed_identity([sys.executable, "-c", "pass"], gid=foreign)
+        self.assertIn(f"workspace group {foreign}", str(refused.exception))
+        self.assertIn("is not a member", str(refused.exception))
+

@@ -1,0 +1,8 @@
+adverse26-fullrun-env	full	0	Ran 26 tests in 0.671s	OK	1s	var-tmp-new=0	containers-new=0	images-new=0
+maintenance-fullrun-env	full	0	Ran 153 tests in 3.976s	OK	4s	var-tmp-new=0	containers-new=0	images-new=0
+attempts-fullrun-env	full	0	Ran 431 tests in 7.109s	OK	7s	var-tmp-new=0	containers-new=0	images-new=0
+maintenance-default-env	default	0	Ran 153 tests in 3.925s	OK	5s	var-tmp-new=0	containers-new=0	images-new=0
+attempts-default-env	default	0	Ran 431 tests in 7.127s	OK	7s	var-tmp-new=0	containers-new=0	images-new=0
+worker-container-topology-fullrun-env	full	0	Ran 27 tests in 6.143s	OK	7s	var-tmp-new=0	containers-new=0	images-new=0
+dogfood-arc-engine-fullrun-env	full	0	Ran 2 tests in 0.954s	OK	1s	var-tmp-new=0	containers-new=0	images-new=0
+[final-fix] finished 2026-11-18T07:21:05Z

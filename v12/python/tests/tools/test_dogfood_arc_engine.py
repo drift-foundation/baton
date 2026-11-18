@@ -41,6 +41,8 @@ import tempfile
 import unittest
 import uuid
 
+from tests.manager import disk_roots
+
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools"))
 
 import dogfood_operator                                    # noqa: E402
@@ -125,7 +127,10 @@ class TheArcRunsAgainstARealDaemon(unittest.TestCase):
 
     def setUp(self):
         self.home = tempfile.mkdtemp(prefix="v12-w39358-arc-")
-        self.addCleanup(shutil.rmtree, self.home, True)
+        # W384870 (final-suite-20261118): `storage/attempt-*` under here is frozen by the
+        # product, so `rmtree(ignore_errors)` left two roots in one full run; the owned
+        # root goes whole, and a failure to remove it is reported.
+        self.addCleanup(disk_roots.remove_owned_root, self.home)
         self.made = []
         self.addCleanup(self.remove_everything)
         for name in ("storage", "launch", "source"):

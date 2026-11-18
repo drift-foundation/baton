@@ -1,0 +1,67 @@
+test_a_container_cannot_write_the_input_root_it_was_given (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_cannot_write_the_input_root_it_was_given)
+The read-only half, asked of the artefact. The input is the evidence ... ok
+test_a_container_given_the_REPORTED_document_refuses_promptly (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_given_the_REPORTED_document_refuses_promptly)
+The exact shape reported in ... ok
+test_a_container_started_only_with_the_retired_environment_refuses (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_started_only_with_the_retired_environment_refuses)
+THE SUPERSESSION'S OWN CLAUSE, and it is the one case that could ... ok
+test_a_container_whose_document_carries_an_unknown_member_latches (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_whose_document_carries_an_unknown_member_latches)
+CLOSED, not an allowlist. An extra top-level member is how a second ... ok
+test_a_container_whose_document_carries_no_session_says_nothing (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_whose_document_carries_no_session_says_nothing) ... ok
+test_a_container_whose_document_is_not_a_document_says_nothing (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_whose_document_is_not_a_document_says_nothing) ... ok
+test_a_container_whose_document_is_short_a_member_latches (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_whose_document_is_short_a_member_latches) ... ok
+test_a_container_whose_document_is_wider_than_the_ceiling_says_nothing (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_whose_document_is_wider_than_the_ceiling_says_nothing) ... ok
+test_a_container_whose_document_names_another_generation_REFUSES (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_whose_document_names_another_generation_REFUSES)
+W197661, at the artefact: the incident's own document shape. ... ok
+test_a_container_whose_launch_document_is_writable_says_nothing (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_whose_launch_document_is_writable_says_nothing)
+A launch document this worker could rewrite is one it could change ... ok
+test_a_container_whose_launch_path_is_not_a_file_says_nothing (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_whose_launch_path_is_not_a_file_says_nothing)
+A DIRECTORY at the fixed path is a path with no document at it, and ... ok
+test_a_container_with_no_launch_document_says_nothing (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_with_no_launch_document_says_nothing) ... ok
+test_a_real_container_answers_with_names_and_publishes_records (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_answers_with_names_and_publishes_records)
+W6633 eleventh review [P1], at the ARTEFACT. Two surfaces carrying ... /home/sl/src/baton/v12/python/tests/manager/test_worker_container.py:297: ResourceWarning: unclosed scandir iterator <posix.ScandirIterator object at 0x7a2a563efa30>
+  if os.path.isdir(outputs) and any(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_real_container_cannot_be_declared_out_of_its_output_root (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_cannot_be_declared_out_of_its_output_root)
+THE CASE THE READ-ONLY INPUT MOUNT DOES NOT COVER. `../tmp/escaped` ... ok
+test_a_real_container_consumes_an_operation_id_once (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_consumes_an_operation_id_once) ... ok
+test_a_real_container_describes_the_one_runtime_it_is (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_describes_the_one_runtime_it_is)
+W26291 REPLACED `test_a_consent_container_answers_describe_and_ ... ok
+test_a_real_container_is_not_asked_to_consider (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_is_not_asked_to_consider)
+The container-level negative the acceptance names: not the ... ok
+test_a_real_container_publishes_nothing_for_a_directory_link (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_publishes_nothing_for_a_directory_link)
+The link the traversal used to walk straight past. Proved against ... /home/sl/src/baton/v12/python/tests/manager/test_worker_container.py:297: ResourceWarning: unclosed scandir iterator <posix.ScandirIterator object at 0x7a2a56585530>
+  if os.path.isdir(outputs) and any(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_real_container_reads_its_launch_document_read_only (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_reads_its_launch_document_read_only)
+W26291 REPLACED `test_a_real_consent_container_mounts_neither_input_ ... ok
+test_a_real_container_refuses_a_delivery_it_cannot_be_sure_of (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_refuses_a_delivery_it_cannot_be_sure_of)
+The negatives, at the ARTEFACT rather than the function. Each runs ... ok
+test_a_real_container_refuses_a_descriptor_value_it_consumes (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_refuses_a_descriptor_value_it_consumes)
+W6633 twelfth review [P1], at the ARTEFACT. A numeric `name` is ... ok
+test_a_real_container_refuses_a_document_that_is_not_the_managers (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_refuses_a_document_that_is_not_the_managers)
+W19784 review [P0], through the BUILT IMAGE. The direct suite proves ... ok
+test_a_real_container_refuses_an_oversized_declared_output (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_refuses_an_oversized_declared_output)
+A one-byte ceiling against the scripted worker's 34-byte result. ... /home/sl/src/baton/v12/python/tests/manager/test_worker_container.py:297: ResourceWarning: unclosed scandir iterator <posix.ScandirIterator object at 0x7a2a56414130>
+  if os.path.isdir(outputs) and any(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_real_container_refuses_another_containers_session (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_refuses_another_containers_session) ... ok
+test_a_real_container_refuses_the_reserved_output_manifest_name (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_real_container_refuses_the_reserved_output_manifest_name)
+A declared output at `output.json` would have the agent writing the ... ok
+test_an_execution_container_completes_and_recaps (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_an_execution_container_completes_and_recaps)
+W19784, migrating what W14251 left behind here. This asked for a ... /home/sl/src/baton/v12/python/tests/manager/test_worker_container.py:297: ResourceWarning: unclosed scandir iterator <posix.ScandirIterator object at 0x7a2a563efe30>
+  if os.path.isdir(outputs) and any(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_authorized_root_is_what_the_engine_was_actually_told (tests.manager.test_worker_container.RealContainersHoldTheTopology.test_the_authorized_root_is_what_the_engine_was_actually_told)
+W19784 second review [P0], at the ARTEFACT. The unit cases prove the ... /home/sl/src/baton/v12/python/tests/manager/test_worker_container.py:297: ResourceWarning: unclosed scandir iterator <posix.ScandirIterator object at 0x7a2a56414830>
+  if os.path.isdir(outputs) and any(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 6.143s
+
+OK

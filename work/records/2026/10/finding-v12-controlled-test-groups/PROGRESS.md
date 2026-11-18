@@ -1202,3 +1202,27 @@ summary.tsv appended with the verbatim earlier workaround command and the preser
 (batch-console-initial.txt); initial failed log was overwritten, stated. per-run-listings/ retained (27 pairs, all 0).
 Candidate 14 files over 314e067c, hashes regenerated. Paths: tests/tools/test_managed_preparation.py.
 - Handoff posted: T384870 seq 385109. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: owner-run full-suite command and prerequisites prepared (M385110)
+
+`evidence/final-suite-20261118/PREREQUISITES.md` (+ `preflight.sh` read-only, run once: 8 ok / 0 failing in
+`preflight-20261118T07.txt`; `run-final-suite.sh` = canonical `just test-all <dossier log>` with TESTING §2
+environment and /var/tmp + docker listings before/after; `summarize.py` ledger reader, smoke-tested on an existing
+ledger). Environment from TESTING.md and the accepted B4 joined invocation: W32577 image 9b8c9882… (present),
+private line image 0697b659… (present), workspace group 1001, INITIAL_ACCESS_ENGINE=1, TMPDIR/DISK_ROOT=/var/tmp;
+B4's selected engine image 4da24074… is absent locally, so leave the selection unset (modules build). Nothing
+executed beyond the preflight; no build/pull/test/Git. Owner runs the suite after checkpoint e80f2c8e (done).
+- Handoff posted: T384870 seq 385111. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: full-run remainder repaired (M385113): fixture identity under gid 1001 + two Docker cleanup sites
+
+`evidence/final-fix-20261118/RESULT.md`. Cause: the maintenance double ran the real program as a host child with the
+process's gid (1000) while the deployment configured 1001; the product correctly held every resource; attempts
+re-configured an already-configured store. Fixes (test-side, 4 files over e80f2c8e): `under_composed_identity` (sg to
+the configured member group; refusal for a non-member; 4 witnesses), redundant reconfiguration removed,
+`ContainerCase.remove_roots` (container removes its 65532-owned output, host removes its root), arc root via
+`remove_owned_root`. 26 adverse ids 26/26 under the full-run env; maintenance 153 and attempts 431 OK under both the
+full-run and default environments; worker-container topology 27/27 and arc 2/2 with real Docker; 0 residue, 0 new
+containers/images each; identity ae7eb489… stable. Seven full-run leftover roots inventoried (metadata preserved); K's
+container-based removal was blocked by the harness safety check and left for the owner (`leftover-roots/remove-leftover-roots.sh`, check mode run).
+- Handoff posted: T384870 seq 385114. detail: W384870 remains under the owner claim; K holds no claim.

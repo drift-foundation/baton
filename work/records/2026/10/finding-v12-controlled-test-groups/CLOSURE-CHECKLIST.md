@@ -1,4 +1,14 @@
 
+## 2026-11-18T15-06-05Z — full-run correction accepted; checkpoint and fresh run preparation
+
+Read `review-2026-11-18T15-06-05Z.md`. Four fixture files accepted; independent584/584 under dedicated group1001, stable source, no residue. K focused Docker29 passes clean. Seven historical roots require owner cleanup via reviewed helper (automatic safety review blocked K deletion; no agent retry). Priority advance to owner checkpoint and fresh final-run preparation; no full retry executed/released to K. Old full-suite failure evidence preserved.
+
+
+## 2026-11-18T07-13-25Z — full suite accounted but failed; bounded group-fixture/cleanup correction
+
+Read `review-2026-11-18T07-13-25Z.md`. 11265 executed:11237 passed,2 optional skips,22 failures,4 errors; source stable and accounting complete. Serial512 and supervised1 pass. Seven fixture roots remain. K next repairs full-run group identity assumptions in maintenance/attempts and two concrete engine cleanup sites; focused verification under full-run environment, no full/group retry. Priority CONTINUE one bounded batch. This supersedes ready-for-final-acceptance state; evidence/final-suite-20261118 is retained as failed run.
+
+
 ## 2026-11-18T06-55-14Z — import correction accepted; ready for human checkpoint
 
 Read `review-2026-11-18T06-55-14Z.md`. Author ordinary module 100/100; independent ordinary class 10/10, stable source, zero residue; exact candidate hashes verified. Evidence corrected and retained. All known selected repairs accepted. Priority: stop repairs, human selective checkpoint, prepare owner-run full-suite command/prerequisites. Preparation only for K; no execution or source edits. Final suite and independent accounting, child/parent closure and final check-in still outstanding. Supersedes prior import-correction pending state.

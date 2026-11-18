@@ -1,4 +1,34 @@
 
+## 2026-11-18T15-06-05Z — full-run correction accepted; checkpoint and fresh run preparation
+
+Read `review-2026-11-18T15-06-05Z.md`. Four fixture files accepted; independent584/584 under dedicated group1001, stable source, no residue. K focused Docker29 passes clean. Seven historical roots require owner cleanup via reviewed helper (automatic safety review blocked K deletion; no agent retry). Priority advance to owner checkpoint and fresh final-run preparation; no full retry executed/released to K. Old full-suite failure evidence preserved.
+
+
+## 2026-11-18 — K: full-run remainder repaired; awaiting technical + priority review
+
+`evidence/final-fix-20261118/RESULT.md`. 26 adverse ids pass under the full-run environment (fixture now runs the real
+maintenance program under the composed group via `sg`; redundant attempts reconfiguration removed); worker-container and
+arc cleanup sites repaired and proved with real Docker, zero residue. Candidate 4 test files over e80f2c8e. Seven
+leftover roots inventoried; removal left to the owner (`final-suite-20261118/leftover-roots/remove-leftover-roots.sh`).
+Next: review; owner checkpoint; fresh evidence directory for the next owner-run full suite; final accounting; closure.
+
+## 2026-11-18T07-13-25Z — full suite accounted but failed; bounded group-fixture/cleanup correction
+
+Read `review-2026-11-18T07-13-25Z.md`. 11265 executed:11237 passed,2 optional skips,22 failures,4 errors; source stable and accounting complete. Serial512 and supervised1 pass. Seven fixture roots remain. K next repairs full-run group identity assumptions in maintenance/attempts and two concrete engine cleanup sites; focused verification under full-run environment, no full/group retry. Priority CONTINUE one bounded batch. This supersedes ready-for-final-acceptance state; evidence/final-suite-20261118 is retained as failed run.
+
+
+## 2026-11-18T07-04-23Z — owner-run final suite ready
+
+Read `review-2026-11-18T07-04-23Z.md`. Checkpoint e80f2c8e confirmed, clean v12; preparation reviewed and preflight passes. Owner executes the prepared wrapper once. No tests executed by coordinator; K/codexpc hold. Final acceptance and closure remain outstanding.
+
+
+## 2026-11-18 — K: final full-suite command prepared for the owner (checkpoint e80f2c8e in place)
+
+`evidence/final-suite-20261118/PREREQUISITES.md`: exact `just test-all` invocation into the dossier, verified
+prerequisites (preflight 8/8), environment values from TESTING §2 and the accepted B4 invocation, expectations and
+hand-back list. Owner executes; then independent final accounting/review, child/parent closure, final check-in.
+W383215 stays gated.
+
 ## 2026-11-18T06-55-14Z — import correction accepted; ready for human checkpoint
 
 Read `review-2026-11-18T06-55-14Z.md`. Author ordinary module 100/100; independent ordinary class 10/10, stable source, zero residue; exact candidate hashes verified. Evidence corrected and retained. All known selected repairs accepted. Priority: stop repairs, human selective checkpoint, prepare owner-run full-suite command/prerequisites. Preparation only for K; no execution or source edits. Final suite and independent accounting, child/parent closure and final check-in still outstanding. Supersedes prior import-correction pending state.

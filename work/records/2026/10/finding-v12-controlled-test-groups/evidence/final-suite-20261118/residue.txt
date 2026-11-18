@@ -1,0 +1,11 @@
+[final-suite] recipe exit 1 wall 422s finished 2026-11-18T07:11:48Z
+[final-suite] /var/tmp before 376 after 383; new entries: 7
+  new: v12-w39358-arc-p1ma63lu
+  new: v12-w39358-arc-qdt5r4ho
+  new: v12-worker-roots-78ca8ao8
+  new: v12-worker-roots-hhy37lad
+  new: v12-worker-roots-nz4ckmfp
+  new: v12-worker-roots-pbqsu9nz
+  new: v12-worker-roots-xjbhv9_v
+[final-suite] containers before 70 after 70; new: 0
+[final-suite] images before 79 after 79; new: 0

@@ -38,6 +38,8 @@ import tempfile
 import subprocess
 import time
 import unittest
+
+from tests.manager import disk_roots
 import uuid
 from unittest.mock import patch
 
@@ -281,6 +283,26 @@ class ContainerCase(unittest.TestCase):
         found = engine("image", "inspect", self.image)
         return json.loads(found.stdout.decode("utf-8"))[0]
 
+    def remove_roots(self, home, outputs):
+        """Take the fixture's roots away, INCLUDING WHAT THE CONTAINER WROTE.
+
+        W384870 (final-suite-20261118): `rmtree(ignore_errors=True)` left five of these
+        roots behind in one full run. The image runs as 65532, a uid this host does not
+        have, and what it wrote under the world-writable `/output` is owned by that uid
+        with modes the host user cannot change -- so the HOST cannot remove it, and the
+        silent form hid exactly that. The same image, under the same restricted posture
+        and identity, removes what it wrote; the host then removes its own roots and is
+        not allowed to fail quietly.
+        """
+        if os.path.isdir(outputs) and any(
+                entry.stat(follow_symlinks=False).st_uid != os.getuid()
+                for entry in os.scandir(outputs)):
+            engine(*restricted("run", "--rm", "--entrypoint", "/bin/sh"),
+                   "--mount", f"type=bind,source={outputs},target=/output,readonly=false",
+                   self.image, "-c", "rm -rf /output/* /output/.[!.]* 2>/dev/null; true",
+                   timeout=120)
+        disk_roots.remove_owned_root(home)
+
     def roots(self, given=None, assignment=None):
         """A host `/input/` carrying BOTH manager-authored documents, and a
         writable `/output/`, as mount triples for `talk`.
@@ -296,9 +318,9 @@ class ContainerCase(unittest.TestCase):
         input side is read-only.
         """
         home = tempfile.mkdtemp(prefix="v12-worker-roots-")
-        self.addCleanup(shutil.rmtree, home, True)
         inputs = os.path.join(home, "input")
         outputs = os.path.join(home, "output")
+        self.addCleanup(self.remove_roots, home, outputs)
         os.makedirs(inputs)
         os.makedirs(outputs)
         os.chmod(outputs, 0o777)

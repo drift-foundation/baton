@@ -1,0 +1,9 @@
+test_a_real_dry_run_reaches_the_worker_entrypoint_and_ends (tests.tools.test_dogfood_arc_engine.TheArcRunsAgainstARealDaemon.test_a_real_dry_run_reaches_the_worker_entrypoint_and_ends)
+THE ACCEPTANCE, in one case. ... ok
+test_an_exact_rerun_refuses_before_a_second_runtime (tests.tools.test_dogfood_arc_engine.TheArcRunsAgainstARealDaemon.test_an_exact_rerun_refuses_before_a_second_runtime)
+Approver ruling M46497, against the daemon rather than a fixture. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.954s
+
+OK

@@ -1,0 +1,8 @@
+check: /var/tmp/v12-worker-roots-78ca8ao8 (3 entries, foreign-uid entries: 2)
+check: /var/tmp/v12-worker-roots-hhy37lad (3 entries, foreign-uid entries: 2)
+check: /var/tmp/v12-worker-roots-nz4ckmfp (3 entries, foreign-uid entries: 2)
+check: /var/tmp/v12-worker-roots-pbqsu9nz (3 entries, foreign-uid entries: 2)
+check: /var/tmp/v12-worker-roots-xjbhv9_v (3 entries, foreign-uid entries: 2)
+check: /var/tmp/v12-w39358-arc-p1ma63lu (13 entries, foreign-uid entries: 0)
+check: /var/tmp/v12-w39358-arc-qdt5r4ho (13 entries, foreign-uid entries: 0)
+(check mode; pass --remove to act). /var/tmp entries now: 383, baseline 376

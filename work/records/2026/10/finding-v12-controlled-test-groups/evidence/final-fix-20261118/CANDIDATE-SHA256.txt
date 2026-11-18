@@ -1,0 +1,4 @@
+c7f5d80d5a7e7d619ab9edb9042246c3249759286004a588062d1c19dc8e0e5c  v12/python/tests/manager/test_attempts.py
+97baba7e62ee2cb9797af9824f1112044317a7afb1cd94ba4eaa7e6e321ca47c  v12/python/tests/manager/test_maintenance.py
+831118851a5e13117d353f39c23faa1a1840b83caec5e56b6b14281916001316  v12/python/tests/manager/test_worker_container.py
+00e12e40156d0977406d02ebd996eca467871ee7fbc4e80b7042a67db4a010c5  v12/python/tests/tools/test_dogfood_arc_engine.py

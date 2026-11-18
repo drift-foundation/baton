@@ -3753,7 +3753,10 @@ class TheFailedStartReachesTheRuledEnding(
         cleanup must refuse before crossing the adapter rather than combining
         the old authorization digest with the new target identity.
         """
-        worker_manager.configure_workspace_group(self.store, os.getgid())
+        # W384870 (final-suite-20261118): the store was configured in `AttemptCase.setUp`
+        # with the deployment's group; telling it `os.getgid()` again is a RECONFIGURATION,
+        # which the product refuses whenever `BATON_V12_WORKSPACE_GROUP` names a dedicated
+        # group -- that refusal is right and is not this case's subject.
         self.failed()
         self.store._connection.execute(
             "UPDATE attempts SET runtime_id = ? WHERE runtime_attempt_id = ?",

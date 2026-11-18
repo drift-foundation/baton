@@ -1,0 +1,10 @@
+{
+  "collected": 11265,
+  "executed": 11265,
+  "collected_unique": 11265,
+  "executed_unique": 11265,
+  "same_collected_executed": true,
+  "outcomes_cover_collected": true,
+  "outcomes_disjoint": true,
+  "source_stable": true
+}

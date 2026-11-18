@@ -1,0 +1,28 @@
+== source
+e80f2c8e fix(v12): repair correction fixtures and eliminate test residue
+status lines under v12: 0 (0 expected for a committed candidate)
+prepared interpreter: /home/sl/.local/state/baton-v12-venv/bin/python
+ok    test -x /home/sl/.local/state/baton-v12-venv/bin/python
+ok    source identity composes (declared inputs present)
+== tools
+ok    command -v just
+ok    command -v git
+ok    command -v docker
+== docker
+ok    docker version
+ok    docker image inspect sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8
+      reference worker image (BATON_W32577_IMAGE_DIGEST) sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8
+ok    docker image inspect sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+      private line image (BATON_V12_PRIVATE_LINE_IMAGE) sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+      containers now: 70 total, 1 running (pre-existing; recorded as baseline by run-final-suite.sh)
+== workspace group
+ok    getent group 1001
+      baton-workspace:x:1001:sl ; caller in it: 1
+== storage
+      /tmp fstype tmpfs ; /var/tmp fstype ext4 ; free 577G
+      /var/tmp entries now: 376 (baseline 376 on 2026-11-18)
+== bundle
+      BATON_V12_STACK_DISTRO unset: test-all builds a fresh bundle (default; build/out/distro currently from "commit": "8876bf950ff1f8ab8767ce9786df268cc9d767c6", will be replaced)
+== host
+      cpus 32 ; mem 28G available ; userns no ; python 3.13.7
+== result: 8 ok, 0 failing
