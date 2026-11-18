@@ -6005,16 +6005,40 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
             The two stores AND their write-ahead siblings, plus the launch and
             exchange trees, because a write that landed only in a `-wal` file
             is still a write.
+
+            W384870 B5 (review 2026-11-18T02-32-07Z), and the accepted contract
+            it measures against: OBS-1 as the owner clarified it on 2026-10-18
+            (W316915) -- status opens the stores through validated read-only
+            connections, changes no application data or schema, and "SQLite's
+            normal sidecar and locking behavior is acceptable". A read-only
+            connection on a WAL-mode database brings the `-shm` index and an
+            EMPTY `-wal` into existence and cannot remove them when it closes,
+            because removing them is a checkpoint and a reader may not
+            checkpoint. So the `-shm` index is not durable content and is not
+            inventoried; a `-wal` is inventoried by its FRAMES: one holding
+            frames is a write and fails the comparison below, while one that
+            holds only its 32-byte header (or nothing) is the reader's own
+            footprint and reads as absent. Nothing else is excluded.
             """
             found = {}
             for root in (self.root,):
                 for base, _directories, files in os.walk(root):
                     for name in files:
                         place = os.path.join(base, name)
+                        if name.endswith("-shm"):
+                            continue
+                        if name.endswith("-wal") and os.path.getsize(place) <= 32:
+                            continue
                         with open(place, "rb") as reading:
                             found[os.path.relpath(place, root)] = \
                                 hashlib.sha256(reading.read()).hexdigest()
             return found
+
+        def sidecars():
+            """The read-only connections' footprint, measured rather than assumed."""
+            return sorted(os.path.relpath(os.path.join(base, name), self.root)
+                          for base, _directories, files in os.walk(self.root)
+                          for name in files if name.endswith(("-shm", "-wal")))
 
         # THE OPERATOR'S OWN INVOCATION, which resolves its configuration from
         # the environment exactly as the documented command does. Written
@@ -6037,6 +6061,7 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
             json.dump(self.config, writing)
 
         before = durable()
+        self.assertEqual(sidecars(), [], "the closed stores left no sidecar behind")
         # A SNAPSHOT OF NOTHING WOULD COMPARE EQUAL TO A SNAPSHOT OF NOTHING.
         # The stores and the launch tree are all under this root, so an empty
         # inventory here means the walk is looking in the wrong place.
@@ -6068,6 +6093,18 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
         self.assertEqual(sorted(after), sorted(before),
                          "an observing status run added or removed a durable "
                          "file")
+        # THE READERS' FOOTPRINT IS EXACTLY THE ALLOWED ONE: the two stores'
+        # `-shm` indexes and two FRAMELESS `-wal` files, nothing more and no
+        # frame in either -- an observing run that had written would have left
+        # one, and the inventory above would have counted it.
+        left = sidecars()
+        self.assertEqual(left, sorted(
+            one + suffix for one in ("control.sqlite3", "jobs.sqlite3")
+            for suffix in ("-shm", "-wal")), left)
+        for one in left:
+            if one.endswith("-wal"):
+                self.assertLessEqual(os.path.getsize(os.path.join(self.root, one)), 32,
+                                     f"{one} holds frames: the observing run wrote")
         altered = sorted(one for one in before
                          if before[one] != after.get(one))
         self.assertEqual(altered, [],

@@ -1,4 +1,94 @@
 
+## 2026-11-18T04-29-34Z — G3 accepted; five non-engine groups released for measurement
+
+Read `review-2026-11-18T04-29-34Z.md`. Independent14/14 and both original counterexamples pass/refuse as intended, candidate/source verified. Known remainder G2 twenty-two plus fixture leak sites. Priority verdict CONTINUE to owner-selected one run each authority/job_manager/manager-pure/tools-pure/integration. Verification/report only, stable source and exact accounted outcomes; no repairs/retries before technical+priority review. No full/live/Docker/scans/supervised selection; codexpc idle.
+
+
+## 2026-11-18 — K: G3 corrected (still-held predicate + maintenance caller guard); awaiting review
+
+`evidence/b5-g3-revoked-replay-20261118/RESULT.md`. Replay branch restricted to revoked-and-still-held
+(no fence, no return, no newer acquisition); maintenance.prepare refuses a revoked outstanding generation
+before any engine call (measured, no create). 14 focused OK, 371 regressions OK, reviewer probe REFUSED
+both phases. Candidate: tokens.py, maintenance.py, test_stopped_settlement.py, test_maintenance.py over
+2e330649 (beside accepted G6/G1 candidates). Remaining: G2 (22). Next per M385095 after acceptance: five
+non-engine group runs; then G2/leak sites/surfaced failures; owner checkpoint; final suite.
+
+## 2026-11-18T04-17-54Z — G3 review requests one bounded correction; groups held
+
+Read `review-2026-11-18T04-17-54Z.md`. Independent8/8 pass but public-API probe proves revoked+returned (also replacement-acquired) original launch replay bypasses preserved lifecycle guard. Maintenance caller proof also omits create before activation; deterministic real-boundary check required. Priority verdict: one narrow lifecycle/caller correction remains worthwhile for practical v12 recovery; no broad groups or other batch released. No new owner rule needed. Reassess convergence at next handoff.
+
+
+## 2026-11-18 — K: G3 delivered under the owner's revoked-replay ruling; awaiting technical + priority review
+
+`evidence/b5-g3-revoked-replay-20261118/RESULT.md`: bounded `_acting_record` branch (revoked, unfenced,
+exact committed record answered; nothing else reordered); 6 witnesses + both G3 ids OK; 368 regressions OK.
+Candidate: tokens.py, tests/manager/test_stopped_settlement.py over 2e330649 (beside the accepted G6 and G1
+candidates). Remaining: G2 (22, one fixture cause). Next per M385095 after review: the five non-engine
+group runs; then G2/leak sites/surfaced failures; owner checkpoint; final suite.
+
+## 2026-11-18T03-50-08Z — G3 ruling selected; bounded implementation released
+
+Owner approved exact committed replay after revocation without restored permission/effects, retaining fence precedence and identity checks. Read OWNER-REVOKED-REPLAY-20261118.md and DESIGN DB-7 clarification. Supersedes pending-owner-decision state. K implements only bounded G3 and returns focused evidence for independent technical and priority review; five-group runs not yet released. No blanket lifecycle guard bypass.
+
+
+## 2026-11-18T03-48-54Z — G1 accepted; continue recommended, G3 owner choice pending
+
+Read `review-2026-11-18T03-48-54Z.md`. Independent nine G1 cases pass, exact candidate verified; tokens.py reverted as reported.24 affected IDs remain (G2 twenty-two/G3 two). Priority assessment recommends continuing because this cycle converged without broadening product scope. No next batch released automatically: G3 replay-after-revocation behavior requires owner selection; five accounted groups await accepted cycle completion. Proposed exact-record replay never grants renewed authority/effects and must preserve settlement fence/owner correlation; blanket lifecycle guard bypass is not approved.
+
+
+## 2026-11-18 — K: first cycle delivered: G1 repaired (9), G3 returned for decision (2); 24 ids remain
+
+`evidence/b5-g1-g3-20261118/RESULT.md` + `G3-DECISION.md`. G1 is test-side alignment to the accepted /5
+wrapper (nine ids OK; 207 module tests OK). G3 needs the owner's answer: does an exact replay of a committed
+token act answer after REVOCATION (fence still refuses) or refuse like a new act? Options 1-3 in the packet;
+recommended 1. Remaining: G2 (22, one fixture cause) + G3 (2, decision). Next per M385095: review of this
+cycle; then the five non-engine group runs; then G2/leak sites/surfaced failures; checkpoint; final suite.
+Open: G3 decision; review; owner checkpoint of the accepted G6 + this cycle's three test files.
+
+## 2026-11-18T03-17-21Z — owner selects K's finish-first recommendation with monitored checkpoints
+
+Owner: "let's go with her recommendation as-is but we will monitor progress and halt it if bad". Accept ASSESSMENT-M385092-20261118.md / M385094's sequencing, superseding the assessment wait in M385093. No acceptance obligation is waived and no remaining evidence is discarded. No priority switch to an ordinary Job is selected now. W383215 still waits for W384870 closure and full check-in.
+
+Selected order:
+1. First bounded cycle: G3's two recovery-after-engine-unavailability cases (read accepted token/lifecycle decisions; escalate a concrete specification choice if necessary) and G1's nine launch/exchange cases (align with accepted /5 contract; determine whether the /4 side is a fixture or product mismatch before editing). Preserve no-revival/deadline/generation guarantees. W376586 is closed; its accepted behavior remains normative for this correction, not a live assignment to take over.
+2. After review of that cycle: one accounted run each of authority, job_manager, manager-pure, tools-pure and integration to establish the current remainder; then bounded G2 correction/restart, the two fixture leak sites and any concrete failures exposed. These group runs are selected in sequence, not permission to start them before the first-cycle handoff.
+3. Owner checkpoint, the planned accounted full suite with prerequisites/source identity, independent review, owner closure and final check-in.
+
+Monitoring: each handoff reports original/current affected IDs, confirmed root causes versus hypotheses, exact files changed, focused outcomes, measured time, and the proposed next bounded outcome. No promise of completion in the estimated2–4 hours. If a concrete spec ambiguity, significant scope expansion or repeated nonconverging correction appears, preserve work and evidence and return that issue for owner/coordinator reassessment before dependent expansion. Continue an independent already authorized item where safe. Do not silently extend this into broad refactoring/inventory discovery or launch a full run early. Owner may halt or redirect; no automatic parking, claim takeover or waiver is authorized.
+
+K retains interactive implementation under owner claim E384905; codexpc remains idle until specifically assigned. Git remains owner-only.
+
+
+## 2026-11-18T03-00-32Z — G6 complete; await K sequencing assessment
+
+Read `review-2026-11-18T03-00-32Z.md`. Finalizer correction accepted, independent480 tests pass in8.003s with stable source/clean fixtures.33 affected IDs remain (G1 nine/G2 twenty-two/G3 two), plus recorded fixture cleanup sites. M385091 preceded the assessment request M385092; assessment not yet received. No next repair batch released pending owner choice after K recommendation. This supersedes finalizer-completion instructions only, not acceptance obligations.
+
+
+## 2026-11-18 — K: G6 all three repaired; awaiting review; 33 ids remain (G1 9, G2 22, G3 2)
+
+`evidence/b5-tools-singletons-20261118/RESULT.md`: G6-1 finalizer witness applied with measured
+fence-then-release order and one product correction (governance evidence owned before any durable act);
+finalizer module 49 OK, regression set 509 OK; G6-2/G6-3 accepted earlier. Candidate over 2e330649:
+attempts.py, tools/stage_execution.py, test_quiescent_assignment_finalization.py, test_single_worker.py.
+Eight attributed leaked roots removed; leak sites recorded for final cleanup. Next proposed batch: G3 (2,
+launch-after-revoke reading) or G2 (22, one fixture cause); G1 (9) required here. Open: review of this
+candidate; final suite; owner checkpoint/closure.
+
+## 2026-11-18T02-51-35Z — G6 two accepted; finalizer checkout restored for completion
+
+Read `review-2026-11-18T02-51-35Z.md`. Independent14 focused tests pass; status/WAL contract and constructor-close fix accepted. Finalizer test was owner-owned0444; coordinator restored only owner-write to0644 with unchanged contents/ACL entries, because the managed-merge import rule does not apply to interactive K editing. K completes prepared finalizer patch and focused proof, including release-after-fence ordering; account for exact recent leaked fixtures without deleting uncertain history.34 affected IDs remain including finalizer; no G1/G2/G3 or broad run released. Owner checkpoint2e330649 confirmed.
+
+
+## 2026-11-18 — K: G6 two of three repaired; G6-1 blocked by a read-only test file; 34 ids remain + 1 blocked
+
+`evidence/b5-tools-singletons-20261118/RESULT.md`. G6-2 (test) and G6-3 (product leak in
+`StageExecution._closers`) repaired over 2e330649; test_stage_execution 477 OK. G6-1's corrected test is a
+prepared patch: `tests/tools/test_quiescent_assignment_finalization.py` is `-r--r--r--` with W339626
+custody ACLs; owner decision needed (apply the patch after `chmod u+w`, or rule that K may clear the
+mode). Remaining: G1 9 (required here), G2 22 (one fixture cause), G3 2, G6-1 1 blocked. Cleanup debt
+observed: `v12-w110774-*` / `v12-credentials-*` leftover roots. Open: review of this candidate; the G6-1
+decision; next batch (G2 or G3); final suite; owner checkpoint/closure.
+
 ## 2026-11-18T02-32-07Z — G4/G5 six IDs accepted; G6 three tools cases released
 
 Read `review-2026-11-18T02-32-07Z.md`. Independent284 focused tests pass in6.603s, stable source/clean fixtures. G4/G5 accepted;36 affected IDs remain across G1/G2/G3/G6. K next owns only the three G6 tools failures: finalizer capability/signature, status read-only behavior, constructor handle cleanup. Focused regressions and return before next batch; no full/group/Docker/live execution. Codexpc idle; parent final acceptance remains outstanding.

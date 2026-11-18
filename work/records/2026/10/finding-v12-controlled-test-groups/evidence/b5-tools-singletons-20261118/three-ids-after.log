@@ -1,0 +1,30 @@
+test_it_takes_no_agent_and_no_runtime_capability (tests.tools.test_quiescent_assignment_finalization.TheQuiescentAssignmentIsEndedAndNothingElseIs.test_it_takes_no_agent_and_no_runtime_capability)
+THE PROOF IS THE SIGNATURE, not a promise in a docstring. An ... FAIL
+test_a_real_observing_status_run_mutates_no_durable_state (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state)
+W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability. ... ok
+test_worker_construction_failure_closes_every_acquired_handle (tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle) ... ok
+
+======================================================================
+FAIL: test_it_takes_no_agent_and_no_runtime_capability (tests.tools.test_quiescent_assignment_finalization.TheQuiescentAssignmentIsEndedAndNothingElseIs.test_it_takes_no_agent_and_no_runtime_capability)
+THE PROOF IS THE SIGNATURE, not a promise in a docstring. An
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_quiescent_assignment_finalization.py", line 227, in test_it_takes_no_agent_and_no_runtime_capability
+    self.assertEqual(taken, ["store", "port", "attempt_id", "reason"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['store', 'port', 'attempt_id', 'reason', 'govern', 'cessation'] != ['store', 'port', 'attempt_id', 'reason']
+
+First list contains 2 additional elements.
+First extra element 4:
+'govern'
+
+- ['store', 'port', 'attempt_id', 'reason', 'govern', 'cessation']
+?                                         -----------------------
+
++ ['store', 'port', 'attempt_id', 'reason']
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.139s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1

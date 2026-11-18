@@ -4998,10 +4998,21 @@ class StageExecution:
             yield ("the retained host scratch at "
                    + ", ".join(repr(one) for one in sorted(surviving))), \
                 dispose
+        # W384870 B5 (review 2026-11-18T02-32-07Z): a worker's operations are
+        # `single_worker._Operations`, which closes through `close` and has no
+        # `release`, so the `hasattr(operations, "release")` this used to test
+        # was false for every worker and a construction that failed after the
+        # implementation worker was composed unwound the coordinator and the
+        # Authority and left that worker's handles open. Whichever of the two
+        # the operations expose is the closer; `_Operations.close` is
+        # idempotent (it hands its disposer over once), so a worker the serving
+        # loop already closed is not closed twice.
         for one in reversed(self.workers):
             operations = one.get("operations")
-            if operations is not None and hasattr(operations, "release"):
-                yield f"the {one['role']} worker", operations.release
+            closer = None if operations is None else (
+                getattr(operations, "release", None) or getattr(operations, "close", None))
+            if closer is not None:
+                yield f"the {one['role']} worker", closer
         if self.integration is not None:
             yield "the integration store", self.integration.close
         if self.authority is not None:

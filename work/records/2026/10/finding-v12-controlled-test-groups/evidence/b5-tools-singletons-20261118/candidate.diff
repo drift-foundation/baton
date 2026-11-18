@@ -1,0 +1,236 @@
+diff --git a/v12/python/src/baton_v12/worker_manager/attempts.py b/v12/python/src/baton_v12/worker_manager/attempts.py
+index 58d351c1..2498c01f 100644
+--- a/v12/python/src/baton_v12/worker_manager/attempts.py
++++ b/v12/python/src/baton_v12/worker_manager/attempts.py
+@@ -3841,6 +3841,18 @@ def finalize_quiescent_assignment(store, port, *, attempt_id, reason,
+     """
+     if govern is not None:
+         boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
++        # W384870 B5 (review 2026-11-18T02-51-35Z): THE EVIDENCE IS OWNED WITH
++        # THE OTHER OPERANDS, before any durable write and before the authority
++        # is asked -- step 1 of the order above. This shape fault used to be
++        # noticed only at the release, after the decision was committed and the
++        # generation fenced, so a governed call without its observer's evidence
++        # ended the assignment and then refused, leaving the resource held.
++        if cessation is None:
++            raise ContractRefusal(
++                "refused", "precondition",
++                f"finalizing attempt {name_value(attempt_id)} under resource "
++                f"governance requires the cessation observed for its runtime; this "
++                f"manager does not invent a termination or the absence of writers")
+     boundaries.identity(attempt_id, "a runtime attempt id")
+     reason = boundaries.text(reason, "a finalization reason")
+     # A BLANK SENTENCE IS A DECISION NOBODY MADE, on the rule `abandon_attempt`
+@@ -3924,12 +3936,7 @@ def finalize_quiescent_assignment(store, port, *, attempt_id, reason,
+     # observing it. A governed finalization must be handed the cessation its own
+     # observer produced.
+     if govern is not None:
+-        if cessation is None:
+-            raise ContractRefusal(
+-                "refused", "precondition",
+-                f"finalizing attempt {name_value(attempt_id)} under resource "
+-                f"governance requires the cessation observed for its runtime; this "
+-                f"manager does not invent a termination or the absence of writers")
++        # the evidence was required at the top; here it is handed over
+         govern.release(store, attempt, operation=_start_operation_id(attempt),
+                        cessation=cessation)
+     return documents.attempt_finalized(intent=dict(record),
+diff --git a/v12/python/tests/tools/test_quiescent_assignment_finalization.py b/v12/python/tests/tools/test_quiescent_assignment_finalization.py
+index 7b842aeb..7d8b1d9f 100644
+--- a/v12/python/tests/tools/test_quiescent_assignment_finalization.py
++++ b/v12/python/tests/tools/test_quiescent_assignment_finalization.py
+@@ -220,11 +220,89 @@ class TheQuiescentAssignmentIsEndedAndNothingElseIs(FinalizationCase):
+ 
+     def test_it_takes_no_agent_and_no_runtime_capability(self):
+         """THE PROOF IS THE SIGNATURE, not a promise in a docstring. An
+-        operation handed neither boundary cannot call either one."""
+-        taken = list(inspect.signature(
+-            finalize_quiescent_assignment).parameters)
++        operation handed neither boundary cannot call either one.
++
++        W384870 B5 (review 2026-11-18T02-32-07Z): the signature grew two
++        keyword-only governance operands under W275774 -- `govern`, the
++        resource-token governor whose ONE capability this operation asks for
++        is `release` (the token the start reserved is returned once the
++        authority has ended the assignment), and `cessation`, the EVIDENCE the
++        caller's own observer produced, which is a document and not a
++        capability at all. Neither is an agent and neither can stop, cancel or
++        observe a runtime, so the guarantee this case states is intact and is
++        now pinned by name rather than by count: the port is required because
++        ending an assignment IS an authority act (`port.cancel` fences the
++        exact generation), and nothing else that acts is admitted.
++        """
++        signature = inspect.signature(finalize_quiescent_assignment)
++        taken = list(signature.parameters)
++
++        self.assertEqual(taken, ["store", "port", "attempt_id", "reason",
++                                 "govern", "cessation"])
++        for name in ("agent", "adapter", "engine", "runtime", "stop", "cancel"):
++            self.assertNotIn(name, taken)
++        for name in ("govern", "cessation"):
++            parameter = signature.parameters[name]
++            self.assertIs(parameter.kind, inspect.Parameter.KEYWORD_ONLY)
++            self.assertIsNone(parameter.default, "governance is opt-in")
++
++    def test_a_governed_finalization_asks_the_governor_only_to_release(self):
++        """The governor is the one capability beyond the port, and `release` is
++        the only thing asked of it -- after the authority's fence, with the
++        caller's own cessation evidence, once. A governor offering anything
++        else is never consulted about it, and governance without the evidence
++        refuses before the resource is touched."""
++        self.quiescent()
++        asked = []
++        order = []
+ 
+-        self.assertEqual(taken, ["store", "port", "attempt_id", "reason"])
++        class Governor:
++            def release(self, store, attempt, *, operation, cessation):
++                order.append("release")
++                asked.append((attempt["runtime_attempt_id"], operation, cessation))
++
++            def __getattr__(self, name):
++                raise AssertionError(f"the finalizer reached for governor.{name}")
++
++        # THE ORDER IS MEASURED, NOT READ OFF A COMMENT: the authority's fence
++        # is the eligibility decision (W275774 review 15:55:27Z [P1]), and the
++        # resource goes back only once that act has happened.
++        fence = self.port.cancel
++
++        def fenced(*arguments, **keywords):
++            order.append("fence")
++            return fence(*arguments, **keywords)
++
++        self.port.cancel = fenced
++        evidence = {"stopped": True, "helpers": [], "observed_at": NOW}
++        # governance without the caller's own cessation evidence refuses before
++        # the resource is touched, and does not fence either
++        with self.assertRaises(ContractRefusal) as refused:
++            finalize_quiescent_assignment(self.store, self.port, attempt_id=ATTEMPT,
++                                          reason=REASON, govern=Governor())
++        self.assertEqual(refused.exception.code, "precondition")
++        self.assertIn("cessation", refused.exception.message)
++        self.assertEqual((asked, order), ([], []))
++        answered = finalize_quiescent_assignment(self.store, self.port, attempt_id=ATTEMPT,
++                                                 reason=REASON, govern=Governor(),
++                                                 cessation=evidence)
++        self.assertEqual(answered["intent"]["reason"], REASON)
++        self.assertEqual(order, ["fence", "release"])
++        self.assertEqual(len(asked), 1)
++        self.assertEqual(asked[0][0], ATTEMPT)
++        self.assertEqual(asked[0][1], attempts._start_operation_id(self.row()))
++        self.assertEqual(asked[0][2], evidence)
++        # and the same act ungoverned is unchanged: no runtime stopped, no agent
++        # asked, the observed axis not re-announced
++        self.assertEqual(self.adapter.stopped, [])
++        self.assertEqual(self.row()["execution_runtime"], "quiescent")
++        # the governed replay answers the same decision and releases again
++        # idempotently rather than inventing a second ending
++        again = finalize_quiescent_assignment(self.store, self.port, attempt_id=ATTEMPT,
++                                              reason=REASON, govern=Governor(),
++                                              cessation=evidence)
++        self.assertEqual(again["intent"], answered["intent"])
++        self.assertEqual(order, ["fence", "release", "fence", "release"])
+ 
+     def test_no_runtime_is_stopped_and_no_agent_is_asked(self):
+         self.quiescent()
+diff --git a/v12/python/tests/tools/test_single_worker.py b/v12/python/tests/tools/test_single_worker.py
+index 45861c23..3fbf6bc7 100644
+--- a/v12/python/tests/tools/test_single_worker.py
++++ b/v12/python/tests/tools/test_single_worker.py
+@@ -6005,17 +6005,41 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
+             The two stores AND their write-ahead siblings, plus the launch and
+             exchange trees, because a write that landed only in a `-wal` file
+             is still a write.
++
++            W384870 B5 (review 2026-11-18T02-32-07Z), and the accepted contract
++            it measures against: OBS-1 as the owner clarified it on 2026-10-18
++            (W316915) -- status opens the stores through validated read-only
++            connections, changes no application data or schema, and "SQLite's
++            normal sidecar and locking behavior is acceptable". A read-only
++            connection on a WAL-mode database brings the `-shm` index and an
++            EMPTY `-wal` into existence and cannot remove them when it closes,
++            because removing them is a checkpoint and a reader may not
++            checkpoint. So the `-shm` index is not durable content and is not
++            inventoried; a `-wal` is inventoried by its FRAMES: one holding
++            frames is a write and fails the comparison below, while one that
++            holds only its 32-byte header (or nothing) is the reader's own
++            footprint and reads as absent. Nothing else is excluded.
+             """
+             found = {}
+             for root in (self.root,):
+                 for base, _directories, files in os.walk(root):
+                     for name in files:
+                         place = os.path.join(base, name)
++                        if name.endswith("-shm"):
++                            continue
++                        if name.endswith("-wal") and os.path.getsize(place) <= 32:
++                            continue
+                         with open(place, "rb") as reading:
+                             found[os.path.relpath(place, root)] = \
+                                 hashlib.sha256(reading.read()).hexdigest()
+             return found
+ 
++        def sidecars():
++            """The read-only connections' footprint, measured rather than assumed."""
++            return sorted(os.path.relpath(os.path.join(base, name), self.root)
++                          for base, _directories, files in os.walk(self.root)
++                          for name in files if name.endswith(("-shm", "-wal")))
++
+         # THE OPERATOR'S OWN INVOCATION, which resolves its configuration from
+         # the environment exactly as the documented command does. Written
+         # OUTSIDE the tree this case digests, so staging it is not itself the
+@@ -6037,6 +6061,7 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
+             json.dump(self.config, writing)
+ 
+         before = durable()
++        self.assertEqual(sidecars(), [], "the closed stores left no sidecar behind")
+         # A SNAPSHOT OF NOTHING WOULD COMPARE EQUAL TO A SNAPSHOT OF NOTHING.
+         # The stores and the launch tree are all under this root, so an empty
+         # inventory here means the walk is looking in the wrong place.
+@@ -6068,6 +6093,18 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
+         self.assertEqual(sorted(after), sorted(before),
+                          "an observing status run added or removed a durable "
+                          "file")
++        # THE READERS' FOOTPRINT IS EXACTLY THE ALLOWED ONE: the two stores'
++        # `-shm` indexes and two FRAMELESS `-wal` files, nothing more and no
++        # frame in either -- an observing run that had written would have left
++        # one, and the inventory above would have counted it.
++        left = sidecars()
++        self.assertEqual(left, sorted(
++            one + suffix for one in ("control.sqlite3", "jobs.sqlite3")
++            for suffix in ("-shm", "-wal")), left)
++        for one in left:
++            if one.endswith("-wal"):
++                self.assertLessEqual(os.path.getsize(os.path.join(self.root, one)), 32,
++                                     f"{one} holds frames: the observing run wrote")
+         altered = sorted(one for one in before
+                          if before[one] != after.get(one))
+         self.assertEqual(altered, [],
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index 05f7f6bd..af2cb0cc 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -4998,10 +4998,21 @@ class StageExecution:
+             yield ("the retained host scratch at "
+                    + ", ".join(repr(one) for one in sorted(surviving))), \
+                 dispose
++        # W384870 B5 (review 2026-11-18T02-32-07Z): a worker's operations are
++        # `single_worker._Operations`, which closes through `close` and has no
++        # `release`, so the `hasattr(operations, "release")` this used to test
++        # was false for every worker and a construction that failed after the
++        # implementation worker was composed unwound the coordinator and the
++        # Authority and left that worker's handles open. Whichever of the two
++        # the operations expose is the closer; `_Operations.close` is
++        # idempotent (it hands its disposer over once), so a worker the serving
++        # loop already closed is not closed twice.
+         for one in reversed(self.workers):
+             operations = one.get("operations")
+-            if operations is not None and hasattr(operations, "release"):
+-                yield f"the {one['role']} worker", operations.release
++            closer = None if operations is None else (
++                getattr(operations, "release", None) or getattr(operations, "close", None))
++            if closer is not None:
++                yield f"the {one['role']} worker", closer
+         if self.integration is not None:
+             yield "the integration store", self.integration.close
+         if self.authority is not None:

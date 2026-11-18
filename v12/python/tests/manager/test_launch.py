@@ -34,15 +34,43 @@ class TheContextLaunchIsClosed(unittest.TestCase):
         self.stage = {"attempt_id": self.attempt, "job_id": "job-a"}
         self.document = self.worker._adopted(self.stage).document
 
+    # W376586 (AMENDMENT-376531, accepted; W384870 B5 G1): the context launch
+    # selects the file exchange, so the delivery `_adopted` answers is the
+    # `baton.worker-launch/5` WRAPPER `{schema, wire_profile, payload}` and the
+    # `/4` context document is its payload. Both halves are the PRODUCT's: the
+    # wrapper is composed at the one authoring point in `launch.launch_document`
+    # and the worker's `launched` opens the wire first and holds the payload to
+    # the `/4` rules it always held it to. Nothing here is built by a fixture.
+
+    def payload(self):
+        return launch.payload_of(self.document)
+
     def test_owner_launch_and_worker_reader_agree(self):
         import baton_worker
-        self.assertEqual(baton_worker.launched(self.document), self.document)
-        self.assertEqual(self.document["schema"], "baton.worker-launch/4")
+        self.assertEqual(self.document["schema"], "baton.worker-launch/5")
+        self.assertEqual(sorted(self.document), sorted(launch.WRAPPER_MEMBERS))
+        self.assertEqual(self.document["wire_profile"], launch.WIRE_PROFILE)
+        payload = self.payload()
+        self.assertEqual(payload["schema"], "baton.worker-launch/4")
+        self.assertIn("session", payload)
+        # the worker opens the wire and answers the validated CONTAINER document,
+        # which is the payload the owner authored, member for member
+        self.assertEqual(baton_worker.launched(self.document), payload)
+        # and the bare payload is NOT a launch this worker executes: a file-exchange
+        # launch arrives only on the wire the wrapper names (no silent downgrade)
+        with self.assertRaises(baton_worker.WorkerFault) as refused:
+            baton_worker.launched(payload)
+        self.assertIn("without the 'baton.worker-launch/5' wrapper", str(refused.exception))
 
     def test_closed_version_refuses_omission_extra_and_downgrade(self):
         import copy
         import baton_worker
-        for change in (lambda value: value.pop("provider_context"), lambda value: value.update(extra=True), lambda value: value.update(schema="baton.worker-launch/3")):
+        for change in (lambda value: value["payload"].pop("provider_context"),
+                       lambda value: value["payload"].update(extra=True),
+                       lambda value: value["payload"].update(schema="baton.worker-launch/3"),
+                       lambda value: value.update(extra=True),
+                       lambda value: value.pop("wire_profile"),
+                       lambda value: value.update(wire_profile="some-other-wire/1")):
             with self.subTest(change=change):
                 value = copy.deepcopy(self.document)
                 change(value)
@@ -52,16 +80,18 @@ class TheContextLaunchIsClosed(unittest.TestCase):
     def test_wrong_role_uuid_attempt_and_binding_refuse_both_readers(self):
         import copy
         import baton_worker
+        members = ("session", "contract", "role", "transport", "job_execution", "provider_context")
         for key, replacement in (("attempt_id", "other-attempt"), ("conversation_id", "not-a-uuid"), ("task_digest", "sha256:" + "f" * 64)):
             with self.subTest(key=key):
                 value = copy.deepcopy(self.document)
-                value["provider_context"][key] = replacement
+                value["payload"]["provider_context"][key] = replacement
                 with self.assertRaises(baton_worker.WorkerFault):
                     baton_worker.launched(value)
                 with self.assertRaises(ContractRefusal):
-                    launch.launch_document(**{one: value[one] for one in ("session", "contract", "role", "transport", "job_execution", "provider_context")})
+                    launch.launch_document(**{one: value["payload"][one] for one in members})
+        payload = self.payload()
         with self.assertRaises(ContractRefusal):
-            launch.launch_document(**dict({one: self.document[one] for one in ("session", "contract", "transport", "job_execution", "provider_context")}, role="review"))
+            launch.launch_document(**dict({one: payload[one] for one in members if one != "role"}, role="review"))
 
     def test_adoption_cannot_drop_original_binding(self):
         from unittest import mock

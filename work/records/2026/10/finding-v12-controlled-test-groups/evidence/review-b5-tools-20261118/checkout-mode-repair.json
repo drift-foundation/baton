@@ -1,0 +1,9 @@
+{
+  "path": "v12/python/tests/tools/test_quiescent_assignment_finalization.py",
+  "reason": "Restore owner-write on ordinary checkout test for already assigned interactive K edit. AGENTS managed baton.merge import restriction is not this workflow. No content/Git/other ACL changes.",
+  "sha256": "64a43f32a1ba6b1e496852858e6aae10be01010c8a61f80a864d606f63110ecd",
+  "before_mode": "0o444",
+  "after_mode": "0o644",
+  "acl_before": "# file: v12/python/tests/tools/test_quiescent_assignment_finalization.py\n# owner: sl\n# group: sl\nuser::r--\nuser:baton-w339626:r--\nuser:baton-w339626-v3:r--\ngroup::r--\nmask::r--\nother::r--\n\n",
+  "acl_after": "# file: v12/python/tests/tools/test_quiescent_assignment_finalization.py\n# owner: sl\n# group: sl\nuser::rw-\nuser:baton-w339626:r--\nuser:baton-w339626-v3:r--\ngroup::r--\nmask::r--\nother::r--\n\n"
+}

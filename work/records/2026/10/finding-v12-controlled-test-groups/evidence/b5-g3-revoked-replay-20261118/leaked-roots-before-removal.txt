@@ -1,0 +1,10 @@
+# leaked fixture roots attributed to this slice's regression runs (test_maintenance.py:3262/3305 mkdtemp with no cleanup)
+== /var/tmp/v12-foreign-uvle2pqm modified 2026-11-17 21:26:00.643273190 -0700 bytes 0
+drwx------ 4096 v12-foreign-uvle2pqm
+drwxrwxr-x 4096 v12-foreign-uvle2pqm/somebody-elses-result
+== /var/tmp/v12-substituted-e6bit6as modified 2026-11-17 21:26:00.273499926 -0700 bytes 0
+drwx------ 4096 v12-substituted-e6bit6as
+== /var/tmp/v12-substituted-ltal5mg2 modified 2026-11-17 21:26:00.309499318 -0700 bytes 0
+drwx------ 4096 v12-substituted-ltal5mg2
+== /var/tmp/v12-substituted-rsh19qsu modified 2026-11-17 21:26:00.346498694 -0700 bytes 0
+drwx------ 4096 v12-substituted-rsh19qsu

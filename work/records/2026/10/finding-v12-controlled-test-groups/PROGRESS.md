@@ -1064,3 +1064,83 @@ no Load of the constant anywhere in the manager, same path in the worker). Six i
 the reconciliation corrected (W376586 closed; nine remain required here). Paths: authority/store.py,
 tests/authority/test_boundary.py, tests/manager/test_secrets.py.
 - Handoff posted: T384870 seq 385087. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: B5 batch G6, two of three repaired; one blocked by a custody file mode (M385088)
+
+Evidence: `evidence/b5-tools-singletons-20261118/RESULT.md` (+ logs, candidate.diff vs 2e330649,
+CANDIDATE-SHA256.txt, finalization-test.proposed.patch). G6-2 (status run durable state): the four added
+files were the read-only connections' SQLite `-shm`/`-wal` sidecars, not `inputs/assignment.json` (the
+reconciliation note is corrected); the inventory now measures OBS-1/W316915's accepted sidecar allowance
+exactly (frameless `-wal` reads as absent, `-shm` not durable content, everything else byte-compared, and the
+footprint asserted to be exactly the four frameless sidecars). G6-3 (construction unwind): real leak --
+`_closers` looked for `release` on worker operations that only have `close`; now uses whichever exists;
+`close` is idempotent. G6-1 (finalizer signature): the two W275774 governance operands (`govern` release
+capability, `cessation` evidence) are neither agent nor runtime capability; corrected test plus a governed
+probe prepared as a patch but NOT applied: the test file is `-r--r--r--` with W339626 custody ACLs and K does
+not clear modes. Verification: three ids 2 OK + G6-1 unchanged FAIL; hardening module + faulted-terminal
+class 14 OK; test_stage_execution module 477 OK (254 s); identity stable over 2e330649. Observed debt: two
+fixtures leave `v12-w110774-*` / `v12-credentials-*` roots under /var/tmp (not removed). Paths:
+tools/stage_execution.py, tests/tools/test_single_worker.py.
+- Handoff posted: T384870 seq 385089. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: G6 completed (M385090): finalizer witness applied and extended; one product correction; leaked roots removed
+
+Evidence: `evidence/b5-tools-singletons-20261118/RESULT.md` (+ finalizer-module.log, finalizer-regressions.log,
+leaked-roots-before-removal.txt, leaked-roots-removed.txt, candidate.diff vs 2e330649, CANDIDATE-SHA256.txt).
+G6-1: after the coordinator restored owner-write (content/ACLs unchanged), the prepared patch was applied
+and extended with a MEASURED fence-then-release order. That witness found the product refusing a governed
+call without cessation evidence only after committing and fencing (`['fence']` recorded before the
+refusal); `attempts.py` now requires the evidence beside the governor capability check, before any durable
+write or authority act (finalizer docstring step 1); the release itself is unchanged: after the fence, once.
+Finalizer module 49 OK; regression set (fresh_retry_line_recovery, retry_task_lineage, test_attempts,
+boundary_inventory.EveryProbeProvesItArrived, test_driver pure class) 509 OK, 149 s; identity stable over
+2e330649. Leaked roots: eight positively attributed by creation time to this Work's two runs (four
+`v12-credentials-*` from the 84-id run, four `v12-w110774-*` from the stage_execution run), listed in full,
+then removed; /var/tmp back to the 376-entry baseline; older roots retained. Leak sites recorded:
+test_credentials `_release` restores modes but never removes its mkdtemp root; test_integration_worker's
+`rmtree(ignore_errors=True)` cannot clear its frozen read-only subtrees. Paths this batch: attempts.py,
+tools/stage_execution.py, tests/tools/test_quiescent_assignment_finalization.py, tests/tools/test_single_worker.py.
+- Handoff posted: T384870 seq 385091. detail: W384870 remains under the owner claim; K holds no claim.
+- Assessment for M385092 posted: T384870 seq 385094 (ASSESSMENT-M385092-20261118.md). detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: B5 first cycle (M385095): G1 nine ids repaired; G3 two ids returned as a decision packet
+
+Evidence: `evidence/b5-g1-g3-20261118/RESULT.md`, `G3-DECISION.md` (+ logs, candidate.diff vs 2e330649,
+CANDIDATE-SHA256.txt, leaked-roots listings). G1: the /4-with-session document is the product's payload inside
+the product's accepted /5 wrapper (AMENDMENT-376531, `launch.launch_document`, `baton_worker.launched`);
+all nine are test-side alignments: test_launch (3) asserts wrapper + payload and that a bare payload is
+refused; manager test_execution_limits (2) reads the member-driven version off `payload_of`; tools
+test_execution_limits (4): child script alias `launch_owner`, reader doubles gain `_given_for`/`job_task`.
+Nine ids OK; test_launch 37 OK; three modules 207 OK (95 s); identity stable. G3: same-operation replay of
+a committed reservation after revocation -- the product refuses, the tests expect the recorded answer; a
+measured reorder fixed both and broke three accepted stopped-settlement fence witnesses, so it was reverted
+(tokens.py identical to checkpoint) and the question is returned with three options. 26 leaked roots from
+this cycle's runs removed (baseline restored); new leak sites recorded (test_maintenance.py:3262/3305).
+Paths this cycle: tests/manager/test_launch.py, tests/manager/test_execution_limits.py,
+tests/tools/test_execution_limits.py.
+- Handoff posted: T384870 seq 385096. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: G3 implemented under OWNER-REVOKED-REPLAY-20261118.md (M385098)
+
+Evidence: `evidence/b5-g3-revoked-replay-20261118/RESULT.md` (+ witnesses-and-g3-ids.log, token-regressions.log,
+source identities, candidate.diff vs 2e330649, CANDIDATE-SHA256.txt, leaked-roots listings). `_acting_record`
+answers an exact committed replay only when the generation is revoked and no settlement fence stands; every
+other path is the old order (ownership re-proof first). New acts, changed operands, foreign owner, other
+generation, fence, returned/expired/ambiguous guards unchanged; renewal preflight unchanged (exact renewal
+retry after revocation still refuses, measured); activation refuses after revocation (measured). Six witnesses
++ the two G3 ids 8 OK; token/settlement regressions 368 OK (22 s); identity stable. Four leaked
+test_maintenance roots removed. Paths: tokens.py, tests/manager/test_stopped_settlement.py.
+- Handoff posted: T384870 seq 385099. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: G3 corrected per review 2026-11-18T04:17:54Z (M385100)
+
+Evidence: `evidence/b5-g3-revoked-replay-20261118/RESULT.md` (+ witnesses-and-g3-ids.log,
+reviewer-returned-probe-after.log, token-regressions.log, identities, candidate.diff vs 2e330649,
+CANDIDATE-SHA256.txt). P1: the replay branch is now gated by `_revoked_and_still_held` (revocation, no
+fence, no return, no newer acquisition); the reviewer's probe refuses in both phases; intersecting-state
+witnesses added (revoked+returned; superseded with hidden return). Caller proof: `maintenance.prepare`
+gains a journal-first disposition refusing an OUTSTANDING REVOKED generation before any engine call;
+measured with the counting engine double (no call, no create). 14 focused OK; 371 regressions OK (22 s);
+identity stable; four leaked test_maintenance roots removed. Paths: tokens.py, maintenance.py,
+tests/manager/test_stopped_settlement.py, tests/manager/test_maintenance.py.
+- Handoff posted: T384870 seq 385101. detail: W384870 remains under the owner claim; K holds no claim.

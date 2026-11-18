@@ -1,0 +1,177 @@
+diff --git a/v12/python/tests/manager/test_execution_limits.py b/v12/python/tests/manager/test_execution_limits.py
+index ddbaa50c..db6bbe1e 100644
+--- a/v12/python/tests/manager/test_execution_limits.py
++++ b/v12/python/tests/manager/test_execution_limits.py
+@@ -38,7 +38,15 @@ def job_execution(**changed):
+ 
+ 
+ class TheVersionMovesWithTheMember(unittest.TestCase):
+-    """`/1` and `/2` are untouched, which is what makes this additive."""
++    """`/1` and `/2` are untouched, which is what makes this additive.
++
++    W376586 (AMENDMENT-376531, accepted): when the FILE EXCHANGE is the selected
++    transport the authored document is the `baton.worker-launch/5` wrapper
++    `{schema, wire_profile, payload}` and the mode-specific `/2`-`/4` document is
++    its payload, unchanged. A launch naming no transport stays unwrapped. So the
++    version that "moves with the member" is read off `launch.payload_of`, and the
++    wrapper is asserted where the exchange is selected (W384870 B5 G1).
++    """
+ 
+     def test_a_document_without_a_job_context_is_still_version_one(self):
+         held = launch.launch_document(session="s", contract="c", role="r")
+@@ -51,8 +59,13 @@ class TheVersionMovesWithTheMember(unittest.TestCase):
+ 
+         held = launch.launch_document(session="s", contract="c", role="r",
+                                       transport=exchange.EXCHANGE_TRANSPORT)
+-        self.assertEqual(held["schema"], "baton.worker-launch/2")
+-        self.assertNotIn("job_execution", held)
++        self.assertEqual(held["schema"], "baton.worker-launch/5")
++        self.assertEqual(sorted(held), sorted(launch.WRAPPER_MEMBERS))
++        self.assertEqual(held["wire_profile"], launch.WIRE_PROFILE)
++        payload = launch.payload_of(held)
++        self.assertEqual(payload["schema"], "baton.worker-launch/2")
++        self.assertEqual(sorted(payload), sorted(launch.EXCHANGE_MEMBERS))
++        self.assertNotIn("job_execution", payload)
+ 
+     def test_a_job_context_selects_version_three(self):
+         held = launch.launch_document(session="s", contract="c", role="r",
+@@ -72,8 +85,15 @@ class TheVersionMovesWithTheMember(unittest.TestCase):
+         held = launch.launch_document(session="s", contract="c", role="r",
+                                       transport=exchange.EXCHANGE_TRANSPORT,
+                                       job_execution=job_execution())
+-        self.assertEqual(held["schema"], "baton.worker-launch/3")
+-        self.assertEqual(held["transport"], exchange.EXCHANGE_TRANSPORT)
++        self.assertEqual(held["schema"], "baton.worker-launch/5")
++        payload = launch.payload_of(held)
++        self.assertEqual(payload["schema"], "baton.worker-launch/3")
++        self.assertEqual(payload["transport"], exchange.EXCHANGE_TRANSPORT)
++        # and the one-shot integration launch, naming no transport, is NOT wrapped
++        unwrapped = launch.launch_document(session="s", contract="c", role="r",
++                                           job_execution=job_execution())
++        self.assertEqual(unwrapped["schema"], "baton.worker-launch/3")
++        self.assertIs(launch.payload_of(unwrapped), unwrapped)
+ 
+     def test_the_closed_member_set_follows_the_schema(self):
+         for schema, members in (
+diff --git a/v12/python/tests/manager/test_launch.py b/v12/python/tests/manager/test_launch.py
+index 277909fd..ed35780c 100644
+--- a/v12/python/tests/manager/test_launch.py
++++ b/v12/python/tests/manager/test_launch.py
+@@ -34,15 +34,43 @@ class TheContextLaunchIsClosed(unittest.TestCase):
+         self.stage = {"attempt_id": self.attempt, "job_id": "job-a"}
+         self.document = self.worker._adopted(self.stage).document
+ 
++    # W376586 (AMENDMENT-376531, accepted; W384870 B5 G1): the context launch
++    # selects the file exchange, so the delivery `_adopted` answers is the
++    # `baton.worker-launch/5` WRAPPER `{schema, wire_profile, payload}` and the
++    # `/4` context document is its payload. Both halves are the PRODUCT's: the
++    # wrapper is composed at the one authoring point in `launch.launch_document`
++    # and the worker's `launched` opens the wire first and holds the payload to
++    # the `/4` rules it always held it to. Nothing here is built by a fixture.
++
++    def payload(self):
++        return launch.payload_of(self.document)
++
+     def test_owner_launch_and_worker_reader_agree(self):
+         import baton_worker
+-        self.assertEqual(baton_worker.launched(self.document), self.document)
+-        self.assertEqual(self.document["schema"], "baton.worker-launch/4")
++        self.assertEqual(self.document["schema"], "baton.worker-launch/5")
++        self.assertEqual(sorted(self.document), sorted(launch.WRAPPER_MEMBERS))
++        self.assertEqual(self.document["wire_profile"], launch.WIRE_PROFILE)
++        payload = self.payload()
++        self.assertEqual(payload["schema"], "baton.worker-launch/4")
++        self.assertIn("session", payload)
++        # the worker opens the wire and answers the validated CONTAINER document,
++        # which is the payload the owner authored, member for member
++        self.assertEqual(baton_worker.launched(self.document), payload)
++        # and the bare payload is NOT a launch this worker executes: a file-exchange
++        # launch arrives only on the wire the wrapper names (no silent downgrade)
++        with self.assertRaises(baton_worker.WorkerFault) as refused:
++            baton_worker.launched(payload)
++        self.assertIn("without the 'baton.worker-launch/5' wrapper", str(refused.exception))
+ 
+     def test_closed_version_refuses_omission_extra_and_downgrade(self):
+         import copy
+         import baton_worker
+-        for change in (lambda value: value.pop("provider_context"), lambda value: value.update(extra=True), lambda value: value.update(schema="baton.worker-launch/3")):
++        for change in (lambda value: value["payload"].pop("provider_context"),
++                       lambda value: value["payload"].update(extra=True),
++                       lambda value: value["payload"].update(schema="baton.worker-launch/3"),
++                       lambda value: value.update(extra=True),
++                       lambda value: value.pop("wire_profile"),
++                       lambda value: value.update(wire_profile="some-other-wire/1")):
+             with self.subTest(change=change):
+                 value = copy.deepcopy(self.document)
+                 change(value)
+@@ -52,16 +80,18 @@ class TheContextLaunchIsClosed(unittest.TestCase):
+     def test_wrong_role_uuid_attempt_and_binding_refuse_both_readers(self):
+         import copy
+         import baton_worker
++        members = ("session", "contract", "role", "transport", "job_execution", "provider_context")
+         for key, replacement in (("attempt_id", "other-attempt"), ("conversation_id", "not-a-uuid"), ("task_digest", "sha256:" + "f" * 64)):
+             with self.subTest(key=key):
+                 value = copy.deepcopy(self.document)
+-                value["provider_context"][key] = replacement
++                value["payload"]["provider_context"][key] = replacement
+                 with self.assertRaises(baton_worker.WorkerFault):
+                     baton_worker.launched(value)
+                 with self.assertRaises(ContractRefusal):
+-                    launch.launch_document(**{one: value[one] for one in ("session", "contract", "role", "transport", "job_execution", "provider_context")})
++                    launch.launch_document(**{one: value["payload"][one] for one in members})
++        payload = self.payload()
+         with self.assertRaises(ContractRefusal):
+-            launch.launch_document(**dict({one: self.document[one] for one in ("session", "contract", "transport", "job_execution", "provider_context")}, role="review"))
++            launch.launch_document(**dict({one: payload[one] for one in members if one != "role"}, role="review"))
+ 
+     def test_adoption_cannot_drop_original_binding(self):
+         from unittest import mock
+diff --git a/v12/python/tests/tools/test_execution_limits.py b/v12/python/tests/tools/test_execution_limits.py
+index c77a95c4..37a5d90c 100644
+--- a/v12/python/tests/tools/test_execution_limits.py
++++ b/v12/python/tests/tools/test_execution_limits.py
+@@ -1079,10 +1079,13 @@ class TheDerivedJudgmentCarriesItsOwningResultsJob(unittest.TestCase):
+             seen.update(named)
+             return {"job_id": named["job_id"]}
+ 
+-        held = SimpleNamespace(
+-            execution_context=reader,
+-            given={"input_manifest": {"manifest_digest": "sha256:runtime"},
+-                   "policy_digest": "sha256:policy"})
++        given = {"input_manifest": {"manifest_digest": "sha256:runtime"},
++                 "policy_digest": "sha256:policy"}
++        # W363066/W370555: the serving reader resolves the stage's configuration
++        # through `_given_for`, which for a worker with no per-Job task is the
++        # installed document itself -- the double answers exactly that
++        held = SimpleNamespace(execution_context=reader, given=given,
++                               _given_for=lambda stage: given)
+         answer = self.module._SingleWorker._job_execution(
+             held, {"job_id": "job-b", "attempt_id": "judgment-1"})
+         self.assertEqual(answer, {"job_id": "job-b"})
+@@ -3040,8 +3043,15 @@ class TheTwoReadersResolveOneJobIdentically(unittest.TestCase):
+         given = {"input_manifest": {"manifest_digest": "sha256:runtime"},
+                  "policy_digest": "sha256:policy"}
+         reader = single_worker.job_execution_reader(self.store)
+-        return [SimpleNamespace(execution_context=reader, given=given),
+-                SimpleNamespace(execution_context=reader, given=given)]
++        # W363066/W370555: both readers resolve the stage's configuration
++        # through `given_for_job`; the serving one via `_given_for`, the
++        # observing one via its `job_task` reader. Neither Job here has a task
++        # of its own, so both resolve to the installed document -- which is the
++        # identical-bytes property this class pins.
++        return [SimpleNamespace(execution_context=reader, given=given,
++                                _given_for=lambda stage: given),
++                SimpleNamespace(execution_context=reader, given=given,
++                                job_task=None)]
+ 
+     def test_both_compositions_resolve_the_same_bytes(self):
+         from tools import single_worker
+@@ -3373,7 +3383,7 @@ with JobStore.open(spec["job"], authority_uuid=spec["uuid"],
+     def watched(*arguments, **named):
+         answered = adopting(*arguments, **named)
+         assert answered is not None
+-        context = launch.payload_of(answered.document)["job_execution"]
++        context = launch_owner.payload_of(answered.document)["job_execution"]
+         assert context == named["job_execution"], context
+         bounds = context["execution_limits"]["boundaries"]
+         captured.append({"job_id": context["job_id"],

@@ -1,0 +1,18 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-ke_epe65",
+      "root_length": 20,
+      "ids": [
+        "tests.tools.test_quiescent_assignment_finalization",
+        "tests.manager.test_attempts"
+      ],
+      "exit": 0,
+      "seconds": 8.003424423997785,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

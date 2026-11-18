@@ -1,0 +1,2 @@
+{"phase": "returned", "revoked": true, "returned": true, "fence": null, "outcome": "ACCEPTED"}
+{"phase": "replacement acquired", "revoked": true, "returned": true, "fence": null, "outcome": "ACCEPTED"}

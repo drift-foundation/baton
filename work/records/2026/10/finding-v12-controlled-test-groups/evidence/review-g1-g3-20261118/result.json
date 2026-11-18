@@ -1,0 +1,25 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-o31_m_ko",
+      "root_length": 20,
+      "ids": [
+        "tests.manager.test_launch.TheContextLaunchIsClosed.test_owner_launch_and_worker_reader_agree",
+        "tests.manager.test_launch.TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade",
+        "tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers",
+        "tests.manager.test_execution_limits.TheVersionMovesWithTheMember.test_a_document_with_a_transport_alone_is_still_version_two",
+        "tests.manager.test_execution_limits.TheVersionMovesWithTheMember.test_a_job_context_keeps_a_real_transport",
+        "tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches.test_the_child_answers_each_jobs_own_numbers",
+        "tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob.test_the_retained_intent_is_what_the_launch_states",
+        "tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically.test_a_foreign_job_is_refused_on_the_read_only_path_too",
+        "tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically.test_both_compositions_resolve_the_same_bytes"
+      ],
+      "exit": 0,
+      "seconds": 1.2017867249996925,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

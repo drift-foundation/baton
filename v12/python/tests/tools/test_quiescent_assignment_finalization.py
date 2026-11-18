@@ -220,11 +220,89 @@ class TheQuiescentAssignmentIsEndedAndNothingElseIs(FinalizationCase):
 
     def test_it_takes_no_agent_and_no_runtime_capability(self):
         """THE PROOF IS THE SIGNATURE, not a promise in a docstring. An
-        operation handed neither boundary cannot call either one."""
-        taken = list(inspect.signature(
-            finalize_quiescent_assignment).parameters)
+        operation handed neither boundary cannot call either one.
 
-        self.assertEqual(taken, ["store", "port", "attempt_id", "reason"])
+        W384870 B5 (review 2026-11-18T02-32-07Z): the signature grew two
+        keyword-only governance operands under W275774 -- `govern`, the
+        resource-token governor whose ONE capability this operation asks for
+        is `release` (the token the start reserved is returned once the
+        authority has ended the assignment), and `cessation`, the EVIDENCE the
+        caller's own observer produced, which is a document and not a
+        capability at all. Neither is an agent and neither can stop, cancel or
+        observe a runtime, so the guarantee this case states is intact and is
+        now pinned by name rather than by count: the port is required because
+        ending an assignment IS an authority act (`port.cancel` fences the
+        exact generation), and nothing else that acts is admitted.
+        """
+        signature = inspect.signature(finalize_quiescent_assignment)
+        taken = list(signature.parameters)
+
+        self.assertEqual(taken, ["store", "port", "attempt_id", "reason",
+                                 "govern", "cessation"])
+        for name in ("agent", "adapter", "engine", "runtime", "stop", "cancel"):
+            self.assertNotIn(name, taken)
+        for name in ("govern", "cessation"):
+            parameter = signature.parameters[name]
+            self.assertIs(parameter.kind, inspect.Parameter.KEYWORD_ONLY)
+            self.assertIsNone(parameter.default, "governance is opt-in")
+
+    def test_a_governed_finalization_asks_the_governor_only_to_release(self):
+        """The governor is the one capability beyond the port, and `release` is
+        the only thing asked of it -- after the authority's fence, with the
+        caller's own cessation evidence, once. A governor offering anything
+        else is never consulted about it, and governance without the evidence
+        refuses before the resource is touched."""
+        self.quiescent()
+        asked = []
+        order = []
+
+        class Governor:
+            def release(self, store, attempt, *, operation, cessation):
+                order.append("release")
+                asked.append((attempt["runtime_attempt_id"], operation, cessation))
+
+            def __getattr__(self, name):
+                raise AssertionError(f"the finalizer reached for governor.{name}")
+
+        # THE ORDER IS MEASURED, NOT READ OFF A COMMENT: the authority's fence
+        # is the eligibility decision (W275774 review 15:55:27Z [P1]), and the
+        # resource goes back only once that act has happened.
+        fence = self.port.cancel
+
+        def fenced(*arguments, **keywords):
+            order.append("fence")
+            return fence(*arguments, **keywords)
+
+        self.port.cancel = fenced
+        evidence = {"stopped": True, "helpers": [], "observed_at": NOW}
+        # governance without the caller's own cessation evidence refuses before
+        # the resource is touched, and does not fence either
+        with self.assertRaises(ContractRefusal) as refused:
+            finalize_quiescent_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                                          reason=REASON, govern=Governor())
+        self.assertEqual(refused.exception.code, "precondition")
+        self.assertIn("cessation", refused.exception.message)
+        self.assertEqual((asked, order), ([], []))
+        answered = finalize_quiescent_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                                                 reason=REASON, govern=Governor(),
+                                                 cessation=evidence)
+        self.assertEqual(answered["intent"]["reason"], REASON)
+        self.assertEqual(order, ["fence", "release"])
+        self.assertEqual(len(asked), 1)
+        self.assertEqual(asked[0][0], ATTEMPT)
+        self.assertEqual(asked[0][1], attempts._start_operation_id(self.row()))
+        self.assertEqual(asked[0][2], evidence)
+        # and the same act ungoverned is unchanged: no runtime stopped, no agent
+        # asked, the observed axis not re-announced
+        self.assertEqual(self.adapter.stopped, [])
+        self.assertEqual(self.row()["execution_runtime"], "quiescent")
+        # the governed replay answers the same decision and releases again
+        # idempotently rather than inventing a second ending
+        again = finalize_quiescent_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                                              reason=REASON, govern=Governor(),
+                                              cessation=evidence)
+        self.assertEqual(again["intent"], answered["intent"])
+        self.assertEqual(order, ["fence", "release", "fence", "release"])
 
     def test_no_runtime_is_stopped_and_no_agent_is_asked(self):
         self.quiescent()

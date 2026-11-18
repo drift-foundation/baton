@@ -1,0 +1,52 @@
+test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival) ... ERROR
+test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds (tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds) ... ERROR
+
+======================================================================
+ERROR: test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_native_stop_restart.py", line 138, in test_reopened_store_preserves_deadline_and_generation_without_revival
+    self.govern.reserve(self.store, self.row(), operation=self.operation)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4218, in reserve
+    tokens.journal_launch(asking, token, operation)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 858, in journal_launch
+    return _acting_record(control, token, _launch_id(token["domain"], token["generation"]), LAUNCH_KIND, document)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 899, in _acting_record
+    _owning(control, token, kind)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 1394, in _owning
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"holding positive cessation evidence may act on it now")
+baton_v12.contracts.errors.ContractRefusal: resource-token.launch for generation 1 of 'workspace:66306:19417222' is refused: that generation has been REVOKED, so its entitlement is withdrawn; only a manager settlement holding positive cessation evidence may act on it now
+
+======================================================================
+ERROR: test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds (tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_serving_renewal.py", line 159, in test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds
+    replay = self.acquire()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_serving_renewal.py", line 66, in acquire
+    governance.reserve(self.store, row, operation=operation)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4218, in reserve
+    tokens.journal_launch(asking, token, operation)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 858, in journal_launch
+    return _acting_record(control, token, _launch_id(token["domain"], token["generation"]), LAUNCH_KIND, document)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 899, in _acting_record
+    _owning(control, token, kind)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 1394, in _owning
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"holding positive cessation evidence may act on it now")
+baton_v12.contracts.errors.ContractRefusal: resource-token.launch for generation 1 of 'workspace:66306:19417217' is refused: that generation has been REVOKED, so its entitlement is withdrawn; only a manager settlement holding positive cessation evidence may act on it now
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.051s
+
+FAILED (errors=2)
+error: Recipe `test-one` failed with exit code 1

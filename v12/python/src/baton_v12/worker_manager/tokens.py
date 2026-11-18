@@ -886,8 +886,51 @@ def bind_container(control, token, container, *, launch):
     return _acting_record(control, token, _bound_id(token["domain"], token["generation"]), BOUND_KIND, document)
 
 
+def _revoked_and_still_held(control, domain, generation):
+    """The ONE state the owner's ruling lets an exact committed replay answer in.
+
+    Review 2026-11-18T04:17:54Z [P1]: a revocation record outlives the return it
+    precedes -- the reclaim revokes first, settles, then returns -- so "revoked"
+    alone also described a RETURNED generation, and a replacement generation
+    acquired after that return. Neither is the ruled case: the ruling is about a
+    generation that is still HELD by its revoked holder, awaiting settlement. So
+    the branch requires, besides the revocation, no return record, no newer
+    acquisition in the domain and no stopped-execution settlement fence; every
+    other state -- returned, superseded, fenced, never revoked -- re-proves
+    ownership first exactly as before, and `_owning` refuses it as it did.
+    """
+    if _document(control, _revoked_id(domain, generation), REVOKED_KIND) is None:
+        return False
+    if settlement_fence_of(control, domain, generation) is not None:
+        return False
+    if _document(control, _returned_id(domain, generation), RETURNED_KIND) is not None:
+        return False
+    if _document(control, _acquired_id(domain, generation + 1), ACQUIRED_KIND) is not None:
+        return False
+    return True
+
+
 def _acting_record(control, token, operation, kind, document, *, action=None):
-    """Acting replay rechecks permission under the same lock as settlement."""
+    """Acting replay rechecks permission under the same lock as settlement.
+
+    EXCEPT THE ONE CASE THE OWNER RULED ON (OWNER-REVOKED-REPLAY-20261118.md,
+    DESIGN DB-7 clarification, W384870 G3): after this generation has been
+    REVOKED, an exact same-operation/same-operands retry of an act it had
+    already committed answers that committed record. Answering it changes
+    nothing -- no row is written, `token_of` still reads revoked and unreturned,
+    `effects_permitted` stays False, no deadline, generation or binding comes
+    into being -- so a manager resumed after a deadline sweep can re-read the
+    start it already committed, which `acquire` has always let it do one line
+    earlier in `reserve`. Everything else is exactly as before: an uncommitted
+    (new) act under a revoked generation still fails `_owning`; changed operands
+    still collide in `replay`; a RETURNED or SUPERSEDED generation keeps every
+    guard even though its revocation record persists past its return (review
+    2026-11-18T04:17:54Z [P1], `_revoked_and_still_held`); an expired-judged,
+    ambiguous or foreign-owner generation keeps every guard, replay included;
+    and the stopped-execution settlement FENCE keeps its priority over every
+    acting operation, replay included (W375444) -- the branch is not taken
+    while a fence stands, so `_owning` refuses it as it did.
+    """
     from .store import _recorded, manager_signature
 
     if control._readonly or control._snapshots:
@@ -896,6 +939,11 @@ def _acting_record(control, token, operation, kind, document, *, action=None):
     connection = control._connection
     connection.execute("BEGIN IMMEDIATE")
     try:
+        if _revoked_and_still_held(control, token["domain"], token["generation"]):
+            found, result = control.replay(operation, signature, kind=kind)
+            if found:
+                connection.execute("COMMIT")
+                return result
         _owning(control, token, kind)
         found, result = control.replay(operation, signature, kind=kind)
         if not found:

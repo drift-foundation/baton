@@ -1,0 +1,4 @@
+d2cd3ecd1c8c81782352363edac37ed2a646fe82ef1fa39cfc2ddb29fbff79a9  v12/python/src/baton_v12/worker_manager/tokens.py
+f5f848bba1cbf2b9608df5080c689560a35f9766445c986fc9fba2ae5765875d  v12/python/src/baton_v12/worker_manager/maintenance.py
+eb9f7a7267190db03b994f1ceaf7ab51c062b15c9c34adef3ab06925f0d75d4a  v12/python/tests/manager/test_stopped_settlement.py
+24b268af3722440a477eaa92b7603a2aedc93c19ee2b3486ae05f49f49d9addc  v12/python/tests/manager/test_maintenance.py

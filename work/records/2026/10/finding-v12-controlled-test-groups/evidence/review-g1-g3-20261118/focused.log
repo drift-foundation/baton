@@ -1,0 +1,15 @@
+test_owner_launch_and_worker_reader_agree (tests.manager.test_launch.TheContextLaunchIsClosed.test_owner_launch_and_worker_reader_agree) ... ok
+test_closed_version_refuses_omission_extra_and_downgrade (tests.manager.test_launch.TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade) ... ok
+test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) ... ok
+test_a_document_with_a_transport_alone_is_still_version_two (tests.manager.test_execution_limits.TheVersionMovesWithTheMember.test_a_document_with_a_transport_alone_is_still_version_two) ... ok
+test_a_job_context_keeps_a_real_transport (tests.manager.test_execution_limits.TheVersionMovesWithTheMember.test_a_job_context_keeps_a_real_transport) ... ok
+test_the_child_answers_each_jobs_own_numbers (tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches.test_the_child_answers_each_jobs_own_numbers) ... ok
+test_the_retained_intent_is_what_the_launch_states (tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob.test_the_retained_intent_is_what_the_launch_states)
+The runtime half is the judge's OWN configured identities, not the ... ok
+test_a_foreign_job_is_refused_on_the_read_only_path_too (tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically.test_a_foreign_job_is_refused_on_the_read_only_path_too) ... ok
+test_both_compositions_resolve_the_same_bytes (tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically.test_both_compositions_resolve_the_same_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.917s
+
+OK

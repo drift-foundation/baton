@@ -1271,6 +1271,14 @@ def prepare(engine, run, *, image_digest, store, assignment_id, operation,
     #                                  it with the exact hold named
     #   returned                    -> a completed act; repeating it is not this
     #                                  facility's to authorize
+    #   outstanding, REVOKED        -> an OVERDUE act the deadline reclaim has
+    #                                  withdrawn and not yet settled. Its
+    #                                  committed launch is answered as history
+    #                                  (OWNER-REVOKED-REPLAY-20261118.md) and
+    #                                  authorizes no fresh container, so this
+    #                                  facility refuses before the engine is
+    #                                  asked for anything (W384870 G3, review
+    #                                  2026-11-18T04:17:54Z caller proof)
     already = tokens.generation_of(
         store, domain,
         execution=_execution_identity(assignment_id, which),
@@ -1284,6 +1292,14 @@ def prepare(engine, run, *, image_digest, store, assignment_id, operation,
                 f"preparation and has been RETURNED; a returned generation "
                 f"authorizes nothing further, and a completed preparation is "
                 f"not repeated on the strength of being asked twice")
+        if current["revoked"]:
+            raise ContractRefusal(
+                "refused", "already-terminal",
+                f"generation {already} of {name_value(domain)} is OUTSTANDING "
+                f"and REVOKED: it ran past its deadline and the reclaim withdrew "
+                f"its entitlement; its committed launch is history and not "
+                f"permission to create a container, and the reclaim's settlement "
+                f"-- not a repeated preparation -- is what ends it")
         if current["container"] is not None:
             raise ContractRefusal(
                 "refused", "precondition",

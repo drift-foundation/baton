@@ -1079,10 +1079,13 @@ class TheDerivedJudgmentCarriesItsOwningResultsJob(unittest.TestCase):
             seen.update(named)
             return {"job_id": named["job_id"]}
 
-        held = SimpleNamespace(
-            execution_context=reader,
-            given={"input_manifest": {"manifest_digest": "sha256:runtime"},
-                   "policy_digest": "sha256:policy"})
+        given = {"input_manifest": {"manifest_digest": "sha256:runtime"},
+                 "policy_digest": "sha256:policy"}
+        # W363066/W370555: the serving reader resolves the stage's configuration
+        # through `_given_for`, which for a worker with no per-Job task is the
+        # installed document itself -- the double answers exactly that
+        held = SimpleNamespace(execution_context=reader, given=given,
+                               _given_for=lambda stage: given)
         answer = self.module._SingleWorker._job_execution(
             held, {"job_id": "job-b", "attempt_id": "judgment-1"})
         self.assertEqual(answer, {"job_id": "job-b"})
@@ -3040,8 +3043,15 @@ class TheTwoReadersResolveOneJobIdentically(unittest.TestCase):
         given = {"input_manifest": {"manifest_digest": "sha256:runtime"},
                  "policy_digest": "sha256:policy"}
         reader = single_worker.job_execution_reader(self.store)
-        return [SimpleNamespace(execution_context=reader, given=given),
-                SimpleNamespace(execution_context=reader, given=given)]
+        # W363066/W370555: both readers resolve the stage's configuration
+        # through `given_for_job`; the serving one via `_given_for`, the
+        # observing one via its `job_task` reader. Neither Job here has a task
+        # of its own, so both resolve to the installed document -- which is the
+        # identical-bytes property this class pins.
+        return [SimpleNamespace(execution_context=reader, given=given,
+                                _given_for=lambda stage: given),
+                SimpleNamespace(execution_context=reader, given=given,
+                                job_task=None)]
 
     def test_both_compositions_resolve_the_same_bytes(self):
         from tools import single_worker
@@ -3373,7 +3383,7 @@ with JobStore.open(spec["job"], authority_uuid=spec["uuid"],
     def watched(*arguments, **named):
         answered = adopting(*arguments, **named)
         assert answered is not None
-        context = launch.payload_of(answered.document)["job_execution"]
+        context = launch_owner.payload_of(answered.document)["job_execution"]
         assert context == named["job_execution"], context
         bounds = context["execution_limits"]["boundaries"]
         captured.append({"job_id": context["job_id"],

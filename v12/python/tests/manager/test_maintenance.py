@@ -794,6 +794,55 @@ class ARepeatedPreparationDecidesAtTheJournalBeforeTheEngine(MaintenanceCase):
         self.assertEqual([one["cut"] for one in self.unresolved()],
                          ["bound-not-admitted"])
 
+    def test_a_revoked_launched_unbound_preparation_creates_nothing_on_retry(self):
+        """OWNER-REVOKED-REPLAY-20261118.md and review 2026-11-18T04:17:54Z (caller proof).
+
+        `launched-unbound` ordinarily PROCEEDS (the case below). Once the deadline
+        reclaim has REVOKED that outstanding generation, the token API answers its
+        committed launch as history -- and this facility must not turn that answer
+        into a fresh container. Measured at the real create boundary: the retry
+        refuses before the engine is asked for anything, nothing is created, and
+        the generation stays revoked, unreturned and unbound for the reclaim's
+        settlement to end.
+        """
+        token = tokens.acquire(
+            self.store, self.domain(),
+            operation=maintenance._operation_identity(
+                maintenance.ESTABLISH_RESULT_ROOT, "attempt-1", "workspace"),
+            execution=maintenance._execution_identity("attempt-1", "workspace"),
+            attempt="attempt-1", seconds=maintenance.MAINTENANCE_SECONDS)
+        launched = tokens.journal_launch(self.store, token, token["operation"])
+        self.assertEqual([one["cut"] for one in self.unresolved()],
+                         ["launched-unbound"])
+        held = os.lstat(self.workspace)
+        self.instant = "2026-09-27T00:20:00.000Z"          # past MAINTENANCE_SECONDS
+        revoked = tokens.revoke(
+            self.store, f"{held.st_dev}:{held.st_ino}", "workspace",
+            execution=maintenance._execution_identity("attempt-1", "workspace"),
+            operation=maintenance._operation_identity(
+                maintenance.ESTABLISH_RESULT_ROOT, "attempt-1", "workspace"))
+        self.assertEqual(revoked["generation"], token["generation"])
+        # the token API answers the committed launch as history...
+        self.assertEqual(tokens.journal_launch(self.store, token, token["operation"]), launched)
+        # ...and the facility does not create on the strength of it
+        engine = Engine(self)
+        engine.listing = [{"Names": self.name(), "ID": "runtime-lost"}]
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(engine)
+        self.assertIn("REVOKED", str(refused.exception))
+        self.assertIn("not permission to create a container", str(refused.exception))
+        self.assertEqual(engine.seen, [], "no engine call at all, no create")
+        self.assertIsNone(engine.created)
+        current = tokens.token_of(self.store, self.domain(), token["generation"])
+        self.assertEqual((current["revoked"], current["returned"], current["container"]),
+                         (True, False, None))
+        self.assertFalse(tokens.effects_permitted(self.store, token))
+        # and it is no longer an UNRESOLVED cut of this facility's: a revoked generation
+        # is the deadline reclaim's to settle, which is exactly why a retry here may not
+        # pick it up and create
+        self.assertEqual(self.unresolved(), [])
+        self.assertFalse(os.path.isdir(self.result))
+
     def test_a_create_whose_reply_was_lost_is_resumed_with_one_effect(self):
         """`launched-unbound`: acquired and journalled, nothing bound.
 

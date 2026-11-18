@@ -3841,6 +3841,18 @@ def finalize_quiescent_assignment(store, port, *, attempt_id, reason,
     """
     if govern is not None:
         boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
+        # W384870 B5 (review 2026-11-18T02-51-35Z): THE EVIDENCE IS OWNED WITH
+        # THE OTHER OPERANDS, before any durable write and before the authority
+        # is asked -- step 1 of the order above. This shape fault used to be
+        # noticed only at the release, after the decision was committed and the
+        # generation fenced, so a governed call without its observer's evidence
+        # ended the assignment and then refused, leaving the resource held.
+        if cessation is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"finalizing attempt {name_value(attempt_id)} under resource "
+                f"governance requires the cessation observed for its runtime; this "
+                f"manager does not invent a termination or the absence of writers")
     boundaries.identity(attempt_id, "a runtime attempt id")
     reason = boundaries.text(reason, "a finalization reason")
     # A BLANK SENTENCE IS A DECISION NOBODY MADE, on the rule `abandon_attempt`
@@ -3924,12 +3936,7 @@ def finalize_quiescent_assignment(store, port, *, attempt_id, reason,
     # observing it. A governed finalization must be handed the cessation its own
     # observer produced.
     if govern is not None:
-        if cessation is None:
-            raise ContractRefusal(
-                "refused", "precondition",
-                f"finalizing attempt {name_value(attempt_id)} under resource "
-                f"governance requires the cessation observed for its runtime; this "
-                f"manager does not invent a termination or the absence of writers")
+        # the evidence was required at the top; here it is handed over
         govern.release(store, attempt, operation=_start_operation_id(attempt),
                        cessation=cessation)
     return documents.attempt_finalized(intent=dict(record),

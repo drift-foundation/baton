@@ -38,7 +38,15 @@ def job_execution(**changed):
 
 
 class TheVersionMovesWithTheMember(unittest.TestCase):
-    """`/1` and `/2` are untouched, which is what makes this additive."""
+    """`/1` and `/2` are untouched, which is what makes this additive.
+
+    W376586 (AMENDMENT-376531, accepted): when the FILE EXCHANGE is the selected
+    transport the authored document is the `baton.worker-launch/5` wrapper
+    `{schema, wire_profile, payload}` and the mode-specific `/2`-`/4` document is
+    its payload, unchanged. A launch naming no transport stays unwrapped. So the
+    version that "moves with the member" is read off `launch.payload_of`, and the
+    wrapper is asserted where the exchange is selected (W384870 B5 G1).
+    """
 
     def test_a_document_without_a_job_context_is_still_version_one(self):
         held = launch.launch_document(session="s", contract="c", role="r")
@@ -51,8 +59,13 @@ class TheVersionMovesWithTheMember(unittest.TestCase):
 
         held = launch.launch_document(session="s", contract="c", role="r",
                                       transport=exchange.EXCHANGE_TRANSPORT)
-        self.assertEqual(held["schema"], "baton.worker-launch/2")
-        self.assertNotIn("job_execution", held)
+        self.assertEqual(held["schema"], "baton.worker-launch/5")
+        self.assertEqual(sorted(held), sorted(launch.WRAPPER_MEMBERS))
+        self.assertEqual(held["wire_profile"], launch.WIRE_PROFILE)
+        payload = launch.payload_of(held)
+        self.assertEqual(payload["schema"], "baton.worker-launch/2")
+        self.assertEqual(sorted(payload), sorted(launch.EXCHANGE_MEMBERS))
+        self.assertNotIn("job_execution", payload)
 
     def test_a_job_context_selects_version_three(self):
         held = launch.launch_document(session="s", contract="c", role="r",
@@ -72,8 +85,15 @@ class TheVersionMovesWithTheMember(unittest.TestCase):
         held = launch.launch_document(session="s", contract="c", role="r",
                                       transport=exchange.EXCHANGE_TRANSPORT,
                                       job_execution=job_execution())
-        self.assertEqual(held["schema"], "baton.worker-launch/3")
-        self.assertEqual(held["transport"], exchange.EXCHANGE_TRANSPORT)
+        self.assertEqual(held["schema"], "baton.worker-launch/5")
+        payload = launch.payload_of(held)
+        self.assertEqual(payload["schema"], "baton.worker-launch/3")
+        self.assertEqual(payload["transport"], exchange.EXCHANGE_TRANSPORT)
+        # and the one-shot integration launch, naming no transport, is NOT wrapped
+        unwrapped = launch.launch_document(session="s", contract="c", role="r",
+                                           job_execution=job_execution())
+        self.assertEqual(unwrapped["schema"], "baton.worker-launch/3")
+        self.assertIs(launch.payload_of(unwrapped), unwrapped)
 
     def test_the_closed_member_set_follows_the_schema(self):
         for schema, members in (

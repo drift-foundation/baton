@@ -299,6 +299,206 @@ class StoppedSettlement(AttemptCase, Home):
                 call()
 
 
+class RevokedGenerationReplay(unittest.TestCase):
+    """OWNER-REVOKED-REPLAY-20261118.md (W384870 G3; DESIGN DB-7 clarified first).
+
+    After revocation an EXACT same-operation/same-operands retry of a committed
+    act answers the committed record and grants nothing; a new act, changed
+    operands, a foreign owner, an activation and anything under a settlement
+    fence still refuse. Deterministic: one disposable store, no engine.
+    """
+    EXECUTION, OPERATION, LAUNCH = "attempt-support", "runtime.start:support", "launch:support"
+
+    def setUp(self):
+        from .token_support import TokenFixture
+        self.fixture = TokenFixture(self)
+        self.store = self.fixture.store
+        self.domain = self.fixture.domain
+        self.held = self.fixture.held(seconds=900)          # 14:00 -> expires 14:15
+        self.launch = tokens.journal_launch(self.store, self.held, self.LAUNCH)
+
+    def current(self):
+        return tokens.token_of(self.store, self.domain, self.held["generation"])
+
+    def rows(self):
+        return self.store._connection.execute(
+            "SELECT operation_id, kind, result FROM operations ORDER BY rowid").fetchall()
+
+    def revoked(self, instant="2026-09-26T14:20:00.000Z"):
+        """The deadline sweep's first act: the overdue generation is revoked, not replaced."""
+        self.fixture.instant = instant
+        record = tokens.revoke(self.store, "line-7/workspace", "workspace",
+                               execution=self.EXECUTION, operation=self.OPERATION)
+        self.assertEqual(record["generation"], self.held["generation"])
+        self.assertTrue(self.current()["revoked"])
+        return record
+
+    def test_an_exact_launch_replay_after_revocation_answers_the_committed_record_and_changes_nothing(self):
+        self.revoked()
+        before = [tuple(row) for row in self.rows()]
+        state = self.current()
+        replay = tokens.journal_launch(self.store, self.held, self.LAUNCH)
+        self.assertEqual(replay, self.launch)
+        self.assertEqual([tuple(row) for row in self.rows()], before, "a replay writes no row")
+        after = self.current()
+        self.assertEqual(after, state)
+        self.assertTrue(after["revoked"])
+        self.assertFalse(after["returned"])
+        self.assertEqual((after["generation"], after["expires_at"]), (self.held["generation"], self.held["expires_at"]))
+        self.assertIsNone(after["container"])
+        self.assertFalse(tokens.effects_permitted(self.store, self.held))
+        # and again: a replay of a replay is the same record, still nothing written
+        self.assertEqual(tokens.journal_launch(self.store, self.held, self.LAUNCH), self.launch)
+        self.assertEqual([tuple(row) for row in self.rows()], before)
+
+    def test_a_new_act_changed_operands_or_a_foreign_owner_still_refuse_after_revocation(self):
+        self.revoked()
+        before = [tuple(row) for row in self.rows()]
+        for name, act, fragment in (
+                ("a binding never committed", lambda: tokens.bind_container(self.store, self.held, "container-support", launch=self.LAUNCH), "REVOKED"),
+                ("a launch with changed operands", lambda: tokens.journal_launch(self.store, self.held, "launch:another"), "different kind or signature"),
+                ("a renewal never committed", lambda: tokens.renew(self.store, self.held, execution=self.EXECUTION, operation=self.OPERATION, expected_revision=0), "REVOKED"),
+                ("the committed launch under a foreign owner", lambda: tokens.journal_launch(self.store, dict(self.held, owner="somebody-else"), self.LAUNCH), "different kind or signature"),
+                ("the committed launch under another generation", lambda: tokens.journal_launch(self.store, dict(self.held, generation=2), self.LAUNCH), "")):
+            with self.subTest(act=name):
+                with self.assertRaises(ContractRefusal) as caught:
+                    act()
+                self.assertIn(fragment, caught.exception.message)
+        self.assertEqual([tuple(row) for row in self.rows()], before, "nothing was written by a refused act")
+        self.assertFalse(tokens.effects_permitted(self.store, self.held))
+
+    def test_a_committed_renewal_is_not_replayed_after_revocation_and_nothing_extends(self):
+        """The smallest correction stops at the acting record. A renewal proves
+        ownership in its own PREFLIGHT (`_extended`, before `_acting_record`), so
+        an exact renewal retry after revocation refuses there -- the ruling says
+        a committed act MAY be answered and selects no renewal change; what it
+        requires is that nothing extends, revives or is written, measured here.
+        The committed renewal stays readable through `token_of` and verified
+        against its decision record (RenewalDecisionRecord)."""
+        self.fixture.instant = "2026-09-26T14:10:00.000Z"
+        renewed = tokens.renew(self.store, self.held, execution=self.EXECUTION, operation=self.OPERATION, expected_revision=0)
+        self.assertEqual((renewed["revision"], renewed["expires_at"]), (1, "2026-09-26T14:25:00.000Z"))
+        self.revoked("2026-09-26T14:30:00.000Z")
+        before = [tuple(row) for row in self.rows()]
+        for revision in (0, 1):
+            with self.subTest(expected_revision=revision):
+                with self.assertRaises(ContractRefusal) as caught:
+                    tokens.renew(self.store, self.held, execution=self.EXECUTION, operation=self.OPERATION, expected_revision=revision)
+                self.assertIn("REVOKED", caught.exception.message)
+        self.assertEqual([tuple(row) for row in self.rows()], before)
+        state = self.current()
+        self.assertEqual((state["revision"], state["expires_at"], state["revoked"], state["returned"]),
+                         (1, "2026-09-26T14:25:00.000Z", True, False))
+        self.assertTrue(state["expired"])
+        self.assertFalse(tokens.effects_permitted(self.store, self.held))
+        # the committed launch, by contrast, is answered -- the ruled case
+        self.assertEqual(tokens.journal_launch(self.store, self.held, self.LAUNCH), self.launch)
+        self.assertEqual([tuple(row) for row in self.rows()], before)
+
+    def test_a_revoked_generation_that_was_returned_keeps_every_guard(self):
+        """Review 2026-11-18T04:17:54Z [P1], the reviewer's returned-probe as a witness:
+        the reclaim revokes first and returns after, so the revocation record outlives
+        the return. A RETURNED generation is not the ruled still-held case: its exact
+        committed launch and binding refuse as they did, and so does everything else."""
+        bound = tokens.bind_container(self.store, self.held, "container-support", launch=self.LAUNCH)
+        cessation = {"domain": self.domain, "generation": self.held["generation"], "launch": self.LAUNCH,
+                     "container": "container-support", "stopped": True, "helpers": []}
+        self.revoked()
+        tokens.returned(self.store, self.held, cessation=cessation, reclaiming=True)
+        state = self.current()
+        self.assertEqual((state["revoked"], state["returned"]), (True, True))
+        self.assertIsNone(tokens.settlement_fence_of(self.store, self.domain, self.held["generation"]))
+        before = [tuple(row) for row in self.rows()]
+        for name, act in (("the committed launch", lambda: tokens.journal_launch(self.store, self.held, self.LAUNCH)),
+                          ("the committed binding", lambda: tokens.bind_container(self.store, self.held, "container-support", launch=self.LAUNCH)),
+                          ("a renewal", lambda: tokens.renew(self.store, self.held, execution=self.EXECUTION, operation=self.OPERATION, expected_revision=0)),
+                          ("an activation", lambda: tokens.admit_activation(self.store, self.held, container="container-support"))):
+            with self.subTest(act=name):
+                with self.assertRaises(ContractRefusal) as caught:
+                    act()
+                # `_owning`'s refusal, in its own order: the revocation is read before the
+                # return, so the sentence names the withdrawal; what matters is that the
+                # branch was not taken and the guard refused
+                self.assertEqual(caught.exception.code, "already-terminal")
+                self.assertIn("is refused", caught.exception.message)
+        self.assertEqual([tuple(row) for row in self.rows()], before)
+        self.assertFalse(tokens.effects_permitted(self.store, self.held))
+        # and once a REPLACEMENT generation holds the resource, the old one still answers nothing
+        newer = self.fixture.held(operation="runtime.start:next", execution="attempt-next", attempt="attempt-next")
+        self.assertEqual(newer["generation"], self.held["generation"] + 1)
+        for name, act in (("the old committed launch", lambda: tokens.journal_launch(self.store, self.held, self.LAUNCH)),
+                          ("the old committed binding", lambda: tokens.bind_container(self.store, self.held, "container-support", launch=self.LAUNCH))):
+            with self.subTest(act=name):
+                with self.assertRaises(ContractRefusal):
+                    act()
+        # while the replacement's own acts are untouched by any of this
+        launched = tokens.journal_launch(self.store, newer, "launch:next")
+        self.assertEqual(launched["generation"], newer["generation"])
+        self.assertEqual(tokens.journal_launch(self.store, newer, "launch:next"), launched)
+        self.assertTrue(self.current()["revoked"])
+
+    def test_a_revoked_generation_superseded_without_a_return_record_keeps_every_guard(self):
+        """The branch's own fourth condition, driven directly: a newer acquisition in
+        the domain disqualifies the replay even if the return record were missing."""
+        from baton_v12.worker_manager.store import _recorded, manager_signature
+        self.revoked()
+        self.assertTrue(tokens._revoked_and_still_held(self.store, self.domain, self.held["generation"]))
+        self.assertEqual(tokens.journal_launch(self.store, self.held, self.LAUNCH), self.launch)
+        # a newer acquisition record alone -- the shape the store holds after a return this test
+        # hides from the predicate, so that the fourth condition is what decides
+        following = self.held["generation"] + 1
+        document = {"domain": self.domain, "generation": following, "owner": "next-owner",
+                    "execution": "attempt-next", "operation": "runtime.start:next", "attempt": "attempt-next",
+                    "acquired_at": self.fixture.instant, "expires_at": "2026-09-26T15:00:00.000Z", "permission": None}
+        self.store._record(tokens._acquired_id(self.domain, following), tokens.ACQUIRED_KIND,
+                           manager_signature(tokens.ACQUIRED_KIND, document), "committed", _recorded(document), None)
+        with mock.patch.object(tokens, "_returned_id", side_effect=lambda domain, generation: f"hidden:{domain}:{generation}"):
+            self.assertFalse(tokens._revoked_and_still_held(self.store, self.domain, self.held["generation"]))
+            with self.assertRaises(ContractRefusal) as caught:
+                tokens.journal_launch(self.store, self.held, self.LAUNCH)
+            self.assertIn("REVOKED", caught.exception.message)
+
+    def test_the_settlement_fence_still_refuses_an_exact_replay(self):
+        self.revoked()
+        self.store._connection.execute("BEGIN IMMEDIATE")
+        tokens._fence_settlement(self.store, self.held, "release")
+        self.store._connection.execute("COMMIT")
+        self.assertIsNotNone(tokens.settlement_fence_of(self.store, self.domain, self.held["generation"]))
+        for name, act in (("the committed launch", lambda: tokens.journal_launch(self.store, self.held, self.LAUNCH)),
+                          ("a binding", lambda: tokens.bind_container(self.store, self.held, "container-support", launch=self.LAUNCH)),
+                          ("a renewal", lambda: tokens.renew(self.store, self.held, execution=self.EXECUTION, operation=self.OPERATION, expected_revision=0))):
+            with self.subTest(act=name):
+                with self.assertRaises(ContractRefusal) as caught:
+                    act()
+                self.assertIn("fenced for stopped-execution settlement", caught.exception.message)
+
+    def test_expiry_of_the_revoked_generation_grants_nothing_and_a_competitor_still_waits(self):
+        self.revoked()
+        self.fixture.instant = "2026-09-26T16:00:00.000Z"
+        self.assertEqual(tokens.journal_launch(self.store, self.held, self.LAUNCH), self.launch)
+        state = self.current()
+        self.assertTrue(state["expired"] and state["revoked"] and not state["returned"])
+        self.assertFalse(tokens.effects_permitted(self.store, self.held))
+        with self.assertRaises(ContractRefusal):
+            tokens.acquire(self.store, self.domain, operation="competitor", execution="other")
+        self.assertEqual(self.current()["generation"], self.held["generation"])
+
+    def test_a_bound_generations_activation_still_refuses_after_revocation(self):
+        """Caller inspection, measured: `maintenance` starts through launch -> bind ->
+        admit_activation; a replayed launch and a replayed binding answer their records,
+        and the activation -- the act that would authorize the engine -- refuses."""
+        bound = tokens.bind_container(self.store, self.held, "container-support", launch=self.LAUNCH)
+        self.revoked()
+        before = [tuple(row) for row in self.rows()]
+        self.assertEqual(tokens.journal_launch(self.store, self.held, self.LAUNCH), self.launch)
+        self.assertEqual(tokens.bind_container(self.store, self.held, "container-support", launch=self.LAUNCH), bound)
+        with self.assertRaises(ContractRefusal) as caught:
+            tokens.admit_activation(self.store, self.held, container="container-support")
+        self.assertIn("REVOKED", caught.exception.message)
+        self.assertEqual([tuple(row) for row in self.rows()], before)
+        self.assertFalse(tokens.effects_permitted(self.store, self.held))
+
+
 class RenewalDecisionRecord(unittest.TestCase):
     """Owner selection 2026-11-17 (RENEWAL-DECISION.md option A), review 2026-10-31T03:05:05Z P1.
 

@@ -247,6 +247,18 @@ outcome. Same ID/same operands replays; changed operands refuse. Retiring a pend
 operation must prevent delayed execution, not merely note that no result was seen.
 A timeout or absent row is not proof that an external request never took effect.
 
+Owner clarification2026-11-18 (W384870): after resource-token revocation, an exact
+same-operation/same-canonical-operands retry may return its already committed
+record without restoring permission or repeating effects. This supersedes any
+interpretation of revocation as requiring refusal of every committed replay;
+new or uncommitted acts and changed operands still refuse. Token state remains
+revoked, effects remain prohibited, and replay creates no new generation,
+binding or deadline. The accepted stopped-execution settlement fence retains
+priority and refuses acting-operation replay. Owner/operation/generation
+correlation and renewal-decision integrity remain required; this is not a
+blanket bypass of ownership or other lifecycle guards.
+Decision: [revoked replay ruling](../work/records/2026/10/finding-v12-controlled-test-groups/OWNER-REVOKED-REPLAY-20261118.md).
+
 ## 5. The resource token: Baton's exclusive permission to act
 
 Three mechanisms MUST stay distinct:

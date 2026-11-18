@@ -1,0 +1,18 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-7b8rz9sl",
+      "root_length": 20,
+      "ids": [
+        "tests.tools.test_stage_execution_hardening",
+        "tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt"
+      ],
+      "exit": 0,
+      "seconds": 1.4020142310000665,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

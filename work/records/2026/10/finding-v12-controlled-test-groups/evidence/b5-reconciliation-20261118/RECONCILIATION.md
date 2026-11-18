@@ -159,3 +159,19 @@ The six G4/G5 ids are repaired in `evidence/b5-secrets-boundary-20261118/` (six-
 ## 2026-11-18 — the 25 unverified entries resolved
 
 Codexpc's follow-on on committed 438eefa6 collected 30 current ids (8 refused-session, 9 OCI engine, 13 packaged) and passed 30/30 (child review 2026-11-18T02-26-07Z, M385086); the 25 historical unverified rows are marked accepted in reconciliation.tsv. Historical 25 was an estimate; the current collection of 30 is authoritative.
+
+## 2026-11-18 — G6 correction
+
+The G6 description of `test_single_worker...test_a_real_observing_status_run_mutates_no_durable_state` above said the observing run added `storage/attempt-…/inputs/assignment.json`; that was a misreading of unittest's truncated diff (that path was the first extra ELEMENT of the longer list, present in both). The untruncated diff (b5-tools-singletons-20261118) shows the four added files are the two stores' SQLite `-shm` and `-wal` sidecars created by the read-only connections, nothing else.
+
+## 2026-11-18 — G6 repaired
+
+The three G6 ids are repaired in `evidence/b5-tools-singletons-20261118/` and marked REPAIRED in reconciliation.tsv. Remaining: 33 ids in G1 (9, required here), G2 (22), G3 (2).
+
+## 2026-11-18 — G1 repaired; G3 returned for decision
+
+The nine G1 ids are repaired in `evidence/b5-g1-g3-20261118/` (test-only alignments to the accepted /5 wrapper; the /4-with-session document is the PRODUCT's payload inside the product's /5 wrapper, not a fixture). The two G3 ids are a specification question returned in `G3-DECISION.md`: replay of a committed token act after revocation; a measured reorder fixed them and broke three accepted stopped-settlement fence witnesses, so nothing was implemented. Remaining: G2 (22) + G3 (2, decision).
+
+## 2026-11-18 — G3 repaired under the owner's ruling
+
+Both G3 ids pass under the bounded revoked-replay branch (`evidence/b5-g3-revoked-replay-20261118/`). Remaining: G2 (22 ids, one fixture cause).

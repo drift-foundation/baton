@@ -1,0 +1,11 @@
+# Owner ruling — exact committed replay after revocation
+
+Selected2026-11-18 by Slawomir in response to the coordinator's G3 proposal and review-2026-11-18T03-48-54Z.md (M385097). This selects G3-DECISION option1 in observable intent, not an unrestricted guard reorder.
+
+After a resource generation is revoked, an exact same-operation/same-canonical-operands retry may return its already committed record. Returning that record grants no renewed permission, repeats no external effect, creates no generation/binding/deadline, and must not revive execution. Current token observations remain revoked and effects_permitted remains false. An unknown/uncommitted operation is not a replay and remains refused; changed operands refuse.
+
+The accepted stopped-execution settlement fence retains priority: acting-operation replay after that fence still refuses. Preserve owner/operation/generation correlation and independent renewal-decision integrity. This selects no blanket bypass of ownership, returned/superseded-generation or other lifecycle guards. Expiry of the revoked generation does not turn its exact historical answer into renewed permission. Other-state behavior is unchanged unless its existing accepted contract already permits replay.
+
+This explicitly supersedes the interpretation that 'revocation stops acting' requires refusal of every exact already-committed replay; revocation continues to prohibit new acts and effects. It does not supersede settlement-fence refusals. Earlier evidence/decisions remain historical. DESIGN DB-7 is clarified before implementation.
+
+K's bounded implementation: resolve the two G3 cases with the smallest correction; inspect reserve/launch/binding/renewal/activation callers for the difference between historical answer and permission to perform effects. Prove exact replay, identity/operand mismatches, new-act refusal, continued revoked/held state, no new deadline/generation/binding/effect, fence precedence and existing renewal-decision verification. Use focused deterministic tests and retain candidate/provenance/cleanup. Return for independent technical AND priority review before five-group runs. No G2/fixture-cleanup expansion or full/live/Docker run in this slice. Git remains owner-only; codexpc idle.

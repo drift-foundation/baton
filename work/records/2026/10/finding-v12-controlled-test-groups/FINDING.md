@@ -849,3 +849,49 @@ Child `review-2026-11-18T02-26-07Z.md` independently verifies8 resumed+22 prior 
 ## 2026-11-18T02-32-07Z — G4/G5 six IDs accepted; G6 three tools cases released
 
 Read `review-2026-11-18T02-32-07Z.md`. Independent284 focused tests pass in6.603s, stable source/clean fixtures. G4/G5 accepted;36 affected IDs remain across G1/G2/G3/G6. K next owns only the three G6 tools failures: finalizer capability/signature, status read-only behavior, constructor handle cleanup. Focused regressions and return before next batch; no full/group/Docker/live execution. Codexpc idle; parent final acceptance remains outstanding.
+
+## 2026-11-18T02-51-35Z — G6 two accepted; finalizer checkout restored for completion
+
+Read `review-2026-11-18T02-51-35Z.md`. Independent14 focused tests pass; status/WAL contract and constructor-close fix accepted. Finalizer test was owner-owned0444; coordinator restored only owner-write to0644 with unchanged contents/ACL entries, because the managed-merge import rule does not apply to interactive K editing. K completes prepared finalizer patch and focused proof, including release-after-fence ordering; account for exact recent leaked fixtures without deleting uncertain history.34 affected IDs remain including finalizer; no G1/G2/G3 or broad run released. Owner checkpoint2e330649 confirmed.
+
+## 2026-11-18T03-00-32Z — G6 complete; await K sequencing assessment
+
+Read `review-2026-11-18T03-00-32Z.md`. Finalizer correction accepted, independent480 tests pass in8.003s with stable source/clean fixtures.33 affected IDs remain (G1 nine/G2 twenty-two/G3 two), plus recorded fixture cleanup sites. M385091 preceded the assessment request M385092; assessment not yet received. No next repair batch released pending owner choice after K recommendation. This supersedes finalizer-completion instructions only, not acceptance obligations.
+
+## 2026-11-18T03-17-21Z — owner selects K's finish-first recommendation with monitored checkpoints
+
+Owner: "let's go with her recommendation as-is but we will monitor progress and halt it if bad". Accept ASSESSMENT-M385092-20261118.md / M385094's sequencing, superseding the assessment wait in M385093. No acceptance obligation is waived and no remaining evidence is discarded. No priority switch to an ordinary Job is selected now. W383215 still waits for W384870 closure and full check-in.
+
+Selected order:
+1. First bounded cycle: G3's two recovery-after-engine-unavailability cases (read accepted token/lifecycle decisions; escalate a concrete specification choice if necessary) and G1's nine launch/exchange cases (align with accepted /5 contract; determine whether the /4 side is a fixture or product mismatch before editing). Preserve no-revival/deadline/generation guarantees. W376586 is closed; its accepted behavior remains normative for this correction, not a live assignment to take over.
+2. After review of that cycle: one accounted run each of authority, job_manager, manager-pure, tools-pure and integration to establish the current remainder; then bounded G2 correction/restart, the two fixture leak sites and any concrete failures exposed. These group runs are selected in sequence, not permission to start them before the first-cycle handoff.
+3. Owner checkpoint, the planned accounted full suite with prerequisites/source identity, independent review, owner closure and final check-in.
+
+Monitoring: each handoff reports original/current affected IDs, confirmed root causes versus hypotheses, exact files changed, focused outcomes, measured time, and the proposed next bounded outcome. No promise of completion in the estimated2–4 hours. If a concrete spec ambiguity, significant scope expansion or repeated nonconverging correction appears, preserve work and evidence and return that issue for owner/coordinator reassessment before dependent expansion. Continue an independent already authorized item where safe. Do not silently extend this into broad refactoring/inventory discovery or launch a full run early. Owner may halt or redirect; no automatic parking, claim takeover or waiver is authorized.
+
+K retains interactive implementation under owner claim E384905; codexpc remains idle until specifically assigned. Git remains owner-only.
+
+## 2026-11-18T03-48-54Z — G1 accepted; continue recommended, G3 owner choice pending
+
+Read `review-2026-11-18T03-48-54Z.md`. Independent nine G1 cases pass, exact candidate verified; tokens.py reverted as reported.24 affected IDs remain (G2 twenty-two/G3 two). Priority assessment recommends continuing because this cycle converged without broadening product scope. No next batch released automatically: G3 replay-after-revocation behavior requires owner selection; five accounted groups await accepted cycle completion. Proposed exact-record replay never grants renewed authority/effects and must preserve settlement fence/owner correlation; blanket lifecycle guard bypass is not approved.
+
+## 2026-11-18T03-50-08Z — owner selects exact committed replay after revocation
+
+Selected2026-11-18 by Slawomir in response to the coordinator's G3 proposal and review-2026-11-18T03-48-54Z.md (M385097). This selects G3-DECISION option1 in observable intent, not an unrestricted guard reorder.
+
+After a resource generation is revoked, an exact same-operation/same-canonical-operands retry may return its already committed record. Returning that record grants no renewed permission, repeats no external effect, creates no generation/binding/deadline, and must not revive execution. Current token observations remain revoked and effects_permitted remains false. An unknown/uncommitted operation is not a replay and remains refused; changed operands refuse.
+
+The accepted stopped-execution settlement fence retains priority: acting-operation replay after that fence still refuses. Preserve owner/operation/generation correlation and independent renewal-decision integrity. This selects no blanket bypass of ownership, returned/superseded-generation or other lifecycle guards. Expiry of the revoked generation does not turn its exact historical answer into renewed permission. Other-state behavior is unchanged unless its existing accepted contract already permits replay.
+
+This explicitly supersedes the interpretation that 'revocation stops acting' requires refusal of every exact already-committed replay; revocation continues to prohibit new acts and effects. It does not supersede settlement-fence refusals. Earlier evidence/decisions remain historical. DESIGN DB-7 is clarified before implementation.
+
+K's bounded implementation: resolve the two G3 cases with the smallest correction; inspect reserve/launch/binding/renewal/activation callers for the difference between historical answer and permission to perform effects. Prove exact replay, identity/operand mismatches, new-act refusal, continued revoked/held state, no new deadline/generation/binding/effect, fence precedence and existing renewal-decision verification. Use focused deterministic tests and retain candidate/provenance/cleanup. Return for independent technical AND priority review before five-group runs. No G2/fixture-cleanup expansion or full/live/Docker run in this slice. Git remains owner-only; codexpc idle.
+
+
+## 2026-11-18T04-17-54Z — G3 review requests one bounded correction; groups held
+
+Read `review-2026-11-18T04-17-54Z.md`. Independent8/8 pass but public-API probe proves revoked+returned (also replacement-acquired) original launch replay bypasses preserved lifecycle guard. Maintenance caller proof also omits create before activation; deterministic real-boundary check required. Priority verdict: one narrow lifecycle/caller correction remains worthwhile for practical v12 recovery; no broad groups or other batch released. No new owner rule needed. Reassess convergence at next handoff.
+
+## 2026-11-18T04-29-34Z — G3 accepted; five non-engine groups released for measurement
+
+Read `review-2026-11-18T04-29-34Z.md`. Independent14/14 and both original counterexamples pass/refuse as intended, candidate/source verified. Known remainder G2 twenty-two plus fixture leak sites. Priority verdict CONTINUE to owner-selected one run each authority/job_manager/manager-pure/tools-pure/integration. Verification/report only, stable source and exact accounted outcomes; no repairs/retries before technical+priority review. No full/live/Docker/scans/supervised selection; codexpc idle.

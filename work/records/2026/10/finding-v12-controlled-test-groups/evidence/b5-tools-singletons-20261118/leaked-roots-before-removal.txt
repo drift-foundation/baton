@@ -1,0 +1,107 @@
+# leaked fixture roots attributed to this Work's runs (K, 2026-11-18)
+# 84-id reconciliation run 02:03:45Z-02:05:38Z (unresolved-ids.log) -> v12-credentials-* at 02:04:58Z (tests/manager/test_credentials.py:79)
+# test_stage_execution module run ~02:35:33Z-02:39:48Z (stage-execution-module.log, 255 s) -> v12-w110774-* at 02:39:36Z (tests/tools/test_integration_worker.py:73)
+== /var/tmp/v12-credentials-0l8j9lkc created 2026-11-17 19:04:58.872767889 -0700 modified 2026-11-17 19:04:58.880713210 -0700 owner sl bytes 307200
+drwx------ 4096 v12-credentials-0l8j9lkc
+drwx------ 4096 v12-credentials-0l8j9lkc/credentials
+-rw------- 307200 v12-credentials-0l8j9lkc/control.sqlite3
+drwx------ 4096 v12-credentials-0l8j9lkc/workspace
+drwx------ 4096 v12-credentials-0l8j9lkc/inputs
+== /var/tmp/v12-credentials-154_01pw created 2026-11-17 19:04:58.881045086 -0700 modified 2026-11-17 19:04:58.886097261 -0700 owner sl bytes 307200
+drwx------ 4096 v12-credentials-154_01pw
+drwx------ 4096 v12-credentials-154_01pw/credentials
+-rw------- 307200 v12-credentials-154_01pw/control.sqlite3
+drwx------ 4096 v12-credentials-154_01pw/workspace
+drwx------ 4096 v12-credentials-154_01pw/inputs
+== /var/tmp/v12-credentials-8q27ezdy created 2026-11-17 19:04:58.891436930 -0700 modified 2026-11-17 19:04:58.896217370 -0700 owner sl bytes 307200
+drwx------ 4096 v12-credentials-8q27ezdy
+drwx------ 4096 v12-credentials-8q27ezdy/credentials
+-rw------- 307200 v12-credentials-8q27ezdy/control.sqlite3
+drwx------ 4096 v12-credentials-8q27ezdy/workspace
+drwx------ 4096 v12-credentials-8q27ezdy/inputs
+== /var/tmp/v12-credentials-snmqvqc_ created 2026-11-17 19:04:58.886435349 -0700 modified 2026-11-17 19:04:58.891122696 -0700 owner sl bytes 307200
+drwx------ 4096 v12-credentials-snmqvqc_
+drwx------ 4096 v12-credentials-snmqvqc_/credentials
+-rw------- 307200 v12-credentials-snmqvqc_/control.sqlite3
+drwx------ 4096 v12-credentials-snmqvqc_/workspace
+drwx------ 4096 v12-credentials-snmqvqc_/inputs
+== /var/tmp/v12-w110774-0l53qgl8 created 2026-11-17 19:39:36.330853088 -0700 modified 2026-11-17 19:39:36.497350211 -0700 owner sl bytes 12817
+drwx------ 4096 v12-w110774-0l53qgl8
+drwxrwxr-x 4096 v12-w110774-0l53qgl8/launch-home
+drwxrwxr-x 4096 v12-w110774-0l53qgl8/bundles
+dr-xr-xr-x 4096 v12-w110774-0l53qgl8/launch-home/integrator-attempt
+dr-xr-xr-x 4096 v12-w110774-0l53qgl8/bundles/integrator-attempt
+-r--r--r-- 122 v12-w110774-0l53qgl8/launch-home/integrator-attempt/launch.json
+-r--r--r-- 71 v12-w110774-0l53qgl8/bundles/integrator-attempt/instructions.txt
+dr-xr-xr-x 4096 v12-w110774-0l53qgl8/bundles/integrator-attempt/evidence
+dr-xr-xr-x 4096 v12-w110774-0l53qgl8/bundles/integrator-attempt/blobs
+-r--r--r-- 3333 v12-w110774-0l53qgl8/bundles/integrator-attempt/integration.json
+-r--r--r-- 994 v12-w110774-0l53qgl8/bundles/integrator-attempt/evidence/checkpoint.json
+-r--r--r-- 1992 v12-w110774-0l53qgl8/bundles/integrator-attempt/evidence/authority.json
+-r--r--r-- 1977 v12-w110774-0l53qgl8/bundles/integrator-attempt/evidence/receipts.json
+-r--r--r-- 493 v12-w110774-0l53qgl8/bundles/integrator-attempt/evidence/job.json
+-r--r--r-- 694 v12-w110774-0l53qgl8/bundles/integrator-attempt/evidence/result.json
+-r--r--r-- 1449 v12-w110774-0l53qgl8/bundles/integrator-attempt/evidence/review.json
+-r--r--r-- 892 v12-w110774-0l53qgl8/bundles/integrator-attempt/evidence/proposal.json
+-r--r--r-- 777 v12-w110774-0l53qgl8/bundles/integrator-attempt/evidence/tests.json
+-r--r--r-- 23 v12-w110774-0l53qgl8/bundles/integrator-attempt/blobs/0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762
+== /var/tmp/v12-w110774-4obr_mz_ created 2026-11-17 19:39:37.681816062 -0700 modified 2026-11-17 19:39:37.806327971 -0700 owner sl bytes 12817
+drwx------ 4096 v12-w110774-4obr_mz_
+drwxrwxr-x 4096 v12-w110774-4obr_mz_/launch-home
+drwxrwxr-x 4096 v12-w110774-4obr_mz_/bundles
+dr-xr-xr-x 4096 v12-w110774-4obr_mz_/launch-home/integrator-attempt
+dr-xr-xr-x 4096 v12-w110774-4obr_mz_/bundles/integrator-attempt
+-r--r--r-- 122 v12-w110774-4obr_mz_/launch-home/integrator-attempt/launch.json
+-r--r--r-- 71 v12-w110774-4obr_mz_/bundles/integrator-attempt/instructions.txt
+dr-xr-xr-x 4096 v12-w110774-4obr_mz_/bundles/integrator-attempt/evidence
+dr-xr-xr-x 4096 v12-w110774-4obr_mz_/bundles/integrator-attempt/blobs
+-r--r--r-- 3333 v12-w110774-4obr_mz_/bundles/integrator-attempt/integration.json
+-r--r--r-- 994 v12-w110774-4obr_mz_/bundles/integrator-attempt/evidence/checkpoint.json
+-r--r--r-- 1992 v12-w110774-4obr_mz_/bundles/integrator-attempt/evidence/authority.json
+-r--r--r-- 1977 v12-w110774-4obr_mz_/bundles/integrator-attempt/evidence/receipts.json
+-r--r--r-- 493 v12-w110774-4obr_mz_/bundles/integrator-attempt/evidence/job.json
+-r--r--r-- 694 v12-w110774-4obr_mz_/bundles/integrator-attempt/evidence/result.json
+-r--r--r-- 1449 v12-w110774-4obr_mz_/bundles/integrator-attempt/evidence/review.json
+-r--r--r-- 892 v12-w110774-4obr_mz_/bundles/integrator-attempt/evidence/proposal.json
+-r--r--r-- 777 v12-w110774-4obr_mz_/bundles/integrator-attempt/evidence/tests.json
+-r--r--r-- 23 v12-w110774-4obr_mz_/bundles/integrator-attempt/blobs/0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762
+== /var/tmp/v12-w110774-llva7dqo created 2026-11-17 19:39:37.060699048 -0700 modified 2026-11-17 19:39:37.225337842 -0700 owner sl bytes 12817
+drwx------ 4096 v12-w110774-llva7dqo
+drwxrwxr-x 4096 v12-w110774-llva7dqo/launch-home
+drwxrwxr-x 4096 v12-w110774-llva7dqo/bundles
+dr-xr-xr-x 4096 v12-w110774-llva7dqo/launch-home/integrator-attempt
+dr-xr-xr-x 4096 v12-w110774-llva7dqo/bundles/integrator-attempt
+-r--r--r-- 122 v12-w110774-llva7dqo/launch-home/integrator-attempt/launch.json
+-r--r--r-- 71 v12-w110774-llva7dqo/bundles/integrator-attempt/instructions.txt
+dr-xr-xr-x 4096 v12-w110774-llva7dqo/bundles/integrator-attempt/evidence
+dr-xr-xr-x 4096 v12-w110774-llva7dqo/bundles/integrator-attempt/blobs
+-r--r--r-- 3333 v12-w110774-llva7dqo/bundles/integrator-attempt/integration.json
+-r--r--r-- 994 v12-w110774-llva7dqo/bundles/integrator-attempt/evidence/checkpoint.json
+-r--r--r-- 1992 v12-w110774-llva7dqo/bundles/integrator-attempt/evidence/authority.json
+-r--r--r-- 1977 v12-w110774-llva7dqo/bundles/integrator-attempt/evidence/receipts.json
+-r--r--r-- 493 v12-w110774-llva7dqo/bundles/integrator-attempt/evidence/job.json
+-r--r--r-- 694 v12-w110774-llva7dqo/bundles/integrator-attempt/evidence/result.json
+-r--r--r-- 1449 v12-w110774-llva7dqo/bundles/integrator-attempt/evidence/review.json
+-r--r--r-- 892 v12-w110774-llva7dqo/bundles/integrator-attempt/evidence/proposal.json
+-r--r--r-- 777 v12-w110774-llva7dqo/bundles/integrator-attempt/evidence/tests.json
+-r--r--r-- 23 v12-w110774-llva7dqo/bundles/integrator-attempt/blobs/0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762
+== /var/tmp/v12-w110774-r4b5rhh6 created 2026-11-17 19:39:36.696928544 -0700 modified 2026-11-17 19:39:36.859344061 -0700 owner sl bytes 12817
+drwx------ 4096 v12-w110774-r4b5rhh6
+drwxrwxr-x 4096 v12-w110774-r4b5rhh6/launch-home
+drwxrwxr-x 4096 v12-w110774-r4b5rhh6/bundles
+dr-xr-xr-x 4096 v12-w110774-r4b5rhh6/launch-home/integrator-attempt
+dr-xr-xr-x 4096 v12-w110774-r4b5rhh6/bundles/integrator-attempt
+-r--r--r-- 122 v12-w110774-r4b5rhh6/launch-home/integrator-attempt/launch.json
+-r--r--r-- 71 v12-w110774-r4b5rhh6/bundles/integrator-attempt/instructions.txt
+dr-xr-xr-x 4096 v12-w110774-r4b5rhh6/bundles/integrator-attempt/evidence
+dr-xr-xr-x 4096 v12-w110774-r4b5rhh6/bundles/integrator-attempt/blobs
+-r--r--r-- 3333 v12-w110774-r4b5rhh6/bundles/integrator-attempt/integration.json
+-r--r--r-- 994 v12-w110774-r4b5rhh6/bundles/integrator-attempt/evidence/checkpoint.json
+-r--r--r-- 1992 v12-w110774-r4b5rhh6/bundles/integrator-attempt/evidence/authority.json
+-r--r--r-- 1977 v12-w110774-r4b5rhh6/bundles/integrator-attempt/evidence/receipts.json
+-r--r--r-- 493 v12-w110774-r4b5rhh6/bundles/integrator-attempt/evidence/job.json
+-r--r--r-- 694 v12-w110774-r4b5rhh6/bundles/integrator-attempt/evidence/result.json
+-r--r--r-- 1449 v12-w110774-r4b5rhh6/bundles/integrator-attempt/evidence/review.json
+-r--r--r-- 892 v12-w110774-r4b5rhh6/bundles/integrator-attempt/evidence/proposal.json
+-r--r--r-- 777 v12-w110774-r4b5rhh6/bundles/integrator-attempt/evidence/tests.json
+-r--r--r-- 23 v12-w110774-r4b5rhh6/bundles/integrator-attempt/blobs/0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762
