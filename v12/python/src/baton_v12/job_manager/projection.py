@@ -37,7 +37,7 @@ import json
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
-from . import (delegation, documents, ending, episodes, execution_limits,
+from . import (cancellation, delegation, documents, ending, episodes, execution_limits,
                scheduler, schema,
                submission)
 
@@ -551,6 +551,11 @@ def materialized(store, stages=None):
             grouped.setdefault(stage["job_id"], []).append(stage)
         return {"jobs": jobs, "stages": rows, "owned": owned,
                 "stages_by_job": grouped,
+                # W383215: THE FENCES, IN THE SAME READ VIEW as the episodes
+                # they retire, so a stage is never derived beside a request
+                # another moment held.
+                "cancellations": cancellation.requests_of(store),
+                "cancellation_targets": cancellation.targets_of(store),
                 "limits": {job["job_id"]: submission.execution_limits_of(
                     store, job["job_id"]) for job in jobs}}
 
@@ -665,6 +670,10 @@ def stage_states(store, operations, stages=None, snapshot=None):
         # open. Everything it is composed from was materialized above.
         held[stage_id] = dict(
             owned,
+            cancellation=snapshot["cancellations"].get(
+                owned["stage"]["job_id"]),
+            cancellation_targets=snapshot["cancellation_targets"].get(
+                owned["stage"]["job_id"], []),
             observed=(delegation.observation_of(
                 operations, owned["attempt"], owned["job"])
                 if live is not None else delegation.unobserved()))
@@ -727,6 +736,11 @@ def owed_acts(store, operations, held=None):
 
 def _owed(entry):
     if entry["episode"] is None:
+        return None
+    # W383215: A CANCELLED JOB OWES NO ADMISSION AND NO CLAIM. This is the
+    # read-side guard; the write-side fences in `scheduler.reserve` and
+    # `PooledManagerOperations.claim` decide a race this projection lost.
+    if entry.get("cancellation") is not None:
         return None
     if entry["state"] == "queued":
         return "admit"
@@ -937,7 +951,17 @@ def status(store, operations, *, observed_at):
             # CONFIGURED rather than what any command observed -- configuration
             # alone is not evidence that a provider turn ever ran.
             execution_limits=_job_limits(snapshot, job["job_id"]),
-            stages=stages))
+            stages=stages,
+            # W383215: ADDITIVE, AND DERIVED. The request record and the
+            # order records come from the same read view as the stages; the
+            # runtime axes are the observations already acquired above.
+            cancellation=cancellation.reported(
+                snapshot["cancellations"].get(job["job_id"]),
+                snapshot["cancellation_targets"].get(job["job_id"], []),
+                [held[row["stage_id"]]
+                 for row in snapshot["stages_by_job"][job["job_id"]]],
+                observed_of=lambda entry: entry["observed"],
+                now=observed_at)))
     return documents.status(
         schema=documents.STATUS_SCHEMA, observed_at=observed_at,
         incarnation=store.incarnation,

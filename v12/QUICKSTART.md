@@ -268,6 +268,29 @@ is `record recovery-manifest` with `record recovery-check` over a restored
 one — a clean check is a precondition for an operator's admission and never an
 admission itself. Slawomir owns backup, restore and every Git operation.
 
+### Cancelling a Job
+
+The installed command takes the instance selector, the Job and the operator's
+own reason. It journals the cancellation and the admission fence in the Job
+store and reports what the stores say about each target; the serving manager
+carries the request out on its own ticks through the existing cancellation
+owners, and `cancel-status` is the same report read-only:
+
+```sh
+"$DEST/distro/baton-v12-stack" manager cancel-job --instance "$DEST/instance.json" --job JOB --reason "why"
+"$DEST/distro/baton-v12-stack" manager cancel-status --instance "$DEST/instance.json" --job JOB
+```
+
+The same Job and reason replay one committed request; another reason collides.
+A pending or queued stage is retired before admission, a claimed stage is
+fenced at the Authority without a start, and an attached runtime is ordered to
+cease through the exact-generation fence. An order is never cessation: the
+report says `ordered` until the owners prove the runtime ceased, `unresolved`
+once 120 seconds have passed since the request without that proof, and a manager
+that is not serving leaves targets `pending`. Completed outcomes, verdicts and
+outputs are untouched, and a cancelled Job admits no replacement episode,
+correction round or fresh attempt.
+
 ### Retained failed-execution settlement
 
 The installed command accepts an explicit instance selector and the exact Job,

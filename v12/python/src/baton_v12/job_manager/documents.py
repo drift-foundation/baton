@@ -132,7 +132,7 @@ SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
 # AND IT IS A DIAGNOSTIC, NOT A STATE. Nothing in the projection branches on
 # it and no stage state is derived from it; a diagnostic cause is not an
 # acceptance and must not become a second route to `exceptional`.
-STATUS_SCHEMA = "baton.v12.job-status/7"
+STATUS_SCHEMA = "baton.v12.job-status/8"
 
 # The three stages this milestone's vertical slice has. They are a CLOSED
 # vocabulary rather than free text because the projection below maps each one
@@ -639,9 +639,34 @@ CONTRACTS = {
     # W197661 added `deferral` to `stage.status`, which is why it is at /6: a
     # reader that must not mistake a re-enterable deferral for a state has to
     # be able to tell which shape it is holding.
+    # W383215 / LIM-5 added the ADDITIVE `cancellation` member, which is why
+    # STATUS_SCHEMA is at /8: null for a Job nobody cancelled, and the
+    # `job.cancellation-report` document otherwise. No stage state changed.
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",
-                    "execution_limits", "stages"), ()),
+                    "execution_limits", "stages"), ("cancellation",)),
+    # W383215: ONE JOB'S EXPLICIT CANCELLATION, as this store committed it.
+    # `requested_at` is the LIM-5 shutdown trigger and never moves; `observed`
+    # is what the request found at that instant, evidence rather than the
+    # target set the sweep acts on.
+    "job.cancellation": (("operation_id", "job_id", "reason", "requested_at",
+                          "incarnation", "observed"), ()),
+    # One ORDER the sweep placed for one exact target through an existing
+    # owner; `evidence` carries that owner's returned identities. It proves
+    # an order, never cessation.
+    "job.cancellation-target": (("operation_id", "job_id", "stage_id",
+                                 "episode", "attempt_id", "effect",
+                                 "recorded_at", "evidence"), ()),
+    "job.cancellation-target-status": (("stage_id", "episode", "attempt_id",
+                                        "state", "runtime", "cleanup",
+                                        "cessation", "orders"), ()),
+    "job.cancellation-report": (("operation_id", "job_id", "reason",
+                                 "requested_at", "trigger_at",
+                                 "shutdown_bound_seconds", "elapsed_seconds",
+                                 "shutdown", "targets"), ()),
+    # One target the sweep's cancellation pass asked an owner about this tick.
+    "stage.cancellation": (("stage_id", "episode", "attempt_id", "effect",
+                            "outcome"), ("detail",)),
     "status": (("schema", "observed_at", "incarnation", "canonical",
                 "jobs"), ()),
     "reconciliation": (("stage_id", "episode", "act", "outcome",
@@ -669,8 +694,10 @@ CONTRACTS = {
     # the reason `spoken` is separate from `started`: `observed` is canonical
     # state this manager drained, and this is the RUNTIME axis, which no
     # canonical assertion carries.
+    # W383215: `cancelled` names every target the cancellation pass acted on
+    # this tick, present only when it acted on one.
     "sweep": (("observed_at", "recovered", "observed", "replaced", "acts",
-               "started", "spoken", "refreshed"), ()),
+               "started", "spoken", "refreshed"), ("cancelled",)),
     # One live attempt's runtime refresh. `state` is what the reconciliation
     # recorded, or null when this tick could not ask. `detail` carries only
     # what this manager itself can name: a contained refusal's typed category
@@ -779,3 +806,24 @@ def stage_refresh(**members):
 
 def sweep_report(**members):
     return _emit("sweep", members)
+
+
+def job_cancellation(**members):
+    """W383215: the committed cancellation request of one Job."""
+    return _emit("job.cancellation", members)
+
+
+def job_cancellation_target(**members):
+    return _emit("job.cancellation-target", members)
+
+
+def job_cancellation_target_status(**members):
+    return _emit("job.cancellation-target-status", members)
+
+
+def job_cancellation_report(**members):
+    return _emit("job.cancellation-report", members)
+
+
+def stage_cancellation(**members):
+    return _emit("stage.cancellation", members)

@@ -1,0 +1,2662 @@
+diff --git a/v12/QUICKSTART.md b/v12/QUICKSTART.md
+index b23ce38b..f9712329 100644
+--- a/v12/QUICKSTART.md
++++ b/v12/QUICKSTART.md
+@@ -268,6 +268,29 @@ is `record recovery-manifest` with `record recovery-check` over a restored
+ one — a clean check is a precondition for an operator's admission and never an
+ admission itself. Slawomir owns backup, restore and every Git operation.
+ 
++### Cancelling a Job
++
++The installed command takes the instance selector, the Job and the operator's
++own reason. It journals the cancellation and the admission fence in the Job
++store and reports what the stores say about each target; the serving manager
++carries the request out on its own ticks through the existing cancellation
++owners, and `cancel-status` is the same report read-only:
++
++```sh
++"$DEST/distro/baton-v12-stack" manager cancel-job --instance "$DEST/instance.json" --job JOB --reason "why"
++"$DEST/distro/baton-v12-stack" manager cancel-status --instance "$DEST/instance.json" --job JOB
++```
++
++The same Job and reason replay one committed request; another reason collides.
++A pending or queued stage is retired before admission, a claimed stage is
++fenced at the Authority without a start, and an attached runtime is ordered to
++cease through the exact-generation fence. An order is never cessation: the
++report says `ordered` until the owners prove the runtime ceased, `unresolved`
++once 120 seconds have passed since the request without that proof, and a manager
++that is not serving leaves targets `pending`. Completed outcomes, verdicts and
++outputs are untouched, and a cancelled Job admits no replacement episode,
++correction round or fresh attempt.
++
+ ### Retained failed-execution settlement
+ 
+ The installed command accepts an explicit instance selector and the exact Job,
+diff --git a/v12/python/src/baton_v12/job_manager/__init__.py b/v12/python/src/baton_v12/job_manager/__init__.py
+index bdc6f81d..853b37d8 100644
+--- a/v12/python/src/baton_v12/job_manager/__init__.py
++++ b/v12/python/src/baton_v12/job_manager/__init__.py
+@@ -51,6 +51,10 @@ from .documents import (ACTS, CORRECTION_ENDINGS, EPISODE_ENDINGS,
+                         STATUS_SCHEMA, SUBMISSION_SCHEMA, TERMINAL_POLICIES,
+                         TERMINAL_STAGE_STATES, owned_submission,
+                         read_submission, stage_id, submission_signature)
++from .cancellation import (REQUEST_KIND as CANCEL_KIND,
++                           SHUTDOWN_BOUND_SECONDS, fence_of,
++                           report as cancellation_report,
++                           request as request_job_cancellation)
+ from .creation import (CREATE_KIND, DERIVATION_MEMBERS, INSTALLED_SOURCE,
+                        create_template_job, created_job_of,
+                        created_job_rows, resolution_of)
+@@ -121,4 +125,6 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
+            "replaceable", "require_recovery",
+            "serve", "stage_id", "stage_intent", "stage_rows", "stages_of",
+            "reserve", "status", "submission_of", "submission_rows",
+-           "submission_signature", "submit", "sweep"]
++           "submission_signature", "submit", "sweep",
++           "CANCEL_KIND", "SHUTDOWN_BOUND_SECONDS", "cancellation_report",
++           "fence_of", "request_job_cancellation"]
+diff --git a/v12/python/src/baton_v12/job_manager/delegation.py b/v12/python/src/baton_v12/job_manager/delegation.py
+index 6c5f23d8..d7b497f4 100644
+--- a/v12/python/src/baton_v12/job_manager/delegation.py
++++ b/v12/python/src/baton_v12/job_manager/delegation.py
+@@ -56,6 +56,7 @@ import json
+ from ..contracts import ContractRefusal
+ from ..contracts.errors import name_value
+ from ..eventing import EventQueue, pump
++from ..worker_manager.failure_cause import attempt_cessation_outcome_of
+ from ..worker_manager import (attempt_activity_of, attempt_runtime_of,
+                               attempt_preparation_failure_of,
+                               attempt_start_failure_of, boundaries,
+@@ -159,7 +160,10 @@ OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output",
+ # the join -- `ManagerOperations.observe` supplies it from the control store
+ # it already holds, and an observation composed before this member existed is
+ # still a COMPLETE one: it normalizes to `None`, which means nobody looked.
+-OBSERVATION_OPTIONAL = ("integration", "diagnostics", "diagnostic_degradation")
++# W383215: AND THE OWNER'S OWN RECORD OF WHAT A CANCELLATION'S STOP ANSWERED.
++# `None` is "no cancellation outcome recorded"; an intent axis alone is not one.
++OBSERVATION_OPTIONAL = ("integration", "diagnostics", "diagnostic_degradation",
++                        "cessation")
+ 
+ # W126558, `work/records/2026/09/finding-v12-composed-ending-consumer/findings/
+ # finding-integration-stage-observation/OBSERVATION.md` revision 1.
+@@ -241,6 +245,24 @@ ABSENT_RUNTIME = "absent"
+ # unification is a stage state rather than a durable act.
+ 
+ 
++def _cessation_of(control, attempt_id):
++    """The cancellation owner's CURRENT recorded outcome, as plain data.
++
++    Only the members the cancellation pass and the status report decide on:
++    what the engine answered, for which runtime identity, which boundaries
++    crossed, and which generation's account it is. The owner's full record,
++    with its supersession chain, stays readable at the owner.
++    """
++    held = attempt_cessation_outcome_of(control, attempt_id, "cancellation")
++    if held is None:
++        return None
++    return {"outcome": held["outcome"], "runtime_id": held["runtime_id"],
++            "effects": list(held["effects"] or ()),
++            "generation": held["generation"],
++            "correlation_id": held["correlation_id"],
++            "superseded": len(held.get("superseded") or ())}
++
++
+ def unobserved():
+     """The observation of a stage nothing canonical is currently answering for.
+ 
+@@ -251,7 +273,8 @@ def unobserved():
+     return {"claimed_by": None, "runtime": None, "activity": None,
+             "output": None, "start_failure": None,
+             "preparation_failure": None, "exchange": None,
+-            "integration": None, "diagnostics": None, "diagnostic_degradation": None}
++            "integration": None, "diagnostics": None, "diagnostic_degradation": None,
++            "cessation": None}
+ 
+ 
+ def canonical_operation(act, offer_id):
+@@ -394,6 +417,7 @@ def _bound(observed, stage):
+     held.setdefault("integration", None)
+     held.setdefault("diagnostics", None)
+     held.setdefault("diagnostic_degradation", None)
++    held.setdefault("cessation", None)
+     holder = held["claimed_by"]
+     if holder is None:
+         return unobserved()
+@@ -1088,6 +1112,12 @@ class ManagerOperations:
+                 "runtime": attempt_runtime_of(self.control, attempt_id),
+                 "activity": attempt_activity_of(self.control, attempt_id),
+                 "output": frozen_output_of(self.control, attempt_id),
++                # W383215: THE CANCELLATION COMPONENT'S RECORDED OUTCOME, the
++                # tip of its supersession chain, read from the owner. The
++                # runtime axis says `cancel-requested` BEFORE the stop is
++                # asked, so the axis alone cannot say whether a stop crossed;
++                # this record can, and the cancellation pass decides on it.
++                "cessation": _cessation_of(self.control, attempt_id),
+                 "start_failure": attempt_start_failure_of(self.control,
+                                                           attempt_id),
+                 "preparation_failure": attempt_preparation_failure_of(
+diff --git a/v12/python/src/baton_v12/job_manager/documents.py b/v12/python/src/baton_v12/job_manager/documents.py
+index a0289a4a..270d45dc 100644
+--- a/v12/python/src/baton_v12/job_manager/documents.py
++++ b/v12/python/src/baton_v12/job_manager/documents.py
+@@ -132,7 +132,7 @@ SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
+ # AND IT IS A DIAGNOSTIC, NOT A STATE. Nothing in the projection branches on
+ # it and no stage state is derived from it; a diagnostic cause is not an
+ # acceptance and must not become a second route to `exceptional`.
+-STATUS_SCHEMA = "baton.v12.job-status/7"
++STATUS_SCHEMA = "baton.v12.job-status/8"
+ 
+ # The three stages this milestone's vertical slice has. They are a CLOSED
+ # vocabulary rather than free text because the projection below maps each one
+@@ -639,9 +639,34 @@ CONTRACTS = {
+     # W197661 added `deferral` to `stage.status`, which is why it is at /6: a
+     # reader that must not mistake a re-enterable deferral for a state has to
+     # be able to tell which shape it is holding.
++    # W383215 / LIM-5 added the ADDITIVE `cancellation` member, which is why
++    # STATUS_SCHEMA is at /8: null for a Job nobody cancelled, and the
++    # `job.cancellation-report` document otherwise. No stage state changed.
+     "job.status": (("job_id", "submission_id", "input_digest",
+                     "policy_digest", "test_scope", "terminal_policy",
+-                    "execution_limits", "stages"), ()),
++                    "execution_limits", "stages"), ("cancellation",)),
++    # W383215: ONE JOB'S EXPLICIT CANCELLATION, as this store committed it.
++    # `requested_at` is the LIM-5 shutdown trigger and never moves; `observed`
++    # is what the request found at that instant, evidence rather than the
++    # target set the sweep acts on.
++    "job.cancellation": (("operation_id", "job_id", "reason", "requested_at",
++                          "incarnation", "observed"), ()),
++    # One ORDER the sweep placed for one exact target through an existing
++    # owner; `evidence` carries that owner's returned identities. It proves
++    # an order, never cessation.
++    "job.cancellation-target": (("operation_id", "job_id", "stage_id",
++                                 "episode", "attempt_id", "effect",
++                                 "recorded_at", "evidence"), ()),
++    "job.cancellation-target-status": (("stage_id", "episode", "attempt_id",
++                                        "state", "runtime", "cleanup",
++                                        "cessation", "orders"), ()),
++    "job.cancellation-report": (("operation_id", "job_id", "reason",
++                                 "requested_at", "trigger_at",
++                                 "shutdown_bound_seconds", "elapsed_seconds",
++                                 "shutdown", "targets"), ()),
++    # One target the sweep's cancellation pass asked an owner about this tick.
++    "stage.cancellation": (("stage_id", "episode", "attempt_id", "effect",
++                            "outcome"), ("detail",)),
+     "status": (("schema", "observed_at", "incarnation", "canonical",
+                 "jobs"), ()),
+     "reconciliation": (("stage_id", "episode", "act", "outcome",
+@@ -669,8 +694,10 @@ CONTRACTS = {
+     # the reason `spoken` is separate from `started`: `observed` is canonical
+     # state this manager drained, and this is the RUNTIME axis, which no
+     # canonical assertion carries.
++    # W383215: `cancelled` names every target the cancellation pass acted on
++    # this tick, present only when it acted on one.
+     "sweep": (("observed_at", "recovered", "observed", "replaced", "acts",
+-               "started", "spoken", "refreshed"), ()),
++               "started", "spoken", "refreshed"), ("cancelled",)),
+     # One live attempt's runtime refresh. `state` is what the reconciliation
+     # recorded, or null when this tick could not ask. `detail` carries only
+     # what this manager itself can name: a contained refusal's typed category
+@@ -779,3 +806,24 @@ def stage_refresh(**members):
+ 
+ def sweep_report(**members):
+     return _emit("sweep", members)
++
++
++def job_cancellation(**members):
++    """W383215: the committed cancellation request of one Job."""
++    return _emit("job.cancellation", members)
++
++
++def job_cancellation_target(**members):
++    return _emit("job.cancellation-target", members)
++
++
++def job_cancellation_target_status(**members):
++    return _emit("job.cancellation-target-status", members)
++
++
++def job_cancellation_report(**members):
++    return _emit("job.cancellation-report", members)
++
++
++def stage_cancellation(**members):
++    return _emit("stage.cancellation", members)
+diff --git a/v12/python/src/baton_v12/job_manager/episodes.py b/v12/python/src/baton_v12/job_manager/episodes.py
+index 46c385fa..1321e43e 100644
+--- a/v12/python/src/baton_v12/job_manager/episodes.py
++++ b/v12/python/src/baton_v12/job_manager/episodes.py
+@@ -249,6 +249,16 @@ def open_next(store, stage_id, ended):
+     signature = job_signature(OPEN_KIND, operands)
+ 
+     def act(connection):
++        # W383215: NO REPLACEMENT FOR A CANCELLED JOB, decided under the
++        # write lock from the stage's own row.
++        from . import cancellation
++        owner = connection.execute(
++            "SELECT job_id FROM stages WHERE stage_id = ?",
++            (stage_id,)).fetchone()
++        if owner is not None:
++            cancellation.refuse_fenced(connection, owner["job_id"],
++                                       f"opening a replacement episode of "
++                                       f"stage {name_value(stage_id)}")
+         opened_at = store._now()
+         connection.execute(
+             "INSERT INTO episodes (stage_id, episode, offer_id, attempt_id, "
+@@ -626,6 +636,10 @@ def advance_correction(store, custody, *, job_id, line_id, checkpoint_id,
+                         "attempt_id": attempt_id}
+ 
+     def act(connection):
++        # W383215: NO CORRECTION ROUND FOR A CANCELLED JOB, under the lock.
++        from . import cancellation
++        cancellation.refuse_fenced(connection, job_id,
++                                   "opening a correction round")
+         now = store._now()
+         opened = {}
+         # EVERY GUARD FOR THE WHOLE PAIR, BEFORE THE FIRST ROW MOVES. Review
+diff --git a/v12/python/src/baton_v12/job_manager/fresh_attempt.py b/v12/python/src/baton_v12/job_manager/fresh_attempt.py
+index 934db8d5..a56fd3f6 100644
+--- a/v12/python/src/baton_v12/job_manager/fresh_attempt.py
++++ b/v12/python/src/baton_v12/job_manager/fresh_attempt.py
+@@ -81,7 +81,7 @@ import sqlite3
+ from ..contracts import ContractRefusal
+ from ..contracts.errors import name_value, sample_of
+ from ..worker_manager import boundaries
+-from . import documents, episodes, projection, submission
++from . import cancellation, documents, episodes, projection, submission
+ from .store import job_signature
+ 
+ __all__ = ["ACQUIRE_KIND", "INTENT_KIND", "ADMIT_KIND", "admit",
+@@ -238,6 +238,14 @@ def admit(store, operations, *, prior_job_id, exclusion, authorization,
+     if found:
+         return value
+ 
++    # W383215: AN EXPLICITLY CANCELLED JOB IS NOT A FAILED ONE. Its worker's
++    # own `cancelled` ending projects `exceptional`, which is exactly the
++    # state a fresh attempt repeats -- so the fence is asked here, AFTER the
++    # replay (a completed admission keeps answering) and BEFORE any owner is
++    # asked anything, and again inside the reservation lock where the answer
++    # is decided.
++    cancellation.refuse_fenced(store._connection, prior_job_id,
++                               "a fresh attempt at it")
+     document = _composed(store, prior, job_id=job_id, work_id=work_id,
+                          submission_id=submission_id)
+ 
+@@ -755,6 +763,9 @@ def _reserved(store, operands, prior, document):
+     intended = job_signature("submission.record", document)
+ 
+     def act(connection):
++        # W383215: THE FENCE, DECIDED UNDER THE SAME LOCK AS THE RESERVATION.
++        cancellation.refuse_fenced(connection, operands["prior_job_id"],
++                                   "a fresh attempt at it")
+         # THE ORDINARY JOB TABLE IS CHECKED HERE TOO, inside the same lock.
+         # A fresh identity an ordinary submission already holds is not free,
+         # and finding that out at `submit` would be finding it out after the
+diff --git a/v12/python/src/baton_v12/job_manager/manager.py b/v12/python/src/baton_v12/job_manager/manager.py
+index 4bf42e48..bd451114 100644
+--- a/v12/python/src/baton_v12/job_manager/manager.py
++++ b/v12/python/src/baton_v12/job_manager/manager.py
+@@ -38,8 +38,8 @@ _CHECKPOINT_REFUSAL = (ContractRefusal, ProfileRefusal)
+ from ..contracts.errors import name_value
+ from ..worker_manager import boundaries
+ from ..worker_manager import events
+-from . import (delegation, documents, ending, episodes, projection,
+-               scheduler, submission)
++from . import (cancellation, delegation, documents, ending, episodes,
++               projection, scheduler, submission)
+ from .store import job_signature
+ 
+ __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
+@@ -174,6 +174,12 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
+     # and the next one end it without either being edge-triggered on the other.
+     spoken = _converse(store, operations, projection.stage_states(store,
+                                                                   operations))
++    # W383215: AND THE CANCELLATION PASS, AFTER THE EXCHANGE PASS, REACQUIRING
++    # AGAIN. It is level-triggered on the fence and the live axes, so a tick
++    # that finds nothing cancelled does nothing, and a target that attached a
++    # runtime after an earlier order is ordered again through its owner.
++    cancelled = _cancel(store, operations,
++                        projection.stage_states(store, operations))
+     # W119733: AND THE COMPOSED ENDINGS NO PROJECTION OF A LIVE EPISODE CAN
+     # REACH, LAST AND FROM THE JOB JOURNAL RATHER THAN FROM `held`. A
+     # correction round ends the episode that owed the ending and opens its
+@@ -212,7 +218,9 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
+     return documents.sweep_report(observed_at=now, recovered=recovered,
+                                   observed=observed, replaced=replaced,
+                                   acts=acts, started=started, spoken=spoken,
+-                                  refreshed=refreshed)
++                                  refreshed=refreshed,
++                                  **({"cancelled": cancelled} if cancelled
++                                     else {}))
+ 
+ 
+ def _converse(store, operations, held):
+@@ -471,6 +479,18 @@ def _launch(store, operations, held):
+         if entry["state"] != "claimed":
+             continue
+         attempt = entry["attempt"]
++        # W383215: THE FENCE IS RE-READ IMMEDIATELY BEFORE THE START. A
++        # launch is the Worker Manager's act and cannot run under this
++        # store's lock; a cancelled Job's claimed stage is reported deferred
++        # and the cancellation pass fences its assignment instead.
++        if cancellation.fence_of(store, attempt["job_id"]) is not None:
++            started.append(documents.stage_launch(
++                stage_id=stage_id, episode=attempt["episode"],
++                attempt_id=attempt["attempt_id"], outcome="deferred",
++                detail={"category": "refused", "code": "precondition",
++                        "message": "the Job is cancelled; no runtime is "
++                                   "started after the fence"}))
++            continue
+         job = submission.job_of(store, attempt["job_id"])
+         try:
+             answer = operations.launch(attempt, job)
+@@ -676,11 +696,112 @@ def _replace(store, operations):
+         entry = held[stage_id]
+         if not projection.replaceable(entry):
+             continue
++        # W383215: A CANCELLED JOB'S STAGE IS NOT REPLACED. `open_next`
++        # refuses this under its own lock too; skipping here keeps the
++        # ordinary tick from asking a question whose answer is the fence.
++        if entry.get("cancellation") is not None:
++            continue
+         opened.append(episodes.open_next(store, stage_id,
+                                          entry["history"][-1]))
+     return opened
+ 
+ 
++def _cancel(store, operations, held):
++    """Carry every committed cancellation out through the EXISTING owners.
++
++    W383215 / LIM-5. ONE EFFECT PER TARGET PER TICK, decided from the live
++    axes (`cancellation.effect_for`): a claimed attempt whose runtime never
++    started is fenced at the Authority through the composition that would
++    have launched it; an attached runtime is ordered to cease through
++    `request_cancellation`, which fences the exact generation first. Neither
++    answer is cessation, and nothing here says it is: the order is recorded
++    as this store's account of having asked, and the next tick asks the axes
++    again.
++
++    A REFUSAL IS CONTAINED TO ITS TARGET and reported, never swallowed: a
++    deployment that composes no cancellation capability, or an owner that
++    refuses, leaves the target `pending` in the Job's cancellation report
++    with the refusal beside it, which is the honest unknown.
++    """
++    acted = []
++    cancel = getattr(operations, "cancel_attempt", None)
++    fence = getattr(operations, "fence_unstarted_attempt", None)
++    for stage_id in sorted(held):
++        entry = held[stage_id]
++        record = entry.get("cancellation")
++        if record is None or entry["episode"] is None:
++            continue
++        attempt = entry["attempt"]
++        effect = cancellation.effect_for(entry["state"], entry["observed"],
++                                         entry.get("cancellation_targets", ()))
++        if effect is None:
++            continue
++        act = fence if effect == cancellation.FENCE_UNSTARTED else cancel
++        detail = None
++        if act is None:
++            outcome = "refused"
++            detail = {"category": "refused", "code": "capability",
++                      "message": f"this deployment composes no {effect} "
++                                 f"capability"}
++        else:
++            try:
++                if effect == cancellation.FENCE_UNSTARTED:
++                    answer = act(attempt, reason=record["reason"])
++                else:
++                    answer = act(attempt_id=attempt["attempt_id"],
++                                 reason=record["reason"])
++            except ContractRefusal as refusal:
++                outcome = "refused" if refusal.durable else "deferred"
++                detail = {"category": refusal.category,
++                          "code": refusal.code, "message": refusal.message}
++            else:
++                # RECORDED ONLY WHEN THE OWNER SAYS IT ORDERED. A returned
++                # answer whose quiescence says `ordered: false` (fenced, but
++                # nothing resolved to stop) is reported as such and left for
++                # the next tick; the Authority fence is the owner's and
++                # replays.
++                if effect == cancellation.ORDER_CESSATION and not (
++                        type(answer) is dict
++                        and type(answer.get("quiescence")) is dict
++                        and answer["quiescence"].get("ordered") is True):
++                    outcome = "not-ordered"
++                    detail = {"category": "runtime-observation",
++                              "code": "quiescence-unknown",
++                              "message": "the owner fenced the assignment "
++                                         "and ordered no stop; nothing "
++                                         "resolved to a runtime"}
++                else:
++                    outcome = "ordered"
++                    cancellation.record_target(
++                        store, job_id=attempt["job_id"], stage_id=stage_id,
++                        episode=attempt["episode"],
++                        attempt_id=attempt["attempt_id"], effect=effect,
++                        evidence=_order_evidence(answer))
++        acted.append(documents.stage_cancellation(
++            stage_id=stage_id, episode=attempt["episode"],
++            attempt_id=attempt["attempt_id"], effect=effect, outcome=outcome,
++            **({} if detail is None else {"detail": detail})))
++    return acted
++
++
++def _order_evidence(answer):
++    """The owner's returned identities, and nothing a journal may not hold."""
++    if type(answer) is not dict:
++        return {}
++    held = {}
++    intent = answer.get("intent")
++    if type(intent) is dict:
++        for member in ("authority_operation_id", "assignment", "reason"):
++            if member in intent:
++                held[member] = intent[member]
++    fenced = answer.get("fenced")
++    if type(fenced) is dict:
++        held["fenced"] = {member: fenced[member]
++                          for member in ("cause", "phase", "gate", "fenced")
++                          if member in fenced}
++    return held
++
++
+ def _recorded_failure(operations, attempt, job):
+     """Did the Worker Manager durably record that THIS attempt will not run?
+ 
+diff --git a/v12/python/src/baton_v12/job_manager/projection.py b/v12/python/src/baton_v12/job_manager/projection.py
+index 6e8ff681..87a43b72 100644
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -37,7 +37,7 @@ import json
+ from ..contracts import ContractRefusal
+ from ..contracts.errors import name_value
+ from ..worker_manager import boundaries
+-from . import (delegation, documents, ending, episodes, execution_limits,
++from . import (cancellation, delegation, documents, ending, episodes, execution_limits,
+                scheduler, schema,
+                submission)
+ 
+@@ -551,6 +551,11 @@ def materialized(store, stages=None):
+             grouped.setdefault(stage["job_id"], []).append(stage)
+         return {"jobs": jobs, "stages": rows, "owned": owned,
+                 "stages_by_job": grouped,
++                # W383215: THE FENCES, IN THE SAME READ VIEW as the episodes
++                # they retire, so a stage is never derived beside a request
++                # another moment held.
++                "cancellations": cancellation.requests_of(store),
++                "cancellation_targets": cancellation.targets_of(store),
+                 "limits": {job["job_id"]: submission.execution_limits_of(
+                     store, job["job_id"]) for job in jobs}}
+ 
+@@ -665,6 +670,10 @@ def stage_states(store, operations, stages=None, snapshot=None):
+         # open. Everything it is composed from was materialized above.
+         held[stage_id] = dict(
+             owned,
++            cancellation=snapshot["cancellations"].get(
++                owned["stage"]["job_id"]),
++            cancellation_targets=snapshot["cancellation_targets"].get(
++                owned["stage"]["job_id"], []),
+             observed=(delegation.observation_of(
+                 operations, owned["attempt"], owned["job"])
+                 if live is not None else delegation.unobserved()))
+@@ -728,6 +737,11 @@ def owed_acts(store, operations, held=None):
+ def _owed(entry):
+     if entry["episode"] is None:
+         return None
++    # W383215: A CANCELLED JOB OWES NO ADMISSION AND NO CLAIM. This is the
++    # read-side guard; the write-side fences in `scheduler.reserve` and
++    # `PooledManagerOperations.claim` decide a race this projection lost.
++    if entry.get("cancellation") is not None:
++        return None
+     if entry["state"] == "queued":
+         return "admit"
+     # `offered` is the only state a claim is owed from. A claimed, running or
+@@ -937,7 +951,17 @@ def status(store, operations, *, observed_at):
+             # CONFIGURED rather than what any command observed -- configuration
+             # alone is not evidence that a provider turn ever ran.
+             execution_limits=_job_limits(snapshot, job["job_id"]),
+-            stages=stages))
++            stages=stages,
++            # W383215: ADDITIVE, AND DERIVED. The request record and the
++            # order records come from the same read view as the stages; the
++            # runtime axes are the observations already acquired above.
++            cancellation=cancellation.reported(
++                snapshot["cancellations"].get(job["job_id"]),
++                snapshot["cancellation_targets"].get(job["job_id"], []),
++                [held[row["stage_id"]]
++                 for row in snapshot["stages_by_job"][job["job_id"]]],
++                observed_of=lambda entry: entry["observed"],
++                now=observed_at)))
+     return documents.status(
+         schema=documents.STATUS_SCHEMA, observed_at=observed_at,
+         incarnation=store.incarnation,
+diff --git a/v12/python/src/baton_v12/job_manager/scheduler.py b/v12/python/src/baton_v12/job_manager/scheduler.py
+index 897341f3..93c3bd4d 100644
+--- a/v12/python/src/baton_v12/job_manager/scheduler.py
++++ b/v12/python/src/baton_v12/job_manager/scheduler.py
+@@ -12,6 +12,7 @@ from ..contracts import ContractRefusal, canonical_text, digest
+ from ..contracts.errors import name_value
+ from ..worker_manager import boundaries
+ from .store import job_signature
++from . import cancellation
+ 
+ __all__ = ["ALLOCATION_STATES", "INTEGRATION_COMPLETED", "LANES", "POOL_SCHEMA",
+            "SEPARATION_CLASSES", "PooledManagerOperations", "activate_pool",
+@@ -331,6 +332,12 @@ def reserve(store, stage, *, excluded=None):
+                                "episode": stage["episode"]})
+ 
+     def perform(connection):
++        # W383215: THE WRITE-SIDE ADMISSION FENCE. The reservation is the
++        # reserve-before-offer write, so a cancelled Job refused here issues
++        # no offer whatever a projection taken a moment earlier owed.
++        cancellation.refuse_fenced(connection, stage["job_id"],
++                                   f"reserving a worker for stage "
++                                   f"{name_value(stage['stage_id'])}")
+         generation = connection.execute(
+             "SELECT generation FROM pool_generations ORDER BY generation DESC "
+             "LIMIT 1").fetchone()
+@@ -897,6 +904,13 @@ class PooledManagerOperations:
+             raise
+ 
+     def claim(self, stage):
++        # W383215: RE-READ THE FENCE BEFORE THE CLAIM IS TAKEN. A claim is the
++        # Authority's act and cannot run under this store's lock, so the
++        # fence is read here, immediately before it; an admission that still
++        # wins the race is found by the next tick's cancellation pass.
++        cancellation.refuse_fenced(self.store._connection, stage["job_id"],
++                                   f"claiming stage "
++                                   f"{name_value(stage['stage_id'])}")
+         allocation = self._allocation(stage)
+         if allocation is None:
+             _refuse(f"stage {name_value(stage['stage_id'])} has an offer but "
+diff --git a/v12/python/tests/job_manager/test_delegation.py b/v12/python/tests/job_manager/test_delegation.py
+index 022a2cf7..6ea00b54 100644
+--- a/v12/python/tests/job_manager/test_delegation.py
++++ b/v12/python/tests/job_manager/test_delegation.py
+@@ -153,7 +153,10 @@ class Observation(JobManagerCase):
+                                     # W126558: and the same answer for the
+                                     # integration read, for the same reason.
+                                     "integration": None, "diagnostics": None,
+-                                    "diagnostic_degradation": None})
++                                    "diagnostic_degradation": None,
++                                    # W383215: and no cancellation outcome
++                                    # was ever recorded for it.
++                                    "cessation": None})
+ 
+     def test_the_closed_surface_is_what_a_deployment_must_supply(self):
+         acts = self.operations()
+@@ -242,7 +245,8 @@ class Observation(JobManagerCase):
+                           "start_failure": None,
+                           "preparation_failure": None, "exchange": None,
+                           "integration": None, "diagnostics": None,
+-                                    "diagnostic_degradation": None})
++                                    "diagnostic_degradation": None,
++                      "cessation": None})
+         for call in (lambda: unobserved.receipt_of("offer.issue:x"),
+                      lambda: unobserved.recover(now=NOW),
+                      lambda: unobserved.admit({}, {}),
+diff --git a/v12/python/tests/job_manager/test_exchange.py b/v12/python/tests/job_manager/test_exchange.py
+index 6447ebf5..09031dbf 100644
+--- a/v12/python/tests/job_manager/test_exchange.py
++++ b/v12/python/tests/job_manager/test_exchange.py
+@@ -226,7 +226,7 @@ class AStartedContainerIsNotWorkInProgress(ExchangeCase):
+     def test_the_status_schema_says_the_vocabulary_moved(self):
+         self.assertEqual(status(self.jobs, self.acts,
+                                 observed_at=NOW)["schema"],
+-                         "baton.v12.job-status/7")
++                         "baton.v12.job-status/8")
+ 
+ 
+ class AReaderWithNoExchangeStillTellsTheTruth(ExchangeCase):
+diff --git a/v12/python/tests/job_manager/test_execution_limits.py b/v12/python/tests/job_manager/test_execution_limits.py
+index acda77f7..3c7c5467 100644
+--- a/v12/python/tests/job_manager/test_execution_limits.py
++++ b/v12/python/tests/job_manager/test_execution_limits.py
+@@ -273,7 +273,7 @@ class TheStoreKeepsWhatTheJobAskedFor(JobManagerCase):
+         submit(store, limited(verification_command_seconds=120))
+         held = projection.status(store, self.operations(),
+                                  observed_at=NOW)
+-        self.assertEqual(held["schema"], "baton.v12.job-status/7")
++        self.assertEqual(held["schema"], "baton.v12.job-status/8")
+         [entry] = [one for one in held["jobs"] if one["job_id"] == "job-a"]
+         answer = entry["execution_limits"]
+         self.assertEqual(answer["requested"],
+diff --git a/v12/python/tests/job_manager/test_native_permission.py b/v12/python/tests/job_manager/test_native_permission.py
+index 5f35e988..75c0588e 100644
+--- a/v12/python/tests/job_manager/test_native_permission.py
++++ b/v12/python/tests/job_manager/test_native_permission.py
+@@ -674,7 +674,7 @@ class TheOwnerFailureReachesTheReportThroughStatus(NativeComposedCase):
+         from tools import attempt_diagnostics
+ 
+         document = projected(held.job, held.composed, observed_at=observed_at)
+-        self.assertEqual(document['schema'], 'baton.v12.job-status/7')
++        self.assertEqual(document['schema'], 'baton.v12.job-status/8')
+         report = attempt_diagnostics.report(
+             _json.dumps(document).encode('utf-8'))
+         row = [one for one in report['rows']
+diff --git a/v12/python/tests/job_manager/test_tool.py b/v12/python/tests/job_manager/test_tool.py
+index c42d1b20..aef2d18a 100644
+--- a/v12/python/tests/job_manager/test_tool.py
++++ b/v12/python/tests/job_manager/test_tool.py
+@@ -166,7 +166,7 @@ class Reading(ToolCase):
+                                "--authority-uuid", UUID,
+                                "--incarnation", "jobs-1", "status")
+         self.assertFalse(answer["canonical"])
+-        self.assertEqual(answer["schema"], "baton.v12.job-status/7")
++        self.assertEqual(answer["schema"], "baton.v12.job-status/8")
+         self.assertEqual([one["job_id"] for one in answer["jobs"]],
+                          ["job-a", "job-b"])
+ 
+@@ -226,7 +226,7 @@ class Reading(ToolCase):
+             "--control", self.control_path,
+             "--observe", "tests.job_manager.test_tool:observing")
+         self.assertTrue(answer["canonical"])
+-        self.assertEqual(answer["schema"], "baton.v12.job-status/7")
++        self.assertEqual(answer["schema"], "baton.v12.job-status/8")
+         self.assertEqual([one["job_id"] for one in answer["jobs"]],
+                          ["job-a", "job-b"])
+         # THE READER WAS ASKED FOR EVERY STAGE, which is what the projection
+@@ -568,7 +568,7 @@ class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
+         self.submitted()
+         without = self.status()
+         self.assertFalse(without["canonical"])
+-        self.assertEqual(without["schema"], "baton.v12.job-status/7")
++        self.assertEqual(without["schema"], "baton.v12.job-status/8")
+         self.assertEqual([one["job_id"] for one in without["jobs"]],
+                          ["job-a", "job-b"])
+         with_control = self.status("--control", self.control_path)
+diff --git a/v12/python/tests/tools/test_attempt_diagnostics.py b/v12/python/tests/tools/test_attempt_diagnostics.py
+index ecfb6d56..3a53ed26 100644
+--- a/v12/python/tests/tools/test_attempt_diagnostics.py
++++ b/v12/python/tests/tools/test_attempt_diagnostics.py
+@@ -33,7 +33,7 @@ def document(**stage):
+                 diagnostic[axis] = {key: {"known": True, "value": value, "source": "fixture"} for key, value in diagnostic[axis].items()}
+         stage["attempt_diagnostics"] = diagnostic
+     held.update(stage)
+-    return {"schema": "baton.v12.job-status/7",
++    return {"schema": "baton.v12.job-status/8",
+             "jobs": [{"job_id": "job-1", "stages": [held]}]}
+ 
+ 
+diff --git a/v12/python/tests/tools/test_bootstrap.py b/v12/python/tests/tools/test_bootstrap.py
+index 9be1283b..a40102b8 100644
+--- a/v12/python/tests/tools/test_bootstrap.py
++++ b/v12/python/tests/tools/test_bootstrap.py
+@@ -1389,7 +1389,7 @@ class TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE(unittest.TestCase):
+         self.assertIs(published.get("canonical"), True)
+         self.assertEqual(published.get("jobs"), [])
+         self.assertTrue(published.get("observed_at"))
+-        self.assertEqual(published.get("schema"), "baton.v12.job-status/7")
++        self.assertEqual(published.get("schema"), "baton.v12.job-status/8")
+         # AND IT IS THIS RUN'S: `start` refuses unless a snapshot was written
+         # DURING it, which is the gate the message above reports.
+         self.assertGreater(os.path.getmtime(place), self.started)
+diff --git a/v12/python/tests/tools/test_worker_visibility.py b/v12/python/tests/tools/test_worker_visibility.py
+index 3ef19fc0..ea75788d 100644
+--- a/v12/python/tests/tools/test_worker_visibility.py
++++ b/v12/python/tests/tools/test_worker_visibility.py
+@@ -364,7 +364,7 @@ class EveryCurrentStageGetsARow(VisibilityCase):
+         self.submitted()
+         held = visibility(self.document())
+         self.assertEqual(held["schema"], "baton.v12.worker-visibility/1")
+-        self.assertEqual(held["source_schema"], "baton.v12.job-status/7")
++        self.assertEqual(held["source_schema"], "baton.v12.job-status/8")
+ 
+     def test_every_known_fact_resolves_to_the_path_it_claims(self):
+         """The provenance is walked back into the source document.
+@@ -1036,7 +1036,7 @@ class TheDocumentIsValidatedBeforeAnythingIsReported(VisibilityCase):
+         document["schema"] = "baton.v12.job-status/99"
+         with self.assertRaises(VisibilityRefusal) as caught:
+             visibility(document)
+-        self.assertIn("baton.v12.job-status/7", str(caught.exception))
++        self.assertIn("baton.v12.job-status/8", str(caught.exception))
+ 
+     def test_the_refusal_does_not_echo_the_rejected_input(self):
+         """A message assembled out of an untrusted document lets that document
+@@ -1180,7 +1180,7 @@ class TheDocumentIsValidatedBeforeAnythingIsReported(VisibilityCase):
+ 
+         self.assertEqual(worker_visibility.SOURCE_SCHEMA,
+                          documents.STATUS_SCHEMA)
+-        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/7")
++        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/8")
+ 
+     def test_an_oversize_document_refuses_rather_than_truncating(self):
+         self.submitted()
+@@ -1249,7 +1249,7 @@ class TheCommandReadsAFileAndAnswersJSON(VisibilityCase):
+         document["schema"] = "baton.v12.job-status/99"
+         code, output = self.ran(["--snapshot", self.written(document)])
+         self.assertEqual(code, 2)
+-        self.assertIn("baton.v12.job-status/7", json.loads(output)["refused"])
++        self.assertIn("baton.v12.job-status/8", json.loads(output)["refused"])
+         self.assertNotIn("stages", json.loads(output))
+ 
+     def test_an_oversize_file_refuses_rather_than_reading_a_subset(self):
+@@ -1325,7 +1325,7 @@ class TheViewOpensNothingAndActsNotAtAll(VisibilityCase):
+         self.assertEqual(code, 0)
+         self.assertEqual(self.acts.calls, before)
+         self.assertEqual(json.loads(stream.getvalue())["source_schema"],
+-                         "baton.v12.job-status/7")
++                         "baton.v12.job-status/8")
+ 
+     def test_the_stores_are_unchanged_by_being_viewed(self):
+         """The disposable owner state is established before and compared
+@@ -1374,7 +1374,7 @@ class TheViewOpensNothingAndActsNotAtAll(VisibilityCase):
+         """The contract this view reads is the producer's and stays theirs."""
+         from baton_v12.job_manager import documents
+ 
+-        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/7")
++        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/8")
+         self.assertEqual(
+             documents.CONTRACTS["stage.status"][0],
+             ("stage_id", "job_id", "kind", "state", "work_id", "profile_name",
+diff --git a/v12/python/tools/job_manager.py b/v12/python/tools/job_manager.py
+index 6e87f198..51789b91 100644
+--- a/v12/python/tools/job_manager.py
++++ b/v12/python/tools/job_manager.py
+@@ -1238,15 +1238,18 @@ def _serve(taken, clock, stream):
+ 
+ def main(argv, *, clock=None, stream=None):
+     import argparse
+-    from tools import stopped_settlement
++    from tools import job_cancellation, stopped_settlement
+     if argv and argv[0] in stopped_settlement.COMMANDS:
+         return stopped_settlement.main(argv, clock=clock, stream=stream)
++    if argv and argv[0] in job_cancellation.COMMANDS:
++        return job_cancellation.main(argv, clock=clock, stream=stream)
+ 
+     parser = argparse.ArgumentParser(
+         prog="job_manager",
+         description="Submit Jobs to the v12 Job manager, read its status, or "
+                     "run its control loop. Instance-addressed commands: "
+-                    "settlement-preview, settle-stopped, settlement-status "
++                    "settlement-preview, settle-stopped, settlement-status, "
++                    "cancel-job, cancel-status "
+                     "(invoke the command first, then --help).")
+     parser.add_argument("--store", required=True,
+                         help="the Job store's path; there is no default, and "
+diff --git a/v12/python/tools/parallel_test.py b/v12/python/tools/parallel_test.py
+index 209b568e..60905a6c 100644
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -425,6 +425,9 @@ PARALLEL_MODULES = ("tests.tools.test_stack",
+     "tests.tools.test_scheduler_trace",
+     "tests.tools.test_stage_execution_hardening",
+     "tests.tools.test_stage_execution_status_hardening",
++    # W383215: the installed cancel commands over a disposable installed
++    # instance and a serving composition with the recording fake engine.
++    "tests.tools.test_job_cancellation_command",
+     "tests.tools.test_standalone_ab",
+     # W384870. The modules found registered nowhere by the 2026-10-29 baseline
+     # audit, each read before classification: none reaches a daemon (every
+@@ -437,6 +440,9 @@ PARALLEL_MODULES = ("tests.tools.test_stack",
+     "tests.job_manager.test_fresh_attempt",
+     "tests.job_manager.test_native_permission",
+     "tests.job_manager.test_native_stop_restart",
++    # W383215: the Job-store cancellation owner and its fences. PARALLEL: real
++    # disposable stores per case, fake session and operations, no engine.
++    "tests.job_manager.test_job_cancellation",
+     "tests.job_manager.test_role_capability",
+     "tests.job_manager.test_role_contract",
+     "tests.job_manager.test_serving_renewal",
+diff --git a/v12/python/tools/single_worker.py b/v12/python/tools/single_worker.py
+index 354f9771..e28d527a 100644
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -38,6 +38,7 @@ from baton_v12.worker_manager import (AuthorityPort, DISPOSITIONS,
+                                       activate_assignment,
+                                       attempt_preparation_failure_of,
+                                       attempt_runtime_of,
++                                      fence_pre_attach_abandonment,
+                                       attempt_start_failure_of,
+                                       authorize_cleanup, certify_profile,
+                                       claimed_offers_for,
+@@ -2830,6 +2831,37 @@ class _SingleWorker:
+             self._adapter(roots, None, None, None, attempt_id=attempt_id),
+             attempt_id=attempt_id, reason=reason)
+ 
++    def fence_unstarted_attempt(self, stage, *, reason):
++        """W383215: fence a CLAIMED attempt whose runtime never started.
++
++        The two preparation acts the launch performs first -- the attempt
++        record and the activation against the claimed offer's own assignment
++        -- are performed or replayed here exactly as `launch` performs them,
++        and then `intake.fence_pre_attach_abandonment` ends the assignment at
++        the Authority. No credential is materialized, no workspace prepared,
++        no runtime started. The answer is the fence, which for an attempt
++        that has no runtime is also the end of what could execute.
++        """
++        boundaries.identity(stage["attempt_id"], "a runtime attempt id")
++        row = self._claim(stage)
++        attempt_id = stage["attempt_id"]
++        if attempt_runtime_of(self.control, attempt_id) is None:
++            given = self._given_for(stage)
++            record_attempt(
++                self.control, attempt_id=attempt_id,
++                adapter_name=given["adapter_name"],
++                adapter_digest=given["adapter_digest"],
++                profile_digest=given["profile_digest"],
++                input_digest=given["input_manifest"]["manifest_digest"],
++                policy_digest=given["policy_digest"],
++                image_digest=given["image_digest"],
++                toolchain_digest=given["input_manifest"]["toolchain_digest"])
++        activate_assignment(self.control, self.port, attempt_id=attempt_id,
++                            expect=_assignment(row))
++        return fence_pre_attach_abandonment(self.control, self.port,
++                                            attempt_id=attempt_id,
++                                            reason=reason)
++
+     def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
+                         reclaim=None):
+         """W247941: the manager's FOURTH ending, reachable by its owner.
+@@ -3501,6 +3533,10 @@ class _Operations(ManagerOperations):
+         return self._worker.cancel_attempt(attempt_id=attempt_id,
+                                            reason=reason)
+ 
++    def fence_unstarted_attempt(self, stage, *, reason):
++        """W383215: the composed worker's own pre-attach fence, likewise."""
++        return self._worker.fence_unstarted_attempt(stage, reason=reason)
++
+     def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
+                         reclaim=None):
+         """W247941: the composed worker's own FOURTH ending, likewise."""
+diff --git a/v12/python/tools/stack.py b/v12/python/tools/stack.py
+index 6227d034..323ecce6 100644
+--- a/v12/python/tools/stack.py
++++ b/v12/python/tools/stack.py
+@@ -83,7 +83,7 @@ ABSENT, LIVE, GONE, UNKNOWN = "absent", "live", "gone", "unknown"
+ # `just status` still answers on an installation too broken to import the
+ # package -- which is exactly when an operator needs it. The copy cannot drift
+ # silently: `tests/tools/test_stack.py` holds it equal to the original.
+-STATUS_SCHEMA = "baton.v12.job-status/7"
++STATUS_SCHEMA = "baton.v12.job-status/8"
+ 
+ # What `job_manager serve` prints on stderr once its deployment has composed.
+ # REVIEW 2026-09-16T06-00-07Z [C3]: an observer's published snapshot is
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index af2cb0cc..6323788e 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -4799,6 +4799,32 @@ class StageExecution:
+                     code="capability")
+         return cancel(attempt_id=attempt_id, reason=reason)
+ 
++    def fence_unstarted_attempt(self, stage, *, reason):
++        """W383215: fence a claimed, never-started attempt through its owner.
++
++        Routed exactly as `cancel_attempt` is -- by the recorded allocation
++        to the worker that would have launched it -- because the claimed
++        offer, the port and the attempt record are that composition's.
++        """
++        attempt_id = stage["attempt_id"]
++        recorded = allocation_of(self.pooled.store, attempt_id)
++        if recorded is None:
++            _refuse(f"attempt {attempt_id!r} has no recorded allocation, so "
++                    f"this deployment cannot say which worker holds its "
++                    f"claim", category="refused", code="precondition")
++        owners = {one["worker_id"]: one["operations"] for one in self.workers}
++        operations = owners.get(recorded["worker_id"])
++        if operations is None:
++            _refuse(f"attempt {attempt_id!r} is allocated to worker "
++                    f"{recorded['worker_id']!r}, which this deployment does "
++                    f"not compose", category="refused", code="precondition")
++        fence = getattr(operations, "fence_unstarted_attempt", None)
++        if fence is None:
++            _refuse(f"worker {recorded['worker_id']!r} composes no "
++                    f"pre-attach fence capability", category="refused",
++                    code="capability")
++        return fence(stage, reason=reason)
++
+     def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
+                         reclaim=None):
+         """Route the FOURTH ending to the worker that STARTED this attempt.
+diff --git a/v12/python/tools/worker_visibility.py b/v12/python/tools/worker_visibility.py
+index 3567690a..bf507a81 100644
+--- a/v12/python/tools/worker_visibility.py
++++ b/v12/python/tools/worker_visibility.py
+@@ -1,7 +1,7 @@
+ """W324214 -- the minimum read-only worker visibility view.
+ 
+ WHAT IT IS. A bounded PROJECTION over one status document the Job Manager
+-already publishes (`baton.v12.job-status/7`): one row per current stage, with
++already publishes (`baton.v12.job-status/8`): one row per current stage, with
+ the worker, allocation, runtime, exchange and activity facts that document
+ actually carries, each labelled with WHERE IT CAME FROM and -- when the source
+ records one -- WHEN IT WAS OBSERVED. It answers "which worker is this stage
+@@ -62,7 +62,7 @@ operator's terminal view of the same document and owns the reading of it:
+ input, and this module calls it rather than growing a second reader. What is
+ new here is the JSON PROJECTION -- per-fact provenance, per-fact unknown
+ reasons and the explicit attempt-association checks -- published under its own
+-version, `baton.v12.worker-visibility/1`. `baton.v12.job-status/7` is
++version, `baton.v12.worker-visibility/1`. `baton.v12.job-status/8` is
+ unchanged by this Work.
+ 
+ ONE DELIBERATE DISAGREEMENT WITH THE VIEWER, stated out loud: the terminal
+diff --git a/v12/python/src/baton_v12/job_manager/cancellation.py b/v12/python/src/baton_v12/job_manager/cancellation.py
+new file mode 100644
+index 00000000..b32d8e79
+--- /dev/null
++++ b/v12/python/src/baton_v12/job_manager/cancellation.py
+@@ -0,0 +1,475 @@
++"""W383215 / DESIGN LIM-5: explicit Job cancellation and the admission fence.
++
++WHAT THIS OWNS. One durable, replayable CANCELLATION REQUEST per Job, journalled
++in this store before any external effect, and the FENCE every admission owner
++of this store reads inside its own write transaction: a fenced Job reserves no
++worker, claims no offer, launches no runtime, opens no replacement episode, no
++correction round and no fresh attempt. The request names the Job, the reason
++and the moment it was committed; that moment is the shutdown-attempt trigger
++LIM-5 measures from, and nothing moves it afterwards.
++
++WHAT IT DOES NOT OWN, deliberately. Cessation. A request is an intent and a
++fence; it is not an ending, not a verdict, not a cleanup and not cessation
++evidence. The serving sweep carries the request out through the EXISTING
++owners -- `request_cancellation` for an attached runtime, the pre-attach
++assignment fence for a claimed attempt that never started -- and those owners'
++own axes and endings are the only account of whether anything ceased. A
++`job.cancel.target` record proves that an ORDER was placed for one exact
++target; reconciliation keeps looking at the target every tick afterwards.
++
++TWO STORES, NO CROSS-STORE TRANSACTION. Everything here that runs inside a
++transaction reads this database only. The control store's attempt axes are
++read by the callers AFTER this store's boundary is released, and are handed in
++as plain documents.
++"""
++
++import json
++from datetime import datetime, timezone
++
++from ..contracts import ContractRefusal, digest
++from ..contracts.errors import name_value
++from ..worker_manager import boundaries
++from . import documents, episodes, submission
++from .store import job_signature
++
++__all__ = ["REQUEST_KIND", "TARGET_KIND", "EFFECTS", "TARGET_STATES",
++           "SETTLED_STATES", "SHUTDOWN_STATES", "SHUTDOWN_BOUND_SECONDS",
++           "request_operation_id", "target_operation_id", "request",
++           "fence_of", "fenced", "refuse_fenced", "requests_of",
++           "targets_of", "record_target", "effect_for", "target_state",
++           "reported", "report", "observed_from"]
++
++REQUEST_KIND = "job.cancel"
++TARGET_KIND = "job.cancel.target"
++
++# THE TWO EFFECTS THE SWEEP CAN ORDER, each through one existing owner.
++ORDER_CESSATION = "order-cessation"
++FENCE_UNSTARTED = "fence-unstarted"
++EFFECTS = (ORDER_CESSATION, FENCE_UNSTARTED)
++
++# What one target of a request is reported as. `ceased`,
++# `retired-before-admission`, `fenced-unstarted` and `ended-before-request`
++# are SETTLED for the shutdown attempt: nothing of that target can still be
++# executing. Everything else is still being reconciled.
++# `ended-before-request` is any ending this request did not order: the
++# attempt ended on its own account, before or beside the request, and its
++# outcome, verdict and output stand exactly as the owners recorded them.
++# `order-failed` is the owner's own record that its stop did not cross for
++# the attached runtime; the pass asks again on the next tick. `ending-in-
++# progress` is a worker that answered, whose ending the ending owners drive.
++TARGET_STATES = ("retired-before-admission", "awaiting-offer-lapse",
++                 "pending", "fenced-unstarted", "ordered", "order-failed",
++                 "ending-in-progress", "ceased", "ended-before-request",
++                 "held-unknown")
++SETTLED_STATES = frozenset(("retired-before-admission", "fenced-unstarted",
++                            "ceased", "ended-before-request"))
++
++# LIM-5: a bounded shutdown attempt after the trigger, reported separately.
++SHUTDOWN_BOUND_SECONDS = 120
++SHUTDOWN_STATES = ("complete", "within-bound", "unresolved", "unknown-time")
++
++# The cancellation owner's outcomes that mean its stop did NOT cross.
++_FAILED_OUTCOMES = frozenset(("stop-failed", "engine-unavailable",
++                              "fenced-not-ordered"))
++_CEASED_CLEANUP = frozenset(("complete", "retained"))
++
++
++def _refuse(message, *, category="refused", code="precondition"):
++    raise ContractRefusal(category, code, message)
++
++
++def request_operation_id(job_id):
++    """ONE request per Job, so a repeat replays and a changed one collides."""
++    return f"{REQUEST_KIND}:{job_id}"
++
++
++def target_operation_id(authority_uuid, job_id, stage_id, episode, attempt_id,
++                        effect):
++    """One order per exact target and effect.
++
++    Bound to the Authority namespace, the Job, the stage, the EPISODE and the
++    attempt, so a replacement episode of the same stage -- which this fence
++    forbids, but which a store from before the fence may hold -- can never
++    replay an order placed for its predecessor.
++    """
++    return TARGET_KIND + ":" + digest({
++        "authority_uuid": authority_uuid, "job_id": job_id,
++        "stage_id": stage_id, "episode": episode, "attempt_id": attempt_id,
++        "effect": effect})[len("sha256:"):]
++
++
++def request(store, *, job_id, reason):
++    """Record the explicit cancellation of one Job, effectively once.
++
++    REPLAY IS BY IDENTITY AND SIGNATURE. The same Job and reason answer the
++    committed record; the same Job with another reason is an operation
++    collision, because one Job has one cancellation and a second account of it
++    would be the second ledger this Work refuses to invent.
++
++    WHAT IS OBSERVED IS EVIDENCE, NOT THE TARGET SET. The stages and live
++    episodes seen inside this commit are recorded so a reader can see what the
++    request found; what the sweep acts on is derived afresh on every tick from
++    the live rows, so an admission that won a race against this fence is still
++    found and reconciled afterwards.
++    """
++    boundaries.identity(job_id, "a Job id")
++    reason = boundaries.text(reason, "a cancellation reason")
++    if not reason.strip():
++        _refuse("a cancellation carries the operator's own reason; calling "
++                "this operation IS the request, so a blank one is a request "
++                "nobody made", category="integrity", code="schema")
++    operands = {"job_id": job_id, "reason": reason}
++    signature = job_signature(REQUEST_KIND, operands)
++    operation_id = request_operation_id(job_id)
++
++    def act(connection):
++        if submission.job_of(store, job_id) is None:
++            _refuse(f"Job {name_value(job_id)} is not held by this store; a "
++                    f"cancellation names work this manager admitted")
++        observed = []
++        for stage in submission.stages_of(store, job_id):
++            live = episodes.live_of(store, stage["stage_id"])
++            observed.append({
++                "stage_id": stage["stage_id"], "kind": stage["kind"],
++                "episode": live["episode"] if live is not None else None,
++                "attempt_id": (live["attempt_id"] if live is not None
++                               else None),
++                "episodes": len(episodes.episodes_of(store,
++                                                     stage["stage_id"]))})
++        return documents.job_cancellation(
++            operation_id=operation_id, job_id=job_id, reason=reason,
++            requested_at=store._now(), incarnation=store.incarnation,
++            observed=observed)
++
++    return store.transact(operation_id, REQUEST_KIND, signature, act)
++
++
++def fenced(connection, job_id):
++    """The committed cancellation of one Job, read on THIS connection, or None.
++
++    This is the read every admission owner makes inside its own write
++    transaction. It is one row of this database and nothing else.
++    """
++    row = connection.execute(
++        "SELECT state, result FROM operations WHERE operation_id = ? AND "
++        "kind = ?", (request_operation_id(job_id), REQUEST_KIND)).fetchone()
++    if row is None or row["state"] != "committed" or row["result"] is None:
++        return None
++    return json.loads(row["result"])
++
++
++def fence_of(store, job_id):
++    boundaries.identity(job_id, "a Job id")
++    return fenced(store._connection, job_id)
++
++
++def refuse_fenced(connection, job_id, what):
++    """Refuse `what` for a cancelled Job, ORDINARILY, inside the caller's act.
++
++    Ordinary rather than durable: the fence is already the durable fact, and
++    recording a second refused outcome under the admission's own identity
++    would make a cancelled Job's stages `exceptional`, which is a stage that
++    FAILED. A cancelled stage did not fail; it was retired.
++    """
++    held = fenced(connection, job_id)
++    if held is not None:
++        _refuse(f"Job {name_value(job_id)} was cancelled at "
++                f"{held['requested_at']} ({held['reason']}); {what} is not "
++                f"admitted after an explicit cancellation")
++    return None
++
++
++def requests_of(store):
++    """Every committed cancellation this store holds, by Job."""
++    held = {}
++    for row in store._connection.execute(
++            "SELECT result FROM operations WHERE kind = ? AND state = "
++            "'committed' AND result IS NOT NULL", (REQUEST_KIND,)):
++        record = json.loads(row["result"])
++        held[record["job_id"]] = record
++    return held
++
++
++def targets_of(store, job_id=None):
++    """Every committed order record, by Job, oldest first."""
++    held = {}
++    for row in store._connection.execute(
++            "SELECT result FROM operations WHERE kind = ? AND state = "
++            "'committed' AND result IS NOT NULL ORDER BY settled_at",
++            (TARGET_KIND,)):
++        record = json.loads(row["result"])
++        if job_id is None or record["job_id"] == job_id:
++            held.setdefault(record["job_id"], []).append(record)
++    return held if job_id is None else held.get(job_id, [])
++
++
++def record_target(store, *, job_id, stage_id, episode, attempt_id, effect,
++                  evidence):
++    """Journal that ONE order was placed for one exact target.
++
++    Written AFTER the owner's call returned, because the owner's own journal
++    is where the act is replayable; this is this store's account of having
++    asked. It carries the owner's returned identities so a reader can follow
++    the order to the record that will eventually prove cessation.
++    """
++    if effect not in EFFECTS:
++        _refuse(f"a cancellation order has one of {EFFECTS}; this is "
++                f"{name_value(effect)}", category="integrity", code="schema")
++    operands = {"authority_uuid": store.authority_uuid, "job_id": job_id,
++                "stage_id": stage_id, "episode": episode,
++                "attempt_id": attempt_id, "effect": effect}
++    operation_id = target_operation_id(**operands)
++    signature = job_signature(TARGET_KIND, operands)
++
++    def act(connection):
++        if fenced(connection, job_id) is None:
++            _refuse(f"no cancellation of Job {name_value(job_id)} is "
++                    f"committed; an order is placed for a request that exists",
++                    category="integrity", code="schema")
++        return documents.job_cancellation_target(
++            operation_id=operation_id, job_id=job_id, stage_id=stage_id,
++            episode=episode, attempt_id=attempt_id, effect=effect,
++            recorded_at=store._now(), evidence=evidence)
++
++    return store.transact(operation_id, TARGET_KIND, signature, act)
++
++
++# -- what the sweep decides, per target, from the owners' live facts ---------
++
++
++def _order_of(targets, attempt_id, effect):
++    for record in targets:
++        if record["attempt_id"] == attempt_id and record["effect"] == effect:
++            return record
++    return None
++
++
++def _ceased(axes):
++    return (axes["execution_runtime"] == "destroyed"
++            or axes["cleanup"] in _CEASED_CLEANUP)
++
++
++def _owner_ordered(observed, axes):
++    """Whether the cancellation OWNER recorded that both boundaries crossed
++    for the runtime that is attached NOW.
++
++    Review 2026-11-18T19-56-12Z P1: `_order_quiescence` moves the axis to
++    `cancel-requested` before it asks the adapter to stop, so the axis is an
++    intent. The owner's own `attempt.cessation-outcome` record is where the
++    answer lives: `ordered` means the agent and the runtime both accepted;
++    `stop-failed`, `engine-unavailable` and `fenced-not-ordered` mean they
++    did not. A record for another runtime identity is another generation's
++    account and says nothing about this one.
++    """
++    cessation = observed.get("cessation")
++    if cessation is None or cessation.get("outcome") != "ordered":
++        return False
++    if axes["runtime_id"] is not None:
++        return cessation.get("runtime_id") == axes["runtime_id"]
++    # IN-FLIGHT START: nothing attached yet, and the owner resolved the
++    # token-bound container itself and ordered it. Its record names that
++    # identity; a later attachment of the same identity keeps this true, and
++    # a different one is ordered afresh above.
++    return cessation.get("runtime_id") is not None
++
++
++def _never_started(axes):
++    """POSITIVELY never started: no identity attached AND the axis still says
++    so. `start-requested` with nothing attached is an in-flight start whose
++    reply may have been lost -- review 2026-11-18T20-12-59Z -- and belongs to
++    the exact-generation cancellation owner, which resolves the token-bound
++    runtime. `intake._no_start_declared` refuses anything else, rightly.
++    """
++    return axes["runtime_id"] is None and axes["execution_runtime"] == "not-started"
++
++
++def effect_for(state, observed, targets=()):
++    """Which effect one live target owes RIGHT NOW, or None.
++
++    LEVEL-TRIGGERED ON THE OWNERS' FACTS, never on an earlier order. The
++    runtime axes, the frozen output and the cancellation owner's recorded
++    outcome are read on this tick; a stop the owner recorded as failed, or a
++    runtime that attached after a fence for a not-yet-started attempt, is
++    simply ordered again, and the owner replays what it already committed and
++    performs what it has not. Nothing suppresses unfinished stop work: not
++    the request record, not a stage's terminal label, not the intent axis.
++    """
++    axes = observed.get("runtime")
++    attempt_id = observed.get("attempt_id")
++    if axes is None:
++        # No attempt row: nothing of this attempt was ever activated. A
++        # CLAIMED stage holds a live assignment, which the composition that
++        # would have launched it fences instead.
++        return FENCE_UNSTARTED if state == "claimed" else None
++    if _ceased(axes):
++        return None
++    fenced = _order_of(targets, axes["attempt_id"], FENCE_UNSTARTED)
++    if fenced is not None and axes["runtime_id"] is None:
++        # The Authority fence answered synchronously and this store recorded
++        # it; nothing attached since. A runtime attaching later is handled
++        # below like any attached runtime.
++        return None
++    if _never_started(axes):
++        return FENCE_UNSTARTED
++    if observed.get("output") is not None:
++        # The worker ANSWERED. Its ending and cleanup are the ending owners'
++        # own path; ordering a cancellation over an answered attempt would
++        # be a second ending beside the ruled one.
++        return None
++    if _owner_ordered(observed, axes):
++        return None
++    del attempt_id
++    return ORDER_CESSATION
++
++
++def target_state(entry, observed, targets, requested_at):
++    """One target's reported state, from persisted rows and live facts only.
++
++    `entry` is a `projection.materialized` owned entry (episode, history,
++    receipts, attempt); `observed` carries the control store's `runtime`
++    axes, the frozen `output` and the cancellation `cessation` record for the
++    live attempt; `targets` are this Job's order records.
++    """
++    live = entry["episode"]
++    if live is None:
++        last = entry["history"][-1] if entry["history"] else None
++        if last is None or last["ended_at"] is None:
++            return "retired-before-admission"
++        return ("ended-before-request" if last["ended_at"] < requested_at
++                else "ceased")
++    attempt_id = live["attempt_id"]
++    ordered = _order_of(targets, attempt_id, ORDER_CESSATION)
++    fenced_unstarted = _order_of(targets, attempt_id, FENCE_UNSTARTED)
++    axes = observed.get("runtime")
++    if axes is None:
++        receipts = entry["receipts"]
++        if "admit" not in receipts:
++            return "retired-before-admission"
++        if "claim" not in receipts:
++            return "awaiting-offer-lapse"
++        return "fenced-unstarted" if fenced_unstarted is not None else "pending"
++    if _ceased(axes):
++        # OVER, AND WHOSE DOING IT WAS: an attempt this request ordered or
++        # fenced is `ceased`; one that ended with no order from this request
++        # ended on its own account, and its outcome is preserved untouched.
++        return ("ceased" if ordered is not None
++                or fenced_unstarted is not None else "ended-before-request")
++    if fenced_unstarted is not None and axes["runtime_id"] is None:
++        # The pre-attach fence moves the axis to `cancel-requested` with
++        # nothing to stop; the fence record is what says the assignment was
++        # ended.
++        return "fenced-unstarted"
++    if _never_started(axes):
++        return "pending"
++    if observed.get("output") is not None:
++        return "ending-in-progress"
++    if axes["execution_runtime"] == "uncertain":
++        return "held-unknown"
++    if _owner_ordered(observed, axes):
++        return "ordered"
++    cessation = observed.get("cessation")
++    if cessation is not None and cessation.get("runtime_id") == axes["runtime_id"] \
++            and cessation.get("outcome") in _FAILED_OUTCOMES:
++        return "order-failed"
++    return "pending"
++
++
++def _instant(value):
++    for grammar in ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ"):
++        try:
++            return datetime.strptime(value, grammar).replace(
++                tzinfo=timezone.utc)
++        except (TypeError, ValueError):
++            continue
++    return None
++
++
++def reported(record, targets, entries, *, observed_of, now):
++    """The additive `cancellation` member of one Job's status, or None.
++
++    THE TRIGGER IS THE COMMITTED REQUEST INSTANT. Elapsed time is measured
++    from `requested_at` as this store stamped it; a retry, a restart, a
++    replay or a manager that was not running do not restart the bound, and an
++    instant this reader cannot order against the request is reported as
++    `unknown-time` rather than as time that has not passed.
++    """
++    if record is None:
++        return None
++    reported_targets = []
++    settled = True
++    for entry in entries:
++        attempt = entry["attempt"]
++        observed = observed_of(entry) if attempt is not None else {}
++        observed = observed if observed is not None else {}
++        axes = observed.get("runtime")
++        cessation = observed.get("cessation")
++        state = target_state(entry, observed, targets, record["requested_at"])
++        settled = settled and state in SETTLED_STATES
++        orders = [one for one in targets
++                  if attempt is not None
++                  and one["attempt_id"] == attempt["attempt_id"]]
++        reported_targets.append(documents.job_cancellation_target_status(
++            stage_id=entry["stage"]["stage_id"],
++            episode=attempt["episode"] if attempt is not None else None,
++            attempt_id=attempt["attempt_id"] if attempt is not None else None,
++            state=state,
++            runtime=(axes["execution_runtime"] if axes is not None else None),
++            cleanup=(axes["cleanup"] if axes is not None else None),
++            cessation=(None if cessation is None else {
++                "outcome": cessation.get("outcome"),
++                "runtime_id": cessation.get("runtime_id"),
++                "effects": list(cessation.get("effects") or ())}),
++            orders=[{"effect": one["effect"],
++                     "operation_id": one["operation_id"],
++                     "recorded_at": one["recorded_at"]} for one in orders]))
++    started = _instant(record["requested_at"])
++    observed = _instant(now)
++    if settled:
++        shutdown, elapsed = "complete", None
++    elif started is None or observed is None or observed < started:
++        shutdown, elapsed = "unknown-time", None
++    else:
++        elapsed = int((observed - started).total_seconds())
++        shutdown = ("unresolved" if elapsed >= SHUTDOWN_BOUND_SECONDS
++                    else "within-bound")
++    return documents.job_cancellation_report(
++        operation_id=record["operation_id"], job_id=record["job_id"],
++        reason=record["reason"], requested_at=record["requested_at"],
++        trigger_at=record["requested_at"],
++        shutdown_bound_seconds=SHUTDOWN_BOUND_SECONDS,
++        elapsed_seconds=elapsed, shutdown=shutdown,
++        targets=reported_targets)
++
++
++def observed_from(control, attempt_id):
++    """The three owner facts the report reads, from a control store handle.
++
++    The same members the serving projection's observation carries; for a
++    reader that has no deployment to observe through.
++    """
++    from ..worker_manager import attempt_runtime_of, frozen_output_of
++    from ..worker_manager.failure_cause import attempt_cessation_outcome_of
++
++    return {"runtime": attempt_runtime_of(control, attempt_id),
++            "output": frozen_output_of(control, attempt_id),
++            "cessation": attempt_cessation_outcome_of(control, attempt_id,
++                                                      "cancellation")}
++
++
++def report(jobs, job_id, *, observed_of, now):
++    """One Job's cancellation report from a Job store handle, read-only.
++
++    The Job rows are materialized under one read view and that view is
++    released before `axes_of` is asked anything about another store.
++    """
++    from . import projection
++
++    boundaries.identity(job_id, "a Job id")
++    snapshot = projection.materialized(jobs)
++    if job_id not in snapshot["stages_by_job"]:
++        _refuse(f"Job {name_value(job_id)} is not held by this store")
++    record = snapshot["cancellations"].get(job_id)
++    entries = [snapshot["owned"][row["stage_id"]]
++               for row in snapshot["stages_by_job"][job_id]]
++    return reported(record, snapshot["cancellation_targets"].get(job_id, []),
++                    entries, observed_of=observed_of, now=now)
+diff --git a/v12/python/tools/job_cancellation.py b/v12/python/tools/job_cancellation.py
+new file mode 100644
+index 00000000..2a4eb841
+--- /dev/null
++++ b/v12/python/tools/job_cancellation.py
+@@ -0,0 +1,123 @@
++"""Instance-addressed Job cancellation request and status; no serving composition.
++
++W383215 / DESIGN LIM-5. `cancel-job` journals the request and the admission
++fence in the installed instance's Job store and reports what the stores say
++about its targets; `cancel-status` is the same report, read-only. Neither
++composes a deployment, opens an Authority, mints a session, takes the serving
++manager's instance guard or touches a container: the serving sweep carries the
++request out through the existing owners on its own ticks, and a manager that is
++not running is reported as targets that are still pending, never as ceased.
++
++WHY NO MANAGER GUARD. The guard says "one manager acts on this instance", and a
++request that took it could not be made while the manager serves -- which is
++exactly when an operator needs it. The Job store's own journal serialises the
++request: the same Job and reason replay one committed record, another reason
++collides, and the serving ticks interleave with it by the database's lock.
++"""
++import argparse
++import hashlib
++from contextlib import ExitStack
++import json
++from pathlib import Path
++import sys
++
++from baton_v12.contracts import ContractRefusal
++from baton_v12.job_manager import JobStore, cancellation, submission
++from baton_v12.worker_manager import ControlStore, boundaries
++from tools import instance
++
++SCHEMA = "baton.v12.installed-cancellation/1"
++COMMANDS = ("cancel-job", "cancel-status")
++
++
++def _refuse(message):
++    raise ContractRefusal("refused", "precondition", message)
++
++
++def _document(path):
++    try:
++        return json.loads(Path(path).read_text())
++    except (OSError, ValueError) as fault:
++        _refuse("deployment document is unreadable: " + type(fault).__name__)
++
++
++def _binding(selector, configuration):
++    """The same installed binding the settlement commands recognise."""
++    return {"instance": selector["destination"],
++            "authority_uuid": selector["authority_uuid"],
++            "runtime_digest": selector["runtime"]["digest"],
++            "deployment_digest": "sha256:" + hashlib.sha256(json.dumps(
++                configuration, sort_keys=True, separators=(",", ":"),
++                ensure_ascii=True, allow_nan=False).encode("utf-8")).hexdigest(),
++            "job_store": selector["job_store"],
++            "control_store": selector["control_store"]}
++
++
++def execute(command, selector_path, *, job_id, reason=None, clock=None):
++    """Compose the public owners over the stores the installed selector names."""
++    from tools.job_manager import _utc_clock
++    clock = clock or _utc_clock()
++    if command not in COMMANDS:
++        _refuse("unknown installed cancellation command")
++    boundaries.identity(job_id, "a Job id")
++    selector = instance.read(selector_path)
++    instance.verify(selector)
++    configuration = _document(selector["deployment"])
++    places = instance.layout(selector["destination"])
++    if configuration.get("authority_uuid") != selector["authority_uuid"] \
++            or Path(configuration.get("authority_store", "")).resolve() \
++            != Path(places["authority_store"]).resolve():
++        _refuse("cancellation deployment and instance Authority do not agree")
++    binding = _binding(selector, configuration)
++    with ExitStack() as opened:
++        # RECOGNITION FIRST, READ-ONLY. An existing store at this build's
++        # version holding this Job is what a writable open may follow.
++        reader = opened.enter_context(JobStore.open_readonly(
++            selector["job_store"], authority_uuid=selector["authority_uuid"],
++            incarnation="cancellation-reader", clock=clock))
++        if submission.job_of(reader, job_id) is None:
++            _refuse("cancellation Job does not exist in this instance")
++        control = opened.enter_context(ControlStore.open_readonly(
++            selector["control_store"], incarnation="cancellation-reader",
++            clock=clock))
++        jobs = reader
++        request = None
++        if command == "cancel-job":
++            if reason is None or not str(reason).strip():
++                _refuse("cancel-job carries the operator's own --reason")
++            jobs = opened.enter_context(JobStore.open(
++                selector["job_store"],
++                authority_uuid=selector["authority_uuid"],
++                incarnation="cancellation", clock=clock))
++            request = cancellation.request(jobs, job_id=job_id, reason=reason)
++        # THE AXES ARE READ AFTER THE JOB STORE'S VIEW IS RELEASED; `report`
++        # materializes under one read boundary and asks `axes_of` outside it.
++        report = cancellation.report(
++            jobs, job_id, now=clock(),
++            observed_of=lambda entry: cancellation.observed_from(
++                control, entry["attempt"]["attempt_id"]))
++        return {"schema": SCHEMA, "command": command, "binding": binding,
++                "job_id": job_id,
++                "request": (request if request is not None
++                            else cancellation.fence_of(jobs, job_id)),
++                "cancellation": report}
++
++
++def main(argv, *, clock=None, stream=None):
++    parser = argparse.ArgumentParser(prog="manager cancellation")
++    parser.add_argument("command", choices=COMMANDS)
++    parser.add_argument("--instance", required=True,
++                        help="installed instance.json selector")
++    parser.add_argument("--job", required=True, help="the Job to cancel")
++    parser.add_argument("--reason", default=None,
++                        help="the operator's own reason; required by "
++                             "cancel-job and refused by cancel-status")
++    args = parser.parse_args(argv)
++    if args.command == "cancel-job" and args.reason is None:
++        parser.error("cancel-job needs --reason")
++    if args.command == "cancel-status" and args.reason is not None:
++        parser.error("cancel-status takes no --reason")
++    answer = execute(args.command, args.instance, job_id=args.job,
++                     reason=args.reason, clock=clock)
++    print(json.dumps(answer, sort_keys=True), file=stream or sys.stdout)
++    return 0
+diff --git a/v12/python/tests/job_manager/test_job_cancellation.py b/v12/python/tests/job_manager/test_job_cancellation.py
+new file mode 100644
+index 00000000..af13a851
+--- /dev/null
++++ b/v12/python/tests/job_manager/test_job_cancellation.py
+@@ -0,0 +1,638 @@
++"""W383215 — explicit Job cancellation: the request, the fence, the pass.
++
++DESIGN LIM-5. A cancellation is ONE journalled request per Job, committed
++before any effect, and a FENCE every admission owner of the Job store reads
++inside its own write transaction. The serving sweep carries it out through
++the existing owners and reports what it ordered; cessation stays the owners'
++own fact. These cases drive the Job store half against real disposable stores
++and `test_status`'s strict fake operations, extended with recording stand-ins
++for the two owner capabilities the pass reaches.
++"""
++
++import threading
++import unittest
++from types import SimpleNamespace
++from unittest import mock
++
++from baton_v12.contracts import ContractRefusal
++from baton_v12.job_manager import (JobStore, STATUS_SCHEMA, cancellation,
++                                   episodes, fresh_attempt, scheduler,
++                                   status, submit, sweep)
++from baton_v12.job_manager.episodes import end_episode, live_of, open_next
++from baton_v12.job_manager.projection import owed_acts, stage_states
++
++from tests.job_manager import test_fresh_attempt as fresh
++from tests.job_manager import test_scheduling as scheduling
++
++if __package__:
++    from .fixtures import (LATER, NOW, UUID, FakeOperations, JobManagerCase,
++                           job, stage, submission)
++else:
++    from fixtures import (LATER, NOW, UUID, FakeOperations, JobManagerCase,
++                          job, stage, submission)
++
++REASON = "operator stops this Job before its deadline"
++SOON = "2026-09-02T00:00:30.000Z"            # NOW + 30 s
++MUCH_LATER = "2026-09-02T00:02:01.000Z"      # NOW + 121 s
++EARLIER = "2026-09-01T23:59:00.000Z"
++
++
++class Cancelling(FakeOperations):
++    """The strict fake, plus the two capabilities the cancellation pass asks.
++
++    Each records what it was asked and answers the shape the real owners
++    answer: an intent naming the Authority operation and the fence the
++    Authority returned. Neither claims cessation, exactly as the real ones.
++    """
++
++    def __init__(self, *arguments, **keywords):
++        super().__init__(*arguments, **keywords)
++        self.cancelled = []
++        self.fenced_unstarted = []
++        # Refusals the next calls raise, consumed one per call: a transient
++        # engine failure is one entry, a persistent one is many.
++        self.refusing = []
++
++    def stage_of(self, attempt_id):
++        for stage_id, held in self.observations.items():
++            runtime = held.get("runtime")
++            if runtime is not None and runtime["attempt_id"] == attempt_id:
++                return stage_id
++        raise AssertionError(attempt_id)
++
++    def cessation(self, attempt_id, outcome, runtime_id=None):
++        """What the real owner journals: the cancellation component's
++        outcome for the runtime that is attached, which `observe` reads."""
++        stage_id = self.stage_of(attempt_id)
++        held = self.observations[stage_id]
++        held["cessation"] = {
++            "outcome": outcome, "effects": ["agent-cancel", "stop"]
++            if outcome == "ordered" else ["agent-cancel"],
++            "runtime_id": (held["runtime"]["runtime_id"] if runtime_id is None
++                           else runtime_id)}
++
++    def cancel_attempt(self, *, attempt_id, reason):
++        self.cancelled.append((attempt_id, reason))
++        if self.refusing:
++            # The real owner records `stop-failed` before it re-raises.
++            self.cessation(attempt_id, "stop-failed")
++            raise self.refusing.pop(0)
++        self.cessation(attempt_id, "ordered")
++        return {"intent": {"attempt_id": attempt_id,
++                           "authority_operation_id": "authority.attempt.cancel:x",
++                           "assignment": {"generation": 1}, "reason": reason},
++                "fenced": {"cause": "cancelled", "phase": "block",
++                           "gate": "runtime-quiescence:1", "fenced": True,
++                           "assignment": {"generation": 1}},
++                "session_quiescence": None,
++                "quiescence": {"ordered": True, "runtime_id": "runtime-1",
++                               "agent_settlement": None,
++                               "runtime_settlement": None}}
++
++    def fence_unstarted_attempt(self, stage, *, reason):
++        if self.refusing:
++            raise self.refusing.pop(0)
++        self.fenced_unstarted.append((stage["attempt_id"], reason))
++        return {"intent": {"authority_operation_id": "authority.attempt.abandon:x",
++                           "assignment": {"generation": 1}, "reason": reason},
++                "fenced": {"cause": "cancelled", "phase": "block",
++                           "gate": None, "fenced": True}}
++
++
++class CancellationCase(JobManagerCase):
++
++    def setUp(self):
++        super().setUp()
++        self.jobs = self.store()
++        self.acts = Cancelling()
++
++    def submit(self, document=None):
++        return submit(self.jobs, document if document is not None
++                      else submission(jobs=[job("job-a", stages=[
++                          stage("implementation")])]))
++
++    def cancel(self, job_id="job-a", reason=REASON):
++        return cancellation.request(self.jobs, job_id=job_id, reason=reason)
++
++    def projected(self, job_id="job-a", at=LATER):
++        document = status(self.jobs, self.acts, observed_at=at)
++        self.assertEqual(document["schema"], STATUS_SCHEMA)
++        for entry in document["jobs"]:
++            if entry["job_id"] == job_id:
++                return entry
++        raise AssertionError(job_id)
++
++    def target(self, stage_id="job-a/implementation", **named):
++        report = self.projected(**named)["cancellation"]
++        self.assertIsNotNone(report)
++        for one in report["targets"]:
++            if one["stage_id"] == stage_id:
++                return report, one
++        raise AssertionError(stage_id)
++
++    def running(self, stage_id="job-a/implementation"):
++        """Admit, claim and start one stage through ordinary ticks."""
++        self.acts.starts(stage_id, attaches=True)
++        for _ in range(4):
++            sweep(self.jobs, self.acts, now=NOW)
++        held = self.projected()["stages"][0]
++        self.assertIn(held["state"], ("starting", "waiting", "running"), held)
++        return held
++
++
++class TheRequest(CancellationCase):
++
++    def test_one_request_is_journalled_once_and_replays_exactly(self):
++        self.submit()
++        first = self.cancel()
++        self.assertEqual(first["job_id"], "job-a")
++        self.assertEqual(first["reason"], REASON)
++        self.assertEqual(first["requested_at"], NOW)
++        self.assertEqual(first["observed"],
++                         [{"stage_id": "job-a/implementation",
++                           "kind": "implementation", "episode": 1,
++                           "attempt_id": first["observed"][0]["attempt_id"],
++                           "episodes": 1}])
++        self.instants.append(LATER)
++        self.assertEqual(self.cancel(), first)
++        self.assertEqual(cancellation.fence_of(self.jobs, "job-a"), first)
++
++    def test_a_changed_reason_collides_rather_than_rewriting(self):
++        self.submit()
++        first = self.cancel()
++        with self.assertRaises(ContractRefusal) as caught:
++            self.cancel(reason="another account entirely")
++        self.assertEqual(caught.exception.code, "operation-collision")
++        self.assertEqual(cancellation.fence_of(self.jobs, "job-a"), first)
++
++    def test_an_unknown_job_and_a_blank_reason_refuse_without_a_fence(self):
++        self.submit()
++        with self.assertRaises(ContractRefusal):
++            self.cancel(job_id="job-nobody")
++        with self.assertRaises(ContractRefusal):
++            self.cancel(reason="   ")
++        self.assertIsNone(cancellation.fence_of(self.jobs, "job-a"))
++        self.assertIsNone(cancellation.fence_of(self.jobs, "job-nobody"))
++
++    def test_the_fence_survives_a_restart_of_the_manager(self):
++        self.submit()
++        first = self.cancel()
++        reopened = JobStore.open(self.job_path, authority_uuid=UUID,
++                                 incarnation="jobs-2", clock=self.clock)
++        self.addCleanup(reopened.close)
++        self.assertEqual(cancellation.fence_of(reopened, "job-a"), first)
++        self.assertEqual(owed_acts(reopened, self.acts), [])
++        self.assertEqual(cancellation.request(reopened, job_id="job-a",
++                                              reason=REASON), first)
++
++    def test_a_job_nobody_cancelled_reports_null(self):
++        self.submit()
++        self.assertIsNone(self.projected()["cancellation"])
++
++
++class QueuedAndOfferedTargets(CancellationCase):
++
++    def test_a_queued_stage_is_retired_before_admission(self):
++        self.submit()
++        self.cancel()
++        report = sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(report["acts"], [])
++        self.assertNotIn("cancelled", report)
++        self.assertEqual([one for one in self.acts.calls
++                          if one[0] in ("admit", "claim")], [])
++        report, target = self.target()
++        self.assertEqual(target["state"], "retired-before-admission")
++        self.assertEqual(report["shutdown"], "complete")
++        self.assertEqual(report["trigger_at"], NOW)
++        self.assertEqual(report["shutdown_bound_seconds"], 120)
++        # The stage keeps its ordinary vocabulary: no new state was invented.
++        self.assertEqual(self.projected()["stages"][0]["state"], "queued")
++
++    def test_an_offered_stage_is_never_claimed_and_waits_for_the_lapse(self):
++        self.submit()
++        sweep(self.jobs, self.acts, now=NOW)
++        self.cancel()
++        for _ in range(3):
++            sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual([one for one in self.acts.calls if one[0] == "claim"],
++                         [])
++        report, target = self.target(at=SOON)
++        self.assertEqual(target["state"], "awaiting-offer-lapse")
++        self.assertEqual(report["shutdown"], "within-bound")
++        self.assertEqual(report["elapsed_seconds"], 30)
++        report, _ = self.target()
++        self.assertEqual(report["shutdown"], "unresolved")
++        self.assertEqual(report["elapsed_seconds"], 300)
++
++    def test_the_bound_runs_from_the_request_and_never_resets(self):
++        self.submit()
++        sweep(self.jobs, self.acts, now=NOW)
++        self.cancel()
++        report, _ = self.target(at=MUCH_LATER)
++        self.assertEqual(report["shutdown"], "unresolved")
++        self.assertEqual(report["elapsed_seconds"], 121)
++        # A replayed request, a restart and more ticks move nothing.
++        self.instants.append(MUCH_LATER)
++        self.cancel()
++        sweep(self.jobs, self.acts, now=MUCH_LATER)
++        reopened = JobStore.open(self.job_path, authority_uuid=UUID,
++                                 incarnation="jobs-2", clock=self.clock)
++        self.addCleanup(reopened.close)
++        entry = [one for one in status(reopened, self.acts,
++                                       observed_at=MUCH_LATER)["jobs"]][0]
++        self.assertEqual(entry["cancellation"]["requested_at"], NOW)
++        self.assertEqual(entry["cancellation"]["shutdown"], "unresolved")
++        # And an instant this reader cannot order after the request is
++        # reported as unknown time, not as time that has not passed.
++        report, _ = self.target(at=EARLIER)
++        self.assertEqual(report["shutdown"], "unknown-time")
++        self.assertIsNone(report["elapsed_seconds"])
++
++
++class ClaimedAndRunningTargets(CancellationCase):
++
++    def test_a_claimed_stage_is_fenced_instead_of_launched(self):
++        self.submit()
++        sweep(self.jobs, self.acts, now=NOW)
++        sweep(self.jobs, self.acts, now=NOW)
++        self.assertEqual(self.projected()["stages"][0]["state"], "claimed")
++        self.cancel()
++        report = sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual([one["outcome"] for one in report["started"]],
++                         ["deferred"])
++        self.assertEqual(self.acts.fenced_unstarted,
++                         [(report["cancelled"][0]["attempt_id"], REASON)])
++        self.assertEqual(report["cancelled"][0]["effect"], "fence-unstarted")
++        self.assertEqual(report["cancelled"][0]["outcome"], "ordered")
++        self.assertEqual(self.acts.cancelled, [])
++        _, target = self.target()
++        self.assertEqual(target["state"], "fenced-unstarted")
++        self.assertEqual([one["effect"] for one in target["orders"]],
++                         ["fence-unstarted"])
++
++    def test_a_running_stage_is_ordered_to_cease_and_reported_ordered(self):
++        self.submit()
++        held = self.running()
++        self.cancel()
++        report = sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(self.acts.cancelled, [(held["attempt_id"], REASON)])
++        self.assertEqual(report["cancelled"][0]["effect"], "order-cessation")
++        report, target = self.target(at=SOON)
++        self.assertEqual(target["state"], "ordered")
++        self.assertEqual(report["shutdown"], "within-bound")
++        # ORDERED IS NOT CEASED: the owner's own axes say when it is over.
++        self.acts.frozen("job-a/implementation", "cancelled",
++                         execution_runtime="destroyed", cleanup="complete")
++        report, target = self.target()
++        self.assertEqual(target["state"], "ceased")
++        self.assertEqual(report["shutdown"], "complete")
++
++    def test_the_order_is_decided_by_the_owners_record_not_the_axis(self):
++        self.submit()
++        held = self.running()
++        self.cancel()
++        sweep(self.jobs, self.acts, now=LATER)
++        sweep(self.jobs, self.acts, now=LATER)
++        sweep(self.jobs, self.acts, now=LATER)
++        # The owner recorded `ordered` for the attached runtime, so it is
++        # not asked again, and this store holds ONE order.
++        self.assertEqual(len(self.acts.cancelled), 1)
++        self.assertEqual(len(cancellation.targets_of(self.jobs, "job-a")), 1)
++        _, target = self.target()
++        self.assertEqual(target["state"], "ordered")
++        self.assertEqual(target["cessation"]["outcome"], "ordered")
++        # THE AXIS ALONE IS NOT AN ORDER. The owner moves the axis to
++        # `cancel-requested` BEFORE it asks the engine; with the owner's
++        # record saying the stop failed, the axis does not suppress a retry.
++        self.acts.observed("job-a/implementation", claimed_by=True,
++                           runtime={"attempt_id": held["attempt_id"],
++                                    "runtime_id": "runtime-1",
++                                    "execution_runtime": "cancel-requested",
++                                    "cleanup": "pending", "assignment": None})
++        self.acts.cessation(held["attempt_id"], "stop-failed")
++        _, target = self.target()
++        self.assertEqual(target["state"], "order-failed")
++        sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(len(self.acts.cancelled), 2)
++        _, target = self.target()
++        self.assertEqual(target["state"], "ordered")
++        self.assertEqual(len(cancellation.targets_of(self.jobs, "job-a")), 1)
++
++    def test_a_transient_stop_refusal_is_retried_on_the_next_tick(self):
++        """Review 2026-11-18T19-56-12Z P1: one failed stop, removed
++        thereafter, must not leave the runtime un-ordered forever."""
++        self.submit()
++        held = self.running()
++        self.cancel()
++        self.acts.refusing.append(ContractRefusal(
++            "refused", "precondition", "injected transient stop refusal"))
++        first = sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(first["cancelled"][0]["outcome"], "deferred")
++        self.assertEqual(cancellation.targets_of(self.jobs, "job-a"), [])
++        _, target = self.target()
++        self.assertEqual(target["state"], "order-failed")
++        self.assertEqual(target["orders"], [])
++        second = sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(second["cancelled"][0]["outcome"], "ordered")
++        self.assertEqual([one[0] for one in self.acts.cancelled],
++                         [held["attempt_id"]] * 2)
++        self.assertEqual(len(cancellation.targets_of(self.jobs, "job-a")), 1)
++        _, target = self.target()
++        self.assertEqual(target["state"], "ordered")
++        third = sweep(self.jobs, self.acts, now=LATER)
++        self.assertNotIn("cancelled", third)
++
++    def test_an_order_for_another_runtime_identity_does_not_cover_this_one(self):
++        self.submit()
++        held = self.running()
++        self.cancel()
++        sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(len(self.acts.cancelled), 1)
++        # A later generation attached under another identity: the recorded
++        # outcome names the old runtime and this one is ordered afresh.
++        self.acts.observed("job-a/implementation", claimed_by=True,
++                           runtime={"attempt_id": held["attempt_id"],
++                                    "runtime_id": "runtime-2",
++                                    "execution_runtime": "running",
++                                    "cleanup": "pending", "assignment": None})
++        self.acts.cessation(held["attempt_id"], "ordered",
++                            runtime_id="runtime-1")
++        _, target = self.target()
++        self.assertEqual(target["state"], "pending")
++        sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(len(self.acts.cancelled), 2)
++
++    def test_an_in_flight_start_is_ordered_not_fenced(self):
++        """Review 2026-11-18T20-12-59Z P1: `start-requested` with nothing
++        attached is a start whose reply may be lost, which the stop owner
++        resolves through the token; only `not-started` is never-started."""
++        self.submit()
++        sweep(self.jobs, self.acts, now=NOW)
++        sweep(self.jobs, self.acts, now=NOW)
++        attempt = self.attempting(self.jobs, "job-a/implementation")
++        self.acts.observed("job-a/implementation", claimed_by=True,
++                           runtime={"attempt_id": attempt["attempt_id"],
++                                    "runtime_id": None,
++                                    "execution_runtime": "start-requested",
++                                    "cleanup": "pending", "assignment": None})
++        self.cancel()
++        _, target = self.target()
++        self.assertEqual(target["state"], "pending")
++        report = sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("order-cessation", "ordered")])
++        self.assertEqual(self.acts.fenced_unstarted, [])
++        # The fake owner, like the real one, names the token-bound identity.
++        self.acts.observations["job-a/implementation"]["cessation"][
++            "runtime_id"] = "runtime-bound-1"
++        _, target = self.target()
++        self.assertEqual(target["state"], "ordered")
++        sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(len(self.acts.cancelled), 1)
++        # A late attachment of that same identity still replays.
++        self.acts.observations["job-a/implementation"]["runtime"][
++            "runtime_id"] = "runtime-bound-1"
++        sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(len(self.acts.cancelled), 1)
++        _, target = self.target()
++        self.assertEqual(target["state"], "ordered")
++        # Whereas a positively never-started attempt is fenced, not stopped.
++        self.acts.observations["job-a/implementation"]["runtime"] = {
++            "attempt_id": attempt["attempt_id"], "runtime_id": None,
++            "execution_runtime": "not-started", "cleanup": "pending",
++            "assignment": None}
++        self.acts.observations["job-a/implementation"]["cessation"] = None
++        sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(len(self.acts.fenced_unstarted), 1)
++
++    def test_an_answered_attempt_is_left_to_its_ending_owners(self):
++        self.submit()
++        self.running()
++        self.acts.frozen("job-a/implementation", "completed",
++                         execution_runtime="running", cleanup="pending")
++        self.cancel()
++        report = sweep(self.jobs, self.acts, now=LATER)
++        self.assertNotIn("cancelled", report)
++        self.assertEqual(self.acts.cancelled, [])
++        _, target = self.target()
++        self.assertEqual(target["state"], "ending-in-progress")
++
++    def test_a_terminal_label_does_not_suppress_a_live_unanswered_runtime(self):
++        self.submit()
++        held = self.running()
++        # A durable refusal makes the stage `exceptional` while the runtime
++        # the manager attached is still running and nothing answered.
++        self.acts.refusals[("job-a/implementation", "claim")] = ContractRefusal(
++            "refused", "precondition", "already exceptional", durable=True)
++        self.acts.observed("job-a/implementation", claimed_by=True,
++                           runtime={"attempt_id": held["attempt_id"],
++                                    "runtime_id": "runtime-1",
++                                    "execution_runtime": "running",
++                                    "cleanup": "pending", "assignment": None})
++        self.cancel()
++        report = sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual([one["outcome"] for one in report.get("cancelled", [])],
++                         ["ordered"])
++        self.assertEqual(len(self.acts.cancelled), 1)
++
++    def test_an_owner_refusal_is_contained_reported_and_leaves_pending(self):
++        self.submit()
++        self.running()
++        self.cancel()
++        self.acts.refusing.append(ContractRefusal(
++            "refused", "precondition", "the session is for somebody else"))
++        report = sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(report["cancelled"][0]["outcome"], "deferred")
++        self.assertEqual(report["cancelled"][0]["detail"]["code"],
++                         "precondition")
++        self.assertEqual(cancellation.targets_of(self.jobs, "job-a"), [])
++        # The owner recorded that its stop did not cross; the report says so
++        # and the next tick asks again rather than treating it as ordered.
++        _, target = self.target()
++        self.assertEqual(target["state"], "order-failed")
++
++    def test_a_deployment_without_the_capability_is_reported_not_guessed(self):
++        self.submit()
++        plain = FakeOperations()
++        self.acts = plain
++        self.running()
++        self.cancel()
++        report = sweep(self.jobs, plain, now=LATER)
++        self.assertEqual(report["cancelled"][0]["outcome"], "refused")
++        self.assertEqual(report["cancelled"][0]["detail"]["code"],
++                         "capability")
++
++    def test_an_ended_job_keeps_its_outcome_and_nothing_is_ordered(self):
++        self.submit()
++        self.running()
++        self.acts.frozen("job-a/implementation", "completed")
++        for _ in range(3):
++            sweep(self.jobs, self.acts, now=NOW)
++        before = self.projected()
++        self.assertEqual(before["stages"][0]["state"], "completed")
++        self.cancel()
++        report = sweep(self.jobs, self.acts, now=LATER)
++        self.assertNotIn("cancelled", report)
++        self.assertEqual(self.acts.cancelled, [])
++        after = self.projected()
++        self.assertEqual(after["stages"][0], before["stages"][0])
++        report, target = self.target()
++        self.assertEqual(target["state"], "ended-before-request")
++        self.assertEqual(report["shutdown"], "complete")
++
++
++class TheWriteSideFences(CancellationCase):
++
++    def test_no_replacement_episode_opens_for_a_cancelled_job(self):
++        self.submit()
++        sweep(self.jobs, self.acts, now=NOW)
++        live = live_of(self.jobs, "job-a/implementation")
++        ended = end_episode(self.jobs, live, "abandoned-after-restart", 1)
++        self.cancel()
++        report = sweep(self.jobs, self.acts, now=LATER)
++        self.assertEqual(report["replaced"], [])
++        self.assertIsNone(live_of(self.jobs, "job-a/implementation"))
++        with self.assertRaises(ContractRefusal) as caught:
++            open_next(self.jobs, "job-a/implementation", ended)
++        self.assertIn("cancelled", caught.exception.message)
++        self.assertFalse(caught.exception.durable)
++        self.assertIsNone(live_of(self.jobs, "job-a/implementation"))
++        _, target = self.target()
++        self.assertEqual(target["state"], "ceased")
++
++    def test_the_reservation_refuses_under_the_lock(self):
++        scheduler.activate_pool(self.jobs, scheduling.pool(),
++                                scheduling.principals(scheduling.pool()))
++        self.submit(submission(jobs=[
++            job("job-a", stages=[stage("implementation", "work:race")])]))
++        attempt = self.attempting(self.jobs, "job-a/implementation")
++        self.cancel()
++        with self.assertRaises(ContractRefusal) as caught:
++            scheduler.reserve(self.jobs, attempt)
++        self.assertIn("cancelled", caught.exception.message)
++        self.assertEqual(scheduler.allocation_rows(self.jobs), [])
++
++    def test_the_claim_re_reads_the_fence_before_the_authority_is_asked(self):
++        self.submit()
++        attempt = self.attempting(self.jobs, "job-a/implementation")
++        self.cancel()
++        asked = []
++        pooled = SimpleNamespace(store=self.jobs,
++                                 _allocation=lambda stage: asked.append(stage))
++        with self.assertRaises(ContractRefusal):
++            scheduler.PooledManagerOperations.claim(pooled, attempt)
++        self.assertEqual(asked, [])
++
++    def test_a_cancel_racing_a_reservation_leaves_a_consistent_store(self):
++        """Whichever commits first, the other sees it: never both admitted
++        and unfenced, and a reservation that won is found by the pass."""
++        scheduler.activate_pool(self.jobs, scheduling.pool(),
++                                scheduling.principals(scheduling.pool()))
++        self.submit(submission(jobs=[
++            job("job-a", stages=[stage("implementation", "work:race")])]))
++        barrier = threading.Barrier(2)
++        outcomes = {}
++
++        def reserving():
++            store = JobStore.open(self.job_path, authority_uuid=UUID,
++                                  incarnation="jobs-r", clock=self.clock)
++            try:
++                local = self.attempting(store, "job-a/implementation")
++                barrier.wait()
++                try:
++                    scheduler.reserve(store, local)
++                    outcomes["reserve"] = "reserved"
++                except ContractRefusal:
++                    outcomes["reserve"] = "refused"
++            finally:
++                store.close()
++
++        def cancelling():
++            store = JobStore.open(self.job_path, authority_uuid=UUID,
++                                  incarnation="jobs-c", clock=self.clock)
++            try:
++                barrier.wait()
++                cancellation.request(store, job_id="job-a", reason=REASON)
++                outcomes["cancel"] = "fenced"
++            finally:
++                store.close()
++
++        threads = [threading.Thread(target=reserving),
++                   threading.Thread(target=cancelling)]
++        for thread in threads:
++            thread.start()
++        for thread in threads:
++            thread.join()
++        self.assertEqual(outcomes["cancel"], "fenced")
++        allocated = scheduler.allocation_rows(self.jobs)
++        if outcomes["reserve"] == "refused":
++            self.assertEqual(allocated, [])
++        else:
++            self.assertEqual(len(allocated), 1)
++        # Either way the Job owes nothing further and projects its fence.
++        self.assertEqual(owed_acts(self.jobs, self.acts), [])
++        self.assertIsNotNone(self.projected()["cancellation"])
++
++    def test_a_correction_round_refuses_inside_its_transaction(self):
++        self.submit(submission(jobs=[job("job-a", stages=[
++            stage("implementation"),
++            stage("review", depends_on=[{"job_id": "job-a",
++                                         "kind": "implementation"}])])]))
++        self.cancel()
++        proved = {"verdict_id": "verdict-1", "attachment_id": "attach-1"}
++        with mock.patch.object(episodes, "_proved_verdict",
++                               return_value=proved), \
++                mock.patch.object(episodes, "_corrected_line"), \
++                mock.patch.object(episodes, "_unheld"), \
++                mock.patch.object(episodes, "_live_episode",
++                                  side_effect=lambda store, stage, what:
++                                  live_of(store, stage["stage_id"])):
++            with self.assertRaises(ContractRefusal) as caught:
++                episodes.advance_correction(
++                    self.jobs, object(), job_id="job-a", line_id="line-1",
++                    checkpoint_id="checkpoint-1", verdict_id="verdict-1")
++        self.assertIn("cancelled", caught.exception.message)
++        self.assertEqual(live_of(self.jobs, "job-a/implementation")["episode"],
++                         1)
++        self.assertEqual(live_of(self.jobs, "job-a/review")["episode"], 1)
++
++
++class NoSuccessorThroughAFreshAttempt(fresh.FreshAttemptCase):
++    """Review 5: a cancelled worker attempt projects `exceptional`, which is
++    exactly the state a fresh attempt repeats. The fence must close it."""
++
++    def test_a_cancelled_failed_job_cannot_be_retried(self):
++        self.prior()
++        cancellation.request(self.jobs, job_id=fresh.PRIOR, reason=REASON)
++        refusal = self.refused()
++        self.assertIn("cancelled", refusal.message)
++        self.assertIsNone(fresh.fresh_attempt_of(self.jobs, fresh.FRESH))
++        self.assertEqual(fresh.successors_of(self.jobs, fresh.PRIOR), [])
++
++    def test_a_cancel_landing_after_the_preflight_still_refuses_under_the_lock(self):
++        self.prior()
++        original = fresh_attempt._prior
++
++        def then_cancel(store, prior_job_id):
++            held = original(store, prior_job_id)
++            cancellation.request(self.jobs, job_id=prior_job_id,
++                                 reason=REASON)
++            return held
++
++        with mock.patch.object(fresh_attempt, "_prior", then_cancel):
++            refusal = self.refused()
++        self.assertIn("cancelled", refusal.message)
++        self.assertIsNone(fresh.fresh_attempt_of(self.jobs, fresh.FRESH))
++        self.assertEqual(self.authorization.created, [])
++
++    def test_a_fresh_attempt_admitted_before_the_request_is_left_intact(self):
++        self.prior()
++        first = self.admitted()
++        cancellation.request(self.jobs, job_id=fresh.PRIOR, reason=REASON)
++        self.assertEqual(self.admitted(), first)
++        self.assertIsNotNone(fresh.fresh_attempt_of(self.jobs, fresh.FRESH))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/v12/python/tests/tools/test_job_cancellation_command.py b/v12/python/tests/tools/test_job_cancellation_command.py
+new file mode 100644
+index 00000000..aeb67a3e
+--- /dev/null
++++ b/v12/python/tests/tools/test_job_cancellation_command.py
+@@ -0,0 +1,470 @@
++"""W383215 — the installed cancel commands over a serving composition.
++
++One disposable installed instance (the same layout the settlement commands
++recognise), one REAL composed stage deployment over the recording fake engine,
++and the two commands driven against it while it serves. The command requests
++and reports; the sweep carries the request out through `cancel_attempt` and
++the pre-attach fence; the stores say what was ordered and what ceased.
++"""
++import copy
++import io
++import json
++import os
++from pathlib import Path
++from unittest import mock
++
++from baton_v12.contracts import ContractRefusal
++from baton_v12.job_manager import JobStore, cancellation, submit, sweep
++from baton_v12.worker_manager import ControlStore, attempts, oci
++from baton_v12.worker_manager.failure_cause import attempt_cessation_outcome_of
++from tools import instance, job_manager, stack_command
++from tools import job_cancellation as command
++from tests.job_manager import fixtures
++from tests.tools import test_stage_execution as composed_tests
++
++REASON = "the operator ends this Job before its deadline"
++SOON = "2026-09-02T00:00:30.000Z"
++MUCH_LATER = "2026-09-02T00:02:01.000Z"
++
++
++class InstalledCancellation(composed_tests.ComposedOneJobCase):
++
++    def setUp(self):
++        super().setUp()
++        self.places = instance.layout(self.root)
++        Path(self.places["stores"]).mkdir()
++        os.rename(self.authority_path, self.places["authority_store"])
++        self.authority_path = self.places["authority_store"]
++        self.config["authority_store"] = self.authority_path
++        self.job_path = self.places["job_store"]
++        self.control_path = self.places["control_store"]
++        distro = Path(self.places["distro"])
++        distro.mkdir(parents=True)
++        Path(self.places["command"]).write_text("deterministic packaged fixture")
++        selector = instance.emit(self.root,
++                                 authority_uuid=self.config["authority_uuid"],
++                                 identity={"fixture": True},
++                                 runtime=instance.manifest(distro), now=1)
++        instance.publish(self.places["instance"], selector)
++        self.deployment_document = self.composed_document(line_declared_base=self.base)
++        Path(self.places["deployment"]).write_text(json.dumps(self.deployment_document))
++        self.patch_checkout = mock.patch("tools.stage_execution._checkout",
++                                         return_value=self.checkout)
++        self.patch_checkout.start()
++        self.addCleanup(self.patch_checkout.stop)
++        self.jobs, self.control, self.composed = self.serving()
++        submit(self.jobs, self.submission)
++        self.stage_id = "job-a/implementation"
++
++    # -- the two commands, and the serving ticks beside them -----------------
++
++    def call(self, verb, reason=None, job_id="job-a", at=fixtures.NOW):
++        return command.execute(verb, self.places["instance"], job_id=job_id,
++                               reason=reason, clock=lambda: at)
++
++    def cancel(self, reason=REASON, **named):
++        return self.call("cancel-job", reason=reason, **named)
++
++    def report(self, **named):
++        return self.call("cancel-status", **named)["cancellation"]
++
++    def tick(self):
++        return sweep(self.jobs, self.composed, now=fixtures.NOW)
++
++    def state(self):
++        return self.states(self.jobs, self.composed)["implementation"]
++
++    def attempting(self, store, stage_id):
++        from baton_v12.job_manager import attempting, live_of, stage_rows
++        row = {one["stage_id"]: one for one in stage_rows(store)}[stage_id]
++        return attempting(row, live_of(store, stage_id))
++
++    def attempt_id(self):
++        return self.attempting(self.jobs, self.stage_id)["attempt_id"]
++
++    def claimed(self):
++        """Drive to a CLAIMED stage whose launch the deployment cannot yet
++        perform: an ordinary launch refusal keeps the claim level-triggered
++        and no runtime exists, which is the pre-attach case."""
++        held = mock.patch.object(
++            type(self.composed), "launch",
++            side_effect=ContractRefusal("refused", "precondition",
++                                        "the workspace is not ready yet"))
++        held.start()
++        self.addCleanup(held.stop)
++        self.drive(self.jobs, self.composed, "implementation", "claimed")
++        return held
++
++    def axes(self):
++        return attempts.attempt_runtime_of(self.control, self.attempt_id())
++
++    def journalled(self, kind):
++        return self.control._connection.execute(
++            "SELECT count(*) FROM operations WHERE kind = ? AND state = "
++            "'committed'", (kind,)).fetchone()[0]
++
++    def stops(self):
++        return [one for one in self.engine.vectors if one[1] == "stop"]
++
++    def logical(self):
++        return tuple(tuple(owner._connection.iterdump())
++                     for owner in (self.jobs, self.control))
++
++
++class TheRequestWhileServing(InstalledCancellation):
++
++    def test_an_active_runtime_is_ordered_through_the_composition(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        starts = len(self.engine.starts)
++        answer = self.cancel()
++        self.assertEqual(answer["schema"], command.SCHEMA)
++        self.assertEqual(answer["request"]["job_id"], "job-a")
++        self.assertEqual(answer["request"]["requested_at"], fixtures.NOW)
++        # REQUESTED, NOT YET ACTED: the command placed no order itself.
++        self.assertEqual(answer["cancellation"]["targets"][0]["state"],
++                         "pending")
++        self.assertEqual(self.stops(), [])
++        self.assertEqual(self.journalled("attempt.cancel"), 0)
++        report = self.tick()
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("order-cessation", "ordered")])
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        self.assertEqual(len(self.stops()), 1)
++        self.assertIn(self.axes()["execution_runtime"],
++                      ("cancel-requested", "stopping", "quiescent",
++                       "uncertain"))
++        status = self.report(at=SOON)
++        self.assertEqual(status["targets"][0]["state"], "ordered")
++        self.assertEqual(status["shutdown"], "within-bound")
++        self.assertEqual(status["targets"][0]["orders"][0]["effect"],
++                         "order-cessation")
++        # THE OWNER FENCED ONCE; later ticks replay rather than re-fence,
++        # and nothing was started again.
++        self.tick()
++        self.tick()
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        self.assertEqual(len(self.engine.starts), starts)
++        self.assertEqual(len(cancellation.targets_of(self.jobs, "job-a")), 1)
++        # AND ORDERED IS NOT CEASED: the bound keeps running from the
++        # request until an owner proves cessation.
++        self.assertEqual(self.report(at=MUCH_LATER)["shutdown"], "unresolved")
++        self.assertEqual(self.report(at=MUCH_LATER)["requested_at"],
++                         fixtures.NOW)
++
++    def test_a_claimed_stage_is_fenced_and_never_started(self):
++        unready = self.claimed()
++        self.cancel()
++        report = self.tick()
++        self.assertEqual([one["outcome"] for one in report["started"]],
++                         ["deferred"])
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("fence-unstarted", "ordered")])
++        self.assertEqual(self.engine.starts, [])
++        axes = self.axes()
++        self.assertIsNone(axes["runtime_id"])
++        # The owner's own axis: fenced with nothing attached to stop.
++        self.assertIn(axes["execution_runtime"],
++                      ("not-started", "cancel-requested"))
++        self.assertIsNotNone(axes["assignment"])
++        self.assertEqual(self.journalled("attempt.abandon"), 1)
++        status = self.report()
++        self.assertEqual(status["targets"][0]["state"], "fenced-unstarted")
++        self.assertEqual(status["shutdown"], "complete")
++        # A LATE LAUNCH CANNOT REOPEN IT: the assignment is fenced at the
++        # Authority, so the composition's own start refuses and the engine
++        # is never asked to run anything.
++        unready.stop()
++        attempt = self.attempting(self.jobs, self.stage_id)
++        from baton_v12.job_manager import job_of
++        with self.assertRaises(ContractRefusal):
++            self.composed.launch(attempt, job_of(self.jobs, "job-a"))
++        self.assertEqual(self.engine.starts, [])
++        for _ in range(2):
++            self.tick()
++        self.assertEqual(self.journalled("attempt.abandon"), 1)
++        self.assertEqual(self.engine.starts, [])
++
++    def test_a_queued_job_is_retired_and_the_pool_reserves_nothing(self):
++        self.cancel()
++        for _ in range(3):
++            self.tick()
++        self.assertEqual(self.state(), "queued")
++        self.assertEqual(self.engine.starts, [])
++        from baton_v12.job_manager import scheduler
++        self.assertEqual(scheduler.allocation_rows(self.jobs), [])
++        status = self.report()
++        self.assertEqual(status["targets"][0]["state"],
++                         "retired-before-admission")
++        self.assertEqual(status["shutdown"], "complete")
++
++    def test_a_direct_owner_call_and_the_pass_converge_on_one_fence(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        self.cancel()
++        self.composed.cancel_attempt(attempt_id=self.attempt_id(),
++                                     reason=REASON)
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        self.tick()
++        # The pass finds the owner's axis already ordered and places no
++        # second order of its own; the report reads the axis, not a record.
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        self.assertEqual(cancellation.targets_of(self.jobs, "job-a"), [])
++        self.assertEqual(self.report()["targets"][0]["state"], "ordered")
++        self.assertEqual(len(self.stops()), 1)
++
++    def test_a_request_with_no_serving_manager_stays_pending_until_one_serves(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        self.cancel()
++        # Nothing ticks: the honest report is a pending target under the
++        # bound, never cessation.
++        self.assertEqual(self.report(at=SOON)["targets"][0]["state"],
++                         "pending")
++        self.assertEqual(self.report(at=MUCH_LATER)["shutdown"], "unresolved")
++        self.assertEqual(self.stops(), [])
++        # A later serving process picks the committed request up.
++        self.tick()
++        self.assertEqual(self.report()["targets"][0]["state"], "ordered")
++
++    def refusing_stop(self, count=1):
++        """The reviewer's counterexample: the adapter's stop refuses `count`
++        times at the real boundary, then behaves."""
++        original = oci.OciAdapter.stop
++        remaining = [count]
++
++        def stop(adapter, request):
++            if remaining[0] > 0:
++                remaining[0] -= 1
++                raise ContractRefusal("refused", "precondition",
++                                      "injected transient stop refusal")
++            return original(adapter, request)
++
++        held = mock.patch.object(oci.OciAdapter, "stop", stop)
++        held.start()
++        self.addCleanup(held.stop)
++
++    def test_a_transient_stop_refusal_is_retried_until_the_owner_records_the_order(self):
++        """Review 2026-11-18T19-56-12Z P1, reproduced and closed."""
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        self.cancel()
++        self.refusing_stop(1)
++        first = self.tick()
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in first["cancelled"]],
++                         [("order-cessation", "deferred")])
++        self.assertEqual(self.stops(), [])
++        # THE OWNER'S OWN ACCOUNT: the fence crossed, the stop did not.
++        recorded = attempt_cessation_outcome_of(self.control, self.attempt_id(),
++                                                "cancellation")
++        self.assertEqual(recorded["outcome"], "stop-failed")
++        self.assertEqual(self.axes()["execution_runtime"], "cancel-requested")
++        status = self.report()
++        self.assertEqual(status["targets"][0]["state"], "order-failed")
++        self.assertEqual(status["targets"][0]["orders"], [])
++        self.assertEqual(status["targets"][0]["cessation"]["outcome"],
++                         "stop-failed")
++        self.assertNotEqual(status["shutdown"], "complete")
++        second = self.tick()
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in second["cancelled"]],
++                         [("order-cessation", "ordered")])
++        self.assertEqual(len(self.stops()), 1)
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        recorded = attempt_cessation_outcome_of(self.control, self.attempt_id(),
++                                                "cancellation")
++        self.assertEqual(recorded["outcome"], "ordered")
++        status = self.report()
++        self.assertEqual(status["targets"][0]["state"], "ordered")
++        self.assertEqual(len(status["targets"][0]["orders"]), 1)
++        for _ in range(3):
++            self.assertNotIn("cancelled", self.tick())
++        self.assertEqual(len(self.stops()), 1)
++
++    def interrupted_start(self):
++        """Review 2026-11-18T20-12-59Z: the adapter's start completes and
++        its reply is lost before the attempt owner attaches the identity.
++        Durable state: `start-requested`, no runtime attached, the
++        token-bound fake container exists."""
++        class Interrupted(BaseException):
++            pass
++
++        original = oci.OciAdapter.start
++
++        def lost_reply(adapter, request, **named):
++            original(adapter, request, **named)
++            raise Interrupted()
++
++        with mock.patch.object(oci.OciAdapter, "start", lost_reply):
++            with self.assertRaises(Interrupted):
++                self.drive(self.jobs, self.composed, "implementation",
++                           "waiting")
++        axes = self.axes()
++        self.assertIsNone(axes["runtime_id"])
++        self.assertEqual(axes["execution_runtime"], "start-requested")
++        self.assertEqual(len(self.engine.starts), 1)
++        return axes
++
++    def test_an_interrupted_start_reply_is_cancelled_through_the_stop_owner(self):
++        """Review 2026-11-18T20-12-59Z P1, reproduced and closed: an in-flight
++        start is not `never started`; the exact-generation owner resolves the
++        token-bound runtime and stops it."""
++        self.interrupted_start()
++        self.cancel()
++        self.assertEqual(self.report()["targets"][0]["state"], "pending")
++        report = self.tick()
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("order-cessation", "ordered")])
++        self.assertEqual(len(self.stops()), 1)
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        self.assertEqual(self.journalled("attempt.abandon"), 0)
++        recorded = attempt_cessation_outcome_of(self.control, self.attempt_id(),
++                                                "cancellation")
++        self.assertEqual(recorded["outcome"], "ordered")
++        self.assertEqual(recorded["runtime_id"], self.stops()[0][-1])
++        status = self.report()
++        self.assertEqual(status["targets"][0]["state"], "ordered")
++        self.assertEqual(len(status["targets"][0]["orders"]), 1)
++        self.assertNotEqual(status["shutdown"], "complete")
++        # THE HOLD IS RETAINED: the token is not returned by an order.
++        [record] = [one for one in attempts.runtime_recovery_inventory(self.control)
++                    if one["attempt_id"] == self.attempt_id()]
++        self.assertFalse(record["token"]["returned"])
++        for _ in range(3):
++            self.assertNotIn("cancelled", self.tick())
++        self.assertEqual(len(self.stops()), 1)
++
++    def test_an_interrupted_start_is_still_cancelled_after_a_restart_and_late_attachment(self):
++        self.interrupted_start()
++        self.cancel()
++        self.composed.close()
++        self.jobs, self.control, self.composed = self.serving()
++        report = self.tick()
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report.get("cancelled", [])],
++                         [("order-cessation", "ordered")])
++        self.assertEqual(len(self.stops()), 1)
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        ordered = self.stops()[0][-1]
++        # A LATE ATTACHMENT OF THE SAME IDENTITY changes nothing: the owner's
++        # record names it, so later ticks replay rather than re-fence.
++        axes = self.axes()
++        self.assertIn(axes["runtime_id"], (None, ordered))
++        for _ in range(2):
++            self.assertNotIn("cancelled", self.tick())
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        self.assertEqual(len(self.stops()), 1)
++        status = self.report()
++        self.assertIn(status["targets"][0]["state"],
++                      ("ordered", "held-unknown"))
++        self.assertNotEqual(status["shutdown"], "complete")
++        self.assertEqual(status["requested_at"], fixtures.NOW)
++
++    def test_the_failed_stop_state_survives_a_restart_and_is_retried(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        self.cancel()
++        self.refusing_stop(1)
++        self.tick()
++        self.assertEqual(self.stops(), [])
++        self.assertEqual(self.report()["targets"][0]["state"], "order-failed")
++        self.composed.close()
++        self.jobs, self.control, self.composed = self.serving()
++        report = self.tick()
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report.get("cancelled", [])],
++                         [("order-cessation", "ordered")])
++        self.assertEqual(len(self.stops()), 1)
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        self.assertEqual(self.report()["targets"][0]["state"], "ordered")
++        self.assertEqual(self.report()["requested_at"], fixtures.NOW)
++
++    def test_a_restarted_composition_replays_the_order_rather_than_re_fencing(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        self.cancel()
++        self.tick()
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        self.composed.close()
++        self.jobs, self.control, self.composed = self.serving()
++        self.tick()
++        self.tick()
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        self.assertEqual(len(cancellation.targets_of(self.jobs, "job-a")), 1)
++        # The restarted composition re-observes the runtime it did not start;
++        # an uncertain observation is an honest hold, never cessation.
++        status = self.report()
++        self.assertIn(status["targets"][0]["state"],
++                      ("ordered", "held-unknown"))
++        self.assertNotEqual(status["shutdown"], "complete")
++        self.assertEqual(status["requested_at"], fixtures.NOW)
++
++
++class TheCommandBoundary(InstalledCancellation):
++
++    def test_exact_replay_changed_reason_and_unknown_job(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        first = self.cancel()
++        self.assertEqual(self.cancel(at=MUCH_LATER)["request"],
++                         first["request"])
++        with self.assertRaises(ContractRefusal) as caught:
++            self.cancel(reason="a different account")
++        self.assertEqual(caught.exception.code, "operation-collision")
++        with self.assertRaises(ContractRefusal):
++            self.cancel(job_id="job-nobody")
++        with self.assertRaises(ContractRefusal):
++            self.call("cancel-status", job_id="job-nobody")
++        self.assertEqual(cancellation.fence_of(self.jobs, "job-a"),
++                         first["request"])
++
++    def test_a_blank_reason_and_a_foreign_instance_refuse_before_writes(self):
++        before = self.logical()
++        with self.assertRaises(ContractRefusal):
++            self.cancel(reason="   ")
++        changed = copy.deepcopy(self.deployment_document)
++        changed["authority_uuid"] = "f" * 32
++        Path(self.places["deployment"]).write_text(json.dumps(changed))
++        with self.assertRaises(ContractRefusal):
++            self.cancel()
++        Path(self.places["deployment"]).write_text(json.dumps(self.deployment_document))
++        Path(self.places["command"]).write_text("replaced package")
++        with self.assertRaises(instance.InstanceRefusal):
++            self.cancel()
++        self.assertEqual(self.logical(), before)
++        self.assertIsNone(cancellation.fence_of(self.jobs, "job-a"))
++
++    def test_cancel_status_opens_nothing_writable_and_changes_nothing(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        self.assertIsNone(self.report())
++        self.cancel()
++        before = self.logical()
++        with mock.patch.object(JobStore, "open",
++                               side_effect=AssertionError("writable Jobs")), \
++                mock.patch.object(ControlStore, "open",
++                                  side_effect=AssertionError("writable control")):
++            answer = self.call("cancel-status")
++        self.assertEqual(answer["request"]["reason"], REASON)
++        self.assertEqual(answer["cancellation"]["targets"][0]["state"],
++                         "pending")
++        self.assertEqual(self.logical(), before)
++
++    def test_the_packaged_manager_dispatch_reaches_both_verbs(self):
++        output = io.StringIO()
++        with mock.patch.object(job_manager, "_utc_clock",
++                               return_value=lambda: fixtures.NOW), \
++                mock.patch("sys.stdout", output):
++            self.assertEqual(stack_command.main(
++                ["manager", "cancel-status", "--instance",
++                 self.places["instance"], "--job", "job-a"]), 0)
++            self.assertIsNone(json.loads(output.getvalue())["cancellation"])
++            output.seek(0)
++            output.truncate()
++            self.assertEqual(stack_command.main(
++                ["manager", "cancel-job", "--instance",
++                 self.places["instance"], "--job", "job-a", "--reason",
++                 REASON]), 0)
++        answer = json.loads(output.getvalue())
++        self.assertEqual(answer["request"]["reason"], REASON)
++        self.assertEqual(answer["cancellation"]["targets"][0]["state"],
++                         "retired-before-admission")
++        with self.assertRaises(SystemExit):
++            stack_command.main(["manager", "cancel-job", "--instance",
++                                self.places["instance"], "--job", "job-a"])

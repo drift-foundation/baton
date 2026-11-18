@@ -1,0 +1,15 @@
+work/scratch/w383215/group-job_manager.log:[parallel] done  40/196 tests.job_manager.test_execution_limits.TheStoreKeepsWhatTheJobAskedFor rc=1
+work/scratch/w383215/group-job_manager.log:[parallel] done  46/196 tests.job_manager.test_exchange.AStartedContainerIsNotWorkInProgress rc=1
+work/scratch/w383215/group-job_manager.log:[parallel] done  113/196 tests.job_manager.test_native_permission.TheOwnerFailureReachesTheReportThroughStatus rc=1
+work/scratch/w383215/group-job_manager.log:[parallel] done  187/196 tests.job_manager.test_tool.Reading rc=1
+work/scratch/w383215/group-job_manager.log:[parallel] done  188/196 tests.job_manager.test_tool.TheStatusSurfaceOpensBothStoresReadOnly rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  1/462 tests.tools.test_attempt_diagnostics.TheCommandTableServesAndDispatchesIt rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  2/462 tests.tools.test_attempt_diagnostics.TheReportIsAPureProjection rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  324/462 tests.tools.test_stack.Status rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  422/462 tests.tools.test_worker_visibility.EveryCurrentStageGetsARow rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  426/462 tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  427/462 tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  435/462 tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  452/462 tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  455/462 tests.tools.test_stack.ValidIdleComposition rc=1
+work/scratch/w383215/group-tools-pure.log:[parallel] done  461/462 tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE rc=1

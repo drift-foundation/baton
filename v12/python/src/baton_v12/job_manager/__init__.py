@@ -51,6 +51,10 @@ from .documents import (ACTS, CORRECTION_ENDINGS, EPISODE_ENDINGS,
                         STATUS_SCHEMA, SUBMISSION_SCHEMA, TERMINAL_POLICIES,
                         TERMINAL_STAGE_STATES, owned_submission,
                         read_submission, stage_id, submission_signature)
+from .cancellation import (REQUEST_KIND as CANCEL_KIND,
+                           SHUTDOWN_BOUND_SECONDS, fence_of,
+                           report as cancellation_report,
+                           request as request_job_cancellation)
 from .creation import (CREATE_KIND, DERIVATION_MEMBERS, INSTALLED_SOURCE,
                        create_template_job, created_job_of,
                        created_job_rows, resolution_of)
@@ -121,4 +125,6 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
            "replaceable", "require_recovery",
            "serve", "stage_id", "stage_intent", "stage_rows", "stages_of",
            "reserve", "status", "submission_of", "submission_rows",
-           "submission_signature", "submit", "sweep"]
+           "submission_signature", "submit", "sweep",
+           "CANCEL_KIND", "SHUTDOWN_BOUND_SECONDS", "cancellation_report",
+           "fence_of", "request_job_cancellation"]

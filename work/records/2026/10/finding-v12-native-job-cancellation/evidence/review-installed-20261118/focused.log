@@ -1,0 +1,42 @@
+test_a_claimed_stage_is_fenced_instead_of_launched (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_claimed_stage_is_fenced_instead_of_launched) ... ok
+test_a_deployment_without_the_capability_is_reported_not_guessed (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_deployment_without_the_capability_is_reported_not_guessed) ... ok
+test_a_running_stage_is_ordered_to_cease_and_reported_ordered (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_running_stage_is_ordered_to_cease_and_reported_ordered) ... ok
+test_an_ended_job_keeps_its_outcome_and_nothing_is_ordered (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_an_ended_job_keeps_its_outcome_and_nothing_is_ordered) ... ok
+test_an_owner_refusal_is_contained_reported_and_leaves_pending (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_an_owner_refusal_is_contained_reported_and_leaves_pending) ... ok
+test_the_order_is_level_triggered_and_recorded_once (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_the_order_is_level_triggered_and_recorded_once) ... ok
+test_a_cancel_landing_after_the_preflight_still_refuses_under_the_lock (tests.job_manager.test_job_cancellation.NoSuccessorThroughAFreshAttempt.test_a_cancel_landing_after_the_preflight_still_refuses_under_the_lock) ... ok
+test_a_cancelled_failed_job_cannot_be_retried (tests.job_manager.test_job_cancellation.NoSuccessorThroughAFreshAttempt.test_a_cancelled_failed_job_cannot_be_retried) ... ok
+test_a_fresh_attempt_admitted_before_the_request_is_left_intact (tests.job_manager.test_job_cancellation.NoSuccessorThroughAFreshAttempt.test_a_fresh_attempt_admitted_before_the_request_is_left_intact) ... ok
+test_a_queued_stage_is_retired_before_admission (tests.job_manager.test_job_cancellation.QueuedAndOfferedTargets.test_a_queued_stage_is_retired_before_admission) ... ok
+test_an_offered_stage_is_never_claimed_and_waits_for_the_lapse (tests.job_manager.test_job_cancellation.QueuedAndOfferedTargets.test_an_offered_stage_is_never_claimed_and_waits_for_the_lapse) ... ok
+test_the_bound_runs_from_the_request_and_never_resets (tests.job_manager.test_job_cancellation.QueuedAndOfferedTargets.test_the_bound_runs_from_the_request_and_never_resets) ... ok
+test_a_changed_reason_collides_rather_than_rewriting (tests.job_manager.test_job_cancellation.TheRequest.test_a_changed_reason_collides_rather_than_rewriting) ... ok
+test_a_job_nobody_cancelled_reports_null (tests.job_manager.test_job_cancellation.TheRequest.test_a_job_nobody_cancelled_reports_null) ... ok
+test_an_unknown_job_and_a_blank_reason_refuse_without_a_fence (tests.job_manager.test_job_cancellation.TheRequest.test_an_unknown_job_and_a_blank_reason_refuse_without_a_fence) ... ok
+test_one_request_is_journalled_once_and_replays_exactly (tests.job_manager.test_job_cancellation.TheRequest.test_one_request_is_journalled_once_and_replays_exactly) ... ok
+test_the_fence_survives_a_restart_of_the_manager (tests.job_manager.test_job_cancellation.TheRequest.test_the_fence_survives_a_restart_of_the_manager) ... ok
+test_a_cancel_racing_a_reservation_leaves_a_consistent_store (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_a_cancel_racing_a_reservation_leaves_a_consistent_store)
+Whichever commits first, the other sees it: never both admitted ... ok
+test_a_correction_round_refuses_inside_its_transaction (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_a_correction_round_refuses_inside_its_transaction) ... ok
+test_no_replacement_episode_opens_for_a_cancelled_job (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_no_replacement_episode_opens_for_a_cancelled_job) ... ok
+test_the_claim_re_reads_the_fence_before_the_authority_is_asked (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_the_claim_re_reads_the_fence_before_the_authority_is_asked) ... ok
+test_the_reservation_refuses_under_the_lock (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_the_reservation_refuses_under_the_lock) ... ok
+test_a_blank_reason_and_a_foreign_instance_refuse_before_writes (tests.tools.test_job_cancellation_command.TheCommandBoundary.test_a_blank_reason_and_a_foreign_instance_refuse_before_writes) ... ok
+test_cancel_status_opens_nothing_writable_and_changes_nothing (tests.tools.test_job_cancellation_command.TheCommandBoundary.test_cancel_status_opens_nothing_writable_and_changes_nothing) ... ok
+test_exact_replay_changed_reason_and_unknown_job (tests.tools.test_job_cancellation_command.TheCommandBoundary.test_exact_replay_changed_reason_and_unknown_job) ... ok
+test_the_packaged_manager_dispatch_reaches_both_verbs (tests.tools.test_job_cancellation_command.TheCommandBoundary.test_the_packaged_manager_dispatch_reaches_both_verbs) ... usage: manager cancellation [-h] --instance INSTANCE --job JOB
+                            [--reason REASON]
+                            {cancel-job,cancel-status}
+manager cancellation: error: cancel-job needs --reason
+ok
+test_a_claimed_stage_is_fenced_and_never_started (tests.tools.test_job_cancellation_command.TheRequestWhileServing.test_a_claimed_stage_is_fenced_and_never_started) ... ok
+test_a_direct_owner_call_and_the_pass_converge_on_one_fence (tests.tools.test_job_cancellation_command.TheRequestWhileServing.test_a_direct_owner_call_and_the_pass_converge_on_one_fence) ... ok
+test_a_queued_job_is_retired_and_the_pool_reserves_nothing (tests.tools.test_job_cancellation_command.TheRequestWhileServing.test_a_queued_job_is_retired_and_the_pool_reserves_nothing) ... ok
+test_a_request_with_no_serving_manager_stays_pending_until_one_serves (tests.tools.test_job_cancellation_command.TheRequestWhileServing.test_a_request_with_no_serving_manager_stays_pending_until_one_serves) ... ok
+test_a_restarted_composition_replays_the_order_rather_than_re_fencing (tests.tools.test_job_cancellation_command.TheRequestWhileServing.test_a_restarted_composition_replays_the_order_rather_than_re_fencing) ... ok
+test_an_active_runtime_is_ordered_through_the_composition (tests.tools.test_job_cancellation_command.TheRequestWhileServing.test_an_active_runtime_is_ordered_through_the_composition) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 1.477s
+
+OK

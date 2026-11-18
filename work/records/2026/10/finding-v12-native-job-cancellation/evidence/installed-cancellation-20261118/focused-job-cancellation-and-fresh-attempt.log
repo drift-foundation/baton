@@ -1,0 +1,295 @@
+test_a_claimed_stage_is_fenced_instead_of_launched (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_claimed_stage_is_fenced_instead_of_launched) ... ok
+test_a_deployment_without_the_capability_is_reported_not_guessed (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_deployment_without_the_capability_is_reported_not_guessed) ... ok
+test_a_running_stage_is_ordered_to_cease_and_reported_ordered (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_running_stage_is_ordered_to_cease_and_reported_ordered) ... ok
+test_an_ended_job_keeps_its_outcome_and_nothing_is_ordered (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_an_ended_job_keeps_its_outcome_and_nothing_is_ordered) ... ok
+test_an_owner_refusal_is_contained_reported_and_leaves_pending (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_an_owner_refusal_is_contained_reported_and_leaves_pending) ... ok
+test_the_order_is_level_triggered_and_recorded_once (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_the_order_is_level_triggered_and_recorded_once) ... ok
+test_a_cancel_landing_after_the_preflight_still_refuses_under_the_lock (tests.job_manager.test_job_cancellation.NoSuccessorThroughAFreshAttempt.test_a_cancel_landing_after_the_preflight_still_refuses_under_the_lock) ... ok
+test_a_cancelled_failed_job_cannot_be_retried (tests.job_manager.test_job_cancellation.NoSuccessorThroughAFreshAttempt.test_a_cancelled_failed_job_cannot_be_retried) ... ok
+test_a_fresh_attempt_admitted_before_the_request_is_left_intact (tests.job_manager.test_job_cancellation.NoSuccessorThroughAFreshAttempt.test_a_fresh_attempt_admitted_before_the_request_is_left_intact) ... ok
+test_a_queued_stage_is_retired_before_admission (tests.job_manager.test_job_cancellation.QueuedAndOfferedTargets.test_a_queued_stage_is_retired_before_admission) ... ok
+test_an_offered_stage_is_never_claimed_and_waits_for_the_lapse (tests.job_manager.test_job_cancellation.QueuedAndOfferedTargets.test_an_offered_stage_is_never_claimed_and_waits_for_the_lapse) ... ok
+test_the_bound_runs_from_the_request_and_never_resets (tests.job_manager.test_job_cancellation.QueuedAndOfferedTargets.test_the_bound_runs_from_the_request_and_never_resets) ... ok
+test_a_changed_reason_collides_rather_than_rewriting (tests.job_manager.test_job_cancellation.TheRequest.test_a_changed_reason_collides_rather_than_rewriting) ... ok
+test_a_job_nobody_cancelled_reports_null (tests.job_manager.test_job_cancellation.TheRequest.test_a_job_nobody_cancelled_reports_null) ... ok
+test_an_unknown_job_and_a_blank_reason_refuse_without_a_fence (tests.job_manager.test_job_cancellation.TheRequest.test_an_unknown_job_and_a_blank_reason_refuse_without_a_fence) ... ok
+test_one_request_is_journalled_once_and_replays_exactly (tests.job_manager.test_job_cancellation.TheRequest.test_one_request_is_journalled_once_and_replays_exactly) ... ok
+test_the_fence_survives_a_restart_of_the_manager (tests.job_manager.test_job_cancellation.TheRequest.test_the_fence_survives_a_restart_of_the_manager) ... ok
+test_a_cancel_racing_a_reservation_leaves_a_consistent_store (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_a_cancel_racing_a_reservation_leaves_a_consistent_store)
+Whichever commits first, the other sees it: never both admitted ... ok
+test_a_correction_round_refuses_inside_its_transaction (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_a_correction_round_refuses_inside_its_transaction) ... ok
+test_no_replacement_episode_opens_for_a_cancelled_job (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_no_replacement_episode_opens_for_a_cancelled_job) ... ok
+test_the_claim_re_reads_the_fence_before_the_authority_is_asked (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_the_claim_re_reads_the_fence_before_the_authority_is_asked) ... ok
+test_the_reservation_refuses_under_the_lock (tests.job_manager.test_job_cancellation.TheWriteSideFences.test_the_reservation_refuses_under_the_lock) ... ok
+test_a_real_host_port_cannot_be_built_without_one (tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance.test_a_real_host_port_cannot_be_built_without_one)
+THE PRODUCTION CONSTRUCTOR, not only the manager's check. ... ok
+test_a_real_host_port_proves_the_store_it_wraps_at_birth (tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance.test_a_real_host_port_proves_the_store_it_wraps_at_birth) ... ok
+test_an_unbound_port_refuses_before_anything_is_read (tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance.test_an_unbound_port_refuses_before_anything_is_read) ... ok
+test_each_of_the_four_is_required_to_declare (tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance.test_each_of_the_four_is_required_to_declare) ... ok
+test_a_completed_admission_still_replays_after_the_lock_is_gone (tests.job_manager.test_fresh_attempt.ExclusiveInvocation.test_a_completed_admission_still_replays_after_the_lock_is_gone) ... ok
+test_same_incarnation_concurrent_requests_bind_once (tests.job_manager.test_fresh_attempt.ExclusiveInvocation.test_same_incarnation_concurrent_requests_bind_once)
+THE CASE THE PREVIOUS RACE MISSED, because it varied incarnations. ... ok
+test_a_borrow_survives_a_serving_lifetime_ending_under_it (tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule.test_a_borrow_survives_a_serving_lifetime_ending_under_it)
+THE RECIPROCAL, which the review also named. ... ok
+test_a_borrowed_guard_outlives_the_admission_that_borrowed_it (tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule.test_a_borrowed_guard_outlives_the_admission_that_borrowed_it)
+REVIEW R10: admission may not release another owner's lifetime. ... ok
+test_a_borrowed_guard_survives_an_admission_that_fails (tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule.test_a_borrowed_guard_survives_an_admission_that_fails) ... ok
+test_a_manager_already_holding_this_instance_refuses (tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule.test_a_manager_already_holding_this_instance_refuses)
+THE EXCLUSION, driven: a second holder is denied, not queued. ... ok
+test_a_serving_lifetime_taken_during_a_borrow_survives_it (tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule.test_a_serving_lifetime_taken_during_a_borrow_survives_it)
+THE REVIEWER'S SEQUENCE, exactly: borrow, then serve, then leave. ... ok
+test_the_guard_is_released_when_the_admission_finishes (tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule.test_the_guard_is_released_when_the_admission_finishes) ... ok
+test_the_guard_is_taken_from_the_instance_s_own_configuration (tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule.test_the_guard_is_taken_from_the_instance_s_own_configuration) ... ok
+test_the_last_holder_of_either_kind_closes_it (tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule.test_the_last_holder_of_either_kind_closes_it) ... ok
+test_two_invocations_of_one_identity_cannot_overlap (tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule.test_two_invocations_of_one_identity_cannot_overlap)
+R8 AT THE REAL LOCK, in two real processes. ... ok
+test_a_holder_continues_its_own_interrupted_work (tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects.test_a_holder_continues_its_own_interrupted_work) ... ok
+test_a_serving_manager_refuses_the_admission_outright (tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects.test_a_serving_manager_refuses_the_admission_outright) ... ok
+test_an_ordinary_job_that_came_first_refuses_the_retry (tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects.test_an_ordinary_job_that_came_first_refuses_the_retry)
+THE OTHER ORDER, decided in the same place. ... ok
+test_an_ordinary_submission_cannot_take_a_reserved_identity (tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects.test_an_ordinary_submission_cannot_take_a_reserved_identity)
+R6: one identity, one owner, decided in this store's own lock. ... ok
+test_another_manager_is_refused_rather_than_taking_over (tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects.test_another_manager_is_refused_rather_than_taking_over)
+DECIDING AN UNSEEN MANAGER HAS STOPPED IS THE ONE THING REFUSED. ... ok
+test_identical_concurrent_requests_bind_once (tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects.test_identical_concurrent_requests_bind_once)
+R5's OWN PROBE: two real connections, one identical request. ... ok
+test_the_instance_is_held_for_the_whole_admission_and_released (tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects.test_the_instance_is_held_for_the_whole_admission_and_released) ... ok
+test_a_replay_survives_the_prior_job_becoming_unquiet_afterwards (tests.job_manager.test_fresh_attempt.ReplayAndUniqueness.test_a_replay_survives_the_prior_job_becoming_unquiet_afterwards) ... ok
+test_a_reservation_whose_submission_was_lost_resumes (tests.job_manager.test_fresh_attempt.ReplayAndUniqueness.test_a_reservation_whose_submission_was_lost_resumes)
+THE CUT BETWEEN THE RESERVATION AND THE SUBMISSION, driven. ... ok
+test_a_second_fresh_attempt_at_one_failure_refuses_naming_the_first (tests.job_manager.test_fresh_attempt.ReplayAndUniqueness.test_a_second_fresh_attempt_at_one_failure_refuses_naming_the_first)
+A FORK IS TWO JOBS ON ONE WORK, which is what this prevents. ... ok
+test_the_chain_continues_from_the_attempt_that_failed (tests.job_manager.test_fresh_attempt.ReplayAndUniqueness.test_the_chain_continues_from_the_attempt_that_failed) ... ok
+test_the_derived_identity_is_the_next_ordinal_and_nothing_else (tests.job_manager.test_fresh_attempt.ReplayAndUniqueness.test_the_derived_identity_is_the_next_ordinal_and_nothing_else) ... ok
+test_the_same_identity_with_different_operands_refuses (tests.job_manager.test_fresh_attempt.ReplayAndUniqueness.test_the_same_identity_with_different_operands_refuses) ... ok
+test_the_same_request_replays_its_recorded_answer (tests.job_manager.test_fresh_attempt.ReplayAndUniqueness.test_the_same_request_replays_its_recorded_answer) ... ok
+test_a_binding_already_configured_is_used_rather_than_added (tests.job_manager.test_fresh_attempt.TheAdmission.test_a_binding_already_configured_is_used_rather_than_added) ... ok
+test_a_work_that_does_not_exist_yet_is_created_replayably (tests.job_manager.test_fresh_attempt.TheAdmission.test_a_work_that_does_not_exist_yet_is_created_replayably) ... ok
+test_the_answer_links_the_fresh_job_to_what_it_replaces (tests.job_manager.test_fresh_attempt.TheAdmission.test_the_answer_links_the_fresh_job_to_what_it_replaces) ... ok
+test_the_binding_is_added_from_the_prior_job_s_own (tests.job_manager.test_fresh_attempt.TheAdmission.test_the_binding_is_added_from_the_prior_job_s_own) ... ok
+test_the_dependency_moves_onto_the_fresh_job (tests.job_manager.test_fresh_attempt.TheAdmission.test_the_dependency_moves_onto_the_fresh_job)
+A fresh attempt gated on the failure it replaces would never run. ... ok
+test_the_fresh_job_carries_the_prior_specification_unchanged (tests.job_manager.test_fresh_attempt.TheAdmission.test_the_fresh_job_carries_the_prior_specification_unchanged)
+THE SELECTION IS THE OPERATOR'S, so nothing about it is recomposed. ... ok
+test_the_prior_job_its_stages_and_its_episodes_are_untouched (tests.job_manager.test_fresh_attempt.TheAdmission.test_the_prior_job_its_stages_and_its_episodes_are_untouched) ... ok
+test_the_reservation_is_durable_and_says_what_it_reserved (tests.job_manager.test_fresh_attempt.TheAdmission.test_the_reservation_is_durable_and_says_what_it_reserved) ... ok
+test_the_work_is_reused_rather_than_created (tests.job_manager.test_fresh_attempt.TheAdmission.test_the_work_is_reused_rather_than_created)
+REUSE IS WHAT MAKES THE INSTALLED WORKERS ABLE TO SERVE IT. ... ok
+test_a_borrowed_guard_outlives_the_admission_that_borrowed_it (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_a_borrowed_guard_outlives_the_admission_that_borrowed_it)
+REVIEW R10: admission may not release another owner's lifetime. ... ok
+test_a_borrowed_guard_survives_an_admission_that_fails (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_a_borrowed_guard_survives_an_admission_that_fails) ... ok
+test_a_holder_paused_mid_acquisition_keeps_its_exclusion (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_a_holder_paused_mid_acquisition_keeps_its_exclusion)
+THE PROBE'S OWN INTERLEAVING, at the real function boundary. ... ok
+test_a_manager_already_holding_this_instance_refuses (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_a_manager_already_holding_this_instance_refuses)
+THE EXCLUSION, driven: a second holder is denied, not queued. ... ok
+test_many_concurrent_borrowers_hold_one_instance (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_many_concurrent_borrowers_hold_one_instance)
+THE SAME QUESTION WITHOUT A PAUSE: real threads, real contention. ... ok
+test_the_guard_is_released_when_the_admission_finishes (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_the_guard_is_released_when_the_admission_finishes) ... ok
+test_the_guard_is_taken_from_the_instance_s_own_configuration (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_the_guard_is_taken_from_the_instance_s_own_configuration) ... ok
+test_two_invocations_of_one_identity_cannot_overlap (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_two_invocations_of_one_identity_cannot_overlap)
+R8 AT THE REAL LOCK, in two real processes. ... ok
+test_the_verb_delegates_every_decision_to_the_manager (tests.job_manager.test_fresh_attempt.TheCommandRequestsTheOperation.test_the_verb_delegates_every_decision_to_the_manager) ... ok
+test_a_changed_request_refuses_before_any_other_owner_is_touched (tests.job_manager.test_fresh_attempt.TheConnectedRetry.test_a_changed_request_refuses_before_any_other_owner_is_touched)
+REVIEW R4: no Work is minted for an operation nobody admitted. ... ok
+test_a_fresh_attempt_is_admitted_bound_and_selectable (tests.job_manager.test_fresh_attempt.TheConnectedRetry.test_a_fresh_attempt_is_admitted_bound_and_selectable)
+THE WHOLE OUTCOME, with nothing between the parts faked. ... ok
+test_a_mismatched_submitted_input_refuses_before_admission (tests.job_manager.test_fresh_attempt.TheConnectedRetry.test_a_mismatched_submitted_input_refuses_before_admission)
+R3's case: the specification, not a worker compared with itself. ... ok
+test_a_selected_fresh_work_is_created_and_then_cannot_be_served (tests.job_manager.test_fresh_attempt.TheConnectedRetry.test_a_selected_fresh_work_is_created_and_then_cannot_be_served)
+WHY REUSING THE PRIOR WORK IS THE DEFAULT, measured. ... ok
+test_the_whole_thing_replays (tests.job_manager.test_fresh_attempt.TheConnectedRetry.test_the_whole_thing_replays) ... ok
+test_two_real_connections_cannot_fork_one_failure (tests.job_manager.test_fresh_attempt.TheConnectedRetry.test_two_real_connections_cannot_fork_one_failure)
+REVIEW R2's OWN PROBE, as a case. ... ok
+test_a_worker_on_another_work_cannot (tests.job_manager.test_fresh_attempt.TheDeploymentRule.test_a_worker_on_another_work_cannot)
+THE FACT THAT DECIDED THE PILOT'S SHAPE, asserted directly. ... ok
+test_a_worker_whose_operands_agree_can_serve (tests.job_manager.test_fresh_attempt.TheDeploymentRule.test_a_worker_whose_operands_agree_can_serve) ... ok
+test_an_implementation_lane_is_bound_to_the_job_s_own_producer (tests.job_manager.test_fresh_attempt.TheDeploymentRule.test_an_implementation_lane_is_bound_to_the_job_s_own_producer)
+AGREEING ON EVERY DIGEST IS NOT BEING THE NAMED PRODUCER. ... ok
+test_the_live_selector_and_the_document_rule_are_one_rule (tests.job_manager.test_fresh_attempt.TheDeploymentRule.test_the_live_selector_and_the_document_rule_are_one_rule)
+`_job_workers` IS this function plus the two live facts. ... ok
+test_the_review_lane_is_not_narrowed_to_the_producer (tests.job_manager.test_fresh_attempt.TheDeploymentRule.test_the_review_lane_is_not_narrowed_to_the_producer) ... ok
+test_a_borrowed_guard_outlives_the_admission_that_borrowed_it (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_a_borrowed_guard_outlives_the_admission_that_borrowed_it)
+REVIEW R10: admission may not release another owner's lifetime. ... ok
+test_a_borrowed_guard_survives_an_admission_that_fails (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_a_borrowed_guard_survives_an_admission_that_fails) ... ok
+test_a_forked_child_inherits_no_borrow (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_a_forked_child_inherits_no_borrow)
+THE CACHE'S FORK RULE, extended to the count beside it. ... ok
+test_a_manager_already_holding_this_instance_refuses (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_a_manager_already_holding_this_instance_refuses)
+THE EXCLUSION, driven: a second holder is denied, not queued. ... ok
+test_a_serving_owner_is_never_released_by_any_borrower (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_a_serving_owner_is_never_released_by_any_borrower) ... ok
+test_an_error_exit_releases_no_more_than_an_ordinary_one (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_an_error_exit_releases_no_more_than_an_ordinary_one) ... ok
+test_overlapping_lifetimes_in_either_exit_order (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_overlapping_lifetimes_in_either_exit_order)
+THE PROBE'S OWN INTERLEAVING: the FIRST context exits first. ... ok
+test_the_borrow_count_returns_to_zero (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_the_borrow_count_returns_to_zero) ... ok
+test_the_first_borrower_out_does_not_release_the_second (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_the_first_borrower_out_does_not_release_the_second) ... ok
+test_the_guard_is_released_when_the_admission_finishes (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_the_guard_is_released_when_the_admission_finishes) ... ok
+test_the_guard_is_taken_from_the_instance_s_own_configuration (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_the_guard_is_taken_from_the_instance_s_own_configuration) ... ok
+test_two_invocations_of_one_identity_cannot_overlap (tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower.test_two_invocations_of_one_identity_cannot_overlap)
+R8 AT THE REAL LOCK, in two real processes. ... ok
+test_a_borrowed_guard_outlives_the_admission_that_borrowed_it (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_a_borrowed_guard_outlives_the_admission_that_borrowed_it)
+REVIEW R10: admission may not release another owner's lifetime. ... ok
+test_a_borrowed_guard_survives_an_admission_that_fails (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_a_borrowed_guard_survives_an_admission_that_fails) ... ok
+test_a_manager_already_holding_this_instance_refuses (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_a_manager_already_holding_this_instance_refuses)
+THE EXCLUSION, driven: a second holder is denied, not queued. ... ok
+test_a_new_holder_waits_and_gets_a_valid_guard (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_a_new_holder_waits_and_gets_a_valid_guard) ... ok
+test_an_error_inside_a_borrow_retires_it_the_same_way (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_an_error_inside_a_borrow_retires_it_the_same_way) ... ok
+test_the_cache_is_retired_with_the_descriptor (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_the_cache_is_retired_with_the_descriptor) ... ok
+test_the_guard_is_released_when_the_admission_finishes (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_the_guard_is_released_when_the_admission_finishes) ... ok
+test_the_guard_is_taken_from_the_instance_s_own_configuration (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_the_guard_is_taken_from_the_instance_s_own_configuration) ... ok
+test_two_invocations_of_one_identity_cannot_overlap (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_two_invocations_of_one_identity_cannot_overlap)
+R8 AT THE REAL LOCK, in two real processes. ... ok
+test_a_borrowed_guard_outlives_the_admission_that_borrowed_it (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_a_borrowed_guard_outlives_the_admission_that_borrowed_it)
+REVIEW R10: admission may not release another owner's lifetime. ... ok
+test_a_borrowed_guard_survives_an_admission_that_fails (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_a_borrowed_guard_survives_an_admission_that_fails) ... ok
+test_a_child_forked_while_the_mutex_is_held_can_still_borrow (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_a_child_forked_while_the_mutex_is_held_can_still_borrow)
+THE REVIEWER'S BOUNDED PROBE, as a case. ... /home/sl/src/baton/v12/python/tests/job_manager/test_fresh_attempt.py:2499: DeprecationWarning: This process (pid=894166) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  child = os.fork()
+ok
+test_a_child_inherits_no_holder_count (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_a_child_inherits_no_holder_count) ... ok
+test_a_manager_already_holding_this_instance_refuses (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_a_manager_already_holding_this_instance_refuses)
+THE EXCLUSION, driven: a second holder is denied, not queued. ... ok
+test_the_guard_is_released_when_the_admission_finishes (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_the_guard_is_released_when_the_admission_finishes) ... ok
+test_the_guard_is_taken_from_the_instance_s_own_configuration (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_the_guard_is_taken_from_the_instance_s_own_configuration) ... ok
+test_two_invocations_of_one_identity_cannot_overlap (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_two_invocations_of_one_identity_cannot_overlap)
+R8 AT THE REAL LOCK, in two real processes. ... ok
+test_a_changed_request_refuses_before_any_other_owner_is_touched (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_a_changed_request_refuses_before_any_other_owner_is_touched)
+REVIEW R4: no Work is minted for an operation nobody admitted. ... ok
+test_a_configuration_for_another_authority_refuses (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_a_configuration_for_another_authority_refuses) ... ok
+test_a_fresh_attempt_is_admitted_bound_and_selectable (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_a_fresh_attempt_is_admitted_bound_and_selectable)
+THE WHOLE OUTCOME, with nothing between the parts faked. ... ok
+test_a_mismatched_submitted_input_refuses_before_admission (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_a_mismatched_submitted_input_refuses_before_admission)
+R3's case: the specification, not a worker compared with itself. ... ok
+test_a_selected_fresh_work_is_created_and_then_cannot_be_served (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_a_selected_fresh_work_is_created_and_then_cannot_be_served)
+WHY REUSING THE PRIOR WORK IS THE DEFAULT, measured. ... ok
+test_an_unrelated_control_store_refuses_before_any_effect (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_an_unrelated_control_store_refuses_before_any_effect)
+THE PROBE'S OWN COMPOSITION: real ports, a DIFFERENT empty store. ... ok
+test_ports_answering_for_two_deployments_refuse (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_ports_answering_for_two_deployments_refuse)
+THE MANAGER'S OWN CHECK, independent of how a caller composed. ... ok
+test_the_command_refuses_a_store_the_instance_does_not_own (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_the_command_refuses_a_store_the_instance_does_not_own)
+AT THE ACTUAL CLI WIRING, not only in the composition. ... ok
+test_the_right_instance_still_admits (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_the_right_instance_still_admits)
+THE POSITIVE CASE, with every port bound to this instance. ... ok
+test_the_whole_thing_replays (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_the_whole_thing_replays) ... ok
+test_two_real_connections_cannot_fork_one_failure (tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS.test_two_real_connections_cannot_fork_one_failure)
+REVIEW R2's OWN PROBE, as a case. ... /usr/lib/python3.13/pathlib/_local.py:277: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7c545028d7b0>
+  @property
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_submission_identity_already_used_refuses_before_effects (tests.job_manager.test_fresh_attempt.TheIntendedSubmissionIsImmutable.test_a_submission_identity_already_used_refuses_before_effects)
+THE COLLISION IS MET BEFORE THE WORK AND THE BINDING, not after. ... ok
+test_the_reservation_records_the_document_it_is_for (tests.job_manager.test_fresh_attempt.TheIntendedSubmissionIsImmutable.test_the_reservation_records_the_document_it_is_for) ... ok
+test_the_same_submission_name_with_another_document_refuses (tests.job_manager.test_fresh_attempt.TheIntendedSubmissionIsImmutable.test_the_same_submission_name_with_another_document_refuses) ... ok
+test_a_changed_request_refuses_before_any_other_owner_is_touched (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_a_changed_request_refuses_before_any_other_owner_is_touched)
+REVIEW R4: no Work is minted for an operation nobody admitted. ... ok
+test_a_fresh_attempt_is_admitted_bound_and_selectable (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_a_fresh_attempt_is_admitted_bound_and_selectable)
+THE WHOLE OUTCOME, with nothing between the parts faked. ... ok
+test_a_mismatched_submitted_input_refuses_before_admission (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_a_mismatched_submitted_input_refuses_before_admission)
+R3's case: the specification, not a worker compared with itself. ... ok
+test_a_selected_fresh_work_is_created_and_then_cannot_be_served (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_a_selected_fresh_work_is_created_and_then_cannot_be_served)
+WHY REUSING THE PRIOR WORK IS THE DEFAULT, measured. ... ok
+test_another_instance_s_ports_cannot_admit_this_store_s_job (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_another_instance_s_ports_cannot_admit_this_store_s_job) ... ok
+test_the_whole_thing_replays (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_the_whole_thing_replays) ... ok
+test_this_instance_s_own_store_still_admits (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_this_instance_s_own_store_still_admits) ... /home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:285: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7c545028f880>
+  if not any(validator.is_type(instance, type) for type in types):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_two_real_connections_cannot_fork_one_failure (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_two_real_connections_cannot_fork_one_failure)
+REVIEW R2's OWN PROBE, as a case. ... ok
+test_a_settled_refusal_refuses_the_retry_before_any_effect (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_a_settled_refusal_refuses_the_retry_before_any_effect) ... ok
+test_an_incompatible_committed_submission_refuses_the_same_way (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_an_incompatible_committed_submission_refuses_the_same_way) ... ok
+test_another_submission_identity_admits_the_same_retry (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_another_submission_identity_admits_the_same_retry)
+THE ACTIONABLE OUTCOME IS ACTIONABLE. ... ok
+test_it_does_not_promise_a_repair_that_cannot_happen (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_it_does_not_promise_a_repair_that_cannot_happen)
+THE ADVICE IS THE DEFECT'S OTHER HALF. ... ok
+test_the_earlier_outcome_is_preserved_rather_than_freed (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_the_earlier_outcome_is_preserved_rather_than_freed)
+NOTHING IS ERASED OR RENAMED TO MAKE THE NAME AVAILABLE. ... ok
+test_the_retrys_own_committed_submission_replays (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_the_retrys_own_committed_submission_replays)
+A LOST COMPLETION, which is the case this must NOT refuse. ... ok
+test_a_prior_job_the_install_document_does_not_name_refuses (tests.job_manager.test_fresh_attempt.TheRealBindingAdapter.test_a_prior_job_the_install_document_does_not_name_refuses) ... ok
+test_a_second_bind_of_one_identity_adds_nothing (tests.job_manager.test_fresh_attempt.TheRealBindingAdapter.test_a_second_bind_of_one_identity_adds_nothing)
+IDEMPOTENT, which is what makes an interrupted run safe to repeat. ... ok
+test_an_install_document_behind_the_configuration_refuses (tests.job_manager.test_fresh_attempt.TheRealBindingAdapter.test_an_install_document_behind_the_configuration_refuses)
+AN INITIAL INSTALL INPUT IS NOT THE CURRENT CONFIGURATION. ... ok
+test_an_interrupted_publication_is_resumed_rather_than_doubled (tests.job_manager.test_fresh_attempt.TheRealBindingAdapter.test_an_interrupted_publication_is_resumed_rather_than_doubled)
+THE CUT review R4 NAMED: input written, configuration not yet. ... ok
+test_both_stages_of_the_fresh_job_can_be_served (tests.job_manager.test_fresh_attempt.TheRealBindingAdapter.test_both_stages_of_the_fresh_job_can_be_served)
+THE SELECTOR'S ANSWER, over the real emitted configuration. ... ok
+test_the_additive_bind_is_performed_by_the_real_operation (tests.job_manager.test_fresh_attempt.TheRealBindingAdapter.test_the_additive_bind_is_performed_by_the_real_operation) ... ok
+test_the_input_document_and_the_configuration_stay_in_step (tests.job_manager.test_fresh_attempt.TheRealBindingAdapter.test_the_input_document_and_the_configuration_stay_in_step)
+SO THE NEXT RETRY CAN BE PREPARED AT ALL. ... ok
+test_two_concurrent_binds_do_not_overwrite_one_another (tests.job_manager.test_fresh_attempt.TheRealBindingAdapter.test_two_concurrent_binds_do_not_overwrite_one_another)
+THE REAL PUBLICATION ADAPTER, under two writers. Review R5. ... ok
+test_a_live_runtime_in_the_real_store_refuses (tests.job_manager.test_fresh_attempt.TheRealHostAdapter.test_a_live_runtime_in_the_real_store_refuses) ... ok
+test_a_recorded_attempt_that_never_started_is_ceased (tests.job_manager.test_fresh_attempt.TheRealHostAdapter.test_a_recorded_attempt_that_never_started_is_ceased) ... /home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7c544a540b80>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7c544a540c70>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_recorded_attempt_whose_cleanup_completed_is_admitted (tests.job_manager.test_fresh_attempt.TheRealHostAdapter.test_a_recorded_attempt_whose_cleanup_completed_is_admitted) ... ok
+test_an_attempt_this_host_never_recorded_is_an_answer (tests.job_manager.test_fresh_attempt.TheRealHostAdapter.test_an_attempt_this_host_never_recorded_is_an_answer)
+A STAGE THAT FAILED BEFORE IT RAN, which is the common case. ... ok
+test_the_rule_asks_the_host_again_after_the_reservation (tests.job_manager.test_fresh_attempt.TheRealHostAdapter.test_the_rule_asks_the_host_again_after_the_reservation)
+A CHECK BEFORE A RESERVATION IS A CHECK ABOUT THE PAST. ... ok
+test_a_borrowed_guard_outlives_the_admission_that_borrowed_it (tests.job_manager.test_fresh_attempt.TheRealInstanceGuard.test_a_borrowed_guard_outlives_the_admission_that_borrowed_it)
+REVIEW R10: admission may not release another owner's lifetime. ... ok
+test_a_borrowed_guard_survives_an_admission_that_fails (tests.job_manager.test_fresh_attempt.TheRealInstanceGuard.test_a_borrowed_guard_survives_an_admission_that_fails) ... ok
+test_a_manager_already_holding_this_instance_refuses (tests.job_manager.test_fresh_attempt.TheRealInstanceGuard.test_a_manager_already_holding_this_instance_refuses)
+THE EXCLUSION, driven: a second holder is denied, not queued. ... ok
+test_the_guard_is_released_when_the_admission_finishes (tests.job_manager.test_fresh_attempt.TheRealInstanceGuard.test_the_guard_is_released_when_the_admission_finishes) ... ok
+test_the_guard_is_taken_from_the_instance_s_own_configuration (tests.job_manager.test_fresh_attempt.TheRealInstanceGuard.test_the_guard_is_taken_from_the_instance_s_own_configuration) ... ok
+test_two_invocations_of_one_identity_cannot_overlap (tests.job_manager.test_fresh_attempt.TheRealInstanceGuard.test_two_invocations_of_one_identity_cannot_overlap)
+R8 AT THE REAL LOCK, in two real processes. ... /usr/lib/python3.13/threading.py:297: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7c54503b4b80>
+  self._waiters = _deque()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/threading.py:297: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7c54503b49a0>
+  self._waiters = _deque()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/threading.py:297: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7c545028e5c0>
+  self._waiters = _deque()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/threading.py:297: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7c545028e6b0>
+  self._waiters = _deque()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_nonoverlapping_job_cannot_take_the_reserved_submission_id (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_a_nonoverlapping_job_cannot_take_the_reserved_submission_id) ... ok
+test_an_ordinary_submission_that_came_first_refuses_the_retry (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_an_ordinary_submission_that_came_first_refuses_the_retry)
+THE OTHER ORDER, on the submission name rather than the Job. ... ok
+test_an_unrelated_submission_is_untouched_by_the_reservation (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_an_unrelated_submission_is_untouched_by_the_reservation)
+THE RULE IS NARROW: it owns two names, not every submission. ... ok
+test_the_exact_intended_document_is_still_admissible (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_the_exact_intended_document_is_still_admissible)
+THE ONE SUBMISSION THE RESERVATION EXISTS FOR. ... ok
+test_the_retry_still_completes_after_that_rejection (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_the_retry_still_completes_after_that_rejection)
+THE REJECTION MUST NOT POISON THE OPERATION IT PROTECTS. ... ok
+test_two_retry_intents_cannot_share_one_submission_identity (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_two_retry_intents_cannot_share_one_submission_identity) ... ok
+test_a_destroyed_runtime_with_no_token_refuses (tests.job_manager.test_fresh_attempt.UnknownResourceIsNotPermission.test_a_destroyed_runtime_with_no_token_refuses) ... ok
+test_a_never_started_axis_with_a_runtime_identity_still_refuses (tests.job_manager.test_fresh_attempt.UnknownResourceIsNotPermission.test_a_never_started_axis_with_a_runtime_identity_still_refuses)
+NOT-STARTED BESIDE A MINTED RUNTIME IS A CONTRADICTION, not proof. ... ok
+test_a_quiescent_runtime_with_no_token_refuses (tests.job_manager.test_fresh_attempt.UnknownResourceIsNotPermission.test_a_quiescent_runtime_with_no_token_refuses) ... ok
+test_an_attempt_that_was_never_launched_is_positively_established (tests.job_manager.test_fresh_attempt.UnknownResourceIsNotPermission.test_an_attempt_that_was_never_launched_is_positively_established)
+THE ONE READING THAT IS NOT A GUESS. ... ok
+test_a_blocked_stage_whose_gate_could_still_open (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_blocked_stage_whose_gate_could_still_open)
+BLOCKED IS NOT OVER unless the gate can never open. ... ok
+test_a_deployment_that_binds_the_fresh_job_to_another_work (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_deployment_that_binds_the_fresh_job_to_another_work) ... ok
+test_a_deployment_where_no_worker_can_serve_a_stage (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_deployment_where_no_worker_can_serve_a_stage)
+THE BINDING EXISTING PROVES NOTHING; the selector decides. ... ok
+test_a_host_that_cannot_account_for_an_attempt (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_host_that_cannot_account_for_an_attempt)
+UNKNOWN IS NOT PERMISSION. REC-4, and the pilot helper's mistake. ... ok
+test_a_job_nothing_has_happened_to_yet (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_job_nothing_has_happened_to_yet)
+A QUEUED STAGE IS NOT A FAILED ONE, and it is not settled either. ... ok
+test_a_job_that_completed (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_job_that_completed)
+SETTLED AND NOT FAILED: the one case the second rule exists for. ... ok
+test_a_job_this_store_does_not_hold (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_job_this_store_does_not_hold) ... ok
+test_a_resource_the_prior_attempt_has_not_returned (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_resource_the_prior_attempt_has_not_returned) ... ok
+test_a_returned_resource_is_accepted_and_recorded_as_evidence (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_returned_resource_is_accepted_and_recorded_as_evidence) ... ok
+test_a_runtime_that_has_not_ceased (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_runtime_that_has_not_ceased) ... ok
+test_a_stage_that_is_still_running (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_stage_that_is_still_running) ... ok
+test_a_work_that_is_not_open (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_a_work_that_is_not_open) ... ok
+test_an_absent_owner_port (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_an_absent_owner_port) ... ok
+test_an_uncertain_runtime_is_refused_exactly_like_a_live_one (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_an_uncertain_runtime_is_refused_exactly_like_a_live_one) ... ok
+test_cleanup_this_host_still_owes (tests.job_manager.test_fresh_attempt.WhatItRefuses.test_cleanup_this_host_still_owes) ... ok
+
+----------------------------------------------------------------------
+Ran 181 tests in 17.024s
+
+OK

@@ -81,7 +81,7 @@ import sqlite3
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
-from . import documents, episodes, projection, submission
+from . import cancellation, documents, episodes, projection, submission
 from .store import job_signature
 
 __all__ = ["ACQUIRE_KIND", "INTENT_KIND", "ADMIT_KIND", "admit",
@@ -238,6 +238,14 @@ def admit(store, operations, *, prior_job_id, exclusion, authorization,
     if found:
         return value
 
+    # W383215: AN EXPLICITLY CANCELLED JOB IS NOT A FAILED ONE. Its worker's
+    # own `cancelled` ending projects `exceptional`, which is exactly the
+    # state a fresh attempt repeats -- so the fence is asked here, AFTER the
+    # replay (a completed admission keeps answering) and BEFORE any owner is
+    # asked anything, and again inside the reservation lock where the answer
+    # is decided.
+    cancellation.refuse_fenced(store._connection, prior_job_id,
+                               "a fresh attempt at it")
     document = _composed(store, prior, job_id=job_id, work_id=work_id,
                          submission_id=submission_id)
 
@@ -755,6 +763,9 @@ def _reserved(store, operands, prior, document):
     intended = job_signature("submission.record", document)
 
     def act(connection):
+        # W383215: THE FENCE, DECIDED UNDER THE SAME LOCK AS THE RESERVATION.
+        cancellation.refuse_fenced(connection, operands["prior_job_id"],
+                                   "a fresh attempt at it")
         # THE ORDINARY JOB TABLE IS CHECKED HERE TOO, inside the same lock.
         # A fresh identity an ordinary submission already holds is not free,
         # and finding that out at `submit` would be finding it out after the

@@ -1,0 +1,6 @@
+start 2026-11-18T19:23:28Z
+group job_manager rc=1 seconds=16
+group tools-pure rc=1 seconds=145
+group scans rc=0 seconds=98
+manager-focused rc=0 seconds=1
+end 2026-11-18T19:27:48Z

@@ -12,6 +12,7 @@ from ..contracts import ContractRefusal, canonical_text, digest
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from .store import job_signature
+from . import cancellation
 
 __all__ = ["ALLOCATION_STATES", "INTEGRATION_COMPLETED", "LANES", "POOL_SCHEMA",
            "SEPARATION_CLASSES", "PooledManagerOperations", "activate_pool",
@@ -331,6 +332,12 @@ def reserve(store, stage, *, excluded=None):
                                "episode": stage["episode"]})
 
     def perform(connection):
+        # W383215: THE WRITE-SIDE ADMISSION FENCE. The reservation is the
+        # reserve-before-offer write, so a cancelled Job refused here issues
+        # no offer whatever a projection taken a moment earlier owed.
+        cancellation.refuse_fenced(connection, stage["job_id"],
+                                   f"reserving a worker for stage "
+                                   f"{name_value(stage['stage_id'])}")
         generation = connection.execute(
             "SELECT generation FROM pool_generations ORDER BY generation DESC "
             "LIMIT 1").fetchone()
@@ -897,6 +904,13 @@ class PooledManagerOperations:
             raise
 
     def claim(self, stage):
+        # W383215: RE-READ THE FENCE BEFORE THE CLAIM IS TAKEN. A claim is the
+        # Authority's act and cannot run under this store's lock, so the
+        # fence is read here, immediately before it; an admission that still
+        # wins the race is found by the next tick's cancellation pass.
+        cancellation.refuse_fenced(self.store._connection, stage["job_id"],
+                                   f"claiming stage "
+                                   f"{name_value(stage['stage_id'])}")
         allocation = self._allocation(stage)
         if allocation is None:
             _refuse(f"stage {name_value(stage['stage_id'])} has an offer but "

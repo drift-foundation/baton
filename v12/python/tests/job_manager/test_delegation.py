@@ -153,7 +153,10 @@ class Observation(JobManagerCase):
                                     # W126558: and the same answer for the
                                     # integration read, for the same reason.
                                     "integration": None, "diagnostics": None,
-                                    "diagnostic_degradation": None})
+                                    "diagnostic_degradation": None,
+                                    # W383215: and no cancellation outcome
+                                    # was ever recorded for it.
+                                    "cessation": None})
 
     def test_the_closed_surface_is_what_a_deployment_must_supply(self):
         acts = self.operations()
@@ -242,7 +245,8 @@ class Observation(JobManagerCase):
                           "start_failure": None,
                           "preparation_failure": None, "exchange": None,
                           "integration": None, "diagnostics": None,
-                                    "diagnostic_degradation": None})
+                                    "diagnostic_degradation": None,
+                      "cessation": None})
         for call in (lambda: unobserved.receipt_of("offer.issue:x"),
                      lambda: unobserved.recover(now=NOW),
                      lambda: unobserved.admit({}, {}),

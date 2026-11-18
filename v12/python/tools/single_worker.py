@@ -38,6 +38,7 @@ from baton_v12.worker_manager import (AuthorityPort, DISPOSITIONS,
                                       activate_assignment,
                                       attempt_preparation_failure_of,
                                       attempt_runtime_of,
+                                      fence_pre_attach_abandonment,
                                       attempt_start_failure_of,
                                       authorize_cleanup, certify_profile,
                                       claimed_offers_for,
@@ -2830,6 +2831,37 @@ class _SingleWorker:
             self._adapter(roots, None, None, None, attempt_id=attempt_id),
             attempt_id=attempt_id, reason=reason)
 
+    def fence_unstarted_attempt(self, stage, *, reason):
+        """W383215: fence a CLAIMED attempt whose runtime never started.
+
+        The two preparation acts the launch performs first -- the attempt
+        record and the activation against the claimed offer's own assignment
+        -- are performed or replayed here exactly as `launch` performs them,
+        and then `intake.fence_pre_attach_abandonment` ends the assignment at
+        the Authority. No credential is materialized, no workspace prepared,
+        no runtime started. The answer is the fence, which for an attempt
+        that has no runtime is also the end of what could execute.
+        """
+        boundaries.identity(stage["attempt_id"], "a runtime attempt id")
+        row = self._claim(stage)
+        attempt_id = stage["attempt_id"]
+        if attempt_runtime_of(self.control, attempt_id) is None:
+            given = self._given_for(stage)
+            record_attempt(
+                self.control, attempt_id=attempt_id,
+                adapter_name=given["adapter_name"],
+                adapter_digest=given["adapter_digest"],
+                profile_digest=given["profile_digest"],
+                input_digest=given["input_manifest"]["manifest_digest"],
+                policy_digest=given["policy_digest"],
+                image_digest=given["image_digest"],
+                toolchain_digest=given["input_manifest"]["toolchain_digest"])
+        activate_assignment(self.control, self.port, attempt_id=attempt_id,
+                            expect=_assignment(row))
+        return fence_pre_attach_abandonment(self.control, self.port,
+                                            attempt_id=attempt_id,
+                                            reason=reason)
+
     def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
                         reclaim=None):
         """W247941: the manager's FOURTH ending, reachable by its owner.
@@ -3500,6 +3532,10 @@ class _Operations(ManagerOperations):
         """W236087: the composed worker's own stop, reachable by its owner."""
         return self._worker.cancel_attempt(attempt_id=attempt_id,
                                            reason=reason)
+
+    def fence_unstarted_attempt(self, stage, *, reason):
+        """W383215: the composed worker's own pre-attach fence, likewise."""
+        return self._worker.fence_unstarted_attempt(stage, reason=reason)
 
     def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
                         reclaim=None):

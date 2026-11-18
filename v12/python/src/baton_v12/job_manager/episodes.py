@@ -249,6 +249,16 @@ def open_next(store, stage_id, ended):
     signature = job_signature(OPEN_KIND, operands)
 
     def act(connection):
+        # W383215: NO REPLACEMENT FOR A CANCELLED JOB, decided under the
+        # write lock from the stage's own row.
+        from . import cancellation
+        owner = connection.execute(
+            "SELECT job_id FROM stages WHERE stage_id = ?",
+            (stage_id,)).fetchone()
+        if owner is not None:
+            cancellation.refuse_fenced(connection, owner["job_id"],
+                                       f"opening a replacement episode of "
+                                       f"stage {name_value(stage_id)}")
         opened_at = store._now()
         connection.execute(
             "INSERT INTO episodes (stage_id, episode, offer_id, attempt_id, "
@@ -626,6 +636,10 @@ def advance_correction(store, custody, *, job_id, line_id, checkpoint_id,
                         "attempt_id": attempt_id}
 
     def act(connection):
+        # W383215: NO CORRECTION ROUND FOR A CANCELLED JOB, under the lock.
+        from . import cancellation
+        cancellation.refuse_fenced(connection, job_id,
+                                   "opening a correction round")
         now = store._now()
         opened = {}
         # EVERY GUARD FOR THE WHOLE PAIR, BEFORE THE FIRST ROW MOVES. Review

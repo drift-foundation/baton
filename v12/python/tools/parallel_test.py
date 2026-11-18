@@ -425,6 +425,9 @@ PARALLEL_MODULES = ("tests.tools.test_stack",
     "tests.tools.test_scheduler_trace",
     "tests.tools.test_stage_execution_hardening",
     "tests.tools.test_stage_execution_status_hardening",
+    # W383215: the installed cancel commands over a disposable installed
+    # instance and a serving composition with the recording fake engine.
+    "tests.tools.test_job_cancellation_command",
     "tests.tools.test_standalone_ab",
     # W384870. The modules found registered nowhere by the 2026-10-29 baseline
     # audit, each read before classification: none reaches a daemon (every
@@ -437,6 +440,9 @@ PARALLEL_MODULES = ("tests.tools.test_stack",
     "tests.job_manager.test_fresh_attempt",
     "tests.job_manager.test_native_permission",
     "tests.job_manager.test_native_stop_restart",
+    # W383215: the Job-store cancellation owner and its fences. PARALLEL: real
+    # disposable stores per case, fake session and operations, no engine.
+    "tests.job_manager.test_job_cancellation",
     "tests.job_manager.test_role_capability",
     "tests.job_manager.test_role_contract",
     "tests.job_manager.test_serving_renewal",

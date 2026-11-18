@@ -1,3 +1,25 @@
+## 2026-11-18T22:20:31Z — current: accepted, human checkpoint next
+
+Read review-2026-11-18T22-20-31Z.md. Candidate a97a7412… accepted; both P1 corrections verified. Use checkpoint-paths-20261118.txt for the selective Git checkpoint. Then confirm committed bytes and owner ledger closure. K holds; no further implementation/tests requested. This supersedes the earlier correction-next milestones. W383217 remains gated until W383215 closure.
+
+## 2026-11-18T20-12-59Z — current: late-start cancellation routing correction
+
+Read review-2026-11-18T20-12-59Z.md. Previous transient-stop P1 independently resolved (195 tests and retry probe). Correct effect selection for in-flight startup without attached runtime identity; existing cancellation owner succeeds on the reproduced state. Preserve holds and prove restart/late-reply behavior with focused tests. This supersedes the prior correction checkpoint as the current action. W383217 remains gated.
+
+## 2026-11-18T19:56:12Z — current: cancellation recovery correction
+
+Read review-2026-11-18T19-56-12Z.md. Candidate 84518e68… is changes-requested: resume identity-bound stop reconciliation after transient failure; do not treat an intent axis as an issued order or cessation. K continues this bounded correction under the existing owner-held assignment, with focused deterministic failure/restart proofs. W383217 remains gated. This supersedes the earlier assignment-next checkpoint as the current action; preserves its semantic requirements.
+
+
+## 2026-11-18T18-48-35Z — checkpoint reviewed; manual owner assignment next
+
+Read `review-2026-11-18T18-48-35Z.md`. Revalidation accepted with required plan clarifications: distinct cancellation/cessation status, transaction-bound write-side admission/claim fences, late-target reconciliation, identity-bound replay, trigger-based120s timing, explicit fresh-attempt successor coverage, and concurrent request/serving ownership. This supersedes unchecked snapshot/terminal-status/ordered_at assumptions and automatic broader-group commands in CHECKPOINT-K-20261118.md. Journal-only storage is an implementation option, not a spec change. After successful owner reroute+claim, K pins these semantics and proceeds within selected scope; no new approval round for routine implementation. Interactive coordinator reviews next; older managed reviewer routing is not a background-dispatch authorization.
+
+
+## 2026-11-18T18:35:08.248886+00:00 — next assignment confirmed; closure prerequisite satisfied
+
+W384870 closed and final records committed at c9e53b5f; clean checkout verified. Prior wait-for-closure/check-in gate is satisfied. Read HANDOFF-20261118.md. K first revalidates plan/code/ownership read-only; owner-held manual assignment must precede edits/tests. No background dispatch or identity borrowing. W321776 is queued/unclaimed (supersedes October active-status prose); W371295/W375517/W375518 blocked/unclaimed. W383217 remains successor.
+
 # Owner handoff gate — closure AND complete checkpoint
 
 Do not start W383215 until W384870 is independently accepted, formally closed

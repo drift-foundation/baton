@@ -56,6 +56,7 @@ import json
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from ..eventing import EventQueue, pump
+from ..worker_manager.failure_cause import attempt_cessation_outcome_of
 from ..worker_manager import (attempt_activity_of, attempt_runtime_of,
                               attempt_preparation_failure_of,
                               attempt_start_failure_of, boundaries,
@@ -159,7 +160,10 @@ OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output",
 # the join -- `ManagerOperations.observe` supplies it from the control store
 # it already holds, and an observation composed before this member existed is
 # still a COMPLETE one: it normalizes to `None`, which means nobody looked.
-OBSERVATION_OPTIONAL = ("integration", "diagnostics", "diagnostic_degradation")
+# W383215: AND THE OWNER'S OWN RECORD OF WHAT A CANCELLATION'S STOP ANSWERED.
+# `None` is "no cancellation outcome recorded"; an intent axis alone is not one.
+OBSERVATION_OPTIONAL = ("integration", "diagnostics", "diagnostic_degradation",
+                        "cessation")
 
 # W126558, `work/records/2026/09/finding-v12-composed-ending-consumer/findings/
 # finding-integration-stage-observation/OBSERVATION.md` revision 1.
@@ -241,6 +245,24 @@ ABSENT_RUNTIME = "absent"
 # unification is a stage state rather than a durable act.
 
 
+def _cessation_of(control, attempt_id):
+    """The cancellation owner's CURRENT recorded outcome, as plain data.
+
+    Only the members the cancellation pass and the status report decide on:
+    what the engine answered, for which runtime identity, which boundaries
+    crossed, and which generation's account it is. The owner's full record,
+    with its supersession chain, stays readable at the owner.
+    """
+    held = attempt_cessation_outcome_of(control, attempt_id, "cancellation")
+    if held is None:
+        return None
+    return {"outcome": held["outcome"], "runtime_id": held["runtime_id"],
+            "effects": list(held["effects"] or ()),
+            "generation": held["generation"],
+            "correlation_id": held["correlation_id"],
+            "superseded": len(held.get("superseded") or ())}
+
+
 def unobserved():
     """The observation of a stage nothing canonical is currently answering for.
 
@@ -251,7 +273,8 @@ def unobserved():
     return {"claimed_by": None, "runtime": None, "activity": None,
             "output": None, "start_failure": None,
             "preparation_failure": None, "exchange": None,
-            "integration": None, "diagnostics": None, "diagnostic_degradation": None}
+            "integration": None, "diagnostics": None, "diagnostic_degradation": None,
+            "cessation": None}
 
 
 def canonical_operation(act, offer_id):
@@ -394,6 +417,7 @@ def _bound(observed, stage):
     held.setdefault("integration", None)
     held.setdefault("diagnostics", None)
     held.setdefault("diagnostic_degradation", None)
+    held.setdefault("cessation", None)
     holder = held["claimed_by"]
     if holder is None:
         return unobserved()
@@ -1088,6 +1112,12 @@ class ManagerOperations:
                 "runtime": attempt_runtime_of(self.control, attempt_id),
                 "activity": attempt_activity_of(self.control, attempt_id),
                 "output": frozen_output_of(self.control, attempt_id),
+                # W383215: THE CANCELLATION COMPONENT'S RECORDED OUTCOME, the
+                # tip of its supersession chain, read from the owner. The
+                # runtime axis says `cancel-requested` BEFORE the stop is
+                # asked, so the axis alone cannot say whether a stop crossed;
+                # this record can, and the cancellation pass decides on it.
+                "cessation": _cessation_of(self.control, attempt_id),
                 "start_failure": attempt_start_failure_of(self.control,
                                                           attempt_id),
                 "preparation_failure": attempt_preparation_failure_of(

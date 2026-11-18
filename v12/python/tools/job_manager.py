@@ -1238,15 +1238,18 @@ def _serve(taken, clock, stream):
 
 def main(argv, *, clock=None, stream=None):
     import argparse
-    from tools import stopped_settlement
+    from tools import job_cancellation, stopped_settlement
     if argv and argv[0] in stopped_settlement.COMMANDS:
         return stopped_settlement.main(argv, clock=clock, stream=stream)
+    if argv and argv[0] in job_cancellation.COMMANDS:
+        return job_cancellation.main(argv, clock=clock, stream=stream)
 
     parser = argparse.ArgumentParser(
         prog="job_manager",
         description="Submit Jobs to the v12 Job manager, read its status, or "
                     "run its control loop. Instance-addressed commands: "
-                    "settlement-preview, settle-stopped, settlement-status "
+                    "settlement-preview, settle-stopped, settlement-status, "
+                    "cancel-job, cancel-status "
                     "(invoke the command first, then --help).")
     parser.add_argument("--store", required=True,
                         help="the Job store's path; there is no default, and "

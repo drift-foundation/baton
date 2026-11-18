@@ -1,0 +1,87 @@
+{
+  "first_cancellation": [
+    {
+      "stage_id": "job-a/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "effect": "order-cessation",
+      "outcome": "deferred",
+      "detail": {
+        "category": "refused",
+        "code": "precondition",
+        "message": "injected transient stop refusal"
+      }
+    }
+  ],
+  "following_cancellation": [
+    [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "effect": "order-cessation",
+        "outcome": "ordered"
+      }
+    ],
+    null,
+    null
+  ],
+  "stops": 1,
+  "runtime": "quiescent",
+  "report": {
+    "operation_id": "job.cancel:job-a",
+    "job_id": "job-a",
+    "reason": "the operator ends this Job before its deadline",
+    "requested_at": "2026-09-02T00:00:00.000Z",
+    "trigger_at": "2026-09-02T00:00:00.000Z",
+    "shutdown_bound_seconds": 120,
+    "elapsed_seconds": 0,
+    "shutdown": "within-bound",
+    "targets": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "ordered",
+        "runtime": "quiescent",
+        "cleanup": "pending",
+        "cessation": {
+          "outcome": "ordered",
+          "runtime_id": "runtime-single-1",
+          "effects": [
+            "agent-cancel",
+            "stop"
+          ]
+        },
+        "orders": [
+          {
+            "effect": "order-cessation",
+            "operation_id": "job.cancel.target:e0eac3c112662ab3f80a53de869bbd5abe841b8ff9cccbedbf251619447272c3",
+            "recorded_at": "2026-09-02T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "retired-before-admission",
+        "runtime": null,
+        "cleanup": null,
+        "cessation": null,
+        "orders": []
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "retired-before-admission",
+        "runtime": null,
+        "cleanup": null,
+        "cessation": null,
+        "orders": []
+      }
+    ]
+  }
+}
+PASS: recovered stop is ordered on the next tick

@@ -38,8 +38,8 @@ _CHECKPOINT_REFUSAL = (ContractRefusal, ProfileRefusal)
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from ..worker_manager import events
-from . import (delegation, documents, ending, episodes, projection,
-               scheduler, submission)
+from . import (cancellation, delegation, documents, ending, episodes,
+               projection, scheduler, submission)
 from .store import job_signature
 
 __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
@@ -174,6 +174,12 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # and the next one end it without either being edge-triggered on the other.
     spoken = _converse(store, operations, projection.stage_states(store,
                                                                   operations))
+    # W383215: AND THE CANCELLATION PASS, AFTER THE EXCHANGE PASS, REACQUIRING
+    # AGAIN. It is level-triggered on the fence and the live axes, so a tick
+    # that finds nothing cancelled does nothing, and a target that attached a
+    # runtime after an earlier order is ordered again through its owner.
+    cancelled = _cancel(store, operations,
+                        projection.stage_states(store, operations))
     # W119733: AND THE COMPOSED ENDINGS NO PROJECTION OF A LIVE EPISODE CAN
     # REACH, LAST AND FROM THE JOB JOURNAL RATHER THAN FROM `held`. A
     # correction round ends the episode that owed the ending and opens its
@@ -212,7 +218,9 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     return documents.sweep_report(observed_at=now, recovered=recovered,
                                   observed=observed, replaced=replaced,
                                   acts=acts, started=started, spoken=spoken,
-                                  refreshed=refreshed)
+                                  refreshed=refreshed,
+                                  **({"cancelled": cancelled} if cancelled
+                                     else {}))
 
 
 def _converse(store, operations, held):
@@ -471,6 +479,18 @@ def _launch(store, operations, held):
         if entry["state"] != "claimed":
             continue
         attempt = entry["attempt"]
+        # W383215: THE FENCE IS RE-READ IMMEDIATELY BEFORE THE START. A
+        # launch is the Worker Manager's act and cannot run under this
+        # store's lock; a cancelled Job's claimed stage is reported deferred
+        # and the cancellation pass fences its assignment instead.
+        if cancellation.fence_of(store, attempt["job_id"]) is not None:
+            started.append(documents.stage_launch(
+                stage_id=stage_id, episode=attempt["episode"],
+                attempt_id=attempt["attempt_id"], outcome="deferred",
+                detail={"category": "refused", "code": "precondition",
+                        "message": "the Job is cancelled; no runtime is "
+                                   "started after the fence"}))
+            continue
         job = submission.job_of(store, attempt["job_id"])
         try:
             answer = operations.launch(attempt, job)
@@ -676,9 +696,110 @@ def _replace(store, operations):
         entry = held[stage_id]
         if not projection.replaceable(entry):
             continue
+        # W383215: A CANCELLED JOB'S STAGE IS NOT REPLACED. `open_next`
+        # refuses this under its own lock too; skipping here keeps the
+        # ordinary tick from asking a question whose answer is the fence.
+        if entry.get("cancellation") is not None:
+            continue
         opened.append(episodes.open_next(store, stage_id,
                                          entry["history"][-1]))
     return opened
+
+
+def _cancel(store, operations, held):
+    """Carry every committed cancellation out through the EXISTING owners.
+
+    W383215 / LIM-5. ONE EFFECT PER TARGET PER TICK, decided from the live
+    axes (`cancellation.effect_for`): a claimed attempt whose runtime never
+    started is fenced at the Authority through the composition that would
+    have launched it; an attached runtime is ordered to cease through
+    `request_cancellation`, which fences the exact generation first. Neither
+    answer is cessation, and nothing here says it is: the order is recorded
+    as this store's account of having asked, and the next tick asks the axes
+    again.
+
+    A REFUSAL IS CONTAINED TO ITS TARGET and reported, never swallowed: a
+    deployment that composes no cancellation capability, or an owner that
+    refuses, leaves the target `pending` in the Job's cancellation report
+    with the refusal beside it, which is the honest unknown.
+    """
+    acted = []
+    cancel = getattr(operations, "cancel_attempt", None)
+    fence = getattr(operations, "fence_unstarted_attempt", None)
+    for stage_id in sorted(held):
+        entry = held[stage_id]
+        record = entry.get("cancellation")
+        if record is None or entry["episode"] is None:
+            continue
+        attempt = entry["attempt"]
+        effect = cancellation.effect_for(entry["state"], entry["observed"],
+                                         entry.get("cancellation_targets", ()))
+        if effect is None:
+            continue
+        act = fence if effect == cancellation.FENCE_UNSTARTED else cancel
+        detail = None
+        if act is None:
+            outcome = "refused"
+            detail = {"category": "refused", "code": "capability",
+                      "message": f"this deployment composes no {effect} "
+                                 f"capability"}
+        else:
+            try:
+                if effect == cancellation.FENCE_UNSTARTED:
+                    answer = act(attempt, reason=record["reason"])
+                else:
+                    answer = act(attempt_id=attempt["attempt_id"],
+                                 reason=record["reason"])
+            except ContractRefusal as refusal:
+                outcome = "refused" if refusal.durable else "deferred"
+                detail = {"category": refusal.category,
+                          "code": refusal.code, "message": refusal.message}
+            else:
+                # RECORDED ONLY WHEN THE OWNER SAYS IT ORDERED. A returned
+                # answer whose quiescence says `ordered: false` (fenced, but
+                # nothing resolved to stop) is reported as such and left for
+                # the next tick; the Authority fence is the owner's and
+                # replays.
+                if effect == cancellation.ORDER_CESSATION and not (
+                        type(answer) is dict
+                        and type(answer.get("quiescence")) is dict
+                        and answer["quiescence"].get("ordered") is True):
+                    outcome = "not-ordered"
+                    detail = {"category": "runtime-observation",
+                              "code": "quiescence-unknown",
+                              "message": "the owner fenced the assignment "
+                                         "and ordered no stop; nothing "
+                                         "resolved to a runtime"}
+                else:
+                    outcome = "ordered"
+                    cancellation.record_target(
+                        store, job_id=attempt["job_id"], stage_id=stage_id,
+                        episode=attempt["episode"],
+                        attempt_id=attempt["attempt_id"], effect=effect,
+                        evidence=_order_evidence(answer))
+        acted.append(documents.stage_cancellation(
+            stage_id=stage_id, episode=attempt["episode"],
+            attempt_id=attempt["attempt_id"], effect=effect, outcome=outcome,
+            **({} if detail is None else {"detail": detail})))
+    return acted
+
+
+def _order_evidence(answer):
+    """The owner's returned identities, and nothing a journal may not hold."""
+    if type(answer) is not dict:
+        return {}
+    held = {}
+    intent = answer.get("intent")
+    if type(intent) is dict:
+        for member in ("authority_operation_id", "assignment", "reason"):
+            if member in intent:
+                held[member] = intent[member]
+    fenced = answer.get("fenced")
+    if type(fenced) is dict:
+        held["fenced"] = {member: fenced[member]
+                          for member in ("cause", "phase", "gate", "fenced")
+                          if member in fenced}
+    return held
 
 
 def _recorded_failure(operations, attempt, job):

@@ -4799,6 +4799,32 @@ class StageExecution:
                     code="capability")
         return cancel(attempt_id=attempt_id, reason=reason)
 
+    def fence_unstarted_attempt(self, stage, *, reason):
+        """W383215: fence a claimed, never-started attempt through its owner.
+
+        Routed exactly as `cancel_attempt` is -- by the recorded allocation
+        to the worker that would have launched it -- because the claimed
+        offer, the port and the attempt record are that composition's.
+        """
+        attempt_id = stage["attempt_id"]
+        recorded = allocation_of(self.pooled.store, attempt_id)
+        if recorded is None:
+            _refuse(f"attempt {attempt_id!r} has no recorded allocation, so "
+                    f"this deployment cannot say which worker holds its "
+                    f"claim", category="refused", code="precondition")
+        owners = {one["worker_id"]: one["operations"] for one in self.workers}
+        operations = owners.get(recorded["worker_id"])
+        if operations is None:
+            _refuse(f"attempt {attempt_id!r} is allocated to worker "
+                    f"{recorded['worker_id']!r}, which this deployment does "
+                    f"not compose", category="refused", code="precondition")
+        fence = getattr(operations, "fence_unstarted_attempt", None)
+        if fence is None:
+            _refuse(f"worker {recorded['worker_id']!r} composes no "
+                    f"pre-attach fence capability", category="refused",
+                    code="capability")
+        return fence(stage, reason=reason)
+
     def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
                         reclaim=None):
         """Route the FOURTH ending to the worker that STARTED this attempt.

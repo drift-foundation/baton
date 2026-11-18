@@ -64,3 +64,23 @@ or treating the final checkpoint as optional. Closure alone is insufficient;
 a commit alone is insufficient. Revalidate canonical closure and the final Git
 checkpoint/status before releasing the next assignment. Planning ahead remains
 allowed. Agents do not mutate Git or impersonate the owner to satisfy this gate.
+
+## 2026-11-18T18:35:08.248886+00:00 — next assignment confirmed; closure prerequisite satisfied
+
+W384870 closed and final records committed at c9e53b5f; clean checkout verified. Prior wait-for-closure/check-in gate is satisfied. Read HANDOFF-20261118.md. K first revalidates plan/code/ownership read-only; owner-held manual assignment must precede edits/tests. No background dispatch or identity borrowing. W321776 is queued/unclaimed (supersedes October active-status prose); W371295/W375517/W375518 blocked/unclaimed. W383217 remains successor.
+
+## 2026-11-18T18-48-35Z — checkpoint reviewed; manual owner assignment next
+
+Read `review-2026-11-18T18-48-35Z.md`. Revalidation accepted with required plan clarifications: distinct cancellation/cessation status, transaction-bound write-side admission/claim fences, late-target reconciliation, identity-bound replay, trigger-based120s timing, explicit fresh-attempt successor coverage, and concurrent request/serving ownership. This supersedes unchecked snapshot/terminal-status/ordered_at assumptions and automatic broader-group commands in CHECKPOINT-K-20261118.md. Journal-only storage is an implementation option, not a spec change. After successful owner reroute+claim, K pins these semantics and proceeds within selected scope; no new approval round for routine implementation. Interactive coordinator reviews next; older managed reviewer routing is not a background-dispatch authorization.
+
+## 2026-11-18T19:56:12Z — independent cancellation review: correction required
+
+Candidate 84518e68… matches 25 declared paths; 32 new tests pass independently. Connected deterministic probe confirms a transient adapter.stop refusal leaves cancel-requested/stopping and is never retried on later ticks; status incorrectly reports ordered from intent alone. Read review-2026-11-18T19-56-12Z.md and evidence/review-installed-20261118/probe.log. Continue bounded recovery/reporting correction under the existing owner-held assignment. No spec change, broad verification or successor release; acceptance withheld.
+
+## 2026-11-18T20-12-59Z — corrected candidate: prior P1 closed; late-start routing correction
+
+Read review-2026-11-18T20-12-59Z.md. Independent 195 tests and retry probe confirm the prior stop-retry correction. A connected interrupted-start-reply probe confirms that absent attachment with start-requested chooses pre-attach fencing, which correctly refuses forever; existing cancel_attempt on the same state stops the token-bound runtime. Continue this bounded routing correction under the owner-held assignment; no spec change or successor release.
+
+## 2026-11-18T22:20:31Z — cancellation candidate accepted for owner checkpoint
+
+Read review-2026-11-18T22-20-31Z.md. Candidate a97a7412… accepted: both P1 counterexamples independently resolved; 198 focused tests pass, path hashes stable, no residue. Human selective commit next, then committed-byte/ledger closure check. This supersedes earlier changes-requested dispositions for older candidates, without rewriting their evidence. No live deployment or successor execution is released by this acceptance.
