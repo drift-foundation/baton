@@ -26,6 +26,8 @@ import unittest
 from types import SimpleNamespace
 from unittest import mock
 
+from tests.manager import disk_roots
+
 from baton_v12.contracts import ContractRefusal
 from baton_v12 import attempt_log_format
 from baton_v12.worker_manager import ControlStore, attempt_logs, workspaces
@@ -68,7 +70,9 @@ class LogRoom(unittest.TestCase):
 
     def setUp(self):
         self.home = tempfile.mkdtemp(prefix="v12-w198667-")
-        self.addCleanup(shutil.rmtree, self.home, True)
+        # W384870: the delivered `launch/<attempt>` is frozen, so `rmtree(ignore_errors)`
+        # left this root behind; the fixture owns it and removes it whole.
+        self.addCleanup(disk_roots.remove_owned_root, self.home)
         self.root = os.path.join(self.home, "logs")
         os.makedirs(self.root)
         self.control = ControlStore.open(

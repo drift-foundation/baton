@@ -74,18 +74,34 @@ class TheRuledAssertionsRenderThroughSortedCollections(unittest.TestCase):
                         "W10265 ruled this container sorted so the failure text is "
                         "stable; a bare set here reorders it every run")
 
-    def test_the_missing_probe_check_compares_a_sorted_list_with_an_empty_list(self):
-        """The empty-difference verdict is unchanged; its rendering is pinned."""
+    def test_the_missing_probe_check_compares_sorted_lists(self):
+        """The detection verdict is Stage B's; its rendering is still W10265's.
+
+        W384870 Stage B (a8cbc9745) changed WHAT the missing-probe check proves: not
+        that the difference is empty, but that deliberately dropping one probe is
+        detected AGAINST THE CURRENT BASELINE -- so the first `assertEqual` compares
+        the newly unprobed entries with exactly the dropped one. The earlier form of
+        this pin assumed the emptiness verdict and failed once that changed
+        (five-groups-20261118). What W10265 ruled is the RENDERING: a nonempty
+        difference must print in one fixed order, so both sides are lists and the
+        measured side is `sorted(...)`. Both intentions are pinned here; neither
+        replaces the other.
+        """
         found = list(calls_to(function_named("test_the_missing_probe_check_can_actually_fail"),
                               "assertEqual"))
         self.assertGreaterEqual(len(found), 1)
         first = found[0]
         self.assertTrue(is_sorted_call(first.args[0]),
-                        "the difference must be sorted before it is compared")
+                        "the newly unprobed entries must be sorted before they are compared")
         self.assertIsInstance(first.args[1], ast.List,
-                              "compare against [] rather than set(): comparing two sets "
+                              "compare against a list rather than a set: comparing two sets "
                               "is what made unittest render the difference in hash order")
-        self.assertEqual(first.args[1].elts, [], "the verdict is still emptiness")
+        self.assertEqual(len(first.args[1].elts), 1,
+                         "the verdict is Stage B's: exactly the dropped probe is detected")
+        for side in first.args[:2]:
+            self.assertNotIsInstance(side, (ast.Set, ast.SetComp),
+                                     "a set literal or comprehension on either side renders "
+                                     "in hash order")
 
     def test_neither_ruled_site_compares_against_a_bare_set_call(self):
         """The exact idiom the ruling replaced, kept out of both functions."""

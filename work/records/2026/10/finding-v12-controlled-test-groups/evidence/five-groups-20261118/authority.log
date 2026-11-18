@@ -1,0 +1,302 @@
+[authority] started 2026-11-18T05:30:30Z group authority jobs 8 account keep-going timeout 2400s (test-group recipe invocation + --summary)
+[authority] git HEAD 314e067c9e3dc048054293f0d35ea9b25de2cdb2 status-lines 1
+[authority] source HEAD 314e067c9e3dc048054293f0d35ea9b25de2cdb2 changed-files 0 consumed-input-files 41 content-digest 194edb1f466ae2d4dc811c932ed2509f49e9c0b22bcff9429017fbde32cbb3b9
+[authority] python 3.13.7 jsonschema 4.26.0 uid 1000 cpus 32 tmpfs-tmp tmpfs disk-root /var/tmp
+[collect] start 1/13 tests.authority.test_assignment
+[collect] start 2/13 tests.authority.test_boundary
+[collect] start 3/13 tests.authority.test_catalog
+[collect] start 4/13 tests.authority.test_claim_result
+[collect] start 5/13 tests.authority.test_contract
+[collect] start 6/13 tests.authority.test_identity
+[collect] start 7/13 tests.authority.test_operations
+[collect] start 8/13 tests.authority.test_principal_scope
+[collect] done  1/13 tests.authority.test_assignment rc=0 in 0.18s
+[collect] done  2/13 tests.authority.test_boundary rc=0 in 0.18s
+[collect] done  3/13 tests.authority.test_catalog rc=0 in 0.18s
+[collect] done  4/13 tests.authority.test_claim_result rc=0 in 0.18s
+[collect] done  5/13 tests.authority.test_contract rc=0 in 0.18s
+[collect] done  6/13 tests.authority.test_identity rc=0 in 0.18s
+[collect] done  7/13 tests.authority.test_operations rc=0 in 0.18s
+[collect] done  8/13 tests.authority.test_principal_scope rc=0 in 0.18s
+[collect] start 9/13 tests.authority.test_session
+[collect] start 10/13 tests.authority.test_work_labels
+[collect] start 11/13 tests.authority.test_work_label_exposure
+[collect] start 12/13 tests.authority.test_store
+[collect] start 13/13 tests.authority.test_dossier
+[collect] done  9/13 tests.authority.test_session rc=0 in 0.17s
+[collect] done  10/13 tests.authority.test_work_labels rc=0 in 0.17s
+[collect] done  11/13 tests.authority.test_work_label_exposure rc=0 in 0.17s
+[collect] done  12/13 tests.authority.test_dossier rc=0 in 0.17s
+[collect] done  13/13 tests.authority.test_store rc=0 in 0.18s
+[parallel] start 1/85 tests.authority.test_assignment.Cancellation
+[parallel] start 2/85 tests.authority.test_assignment.Claiming
+[parallel] start 3/85 tests.authority.test_assignment.Configuration
+[parallel] start 4/85 tests.authority.test_assignment.Creation
+[parallel] start 5/85 tests.authority.test_assignment.CutTwoReviewFindings
+[parallel] start 6/85 tests.authority.test_assignment.EndingAnAssignment
+[parallel] start 7/85 tests.authority.test_assignment.FencedRouteHandoff
+[parallel] start 8/85 tests.authority.test_assignment.GapsIFoundByProbingMyOwnCut
+[parallel] done  1/85 tests.authority.test_assignment.Cancellation rc=0 in 0.21s
+[parallel] done  2/85 tests.authority.test_assignment.Configuration rc=0 in 0.21s
+[parallel] done  3/85 tests.authority.test_assignment.Creation rc=0 in 0.21s
+[parallel] start 9/85 tests.authority.test_assignment.Gates
+[parallel] start 10/85 tests.authority.test_assignment.Invariants
+[parallel] start 11/85 tests.authority.test_assignment.OwnedAnswers
+[parallel] done  4/85 tests.authority.test_assignment.Claiming rc=0 in 0.25s
+[parallel] done  5/85 tests.authority.test_assignment.EndingAnAssignment rc=0 in 0.25s
+[parallel] done  6/85 tests.authority.test_assignment.GapsIFoundByProbingMyOwnCut rc=0 in 0.25s
+[parallel] start 12/85 tests.authority.test_assignment.Restart
+[parallel] start 13/85 tests.authority.test_boundary.Distribution
+[parallel] start 14/85 tests.authority.test_boundary.EveryCallerTextFamilyIsBounded
+[parallel] done  7/85 tests.authority.test_assignment.CutTwoReviewFindings rc=0 in 0.28s
+[parallel] start 15/85 tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule
+[parallel] done  8/85 tests.authority.test_assignment.FencedRouteHandoff rc=0 in 0.31s
+[parallel] start 16/85 tests.authority.test_boundary.ExportedSurface
+[parallel] done  9/85 tests.authority.test_assignment.OwnedAnswers rc=0 in 0.19s
+[parallel] start 17/85 tests.authority.test_boundary.Isolation
+[parallel] done  10/85 tests.authority.test_assignment.Invariants rc=0 in 0.20s
+[parallel] start 18/85 tests.authority.test_catalog.TheMigrationChecklistIsRead
+[parallel] done  11/85 tests.authority.test_assignment.Gates rc=0 in 0.22s
+[parallel] done  12/85 tests.authority.test_assignment.Restart rc=0 in 0.18s
+[parallel] start 19/85 tests.authority.test_claim_result.SchemaFourIsACleanInitializationBoundary
+[parallel] start 20/85 tests.authority.test_claim_result.TheAnswerIsThreeFactsAndNotOne
+[parallel] done  13/85 tests.authority.test_boundary.Distribution rc=0 in 0.19s
+[parallel] start 21/85 tests.authority.test_claim_result.TheEventIsWhatTheFenceCannotBe
+[parallel] done  14/85 tests.authority.test_boundary.ExportedSurface rc=0 in 0.18s
+[parallel] start 22/85 tests.authority.test_claim_result.TheWholeResultIsWhatReplayReproduces
+[parallel] done  15/85 tests.authority.test_boundary.EveryCallerTextFamilyIsBounded rc=0 in 0.32s
+[parallel] start 23/85 tests.authority.test_claim_result.TwoAddressesOnePrincipal
+[parallel] done  16/85 tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule rc=0 in 0.31s
+[parallel] start 24/85 tests.authority.test_contract.AuthorizedClose
+[parallel] done  17/85 tests.authority.test_catalog.TheMigrationChecklistIsRead rc=0 in 0.21s
+[parallel] done  18/85 tests.authority.test_claim_result.SchemaFourIsACleanInitializationBoundary rc=0 in 0.19s
+[parallel] done  19/85 tests.authority.test_claim_result.TheAnswerIsThreeFactsAndNotOne rc=0 in 0.19s
+[parallel] start 25/85 tests.authority.test_contract.CanonicalActivity
+[parallel] start 26/85 tests.authority.test_contract.ConfiguredCapabilities
+[parallel] start 27/85 tests.authority.test_contract.ContractProgression
+[parallel] done  20/85 tests.authority.test_claim_result.TheEventIsWhatTheFenceCannotBe rc=0 in 0.19s
+[parallel] start 28/85 tests.authority.test_contract.CutFourReviewFindings
+[parallel] done  21/85 tests.authority.test_claim_result.TheWholeResultIsWhatReplayReproduces rc=0 in 0.19s
+[parallel] start 29/85 tests.authority.test_contract.GapsIFoundByProbingMyOwnCut
+[parallel] done  22/85 tests.authority.test_claim_result.TwoAddressesOnePrincipal rc=0 in 0.19s
+[parallel] start 30/85 tests.authority.test_contract.Integration
+[parallel] done  23/85 tests.authority.test_contract.AuthorizedClose rc=0 in 0.24s
+[parallel] done  24/85 tests.authority.test_contract.CanonicalActivity rc=0 in 0.21s
+[parallel] start 31/85 tests.authority.test_contract.PolicyGeneration
+[parallel] start 32/85 tests.authority.test_contract.Publication
+[parallel] done  25/85 tests.authority.test_contract.ConfiguredCapabilities rc=0 in 0.22s
+[parallel] done  26/85 tests.authority.test_contract.ContractProgression rc=0 in 0.22s
+[parallel] start 33/85 tests.authority.test_contract.TheFourReceipts
+[parallel] start 34/85 tests.authority.test_dossier.ItBindsOneRecordToOneWork
+[parallel] done  27/85 tests.authority.test_contract.CutFourReviewFindings rc=0 in 0.23s
+[parallel] start 35/85 tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting
+[parallel] done  28/85 tests.authority.test_contract.GapsIFoundByProbingMyOwnCut rc=0 in 0.20s
+[parallel] start 36/85 tests.authority.test_dossier.ItReplaysAndRefusesExactly
+[parallel] done  29/85 tests.authority.test_contract.Integration rc=0 in 0.22s
+[parallel] start 37/85 tests.authority.test_dossier.RelationshipChangesMoveNothing
+[parallel] done  30/85 tests.authority.test_contract.PolicyGeneration rc=0 in 0.21s
+[parallel] start 38/85 tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes
+[parallel] done  31/85 tests.authority.test_contract.Publication rc=0 in 0.22s
+[parallel] start 39/85 tests.authority.test_dossier.TheSchemaBoundaryIsClosedAndExplicit
+[parallel] done  32/85 tests.authority.test_dossier.ItBindsOneRecordToOneWork rc=0 in 0.22s
+[parallel] start 40/85 tests.authority.test_identity.ExportedHelpersAreBoundaries
+[parallel] done  33/85 tests.authority.test_contract.TheFourReceipts rc=0 in 0.24s
+[parallel] start 41/85 tests.authority.test_identity.FrozenIdentities
+[parallel] done  34/85 tests.authority.test_dossier.ItReplaysAndRefusesExactly rc=0 in 0.24s
+[parallel] start 42/85 tests.authority.test_identity.Gates
+[parallel] done  35/85 tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting rc=0 in 0.27s
+[parallel] start 43/85 tests.authority.test_identity.OwningOperands
+[parallel] done  36/85 tests.authority.test_dossier.RelationshipChangesMoveNothing rc=0 in 0.21s
+[parallel] start 44/85 tests.authority.test_identity.Signatures
+[parallel] done  37/85 tests.authority.test_identity.ExportedHelpersAreBoundaries rc=0 in 0.18s
+[parallel] start 45/85 tests.authority.test_identity.TheLabelBoundIsMeasuredRatherThanChosen
+[parallel] done  38/85 tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes rc=0 in 0.22s
+[parallel] done  39/85 tests.authority.test_dossier.TheSchemaBoundaryIsClosedAndExplicit rc=0 in 0.21s
+[parallel] start 46/85 tests.authority.test_operations.EffectivelyOnce
+[parallel] start 47/85 tests.authority.test_operations.FourStates
+[parallel] done  40/85 tests.authority.test_identity.FrozenIdentities rc=0 in 0.19s
+[parallel] start 48/85 tests.authority.test_operations.GapsIFoundByProbingMyOwnCut
+[parallel] done  41/85 tests.authority.test_identity.Gates rc=0 in 0.18s
+[parallel] start 49/85 tests.authority.test_operations.RealProcessRaces
+[parallel] done  42/85 tests.authority.test_identity.OwningOperands rc=0 in 0.18s
+[parallel] start 50/85 tests.authority.test_operations.Restart
+[parallel] done  43/85 tests.authority.test_identity.Signatures rc=0 in 0.18s
+[parallel] start 51/85 tests.authority.test_operations.Retirement
+[parallel] done  44/85 tests.authority.test_identity.TheLabelBoundIsMeasuredRatherThanChosen rc=0 in 0.19s
+[parallel] start 52/85 tests.authority.test_operations.Settlement
+[parallel] done  45/85 tests.authority.test_operations.FourStates rc=0 in 0.19s
+[parallel] start 53/85 tests.authority.test_operations.SettlementRace
+[parallel] done  46/85 tests.authority.test_operations.EffectivelyOnce rc=0 in 0.22s
+[parallel] done  47/85 tests.authority.test_operations.GapsIFoundByProbingMyOwnCut rc=0 in 0.21s
+[parallel] start 54/85 tests.authority.test_operations.TwoKindsOfRefusal
+[parallel] start 55/85 tests.authority.test_principal_scope.AV11ReclaimDoesNotRewriteEarlierHistory
+[parallel] done  48/85 tests.authority.test_operations.Restart rc=0 in 0.21s
+[parallel] start 56/85 tests.authority.test_principal_scope.EveryCapabilityDoorDecidesInTheTargetsScope
+[parallel] done  49/85 tests.authority.test_operations.RealProcessRaces rc=0 in 0.24s
+[parallel] start 57/85 tests.authority.test_principal_scope.GrantProvenance
+[parallel] done  50/85 tests.authority.test_operations.Retirement rc=0 in 0.19s
+[parallel] start 58/85 tests.authority.test_principal_scope.NothingAnOperandSaysCanWidenIt
+[parallel] done  51/85 tests.authority.test_operations.Settlement rc=0 in 0.21s
+[parallel] start 59/85 tests.authority.test_principal_scope.OnePrincipalTwoAddresses
+[parallel] done  52/85 tests.authority.test_operations.TwoKindsOfRefusal rc=0 in 0.20s
+[parallel] start 60/85 tests.authority.test_principal_scope.SchemaTwoIsACleanInitializationBoundary
+[parallel] done  53/85 tests.authority.test_principal_scope.AV11ReclaimDoesNotRewriteEarlierHistory rc=0 in 0.22s
+[parallel] start 61/85 tests.authority.test_principal_scope.TheDecisionIsRetainedForEveryAuthorizedAct
+[parallel] done  54/85 tests.authority.test_operations.SettlementRace rc=0 in 0.26s
+[parallel] start 62/85 tests.authority.test_principal_scope.TheDecisionRidesTheAct
+[parallel] done  55/85 tests.authority.test_principal_scope.GrantProvenance rc=0 in 0.21s
+[parallel] start 63/85 tests.authority.test_principal_scope.TheGrantProjectionCarriesScopeAndProvenance
+[parallel] done  56/85 tests.authority.test_principal_scope.EveryCapabilityDoorDecidesInTheTargetsScope rc=0 in 0.27s
+[parallel] done  57/85 tests.authority.test_principal_scope.NothingAnOperandSaysCanWidenIt rc=0 in 0.23s
+[parallel] start 64/85 tests.authority.test_session.FencedRouteSession
+[parallel] start 65/85 tests.authority.test_session.FinalReviewFindings
+[parallel] done  58/85 tests.authority.test_principal_scope.OnePrincipalTwoAddresses rc=0 in 0.21s
+[parallel] start 66/85 tests.authority.test_session.Minting
+[parallel] done  59/85 tests.authority.test_principal_scope.SchemaTwoIsACleanInitializationBoundary rc=0 in 0.24s
+[parallel] start 67/85 tests.authority.test_session.OneOwnedOperandDocument
+[parallel] done  60/85 tests.authority.test_principal_scope.TheDecisionIsRetainedForEveryAuthorizedAct rc=0 in 0.23s
+[parallel] start 68/85 tests.authority.test_session.TheBindingIsTheIdentity
+[parallel] done  61/85 tests.authority.test_principal_scope.TheDecisionRidesTheAct rc=0 in 0.23s
+[parallel] start 69/85 tests.authority.test_session.TheWholeSurfaceWorksThroughTheSession
+[parallel] done  62/85 tests.authority.test_principal_scope.TheGrantProjectionCarriesScopeAndProvenance rc=0 in 0.20s
+[parallel] start 70/85 tests.authority.test_store.AuthorityFace
+[parallel] done  63/85 tests.authority.test_session.FencedRouteSession rc=0 in 0.21s
+[parallel] start 71/85 tests.authority.test_store.Creation
+[parallel] done  64/85 tests.authority.test_boundary.Isolation rc=0 in 1.63s
+[parallel] start 72/85 tests.authority.test_store.Opening
+[parallel] done  65/85 tests.authority.test_session.FinalReviewFindings rc=0 in 0.24s
+[parallel] start 73/85 tests.authority.test_store.ReadOnlyOpening
+[parallel] done  66/85 tests.authority.test_session.Minting rc=0 in 0.19s
+[parallel] start 74/85 tests.authority.test_store.Transactions
+[parallel] done  67/85 tests.authority.test_session.OneOwnedOperandDocument rc=0 in 0.21s
+[parallel] start 75/85 tests.authority.test_work_label_exposure.TheLibrarySurfaceAlreadyCarriesTheApprovedContract
+[parallel] done  68/85 tests.authority.test_store.AuthorityFace rc=0 in 0.20s
+[parallel] start 76/85 tests.authority.test_work_label_exposure.WorkLabelsAndRuntimeLabelsAreDifferentVOCABULARIES
+[parallel] done  69/85 tests.authority.test_session.TheBindingIsTheIdentity rc=0 in 0.23s
+[parallel] done  70/85 tests.authority.test_session.TheWholeSurfaceWorksThroughTheSession rc=0 in 0.22s
+[parallel] start 77/85 tests.authority.test_work_labels.CreationAttributionIsAnImmutableAct
+[parallel] start 78/85 tests.authority.test_work_labels.LabellingSurvivesTerminalClosure
+[parallel] done  71/85 tests.authority.test_store.Creation rc=0 in 0.21s
+[parallel] start 79/85 tests.authority.test_work_labels.LabelsChangeNothingElse
+[parallel] done  72/85 tests.authority.test_store.Transactions rc=0 in 0.21s
+[parallel] start 80/85 tests.authority.test_work_labels.ProjectionsAndPredicates
+[parallel] done  73/85 tests.authority.test_store.Opening rc=0 in 0.31s
+[parallel] start 81/85 tests.authority.test_work_labels.RealCompetingConnectionsReachOneCoherentSet
+[parallel] done  74/85 tests.authority.test_store.ReadOnlyOpening rc=0 in 0.31s
+[parallel] done  75/85 tests.authority.test_work_label_exposure.TheLibrarySurfaceAlreadyCarriesTheApprovedContract rc=0 in 0.21s
+[parallel] start 82/85 tests.authority.test_work_labels.ReplayAndConvergence
+[parallel] start 83/85 tests.authority.test_work_labels.TheAuthorityIsScopeResolved
+[parallel] done  76/85 tests.authority.test_work_label_exposure.WorkLabelsAndRuntimeLabelsAreDifferentVOCABULARIES rc=0 in 0.20s
+[parallel] start 84/85 tests.authority.test_work_labels.TheCreationActIsExactlyOneThing
+[parallel] done  77/85 tests.authority.test_work_labels.LabellingSurvivesTerminalClosure rc=0 in 0.20s
+[parallel] start 85/85 tests.authority.test_work_labels.TheGrammarIsOneOpaqueKey
+[parallel] done  78/85 tests.authority.test_work_labels.CreationAttributionIsAnImmutableAct rc=0 in 0.22s
+[parallel] done  79/85 tests.authority.test_work_labels.LabelsChangeNothingElse rc=0 in 0.20s
+[parallel] done  80/85 tests.authority.test_work_labels.ProjectionsAndPredicates rc=0 in 0.24s
+[parallel] done  81/85 tests.authority.test_work_labels.TheAuthorityIsScopeResolved rc=0 in 0.22s
+[parallel] done  82/85 tests.authority.test_work_labels.RealCompetingConnectionsReachOneCoherentSet rc=0 in 0.27s
+[parallel] done  83/85 tests.authority.test_work_labels.ReplayAndConvergence rc=0 in 0.25s
+[parallel] done  84/85 tests.authority.test_work_labels.TheGrammarIsOneOpaqueKey rc=0 in 0.23s
+[parallel] done  85/85 tests.authority.test_work_labels.TheCreationActIsExactlyOneThing rc=0 in 0.25s
+[group] authority: 13 parallel, 0 serial, 0 supervised modules
+[collect] 13 parallel modules -> 423 tests in 85 shards
+[parallel] jobs=8 (available CPUs 32)
+--- parallel source ---
+[pass] tests.authority.test_assignment.Cancellation (3 tests)
+[pass] tests.authority.test_assignment.Claiming (7 tests)
+[pass] tests.authority.test_assignment.Configuration (3 tests)
+[pass] tests.authority.test_assignment.Creation (4 tests)
+[pass] tests.authority.test_assignment.CutTwoReviewFindings (8 tests)
+[pass] tests.authority.test_assignment.EndingAnAssignment (6 tests)
+[pass] tests.authority.test_assignment.FencedRouteHandoff (12 tests)
+[pass] tests.authority.test_assignment.GapsIFoundByProbingMyOwnCut (3 tests)
+[pass] tests.authority.test_assignment.Gates (7 tests)
+[pass] tests.authority.test_assignment.Invariants (3 tests)
+[pass] tests.authority.test_assignment.OwnedAnswers (2 tests)
+[pass] tests.authority.test_assignment.Restart (1 tests)
+[pass] tests.authority.test_boundary.Distribution (4 tests)
+[pass] tests.authority.test_boundary.EveryCallerTextFamilyIsBounded (3 tests)
+[pass] tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule (10 tests)
+[pass] tests.authority.test_boundary.ExportedSurface (4 tests)
+[pass] tests.authority.test_boundary.Isolation (4 tests)
+[pass] tests.authority.test_catalog.TheMigrationChecklistIsRead (5 tests)
+[pass] tests.authority.test_claim_result.SchemaFourIsACleanInitializationBoundary (3 tests)
+[pass] tests.authority.test_claim_result.TheAnswerIsThreeFactsAndNotOne (3 tests)
+[pass] tests.authority.test_claim_result.TheEventIsWhatTheFenceCannotBe (2 tests)
+[pass] tests.authority.test_claim_result.TheWholeResultIsWhatReplayReproduces (3 tests)
+[pass] tests.authority.test_claim_result.TwoAddressesOnePrincipal (1 tests)
+[pass] tests.authority.test_contract.AuthorizedClose (7 tests)
+[pass] tests.authority.test_contract.CanonicalActivity (3 tests)
+[pass] tests.authority.test_contract.ConfiguredCapabilities (3 tests)
+[pass] tests.authority.test_contract.ContractProgression (4 tests)
+[pass] tests.authority.test_contract.CutFourReviewFindings (6 tests)
+[pass] tests.authority.test_contract.GapsIFoundByProbingMyOwnCut (2 tests)
+[pass] tests.authority.test_contract.Integration (4 tests)
+[pass] tests.authority.test_contract.PolicyGeneration (2 tests)
+[pass] tests.authority.test_contract.Publication (4 tests)
+[pass] tests.authority.test_contract.TheFourReceipts (4 tests)
+[pass] tests.authority.test_dossier.ItBindsOneRecordToOneWork (4 tests)
+[pass] tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting (8 tests)
+[pass] tests.authority.test_dossier.ItReplaysAndRefusesExactly (8 tests)
+[pass] tests.authority.test_dossier.RelationshipChangesMoveNothing (4 tests)
+[pass] tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes (7 tests)
+[pass] tests.authority.test_dossier.TheSchemaBoundaryIsClosedAndExplicit (3 tests)
+[pass] tests.authority.test_identity.ExportedHelpersAreBoundaries (5 tests)
+[pass] tests.authority.test_identity.FrozenIdentities (7 tests)
+[pass] tests.authority.test_identity.Gates (1 tests)
+[pass] tests.authority.test_identity.OwningOperands (7 tests)
+[pass] tests.authority.test_identity.Signatures (5 tests)
+[pass] tests.authority.test_identity.TheLabelBoundIsMeasuredRatherThanChosen (6 tests)
+[pass] tests.authority.test_operations.EffectivelyOnce (5 tests)
+[pass] tests.authority.test_operations.FourStates (1 tests)
+[pass] tests.authority.test_operations.GapsIFoundByProbingMyOwnCut (3 tests)
+[pass] tests.authority.test_operations.RealProcessRaces (2 tests)
+[pass] tests.authority.test_operations.Restart (4 tests)
+[pass] tests.authority.test_operations.Retirement (3 tests)
+[pass] tests.authority.test_operations.Settlement (5 tests)
+[pass] tests.authority.test_operations.SettlementRace (3 tests)
+[pass] tests.authority.test_operations.TwoKindsOfRefusal (4 tests)
+[pass] tests.authority.test_principal_scope.AV11ReclaimDoesNotRewriteEarlierHistory (5 tests)
+[pass] tests.authority.test_principal_scope.EveryCapabilityDoorDecidesInTheTargetsScope (6 tests)
+[pass] tests.authority.test_principal_scope.GrantProvenance (5 tests)
+[pass] tests.authority.test_principal_scope.NothingAnOperandSaysCanWidenIt (7 tests)
+[pass] tests.authority.test_principal_scope.OnePrincipalTwoAddresses (5 tests)
+[pass] tests.authority.test_principal_scope.SchemaTwoIsACleanInitializationBoundary (7 tests)
+[pass] tests.authority.test_principal_scope.TheDecisionIsRetainedForEveryAuthorizedAct (6 tests)
+[pass] tests.authority.test_principal_scope.TheDecisionRidesTheAct (6 tests)
+[pass] tests.authority.test_principal_scope.TheGrantProjectionCarriesScopeAndProvenance (3 tests)
+[pass] tests.authority.test_session.FencedRouteSession (3 tests)
+[pass] tests.authority.test_session.FinalReviewFindings (7 tests)
+[pass] tests.authority.test_session.Minting (5 tests)
+[pass] tests.authority.test_session.OneOwnedOperandDocument (5 tests)
+[pass] tests.authority.test_session.TheBindingIsTheIdentity (5 tests)
+[pass] tests.authority.test_session.TheWholeSurfaceWorksThroughTheSession (4 tests)
+[pass] tests.authority.test_store.AuthorityFace (2 tests)
+[pass] tests.authority.test_store.Creation (7 tests)
+[pass] tests.authority.test_store.Opening (13 tests)
+[pass] tests.authority.test_store.ReadOnlyOpening (24 tests)
+[pass] tests.authority.test_store.Transactions (4 tests)
+[pass] tests.authority.test_work_label_exposure.TheLibrarySurfaceAlreadyCarriesTheApprovedContract (4 tests)
+[pass] tests.authority.test_work_label_exposure.WorkLabelsAndRuntimeLabelsAreDifferentVOCABULARIES (3 tests)
+[pass] tests.authority.test_work_labels.CreationAttributionIsAnImmutableAct (7 tests)
+[pass] tests.authority.test_work_labels.LabellingSurvivesTerminalClosure (2 tests)
+[pass] tests.authority.test_work_labels.LabelsChangeNothingElse (3 tests)
+[pass] tests.authority.test_work_labels.ProjectionsAndPredicates (8 tests)
+[pass] tests.authority.test_work_labels.RealCompetingConnectionsReachOneCoherentSet (5 tests)
+[pass] tests.authority.test_work_labels.ReplayAndConvergence (7 tests)
+[pass] tests.authority.test_work_labels.TheAuthorityIsScopeResolved (5 tests)
+[pass] tests.authority.test_work_labels.TheCreationActIsExactlyOneThing (9 tests)
+[pass] tests.authority.test_work_labels.TheGrammarIsOneOpaqueKey (6 tests)
+[parallel source] 85 shards, 423 tests, 0 failures, 0 errors, 0 skipped -> OK
+[serial] 0 source modules, one at a time
+--- serial source ---
+[serial source] 0 shards, 0 tests, 0 failures, 0 errors, 0 skipped -> OK
+[summary] parallel source: 423 tests, 0 failed, 0 skipped | serial source: 0 tests, 0 failed, 0 skipped -> OK
+[groups] authority=423, job_manager=0, manager-pure=0, manager-engine=0, integration=0, tools-pure=0, tools-packaged=0, supervised=0, scans=0
+--- accounting ---
+collected 423, executed 423, passed 423, optional skipped 0, required skipped 0, failed 0, errors 0, fixture skips 0, fixture errors 0, duplicates 0, unaccounted 0
+[accounting] passed 423 + optional skipped 0 = 423 of collected 423 -> OK
+[authority] runner exit 0 elapsed 3s finished 2026-11-18T05:30:34Z
+[authority] source identity stable 194edb1f466ae2d4dc811c932ed2509f49e9c0b22bcff9429017fbde32cbb3b9
+[authority] /var/tmp entries before 376 after 376
+[authority] /var/tmp unchanged

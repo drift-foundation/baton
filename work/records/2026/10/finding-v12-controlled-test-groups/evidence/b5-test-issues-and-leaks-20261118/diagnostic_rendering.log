@@ -1,0 +1,24 @@
+test_no_other_test_in_the_inventory_sets_maxdiff (tests.manager.test_diagnostic_rendering.TheMaxDiffCorrectionIsTestLocal.test_no_other_test_in_the_inventory_sets_maxdiff)
+The boundary, checked rather than promised. Widening this to the ... ok
+test_the_ruled_function_sets_maxdiff_before_its_comparison (tests.manager.test_diagnostic_rendering.TheMaxDiffCorrectionIsTestLocal.test_the_ruled_function_sets_maxdiff_before_its_comparison) ... ok
+test_neither_ruled_site_compares_against_a_bare_set_call (tests.manager.test_diagnostic_rendering.TheRuledAssertionsRenderThroughSortedCollections.test_neither_ruled_site_compares_against_a_bare_set_call)
+The exact idiom the ruling replaced, kept out of both functions. ... ok
+test_the_missing_probe_check_compares_sorted_lists (tests.manager.test_diagnostic_rendering.TheRuledAssertionsRenderThroughSortedCollections.test_the_missing_probe_check_compares_sorted_lists)
+The detection verdict is Stage B's; its rendering is still W10265's. ... ok
+test_the_stale_owner_check_asserts_membership_against_a_sorted_container (tests.manager.test_diagnostic_rendering.TheRuledAssertionsRenderThroughSortedCollections.test_the_stale_owner_check_asserts_membership_against_a_sorted_container)
+`assertIn` prints the WHOLE container when membership fails. ... ok
+test_the_control_and_the_ruled_form_report_the_same_verdict (tests.manager.test_diagnostic_rendering.TheRuledFormRendersCompletelyAndIdentically.test_the_control_and_the_ruled_form_report_the_same_verdict)
+Neither form changes what is TRUE. The whole ruling turned on ... ok
+test_the_form_the_ruling_replaced_still_reorders (tests.manager.test_diagnostic_rendering.TheRuledFormRendersCompletelyAndIdentically.test_the_form_the_ruling_replaced_still_reorders)
+THE CONTROL. A determinism check whose subject cannot vary is a ... ok
+test_the_ruled_form_renders_every_missing_entry (tests.manager.test_diagnostic_rendering.TheRuledFormRendersCompletelyAndIdentically.test_the_ruled_form_renders_every_missing_entry)
+COMPLETENESS -- review R1's half, and the reason the ruling added ... ok
+test_the_ruled_form_renders_identically_under_every_seed (tests.manager.test_diagnostic_rendering.TheRuledFormRendersCompletelyAndIdentically.test_the_ruled_form_renders_identically_under_every_seed)
+DETERMINISM. One rendering, whatever the process decided its hash ... ok
+test_the_ruled_form_renders_in_sorted_order (tests.manager.test_diagnostic_rendering.TheRuledFormRendersCompletelyAndIdentically.test_the_ruled_form_renders_in_sorted_order)
+The fixed order is the SORTED one rather than merely a repeatable ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.005s
+
+OK

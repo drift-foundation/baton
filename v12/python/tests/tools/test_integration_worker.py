@@ -46,6 +46,7 @@ from tools.integration_worker import IntegrationRuntimePort
 from tests.integration.test_execution import profile as integration_profile
 from tests.integration.test_runtime import PARTICIPANT
 from tests.tools.test_integration_bundle import INSTRUCTIONS
+from tests.manager import disk_roots
 
 
 IMAGE = "sha256:" + "e" * 64
@@ -71,7 +72,9 @@ class PortCase(unittest.TestCase):
         self.world = self.producer.world
         self.owner = self.world.owner
         self.root = tempfile.mkdtemp(prefix="v12-w110774-")
-        self.addCleanup(shutil.rmtree, self.root, True)
+        # W384870: integrator attempts and bundles under here are frozen by the product,
+        # so `rmtree(ignore_errors)` left 29 roots in one run; the owned root goes whole.
+        self.addCleanup(disk_roots.remove_owned_root, self.root)
 
         self.profile = self.producer.profile
         self.calls = []

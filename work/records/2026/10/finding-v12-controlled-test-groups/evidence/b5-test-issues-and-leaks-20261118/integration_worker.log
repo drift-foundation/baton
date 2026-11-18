@@ -1,0 +1,68 @@
+test_a_second_execution_of_this_deployment_holds_no_marker (tests.tools.test_integration_worker.TheLiveMarkerIsBookkeepingAndNeverAuthority.test_a_second_execution_of_this_deployment_holds_no_marker)
+A restart loses it by construction, because it never left memory. ... ok
+test_a_status_read_needs_no_marker_and_no_preceding_start (tests.tools.test_integration_worker.TheLiveMarkerIsBookkeepingAndNeverAuthority.test_a_status_read_needs_no_marker_and_no_preceding_start)
+W110774 review 2026-09-08T02:07:47Z [P1], and this case CHANGED ... ok
+test_an_execution_that_started_nothing_may_continue_nothing (tests.tools.test_integration_worker.TheLiveMarkerIsBookkeepingAndNeverAuthority.test_an_execution_that_started_nothing_may_continue_nothing) ... ok
+test_the_marker_binds_the_whole_assignment (tests.tools.test_integration_worker.TheLiveMarkerIsBookkeepingAndNeverAuthority.test_the_marker_binds_the_whole_assignment) ... ok
+test_a_preparation_with_another_identity_refuses (tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners.test_a_preparation_with_another_identity_refuses)
+An operand that rides the attempt's signature is not a detail: a ... ok
+test_a_replayed_preparation_reuses_the_exact_prepared_credential (tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners.test_a_replayed_preparation_reuses_the_exact_prepared_credential)
+W110774 review 2026-09-08T02:29:59Z [P1]: an identical replay ... ok
+test_a_stage_of_another_kind_is_not_this_ports_to_prepare (tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners.test_a_stage_of_another_kind_is_not_this_ports_to_prepare) ... ok
+test_a_stage_whose_job_disagrees_with_it_refuses (tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners.test_a_stage_whose_job_disagrees_with_it_refuses) ... ok
+test_an_attempt_with_no_claimed_offer_refuses (tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners.test_an_attempt_with_no_claimed_offer_refuses) ... ok
+test_an_identical_preparation_replays (tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners.test_an_identical_preparation_replays) ... ok
+test_it_records_and_activates_this_stages_attempt (tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners.test_it_records_and_activates_this_stages_attempt) ... ok
+test_a_grant_over_another_target_never_reaches_this_directory (tests.tools.test_integration_worker.TheStartRefusesBeforeAnythingIsExposed.test_a_grant_over_another_target_never_reaches_this_directory)
+THE TWO-TARGET NEGATIVE. The assignment is well formed and its ... ok
+test_a_target_access_that_is_not_writable_refuses (tests.tools.test_integration_worker.TheStartRefusesBeforeAnythingIsExposed.test_a_target_access_that_is_not_writable_refuses) ... ok
+test_an_assignment_for_another_integrator_refuses (tests.tools.test_integration_worker.TheStartRefusesBeforeAnythingIsExposed.test_an_assignment_for_another_integrator_refuses) ... ok
+test_an_assignment_naming_other_instructions_refuses (tests.tools.test_integration_worker.TheStartRefusesBeforeAnythingIsExposed.test_an_assignment_naming_other_instructions_refuses) ... ok
+test_an_assignment_with_no_attempt_refuses (tests.tools.test_integration_worker.TheStartRefusesBeforeAnythingIsExposed.test_an_assignment_with_no_attempt_refuses) ... ok
+test_a_failed_observation_construction_revokes_the_marker (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_a_failed_observation_construction_revokes_the_marker)
+W110774 review 2026-09-08T02:29:59Z [P1]: the adapter was composed ... ok
+test_a_failed_preparation_leaves_the_successor_boundary_intact (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_a_failed_preparation_leaves_the_successor_boundary_intact)
+The other half of acceptance matrix item 6: a pre-mutation refusal ... ok
+test_a_failed_witness_read_during_refresh_revokes_the_marker (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_a_failed_witness_read_during_refresh_revokes_the_marker)
+W110774 review 2026-09-08T02:29:59Z [P1]: the no-start preflight ... ok
+test_a_preparation_after_a_start_refuses_and_keeps_its_custody (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_a_preparation_after_a_start_refuses_and_keeps_its_custody)
+W110774 review 2026-09-08T02:29:59Z [P1]: preparation discarded ... ok
+test_a_reconstructed_incarnation_holds_and_starts_no_second_writer (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_a_reconstructed_incarnation_holds_and_starts_no_second_writer)
+Matrix item 5: a new serving execution that finds a started ... ok
+test_a_reconstructed_port_also_drains_that_release_tail (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_a_reconstructed_port_also_drains_that_release_tail)
+The same tail, reached through admission after a restart: a new ... ok
+test_a_repeated_tick_after_completion_duplicates_nothing (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_a_repeated_tick_after_completion_duplicates_nothing)
+Matrix item 3: repeated ticks cannot duplicate a start, a receipt, ... ok
+test_a_repeated_tick_replays_the_terminal_answer (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_a_repeated_tick_replays_the_terminal_answer)
+ADDITIVE, and deliberately stricter than the existing repeated-tick ... ok
+test_a_settled_entry_replays_its_live_release_tail (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_a_settled_entry_replays_its_live_release_tail)
+W110774 review 2026-09-08T02:29:59Z [P1]: SETTLEMENT AND RELEASE ... ok
+test_an_unavailable_credential_refuses_before_writable_exposure (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_an_unavailable_credential_refuses_before_writable_exposure)
+W110774 review 2026-09-08T02:53:32Z [P1] moved WHERE this refusal ... ok
+test_an_uncertain_reconciliation_revokes_this_executions_marker (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_an_uncertain_reconciliation_revokes_this_executions_marker)
+W110774 review 2026-09-08T02:07:47Z [P1]: the marker survived the ... ok
+test_observation_survives_a_lost_marker (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_observation_survives_a_lost_marker)
+Restart observation stays possible while continuation does not. ... ok
+test_the_start_composes_the_three_binds_and_answers_running (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_the_start_composes_the_three_binds_and_answers_running)
+Matrix item 2's first half: the port starts the integrator and the ... ok
+test_the_start_mounts_this_attempts_own_credential_slot (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_the_start_mounts_this_attempts_own_credential_slot)
+W110774 review 2026-09-08T02:29:59Z [P1]: the composed start ... ok
+test_the_whole_path_imports_settles_and_releases_in_order (tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort.test_the_whole_path_imports_settles_and_releases_in_order)
+THE ORDINARY ENDING, end to end: a real worker turn imports the ... ok
+test_a_configured_port_holds_its_own_resolved_operands (tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands.test_a_configured_port_holds_its_own_resolved_operands) ... ok
+test_a_relative_or_absent_canonical_target_refuses (tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands.test_a_relative_or_absent_canonical_target_refuses) ... ok
+test_a_store_or_session_that_is_not_a_capability_refuses (tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands.test_a_store_or_session_that_is_not_a_capability_refuses) ... ok
+test_a_workspace_storage_that_is_not_provisioned_refuses (tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands.test_a_workspace_storage_that_is_not_provisioned_refuses)
+The two assignment roots are ALLOCATED by their own owner from ... ok
+test_an_engine_this_manager_does_not_drive_refuses (tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands.test_an_engine_this_manager_does_not_drive_refuses) ... ok
+test_an_identity_that_is_not_the_closed_set_refuses (tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands.test_an_identity_that_is_not_the_closed_set_refuses) ... ok
+test_an_unconfigured_or_foreign_credential_resolution_refuses (tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands.test_an_unconfigured_or_foreign_credential_resolution_refuses)
+W110774 review 2026-09-08T02:29:59Z [P1]: these operands defaulted ... ok
+test_instruction_bytes_are_bytes_this_deployment_configured (tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands.test_instruction_bytes_are_bytes_this_deployment_configured) ... ok
+test_the_target_identity_is_configured_and_not_taken_from_a_grant (tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands.test_the_target_identity_is_configured_and_not_taken_from_a_grant)
+W110774 review 2026-09-08T02:07:47Z [P1]: a port that held only a ... ok
+
+----------------------------------------------------------------------
+Ran 40 tests in 10.348s
+
+OK

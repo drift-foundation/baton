@@ -20,6 +20,8 @@ import tempfile
 import unittest
 from unittest import mock
 
+from tests.manager import disk_roots
+
 from baton_v12.contracts import ContractRefusal
 
 WORKER = pathlib.Path(__file__).resolve().parents[3] / "worker"
@@ -28,7 +30,12 @@ sys.path.insert(0, str(WORKER))
 import reconciliation_entry as entry                      # noqa: E402
 import reconciliation_task as task                        # noqa: E402
 
-import integration_bundle as bundle                       # noqa: E402
+# W384870 (review 2026-11-18T06-49-00Z): THE SUPPORTED MODULE IMPORT, as `test_integration_bundle`
+# and `test_managed_apply` already spell it and as `tools/*` import each other (`from . import
+# integration_bundle`). The bare `import integration_bundle` resolved only because the runner starts
+# every shard as `python tools/parallel_test.py ...`, which puts `tools/` first on `sys.path`; under
+# `just test-one` the module could not be imported at all. One module object either way now.
+from tools import integration_bundle as bundle            # noqa: E402
 
 
 class ThePublishedInputIsMeasuredTheSameWayAtBothEnds(unittest.TestCase):
@@ -636,7 +643,8 @@ class TheCoordinatorHostNeverPrepares(unittest.TestCase):
         # THE BUNDLE IS PUBLISHED ONCE AND NEVER APPENDED TO, so the
         # destination must NOT exist: only its parent is made here.
         home = tempfile.mkdtemp(prefix="w161230-trap-input-")
-        self.addCleanup(shutil.rmtree, home, ignore_errors=True)
+        # W384870: the publication under here is 0555/0444 on purpose (see `_release`).
+        self.addCleanup(disk_roots.remove_owned_root, home)
         destination = os.path.join(home, "published")
 
         request = {
@@ -1000,7 +1008,8 @@ class TheOperandsAreResolvedFromOwnerAnswers(unittest.TestCase):
         self.line.write("moved.py", "TARGET = True\n")
         self.target = self.line.commit("the target moved independently")
         self.home = tempfile.mkdtemp(prefix="w161230-operands-input-")
-        self.addCleanup(shutil.rmtree, self.home, ignore_errors=True)
+        # W384870: the publications under here are 0555/0444 on purpose (see `_release`).
+        self.addCleanup(disk_roots.remove_owned_root, self.home)
         self.published = 0
 
     # THE OWNER'S ACTUAL ANSWER SHAPE, and review claim169146 is why it is

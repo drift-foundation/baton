@@ -1,0 +1,101 @@
+FAILURE: preparation did not answer tick 17
+--- child runtime-single-5 exit 1
+[child] measure exported vs combined: only-exported [] only-combined [] differing ['entries', 'entry_count', 'total_bytes', 'tree_digest']
+[child]   entries exported= [{'path': 'harness.py', 'content_digest': 'sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd', 'bytes': 100}, {'path': 'scale.py', 'content_digest': 'sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81', 'bytes': 39}, {'path': 'worker-task.txt', 'content_digest': 'sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236', 'bytes': 27}] combined= [{'path': '__pycache__/scale.cpython-313.pyc', 'content_digest': 'sha256:e72c67a926d4352c6f9df22afa2015579d9544265bed0ffd3f8b705f79700b9b', 'bytes': 281}, {'path': 'harness.py', 'content_digest': 'sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd', 'bytes': 100}, {'path': 'scale.py', 'content_digest': 'sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81', 'bytes': 39}, {'path': 'worker-task.txt', 'content_digest': 'sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236', 'bytes': 27}]
+[child]   entry_count exported= 3 combined= 4
+[child]   total_bytes exported= 166 combined= 447
+[child]   tree_digest exported= sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d combined= sha256:86657fd0f96c5bc5f338ee4053247e0708c65849a59a8691a7cf5de1f6e4472c
+[child] combined listing ['__pycache__/scale.cpython-313.pyc', 'harness.py', 'scale.py', 'worker-task.txt']
+[child] work raised
+Traceback (most recent call last):
+  File "<string>", line 19, in _traced
+    try:return _orig(self,*a,**k)
+               ~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/reconciliation_entry.py", line 111, in work
+    return _written(self._output, declared, report, states,
+                    repository=os.path.join(self._scratch, "objects"), seconds=seconds)
+  File "/home/sl/src/baton/v12/worker/reconciliation_entry.py", line 182, in _written
+    task.export_derived_objects(repository, report["derived_candidate"], states,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                os.path.join(place, task.OBJECTS_NAME), seconds)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 27, in _te
+    try:return _oe(repository, derived, states, destination, seconds)
+               ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/reconciliation_task.py", line 443, in export_derived_objects
+    _refuse("the preparation harness changed the derived candidate; its output cannot substitute for the Git tree")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/reconciliation_task.py", line 153, in _refuse
+    raise PreparationRefusal(message)
+reconciliation_task.PreparationRefusal: the preparation harness changed the derived candidate; its output cannot substitute for the Git tree
+[child] handle raised
+Traceback (most recent call last):
+  File "<string>", line 44, in _th
+    try:return _oh(*a,**k)
+               ~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/baton_worker.py", line 1970, in handle
+    reported = agent.work(seen, declared)
+  File "<string>", line 19, in _traced
+    try:return _orig(self,*a,**k)
+               ~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/reconciliation_entry.py", line 111, in work
+    return _written(self._output, declared, report, states,
+                    repository=os.path.join(self._scratch, "objects"), seconds=seconds)
+  File "/home/sl/src/baton/v12/worker/reconciliation_entry.py", line 182, in _written
+    task.export_derived_objects(repository, report["derived_candidate"], states,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                os.path.join(place, task.OBJECTS_NAME), seconds)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 27, in _te
+    try:return _oe(repository, derived, states, destination, seconds)
+               ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/reconciliation_task.py", line 443, in export_derived_objects
+    _refuse("the preparation harness changed the derived candidate; its output cannot substitute for the Git tree")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/reconciliation_task.py", line 153, in _refuse
+    raise PreparationRefusal(message)
+reconciliation_task.PreparationRefusal: the preparation harness changed the derived candidate; its output cannot substitute for the Git tree
+[child] _faulted code ('agent',) {}
+[child] main returned 1
+
+--- preparation: {
+ "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {
+  "command": {
+   "command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788",
+   "operations": [
+    "describe",
+    "work"
+   ],
+   "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"
+  },
+  "foreign": [],
+  "receipt": {
+   "accepted_at": "2026-11-18T06:19:35.000Z"
+  },
+  "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f",
+  "state": "faulted",
+  "states": [
+   {
+    "operation": "describe",
+    "state": "answered"
+   },
+   {
+    "operation": "work",
+    "state": "faulted"
+   }
+  ],
+  "terminal": {
+   "adapter_failure": null,
+   "answered": [
+    "describe"
+   ],
+   "disposition": null,
+   "ending": "faulted",
+   "fault_code": "agent",
+   "manifest_digest": null,
+   "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"
+  },
+  "transport": "baton.worker-exchange/1",
+  "unreadable": null
+ }
+}

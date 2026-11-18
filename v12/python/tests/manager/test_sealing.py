@@ -25,6 +25,8 @@ import json
 import os
 import tempfile
 import unittest
+
+from tests.manager import disk_roots
 from unittest.mock import patch
 
 from baton_v12.contracts import ContractRefusal, held_secret
@@ -60,6 +62,67 @@ def declaration(name="proposal", path="out", required=True,
                             "link_policy": "forbid", "validator_digest": None}}
 
 
+class TheFixtureRemovesItsOwnFrozenRoot(unittest.TestCase):
+    """W384870: `disk_roots.remove_owned_root`, the remover the repaired fixtures share.
+
+    The product freezes what it delivers, so a fixture root holds 0555 directories,
+    0444 files and even a 0-mode directory; `rmtree(ignore_errors=True)` left every
+    such root behind (262 of them in five-groups-20261118). This proves the remover
+    takes the whole owned root away AND touches nothing a link inside it points at.
+    """
+
+    def test_a_frozen_owned_root_is_removed_whole(self):
+        root = tempfile.mkdtemp(prefix="v12-sealing-remover-")
+        frozen = os.path.join(root, "launch", "attempt-1")
+        os.makedirs(frozen)
+        with open(os.path.join(frozen, "launch.json"), "w", encoding="utf-8") as writing:
+            writing.write("{}")
+        os.chmod(os.path.join(frozen, "launch.json"), 0o444)
+        dark = os.path.join(root, "dark")
+        os.makedirs(os.path.join(dark, "inner"))
+        os.chmod(frozen, 0o555)
+        os.chmod(os.path.join(root, "launch"), 0o555)
+        os.chmod(dark, 0)
+        self.assertRaises(PermissionError, os.listdir, dark)
+        disk_roots.remove_owned_root(root)
+        self.assertFalse(os.path.lexists(root))
+
+    def test_a_link_inside_the_root_is_removed_as_a_link_and_its_target_is_untouched(self):
+        outside = tempfile.mkdtemp(prefix="v12-sealing-outside-")
+        self.addCleanup(disk_roots.remove_owned_root, outside)
+        kept = os.path.join(outside, "theirs", "kept.txt")
+        os.makedirs(os.path.dirname(kept))
+        with open(kept, "w", encoding="utf-8") as writing:
+            writing.write("somebody else's bytes")
+        os.chmod(kept, 0o444)
+        os.chmod(os.path.dirname(kept), 0o555)
+        root = tempfile.mkdtemp(prefix="v12-sealing-remover-")
+        os.symlink(outside, os.path.join(root, "elsewhere"))
+        os.symlink(kept, os.path.join(root, "a-file-link"))
+        disk_roots.remove_owned_root(root)
+        self.assertFalse(os.path.lexists(root))
+        self.assertTrue(os.path.isfile(kept))
+        self.assertEqual(os.stat(os.path.dirname(kept)).st_mode & 0o777, 0o555)
+        self.assertEqual(os.stat(kept).st_mode & 0o777, 0o444)
+
+    def test_the_remover_refuses_a_link_or_a_file_as_the_root(self):
+        home = tempfile.mkdtemp(prefix="v12-sealing-remover-")
+        self.addCleanup(disk_roots.remove_owned_root, home)
+        target = os.path.join(home, "real")
+        os.makedirs(target)
+        link = os.path.join(home, "link")
+        os.symlink(target, link)
+        with self.assertRaises(AssertionError):
+            disk_roots.remove_owned_root(link)
+        self.assertTrue(os.path.isdir(target))
+        plain = os.path.join(home, "plain.txt")
+        with open(plain, "w", encoding="utf-8") as writing:
+            writing.write("x")
+        with self.assertRaises(AssertionError):
+            disk_roots.remove_owned_root(plain)
+        self.assertTrue(os.path.isfile(plain))
+
+
 class SealingCase(unittest.TestCase):
 
     def setUp(self):
@@ -75,19 +138,14 @@ class SealingCase(unittest.TestCase):
     def _release(self):
         """Sealing makes trees read-only ON PURPOSE, so cleanup has to undo
         that before it can remove them -- the same duty
-        `workspaces.discard_workspace` performs for the manager."""
-        for base, directories, files in os.walk(self.root, topdown=False):
-            for one in directories:
-                os.chmod(os.path.join(base, one), 0o700)
-            for one in files:
-                full = os.path.join(base, one)
-                # NOT THROUGH A LINK. `os.chmod` follows one, and a case that
-                # plants a link to `/etc/passwd` would have its CLEANUP try to
-                # chmod that -- which is how this fixture first reported a
-                # PermissionError as if the module had failed.
-                if not os.path.islink(full):
-                    os.chmod(full, 0o600)
-        os.chmod(self.root, 0o700)
+        `workspaces.discard_workspace` performs for the manager.
+
+        W384870: the first form restored the modes and then never removed the
+        root (65 roots left by one manager-pure run). `remove_owned_root` does
+        both and still never chmods THROUGH a link -- the reason this fixture
+        once reported a PermissionError about `/etc/passwd` as if the module
+        had failed."""
+        disk_roots.remove_owned_root(self.root)
 
     def found(self, needle):
         """Every regular file under this case's root holding `needle`.

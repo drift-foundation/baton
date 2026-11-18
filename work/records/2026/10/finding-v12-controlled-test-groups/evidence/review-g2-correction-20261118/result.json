@@ -1,0 +1,17 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-9meua46v",
+      "root_length": 20,
+      "ids": [
+        "tests.tools.test_correction_restart"
+      ],
+      "exit": 0,
+      "seconds": 22.709925042996474,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

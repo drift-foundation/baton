@@ -36,6 +36,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 DISTRIBUTION = pathlib.Path(__file__).resolve().parents[2]
 _TOOLS = str(DISTRIBUTION / "tools")
@@ -117,6 +118,27 @@ class OperatorViewCase(unittest.TestCase):
         return fixtures.gate_task(profile=profile, base=base,
                                   pin_digest=self.pin_digest,
                                   context=context, argv=argv)
+
+    def private_views(self):
+        """This case's OWN verification root, in place of the shared host `/tmp`.
+
+        W384870 (five-groups-20261118): the residue checks listed every
+        `dogfood-view-*` under `dogfood_operator.VERIFICATION_TEMP_ROOT`, which is
+        `/tmp` for every shard at once -- so a concurrent class's live view read as
+        this case's leak. The operator's own cleanup is what these cases measure, so
+        it is measured in a root only this case writes to, and a foreign view planted
+        there stands for the other shard: it must survive, untouched.
+        """
+        views = os.path.join(self.home, "views")
+        os.makedirs(views, exist_ok=True)
+        patched = mock.patch.object(dogfood_operator, "VERIFICATION_TEMP_ROOT", views)
+        patched.start()
+        self.addCleanup(patched.stop)
+        return views
+
+    def views_left_in(self, views):
+        return sorted(one for one in os.listdir(views)
+                      if one.startswith("dogfood-view-"))
 
     def derived(self, task, *, objects=None, runner=None):
         return dogfood_operator._derived_in_view(
@@ -226,14 +248,17 @@ class TheNamedGatePassesInTheOperatorsOwnView(OperatorViewCase):
         before = fixtures.digest_of(os.path.join(
             self.proposal, "candidate", "v12", "python", "src", "baton_v12",
             "__init__.py"))
+        views = self.private_views()
+        foreign = tempfile.mkdtemp(prefix="dogfood-view-", dir=views)
         self.derived(self.task())
         self.assertEqual(fixtures.digest_of(os.path.join(
             self.proposal, "candidate", "v12", "python", "src", "baton_v12",
             "__init__.py")), before)
-        residue = [one for one in os.listdir(
-            dogfood_operator.VERIFICATION_TEMP_ROOT)
-            if one.startswith("dogfood-view-")]
-        self.assertEqual(residue, [], "the operator left a view behind")
+        # ONLY THE OTHER SHARD'S VIEW REMAINS: the operator removed its own and did
+        # not reach for one it did not create.
+        self.assertEqual(self.views_left_in(views), [os.path.basename(foreign)],
+                         "the operator left a view behind, or removed a foreign one")
+        self.assertTrue(os.path.isdir(foreign))
 
     def test_the_sealed_inputs_are_byte_unchanged_afterwards(self):
         self.retain(lambda root: fixtures.gate_candidate(root),
@@ -356,12 +381,35 @@ class TheOperatorsViewRefusesWhatThePacketSays(OperatorViewCase):
                          contract.NOT_RUN)
 
     def test_the_view_is_gone_after_every_refusal(self):
+        views = self.private_views()
+        foreign = tempfile.mkdtemp(prefix="dogfood-view-", dir=views)
         self.refused(
             context=self.tiny_context(required_paths=["not-there.py"]))
-        residue = [one for one in os.listdir(
-            dogfood_operator.VERIFICATION_TEMP_ROOT)
-            if one.startswith("dogfood-view-")]
-        self.assertEqual(residue, [])
+        self.assertEqual(self.views_left_in(views), [os.path.basename(foreign)])
+        self.assertTrue(os.path.isdir(foreign))
+
+    def test_a_concurrent_shards_view_is_neither_a_leak_nor_removed(self):
+        """The race five-groups-20261118 reproduced, stated as ownership.
+
+        Two class shards of this module run at once and both materialize views in the
+        verification root. A live foreign view is not this operator's residue, and this
+        operator's cleanup must not take it away either. Each refusal here is one
+        operator run; the foreign view is planted BEFORE and inspected AFTER each.
+        """
+        views = self.private_views()
+        foreign = tempfile.mkdtemp(prefix="dogfood-view-", dir=views)
+        with open(os.path.join(foreign, "theirs.txt"), "w", encoding="utf-8") as writing:
+            writing.write("another shard's live view")
+        for context in (self.tiny_context(required_paths=["not-there.py"]),
+                        self.tiny_context(import_roots=["no-such-root"])):
+            self.refused(context=context)
+            self.assertEqual(self.views_left_in(views), [os.path.basename(foreign)])
+            with open(os.path.join(foreign, "theirs.txt"), encoding="utf-8") as reading:
+                self.assertEqual(reading.read(), "another shard's live view")
+        self.retain(self.tiny)
+        self.derived(self.task(context=self.tiny_context(),
+                               argv=["python3", "-c", "print('ran')"]))
+        self.assertEqual(self.views_left_in(views), [os.path.basename(foreign)])
 
 
 class TheTransportsPrerequisitesAreRequiredNotAssumed(OperatorViewCase):

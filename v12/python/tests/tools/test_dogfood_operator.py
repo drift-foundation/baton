@@ -42,6 +42,7 @@ from tools import dogfood_operator                            # noqa: E402
 from tools import user_credentials                            # noqa: E402
 from tests.manager import test_intake as intake_fixture       # noqa: E402
 from tests.manager import test_output as output_fixture       # noqa: E402
+from tests.manager import disk_roots                          # noqa: E402
 from tools.dogfood_operator import (DeploymentSession, OperatorRefusal,
                                     assignment_manifest, frozen_task,
                                     input_manifest, stage_source)  # noqa: E402
@@ -535,7 +536,9 @@ class OperatorCase(unittest.TestCase):
 
     def setUp(self):
         home = tempfile.mkdtemp(prefix="v12-w39358-")
-        self.addCleanup(shutil.rmtree, home, True)
+        # W384870: `storage/attempt-*` under here is frozen by the product, so
+        # `rmtree(ignore_errors)` left the root behind; the owned root goes whole.
+        self.addCleanup(disk_roots.remove_owned_root, home)
         self.home = home
         self.source = os.path.join(home, "source")
         os.makedirs(self.source)

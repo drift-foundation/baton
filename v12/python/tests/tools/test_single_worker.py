@@ -396,8 +396,11 @@ class TheLayoutSelectionIsIndependentOfTheContextMode(unittest.TestCase):
         """And the configuration that `_held` admitted is one
         `layout_delivery` can actually compose and materialize."""
         held = single_worker._held(self.configuration("implementation"))
+        # W384870: a bare `mkdtemp()` with no cleanup left its root behind every run.
+        home = tempfile.mkdtemp(prefix="v12-ingest-configuration-")
+        self.addCleanup(disk_roots.remove_owned_root, home)
         store = ControlStore.open(
-            os.path.join(tempfile.mkdtemp(), "c.sqlite3"),
+            os.path.join(home, "c.sqlite3"),
             incarnation="w325695-cfg",
             clock=lambda: "2026-10-28T00:00:00.000Z")
         self.addCleanup(store.close)
@@ -7026,7 +7029,9 @@ class TheActivityHelperIngestsOffTheServingLoop(unittest.TestCase):
         from baton_v12.worker_manager import record_attempt
 
         self.root = tempfile.mkdtemp(prefix="v12-ingest-")
-        self.addCleanup(shutil.rmtree, self.root, True)
+        # W384870: `launch/attempt-1` below is frozen by `launch.materialize`, so
+        # `rmtree(ignore_errors)` left 11 roots in one run; the owned root goes whole.
+        self.addCleanup(disk_roots.remove_owned_root, self.root)
         self.place = os.path.join(self.root, "control.sqlite3")
         self.launch_home = os.path.join(self.root, "launch")
         os.makedirs(self.launch_home)

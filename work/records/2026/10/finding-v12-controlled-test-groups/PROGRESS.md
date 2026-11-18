@@ -1144,3 +1144,61 @@ measured with the counting engine double (no call, no create). 14 focused OK; 37
 identity stable; four leaked test_maintenance roots removed. Paths: tokens.py, maintenance.py,
 tests/manager/test_stopped_settlement.py, tests/manager/test_maintenance.py.
 - Handoff posted: T384870 seq 385101. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: five accounted non-engine group runs (M385102)
+
+Evidence: `evidence/five-groups-20261118/RESULT.md` (+ per-group `.log`, `.summary.json`, `.source.json`,
+`.source-after.json`, `.var-tmp-*.txt`, `CONSOLIDATED.md`, `run-five-groups.sh`, `consolidate.py`,
+leaked-roots listings, `remove-remaining-roots.sh`). Source 314e067c, changed 0, digest 194edb1f… stable
+across all five; 8 workers; driver 05:30:30Z-05:35:03Z. authority 423/423, job_manager 1524/1524,
+integration 796/796 OK; manager-pure 4419/4420 (1 failed); tools-pure 3318/3341 (4 failed, 2 fixture
+errors, 19 unaccounted). Remainder 24 ids: KNOWN G2 22/22 unchanged (preparation child exit 1, empty log,
+`work` faulted `agent`); NEW 2: test_diagnostic_rendering sorted-list pin vs Stage B rewrite of the probe
+guard (deterministic, two accepted tests contradict); test_operator_verification_view residue check over
+the shared `/tmp` root (inferred cross-shard race, B0 "VERIFIED OK now"). Fixture leaks: 262 roots, 47 MB,
+nine sites (test_sealing new); 199 removed, 63 with product-frozen 0555 dirs left for the owner (no mode
+changed). No repair, no retry; no full/scans/engine/supervised/live run.
+- Handoff posted: T384870 seq 385103. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: G2 corrected (M385104); test_correction_restart 26/26
+
+Evidence: `evidence/b5-g2-correction-restart-20261118/RESULT.md` (+ initial failure, traced child logs, measure
+diff, positive/module/witness logs, scenario artifact, identities, candidate.diff, CANDIDATE-SHA256.txt).
+Cause (CONFIRMED, traced before any edit): the simulated container in `correction_restart_trace.ProcessEngine`
+did not carry the image's `PYTHONDONTWRITEBYTECODE=1`; the pinned harness wrote `__pycache__/scale.cpython-313.pyc`
+into the derived tree and `reconciliation_task.export_derived_objects` correctly refused ("the preparation
+harness changed the derived candidate"); the prepare child's log was empty because only the apply branch
+traced exceptions. Second layer: the oracle read bare launch containers, not the accepted `/5` wrapper.
+Changes (test fixtures only): `CONTAINER_ENVIRONMENT`, prepare-branch tracing, `launched()` wrapper reader in
+`validate`; witnesses strengthened/added; producer-context negative now mutates the payload plus two wrapper
+rows. Positives 2/2 (7 s) first, then module 25/25 (20 s), witnesses 2/2, final 26/26 (22 s); identity
+26132d98… stable; /var/tmp unchanged. Product untouched. OPEN: why 2026-09-15 runs were green is not
+established. Paths: tests/tools/correction_restart_trace.py, tests/tools/test_correction_restart.py.
+- Handoff posted: T384870 seq 385105. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: two queued test issues + nine leak sites repaired (M385106)
+
+Evidence: `evidence/b5-test-issues-and-leaks-20261118/RESULT.md` (+ per-module logs, four concurrent
+operator-view logs, summary.tsv, identities, candidate.diff 14 files incl. the accepted G2 pair,
+CANDIDATE-SHA256.txt). Rendering: inventory assertion now `sorted(...)` vs one-element list (same Stage B
+verdict, W10265 rendering); pin replaced by `test_the_missing_probe_check_compares_sorted_lists`. Operator
+view: per-case private verification root, foreign-view witnesses, new concurrency test; 4 simultaneous module
+runs 4× 39/39, zero views in /tmp. Leaks: `disk_roots.remove_owned_root` (refuses link/non-dir root, restores
+owner access on real dirs only, rmtree without ignore_errors) proved by 3 sealing cases and applied at the nine
+sites. All eleven module/id runs OK, residue 0 each (/var/tmp 376 throughout); identity 56749070… stable.
+Product untouched. Observation queued: test_managed_preparation's top-level `import integration_bundle` works
+only under the runner (sys.path[0] = tools/), not `just test-one`; pre-existing; run here on the
+runner-equivalent path. Paths: disk_roots.py, test_credentials.py, test_sealing.py, test_attempt_logs.py,
+test_maintenance.py, test_boundary_inventory.py, test_diagnostic_rendering.py, test_integration_worker.py,
+test_managed_preparation.py, test_single_worker.py, test_dogfood_operator.py, test_operator_verification_view.py.
+- Handoff posted: T384870 seq 385107. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: managed-preparation import corrected; evidence record completed (M385108)
+
+`evidence/b5-test-issues-and-leaks-20261118/RESULT.md` (correction section). `from tools import integration_bundle
+as bundle` (sibling modules' spelling; no patches of the alias; assertions unchanged). Ordinary `just test-one
+tests.tools.test_managed_preparation` 100/100 OK 113 s residue 0; fresh-process shard entry (`run-shard`) 10/10 OK.
+summary.tsv appended with the verbatim earlier workaround command and the preserved initial-failure line
+(batch-console-initial.txt); initial failed log was overwritten, stated. per-run-listings/ retained (27 pairs, all 0).
+Candidate 14 files over 314e067c, hashes regenerated. Paths: tests/tools/test_managed_preparation.py.
+- Handoff posted: T384870 seq 385109. detail: W384870 remains under the owner claim; K holds no claim.

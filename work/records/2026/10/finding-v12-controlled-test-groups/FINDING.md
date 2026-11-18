@@ -895,3 +895,19 @@ Read `review-2026-11-18T04-17-54Z.md`. Independent8/8 pass but public-API probe 
 ## 2026-11-18T04-29-34Z — G3 accepted; five non-engine groups released for measurement
 
 Read `review-2026-11-18T04-29-34Z.md`. Independent14/14 and both original counterexamples pass/refuse as intended, candidate/source verified. Known remainder G2 twenty-two plus fixture leak sites. Priority verdict CONTINUE to owner-selected one run each authority/job_manager/manager-pure/tools-pure/integration. Verification/report only, stable source and exact accounted outcomes; no repairs/retries before technical+priority review. No full/live/Docker/scans/supervised selection; codexpc idle.
+
+## 2026-11-18T05-42-59Z — five-group measurement accepted; G2 successful workflow next
+
+Read `review-2026-11-18T05-42-59Z.md`.10504 collected/10480 passed/5 failed/19 setup-blocked;24 affected IDs=knownG2 twenty-two+two test issues. Exact source/ledger verification completed; authority/job_manager/integration green. Coordinator safely removed63 exact run-created roots and restored376-name baseline, evidence retained; nine fixture leak sites remain. Priority CONTINUE: measurement found no large new product backlog. K next captures preparation-child cause and proves useful correction + counted reopen end to end, then associated negative/transaction tests; no other repair/group/full run before technical+priority handoff. New test issues queued, no new product decision required solely by stale assertion shape.
+
+## 2026-11-18T06-32-07Z — G2 independently accepted; bounded final fixture batch released
+
+Read `review-2026-11-18T06-32-07Z.md`. Independent 26/26 in 22.7 s, source stable, zero residue; exact candidate hashes verified. G2 twenty-two affected IDs repaired, successful correction and counted reopen preserved. Priority CONTINUE: next K repairs the two recorded test issues and nine fixture leak sites with focused deterministic verification; no broad/group/full run. This supersedes the preceding G2-only and awaiting-review state. Return for technical AND priority review; then owner checkpoint and owner-run accounted full suite. No Git or claim change.
+
+## 2026-11-18T06-49-00Z — test issues and cleanup accepted; focused-run import correction next
+
+Read `review-2026-11-18T06-49-00Z.md`. Independent 377/377 in 19.8 s, stable source, zero owned residue; fourteen candidate hashes verified. Two test issues and cleanup implementation accepted. One remaining bounded correction: managed-preparation top-level import breaks ordinary `just test-one`, independently reproduced. K fixes that import and completes the exact-command/per-run evidence record, verifies the ordinary module command, then returns for review. Priority CONTINUE for this correction only; no groups/full/live/Docker runs. This supersedes the prior two-issues/nine-sites pending state. Owner checkpoint and owner-run accounted full suite follow acceptance.
+
+## 2026-11-18T06-55-14Z — import correction accepted; ready for human checkpoint
+
+Read `review-2026-11-18T06-55-14Z.md`. Author ordinary module 100/100; independent ordinary class 10/10, stable source, zero residue; exact candidate hashes verified. Evidence corrected and retained. All known selected repairs accepted. Priority: stop repairs, human selective checkpoint, prepare owner-run full-suite command/prerequisites. Preparation only for K; no execution or source edits. Final suite and independent accounting, child/parent closure and final check-in still outstanding. Supersedes prior import-correction pending state.

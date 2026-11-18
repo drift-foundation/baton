@@ -1,0 +1,23 @@
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... FAIL
+
+======================================================================
+FAIL: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 28, in test_useful_correction_reaches_managed_target
+    observed = artifact()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 268112, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-11-18T06:16:48.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+----------------------------------------------------------------------
+Ran 1 test in 2.195s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1

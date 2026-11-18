@@ -118,6 +118,35 @@ def disk_backed_under(case):
     return place
 
 
+def remove_owned_root(place):
+    """Remove one FIXTURE-OWNED root whole, however the product froze what is under it.
+
+    W384870 (five-groups-20261118): nine fixtures left 262 roots under `/var/tmp` in one
+    run because the product makes delivered launch, attempt, publication and sealed trees
+    read-only ON PURPOSE (0555 directories, 0444 files, even 0-mode roots) and
+    `shutil.rmtree(..., ignore_errors=True)` then fails SILENTLY on every one of them.
+    Owner access is restored on each real directory first -- the root is this fixture's
+    own, made by `mkdtemp`, so that is not a custody violation -- and the removal is then
+    NOT allowed to fail quietly: a fixture that cannot take its own root away reports it.
+
+    LINKS ARE NOT FOLLOWED. A symlink inside the root is removed as a link; whatever it
+    points at is somebody else's and keeps its bytes and its modes. The root itself must
+    be a real directory for the same reason.
+    """
+    if os.path.islink(place) or not os.path.isdir(place):
+        raise AssertionError(f"{place} is not a fixture-owned directory")
+
+    def restore(path):
+        os.chmod(path, 0o700)
+        with os.scandir(path) as entries:
+            for entry in entries:
+                if entry.is_dir(follow_symlinks=False):
+                    restore(entry.path)
+
+    restore(place)
+    shutil.rmtree(place)
+
+
 def _forcibly_remove(place):
     for current, _directories, files in os.walk(place):
         try:

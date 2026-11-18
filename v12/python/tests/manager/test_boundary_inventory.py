@@ -12394,7 +12394,12 @@ class EveryProbeProvesItArrived(BoundaryCase):
         for dropped in (answering[0], answering[len(answering) // 2], answering[-1]):
             with self.subTest(dropped=dropped):
                 newly = _unprobed(wanted, declared - {dropped}) - baseline
-                self.assertEqual({pair[0] for pair in newly}, {dropped[0]})
+                # W384870 (five-groups-20261118): SORTED LISTS, not sets. The verdict is the
+                # same -- exactly the dropped entry is newly unprobed -- but a set against a
+                # set renders a nonempty difference in hash order, which is the W10265
+                # defect this very function was ruled free of. `test_diagnostic_rendering`
+                # pins the shape.
+                self.assertEqual(sorted({pair[0] for pair in newly}), [dropped[0]])
                 self.assertTrue(all(_probe_covers(dropped[1], label) for _, label in newly))
 
     def shadowed_by(self, shadow, shadowed, run):

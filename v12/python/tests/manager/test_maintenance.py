@@ -28,6 +28,7 @@ from baton_v12.contracts.errors import name_value
 from baton_v12.worker_manager import custody, maintenance, oci, tokens, workspaces
 
 from . import input_roots
+from . import disk_roots
 
 IMAGE = "sha256:" + "c" * 64
 
@@ -3308,8 +3309,11 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
         and the fallback's `lstat` answers about the LINK -- which exists -- so the
         establishment refuses instead of recording either an absence or the target's identity.
         """
-        target = os.path.join(tempfile.mkdtemp(prefix="v12-foreign-"),
-                              "somebody-elses-result")
+        foreign = tempfile.mkdtemp(prefix="v12-foreign-")
+        # W384870: the foreign tree is the fixture's to make and the fixture's to remove
+        # AFTER the refusal it exists for; the refusal itself must not touch it.
+        self.addCleanup(disk_roots.remove_owned_root, foreign)
+        target = os.path.join(foreign, "somebody-elses-result")
         os.makedirs(target, exist_ok=True)
         place = self.expected("result")
         os.rmdir(place)
@@ -3352,6 +3356,10 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
     def substituted(self, place, target=None):
         """Move `place` aside and put a link to a foreign empty directory at its path."""
         made = target or tempfile.mkdtemp(prefix="v12-substituted-")
+        if target is None:
+            # W384870: the substituted foreign directory is fixture-made, so it is
+            # fixture-removed once the case has proved the manager left it alone.
+            self.addCleanup(disk_roots.remove_owned_root, made)
         os.rename(place, place + "-original")
         os.symlink(made, place)
         return made

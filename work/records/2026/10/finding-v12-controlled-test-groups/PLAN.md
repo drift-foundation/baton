@@ -1,4 +1,63 @@
 
+## 2026-11-18T06-55-14Z — import correction accepted; ready for human checkpoint
+
+Read `review-2026-11-18T06-55-14Z.md`. Author ordinary module 100/100; independent ordinary class 10/10, stable source, zero residue; exact candidate hashes verified. Evidence corrected and retained. All known selected repairs accepted. Priority: stop repairs, human selective checkpoint, prepare owner-run full-suite command/prerequisites. Preparation only for K; no execution or source edits. Final suite and independent accounting, child/parent closure and final check-in still outstanding. Supersedes prior import-correction pending state.
+
+
+## 2026-11-18 — K: import correction done; batch complete, awaiting technical + priority review
+
+`evidence/b5-test-issues-and-leaks-20261118/RESULT.md` correction section: supported `from tools import
+integration_bundle`; ordinary test-one 100/100, shard entry 10/10, residue 0; evidence record completed (verbatim
+workaround command, preserved initial-failure line, per-run listings). Candidate 14 test files over 314e067c. Next:
+review; owner selective Git checkpoint; K prepares the exact durable-log full-suite command + prerequisites for
+Slawomir (owner runs it); final accounting; independent review; closure.
+
+## 2026-11-18T06-49-00Z — test issues and cleanup accepted; focused-run import correction next
+
+Read `review-2026-11-18T06-49-00Z.md`. Independent 377/377 in 19.8 s, stable source, zero owned residue; fourteen candidate hashes verified. Two test issues and cleanup implementation accepted. One remaining bounded correction: managed-preparation top-level import breaks ordinary `just test-one`, independently reproduced. K fixes that import and completes the exact-command/per-run evidence record, verifies the ordinary module command, then returns for review. Priority CONTINUE for this correction only; no groups/full/live/Docker runs. This supersedes the prior two-issues/nine-sites pending state. Owner checkpoint and owner-run accounted full suite follow acceptance.
+
+
+## 2026-11-18 — K: queued test issues + nine leak sites repaired; awaiting technical + priority review
+
+`evidence/b5-test-issues-and-leaks-20261118/RESULT.md`. Fixture-only candidate, 14 files over 314e067c (incl. the
+accepted G2 pair). Rendering pin and inventory assertion both keep W10265 rendering and Stage B detection; operator
+view isolates each case's verification root and proves a foreign shard's view survives (4 concurrent module runs
+clean); `disk_roots.remove_owned_root` closes all nine leak sites with 0 residue per module. One observation queued:
+`test_managed_preparation` imports `integration_bundle` top-level and runs only under the runner's sys.path. Next
+after acceptance: owner Git checkpoint; exact durable-log full-suite command + prerequisites for Slawomir; final
+accounting; independent review; closure.
+
+## 2026-11-18T06-32-07Z — G2 independently accepted; bounded final fixture batch released
+
+Read `review-2026-11-18T06-32-07Z.md`. Independent 26/26 in 22.7 s, source stable, zero residue; exact candidate hashes verified. G2 twenty-two affected IDs repaired, successful correction and counted reopen preserved. Priority CONTINUE: next K repairs the two recorded test issues and nine fixture leak sites with focused deterministic verification; no broad/group/full run. This supersedes the preceding G2-only and awaiting-review state. Return for technical AND priority review; then owner checkpoint and owner-run accounted full suite. No Git or claim change.
+
+
+## 2026-11-18 — K: G2 repaired (22 ids, test-side); awaiting technical + priority review
+
+`evidence/b5-g2-correction-restart-20261118/RESULT.md`. Traced cause: simulated container lacked the image's
+`PYTHONDONTWRITEBYTECODE=1`, harness bytecode mutated the derived tree, product correctly refused, child log empty;
+plus validator drift to the `/5` launch wrapper. Fixture-only candidate (2 files) over 314e067c; module 26/26 incl.
+two new witnesses (retained cause; harness-mutation refusal). Positive useful-correction and counted-reopen proved
+first, negatives and transaction boundary after. Queued, untouched: diagnostic-rendering pin, operator-view
+shared-root residue, nine leak sites; then owner checkpoint and the final accounted suite.
+
+## 2026-11-18T05-42-59Z — five-group measurement accepted; G2 successful workflow next
+
+Read `review-2026-11-18T05-42-59Z.md`.10504 collected/10480 passed/5 failed/19 setup-blocked;24 affected IDs=knownG2 twenty-two+two test issues. Exact source/ledger verification completed; authority/job_manager/integration green. Coordinator safely removed63 exact run-created roots and restored376-name baseline, evidence retained; nine fixture leak sites remain. Priority CONTINUE: measurement found no large new product backlog. K next captures preparation-child cause and proves useful correction + counted reopen end to end, then associated negative/transaction tests; no other repair/group/full run before technical+priority handoff. New test issues queued, no new product decision required solely by stale assertion shape.
+
+
+## 2026-11-18 — K: five groups measured; remainder 24 ids (G2 22 + 2 new) awaiting technical + priority review
+
+`evidence/five-groups-20261118/RESULT.md`. Source 314e067c stable (digest 194edb1f…) across authority 423,
+job_manager 1524, integration 796 (all OK), manager-pure 4420 (1 failed), tools-pure 3341 (4 failed, 2 fixture
+errors, 19 unaccounted); 271 s total at 8 workers. KNOWN G2 unchanged (22, one fixture cause). NEW:
+`test_diagnostic_rendering...sorted_list_with_an_empty_list` (W10265 pin contradicted by Stage B a8cbc9745;
+deterministic; needs a pin-vs-proof choice) and `test_operator_verification_view...view_is_gone_after_every_refusal`
+(shared `/tmp` residue listing across concurrent shards; inferred race). Fixture leaks: 262 roots at nine sites
+(test_sealing new); 199 removed, 63 frozen-dir roots left for the owner (`remove-remaining-roots.sh`). Nothing
+repaired or retried. Next, after review: G2 preparation trace + two new causes + leak sites as the owner selects;
+owner checkpoint; final accounted full suite.
+
 ## 2026-11-18T04-29-34Z — G3 accepted; five non-engine groups released for measurement
 
 Read `review-2026-11-18T04-29-34Z.md`. Independent14/14 and both original counterexamples pass/refuse as intended, candidate/source verified. Known remainder G2 twenty-two plus fixture leak sites. Priority verdict CONTINUE to owner-selected one run each authority/job_manager/manager-pure/tools-pure/integration. Verification/report only, stable source and exact accounted outcomes; no repairs/retries before technical+priority review. No full/live/Docker/scans/supervised selection; codexpc idle.

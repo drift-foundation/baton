@@ -1,0 +1,316 @@
+[integration] started 2026-11-18T05:34:53Z group integration jobs 8 account keep-going timeout 3600s (test-group recipe invocation + --summary)
+[integration] git HEAD 314e067c9e3dc048054293f0d35ea9b25de2cdb2 status-lines 1
+[integration] source HEAD 314e067c9e3dc048054293f0d35ea9b25de2cdb2 changed-files 0 consumed-input-files 41 content-digest 194edb1f466ae2d4dc811c932ed2509f49e9c0b22bcff9429017fbde32cbb3b9
+[integration] python 3.13.7 jsonschema 4.26.0 uid 1000 cpus 32 tmpfs-tmp tmpfs disk-root /var/tmp
+[collect] start 1/8 tests.integration.test_coordinator
+[collect] start 2/8 tests.integration.test_runtime
+[collect] start 3/8 tests.integration.test_admission
+[collect] start 4/8 tests.integration.test_execution
+[collect] start 5/8 tests.integration.test_recovery
+[collect] start 6/8 tests.integration.test_managed_execution
+[collect] start 7/8 tests.integration.test_managed_storage
+[collect] start 8/8 tests.integration.test_reconciliation
+[collect] done  1/8 tests.integration.test_runtime rc=0 in 0.18s
+[collect] done  2/8 tests.integration.test_recovery rc=0 in 0.18s
+[collect] done  3/8 tests.integration.test_managed_execution rc=0 in 0.18s
+[collect] done  4/8 tests.integration.test_coordinator rc=0 in 0.20s
+[collect] done  5/8 tests.integration.test_admission rc=0 in 0.20s
+[collect] done  6/8 tests.integration.test_execution rc=0 in 0.20s
+[collect] done  7/8 tests.integration.test_reconciliation rc=0 in 0.20s
+[collect] done  8/8 tests.integration.test_managed_storage rc=0 in 0.21s
+[collect-serial] start 1/1 tests.integration.test_driver
+[collect-serial] done  1/1 tests.integration.test_driver rc=0 in 0.18s
+[parallel] start 1/91 tests.integration.test_admission.AcceptedAccount
+[parallel] start 2/91 tests.integration.test_admission.RefusalBeforeMutation
+[parallel] start 3/91 tests.integration.test_admission.SourceEligibilityIsNotResultFreshness
+[parallel] start 4/91 tests.integration.test_admission.TheInputManifestIsReReadNotTrusted
+[parallel] start 5/91 tests.integration.test_coordinator.ABlockIsAboutOneExactGrant
+[parallel] start 6/91 tests.integration.test_coordinator.ABlockedTargetIsONERELATIONSHIP
+[parallel] start 7/91 tests.integration.test_coordinator.AGrantIsProvedLiveWhereItIsUsed
+[parallel] start 8/91 tests.integration.test_coordinator.DistinctTargetsDoNotSerializeEachOther
+[parallel] done  1/91 tests.integration.test_admission.TheInputManifestIsReReadNotTrusted rc=0 in 0.21s
+[parallel] done  2/91 tests.integration.test_coordinator.DistinctTargetsDoNotSerializeEachOther rc=0 in 0.21s
+[parallel] start 9/91 tests.integration.test_coordinator.EveryMemberOfTheAccountHasAProducer
+[parallel] start 10/91 tests.integration.test_coordinator.EveryRecordedActIsProvedWhole
+[parallel] done  3/91 tests.integration.test_admission.AcceptedAccount rc=0 in 0.23s
+[parallel] done  4/91 tests.integration.test_admission.SourceEligibilityIsNotResultFreshness rc=0 in 0.23s
+[parallel] start 11/91 tests.integration.test_coordinator.EveryRetryIsPROVEDBeforeItIsAnswered
+[parallel] start 12/91 tests.integration.test_coordinator.NoLeaseEndsOverUnresolvedWork
+[parallel] done  5/91 tests.integration.test_admission.RefusalBeforeMutation rc=0 in 0.28s
+[parallel] done  6/91 tests.integration.test_coordinator.AGrantIsProvedLiveWhereItIsUsed rc=0 in 0.28s
+[parallel] start 13/91 tests.integration.test_coordinator.NothingExpiresAndRecoveryIsExplicit
+[parallel] start 14/91 tests.integration.test_coordinator.OneLiveLeasePerTarget
+[parallel] done  7/91 tests.integration.test_coordinator.ABlockIsAboutOneExactGrant rc=0 in 0.31s
+[parallel] start 15/91 tests.integration.test_coordinator.OneProofObservesOneSnapshot
+[parallel] done  8/91 tests.integration.test_coordinator.ABlockedTargetIsONERELATIONSHIP rc=0 in 0.37s
+[parallel] start 16/91 tests.integration.test_coordinator.PersistedEvidenceIsProvedWhereItIsREAD
+[parallel] done  9/91 tests.integration.test_coordinator.EveryMemberOfTheAccountHasAProducer rc=0 in 0.24s
+[parallel] start 17/91 tests.integration.test_coordinator.RankIsAllocatedInTheEnqueueTransaction
+[parallel] done  10/91 tests.integration.test_coordinator.NoLeaseEndsOverUnresolvedWork rc=0 in 0.27s
+[parallel] start 18/91 tests.integration.test_coordinator.ReadOnlyOpening
+[parallel] done  11/91 tests.integration.test_coordinator.OneLiveLeasePerTarget rc=0 in 0.26s
+[parallel] start 19/91 tests.integration.test_coordinator.RefusedActsAreEvidenceToo
+[parallel] done  12/91 tests.integration.test_coordinator.NothingExpiresAndRecoveryIsExplicit rc=0 in 0.30s
+[parallel] done  13/91 tests.integration.test_coordinator.OneProofObservesOneSnapshot rc=0 in 0.27s
+[parallel] start 20/91 tests.integration.test_coordinator.SettlementIsProvedAtBothCutpoints
+[parallel] start 21/91 tests.integration.test_coordinator.SettlementsAndEndingsAreOwnedVariants
+[parallel] done  14/91 tests.integration.test_coordinator.PersistedEvidenceIsProvedWhereItIsREAD rc=0 in 0.27s
+[parallel] start 22/91 tests.integration.test_coordinator.TargetIdentityIsConfigurationS
+[parallel] done  15/91 tests.integration.test_coordinator.RankIsAllocatedInTheEnqueueTransaction rc=0 in 0.25s
+[parallel] start 23/91 tests.integration.test_coordinator.TheCoordinatorVocabularyIsVCSNEUTRAL
+[parallel] done  16/91 tests.integration.test_coordinator.EveryRetryIsPROVEDBeforeItIsAnswered rc=0 in 0.55s
+[parallel] start 24/91 tests.integration.test_coordinator.TheGraphDoesNotDependOnWhatThisProcessREMEMBERS
+[parallel] done  17/91 tests.integration.test_coordinator.EveryRecordedActIsProvedWhole rc=0 in 0.61s
+[parallel] done  18/91 tests.integration.test_coordinator.RefusedActsAreEvidenceToo rc=0 in 0.27s
+[parallel] start 25/91 tests.integration.test_coordinator.TheJournalIsTheDurableHistory
+[parallel] start 26/91 tests.integration.test_coordinator.TheORDERIsTheWitnessForWhatWasGENERATED
+[parallel] done  19/91 tests.integration.test_coordinator.TargetIdentityIsConfigurationS rc=0 in 0.24s
+[parallel] start 27/91 tests.integration.test_coordinator.TheStateGraphIsProvedFromBothSides
+[parallel] done  20/91 tests.integration.test_coordinator.ReadOnlyOpening rc=0 in 0.39s
+[parallel] start 28/91 tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance
+[parallel] done  21/91 tests.integration.test_coordinator.SettlementsAndEndingsAreOwnedVariants rc=0 in 0.32s
+[parallel] start 29/91 tests.integration.test_coordinator.TheTwoRefusalsAreNotOneState
+[parallel] done  22/91 tests.integration.test_coordinator.SettlementIsProvedAtBothCutpoints rc=0 in 0.36s
+[parallel] done  23/91 tests.integration.test_coordinator.TheCoordinatorVocabularyIsVCSNEUTRAL rc=0 in 0.23s
+[parallel] start 30/91 tests.integration.test_coordinator.TheValueValidatedIsTheValueUsed
+[parallel] start 31/91 tests.integration.test_coordinator.TheWholeLifecycleIsProved
+[parallel] done  24/91 tests.integration.test_coordinator.TheGraphDoesNotDependOnWhatThisProcessREMEMBERS rc=0 in 0.21s
+[parallel] start 32/91 tests.integration.test_coordinator.TwoAuthoritiesContendOnOneLock
+[parallel] done  25/91 tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance rc=0 in 0.26s
+[parallel] start 33/91 tests.integration.test_execution.AGrantThatEndedWhileTheModelRanCannotSettle
+[parallel] done  26/91 tests.integration.test_coordinator.TheORDERIsTheWitnessForWhatWasGENERATED rc=0 in 0.35s
+[parallel] start 34/91 tests.integration.test_execution.AnUnansweredAttemptIsReportedAndLeftAlone
+[parallel] done  27/91 tests.integration.test_coordinator.TheStateGraphIsProvedFromBothSides rc=0 in 0.29s
+[parallel] start 35/91 tests.integration.test_execution.OneCleanImportChangesExactlyTheDeclaredPath
+[parallel] done  28/91 tests.integration.test_coordinator.TheValueValidatedIsTheValueUsed rc=0 in 0.24s
+[parallel] start 36/91 tests.integration.test_execution.OnlyANOTSTARTEDAttemptIsAskedToRun
+[parallel] done  29/91 tests.integration.test_coordinator.TwoAuthoritiesContendOnOneLock rc=0 in 0.24s
+[parallel] start 37/91 tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb
+[parallel] done  30/91 tests.integration.test_coordinator.TheTwoRefusalsAreNotOneState rc=0 in 0.35s
+[parallel] start 38/91 tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled
+[parallel] done  31/91 tests.integration.test_coordinator.TheJournalIsTheDurableHistory rc=0 in 0.51s
+[parallel] start 39/91 tests.integration.test_execution.TheDirectFinalizationRefusesBeforeItWritesAnything
+[parallel] done  32/91 tests.integration.test_execution.AGrantThatEndedWhileTheModelRanCannotSettle rc=0 in 0.27s
+[parallel] start 40/91 tests.integration.test_execution.TheGrantIsProvedAgainRIGHTBeforeTheModelWrites
+[parallel] done  33/91 tests.integration.test_execution.AnUnansweredAttemptIsReportedAndLeftAlone rc=0 in 0.35s
+[parallel] start 41/91 tests.integration.test_execution.TheModelSCLAIMEarnsExactlyOneVerb
+[parallel] done  34/91 tests.integration.test_execution.TheDirectFinalizationRefusesBeforeItWritesAnything rc=0 in 0.29s
+[parallel] start 42/91 tests.integration.test_execution.ThePortIsInjectedAndTyped
+[parallel] done  35/91 tests.integration.test_execution.OneCleanImportChangesExactlyTheDeclaredPath rc=0 in 0.49s
+[parallel] start 43/91 tests.integration.test_execution.TheSmallestEligibleEntryIsTheONEThatRuns
+[parallel] done  36/91 tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb rc=0 in 0.47s
+[parallel] start 44/91 tests.integration.test_execution.UnreadableOrForeignMaterialHoldsTheTarget
+[parallel] done  37/91 tests.integration.test_execution.TheGrantIsProvedAgainRIGHTBeforeTheModelWrites rc=0 in 0.32s
+[parallel] start 45/91 tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules
+[parallel] done  38/91 tests.integration.test_execution.OnlyANOTSTARTEDAttemptIsAskedToRun rc=0 in 0.70s
+[parallel] start 46/91 tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer
+[parallel] done  39/91 tests.integration.test_coordinator.TheWholeLifecycleIsProved rc=0 in 0.97s
+[parallel] start 47/91 tests.integration.test_managed_execution.ThePreparationRequestComesBeforeAnythingExists
+[parallel] done  40/91 tests.integration.test_execution.ThePortIsInjectedAndTyped rc=0 in 0.30s
+[parallel] start 48/91 tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase
+[parallel] done  41/91 tests.integration.test_execution.TheModelSCLAIMEarnsExactlyOneVerb rc=0 in 0.43s
+[parallel] done  42/91 tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules rc=0 in 0.18s
+[parallel] start 49/91 tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor
+[parallel] start 50/91 tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther
+[parallel] done  43/91 tests.integration.test_execution.UnreadableOrForeignMaterialHoldsTheTarget rc=0 in 0.35s
+[parallel] start 51/91 tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes
+[parallel] done  44/91 tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer rc=0 in 0.18s
+[parallel] start 52/91 tests.integration.test_managed_storage.AnIdentityIsNotAGrammar
+[parallel] done  45/91 tests.integration.test_managed_execution.ThePreparationRequestComesBeforeAnythingExists rc=0 in 0.17s
+[parallel] start 53/91 tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation
+[parallel] done  46/91 tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase rc=0 in 0.18s
+[parallel] done  47/91 tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor rc=0 in 0.17s
+[parallel] start 54/91 tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable
+[parallel] start 55/91 tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements
+[parallel] done  48/91 tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther rc=0 in 0.18s
+[parallel] start 56/91 tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner
+[parallel] done  49/91 tests.integration.test_execution.TheSmallestEligibleEntryIsTheONEThatRuns rc=0 in 0.47s
+[parallel] start 57/91 tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected
+[parallel] done  50/91 tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes rc=0 in 0.25s
+[parallel] done  51/91 tests.integration.test_managed_storage.AnIdentityIsNotAGrammar rc=0 in 0.24s
+[parallel] start 58/91 tests.integration.test_managed_storage.ThePublicWritersOverlapAtTheTransactionBoundary
+[parallel] start 59/91 tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct
+[parallel] done  52/91 tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable rc=0 in 0.23s
+[parallel] start 60/91 tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem
+[parallel] done  53/91 tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation rc=0 in 0.27s
+[parallel] start 61/91 tests.integration.test_managed_storage.TheTwoActFamiliesCannotMeet
+[parallel] done  54/91 tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner rc=0 in 0.36s
+[parallel] start 62/91 tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult
+[parallel] done  55/91 tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct rc=0 in 0.26s
+[parallel] start 63/91 tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses
+[parallel] done  56/91 tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem rc=0 in 0.27s
+[parallel] done  57/91 tests.integration.test_managed_storage.TheTwoActFamiliesCannotMeet rc=0 in 0.25s
+[parallel] start 64/91 tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition
+[parallel] start 65/91 tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold
+[parallel] done  58/91 tests.integration.test_managed_storage.ThePublicWritersOverlapAtTheTransactionBoundary rc=0 in 0.33s
+[parallel] start 66/91 tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment
+[parallel] done  59/91 tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult rc=0 in 0.32s
+[parallel] start 67/91 tests.integration.test_reconciliation.OriginalSubmissionIsImmutable
+[parallel] done  60/91 tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses rc=0 in 0.30s
+[parallel] start 68/91 tests.integration.test_reconciliation.PreparedResultReplaysItsIntent
+[parallel] done  61/91 tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled rc=0 in 1.70s
+[parallel] start 69/91 tests.integration.test_reconciliation.ResultReadersRejectTampering
+[parallel] done  62/91 tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected rc=0 in 0.97s
+[parallel] start 70/91 tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes
+[parallel] done  63/91 tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold rc=0 in 0.63s
+[parallel] start 71/91 tests.integration.test_reconciliation.TheImportedStateIsUnproved
+[parallel] done  64/91 tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment rc=0 in 0.75s
+[parallel] start 72/91 tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved
+[parallel] done  65/91 tests.integration.test_reconciliation.OriginalSubmissionIsImmutable rc=0 in 0.63s
+[parallel] start 73/91 tests.integration.test_reconciliation.TheNominatedStorageIsProved
+[parallel] done  66/91 tests.integration.test_reconciliation.PreparedResultReplaysItsIntent rc=0 in 0.85s
+[parallel] start 74/91 tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners
+[parallel] done  67/91 tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements rc=0 in 1.75s
+[parallel] start 75/91 tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved
+[parallel] done  68/91 tests.integration.test_reconciliation.TheImportedStateIsUnproved rc=0 in 0.65s
+[parallel] start 76/91 tests.integration.test_recovery.RestartAlwaysHolds
+[parallel] done  69/91 tests.integration.test_reconciliation.ResultReadersRejectTampering rc=0 in 1.09s
+[parallel] start 77/91 tests.integration.test_recovery.StatusAndExplicitRecovery
+[parallel] done  70/91 tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved rc=0 in 0.69s
+[parallel] start 78/91 tests.integration.test_runtime.AdoptionProvesMANAGERCustody
+[parallel] done  71/91 tests.integration.test_recovery.RestartAlwaysHolds rc=0 in 0.38s
+[parallel] start 79/91 tests.integration.test_runtime.AdoptionProvesTheROOTAsWellAsItsChildren
+[parallel] done  72/91 tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners rc=0 in 0.60s
+[parallel] start 80/91 tests.integration.test_runtime.AnInterruptionProducesAHoldAndNothingElse
+[parallel] done  73/91 tests.integration.test_reconciliation.TheNominatedStorageIsProved rc=0 in 0.93s
+[parallel] start 81/91 tests.integration.test_runtime.OneObservationDocumentAndOneAnswer
+[parallel] done  74/91 tests.integration.test_runtime.AdoptionProvesMANAGERCustody rc=0 in 0.31s
+[parallel] start 82/91 tests.integration.test_runtime.PerAttemptDeliveriesDoNotCollide
+[parallel] done  75/91 tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition rc=0 in 1.79s
+[parallel] start 83/91 tests.integration.test_runtime.PublicationIsTheINHERITEDMechanism
+[parallel] done  76/91 tests.integration.test_recovery.StatusAndExplicitRecovery rc=0 in 0.48s
+[parallel] start 84/91 tests.integration.test_runtime.TheDeliveryIsDurableAndManagerCustodied
+[parallel] done  77/91 tests.integration.test_runtime.AdoptionProvesTheROOTAsWellAsItsChildren rc=0 in 0.30s
+[parallel] start 85/91 tests.integration.test_runtime.TheGrantDecidesEveryIdentityInTheAssignment
+[parallel] done  78/91 tests.integration.test_runtime.AnInterruptionProducesAHoldAndNothingElse rc=0 in 0.27s
+[parallel] start 86/91 tests.integration.test_runtime.TheIntegrationBoundaryIsVCSNeutral
+[parallel] done  79/91 tests.integration.test_runtime.OneObservationDocumentAndOneAnswer rc=0 in 0.25s
+[parallel] start 87/91 tests.integration.test_runtime.ThePriorRuntimeIsPROVEDUnableToMutate
+[parallel] done  80/91 tests.integration.test_runtime.PublicationIsTheINHERITEDMechanism rc=0 in 0.31s
+[parallel] start 88/91 tests.integration.test_runtime.TheProfileIsWiringAndNotAPlan
+[parallel] done  81/91 tests.integration.test_runtime.TheIntegrationBoundaryIsVCSNeutral rc=0 in 0.18s
+[parallel] start 89/91 tests.integration.test_runtime.ThePublishedAssignmentIsReadableAsADocument
+[parallel] done  82/91 tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes rc=0 in 1.78s
+[parallel] done  83/91 tests.integration.test_runtime.TheGrantDecidesEveryIdentityInTheAssignment rc=0 in 0.30s
+[parallel] start 90/91 tests.integration.test_runtime.TheRuntimeSCLAIMIsNotASettlement
+[parallel] start 91/91 tests.integration.test_runtime.WritableAccessNeedsTheLiveGrant
+[parallel] done  84/91 tests.integration.test_runtime.TheProfileIsWiringAndNotAPlan rc=0 in 0.17s
+[parallel] done  85/91 tests.integration.test_runtime.ThePublishedAssignmentIsReadableAsADocument rc=0 in 0.31s
+[parallel] done  86/91 tests.integration.test_runtime.TheDeliveryIsDurableAndManagerCustodied rc=0 in 0.65s
+[parallel] done  87/91 tests.integration.test_runtime.TheRuntimeSCLAIMIsNotASettlement rc=0 in 0.34s
+[parallel] done  88/91 tests.integration.test_runtime.ThePriorRuntimeIsPROVEDUnableToMutate rc=0 in 0.65s
+[parallel] done  89/91 tests.integration.test_runtime.PerAttemptDeliveriesDoNotCollide rc=0 in 0.88s
+[parallel] done  90/91 tests.integration.test_runtime.WritableAccessNeedsTheLiveGrant rc=0 in 0.39s
+[parallel] done  91/91 tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved rc=0 in 1.44s
+[group] integration: 8 parallel, 1 serial, 0 supervised modules
+[collect-serial] 1 serial modules -> 112 tests
+[collect] 8 parallel modules -> 684 tests in 91 shards
+[parallel] jobs=8 (available CPUs 32)
+--- parallel source ---
+[pass] tests.integration.test_admission.AcceptedAccount (4 tests)
+[pass] tests.integration.test_admission.RefusalBeforeMutation (11 tests)
+[pass] tests.integration.test_admission.SourceEligibilityIsNotResultFreshness (4 tests)
+[pass] tests.integration.test_admission.TheInputManifestIsReReadNotTrusted (2 tests)
+[pass] tests.integration.test_coordinator.ABlockIsAboutOneExactGrant (8 tests)
+[pass] tests.integration.test_coordinator.ABlockedTargetIsONERELATIONSHIP (11 tests)
+[pass] tests.integration.test_coordinator.AGrantIsProvedLiveWhereItIsUsed (7 tests)
+[pass] tests.integration.test_coordinator.DistinctTargetsDoNotSerializeEachOther (1 tests)
+[pass] tests.integration.test_coordinator.EveryMemberOfTheAccountHasAProducer (8 tests)
+[pass] tests.integration.test_coordinator.EveryRecordedActIsProvedWhole (11 tests)
+[pass] tests.integration.test_coordinator.EveryRetryIsPROVEDBeforeItIsAnswered (8 tests)
+[pass] tests.integration.test_coordinator.NoLeaseEndsOverUnresolvedWork (5 tests)
+[pass] tests.integration.test_coordinator.NothingExpiresAndRecoveryIsExplicit (8 tests)
+[pass] tests.integration.test_coordinator.OneLiveLeasePerTarget (5 tests)
+[pass] tests.integration.test_coordinator.OneProofObservesOneSnapshot (7 tests)
+[pass] tests.integration.test_coordinator.PersistedEvidenceIsProvedWhereItIsREAD (6 tests)
+[pass] tests.integration.test_coordinator.RankIsAllocatedInTheEnqueueTransaction (8 tests)
+[pass] tests.integration.test_coordinator.ReadOnlyOpening (19 tests)
+[pass] tests.integration.test_coordinator.RefusedActsAreEvidenceToo (7 tests)
+[pass] tests.integration.test_coordinator.SettlementIsProvedAtBothCutpoints (10 tests)
+[pass] tests.integration.test_coordinator.SettlementsAndEndingsAreOwnedVariants (9 tests)
+[pass] tests.integration.test_coordinator.TargetIdentityIsConfigurationS (6 tests)
+[pass] tests.integration.test_coordinator.TheCoordinatorVocabularyIsVCSNEUTRAL (6 tests)
+[pass] tests.integration.test_coordinator.TheGraphDoesNotDependOnWhatThisProcessREMEMBERS (2 tests)
+[pass] tests.integration.test_coordinator.TheJournalIsTheDurableHistory (18 tests)
+[pass] tests.integration.test_coordinator.TheORDERIsTheWitnessForWhatWasGENERATED (10 tests)
+[pass] tests.integration.test_coordinator.TheStateGraphIsProvedFromBothSides (5 tests)
+[pass] tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance (8 tests)
+[pass] tests.integration.test_coordinator.TheTwoRefusalsAreNotOneState (10 tests)
+[pass] tests.integration.test_coordinator.TheValueValidatedIsTheValueUsed (4 tests)
+[pass] tests.integration.test_coordinator.TheWholeLifecycleIsProved (3 tests)
+[pass] tests.integration.test_coordinator.TwoAuthoritiesContendOnOneLock (4 tests)
+[pass] tests.integration.test_execution.AGrantThatEndedWhileTheModelRanCannotSettle (2 tests)
+[pass] tests.integration.test_execution.AnUnansweredAttemptIsReportedAndLeftAlone (4 tests)
+[pass] tests.integration.test_execution.OneCleanImportChangesExactlyTheDeclaredPath (7 tests)
+[pass] tests.integration.test_execution.OnlyANOTSTARTEDAttemptIsAskedToRun (7 tests)
+[pass] tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb (7 tests)
+[pass] tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled (11 tests)
+[pass] tests.integration.test_execution.TheDirectFinalizationRefusesBeforeItWritesAnything (3 tests)
+[pass] tests.integration.test_execution.TheGrantIsProvedAgainRIGHTBeforeTheModelWrites (3 tests)
+[pass] tests.integration.test_execution.TheModelSCLAIMEarnsExactlyOneVerb (5 tests)
+[pass] tests.integration.test_execution.ThePortIsInjectedAndTyped (3 tests)
+[pass] tests.integration.test_execution.TheSmallestEligibleEntryIsTheONEThatRuns (6 tests)
+[pass] tests.integration.test_execution.UnreadableOrForeignMaterialHoldsTheTarget (5 tests)
+[pass] tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules (9 tests)
+[pass] tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer (13 tests)
+[pass] tests.integration.test_managed_execution.ThePreparationRequestComesBeforeAnythingExists (9 tests)
+[pass] tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase (7 tests)
+[pass] tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor (10 tests)
+[pass] tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther (15 tests)
+[pass] tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes (4 tests)
+[pass] tests.integration.test_managed_storage.AnIdentityIsNotAGrammar (3 tests)
+[pass] tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation (6 tests)
+[pass] tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable (3 tests)
+[pass] tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements (17 tests)
+[pass] tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner (13 tests)
+[pass] tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected (14 tests)
+[pass] tests.integration.test_managed_storage.ThePublicWritersOverlapAtTheTransactionBoundary (2 tests)
+[pass] tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct (4 tests)
+[pass] tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem (6 tests)
+[pass] tests.integration.test_managed_storage.TheTwoActFamiliesCannotMeet (5 tests)
+[pass] tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult (2 tests)
+[pass] tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses (8 tests)
+[pass] tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition (13 tests)
+[pass] tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold (7 tests)
+[pass] tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment (5 tests)
+[pass] tests.integration.test_reconciliation.OriginalSubmissionIsImmutable (4 tests)
+[pass] tests.integration.test_reconciliation.PreparedResultReplaysItsIntent (6 tests)
+[pass] tests.integration.test_reconciliation.ResultReadersRejectTampering (9 tests)
+[pass] tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes (13 tests)
+[pass] tests.integration.test_reconciliation.TheImportedStateIsUnproved (4 tests)
+[pass] tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved (5 tests)
+[pass] tests.integration.test_reconciliation.TheNominatedStorageIsProved (11 tests)
+[pass] tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners (6 tests)
+[pass] tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved (9 tests)
+[pass] tests.integration.test_recovery.RestartAlwaysHolds (5 tests)
+[pass] tests.integration.test_recovery.StatusAndExplicitRecovery (7 tests)
+[pass] tests.integration.test_runtime.AdoptionProvesMANAGERCustody (7 tests)
+[pass] tests.integration.test_runtime.AdoptionProvesTheROOTAsWellAsItsChildren (7 tests)
+[pass] tests.integration.test_runtime.AnInterruptionProducesAHoldAndNothingElse (4 tests)
+[pass] tests.integration.test_runtime.OneObservationDocumentAndOneAnswer (4 tests)
+[pass] tests.integration.test_runtime.PerAttemptDeliveriesDoNotCollide (34 tests)
+[pass] tests.integration.test_runtime.PublicationIsTheINHERITEDMechanism (7 tests)
+[pass] tests.integration.test_runtime.TheDeliveryIsDurableAndManagerCustodied (22 tests)
+[pass] tests.integration.test_runtime.TheGrantDecidesEveryIdentityInTheAssignment (6 tests)
+[pass] tests.integration.test_runtime.TheIntegrationBoundaryIsVCSNeutral (2 tests)
+[pass] tests.integration.test_runtime.ThePriorRuntimeIsPROVEDUnableToMutate (10 tests)
+[pass] tests.integration.test_runtime.TheProfileIsWiringAndNotAPlan (5 tests)
+[pass] tests.integration.test_runtime.ThePublishedAssignmentIsReadableAsADocument (6 tests)
+[pass] tests.integration.test_runtime.TheRuntimeSCLAIMIsNotASettlement (8 tests)
+[pass] tests.integration.test_runtime.WritableAccessNeedsTheLiveGrant (10 tests)
+[parallel source] 91 shards, 684 tests, 0 failures, 0 errors, 0 skipped -> OK[serial] start 1/1 tests.integration.test_driver
+[serial] done  1/1 tests.integration.test_driver rc=0 in 3.73s
+
+[serial] 1 source modules, one at a time
+--- serial source ---
+[pass] tests.integration.test_driver (112 tests)
+[serial source] 1 shards, 112 tests, 0 failures, 0 errors, 0 skipped -> OK
+[summary] parallel source: 684 tests, 0 failed, 0 skipped | serial source: 112 tests, 0 failed, 0 skipped -> OK
+[groups] authority=0, job_manager=0, manager-pure=0, manager-engine=0, integration=796, tools-pure=0, tools-packaged=0, supervised=0, scans=0
+--- accounting ---
+collected 796, executed 796, passed 796, optional skipped 0, required skipped 0, failed 0, errors 0, fixture skips 0, fixture errors 0, duplicates 0, unaccounted 0
+[accounting] passed 796 + optional skipped 0 = 796 of collected 796 -> OK
+[integration] runner exit 0 elapsed 9s finished 2026-11-18T05:35:03Z
+[integration] source identity stable 194edb1f466ae2d4dc811c932ed2509f49e9c0b22bcff9429017fbde32cbb3b9
+[integration] /var/tmp entries before 638 after 638
+[integration] /var/tmp unchanged

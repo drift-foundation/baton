@@ -46,6 +46,40 @@ class UsefulCorrection(unittest.TestCase):
         self.assertIsNotNone(exchange["receipt"])
         self.assertEqual(exchange["terminal"]["ending"], "faulted")
         self.assertTrue(observed["children"])
+        # W384870 G2: THE CAUSE IS RETAINED WITH THE FAULT. `baton_worker` reports an agent
+        # exception as the bounded code `agent` and never a message, so the child's own log is
+        # the only place the reason survives; an exited child with an empty log is what hid
+        # the derived-tree refusal for weeks (five-groups-20261118).
+        self.assertEqual([one["exit_status"] for one in observed["children"]], [1])
+        self.assertIn("selected preparation fault", observed["children"][0]["log"])
+        self.assertIn("Traceback", observed["children"][0]["log"])
+
+    def test_a_harness_that_writes_into_the_derived_tree_is_refused_and_the_reason_is_retained(self):
+        """The refusal that hid behind "preparation did not answer" (five-groups-20261118).
+
+        The pinned harness imports `scale`, and an interpreter that writes bytecode puts
+        `__pycache__/scale.cpython-*.pyc` into the derived tree it runs in. The product then
+        refuses to export a tree the harness changed -- correctly: the real container's image
+        sets `PYTHONDONTWRITEBYTECODE=1` for every process, so a mutated tree there IS a
+        harness that wrote. Without that environment the simulation reproduced exactly this
+        refusal with an empty child log. Removing the variable here proves both halves: the
+        product refuses a harness-mutated derived tree, and the fixture now retains why.
+        """
+        from unittest import mock
+        with mock.patch.object(proof, "CONTAINER_ENVIRONMENT", {}):
+            with mock.patch.dict(os.environ):
+                os.environ.pop("PYTHONDONTWRITEBYTECODE", None)
+                with self.assertRaises(AssertionError) as caught:
+                    artifact()
+        observed = json.loads(str(caught.exception))
+        self.assertEqual(observed["failure"], "preparation did not answer")
+        exchange = next(iter(observed["preparation"].values()))
+        self.assertEqual(exchange["terminal"]["ending"], "faulted")
+        self.assertEqual(exchange["terminal"]["fault_code"], "agent")
+        self.assertEqual([one["exit_status"] for one in observed["children"]], [1])
+        log = observed["children"][0]["log"]
+        self.assertIn("the preparation harness changed the derived candidate", log)
+        self.assertIn("PreparationRefusal", log)
 
     def test_unchanged_predecessor_artifacts_still_validate_without_execution(self):
         root = Path(__file__).resolve().parents[4]
@@ -273,7 +307,11 @@ class UsefulCorrectionInvalidEvidence(unittest.TestCase):
         self.rejects("correction names original attempt", lambda x: x["correction"]["evidence"].__setitem__("routed", x["initial"]["settlement"]["attempt_id"]), "C1-correction-route")
 
     def test_reviewer_context_or_writable_line_access_is_rejected(self):
-        self.rejects("reviewer receives producer context", lambda x: x["reviews"][0]["launch"].__setitem__("provider_context", x["initial"]["binding"]), "C1-review-context")
+        # The delivered launch is the /5 wrapper (AMENDMENT-376531): a context smuggled into the
+        # Job container payload, and one bolted onto the wrapper itself, are both refused.
+        self.rejects("reviewer receives producer context", lambda x: x["reviews"][0]["launch"]["payload"].__setitem__("provider_context", x["initial"]["binding"]), "C1-review-context")
+        self.rejects("reviewer launch wrapper carries a producer context", lambda x: x["reviews"][0]["launch"].__setitem__("provider_context", x["initial"]["binding"]), "C1-review-context")
+        self.rejects("reviewer launch is a bare /4 context document", lambda x: x["reviews"][0].__setitem__("launch", dict(x["reviews"][0]["launch"]["payload"], schema="baton.worker-launch/4", provider_context=x["initial"]["binding"])), "C1-review-context")
         def writable(x):
             source = next(m for m in x["reviews"][0]["mounts"] if m["target"] == "/input/source")
             source["source"] = x["reviews"][0]["producer_workspace"]

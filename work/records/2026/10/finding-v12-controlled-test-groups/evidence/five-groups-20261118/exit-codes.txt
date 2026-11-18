@@ -1,0 +1,5 @@
+authority 0 3
+job_manager 0 20
+manager-pure 1 66
+tools-pure 1 173
+integration 0 9

@@ -22,6 +22,7 @@ from baton_v12.job_manager import submit, sweep, ending, episodes, submission
 from baton_v12.job_manager.integration_capacity import integration_capacity_of
 from baton_v12.worker_manager import provider_context as context, context_delivery as custody
 from baton_v12.worker_manager import frozen_output_of, load_manifest, assignment_of, review_cycles
+from baton_v12.worker_manager import launch as launch_owner
 from baton_v12.worker_manager.workspaces import configure_workspace_storage
 from baton_v12.integration import reconciliation
 from tests.job_manager import fixtures
@@ -65,6 +66,28 @@ command=next(source for target,source in mounts.items() if target.endswith('/com
 events=next(source for target,source in mounts.items() if target.endswith('/events'))
 if kind=='prepare':
     import reconciliation_entry
+    import traceback
+    # W384870 G2: THE CHILD'S FAULT IS RETAINED, as the apply branch below already does.
+    # `baton_worker` turns an agent exception into a bounded `fault_code` and never a
+    # message, so without this the fixture reported an exited child with an EMPTY log and
+    # the cause had to be rediscovered by instrumentation (five-groups-20261118).
+    for _name in ('work','consider'):
+        _original=getattr(reconciliation_entry.PreparationAgent,_name)
+        def _traced(self,*args,_original=_original,_name=_name):
+            try:return _original(self,*args)
+            except BaseException:
+                print('[prepare child] '+_name+' raised',file=sys.stderr)
+                traceback.print_exc()
+                raise
+        setattr(reconciliation_entry.PreparationAgent,_name,_traced)
+    _original_handle=baton_worker.handle
+    def _traced_handle(*args):
+        try:return _original_handle(*args)
+        except BaseException:
+            print('[prepare child] handle raised',file=sys.stderr)
+            traceback.print_exc()
+            raise
+    baton_worker.handle=_traced_handle
     reconciliation_entry.PreparationAgent=functools.partial(reconciliation_entry.PreparationAgent,input_root=mounts['/input/source'],output_root=mounts['/output'],scratch=scratch)
     status=reconciliation_entry.main(place=launch,command_root=command,event_root=events)
 else:
@@ -88,6 +111,12 @@ else:
     status=integration_entry.main(launch_place=launch,command_root=command,event_root=events,bundle_root=mounts['/input/source'],scratch=scratch)
 sys.exit(status)
 '''
+
+
+# The image environment every process in a reconciliation or integration container
+# inherits (`Dockerfile.reconciliation`, `Dockerfile.integration`: `ENV PYTHONDONTWRITEBYTECODE=1`).
+# See `ProcessEngine.__call__`; `test_correction_restart` removes it to prove the refusal it caused.
+CONTAINER_ENVIRONMENT = {"PYTHONDONTWRITEBYTECODE": "1"}
 
 
 class ProcessEngine(stage_fixture._ConcurrentEngine):
@@ -154,7 +183,17 @@ class ProcessEngine(stage_fixture._ConcurrentEngine):
         if kind is not None:
             log = (Path(self.world.root) / (kind + "-" + str(len(self.events)) + ".log")).open("w+")
             worker = Path(__file__).resolve().parents[3] / "worker"
-            process = subprocess.Popen([sys.executable, "-B", "-c", MANAGED_CHILD, str(worker), json.dumps(mounts), kind, os.path.join(self.world.root, kind + "-scratch")], stdout=log, stderr=log)
+            # W384870 G2 (five-groups-20261118): THE SIMULATED CONTAINER CARRIES THE IMAGE'S
+            # ENVIRONMENT. `Dockerfile.reconciliation` and `Dockerfile.integration` declare
+            # `PYTHONDONTWRITEBYTECODE=1`, which every process in the container inherits --
+            # including the pinned harness `run_bounded` starts. Without it the harness's
+            # `from scale import scale` wrote `__pycache__/scale.cpython-313.pyc` into the
+            # derived tree, and `export_derived_objects` rightly refused a tree the harness
+            # had changed ("the preparation harness changed the derived candidate"): the
+            # product refused correctly, the simulation lacked the image's environment.
+            # `-B` on the child covers only the child's own imports, not its descendants.
+            environment = dict(os.environ, **CONTAINER_ENVIRONMENT)
+            process = subprocess.Popen([sys.executable, "-B", "-c", MANAGED_CHILD, str(worker), json.dumps(mounts), kind, os.path.join(self.world.root, kind + "-scratch")], stdout=log, stderr=log, env=environment)
             # A `run` answers the minted identity; a `start` answers nothing and NAMES it.
             self.processes[(answer["stdout"] or "").strip() or argv[-1]] = (process, log)
         return answer
@@ -677,6 +716,22 @@ def validate(artifact, *, counted_reopen=False):
             require(first_runtime["attempt_id"] != second_runtime["attempt_id"], "C1-runtime-distinct")
             require(first_runtime["assignment"]["generation"] != second_runtime["assignment"]["generation"] or initial["settlement"]["episode"] != revised["settlement"]["episode"], "C1-generation-distinct")
 
+        def launched(document, role, code):
+            """The delivered launch is the accepted `/5` wrapper around a `/3` Job container.
+
+            W384870 G2 (five-groups-20261118), the same test-side drift G1 repaired in
+            test_launch: AMENDMENT-376531 moved every container member under `payload`,
+            so a reader asking the wrapper for `role` answered KeyError and the whole
+            proof collapsed into `C1-incomplete-evidence`. The wrapper is exact, the
+            payload is the Job container, and NEITHER level carries a provider context:
+            that is what `schema != /4` was saying before the wrapper existed.
+            """
+            require(type(document) is dict and set(document) == set(launch_owner.WRAPPER_MEMBERS), code)
+            require(document["schema"] == launch_owner.WRAPPER_SCHEMA and document["wire_profile"] == launch_owner.WIRE_PROFILE, code)
+            payload = launch_owner.payload_of(document)
+            require(payload["role"] == role and payload["schema"] == launch_owner.JOB_SCHEMA and "provider_context" not in payload, code)
+            return payload
+
         def verdict_matches(verdict, settlement, snapshot, disposition):
             checkpoint = snapshot["checkpoint"]
             require(verdict["verdict_id"] == settlement["evidence"]["verdict_id"] and verdict["disposition"] == disposition, "C1-verdict")
@@ -691,7 +746,7 @@ def validate(artifact, *, counted_reopen=False):
                 require(one["implementation_attempt"] == snapshot["settlement"]["attempt_id"] and one["checkpoint_id"] == checkpoint["checkpoint_id"] and one["source_revision"] == checkpoint["head_object"], "C1-review-source")
                 require(assignment["participant"] == verdict["reviewer_participant"] and assignment["principal"] == verdict["reviewer_principal"] and assignment["generation"] == verdict["review_assignment_generation"], "C1-review-identity")
                 require(assignment["participant"] != snapshot["assignment"]["participant"] and assignment["principal"] != snapshot["assignment"]["principal"], "C1-review-isolation")
-                require(launch["role"] == "review" and launch["schema"] != "baton.worker-launch/4" and "provider_context" not in launch and launch["job_execution"]["attempt_id"] == one["attempt_id"], "C1-review-context")
+                require(launched(launch, "review", "C1-review-context")["job_execution"]["attempt_id"] == one["attempt_id"], "C1-review-context")
                 source = [m for m in one["mounts"] if m["target"] == "/input/source"]
                 require(len(source) == 1 and source[0].get("readonly") is True, "C1-review-mount")
                 for mount in one["mounts"]:
@@ -734,7 +789,7 @@ def validate(artifact, *, counted_reopen=False):
         require(final["state"] == "completed" and completion["integration_receipt_id"] == target["receipt"]["receipt_id"] and completion["managed_result_id"] == managed["managed_result_id"] and completion["execution_runtime"] == "destroyed", "C1-final")
         require(artifact["capacity"]["root"]["lifecycle"] == "ended" and all(m["state"] == "ended" and m["outcome"] == "succeeded" for m in artifact["capacity"]["members"]), "C1-capacity")
         apply = artifact["apply"]
-        require(apply["launch"]["role"] == "integration" and apply["launch"]["schema"] != "baton.worker-launch/4" and "provider_context" not in apply["launch"], "C1-apply-context")
+        launched(apply["launch"], "integration", "C1-apply-context")
         receipt = [one for one in apply["manifest"]["outputs"] if one["name"] == "provider-context-receipt"]
         require(len(receipt) == 1 and receipt[0]["status"] == "missing-optional" and apply["receipt_path_exists"] is False, "C1-apply-receipt")
         require(all(not m["target"].startswith("/run/baton/context") for m in apply["mounts"]), "C1-apply-context")

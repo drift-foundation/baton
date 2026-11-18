@@ -1,0 +1,17 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-h1mv2w0q",
+      "root_length": 20,
+      "ids": [
+        "tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds"
+      ],
+      "exit": 0,
+      "seconds": 0.40127520600071875,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

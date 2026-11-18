@@ -1,0 +1,21 @@
+sealing	0	Ran 68 tests in 0.145s	OK	1s	residue=0
+credentials	0	Ran 110 tests in 0.575s	OK	0s	residue=0
+attempt_logs	0	Ran 213 tests in 2.228s	OK	3s	residue=0
+maintenance	0	Ran 149 tests in 3.881s	OK	4s	residue=0
+integration_worker	0	Ran 40 tests in 10.348s	OK	11s	residue=0
+managed_preparation (runner-equivalent sys.path: tools first, root, src)	0	Ran 100 tests in 113.739s	OK	114s	residue=0
+single_worker	0	Ran 253 tests in 19.891s	OK	20s	residue=0
+dogfood_operator	0	Ran 359 tests in 8.653s	OK	9s	residue=0
+operator_view	0	Ran 39 tests in 6.316s	OK	7s	residue=0
+diagnostic_rendering	0	Ran 10 tests in 1.005s	OK	1s	residue=0
+inventory_probe_check	0	Ran 1 test in 7.421s	OK	8s	residue=0
+concurrent-x4	1 0 2 0 3 0 4 0 	      4 OK 	7s	residue=0	tmp-views-after=0
+[batch] finished 2026-11-18T06:41:01Z
+# --- appended 2026-11-18 after review 2026-11-18T06-49-00Z (M385108); lines above are the batch driver's own output ---
+# The batch driver's `one managed_preparation tests.tools.test_managed_preparation` (ordinary `just test-one`) FAILED to import (ModuleNotFoundError: integration_bundle); its summary line is preserved in batch-console-initial.txt line 6; its log file was overwritten by the rerun below (not recoverable).
+# Rerun actually executed at ~06:45Z (verbatim, from v12/python, TMPDIR=/var/tmp BATON_V12_DISK_ROOT=/var/tmp):
+#   PYTHONPATH=/home/sl/src/baton/v12/python:src /home/sl/.local/state/baton-v12-venv/bin/python -c "import sys; sys.path.insert(0, '/home/sl/src/baton/v12/python/tools'); import unittest; unittest.main(module=None, argv=['runner-equivalent', '-v', 'tests.tools.test_managed_preparation'])"
+#   -> Ran 100 tests in 113.739s OK, residue 0 (the "managed_preparation (runner-equivalent ...)" line above was rewritten in place from the failed line; the original failed line is in batch-console-initial.txt)
+# After the import correction (from tools import integration_bundle as bundle):
+managed_preparation_fixed (ordinary just test-one tests.tools.test_managed_preparation)	0	Ran 100 tests in 113.072s	OK	~114s	residue=0
+shard-entry (fresh process: python tools/parallel_test.py run-shard shard-entry.plan.json, PYTHONPATH=root:src, class ThePublishedInputIsMeasuredTheSameWayAtBothEnds)	0	ran 10 executed 10 ok true	OK	<1s	residue=0

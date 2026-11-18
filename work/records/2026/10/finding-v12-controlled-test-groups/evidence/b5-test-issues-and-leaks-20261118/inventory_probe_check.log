@@ -1,0 +1,7 @@
+test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+Every entry has a probe today, so relaxing the check changes no ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 7.421s
+
+OK

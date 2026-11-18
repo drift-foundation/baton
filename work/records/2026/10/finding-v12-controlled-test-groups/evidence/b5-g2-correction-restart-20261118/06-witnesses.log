@@ -1,0 +1,8 @@
+test_preparation_fault_reports_terminal_before_fixture_cleanup (tests.tools.test_correction_restart.UsefulCorrection.test_preparation_fault_reports_terminal_before_fixture_cleanup) ... ok
+test_a_harness_that_writes_into_the_derived_tree_is_refused_and_the_reason_is_retained (tests.tools.test_correction_restart.UsefulCorrection.test_a_harness_that_writes_into_the_derived_tree_is_refused_and_the_reason_is_retained)
+The refusal that hid behind "preparation did not answer" (five-groups-20261118). ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.371s
+
+OK

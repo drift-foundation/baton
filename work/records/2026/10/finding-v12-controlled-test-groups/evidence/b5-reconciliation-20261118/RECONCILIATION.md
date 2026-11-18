@@ -175,3 +175,22 @@ The nine G1 ids are repaired in `evidence/b5-g1-g3-20261118/` (test-only alignme
 ## 2026-11-18 — G3 repaired under the owner's ruling
 
 Both G3 ids pass under the bounded revoked-replay branch (`evidence/b5-g3-revoked-replay-20261118/`). Remaining: G2 (22 ids, one fixture cause).
+
+## 2026-11-18 — five-group measurement (M385102)
+
+`evidence/five-groups-20261118/`: G2's 22 ids are unchanged (still the one fixture cause). Two ids outside this
+historical table surfaced: `tests.manager.test_diagnostic_rendering.TheRuledAssertionsRenderThroughSortedCollections.test_the_missing_probe_check_compares_a_sorted_list_with_an_empty_list`
+(deterministic; the W10265 pin contradicts the Stage B rewrite in a8cbc9745, which postdates B0) and
+`tests.tools.test_operator_verification_view.TheOperatorsViewRefusesWhatThePacketSays.test_the_view_is_gone_after_every_refusal`
+(row 300 above, B0 "VERIFIED OK now": intermittent, inferred cross-shard race on the shared `/tmp` view root).
+Nine fixture leak sites recorded there (test_sealing newly observed). No row in the TSV changes.
+
+## 2026-11-18 — G2 repaired
+
+All 22 `tests.tools.test_correction_restart` ids pass (`evidence/b5-g2-correction-restart-20261118/`, module 26/26
+with two new witnesses). Cause: the fixture's simulated container lacked the image's `PYTHONDONTWRITEBYTECODE=1`,
+so the pinned harness wrote `__pycache__/scale.cpython-313.pyc` into the derived tree and the product correctly
+refused to export a harness-changed tree; the refusal was invisible because the prepare child's log was empty.
+A second, hidden layer was the validator reading bare launch containers instead of the accepted `/5` wrapper.
+Test-side only; rows marked REPAIRED. Historical B0 remainder: none left in this table; the two new
+five-group ids and the nine leak sites stay queued.

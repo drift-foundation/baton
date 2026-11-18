@@ -1,0 +1,698 @@
+diff --git a/v12/python/tests/manager/disk_roots.py b/v12/python/tests/manager/disk_roots.py
+index 5f7a3e39..f0b1aa55 100644
+--- a/v12/python/tests/manager/disk_roots.py
++++ b/v12/python/tests/manager/disk_roots.py
+@@ -118,6 +118,35 @@ def disk_backed_under(case):
+     return place
+ 
+ 
++def remove_owned_root(place):
++    """Remove one FIXTURE-OWNED root whole, however the product froze what is under it.
++
++    W384870 (five-groups-20261118): nine fixtures left 262 roots under `/var/tmp` in one
++    run because the product makes delivered launch, attempt, publication and sealed trees
++    read-only ON PURPOSE (0555 directories, 0444 files, even 0-mode roots) and
++    `shutil.rmtree(..., ignore_errors=True)` then fails SILENTLY on every one of them.
++    Owner access is restored on each real directory first -- the root is this fixture's
++    own, made by `mkdtemp`, so that is not a custody violation -- and the removal is then
++    NOT allowed to fail quietly: a fixture that cannot take its own root away reports it.
++
++    LINKS ARE NOT FOLLOWED. A symlink inside the root is removed as a link; whatever it
++    points at is somebody else's and keeps its bytes and its modes. The root itself must
++    be a real directory for the same reason.
++    """
++    if os.path.islink(place) or not os.path.isdir(place):
++        raise AssertionError(f"{place} is not a fixture-owned directory")
++
++    def restore(path):
++        os.chmod(path, 0o700)
++        with os.scandir(path) as entries:
++            for entry in entries:
++                if entry.is_dir(follow_symlinks=False):
++                    restore(entry.path)
++
++    restore(place)
++    shutil.rmtree(place)
++
++
+ def _forcibly_remove(place):
+     for current, _directories, files in os.walk(place):
+         try:
+diff --git a/v12/python/tests/manager/test_attempt_logs.py b/v12/python/tests/manager/test_attempt_logs.py
+index 7c4fe41a..c89f7be4 100644
+--- a/v12/python/tests/manager/test_attempt_logs.py
++++ b/v12/python/tests/manager/test_attempt_logs.py
+@@ -26,6 +26,8 @@ import unittest
+ from types import SimpleNamespace
+ from unittest import mock
+ 
++from tests.manager import disk_roots
++
+ from baton_v12.contracts import ContractRefusal
+ from baton_v12 import attempt_log_format
+ from baton_v12.worker_manager import ControlStore, attempt_logs, workspaces
+@@ -68,7 +70,9 @@ class LogRoom(unittest.TestCase):
+ 
+     def setUp(self):
+         self.home = tempfile.mkdtemp(prefix="v12-w198667-")
+-        self.addCleanup(shutil.rmtree, self.home, True)
++        # W384870: the delivered `launch/<attempt>` is frozen, so `rmtree(ignore_errors)`
++        # left this root behind; the fixture owns it and removes it whole.
++        self.addCleanup(disk_roots.remove_owned_root, self.home)
+         self.root = os.path.join(self.home, "logs")
+         os.makedirs(self.root)
+         self.control = ControlStore.open(
+diff --git a/v12/python/tests/manager/test_boundary_inventory.py b/v12/python/tests/manager/test_boundary_inventory.py
+index a665a082..4b48965c 100644
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -12394,7 +12394,12 @@ class EveryProbeProvesItArrived(BoundaryCase):
+         for dropped in (answering[0], answering[len(answering) // 2], answering[-1]):
+             with self.subTest(dropped=dropped):
+                 newly = _unprobed(wanted, declared - {dropped}) - baseline
+-                self.assertEqual({pair[0] for pair in newly}, {dropped[0]})
++                # W384870 (five-groups-20261118): SORTED LISTS, not sets. The verdict is the
++                # same -- exactly the dropped entry is newly unprobed -- but a set against a
++                # set renders a nonempty difference in hash order, which is the W10265
++                # defect this very function was ruled free of. `test_diagnostic_rendering`
++                # pins the shape.
++                self.assertEqual(sorted({pair[0] for pair in newly}), [dropped[0]])
+                 self.assertTrue(all(_probe_covers(dropped[1], label) for _, label in newly))
+ 
+     def shadowed_by(self, shadow, shadowed, run):
+diff --git a/v12/python/tests/manager/test_credentials.py b/v12/python/tests/manager/test_credentials.py
+index f0418ca1..17cabb64 100644
+--- a/v12/python/tests/manager/test_credentials.py
++++ b/v12/python/tests/manager/test_credentials.py
+@@ -38,6 +38,7 @@ from baton_v12.contracts import (ContractRefusal, forget_secret, live_secret,
+ from baton_v12.worker_manager import ControlStore
+ 
+ from . import input_roots
++from . import disk_roots
+ from baton_v12.worker_manager import (credentials, launch, oci,
+                                       workspaces,
+                                       sealing)
+@@ -104,15 +105,9 @@ class CredentialCase(unittest.TestCase):
+         self.addCleanup(self._quiet)
+ 
+     def _release(self):
+-        for base, directories, files in os.walk(self.home_place,
+-                                                topdown=False):
+-            for one in directories:
+-                os.chmod(os.path.join(base, one), 0o700)
+-            for one in files:
+-                full = os.path.join(base, one)
+-                if not os.path.islink(full):
+-                    os.chmod(full, 0o600)
+-        os.chmod(self.home_place, 0o700)
++        # W384870: the modes were restored and the root was then LEFT BEHIND (129 roots in
++        # one manager-pure run). The fixture owns the root, so it removes it.
++        disk_roots.remove_owned_root(self.home_place)
+ 
+     def _quiet(self):
+         for value in (BEARER, SECOND):
+diff --git a/v12/python/tests/manager/test_diagnostic_rendering.py b/v12/python/tests/manager/test_diagnostic_rendering.py
+index 3e9d6b7a..8251ceff 100644
+--- a/v12/python/tests/manager/test_diagnostic_rendering.py
++++ b/v12/python/tests/manager/test_diagnostic_rendering.py
+@@ -74,18 +74,34 @@ class TheRuledAssertionsRenderThroughSortedCollections(unittest.TestCase):
+                         "W10265 ruled this container sorted so the failure text is "
+                         "stable; a bare set here reorders it every run")
+ 
+-    def test_the_missing_probe_check_compares_a_sorted_list_with_an_empty_list(self):
+-        """The empty-difference verdict is unchanged; its rendering is pinned."""
++    def test_the_missing_probe_check_compares_sorted_lists(self):
++        """The detection verdict is Stage B's; its rendering is still W10265's.
++
++        W384870 Stage B (a8cbc9745) changed WHAT the missing-probe check proves: not
++        that the difference is empty, but that deliberately dropping one probe is
++        detected AGAINST THE CURRENT BASELINE -- so the first `assertEqual` compares
++        the newly unprobed entries with exactly the dropped one. The earlier form of
++        this pin assumed the emptiness verdict and failed once that changed
++        (five-groups-20261118). What W10265 ruled is the RENDERING: a nonempty
++        difference must print in one fixed order, so both sides are lists and the
++        measured side is `sorted(...)`. Both intentions are pinned here; neither
++        replaces the other.
++        """
+         found = list(calls_to(function_named("test_the_missing_probe_check_can_actually_fail"),
+                               "assertEqual"))
+         self.assertGreaterEqual(len(found), 1)
+         first = found[0]
+         self.assertTrue(is_sorted_call(first.args[0]),
+-                        "the difference must be sorted before it is compared")
++                        "the newly unprobed entries must be sorted before they are compared")
+         self.assertIsInstance(first.args[1], ast.List,
+-                              "compare against [] rather than set(): comparing two sets "
++                              "compare against a list rather than a set: comparing two sets "
+                               "is what made unittest render the difference in hash order")
+-        self.assertEqual(first.args[1].elts, [], "the verdict is still emptiness")
++        self.assertEqual(len(first.args[1].elts), 1,
++                         "the verdict is Stage B's: exactly the dropped probe is detected")
++        for side in first.args[:2]:
++            self.assertNotIsInstance(side, (ast.Set, ast.SetComp),
++                                     "a set literal or comprehension on either side renders "
++                                     "in hash order")
+ 
+     def test_neither_ruled_site_compares_against_a_bare_set_call(self):
+         """The exact idiom the ruling replaced, kept out of both functions."""
+diff --git a/v12/python/tests/manager/test_maintenance.py b/v12/python/tests/manager/test_maintenance.py
+index c5a2f20e..55510551 100644
+--- a/v12/python/tests/manager/test_maintenance.py
++++ b/v12/python/tests/manager/test_maintenance.py
+@@ -28,6 +28,7 @@ from baton_v12.contracts.errors import name_value
+ from baton_v12.worker_manager import custody, maintenance, oci, tokens, workspaces
+ 
+ from . import input_roots
++from . import disk_roots
+ 
+ IMAGE = "sha256:" + "c" * 64
+ 
+@@ -3308,8 +3309,11 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
+         and the fallback's `lstat` answers about the LINK -- which exists -- so the
+         establishment refuses instead of recording either an absence or the target's identity.
+         """
+-        target = os.path.join(tempfile.mkdtemp(prefix="v12-foreign-"),
+-                              "somebody-elses-result")
++        foreign = tempfile.mkdtemp(prefix="v12-foreign-")
++        # W384870: the foreign tree is the fixture's to make and the fixture's to remove
++        # AFTER the refusal it exists for; the refusal itself must not touch it.
++        self.addCleanup(disk_roots.remove_owned_root, foreign)
++        target = os.path.join(foreign, "somebody-elses-result")
+         os.makedirs(target, exist_ok=True)
+         place = self.expected("result")
+         os.rmdir(place)
+@@ -3352,6 +3356,10 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
+     def substituted(self, place, target=None):
+         """Move `place` aside and put a link to a foreign empty directory at its path."""
+         made = target or tempfile.mkdtemp(prefix="v12-substituted-")
++        if target is None:
++            # W384870: the substituted foreign directory is fixture-made, so it is
++            # fixture-removed once the case has proved the manager left it alone.
++            self.addCleanup(disk_roots.remove_owned_root, made)
+         os.rename(place, place + "-original")
+         os.symlink(made, place)
+         return made
+diff --git a/v12/python/tests/manager/test_sealing.py b/v12/python/tests/manager/test_sealing.py
+index 1a750d94..185c0a58 100644
+--- a/v12/python/tests/manager/test_sealing.py
++++ b/v12/python/tests/manager/test_sealing.py
+@@ -25,6 +25,8 @@ import json
+ import os
+ import tempfile
+ import unittest
++
++from tests.manager import disk_roots
+ from unittest.mock import patch
+ 
+ from baton_v12.contracts import ContractRefusal, held_secret
+@@ -60,6 +62,67 @@ def declaration(name="proposal", path="out", required=True,
+                             "link_policy": "forbid", "validator_digest": None}}
+ 
+ 
++class TheFixtureRemovesItsOwnFrozenRoot(unittest.TestCase):
++    """W384870: `disk_roots.remove_owned_root`, the remover the repaired fixtures share.
++
++    The product freezes what it delivers, so a fixture root holds 0555 directories,
++    0444 files and even a 0-mode directory; `rmtree(ignore_errors=True)` left every
++    such root behind (262 of them in five-groups-20261118). This proves the remover
++    takes the whole owned root away AND touches nothing a link inside it points at.
++    """
++
++    def test_a_frozen_owned_root_is_removed_whole(self):
++        root = tempfile.mkdtemp(prefix="v12-sealing-remover-")
++        frozen = os.path.join(root, "launch", "attempt-1")
++        os.makedirs(frozen)
++        with open(os.path.join(frozen, "launch.json"), "w", encoding="utf-8") as writing:
++            writing.write("{}")
++        os.chmod(os.path.join(frozen, "launch.json"), 0o444)
++        dark = os.path.join(root, "dark")
++        os.makedirs(os.path.join(dark, "inner"))
++        os.chmod(frozen, 0o555)
++        os.chmod(os.path.join(root, "launch"), 0o555)
++        os.chmod(dark, 0)
++        self.assertRaises(PermissionError, os.listdir, dark)
++        disk_roots.remove_owned_root(root)
++        self.assertFalse(os.path.lexists(root))
++
++    def test_a_link_inside_the_root_is_removed_as_a_link_and_its_target_is_untouched(self):
++        outside = tempfile.mkdtemp(prefix="v12-sealing-outside-")
++        self.addCleanup(disk_roots.remove_owned_root, outside)
++        kept = os.path.join(outside, "theirs", "kept.txt")
++        os.makedirs(os.path.dirname(kept))
++        with open(kept, "w", encoding="utf-8") as writing:
++            writing.write("somebody else's bytes")
++        os.chmod(kept, 0o444)
++        os.chmod(os.path.dirname(kept), 0o555)
++        root = tempfile.mkdtemp(prefix="v12-sealing-remover-")
++        os.symlink(outside, os.path.join(root, "elsewhere"))
++        os.symlink(kept, os.path.join(root, "a-file-link"))
++        disk_roots.remove_owned_root(root)
++        self.assertFalse(os.path.lexists(root))
++        self.assertTrue(os.path.isfile(kept))
++        self.assertEqual(os.stat(os.path.dirname(kept)).st_mode & 0o777, 0o555)
++        self.assertEqual(os.stat(kept).st_mode & 0o777, 0o444)
++
++    def test_the_remover_refuses_a_link_or_a_file_as_the_root(self):
++        home = tempfile.mkdtemp(prefix="v12-sealing-remover-")
++        self.addCleanup(disk_roots.remove_owned_root, home)
++        target = os.path.join(home, "real")
++        os.makedirs(target)
++        link = os.path.join(home, "link")
++        os.symlink(target, link)
++        with self.assertRaises(AssertionError):
++            disk_roots.remove_owned_root(link)
++        self.assertTrue(os.path.isdir(target))
++        plain = os.path.join(home, "plain.txt")
++        with open(plain, "w", encoding="utf-8") as writing:
++            writing.write("x")
++        with self.assertRaises(AssertionError):
++            disk_roots.remove_owned_root(plain)
++        self.assertTrue(os.path.isfile(plain))
++
++
+ class SealingCase(unittest.TestCase):
+ 
+     def setUp(self):
+@@ -75,19 +138,14 @@ class SealingCase(unittest.TestCase):
+     def _release(self):
+         """Sealing makes trees read-only ON PURPOSE, so cleanup has to undo
+         that before it can remove them -- the same duty
+-        `workspaces.discard_workspace` performs for the manager."""
+-        for base, directories, files in os.walk(self.root, topdown=False):
+-            for one in directories:
+-                os.chmod(os.path.join(base, one), 0o700)
+-            for one in files:
+-                full = os.path.join(base, one)
+-                # NOT THROUGH A LINK. `os.chmod` follows one, and a case that
+-                # plants a link to `/etc/passwd` would have its CLEANUP try to
+-                # chmod that -- which is how this fixture first reported a
+-                # PermissionError as if the module had failed.
+-                if not os.path.islink(full):
+-                    os.chmod(full, 0o600)
+-        os.chmod(self.root, 0o700)
++        `workspaces.discard_workspace` performs for the manager.
++
++        W384870: the first form restored the modes and then never removed the
++        root (65 roots left by one manager-pure run). `remove_owned_root` does
++        both and still never chmods THROUGH a link -- the reason this fixture
++        once reported a PermissionError about `/etc/passwd` as if the module
++        had failed."""
++        disk_roots.remove_owned_root(self.root)
+ 
+     def found(self, needle):
+         """Every regular file under this case's root holding `needle`.
+diff --git a/v12/python/tests/tools/correction_restart_trace.py b/v12/python/tests/tools/correction_restart_trace.py
+index 474c24b2..1f78b661 100644
+--- a/v12/python/tests/tools/correction_restart_trace.py
++++ b/v12/python/tests/tools/correction_restart_trace.py
+@@ -22,6 +22,7 @@ from baton_v12.job_manager import submit, sweep, ending, episodes, submission
+ from baton_v12.job_manager.integration_capacity import integration_capacity_of
+ from baton_v12.worker_manager import provider_context as context, context_delivery as custody
+ from baton_v12.worker_manager import frozen_output_of, load_manifest, assignment_of, review_cycles
++from baton_v12.worker_manager import launch as launch_owner
+ from baton_v12.worker_manager.workspaces import configure_workspace_storage
+ from baton_v12.integration import reconciliation
+ from tests.job_manager import fixtures
+@@ -65,6 +66,28 @@ command=next(source for target,source in mounts.items() if target.endswith('/com
+ events=next(source for target,source in mounts.items() if target.endswith('/events'))
+ if kind=='prepare':
+     import reconciliation_entry
++    import traceback
++    # W384870 G2: THE CHILD'S FAULT IS RETAINED, as the apply branch below already does.
++    # `baton_worker` turns an agent exception into a bounded `fault_code` and never a
++    # message, so without this the fixture reported an exited child with an EMPTY log and
++    # the cause had to be rediscovered by instrumentation (five-groups-20261118).
++    for _name in ('work','consider'):
++        _original=getattr(reconciliation_entry.PreparationAgent,_name)
++        def _traced(self,*args,_original=_original,_name=_name):
++            try:return _original(self,*args)
++            except BaseException:
++                print('[prepare child] '+_name+' raised',file=sys.stderr)
++                traceback.print_exc()
++                raise
++        setattr(reconciliation_entry.PreparationAgent,_name,_traced)
++    _original_handle=baton_worker.handle
++    def _traced_handle(*args):
++        try:return _original_handle(*args)
++        except BaseException:
++            print('[prepare child] handle raised',file=sys.stderr)
++            traceback.print_exc()
++            raise
++    baton_worker.handle=_traced_handle
+     reconciliation_entry.PreparationAgent=functools.partial(reconciliation_entry.PreparationAgent,input_root=mounts['/input/source'],output_root=mounts['/output'],scratch=scratch)
+     status=reconciliation_entry.main(place=launch,command_root=command,event_root=events)
+ else:
+@@ -90,6 +113,12 @@ sys.exit(status)
+ '''
+ 
+ 
++# The image environment every process in a reconciliation or integration container
++# inherits (`Dockerfile.reconciliation`, `Dockerfile.integration`: `ENV PYTHONDONTWRITEBYTECODE=1`).
++# See `ProcessEngine.__call__`; `test_correction_restart` removes it to prove the refusal it caused.
++CONTAINER_ENVIRONMENT = {"PYTHONDONTWRITEBYTECODE": "1"}
++
++
+ class ProcessEngine(stage_fixture._ConcurrentEngine):
+     def __init__(self, world):
+         super().__init__()
+@@ -154,7 +183,17 @@ class ProcessEngine(stage_fixture._ConcurrentEngine):
+         if kind is not None:
+             log = (Path(self.world.root) / (kind + "-" + str(len(self.events)) + ".log")).open("w+")
+             worker = Path(__file__).resolve().parents[3] / "worker"
+-            process = subprocess.Popen([sys.executable, "-B", "-c", MANAGED_CHILD, str(worker), json.dumps(mounts), kind, os.path.join(self.world.root, kind + "-scratch")], stdout=log, stderr=log)
++            # W384870 G2 (five-groups-20261118): THE SIMULATED CONTAINER CARRIES THE IMAGE'S
++            # ENVIRONMENT. `Dockerfile.reconciliation` and `Dockerfile.integration` declare
++            # `PYTHONDONTWRITEBYTECODE=1`, which every process in the container inherits --
++            # including the pinned harness `run_bounded` starts. Without it the harness's
++            # `from scale import scale` wrote `__pycache__/scale.cpython-313.pyc` into the
++            # derived tree, and `export_derived_objects` rightly refused a tree the harness
++            # had changed ("the preparation harness changed the derived candidate"): the
++            # product refused correctly, the simulation lacked the image's environment.
++            # `-B` on the child covers only the child's own imports, not its descendants.
++            environment = dict(os.environ, **CONTAINER_ENVIRONMENT)
++            process = subprocess.Popen([sys.executable, "-B", "-c", MANAGED_CHILD, str(worker), json.dumps(mounts), kind, os.path.join(self.world.root, kind + "-scratch")], stdout=log, stderr=log, env=environment)
+             # A `run` answers the minted identity; a `start` answers nothing and NAMES it.
+             self.processes[(answer["stdout"] or "").strip() or argv[-1]] = (process, log)
+         return answer
+@@ -677,6 +716,22 @@ def validate(artifact, *, counted_reopen=False):
+             require(first_runtime["attempt_id"] != second_runtime["attempt_id"], "C1-runtime-distinct")
+             require(first_runtime["assignment"]["generation"] != second_runtime["assignment"]["generation"] or initial["settlement"]["episode"] != revised["settlement"]["episode"], "C1-generation-distinct")
+ 
++        def launched(document, role, code):
++            """The delivered launch is the accepted `/5` wrapper around a `/3` Job container.
++
++            W384870 G2 (five-groups-20261118), the same test-side drift G1 repaired in
++            test_launch: AMENDMENT-376531 moved every container member under `payload`,
++            so a reader asking the wrapper for `role` answered KeyError and the whole
++            proof collapsed into `C1-incomplete-evidence`. The wrapper is exact, the
++            payload is the Job container, and NEITHER level carries a provider context:
++            that is what `schema != /4` was saying before the wrapper existed.
++            """
++            require(type(document) is dict and set(document) == set(launch_owner.WRAPPER_MEMBERS), code)
++            require(document["schema"] == launch_owner.WRAPPER_SCHEMA and document["wire_profile"] == launch_owner.WIRE_PROFILE, code)
++            payload = launch_owner.payload_of(document)
++            require(payload["role"] == role and payload["schema"] == launch_owner.JOB_SCHEMA and "provider_context" not in payload, code)
++            return payload
++
+         def verdict_matches(verdict, settlement, snapshot, disposition):
+             checkpoint = snapshot["checkpoint"]
+             require(verdict["verdict_id"] == settlement["evidence"]["verdict_id"] and verdict["disposition"] == disposition, "C1-verdict")
+@@ -691,7 +746,7 @@ def validate(artifact, *, counted_reopen=False):
+                 require(one["implementation_attempt"] == snapshot["settlement"]["attempt_id"] and one["checkpoint_id"] == checkpoint["checkpoint_id"] and one["source_revision"] == checkpoint["head_object"], "C1-review-source")
+                 require(assignment["participant"] == verdict["reviewer_participant"] and assignment["principal"] == verdict["reviewer_principal"] and assignment["generation"] == verdict["review_assignment_generation"], "C1-review-identity")
+                 require(assignment["participant"] != snapshot["assignment"]["participant"] and assignment["principal"] != snapshot["assignment"]["principal"], "C1-review-isolation")
+-                require(launch["role"] == "review" and launch["schema"] != "baton.worker-launch/4" and "provider_context" not in launch and launch["job_execution"]["attempt_id"] == one["attempt_id"], "C1-review-context")
++                require(launched(launch, "review", "C1-review-context")["job_execution"]["attempt_id"] == one["attempt_id"], "C1-review-context")
+                 source = [m for m in one["mounts"] if m["target"] == "/input/source"]
+                 require(len(source) == 1 and source[0].get("readonly") is True, "C1-review-mount")
+                 for mount in one["mounts"]:
+@@ -734,7 +789,7 @@ def validate(artifact, *, counted_reopen=False):
+         require(final["state"] == "completed" and completion["integration_receipt_id"] == target["receipt"]["receipt_id"] and completion["managed_result_id"] == managed["managed_result_id"] and completion["execution_runtime"] == "destroyed", "C1-final")
+         require(artifact["capacity"]["root"]["lifecycle"] == "ended" and all(m["state"] == "ended" and m["outcome"] == "succeeded" for m in artifact["capacity"]["members"]), "C1-capacity")
+         apply = artifact["apply"]
+-        require(apply["launch"]["role"] == "integration" and apply["launch"]["schema"] != "baton.worker-launch/4" and "provider_context" not in apply["launch"], "C1-apply-context")
++        launched(apply["launch"], "integration", "C1-apply-context")
+         receipt = [one for one in apply["manifest"]["outputs"] if one["name"] == "provider-context-receipt"]
+         require(len(receipt) == 1 and receipt[0]["status"] == "missing-optional" and apply["receipt_path_exists"] is False, "C1-apply-receipt")
+         require(all(not m["target"].startswith("/run/baton/context") for m in apply["mounts"]), "C1-apply-context")
+diff --git a/v12/python/tests/tools/test_correction_restart.py b/v12/python/tests/tools/test_correction_restart.py
+index c863054f..d4d2a069 100644
+--- a/v12/python/tests/tools/test_correction_restart.py
++++ b/v12/python/tests/tools/test_correction_restart.py
+@@ -46,6 +46,40 @@ class UsefulCorrection(unittest.TestCase):
+         self.assertIsNotNone(exchange["receipt"])
+         self.assertEqual(exchange["terminal"]["ending"], "faulted")
+         self.assertTrue(observed["children"])
++        # W384870 G2: THE CAUSE IS RETAINED WITH THE FAULT. `baton_worker` reports an agent
++        # exception as the bounded code `agent` and never a message, so the child's own log is
++        # the only place the reason survives; an exited child with an empty log is what hid
++        # the derived-tree refusal for weeks (five-groups-20261118).
++        self.assertEqual([one["exit_status"] for one in observed["children"]], [1])
++        self.assertIn("selected preparation fault", observed["children"][0]["log"])
++        self.assertIn("Traceback", observed["children"][0]["log"])
++
++    def test_a_harness_that_writes_into_the_derived_tree_is_refused_and_the_reason_is_retained(self):
++        """The refusal that hid behind "preparation did not answer" (five-groups-20261118).
++
++        The pinned harness imports `scale`, and an interpreter that writes bytecode puts
++        `__pycache__/scale.cpython-*.pyc` into the derived tree it runs in. The product then
++        refuses to export a tree the harness changed -- correctly: the real container's image
++        sets `PYTHONDONTWRITEBYTECODE=1` for every process, so a mutated tree there IS a
++        harness that wrote. Without that environment the simulation reproduced exactly this
++        refusal with an empty child log. Removing the variable here proves both halves: the
++        product refuses a harness-mutated derived tree, and the fixture now retains why.
++        """
++        from unittest import mock
++        with mock.patch.object(proof, "CONTAINER_ENVIRONMENT", {}):
++            with mock.patch.dict(os.environ):
++                os.environ.pop("PYTHONDONTWRITEBYTECODE", None)
++                with self.assertRaises(AssertionError) as caught:
++                    artifact()
++        observed = json.loads(str(caught.exception))
++        self.assertEqual(observed["failure"], "preparation did not answer")
++        exchange = next(iter(observed["preparation"].values()))
++        self.assertEqual(exchange["terminal"]["ending"], "faulted")
++        self.assertEqual(exchange["terminal"]["fault_code"], "agent")
++        self.assertEqual([one["exit_status"] for one in observed["children"]], [1])
++        log = observed["children"][0]["log"]
++        self.assertIn("the preparation harness changed the derived candidate", log)
++        self.assertIn("PreparationRefusal", log)
+ 
+     def test_unchanged_predecessor_artifacts_still_validate_without_execution(self):
+         root = Path(__file__).resolve().parents[4]
+@@ -273,7 +307,11 @@ class UsefulCorrectionInvalidEvidence(unittest.TestCase):
+         self.rejects("correction names original attempt", lambda x: x["correction"]["evidence"].__setitem__("routed", x["initial"]["settlement"]["attempt_id"]), "C1-correction-route")
+ 
+     def test_reviewer_context_or_writable_line_access_is_rejected(self):
+-        self.rejects("reviewer receives producer context", lambda x: x["reviews"][0]["launch"].__setitem__("provider_context", x["initial"]["binding"]), "C1-review-context")
++        # The delivered launch is the /5 wrapper (AMENDMENT-376531): a context smuggled into the
++        # Job container payload, and one bolted onto the wrapper itself, are both refused.
++        self.rejects("reviewer receives producer context", lambda x: x["reviews"][0]["launch"]["payload"].__setitem__("provider_context", x["initial"]["binding"]), "C1-review-context")
++        self.rejects("reviewer launch wrapper carries a producer context", lambda x: x["reviews"][0]["launch"].__setitem__("provider_context", x["initial"]["binding"]), "C1-review-context")
++        self.rejects("reviewer launch is a bare /4 context document", lambda x: x["reviews"][0].__setitem__("launch", dict(x["reviews"][0]["launch"]["payload"], schema="baton.worker-launch/4", provider_context=x["initial"]["binding"])), "C1-review-context")
+         def writable(x):
+             source = next(m for m in x["reviews"][0]["mounts"] if m["target"] == "/input/source")
+             source["source"] = x["reviews"][0]["producer_workspace"]
+diff --git a/v12/python/tests/tools/test_dogfood_operator.py b/v12/python/tests/tools/test_dogfood_operator.py
+index 7a58b2a7..2c9ef37e 100644
+--- a/v12/python/tests/tools/test_dogfood_operator.py
++++ b/v12/python/tests/tools/test_dogfood_operator.py
+@@ -42,6 +42,7 @@ from tools import dogfood_operator                            # noqa: E402
+ from tools import user_credentials                            # noqa: E402
+ from tests.manager import test_intake as intake_fixture       # noqa: E402
+ from tests.manager import test_output as output_fixture       # noqa: E402
++from tests.manager import disk_roots                          # noqa: E402
+ from tools.dogfood_operator import (DeploymentSession, OperatorRefusal,
+                                     assignment_manifest, frozen_task,
+                                     input_manifest, stage_source)  # noqa: E402
+@@ -535,7 +536,9 @@ class OperatorCase(unittest.TestCase):
+ 
+     def setUp(self):
+         home = tempfile.mkdtemp(prefix="v12-w39358-")
+-        self.addCleanup(shutil.rmtree, home, True)
++        # W384870: `storage/attempt-*` under here is frozen by the product, so
++        # `rmtree(ignore_errors)` left the root behind; the owned root goes whole.
++        self.addCleanup(disk_roots.remove_owned_root, home)
+         self.home = home
+         self.source = os.path.join(home, "source")
+         os.makedirs(self.source)
+diff --git a/v12/python/tests/tools/test_integration_worker.py b/v12/python/tests/tools/test_integration_worker.py
+index 9695f910..c40b1cd9 100644
+--- a/v12/python/tests/tools/test_integration_worker.py
++++ b/v12/python/tests/tools/test_integration_worker.py
+@@ -46,6 +46,7 @@ from tools.integration_worker import IntegrationRuntimePort
+ from tests.integration.test_execution import profile as integration_profile
+ from tests.integration.test_runtime import PARTICIPANT
+ from tests.tools.test_integration_bundle import INSTRUCTIONS
++from tests.manager import disk_roots
+ 
+ 
+ IMAGE = "sha256:" + "e" * 64
+@@ -71,7 +72,9 @@ class PortCase(unittest.TestCase):
+         self.world = self.producer.world
+         self.owner = self.world.owner
+         self.root = tempfile.mkdtemp(prefix="v12-w110774-")
+-        self.addCleanup(shutil.rmtree, self.root, True)
++        # W384870: integrator attempts and bundles under here are frozen by the product,
++        # so `rmtree(ignore_errors)` left 29 roots in one run; the owned root goes whole.
++        self.addCleanup(disk_roots.remove_owned_root, self.root)
+ 
+         self.profile = self.producer.profile
+         self.calls = []
+diff --git a/v12/python/tests/tools/test_managed_preparation.py b/v12/python/tests/tools/test_managed_preparation.py
+index 6b34a9a3..4775b4f3 100644
+--- a/v12/python/tests/tools/test_managed_preparation.py
++++ b/v12/python/tests/tools/test_managed_preparation.py
+@@ -20,6 +20,8 @@ import tempfile
+ import unittest
+ from unittest import mock
+ 
++from tests.manager import disk_roots
++
+ from baton_v12.contracts import ContractRefusal
+ 
+ WORKER = pathlib.Path(__file__).resolve().parents[3] / "worker"
+@@ -28,7 +30,12 @@ sys.path.insert(0, str(WORKER))
+ import reconciliation_entry as entry                      # noqa: E402
+ import reconciliation_task as task                        # noqa: E402
+ 
+-import integration_bundle as bundle                       # noqa: E402
++# W384870 (review 2026-11-18T06-49-00Z): THE SUPPORTED MODULE IMPORT, as `test_integration_bundle`
++# and `test_managed_apply` already spell it and as `tools/*` import each other (`from . import
++# integration_bundle`). The bare `import integration_bundle` resolved only because the runner starts
++# every shard as `python tools/parallel_test.py ...`, which puts `tools/` first on `sys.path`; under
++# `just test-one` the module could not be imported at all. One module object either way now.
++from tools import integration_bundle as bundle            # noqa: E402
+ 
+ 
+ class ThePublishedInputIsMeasuredTheSameWayAtBothEnds(unittest.TestCase):
+@@ -636,7 +643,8 @@ class TheCoordinatorHostNeverPrepares(unittest.TestCase):
+         # THE BUNDLE IS PUBLISHED ONCE AND NEVER APPENDED TO, so the
+         # destination must NOT exist: only its parent is made here.
+         home = tempfile.mkdtemp(prefix="w161230-trap-input-")
+-        self.addCleanup(shutil.rmtree, home, ignore_errors=True)
++        # W384870: the publication under here is 0555/0444 on purpose (see `_release`).
++        self.addCleanup(disk_roots.remove_owned_root, home)
+         destination = os.path.join(home, "published")
+ 
+         request = {
+@@ -1000,7 +1008,8 @@ class TheOperandsAreResolvedFromOwnerAnswers(unittest.TestCase):
+         self.line.write("moved.py", "TARGET = True\n")
+         self.target = self.line.commit("the target moved independently")
+         self.home = tempfile.mkdtemp(prefix="w161230-operands-input-")
+-        self.addCleanup(shutil.rmtree, self.home, ignore_errors=True)
++        # W384870: the publications under here are 0555/0444 on purpose (see `_release`).
++        self.addCleanup(disk_roots.remove_owned_root, self.home)
+         self.published = 0
+ 
+     # THE OWNER'S ACTUAL ANSWER SHAPE, and review claim169146 is why it is
+diff --git a/v12/python/tests/tools/test_operator_verification_view.py b/v12/python/tests/tools/test_operator_verification_view.py
+index 8b4232a4..dd4b96fb 100644
+--- a/v12/python/tests/tools/test_operator_verification_view.py
++++ b/v12/python/tests/tools/test_operator_verification_view.py
+@@ -36,6 +36,7 @@ import shutil
+ import sys
+ import tempfile
+ import unittest
++from unittest import mock
+ 
+ DISTRIBUTION = pathlib.Path(__file__).resolve().parents[2]
+ _TOOLS = str(DISTRIBUTION / "tools")
+@@ -118,6 +119,27 @@ class OperatorViewCase(unittest.TestCase):
+                                   pin_digest=self.pin_digest,
+                                   context=context, argv=argv)
+ 
++    def private_views(self):
++        """This case's OWN verification root, in place of the shared host `/tmp`.
++
++        W384870 (five-groups-20261118): the residue checks listed every
++        `dogfood-view-*` under `dogfood_operator.VERIFICATION_TEMP_ROOT`, which is
++        `/tmp` for every shard at once -- so a concurrent class's live view read as
++        this case's leak. The operator's own cleanup is what these cases measure, so
++        it is measured in a root only this case writes to, and a foreign view planted
++        there stands for the other shard: it must survive, untouched.
++        """
++        views = os.path.join(self.home, "views")
++        os.makedirs(views, exist_ok=True)
++        patched = mock.patch.object(dogfood_operator, "VERIFICATION_TEMP_ROOT", views)
++        patched.start()
++        self.addCleanup(patched.stop)
++        return views
++
++    def views_left_in(self, views):
++        return sorted(one for one in os.listdir(views)
++                      if one.startswith("dogfood-view-"))
++
+     def derived(self, task, *, objects=None, runner=None):
+         return dogfood_operator._derived_in_view(
+             self.proposal, os.path.join(self.proposal, "candidate"), task,
+@@ -226,14 +248,17 @@ class TheNamedGatePassesInTheOperatorsOwnView(OperatorViewCase):
+         before = fixtures.digest_of(os.path.join(
+             self.proposal, "candidate", "v12", "python", "src", "baton_v12",
+             "__init__.py"))
++        views = self.private_views()
++        foreign = tempfile.mkdtemp(prefix="dogfood-view-", dir=views)
+         self.derived(self.task())
+         self.assertEqual(fixtures.digest_of(os.path.join(
+             self.proposal, "candidate", "v12", "python", "src", "baton_v12",
+             "__init__.py")), before)
+-        residue = [one for one in os.listdir(
+-            dogfood_operator.VERIFICATION_TEMP_ROOT)
+-            if one.startswith("dogfood-view-")]
+-        self.assertEqual(residue, [], "the operator left a view behind")
++        # ONLY THE OTHER SHARD'S VIEW REMAINS: the operator removed its own and did
++        # not reach for one it did not create.
++        self.assertEqual(self.views_left_in(views), [os.path.basename(foreign)],
++                         "the operator left a view behind, or removed a foreign one")
++        self.assertTrue(os.path.isdir(foreign))
+ 
+     def test_the_sealed_inputs_are_byte_unchanged_afterwards(self):
+         self.retain(lambda root: fixtures.gate_candidate(root),
+@@ -356,12 +381,35 @@ class TheOperatorsViewRefusesWhatThePacketSays(OperatorViewCase):
+                          contract.NOT_RUN)
+ 
+     def test_the_view_is_gone_after_every_refusal(self):
++        views = self.private_views()
++        foreign = tempfile.mkdtemp(prefix="dogfood-view-", dir=views)
+         self.refused(
+             context=self.tiny_context(required_paths=["not-there.py"]))
+-        residue = [one for one in os.listdir(
+-            dogfood_operator.VERIFICATION_TEMP_ROOT)
+-            if one.startswith("dogfood-view-")]
+-        self.assertEqual(residue, [])
++        self.assertEqual(self.views_left_in(views), [os.path.basename(foreign)])
++        self.assertTrue(os.path.isdir(foreign))
++
++    def test_a_concurrent_shards_view_is_neither_a_leak_nor_removed(self):
++        """The race five-groups-20261118 reproduced, stated as ownership.
++
++        Two class shards of this module run at once and both materialize views in the
++        verification root. A live foreign view is not this operator's residue, and this
++        operator's cleanup must not take it away either. Each refusal here is one
++        operator run; the foreign view is planted BEFORE and inspected AFTER each.
++        """
++        views = self.private_views()
++        foreign = tempfile.mkdtemp(prefix="dogfood-view-", dir=views)
++        with open(os.path.join(foreign, "theirs.txt"), "w", encoding="utf-8") as writing:
++            writing.write("another shard's live view")
++        for context in (self.tiny_context(required_paths=["not-there.py"]),
++                        self.tiny_context(import_roots=["no-such-root"])):
++            self.refused(context=context)
++            self.assertEqual(self.views_left_in(views), [os.path.basename(foreign)])
++            with open(os.path.join(foreign, "theirs.txt"), encoding="utf-8") as reading:
++                self.assertEqual(reading.read(), "another shard's live view")
++        self.retain(self.tiny)
++        self.derived(self.task(context=self.tiny_context(),
++                               argv=["python3", "-c", "print('ran')"]))
++        self.assertEqual(self.views_left_in(views), [os.path.basename(foreign)])
+ 
+ 
+ class TheTransportsPrerequisitesAreRequiredNotAssumed(OperatorViewCase):
+diff --git a/v12/python/tests/tools/test_single_worker.py b/v12/python/tests/tools/test_single_worker.py
+index 3fbf6bc7..f3eb42c5 100644
+--- a/v12/python/tests/tools/test_single_worker.py
++++ b/v12/python/tests/tools/test_single_worker.py
+@@ -396,8 +396,11 @@ class TheLayoutSelectionIsIndependentOfTheContextMode(unittest.TestCase):
+         """And the configuration that `_held` admitted is one
+         `layout_delivery` can actually compose and materialize."""
+         held = single_worker._held(self.configuration("implementation"))
++        # W384870: a bare `mkdtemp()` with no cleanup left its root behind every run.
++        home = tempfile.mkdtemp(prefix="v12-ingest-configuration-")
++        self.addCleanup(disk_roots.remove_owned_root, home)
+         store = ControlStore.open(
+-            os.path.join(tempfile.mkdtemp(), "c.sqlite3"),
++            os.path.join(home, "c.sqlite3"),
+             incarnation="w325695-cfg",
+             clock=lambda: "2026-10-28T00:00:00.000Z")
+         self.addCleanup(store.close)
+@@ -7026,7 +7029,9 @@ class TheActivityHelperIngestsOffTheServingLoop(unittest.TestCase):
+         from baton_v12.worker_manager import record_attempt
+ 
+         self.root = tempfile.mkdtemp(prefix="v12-ingest-")
+-        self.addCleanup(shutil.rmtree, self.root, True)
++        # W384870: `launch/attempt-1` below is frozen by `launch.materialize`, so
++        # `rmtree(ignore_errors)` left 11 roots in one run; the owned root goes whole.
++        self.addCleanup(disk_roots.remove_owned_root, self.root)
+         self.place = os.path.join(self.root, "control.sqlite3")
+         self.launch_home = os.path.join(self.root, "launch")
+         os.makedirs(self.launch_home)

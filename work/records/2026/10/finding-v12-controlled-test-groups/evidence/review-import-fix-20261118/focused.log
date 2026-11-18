@@ -1,0 +1,19 @@
+test_a_changed_published_artifact_refuses (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_a_changed_published_artifact_refuses) ... ok
+test_a_publication_is_written_once (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_a_publication_is_written_once) ... ok
+test_a_revision_expression_refuses_before_anything_is_written (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_a_revision_expression_refuses_before_anything_is_written) ... ok
+test_an_input_with_no_source_tree_refuses (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_an_input_with_no_source_tree_refuses) ... ok
+test_the_embedded_request_does_not_hash_itself (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_the_embedded_request_does_not_hash_itself)
+THE FLAGGED DIGEST CYCLE, broken by ORDER rather than by a rule. ... ok
+test_the_input_digest_is_measured_and_never_supplied (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_the_input_digest_is_measured_and_never_supplied)
+A caller that passed one would be asserting a measurement it did ... ok
+test_the_producer_and_the_worker_measure_one_digest (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_the_producer_and_the_worker_measure_one_digest)
+Neither side is trusted to describe the other's measurement. ... ok
+test_the_published_tree_is_immutable (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_the_published_tree_is_immutable) ... ok
+test_the_two_spellings_of_the_published_names_are_equal (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_the_two_spellings_of_the_published_names_are_equal)
+A name spelled twice is a name that can drift. ... ok
+test_the_worker_verifies_the_published_artifacts (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_the_worker_verifies_the_published_artifacts) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.187s
+
+OK

@@ -38,6 +38,7 @@ from baton_v12.contracts import (ContractRefusal, forget_secret, live_secret,
 from baton_v12.worker_manager import ControlStore
 
 from . import input_roots
+from . import disk_roots
 from baton_v12.worker_manager import (credentials, launch, oci,
                                       workspaces,
                                       sealing)
@@ -104,15 +105,9 @@ class CredentialCase(unittest.TestCase):
         self.addCleanup(self._quiet)
 
     def _release(self):
-        for base, directories, files in os.walk(self.home_place,
-                                                topdown=False):
-            for one in directories:
-                os.chmod(os.path.join(base, one), 0o700)
-            for one in files:
-                full = os.path.join(base, one)
-                if not os.path.islink(full):
-                    os.chmod(full, 0o600)
-        os.chmod(self.home_place, 0o700)
+        # W384870: the modes were restored and the root was then LEFT BEHIND (129 roots in
+        # one manager-pure run). The fixture owns the root, so it removes it.
+        disk_roots.remove_owned_root(self.home_place)
 
     def _quiet(self):
         for value in (BEARER, SECOND):

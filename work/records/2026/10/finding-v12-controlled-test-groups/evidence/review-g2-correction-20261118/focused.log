@@ -1,0 +1,40 @@
+test_manager_recomposition_preserves_both_positive_counts (tests.tools.test_correction_restart.CountedReopen.test_manager_recomposition_preserves_both_positive_counts) ... ok
+test_unchanged_predecessor_artifacts_still_validate_without_execution (tests.tools.test_correction_restart.CountedReopen.test_unchanged_predecessor_artifacts_still_validate_without_execution) ... ok
+test_absent_actual_reopen_is_rejected (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_absent_actual_reopen_is_rejected) ... ok
+test_changed_verdict_checkpoint_or_attempt_is_rejected (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_changed_verdict_checkpoint_or_attempt_is_rejected) ... ok
+test_duplicate_engine_is_rejected_independently (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_duplicate_engine_is_rejected_independently) ... ok
+test_duplicate_provider_is_rejected_independently (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_duplicate_provider_is_rejected_independently) ... ok
+test_forged_context_receipt_is_rejected (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_forged_context_receipt_is_rejected) ... ok
+test_missing_positive_baseline_is_rejected (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_missing_positive_baseline_is_rejected) ... ok
+test_no_external_reader_runs_inside_a_control_transaction (tests.tools.test_correction_restart.TransactionBoundaryThroughTheConnectedPath.test_no_external_reader_runs_inside_a_control_transaction) ... ok
+test_a_harness_that_writes_into_the_derived_tree_is_refused_and_the_reason_is_retained (tests.tools.test_correction_restart.UsefulCorrection.test_a_harness_that_writes_into_the_derived_tree_is_refused_and_the_reason_is_retained)
+The refusal that hid behind "preparation did not answer" (five-groups-20261118). ... ok
+test_preparation_fault_reports_terminal_before_fixture_cleanup (tests.tools.test_correction_restart.UsefulCorrection.test_preparation_fault_reports_terminal_before_fixture_cleanup) ... ok
+test_unchanged_predecessor_artifacts_still_validate_without_execution (tests.tools.test_correction_restart.UsefulCorrection.test_unchanged_predecessor_artifacts_still_validate_without_execution) ... ok
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... ok
+test_a_MISSING_or_DUPLICATED_token_observation_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_a_MISSING_or_DUPLICATED_token_observation_is_rejected)
+Absence and a repeated tuple are both refusals, not silent passes. ... ok
+test_a_REUSED_runtime_id_on_the_restored_use_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_a_REUSED_runtime_id_on_the_restored_use_is_rejected)
+The other half of R1: one RUNTIME per execution. ... ok
+test_a_RUNNING_predecessor_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_a_RUNNING_predecessor_is_rejected)
+W236087 review 2026-09-29T20-25-55Z R1, the reviewer's own counterexample. ... ok
+test_a_STALE_token_generation_on_the_restored_use_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_a_STALE_token_generation_on_the_restored_use_is_rejected)
+A restored reservation reusing the opening generation is not a new token. ... ok
+test_a_WRONG_token_CONTAINER_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_a_WRONG_token_CONTAINER_is_rejected)
+Review R2 of 20-49-45Z: the exported container was ignored, so any value passed. ... ok
+test_a_WRONG_token_LAUNCH_operation_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_a_WRONG_token_LAUNCH_operation_is_rejected)
+`state.launch` must be the operation the acquisition answered. ... ok
+test_an_ALREADY_ACTIVATED_new_token_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_an_ALREADY_ACTIVATED_new_token_is_rejected)
+The other side of the boundary: the restored token is not yet activated there. ... ok
+test_an_UNRETURNED_opening_token_at_the_restored_activation_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_an_UNRETURNED_opening_token_at_the_restored_activation_is_rejected)
+The ORDERING, mutated on the OPENING EXECUTION ALONE. ... ok
+test_identical_revised_code_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_identical_revised_code_is_rejected) ... ok
+test_missing_or_forged_changes_requested_verdict_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_missing_or_forged_changes_requested_verdict_is_rejected) ... ok
+test_reviewer_context_or_writable_line_access_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_reviewer_context_or_writable_line_access_is_rejected) ... ok
+test_target_receipt_naming_original_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_target_receipt_naming_original_is_rejected) ... ok
+test_unexecuted_or_wrong_byte_verifier_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_unexecuted_or_wrong_byte_verifier_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 22.399s
+
+OK

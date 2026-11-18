@@ -1,0 +1,22 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-lasoy_a5",
+      "root_length": 20,
+      "ids": [
+        "tests.manager.test_sealing",
+        "tests.manager.test_credentials",
+        "tests.manager.test_maintenance",
+        "tests.tools.test_operator_verification_view",
+        "tests.manager.test_diagnostic_rendering",
+        "tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail"
+      ],
+      "exit": 0,
+      "seconds": 19.807243802999437,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}
