@@ -1,0 +1,33 @@
+{
+  "groups": [
+    4,
+    24,
+    27,
+    30,
+    46,
+    100,
+    113,
+    119,
+    1000,
+    1001
+  ],
+  "uid": 1000,
+  "source_unchanged": true,
+  "worker_image": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83",
+  "worker_created": "2026-11-18T02:01:23.987306109Z",
+  "worker_layers": {
+    "Layers": [
+      "sha256:6f94328331290cbd81edab450664d42da7b64c191416c9346cd5d28c84f76035",
+      "sha256:fbb9b549523b19d576c07bd8543c7f5b6595b58323baca906a1b753dae1e1598",
+      "sha256:f564df232f3c8227b05a9c4b3ab41a6d252072a52668d51bc2549c29f1ef9691",
+      "sha256:fa61e5121d04964e542f254d0ca32e8b7c4c5d6c13302d98ff566e90ff21fe8b",
+      "sha256:39b311bf11ab3aea50cd90cb03033c3ccd531feb907c45d72886bc8b76f33fb1",
+      "sha256:ea07cad3dcd4e4ad23b3eba5a6807ceb8dc9013c87fbd0ce0441c16d12599ef0",
+      "sha256:60f25f80eeb6b626049f2b6632f3631da7f13c9fee3d81f3915604a1cf14fe1b"
+    ],
+    "Type": "layers"
+  },
+  "private_image": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "docker": "29.1.3",
+  "provenance": "Same exact snapshot Docker context and installed pinned base; fresh build metadata may change image ID."
+}

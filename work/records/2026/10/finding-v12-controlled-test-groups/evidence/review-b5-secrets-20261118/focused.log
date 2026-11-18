@@ -1,0 +1,539 @@
+test_a_member_named_for_a_secret_is_refused_by_its_name (tests.manager.test_secrets.ARecordedAnswerIsWalkedAtItsOwnBoundary.test_a_member_named_for_a_secret_is_refused_by_its_name)
+The walk's other half, on this surface: `diagnostics` is free ... ok
+test_an_answer_carrying_a_live_bearer_never_reaches_the_row (tests.manager.test_secrets.ARecordedAnswerIsWalkedAtItsOwnBoundary.test_an_answer_carrying_a_live_bearer_never_reaches_the_row) ... ok
+test_an_ordinary_answer_is_recorded_unchanged (tests.manager.test_secrets.ARecordedAnswerIsWalkedAtItsOwnBoundary.test_an_ordinary_answer_is_recorded_unchanged)
+The guard refuses a leak and nothing else. ... ok
+test_a_live_value_is_refused_whatever_member_it_arrives_in (tests.manager.test_secrets.BothHalvesAreNeededAndNeitherImpliesTheOther.test_a_live_value_is_refused_whatever_member_it_arrives_in)
+A leak does not depend on what the leaking member was called. ... ok
+test_a_member_named_for_a_secret_is_refused_whatever_it_holds (tests.manager.test_secrets.BothHalvesAreNeededAndNeitherImpliesTheOther.test_a_member_named_for_a_secret_is_refused_whatever_it_holds)
+The name says the value is one. Nothing is registered here, so ... ok
+test_neither_half_is_enough_on_its_own (tests.manager.test_secrets.BothHalvesAreNeededAndNeitherImpliesTheOther.test_neither_half_is_enough_on_its_own)
+A name-only check reads as a leak boundary while being a naming ... ok
+test_the_named_members_are_matched_case_insensitively (tests.manager.test_secrets.BothHalvesAreNeededAndNeitherImpliesTheOther.test_the_named_members_are_matched_case_insensitively) ... ok
+test_a_forgotten_value_stays_readable_and_replayable (tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut.test_a_forgotten_value_stays_readable_and_replayable)
+Required correction 3, and the reason the rule is DYNAMIC. ... ok
+test_a_hand_edited_offer_cannot_leave_the_claimed_offers_read (tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut.test_a_hand_edited_offer_cannot_leave_the_claimed_offers_read)
+`offers` is a persisted-row projection like the journal, and its ... ok
+test_no_public_door_quotes_a_live_bearer_before_it_walks (tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut.test_no_public_door_quotes_a_live_bearer_before_it_walks)
+Fourth review [P1], generalized to every door that QUOTES. ... ok
+test_the_bearer_the_issue_path_returns_is_not_a_persisted_column (tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut.test_the_bearer_the_issue_path_returns_is_not_a_persisted_column)
+Why the central walk cannot collide with the one deliberate ... ok
+test_the_secret_walk_precedes_column_diagnostics_that_quote_values (tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut.test_the_secret_walk_precedes_column_diagnostics_that_quote_values)
+The guard must be the first content rule at the row crossing. ... ok
+test_the_shape_still_decides_when_nothing_is_held (tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut.test_the_shape_still_decides_when_nothing_is_held)
+The ordering refuses a LEAK earlier; it does not swallow the ... ok
+test_the_walk_is_reached_by_the_row_boundary_and_not_by_a_reader (tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut.test_the_walk_is_reached_by_the_row_boundary_and_not_by_a_reader)
+The anti-circularity half: the guard is at the ONE crossing, so a ... ok
+test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered) ... ok
+test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale)
+A list of exceptions nobody compares to the code is a list of ... ok
+test_the_journal_writer_is_the_one_that_walks (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_the_journal_writer_is_the_one_that_walks)
+The single point every mutating act passes through, named here so ... ok
+test_the_sweep_can_actually_fail (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_the_sweep_can_actually_fail)
+Nothing is uncovered today, so relaxing the check changes no ... ok
+test_the_universe_is_not_read_from_the_coverage_table (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_the_universe_is_not_read_from_the_coverage_table)
+The rule that makes a sweep worth having: a writer with no coverage ... ok
+test_an_exported_class_does_not_hide_its_public_methods (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_an_exported_class_does_not_hide_its_public_methods)
+`__all__` exports the class, but callers use its public methods. ... ok
+test_every_constructing_surface_refuses_a_live_bearer (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_constructing_surface_refuses_a_live_bearer)
+The entries above are FACTS rather than claims. Each drives the ... ok
+test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class) ... ok
+test_the_gate_discharge_refuses_a_live_bearer_at_its_identity (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_the_gate_discharge_refuses_a_live_bearer_at_its_identity)
+W119548, driven rather than classified. ... ok
+test_the_method_universe_is_derived_and_not_listed (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_the_method_universe_is_derived_and_not_listed)
+The anti-circularity half, for the methods. The names come from ... ok
+test_the_public_sweep_can_actually_fail (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_the_public_sweep_can_actually_fail)
+Every surface is accounted for today, so relaxing the check changes ... ok
+test_the_universe_is_not_read_from_either_table (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_the_universe_is_not_read_from_either_table)
+The rule that makes a sweep worth having, restated for this half: ... ok
+test_a_bearer_nested_in_a_copied_body_is_as_durable_as_one_at_the_root (tests.manager.test_secrets.ItIsAWalkAtAnyDepth.test_a_bearer_nested_in_a_copied_body_is_as_durable_as_one_at_the_root) ... ok
+test_a_bearer_used_as_a_KEY_is_refused (tests.manager.test_secrets.ItIsAWalkAtAnyDepth.test_a_bearer_used_as_a_KEY_is_refused)
+Canonical JSON stores a key as durably as a value. ... ok
+test_a_named_member_nested_deep_is_refused_too (tests.manager.test_secrets.ItIsAWalkAtAnyDepth.test_a_named_member_nested_deep_is_refused_too) ... ok
+test_a_value_with_behaviour_is_not_interrogated (tests.manager.test_secrets.ItIsAWalkAtAnyDepth.test_a_value_with_behaviour_is_not_interrogated)
+A rule whose whole job is to decide without running anything does ... ok
+test_values_that_carry_no_text_are_not_walked_into (tests.manager.test_secrets.ItIsAWalkAtAnyDepth.test_values_that_carry_no_text_are_not_walked_into) ... ok
+test_no_public_surface_answers_with_a_bearer_in_its_diagnostic (tests.manager.test_secrets.NoPublicRefusalQuotesALiveBearer.test_no_public_surface_answers_with_a_bearer_in_its_diagnostic)
+The measurement. Thirty of these answered with the bearer in the ... ok
+test_the_sweep_can_actually_fail (tests.manager.test_secrets.NoPublicRefusalQuotesALiveBearer.test_the_sweep_can_actually_fail)
+A gate with nothing to catch is tested by handing it something. The ... ok
+test_the_universe_agrees_with_the_public_inventory (tests.manager.test_secrets.NoPublicRefusalQuotesALiveBearer.test_the_universe_agrees_with_the_public_inventory)
+One derivation, read twice. A surface this sweep cannot reach would ... ok
+test_a_hand_edited_journal_row_cannot_leave_either_public_read (tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces.test_a_hand_edited_journal_row_cannot_leave_either_public_read)
+The journal is the same receiving trust domain as profiles. ... ok
+test_a_live_bearer_never_becomes_a_manager_signature (tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces.test_a_live_bearer_never_becomes_a_manager_signature)
+The journal guard is too late for protocol identity: the exported ... ok
+test_a_malformed_public_document_cannot_quote_the_live_bearer_it_is_made_of (tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces.test_a_malformed_public_document_cannot_quote_the_live_bearer_it_is_made_of)
+An ownership/type diagnostic is itself a public surface. ... ok
+test_a_portable_refusal_cannot_carry_an_interpolated_bearer (tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces.test_a_portable_refusal_cannot_carry_an_interpolated_bearer)
+Sealing is the point a diagnostic becomes a portable document. ... ok
+test_a_profile_is_rewalked_before_the_read_surface_returns_it (tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces.test_a_profile_is_rewalked_before_the_read_surface_returns_it)
+A guard on the write path cannot see a later hand edit. The public ... ok
+test_reviving_untrusted_text_cannot_construct_a_bearer_diagnostic (tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces.test_reviving_untrusted_text_cannot_construct_a_bearer_diagnostic)
+The public revival door accepts caller text, not necessarily bytes ... ok
+test_a_cancelled_act_leaves_no_registration_behind (tests.manager.test_secrets.RestartAndCancellationForget.test_a_cancelled_act_leaves_no_registration_behind) ... ok
+test_the_registry_is_process_state_and_persists_nothing (tests.manager.test_secrets.RestartAndCancellationForget.test_the_registry_is_process_state_and_persists_nothing)
+Restart semantics, asserted rather than asserted-about: a bearer ... ok
+test_a_certified_profile_carrying_a_live_bearer_is_refused (tests.manager.test_secrets.TheAgentSessionProfileIsWalked.test_a_certified_profile_carrying_a_live_bearer_is_refused) ... ok
+test_a_bearer_that_is_not_text_still_refuses_as_a_capability (tests.manager.test_secrets.TheBearerIsHeldForTheActsThatSpendIt.test_a_bearer_that_is_not_text_still_refuses_as_a_capability)
+Registering it would answer a different question: a value that ... ok
+test_a_decline_that_carries_the_bearer_is_refused_before_it_settles (tests.manager.test_secrets.TheBearerIsHeldForTheActsThatSpendIt.test_a_decline_that_carries_the_bearer_is_refused_before_it_settles)
+`reason` is caller prose that reaches a durable column and rides the ... ok
+test_accepting_holds_the_bearer_and_leaves_nothing_behind (tests.manager.test_secrets.TheBearerIsHeldForTheActsThatSpendIt.test_accepting_holds_the_bearer_and_leaves_nothing_behind) ... ok
+test_declining_holds_no_bearer_and_leaves_nothing_behind (tests.manager.test_secrets.TheBearerIsHeldForTheActsThatSpendIt.test_declining_holds_no_bearer_and_leaves_nothing_behind)
+The positive half: a bearer-free decline settles the offer and ... ok
+test_issuing_answers_with_the_bearer_and_stores_the_verifier (tests.manager.test_secrets.TheBearerIsHeldForTheActsThatSpendIt.test_issuing_answers_with_the_bearer_and_stores_the_verifier)
+The bearer rides back with the RESULT deliberately: holding it ... ok
+test_the_bearer_is_live_while_the_issue_act_journals (tests.manager.test_secrets.TheBearerIsHeldForTheActsThatSpendIt.test_the_bearer_is_live_while_the_issue_act_journals)
+Proved from inside the act: a mint that also tries to journal the ... ok
+test_a_bearer_in_a_durable_refusal_is_refused (tests.manager.test_secrets.TheJournalIsADurableSurface.test_a_bearer_in_a_durable_refusal_is_refused)
+A DURABLE refusal is sealed into the journal, so its message is a ... ok
+test_a_bearer_in_a_journalled_result_is_refused (tests.manager.test_secrets.TheJournalIsADurableSurface.test_a_bearer_in_a_journalled_result_is_refused) ... ok
+test_a_bearer_in_an_operations_signature_is_refused (tests.manager.test_secrets.TheJournalIsADurableSurface.test_a_bearer_in_an_operations_signature_is_refused)
+Secrets never reach protocol identity: the signature is the full ... ok
+test_an_ordinary_operation_is_untouched (tests.manager.test_secrets.TheJournalIsADurableSurface.test_an_ordinary_operation_is_untouched) ... ok
+test_nothing_of_the_refused_act_survives (tests.manager.test_secrets.TheJournalIsADurableSurface.test_nothing_of_the_refused_act_survives)
+The guard runs inside the write, so a leak takes the act's writes ... ok
+test_a_manifest_carrying_a_live_bearer_is_refused (tests.manager.test_secrets.TheManifestCompositeIsTheTrustEntry.test_a_manifest_carrying_a_live_bearer_is_refused) ... ok
+test_the_named_half_is_unreachable_through_a_manifest_and_why (tests.manager.test_secrets.TheManifestCompositeIsTheTrustEntry.test_the_named_half_is_unreachable_through_a_manifest_and_why)
+MEASURED, not assumed. Inside a frozen manifest there is nowhere a ... ok
+test_the_published_vector_still_passes (tests.manager.test_secrets.TheManifestCompositeIsTheTrustEntry.test_the_published_vector_still_passes) ... ok
+test_a_forgotten_bearer_stops_being_a_leak (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_a_forgotten_bearer_stops_being_a_leak)
+The dynamic rule, restated for diagnostics: the guard refuses a ... ok
+test_a_live_bearer_containing_pair_operand_gives_way_too (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_a_live_bearer_containing_pair_operand_gives_way_too)
+CONTAINMENT, here as everywhere. An invalid category that merely ... ok
+test_a_live_pair_operand_gives_way_to_a_sentence_that_says_so (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_a_live_pair_operand_gives_way_to_a_sentence_that_says_so)
+It gives way to an explanation rather than to silence: a reader ... ok
+test_a_live_type_name_cannot_leave_in_an_assertion (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_a_live_type_name_cannot_leave_in_an_assertion)
+The review's own example: a build-owned class name can itself be ... ok
+test_a_pair_operand_that_is_not_text_is_named_by_its_type (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_a_pair_operand_that_is_not_text_is_named_by_its_type)
+The same rule `name_value` follows: a value with behaviour is ... ok
+test_a_pair_operand_with_a_hostile_hash_never_runs (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_a_pair_operand_with_a_hostile_hash_never_runs)
+Shape before membership. `x in mapping` hashes x, and `__hash__` ... ok
+test_a_refusal_quoting_a_live_bearer_cannot_be_constructed (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_a_refusal_quoting_a_live_bearer_cannot_be_constructed) ... ok
+test_an_empty_message_is_accepted_because_it_can_carry_nothing (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_an_empty_message_is_accepted_because_it_can_carry_nothing)
+The terminal case, stated as its own fact. If this ever refused, ... ok
+test_an_ordinary_bad_pair_is_still_quoted_verbatim (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_an_ordinary_bad_pair_is_still_quoted_verbatim)
+PROVED, NOT SUPPRESSED. A misspelled category is a build defect ... ok
+test_an_ordinary_defect_still_reads_as_one (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_an_ordinary_defect_still_reads_as_one)
+The other half, for all five assertions: with nothing live, each ... ok
+test_an_ordinary_refusal_is_untouched (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_an_ordinary_refusal_is_untouched)
+The other half. With nothing held, the diagnostic the raising site ... ok
+test_every_assertion_in_the_constructor_goes_through_the_one_owner (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_every_assertion_in_the_constructor_goes_through_the_one_owner)
+THE CONSTRUCTION, read from the source rather than trusted. ... ok
+test_message_and_durability_type_assertions_do_not_consult_metaclass (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_message_and_durability_type_assertions_do_not_consult_metaclass)
+The later constructor assertions are pre-guard diagnostics too. ... ok
+test_no_assertion_in_the_constructor_names_a_type_unsafely (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_no_assertion_in_the_constructor_names_a_type_unsafely)
+`type(x).__name__` consults a caller-controlled metaclass, which ... ok
+test_one_snapshot_answers_both_questions (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_one_snapshot_answers_both_questions)
+The message and the replacement are one decision. Asking the ... ok
+test_pair_ownership_precedes_membership_and_runs_no_caller_hash (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_pair_ownership_precedes_membership_and_runs_no_caller_hash)
+`_rejected` cannot own a malformed pair operand after membership. ... ok
+test_pair_redactions_are_themselves_proved_by_containment (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_pair_redactions_are_themselves_proved_by_containment)
+Safe provenance is not safe content. ... ok
+test_the_defect_text_gives_way_whole_when_its_own_words_are_live (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_the_defect_text_gives_way_whole_when_its_own_words_are_live)
+Safe provenance is not safe content. A redaction sentence and a ... ok
+test_the_message_owner_s_other_rules_still_fire (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_the_message_owner_s_other_rules_still_fire)
+The §13 rule is added to that owner, not substituted for it. ... ok
+test_the_pair_and_the_message_share_one_snapshot (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_the_pair_and_the_message_share_one_snapshot)
+One construction, one view of the registry. Two reads could ... ok
+test_the_pair_assertions_cannot_quote_a_live_bearer (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_the_pair_assertions_cannot_quote_a_live_bearer)
+The constructor's own earlier diagnostics are public text too. ... ok
+test_the_prose_is_still_used_when_it_carries_nothing_live (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_the_prose_is_still_used_when_it_carries_nothing_live)
+The other half: giving way is the exception, not the rule. An ... ok
+test_the_replacement_gives_way_to_an_empty_message_and_not_to_a_leak (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_the_replacement_gives_way_to_an_empty_message_and_not_to_a_leak)
+The fallback is the ONE string a non-empty value cannot be ... ok
+test_the_substitute_cannot_quote_a_live_bearer_substring (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_the_substitute_cannot_quote_a_live_bearer_substring)
+Containment applies to the replacement too, not only equality. ... ok
+test_the_substitute_is_proved_by_containment_and_never_exempted (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_the_substitute_is_proved_by_containment_and_never_exempted)
+SIXTH REVIEW [P1] REPLACED THIS ASSERTION, and the old one was the ... ok
+test_the_substitution_keeps_the_durability_it_replaced (tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.test_the_substitution_keeps_the_durability_it_replaced)
+A leak found while composing a diagnostic does not un-write what ... ok
+test_a_remembered_secret_is_non_empty_text (tests.manager.test_secrets.TheRegistryHoldsOnlyWhatIsLive.test_a_remembered_secret_is_non_empty_text) ... ok
+test_a_value_is_live_only_while_it_is_held (tests.manager.test_secrets.TheRegistryHoldsOnlyWhatIsLive.test_a_value_is_live_only_while_it_is_held) ... ok
+test_an_act_that_raises_still_forgets (tests.manager.test_secrets.TheRegistryHoldsOnlyWhatIsLive.test_an_act_that_raises_still_forgets)
+However the act ends. A bearer left registered by a failure would ... ok
+test_registrations_nest_and_the_inner_release_frees_nothing (tests.manager.test_secrets.TheRegistryHoldsOnlyWhatIsLive.test_registrations_nest_and_the_inner_release_frees_nothing)
+An outer owner holding a bearer and an inner scope using the same ... ok
+test_the_count_survives_concurrent_owners (tests.manager.test_secrets.TheRegistryHoldsOnlyWhatIsLive.test_the_count_survives_concurrent_owners)
+A manager may serve several threads, and a count two of them ... ok
+test_the_release_answers_about_the_value_not_about_the_call (tests.manager.test_secrets.TheRegistryHoldsOnlyWhatIsLive.test_the_release_answers_about_the_value_not_about_the_call)
+An unbalanced release of a value that is already gone has nothing ... ok
+test_a_line_creation_carrying_a_bearer_reserves_no_row (tests.manager.test_secrets.TheReviewLineWritersRefuseALiveBearerBeforeTheyWrite.test_a_line_creation_carrying_a_bearer_reserves_no_row)
+`_reserved_line`'s INSERT: the declared base is a free operand, and it ... ok
+test_a_pre_attach_fence_carrying_a_bearer_reason_declares_nothing (tests.manager.test_secrets.TheReviewLineWritersRefuseALiveBearerBeforeTheyWrite.test_a_pre_attach_fence_carrying_a_bearer_reason_declares_nothing)
+`_no_start_declared`'s UPDATE: the operator's reason rides the ... ok
+test_a_writer_release_carrying_a_bearer_reason_leaves_the_writer_active (tests.manager.test_secrets.TheReviewLineWritersRefuseALiveBearerBeforeTheyWrite.test_a_writer_release_carrying_a_bearer_reason_leaves_the_writer_active)
+`release_writer`'s two UPDATEs: the reason is a member of the result ... ok
+test_a_bare_string_surface_is_walked (tests.manager.test_secrets.TheValueTestIsContainment.test_a_bare_string_surface_is_walked) ... ok
+test_an_interpolated_bearer_is_a_leak (tests.manager.test_secrets.TheValueTestIsContainment.test_an_interpolated_bearer_is_a_leak)
+THE ONE MOST LIKELY TO BE MISSED. A refusal message that quoted an ... ok
+test_equality_would_have_missed_it (tests.manager.test_secrets.TheValueTestIsContainment.test_equality_would_have_missed_it)
+Stated as the property rather than as prose: the leaking string is ... ok
+test_every_pinned_build_artifact_carries_a_hash (tests.authority.test_boundary.Distribution.test_every_pinned_build_artifact_carries_a_hash) ... ok
+test_the_authority_slice_still_reaches_for_no_validator (tests.authority.test_boundary.Distribution.test_the_authority_slice_still_reaches_for_no_validator) ... /usr/lib/python3.13/tempfile.py:1132: ResourceWarning: Implicitly cleaning up <TemporaryDirectory '/var/tmp/rv-yb3h12w1/v12-secrets-qpu411rb'>
+  _warnings.warn(warn_message, ResourceWarning)
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7516f377c9a0>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_distribution_declares_the_python_it_requires (tests.authority.test_boundary.Distribution.test_the_distribution_declares_the_python_it_requires) ... ok
+test_the_runtime_lock_says_which_slice_its_pins_are_for (tests.authority.test_boundary.Distribution.test_the_runtime_lock_says_which_slice_its_pins_are_for) ... ok
+test_every_caller_text_family_is_bounded (tests.authority.test_boundary.EveryCallerTextFamilyIsBounded.test_every_caller_text_family_is_bounded) ... ok
+test_the_digest_and_receipt_collision_families_are_bounded (tests.authority.test_boundary.EveryCallerTextFamilyIsBounded.test_the_digest_and_receipt_collision_families_are_bounded) ... ok
+test_the_store_path_family_is_bounded (tests.authority.test_boundary.EveryCallerTextFamilyIsBounded.test_the_store_path_family_is_bounded) ... ok
+test_a_named_site_does_not_travel (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_a_named_site_does_not_travel) ... ok
+test_a_named_site_does_not_travel_between_same_named_functions (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_a_named_site_does_not_travel_between_same_named_functions) ... ok
+test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)
+The unique LEXICAL identity, pinned. ... ok
+test_every_named_site_is_actually_there (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_is_actually_there) ... ok
+test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value) ... ok
+test_origin_proof_respects_modules_scopes_and_control_flow (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_origin_proof_respects_modules_scopes_and_control_flow) ... ok
+test_the_analyzer_refuses_what_it_cannot_prove (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_analyzer_refuses_what_it_cannot_prove)
+The conservative half, stated as cases rather than as intent. ... ok
+test_the_check_itself_is_not_vacuous (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_check_itself_is_not_vacuous) ... ok
+test_the_classifier_accepts_only_the_exact_bounded_shape (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_classifier_accepts_only_the_exact_bounded_shape) ... ok
+test_the_shapes_the_classifier_must_still_reject (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_shapes_the_classifier_must_still_reject) ... ok
+test_a_later_cut_adds_methods_rather_than_stubs (tests.authority.test_boundary.ExportedSurface.test_a_later_cut_adds_methods_rather_than_stubs) ... ok
+test_no_exported_name_is_a_store_a_path_or_a_way_to_run_sql (tests.authority.test_boundary.ExportedSurface.test_no_exported_name_is_a_store_a_path_or_a_way_to_run_sql) ... ok
+test_the_bootstrap_face_configures_and_reads_and_never_acts (tests.authority.test_boundary.ExportedSurface.test_the_bootstrap_face_configures_and_reads_and_never_acts) ... ok
+test_the_exported_names_are_the_promise (tests.authority.test_boundary.ExportedSurface.test_the_exported_names_are_the_promise) ... ok
+test_an_in_container_declaration_is_not_a_reach (tests.authority.test_boundary.Isolation.test_an_in_container_declaration_is_not_a_reach)
+W384870 B5: `opt/baton` is forbidden because it is where a v11 ... ok
+test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) ... ok
+test_the_authority_imports_nothing_but_the_standard_library_and_itself (tests.authority.test_boundary.Isolation.test_the_authority_imports_nothing_but_the_standard_library_and_itself) ... ok
+test_the_authority_schema_carries_no_manager_or_control_facts (tests.authority.test_boundary.Isolation.test_the_authority_schema_carries_no_manager_or_control_facts) ... ok
+test_the_bootstrap_face_carries_the_same_refusals (tests.authority.test_store.AuthorityFace.test_the_bootstrap_face_carries_the_same_refusals) ... ok
+test_the_bootstrap_face_creates_opens_and_disposes (tests.authority.test_store.AuthorityFace.test_the_bootstrap_face_creates_opens_and_disposes) ... ok
+test_a_creation_that_fails_AFTER_the_reservation_cleans_up (tests.authority.test_store.Creation.test_a_creation_that_fails_AFTER_the_reservation_cleans_up) ... ok
+test_a_failed_creation_leaves_no_store_to_confuse_the_next_one (tests.authority.test_store.Creation.test_a_failed_creation_leaves_no_store_to_confuse_the_next_one) ... ok
+test_create_makes_a_new_authority_and_records_whose_it_is (tests.authority.test_store.Creation.test_create_makes_a_new_authority_and_records_whose_it_is) ... ok
+test_create_proves_the_uuid_before_it_touches_the_filesystem (tests.authority.test_store.Creation.test_create_proves_the_uuid_before_it_touches_the_filesystem) ... ok
+test_create_refuses_an_occupied_path_of_any_kind (tests.authority.test_store.Creation.test_create_refuses_an_occupied_path_of_any_kind) ... ok
+test_create_requires_absence_and_wins_it_exclusively (tests.authority.test_store.Creation.test_create_requires_absence_and_wins_it_exclusively) ... ok
+test_the_authority_creates_no_directory (tests.authority.test_store.Creation.test_the_authority_creates_no_directory) ... ok
+test_a_failed_open_commits_nothing_it_wrote_on_the_way (tests.authority.test_store.Opening.test_a_failed_open_commits_nothing_it_wrote_on_the_way) ... ok
+test_a_malformed_recorded_uuid_is_not_a_recognized_authority (tests.authority.test_store.Opening.test_a_malformed_recorded_uuid_is_not_a_recognized_authority) ... ok
+test_a_non_regular_target_refuses (tests.authority.test_store.Opening.test_a_non_regular_target_refuses) ... ok
+test_a_refused_open_makes_no_PERSISTENT_change_either (tests.authority.test_store.Opening.test_a_refused_open_makes_no_PERSISTENT_change_either) ... ok
+test_a_shared_version_number_is_not_shared_ownership (tests.authority.test_store.Opening.test_a_shared_version_number_is_not_shared_ownership) ... ok
+test_a_store_of_another_version_is_refused_in_either_direction (tests.authority.test_store.Opening.test_a_store_of_another_version_is_refused_in_either_direction) ... ok
+test_a_store_that_cannot_say_which_authority_it_is_is_not_openable (tests.authority.test_store.Opening.test_a_store_that_cannot_say_which_authority_it_is_is_not_openable) ... ok
+test_a_symlink_is_not_a_durable_home_for_an_authority_uuid (tests.authority.test_store.Opening.test_a_symlink_is_not_a_durable_home_for_an_authority_uuid) ... ok
+test_open_requires_an_existing_recognized_store (tests.authority.test_store.Opening.test_open_requires_an_existing_recognized_store) ... ok
+test_open_returns_the_recorded_authority (tests.authority.test_store.Opening.test_open_returns_the_recorded_authority) ... ok
+test_the_expected_uuid_is_a_compare_and_swap_not_a_default (tests.authority.test_store.Opening.test_the_expected_uuid_is_a_compare_and_swap_not_a_default) ... ok
+test_the_face_and_the_live_store_can_never_name_two_authorities (tests.authority.test_store.Opening.test_the_face_and_the_live_store_can_never_name_two_authorities) ... ok
+test_the_recheck_window_writes_nothing_to_a_file_that_is_not_ours (tests.authority.test_store.Opening.test_the_recheck_window_writes_nothing_to_a_file_that_is_not_ours) ... ok
+test_a_closed_store_reads_its_committed_evidence (tests.authority.test_store.ReadOnlyOpening.test_a_closed_store_reads_its_committed_evidence)
+CONVERTED under owner M128249, which permits SQLite's own WAL and ... ok
+test_a_directory_or_symlink_is_refused (tests.authority.test_store.ReadOnlyOpening.test_a_directory_or_symlink_is_refused) ... ok
+test_a_file_that_is_not_a_database_is_refused (tests.authority.test_store.ReadOnlyOpening.test_a_file_that_is_not_a_database_is_refused) ... ok
+test_a_foreign_store_is_refused_byte_for_byte (tests.authority.test_store.ReadOnlyOpening.test_a_foreign_store_is_refused_byte_for_byte)
+Adopting nothing is the property, and it is the same one `open` ... ok
+test_a_malformed_expected_uuid_refuses (tests.authority.test_store.ReadOnlyOpening.test_a_malformed_expected_uuid_refuses) ... ok
+test_a_matching_expected_uuid_opens (tests.authority.test_store.ReadOnlyOpening.test_a_matching_expected_uuid_opens) ... ok
+test_a_mismatched_expected_uuid_refuses (tests.authority.test_store.ReadOnlyOpening.test_a_mismatched_expected_uuid_refuses)
+The compare-and-swap on identity keeps its exact meaning. ... ok
+test_a_partial_sidecar_pair_reads_the_same_committed_evidence (tests.authority.test_store.ReadOnlyOpening.test_a_partial_sidecar_pair_reads_the_same_committed_evidence)
+CONVERTED for the same reason, over the two states the earlier ... ok
+test_a_public_transition_refuses_through_that_boundary (tests.authority.test_store.ReadOnlyOpening.test_a_public_transition_refuses_through_that_boundary)
+Through the ordinary public face rather than the store directly. ... ok
+test_a_read_only_filesystem_store_is_readable (tests.authority.test_store.ReadOnlyOpening.test_a_read_only_filesystem_store_is_readable)
+Where the platform supports it: the store's own directory is not ... ok
+test_a_serving_shutdown_during_the_open_still_reads (tests.authority.test_store.ReadOnlyOpening.test_a_serving_shutdown_during_the_open_still_reads)
+CONVERTED. The window a pre-check cannot close is no longer a ... ok
+test_a_statement_refuses_before_it_reaches_sqlite (tests.authority.test_store.ReadOnlyOpening.test_a_statement_refuses_before_it_reaches_sqlite)
+This authority's own refusal, not a `sqlite3` error out of the ... ok
+test_a_write_transaction_refuses_before_the_begin (tests.authority.test_store.ReadOnlyOpening.test_a_write_transaction_refuses_before_the_begin) ... ok
+test_an_absent_store_is_refused_and_none_is_created (tests.authority.test_store.ReadOnlyOpening.test_an_absent_store_is_refused_and_none_is_created) ... ok
+test_an_empty_file_is_refused_and_left_empty (tests.authority.test_store.ReadOnlyOpening.test_an_empty_file_is_refused_and_left_empty) ... ok
+test_an_incompatible_version_is_refused_unchanged (tests.authority.test_store.ReadOnlyOpening.test_an_incompatible_version_is_refused_unchanged) ... ok
+test_it_opens_an_existing_store_and_answers_its_identity (tests.authority.test_store.ReadOnlyOpening.test_it_opens_an_existing_store_and_answers_its_identity) ... ok
+test_it_reads_committed_wal_data_written_while_it_is_open (tests.authority.test_store.ReadOnlyOpening.test_it_reads_committed_wal_data_written_while_it_is_open)
+THE CASE THIS OPENER EXISTS FOR. A serving process holds the store ... ok
+test_no_database_is_created_where_none_exists (tests.authority.test_store.ReadOnlyOpening.test_no_database_is_created_where_none_exists)
+THE PROTECTION THE AMENDMENT DID NOT TOUCH, kept explicit beside ... ok
+test_opening_and_reading_changes_no_store_byte (tests.authority.test_store.ReadOnlyOpening.test_opening_and_reading_changes_no_store_byte)
+No schema, no migration, no write-ahead log, no mode change and no ... ok
+test_the_committed_operation_journal_is_readable (tests.authority.test_store.ReadOnlyOpening.test_the_committed_operation_journal_is_readable)
+The receipt and operation readers the consumer came for. ... ok
+test_the_journal_mode_is_not_changed (tests.authority.test_store.ReadOnlyOpening.test_the_journal_mode_is_not_changed) ... ok
+test_the_public_readers_still_answer (tests.authority.test_store.ReadOnlyOpening.test_the_public_readers_still_answer) ... ok
+test_the_reader_leaves_the_writers_store_intact (tests.authority.test_store.ReadOnlyOpening.test_the_reader_leaves_the_writers_store_intact) ... ok
+test_a_failed_transaction_leaves_nothing_behind (tests.authority.test_store.Transactions.test_a_failed_transaction_leaves_nothing_behind) ... ok
+test_a_failure_inside_a_nested_transaction_rolls_the_whole_one_back (tests.authority.test_store.Transactions.test_a_failure_inside_a_nested_transaction_rolls_the_whole_one_back) ... ok
+test_a_write_cannot_silently_join_a_read_snapshot (tests.authority.test_store.Transactions.test_a_write_cannot_silently_join_a_read_snapshot) ... ok
+test_nested_transactions_join_the_outer_one_and_commit_once (tests.authority.test_store.Transactions.test_nested_transactions_join_the_outer_one_and_commit_once) ... ok
+test_a_NON_DATABASE_file_releases_and_is_a_CONTRACT_refusal (tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle.test_a_NON_DATABASE_file_releases_and_is_a_CONTRACT_refusal)
+A driver's own exception escaping here would make a reader handle ... ok
+test_a_failed_read_reports_SQLITES_WORDS_and_the_MEASURED_condition (tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle.test_a_failed_read_reports_SQLITES_WORDS_and_the_MEASURED_condition)
+W316915. The refusal used to carry the exception CLASS and no more. ... ok
+test_a_foreign_database_releases (tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle.test_a_foreign_database_releases) ... ok
+test_an_old_schema_releases (tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle.test_an_old_schema_releases) ... ok
+test_another_authority_releases (tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle.test_another_authority_releases) ... ok
+test_the_non_database_refusal_names_NO_WRITABLE_FALLBACK (tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle.test_the_non_database_refusal_names_NO_WRITABLE_FALLBACK) ... ok
+test_a_DIRECTORY_at_the_path_is_refused (tests.job_manager.test_store_readonly.ItCREATESNothingAndINITIALIZESNothing.test_a_DIRECTORY_at_the_path_is_refused) ... ok
+test_a_MISSING_store_is_refused (tests.job_manager.test_store_readonly.ItCREATESNothingAndINITIALIZESNothing.test_a_MISSING_store_is_refused) ... ok
+test_a_store_with_NO_OBJECTS_is_refused_and_NOT_initialized (tests.job_manager.test_store_readonly.ItCREATESNothingAndINITIALIZESNothing.test_a_store_with_NO_OBJECTS_is_refused_and_NOT_initialized)
+An empty FILE and an empty DATABASE are different inputs. ... ok
+test_an_EMPTY_FILE_is_refused_and_NOT_initialized (tests.job_manager.test_store_readonly.ItCREATESNothingAndINITIALIZESNothing.test_an_EMPTY_FILE_is_refused_and_NOT_initialized)
+The defect the verifier's header guard was written for, and this is ... ok
+test_and_the_missing_store_is_STILL_MISSING (tests.job_manager.test_store_readonly.ItCREATESNothingAndINITIALIZESNothing.test_and_the_missing_store_is_STILL_MISSING)
+`open` would have created it. This is the whole difference. ... ok
+test_a_FUTURE_schema_store_is_refused (tests.job_manager.test_store_readonly.ItMIGRATESNothing.test_a_FUTURE_schema_store_is_refused) ... ok
+test_a_VALID_OLD_SCHEMA_store_is_refused_WITHOUT_migration (tests.job_manager.test_store_readonly.ItMIGRATESNothing.test_a_VALID_OLD_SCHEMA_store_is_refused_WITHOUT_migration)
+THE CASE THE INTERIM GUARD COULD NOT PASS. This store is a ... ok
+test_the_ORDINARY_opener_still_migrates_it (tests.job_manager.test_store_readonly.ItMIGRATESNothing.test_the_ORDINARY_opener_still_migrates_it)
+The shared validation must not have changed `open`'s behaviour, and ... ok
+test_an_owned_current_store_opens (tests.job_manager.test_store_readonly.ItREADSAStoreThisBuildOwns.test_an_owned_current_store_opens) ... ok
+test_reading_does_not_SWITCH_a_non_WAL_store_to_WAL (tests.job_manager.test_store_readonly.ItREADSAStoreThisBuildOwns.test_reading_does_not_SWITCH_a_non_WAL_store_to_WAL)
+`open` requests WAL; this must not, because changing a store's ... ok
+test_reading_leaves_the_store_BYTE_IDENTICAL (tests.job_manager.test_store_readonly.ItREADSAStoreThisBuildOwns.test_reading_leaves_the_store_BYTE_IDENTICAL) ... ok
+test_the_rows_it_answers_are_the_ONES_THAT_ARE_THERE (tests.job_manager.test_store_readonly.ItREADSAStoreThisBuildOwns.test_the_rows_it_answers_are_the_ONES_THAT_ARE_THERE)
+An opener that returns a handle onto an empty schema would satisfy ... ok
+test_a_WRITE_through_the_handle_is_refused_by_SQLITE_ITSELF (tests.job_manager.test_store_readonly.ItREFUSESToWrite.test_a_WRITE_through_the_handle_is_refused_by_SQLITE_ITSELF) ... ok
+test_and_the_store_is_STILL_byte_identical_afterwards (tests.job_manager.test_store_readonly.ItREFUSESToWrite.test_and_the_store_is_STILL_byte_identical_afterwards) ... ok
+test_ANOTHER_AUTHORITYS_store_is_refused (tests.job_manager.test_store_readonly.ItREFUSESWhatIsNotItsOwn.test_ANOTHER_AUTHORITYS_store_is_refused) ... ok
+test_a_FOREIGN_database_is_refused (tests.job_manager.test_store_readonly.ItREFUSESWhatIsNotItsOwn.test_a_FOREIGN_database_is_refused) ... ok
+test_a_MALFORMED_authority_operand_is_refused_before_the_path (tests.job_manager.test_store_readonly.ItREFUSESWhatIsNotItsOwn.test_a_MALFORMED_authority_operand_is_refused_before_the_path)
+Proved by refusing at a path that is not even there: if the operand ... ok
+test_a_database_with_a_COINCIDENTAL_meta_table_is_refused (tests.job_manager.test_store_readonly.ItREFUSESWhatIsNotItsOwn.test_a_database_with_a_COINCIDENTAL_meta_table_is_refused)
+The name `meta` is not permission to read `key, value` out of it. ... ok
+test_an_EMPTY_incarnation_is_refused (tests.job_manager.test_store_readonly.ItREFUSESWhatIsNotItsOwn.test_an_EMPTY_incarnation_is_refused) ... ok
+test_a_NON_WAL_store_gains_no_sidecar_at_all (tests.job_manager.test_store_readonly.SQLiteManagedSidecarsAreNOTDatabaseMutation.test_a_NON_WAL_store_gains_no_sidecar_at_all)
+The clean case, so the one above reads as SQLite's WAL requirement ... ok
+test_a_REFUSED_read_of_a_WAL_store_changes_no_DATABASE_byte (tests.job_manager.test_store_readonly.SQLiteManagedSidecarsAreNOTDatabaseMutation.test_a_REFUSED_read_of_a_WAL_store_changes_no_DATABASE_byte) ... ok
+test_a_successful_read_of_a_WAL_store_changes_no_DATABASE_byte (tests.job_manager.test_store_readonly.SQLiteManagedSidecarsAreNOTDatabaseMutation.test_a_successful_read_of_a_WAL_store_changes_no_DATABASE_byte) ... ok
+test_open_STILL_INITIALIZES_an_absent_store (tests.job_manager.test_store_readonly.TheORDINARYOpenerIsUNCHANGED.test_open_STILL_INITIALIZES_an_absent_store) ... ok
+test_open_STILL_REFUSES_a_foreign_database (tests.job_manager.test_store_readonly.TheORDINARYOpenerIsUNCHANGED.test_open_STILL_REFUSES_a_foreign_database) ... ok
+test_open_STILL_REFUSES_another_Authoritys_store (tests.job_manager.test_store_readonly.TheORDINARYOpenerIsUNCHANGED.test_open_STILL_REFUSES_another_Authoritys_store) ... ok
+test_a_completed_account_survives_a_later_uncertain_refresh (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_completed_account_survives_a_later_uncertain_refresh)
+[2]. A completed integration is HISTORICAL evidence about the fixed ... ok
+test_a_failed_start_still_answers_first (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_failed_start_still_answers_first) ... ok
+test_a_foreign_exchange_cannot_move_an_integration (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_foreign_exchange_cannot_move_an_integration)
+An integration attempt writes no worker exchange, so one that ... ok
+test_a_foreign_frozen_output_cannot_complete_an_integration (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_foreign_frozen_output_cannot_complete_an_integration)
+The same rule the other way: an integration still working is not ... ok
+test_a_held_document_is_not_turned_into_an_owed_ending (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_held_document_is_not_turned_into_an_owed_ending)
+[3]. The generic rules answered first about evidence that was never ... ok
+test_a_supplied_document_for_another_kind_refuses_at_the_status (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_supplied_document_for_another_kind_refuses_at_the_status)
+[1], through the public projection rather than the binding alone. ... ok
+test_an_uncertain_runtime_holds_the_three_that_earn_an_act (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_an_uncertain_runtime_holds_the_three_that_earn_an_act)
+No automatic conclude follows an uncertain runtime. ... ok
+test_answered_is_answering_whatever_the_runtime_is_doing (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_answered_is_answering_whatever_the_runtime_is_doing)
+Concluding changes no Job state by itself; the next observation is ... ok
+test_completed_is_completed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_completed_is_completed) ... ok
+test_held_is_a_visible_exceptional_stage (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_held_is_a_visible_exceptional_stage) ... ok
+test_pending_or_answered_without_a_runtime_fails_closed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_or_answered_without_a_runtime_fails_closed) ... ok
+test_pending_with_a_quiet_runtime_is_answering (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_with_a_quiet_runtime_is_answering)
+So `conclude` reaches the driver and the DRIVER decides what a ... ok
+test_pending_with_a_running_runtime_is_integrating (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_with_a_running_runtime_is_integrating) ... ok
+test_unstarted_beside_a_started_runtime_fails_closed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_unstarted_beside_a_started_runtime_fails_closed) ... ok
+test_unstarted_is_claimed_and_still_owes_its_launch (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_unstarted_is_claimed_and_still_owes_its_launch) ... ok
+test_a_FAILING_observation_also_leaves_no_boundary_behind (tests.job_manager.test_status.ConcurrentSubmission.test_a_FAILING_observation_also_leaves_no_boundary_behind)
+DB-1 is not satisfied by the happy path. An observation that raises ... ok
+test_a_caller_s_own_boundary_is_neither_nested_nor_ended (tests.job_manager.test_status.ConcurrentSubmission.test_a_caller_s_own_boundary_is_neither_nested_nor_ended)
+SQLite has no nested transactions, and ending one here would commit ... ok
+test_a_concurrent_advancement_leaves_the_derivation_coherent_too (tests.job_manager.test_status.ConcurrentSubmission.test_a_concurrent_advancement_leaves_the_derivation_coherent_too)
+`stage_states` on its own -- the pass the sweep and the owed-act ... ok
+test_a_populated_store_reads_the_same_through_both_handles (tests.job_manager.test_status.ConcurrentSubmission.test_a_populated_store_reads_the_same_through_both_handles) ... ok
+test_a_submission_committed_INSIDE_the_materialization_is_coherent (tests.job_manager.test_status.ConcurrentSubmission.test_a_submission_committed_INSIDE_the_materialization_is_coherent)
+The same race one layer in: the writer commits between the stage ... ok
+test_a_submission_committed_between_the_two_reads_no_longer_raises (tests.job_manager.test_status.ConcurrentSubmission.test_a_submission_committed_between_the_two_reads_no_longer_raises)
+The minimal baseline from the finding, end to end. ... ok
+test_an_empty_store_still_reads_empty_through_the_reader (tests.job_manager.test_status.ConcurrentSubmission.test_an_empty_store_still_reads_empty_through_the_reader) ... ok
+test_an_episode_advancing_mid_status_is_not_mixed_with_the_next_one (tests.job_manager.test_status.ConcurrentSubmission.test_an_episode_advancing_mid_status_is_not_mixed_with_the_next_one)
+A stage whose live episode ends and is replaced WHILE the status is ... ok
+test_every_reported_stage_has_its_Job_and_every_Job_its_stages (tests.job_manager.test_status.ConcurrentSubmission.test_every_reported_stage_has_its_Job_and_every_Job_its_stages)
+The invariant the `KeyError` was the symptom of, asserted directly ... ok
+test_reading_through_the_read_only_handle_changes_no_row (tests.job_manager.test_status.ConcurrentSubmission.test_reading_through_the_read_only_handle_changes_no_row) ... ok
+test_the_authority_and_schema_checks_still_guard_the_reader (tests.job_manager.test_status.ConcurrentSubmission.test_the_authority_and_schema_checks_still_guard_the_reader)
+The new boundary is not a way around the opener's proofs. ... ok
+test_the_materialization_cannot_reach_another_store_at_all (tests.job_manager.test_status.ConcurrentSubmission.test_the_materialization_cannot_reach_another_store_at_all)
+The enforcement is structural rather than a comment: the function ... ok
+test_the_new_stages_are_reported_by_the_NEXT_read_and_not_lost (tests.job_manager.test_status.ConcurrentSubmission.test_the_new_stages_are_reported_by_the_NEXT_read_and_not_lost)
+An earlier coherent moment is not a silent omission. The submission ... ok
+test_the_other_store_is_read_with_no_Job_transaction_open (tests.job_manager.test_status.ConcurrentSubmission.test_the_other_store_is_read_with_no_Job_transaction_open) ... ok
+test_the_read_view_is_released_even_when_the_body_raises (tests.job_manager.test_status.ConcurrentSubmission.test_the_read_view_is_released_even_when_the_body_raises) ... ok
+test_the_whole_status_shape_survives_the_new_boundary (tests.job_manager.test_status.ConcurrentSubmission.test_the_whole_status_shape_survives_the_new_boundary)
+The document's contract is closed, so the composition is compared ... ok
+test_a_frozen_result_reports_the_managers_own_artifact_locators (tests.job_manager.test_status.Locators.test_a_frozen_result_reports_the_managers_own_artifact_locators) ... ok
+test_a_running_stage_reports_its_runtime_identity_and_activity (tests.job_manager.test_status.Locators.test_a_running_stage_reports_its_runtime_identity_and_activity) ... ok
+test_a_stage_with_no_runtime_reports_absence_rather_than_zero (tests.job_manager.test_status.Locators.test_a_stage_with_no_runtime_reports_absence_rather_than_zero) ... ok
+test_the_recorded_receipts_travel_with_the_stage (tests.job_manager.test_status.Locators.test_the_recorded_receipts_travel_with_the_stage) ... ok
+test_a_CLOSED_handle_reports_this_distributions_refusal (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_a_CLOSED_handle_reports_this_distributions_refusal)
+`read_snapshot` asked `in_transaction` ahead of its own `try`, so a ... ok
+test_a_status_inside_the_callers_own_read_view_observes_NOTHING (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_a_status_inside_the_callers_own_read_view_observes_NOTHING)
+The measured case, asserted by what the other store was asked. ... ok
+test_an_EMPTY_store_refuses_identically (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_EMPTY_store_refuses_identically)
+Nothing to observe is not the same as nothing to refuse. A check ... ok
+test_an_UNOBSERVED_derivation_refuses_on_the_same_rule (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_UNOBSERVED_derivation_refuses_on_the_same_rule)
+`Unobserved` performs no I/O, so this one is about the rule rather ... ok
+test_an_observation_that_would_itself_FAIL_is_never_attempted (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_observation_that_would_itself_FAIL_is_never_attempted)
+The point is not which refusal wins. It is that the external read ... ok
+test_materialized_is_STILL_served_inside_the_callers_boundary (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_materialized_is_STILL_served_inside_the_callers_boundary)
+The refusal is scoped to the passes that go on to observe. ... ok
+test_stage_states_called_from_inside_a_boundary_refuses_too (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_stage_states_called_from_inside_a_boundary_refuses_too)
+`stage_states` is the pass the sweep and the owed-act derivation ... ok
+test_stage_states_leaves_the_writers_pending_change_alone_too (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_stage_states_leaves_the_writers_pending_change_alone_too) ... ok
+test_the_SAME_status_succeeds_once_the_boundary_is_released (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_SAME_status_succeeds_once_the_boundary_is_released)
+The refusal is about WHEN it was asked, and says so by being ... ok
+test_the_callers_transaction_can_still_be_COMMITTED_afterwards (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_callers_transaction_can_still_be_COMMITTED_afterwards)
+The other half: a caller that meant to keep its change keeps it. ... ok
+test_the_callers_transaction_is_still_open_and_still_PENDING (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_callers_transaction_is_still_open_and_still_PENDING)
+Neither committed nor discarded. The refusal decides nothing about ... ok
+test_the_question_itself_is_the_stores_own_and_is_public (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_question_itself_is_the_stores_own_and_is_public)
+`holds_transaction` is asked of the owner rather than read off its ... ok
+test_the_refusal_names_what_was_done_and_what_to_do_instead (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_refusal_names_what_was_done_and_what_to_do_instead) ... ok
+test_a_projection_with_no_control_store_says_nobody_looked (tests.job_manager.test_status.Shape.test_a_projection_with_no_control_store_says_nobody_looked) ... ok
+test_an_empty_store_projects_an_empty_pipeline (tests.job_manager.test_status.Shape.test_an_empty_store_projects_an_empty_pipeline) ... ok
+test_reading_a_status_writes_nothing (tests.job_manager.test_status.Shape.test_reading_a_status_writes_nothing) ... ok
+test_the_document_names_its_schema_and_what_it_observed (tests.job_manager.test_status.Shape.test_the_document_names_its_schema_and_what_it_observed) ... ok
+test_the_job_carries_its_immutable_identities_and_bounded_scope (tests.job_manager.test_status.Shape.test_the_job_carries_its_immutable_identities_and_bounded_scope) ... ok
+test_a_blocked_stage_names_the_gate_holding_it (tests.job_manager.test_status.States.test_a_blocked_stage_names_the_gate_holding_it) ... ok
+test_a_cancelled_or_unable_ending_is_exceptional (tests.job_manager.test_status.States.test_a_cancelled_or_unable_ending_is_exceptional) ... ok
+test_a_claimed_stage_with_no_runtime_is_claimed (tests.job_manager.test_status.States.test_a_claimed_stage_with_no_runtime_is_claimed) ... ok
+test_a_completed_stage_opens_its_successor_s_gate (tests.job_manager.test_status.States.test_a_completed_stage_opens_its_successor_s_gate) ... ok
+test_a_disposition_this_build_does_not_know_is_not_read_as_benign (tests.job_manager.test_status.States.test_a_disposition_this_build_does_not_know_is_not_read_as_benign) ... ok
+test_a_rejected_review_is_changes_requested (tests.job_manager.test_status.States.test_a_rejected_review_is_changes_requested) ... ok
+test_a_rejection_on_a_stage_that_is_not_a_review_is_exceptional (tests.job_manager.test_status.States.test_a_rejection_on_a_stage_that_is_not_a_review_is_exceptional) ... ok
+test_a_submitted_pipeline_is_queued_and_blocked (tests.job_manager.test_status.States.test_a_submitted_pipeline_is_queued_and_blocked) ... ok
+test_an_admitted_stage_is_offered (tests.job_manager.test_status.States.test_an_admitted_stage_is_offered) ... ok
+test_an_uncertain_runtime_is_exceptional_and_never_running (tests.job_manager.test_status.States.test_an_uncertain_runtime_is_exceptional_and_never_running) ... ok
+test_each_kind_names_its_own_running_state (tests.job_manager.test_status.States.test_each_kind_names_its_own_running_state) ... ok
+test_every_projected_state_is_in_the_closed_vocabulary (tests.job_manager.test_status.States.test_every_projected_state_is_in_the_closed_vocabulary) ... ok
+test_a_changed_document_under_one_intent_identity_refuses (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_changed_document_under_one_intent_identity_refuses) ... ok
+test_a_coincidentally_agreeing_target_synthesizes_no_receipt (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_coincidentally_agreeing_target_synthesizes_no_receipt) ... ok
+test_a_fabricated_receipt_is_refused_not_replayed (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_fabricated_receipt_is_refused_not_replayed)
+The probe's exact shape: only {"acceptance": document} at the ... ok
+test_a_foreign_reference_refuses_before_any_write (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_foreign_reference_refuses_before_any_write) ... ok
+test_a_genuine_interruption_after_the_reference_swap_resumes (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_genuine_interruption_after_the_reference_swap_resumes)
+The REAL crash window, driven through the tool itself: the ... ok
+test_a_gone_recorded_manager_is_a_stopped_instance (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_gone_recorded_manager_is_a_stopped_instance)
+A record whose pid was reused or exited is positively NOT ... ok
+test_a_held_lifecycle_lock_refuses_the_whole_invocation (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_held_lifecycle_lock_refuses_the_whole_invocation) ... ok
+test_a_historical_receipt_stays_valid_after_a_later_acceptance (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_historical_receipt_stays_valid_after_a_later_acceptance)
+The explicit historical-receipt contract: the committed operation ... ok
+test_a_live_recorded_manager_refuses_even_with_the_lock_free (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_live_recorded_manager_refuses_even_with_the_lock_free)
+The probe's exact gap: `start` RELEASES the admission when it ... ok
+test_a_malformed_document_reaches_no_effect_at_all (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_malformed_document_reaches_no_effect_at_all) ... ok
+test_a_moved_canonical_target_refuses_touching_nothing_durable (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_moved_canonical_target_refuses_touching_nothing_durable) ... ok
+test_a_reference_coincidentally_at_accepted_is_not_a_resume (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_reference_coincidentally_at_accepted_is_not_a_resume)
+No prior intent, no committed operation, and main already at the ... ok
+test_a_refused_call_publishes_no_intent_and_repeating_it_refuses (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_refused_call_publishes_no_intent_and_repeating_it_refuses)
+review221748's probe: the refused coincidence call used to WRITE ... ok
+test_a_well_shaped_receipt_without_its_committed_operation_refuses (tests.tools.test_accepted_base.AcceptedBaseCase.test_a_well_shaped_receipt_without_its_committed_operation_refuses) ... ok
+test_an_acceptance_advances_target_reference_and_receipt_once (tests.tools.test_accepted_base.AcceptedBaseCase.test_an_acceptance_advances_target_reference_and_receipt_once) ... ok
+test_interruption_after_authority_finalizes_receipt_without_bump (tests.tools.test_accepted_base.AcceptedBaseCase.test_interruption_after_authority_finalizes_receipt_without_bump) ... ok
+test_interruption_after_reference_resumes_and_completes (tests.tools.test_accepted_base.AcceptedBaseCase.test_interruption_after_reference_resumes_and_completes) ... ok
+test_replaying_the_same_acceptance_bumps_nothing (tests.tools.test_accepted_base.AcceptedBaseCase.test_replaying_the_same_acceptance_bumps_nothing) ... ok
+
+----------------------------------------------------------------------
+Ran 284 tests in 6.380s
+
+OK
+{
+ "recorded": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-988s41dw/instance/accepted-bases/8ff984a0b99b35cee6f66a833a0330b51fc304acf7ecb95098addcef40e7d773.json",
+ "authority": {
+  "kind": "accepted-base",
+  "accepted_commit": "8814c756ca64e49691103263c4e4e080dafc2186",
+  "expected_old": "4b87a2af55f0a19596a16e8b01289ee63a4f6b80",
+  "accepted_by": "Slawomir",
+  "policy_generation": 3
+ }
+}
+{
+ "recorded": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-8kfgm8j4/instance/accepted-bases/dba507c0f7bb02b8306c91b7bf1bb8b7521eccb65f43afa0ccb65c5828909fda.json",
+ "authority": {
+  "kind": "accepted-base",
+  "accepted_commit": "8814c756ca64e49691103263c4e4e080dafc2186",
+  "expected_old": "4b87a2af55f0a19596a16e8b01289ee63a4f6b80",
+  "accepted_by": "Slawomir",
+  "policy_generation": 3
+ }
+}
+{
+ "recorded": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-j6cecn1u/instance/accepted-bases/cd629c530b6283002d504976effcad1e92697799f77ec069336f74717316b5ae.json",
+ "authority": {
+  "kind": "accepted-base",
+  "accepted_commit": "327c45d5ca6cc4c1f71aa87105587f5abe51c9a4",
+  "expected_old": "c6aafdc714395503bd26fa831e26aab7133801ac",
+  "accepted_by": "Slawomir",
+  "policy_generation": 3
+ }
+}
+{
+ "recorded": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-j6cecn1u/instance/accepted-bases/be3230b47089d3fa80dbb7e6949134da82f363a6092863a79c334c327bebc339.json",
+ "authority": {
+  "kind": "accepted-base",
+  "accepted_commit": "5febaa519f6272b6b3fbe6d3558d60f72e5aff15",
+  "expected_old": "327c45d5ca6cc4c1f71aa87105587f5abe51c9a4",
+  "accepted_by": "Slawomir",
+  "policy_generation": 4
+ }
+}
+{
+ "recorded": false,
+ "replayed": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-j6cecn1u/instance/accepted-bases/be3230b47089d3fa80dbb7e6949134da82f363a6092863a79c334c327bebc339.json"
+}
+{
+ "recorded": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-sjbwgixt/instance/accepted-bases/f2e8e1dd58252048feef83305936932a7a11f3858de8d29728c980d14e14b824.json",
+ "authority": {
+  "kind": "accepted-base",
+  "accepted_commit": "327c45d5ca6cc4c1f71aa87105587f5abe51c9a4",
+  "expected_old": "c6aafdc714395503bd26fa831e26aab7133801ac",
+  "accepted_by": "Slawomir",
+  "policy_generation": 3
+ }
+}
+{
+ "recorded": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-y5_tcrrt/instance/accepted-bases/da021ed8851e46e092c540970bcaa5f146aa538b73c416474c17fc72326d8ffb.json",
+ "authority": {
+  "kind": "accepted-base",
+  "accepted_commit": "8cc34679cc47ca1671ca4428dc93f39be31542d7",
+  "expected_old": "b59c4dced97f536fb8e53261b66b86f0c67b84f0",
+  "accepted_by": "Slawomir",
+  "policy_generation": 3
+ }
+}
+{
+ "recorded": false,
+ "replayed": true,
+ "finalized_receipt": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-y5_tcrrt/instance/accepted-bases/da021ed8851e46e092c540970bcaa5f146aa538b73c416474c17fc72326d8ffb.json"
+}
+{
+ "recorded": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-ptchlhmz/instance/accepted-bases/182c3c8f582674cea42e4a13c36be8f2f079931fa068ee9c99add4478ee05a8b.json",
+ "authority": {
+  "kind": "accepted-base",
+  "accepted_commit": "8cc34679cc47ca1671ca4428dc93f39be31542d7",
+  "expected_old": "b59c4dced97f536fb8e53261b66b86f0c67b84f0",
+  "accepted_by": "Slawomir",
+  "policy_generation": 3
+ }
+}
+{
+ "recorded": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-sm642ib0/instance/accepted-bases/fc7543f256d776b69dadb434c584d33787a46ffbbd2a2c9642d8c11c9deb3682.json",
+ "authority": {
+  "kind": "accepted-base",
+  "accepted_commit": "8cc34679cc47ca1671ca4428dc93f39be31542d7",
+  "expected_old": "b59c4dced97f536fb8e53261b66b86f0c67b84f0",
+  "accepted_by": "Slawomir",
+  "policy_generation": 3
+ }
+}
+{
+ "recorded": false,
+ "replayed": true,
+ "receipt": "/var/tmp/rv-yb3h12w1/w202663-accepted-sm642ib0/instance/accepted-bases/fc7543f256d776b69dadb434c584d33787a46ffbbd2a2c9642d8c11c9deb3682.json"
+}

@@ -1,0 +1,29 @@
+{
+  "selection": "tests.manager.test_ended_runtime_adoption",
+  "exit": 0,
+  "seconds": 3.868324869999924,
+  "timed_out": false,
+  "passed": 8,
+  "started": 8,
+  "skipped": [],
+  "created_container_ids": [
+    "05e24cb0e85906c5179e57059332515c1de1adddbfacb809b852c665fd47b3c3",
+    "23c0dac9b9c5b74904133a2d18104888b4a9aa4c6473092562791f234c410a04",
+    "33e60e7c492c28f6cd43bee17a97c153e874fde741a5afd5dcf294e7c08d8479",
+    "486201ac025d1a7375c9ea67dc81df2eecf64f3b6808144a90e40ca676a832bf",
+    "53f56df73e73f746393dffb5910b07ae1b6c61eff13243db797f320fceedb3dc",
+    "7d0d2f95a82c770c2e4cba20633631636c0f817bf70ea77ef6f3cbbcff517ac5",
+    "8118fe31b4e423654a65551f8474d744ef74613d1e5d1e9fd2201de02c16f4b5",
+    "ec709d7d7edf4a2870c1305c9997c326cf60a1e13c03ca02fadf2982d1f7830b",
+    "ecbf0e201551418679a66321516f62340e6bc97aa68ea43e72403769c73f84c3",
+    "f1c42c7e62b4f50fbd754249498cafd742172db98bc749cdab6d56d557e01af0",
+    "f2623f337816c736e51b7993db0c86d5a86c22ee94a35e35972d59b10596a353"
+  ],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

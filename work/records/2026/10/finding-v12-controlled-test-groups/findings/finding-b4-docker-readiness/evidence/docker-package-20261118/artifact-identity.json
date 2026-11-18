@@ -1,0 +1,23 @@
+{
+  "build_stamp": {
+    "commit": null,
+    "detail": "the repository tool could not name a commit for /home/sl/src/baton/work/scratch/w384944-joined-438eefa6-20261118",
+    "dirty": null,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton/work/scratch/w384944-joined-438eefa6-20261118"
+  },
+  "command": "baton-v12-stack",
+  "executable": "/home/sl/src/baton/work/scratch/w384944-package-build-20261118/out/distro/baton-v12-stack",
+  "frozen": true,
+  "machine": "x86_64",
+  "native_rpds": "/home/sl/src/baton/work/scratch/w384944-package-build-20261118/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+  "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+  "python": "3.13.7",
+  "resources": "/home/sl/src/baton/work/scratch/w384944-package-build-20261118/out/distro/_internal",
+  "schema_assets": {
+    "agent-session-1.0": 48212,
+    "worker-control-1.0": 51419
+  },
+  "sha256": "c72cf208b2fe1c1fac3767b678692519b3da4cccd9726bb0d451e3ba6cb3fecf",
+  "version": "12.0.0"
+}

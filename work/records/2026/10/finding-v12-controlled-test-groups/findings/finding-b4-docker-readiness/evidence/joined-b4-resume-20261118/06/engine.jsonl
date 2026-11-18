@@ -1,0 +1,118 @@
+{"command": "version", "status": 0}
+{"command": "image", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "3729b07517354e682546feca80f5e3a49e501dd33eefc4e10f3eb7ef1c2bf115", "inspect": {"Id": "3729b07517354e682546feca80f5e3a49e501dd33eefc4e10f3eb7ef1c2bf115", "Image": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 85398, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-18T02:02:10.240479519Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-tu2i8v_m/storage/attempt-cda838cf97/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-tu2i8v_m/storage/attempt-cda838cf97/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-tu2i8v_m/launch-1/attempt-cda838cf97/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}]}, "labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-cda838cf97", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "836a25a2f48746bc8a281256ab1bd1f8"}, "stdout": "3729b07517354e682546feca80f5e3a49e501dd33eefc4e10f3eb7ef1c2bf115\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "container", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "rm", "status": 0, "stdout": "3729b07517354e682546feca80f5e3a49e501dd33eefc4e10f3eb7ef1c2bf115\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-2b1caeba0a243d05458f00ea22a53b34ada482f186a2d600c21b78e79c4ae34c\n"}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "e37dcd83c1d639c3a623c84340f61744e4b72253a8bd6296b87593e898269bf9", "inspect": {"Id": "e37dcd83c1d639c3a623c84340f61744e4b72253a8bd6296b87593e898269bf9", "Image": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 85855, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-18T02:02:10.842253537Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-dsp61btn/storage/attempt-88039be524/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-dsp61btn/storage/attempt-88039be524/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-dsp61btn/credentials-0/credentials/attempt-88039be524/registry", "Destination": "/run/baton/credentials/registry", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-dsp61btn/launch-1/attempt-88039be524/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}]}, "labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-88039be524", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "836a25a2f48746bc8a281256ab1bd1f8"}, "stdout": "e37dcd83c1d639c3a623c84340f61744e4b72253a8bd6296b87593e898269bf9\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "stop", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "rm", "status": 0, "stdout": "e37dcd83c1d639c3a623c84340f61744e4b72253a8bd6296b87593e898269bf9\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-0c7071355ef669ba7eec0c5b3fffe228a9d3e5f143e3c8960ce8e28383579d5f\n"}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "b9c356fb40ebc8bc82b007ee497fbcff27c1cf7d7770c3f054eafd3c7ef139d6", "inspect": {"Id": "b9c356fb40ebc8bc82b007ee497fbcff27c1cf7d7770c3f054eafd3c7ef139d6", "Image": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 86316, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-18T02:02:41.454162739Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-lh00wmwm/storage/attempt-806e9fa3da/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-lh00wmwm/launch-1/attempt-806e9fa3da/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-lh00wmwm/storage/attempt-806e9fa3da/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}]}, "labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-806e9fa3da", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "836a25a2f48746bc8a281256ab1bd1f8"}, "stdout": "b9c356fb40ebc8bc82b007ee497fbcff27c1cf7d7770c3f054eafd3c7ef139d6\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "container", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "rm", "status": 0, "stdout": "b9c356fb40ebc8bc82b007ee497fbcff27c1cf7d7770c3f054eafd3c7ef139d6\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "stdout": "", "stderr": "Error response from daemon: No such container: b9c356fb40ebc8bc82b007ee497fbcff27c1cf7d7770c3f054eafd3c7ef139d6\n"}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "1c3cd300ed23cd2ec8646df937243eda501a4442a1ec2baaef045cb114aa66ee", "inspect": {"Id": "1c3cd300ed23cd2ec8646df937243eda501a4442a1ec2baaef045cb114aa66ee", "Image": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 86797, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-18T02:02:42.109188356Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-lh00wmwm/storage/attempt-806e9fa3da-successor/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-lh00wmwm/storage/attempt-806e9fa3da-successor/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-lh00wmwm/launch-2/attempt-806e9fa3da-successor/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}]}, "labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-806e9fa3da-successor", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "836a25a2f48746bc8a281256ab1bd1f8"}, "stdout": "1c3cd300ed23cd2ec8646df937243eda501a4442a1ec2baaef045cb114aa66ee\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-fda503763653b148406835aa12a035282ff8010a5b4ef2d572bc5cfbe1b5fd8c\n"}
+{"command": "rm", "status": 0, "stdout": "baton-runtime.start-22822b1abde577d3312951a764747c7ffa5dab571c9e43b981befb21ce0de6d7\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "6c65338a759f9c42ec024f8e83e4056b9c0e330d5f6ede773006657c4c3c3e93", "inspect": {"Id": "6c65338a759f9c42ec024f8e83e4056b9c0e330d5f6ede773006657c4c3c3e93", "Image": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 86967, "ExitCode": 0, "Error": "", "StartedAt": "2026-11-18T02:02:42.324231223Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [{"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-_ykjh0dx/storage/attempt-6803f11af5/inputs", "Destination": "/input", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-_ykjh0dx/storage/attempt-6803f11af5/workspace", "Destination": "/workspace", "Mode": "", "RW": true, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-_ykjh0dx/credentials-0/credentials/attempt-6803f11af5/registry", "Destination": "/run/baton/credentials/registry", "Mode": "", "RW": false, "Propagation": "rprivate"}, {"Type": "bind", "Source": "/var/tmp/baton-w384944-joined-_k31mgjk/v12-w6636-_ykjh0dx/launch-1/attempt-6803f11af5/launch.json", "Destination": "/run/baton/launch.json", "Mode": "", "RW": false, "Propagation": "rprivate"}]}, "labels": {"baton.v12.adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "baton.v12.authority_uuid": "43c55d4b000000000000000000000000", "baton.v12.effective_scope": "scope:deployment", "baton.v12.generation": "1", "baton.v12.participant": "baton.claude", "baton.v12.policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "baton.v12.principal": "principal:org-a", "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "baton.v12.runtime_attempt_id": "attempt-6803f11af5", "baton.v12.work_id": "43c55d4b-W6636", "baton.w384944.run": "836a25a2f48746bc8a281256ab1bd1f8"}, "stdout": "6c65338a759f9c42ec024f8e83e4056b9c0e330d5f6ede773006657c4c3c3e93\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "container", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "rm", "status": 0, "stdout": "6c65338a759f9c42ec024f8e83e4056b9c0e330d5f6ede773006657c4c3c3e93\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "stdout": "", "stderr": "Error response from daemon: No such container: baton-runtime.start-b0adef1cb464a94606af3ec09d797ebba9389f10835fbe7058c340bcc1278d11\n"}

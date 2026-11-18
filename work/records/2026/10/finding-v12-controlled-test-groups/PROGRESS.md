@@ -998,3 +998,69 @@ correction. Narrative, logs, candidate.diff (against 6477a8db) and digests:
 - Paths: test_boundary_inventory.py only (product unchanged; the other thirteen digests equal the
   seq 385047 candidate). Long-fixture-root diagnostic failures left for B5 as ruled.
 - Handoff posted: T384870 seq 385049. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: one accounted scans-group run (M385050)
+
+Snapshot: owner commit 438eefa6, which carries the reviewed callback-trace candidate (14/14 digests
+verify; no v12 path modified); content digest 52a08680… stable before and after. `just test-group
+scans 4` invocation on the prepared interpreter plus `--summary`: collected 494, executed 494, passed
+492, optional skipped 2 (both in OPTIONAL_SKIPS: real same-filesystem bind mount; >64 MiB workspace
+proof), required skipped 0, failed 0, errors 0, duplicates 0, unaccounted 0; accounting OK; exit 0;
+138 s; /var/tmp unchanged (376 entries). Evidence: `evidence/scans-20261118/` (RESULT.md, scans.log,
+scans.summary.json, scans.source.json, scans.source-after.json, var-tmp listings, run-scans.sh).
+No edits to product/tests this slice; no full/B4/B5/Docker/live.
+- Handoff posted: T384870 seq 385051. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: B5 first batch, the four long-root access diagnostics (M385052)
+
+Cause: `_access_failure` and `prove_line_integrity`'s `inside` rendered the line root through the
+sixty-code-point `name_value` rule, so under a long disk-backed fixture root the whole-path
+assertions (W194457: actionable operation/path/errno) failed. Reproduced before edit under a
+142-char root: 4 failures. Fix: `contracts.errors.path_value` (path-sized bound `_PATH_LIMIT` =
+1024, same inert escaped rendering, exported in errors.__all__ only) used by both sites; entry stays
+in the slot, root whole in the sentence after. Tests: two InitialStableLineAccess witnesses (long
+root named in full by all four refusals; root beyond the bound cut and marked) and
+`PathValueIsTheBoundedPathRule` (3). Verification: 29 OK under short and long roots; the reviewer's
+three-module set 382 OK under both roots; dependencies label rule + contracts inventory + text sweep
+20 OK; boundary inventory HelperDeclarations/StatedRules/StageCProtections 149 OK. No shortened
+root, no weakened assertion; ~95 other `name_value(path)` renderings noted as debt, untouched.
+Evidence: `evidence/b5-line-access-diagnostics-20261118/` (RESULT.md, logs, candidate.diff vs
+438eefa6, CANDIDATE-SHA256.txt). Paths: errors.py, workspaces.py, test_workspaces.py.
+- Handoff posted: T384870 seq 385059. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: C10/B5 reconciliation of the 315 B0 adverse ids (M385060)
+
+Docstring nit fixed (`path_value`: bound stated in rendered, escaped characters). Reconciliation:
+`evidence/b5-reconciliation-20261118/RECONCILIATION.md` + `reconciliation.tsv` (every id classified with
+evidence). Source 438eefa6 + accepted B5 candidate, digest stable across the one focused run of the 84
+unresolved deterministic ids (113 s; 65 ran, 42 ok, 17 FAIL, 6 ERROR, 19 never started behind two
+setUpClass errors). Totals: accepted at 438eefa6 124 (scans ledger 14, joined-B4 passed selections 110
+incl. podman->Docker renames); verified OK now 43; B4 child accepted on isolated source but joined run not
+started 75 (codexpc); unverified 26 (refused_session/oci_engine Docker 13, packaged_creation needs bundle
+12, one renamed input_delivery id); removed/replaced 2; fixture keys 3; STILL FAILING 42 in six causes: G1
+launch drift 9 (W376586-owned, reported not edited), G2 correction_restart 22 (one fixture cause
+"preparation did not answer"), G3 job_manager 2 (launch refused after revoke, pre-existing symptom), G4
+secrets inventories 3, G5 authority boundary 3, G6 tools singletons 3. Proposed next batch: G5+G4 (6 ids).
+No repairs this turn; no group/full/Docker/live.
+- Correction (same author, minutes later): the totals above were superseded once the child's combined B4
+  (242/242 on 438eefa6, M385068) was consumed: accepted at 438eefa6 200 (14 scans + 186 combined B4, incl. the
+  podman->Docker renames), verified OK now 43, unverified 25 (refused_session 8 + oci_engine 5 Docker ids
+  outside the B4 selection; packaged_creation 12 bundle-gated), removed/replaced 2, fixture keys 3, still
+  failing 42 (G1-G6 unchanged). RECONCILIATION.md and reconciliation.tsv carry the corrected figures.
+- Handoff posted: T384870 seq 385069. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: B5 batch G4+G5, six secrets/boundary ids repaired (M385070)
+
+Evidence: `evidence/b5-secrets-boundary-20261118/RESULT.md` (+ logs, candidate.diff vs 438eefa6,
+CANDIDATE-SHA256.txt). G4: the stale `create_line` coverage entry (W301404 moved the INSERT to
+`_reserved_line`) replaced by nine path-accurate entries; eleven exported surfaces classified
+`RETURNS_NO_CONSTRUCTED_ARTEFACT` with reasons; new `TheReviewLineWritersRefuseALiveBearerBeforeTheyWrite`
+(3) measures `create_line`, `release_writer` and `fence_pre_attach_abandonment` refusing a live bearer
+with no row written/changed. G5: authority/store.py's three unbounded interpolations bounded with the
+module's own helpers (`label_of`, `type_name_of`, `name_of(str(failure))`); `opt/baton` resolved by an
+exact in-container declaration table proved semantically (one assignment, one literal in the package,
+no Load of the constant anywhere in the manager, same path in the worker). Six ids 6 OK; test_secrets
+95 OK; authority test_boundary 25 OK; authority store readers 164 OK; identity stable. G1 annotation in
+the reconciliation corrected (W376586 closed; nine remain required here). Paths: authority/store.py,
+tests/authority/test_boundary.py, tests/manager/test_secrets.py.
+- Handoff posted: T384870 seq 385087. detail: W384870 remains under the owner claim; K holds no claim.

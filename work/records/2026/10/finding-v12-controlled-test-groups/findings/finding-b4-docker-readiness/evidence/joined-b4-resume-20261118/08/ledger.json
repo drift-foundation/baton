@@ -1,0 +1,32 @@
+{
+  "collected": [
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_entry_imports_with_nothing_but_the_copied_files",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_manager_is_not_reachable_from_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_profile_package_is_a_top_level_name_in_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_staged_modules_are_the_reviewed_bytes",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_worker_data_the_modules_read_travelled_with_them"
+  ],
+  "started": [
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_entry_imports_with_nothing_but_the_copied_files",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_manager_is_not_reachable_from_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_profile_package_is_a_top_level_name_in_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_staged_modules_are_the_reviewed_bytes",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_worker_data_the_modules_read_travelled_with_them"
+  ],
+  "passed": [
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_entry_imports_with_nothing_but_the_copied_files",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_manager_is_not_reachable_from_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_profile_package_is_a_top_level_name_in_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_staged_modules_are_the_reviewed_bytes",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_worker_data_the_modules_read_travelled_with_them"
+  ],
+  "failed": [],
+  "errors": [],
+  "skipped": [],
+  "expected_failures": [],
+  "unexpected_successes": [],
+  "subtests": [],
+  "unaccounted": [],
+  "duplicates": 0,
+  "loader_errors": []
+}

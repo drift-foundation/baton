@@ -1,0 +1,23 @@
+test_a_runtime_starts_is_found_stops_and_is_destroyed (tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_a_runtime_starts_is_found_stops_and_is_destroyed)
+The positive cycle, end to end, against the real daemon. ... ok
+test_a_second_start_under_one_identity_is_refused (tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_a_second_start_under_one_identity_is_refused)
+The duplicate the manager can never undo, refused by asking the ... ok
+test_a_workspace_mount_reaches_the_container (tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_a_workspace_mount_reaches_the_container)
+A mount the adapter proved is one the engine accepts and resolves ... ok
+test_an_absent_identity_is_absence_and_not_confusion (tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_an_absent_identity_is_absence_and_not_confusion)
+The one answer that releases an assignment, asked of a real engine ... ok
+test_the_engine_applied_the_restrictions_the_adapter_asked_for (tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_the_engine_applied_the_restrictions_the_adapter_asked_for)
+The vector is accepted AND the posture is what was asked for, read ... ok
+test_a_failed_cleanup_query_is_not_positive_absence (tests.manager.test_oci_engine.TheEngineGateLeavesNothingBehind.test_a_failed_cleanup_query_is_not_positive_absence)
+Empty stdout from a refused engine query proves nothing. ... ok
+test_cleanup_queries_the_label_namespace_the_tests_create (tests.manager.test_oci_engine.TheEngineGateLeavesNothingBehind.test_cleanup_queries_the_label_namespace_the_tests_create)
+The final proof must select the runtimes this module actually made. ... ok
+test_every_engine_this_adapter_claims_is_covered (tests.manager.test_oci_engine.TheEngineGateLeavesNothingBehind.test_every_engine_this_adapter_claims_is_covered)
+The claim and the coverage are the same list. An engine added to ... ok
+test_no_runtime_of_this_module_survives_it (tests.manager.test_oci_engine.TheEngineGateLeavesNothingBehind.test_no_runtime_of_this_module_survives_it)
+Asked of every engine that is present, and of the ENGINE rather ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.948s
+
+OK

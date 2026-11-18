@@ -1,0 +1,568 @@
+[b5-reconcile] started 2026-11-18T02:03:45Z ids 84
+test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)
+The unique LEXICAL identity, pinned. ... FAIL
+test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value) ... FAIL
+test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) ... 
+  test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) (source='source_boundary.py', word='opt/baton') ... FAIL
+test_complete_evidence_enqueues_the_exact_producer_account (tests.integration.test_admission.AcceptedAccount.test_complete_evidence_enqueues_the_exact_producer_account) ... ok
+test_concurrent_exact_admission_returns_one_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_concurrent_exact_admission_returns_one_entry_and_rank) ... ok
+test_exact_replay_returns_the_same_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_exact_replay_returns_the_same_entry_and_rank) ... ok
+test_two_authorities_share_one_target_order (tests.integration.test_admission.AcceptedAccount.test_two_authorities_share_one_target_order) ... ok
+test_job_input_policy_scope_and_work_are_not_caller_claims (tests.integration.test_admission.RefusalBeforeMutation.test_job_input_policy_scope_and_work_are_not_caller_claims) ... ok
+test_a_moved_target_refuses_the_import_account_and_not_eligibility (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_a_moved_target_refuses_the_import_account_and_not_eligibility) ... ok
+test_eligibility_still_proves_every_producer_it_ever_did (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_eligibility_still_proves_every_producer_it_ever_did)
+The separation is not a weaker proof. Each of these refuses the ... ok
+test_neither_source_answer_touches_the_coordinator (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_neither_source_answer_touches_the_coordinator) ... ok
+test_the_submission_operand_carries_the_objects_the_account_cannot (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_the_submission_operand_carries_the_objects_the_account_cannot)
+`prepare_result` reconciles Git OBJECTS. The account carries ... ok
+test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit) ... ok
+test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence) ... ok
+test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission) ... ok
+test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival) ... ERROR
+test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds (tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds) ... ERROR
+test_acknowledged_stop_is_retried_if_writer_still_runs (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_acknowledged_stop_is_retried_if_writer_still_runs) ... ok
+test_cancellation_owner_refuses_token_and_attachment_identity_disagreement (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_cancellation_owner_refuses_token_and_attachment_identity_disagreement) ... ok
+test_deadline_stops_token_bound_writer_through_production_cancellation (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_deadline_stops_token_bound_writer_through_production_cancellation) ... ok
+test_operator_cancellation_stops_token_bound_writer (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_operator_cancellation_stops_token_bound_writer) ... ok
+test_recovery_stops_token_bound_writer_without_renewed_time (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_recovery_stops_token_bound_writer_without_renewed_time) ... ok
+test_refused_runtime_stop_remains_held_after_authority_fence (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_refused_runtime_stop_remains_held_after_authority_fence) ... ok
+test_unknown_engine_stop_preserves_fence_and_hold_then_retries (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_unknown_engine_stop_preserves_fence_and_hold_then_retries) ... ok
+test_late_bind_and_later_activation_are_stopped_under_the_original_fence (tests.manager.test_authoring_enforcement.LateBindingCancellation.test_late_bind_and_later_activation_are_stopped_under_the_original_fence) ... ok
+test_author_exception_releases_process_guard_and_preserves_failure (tests.manager.test_authoring_manager_guard.ManagerComposition.test_author_exception_releases_process_guard_and_preserves_failure) ... ok
+test_blocked_author_keeps_exclusion_and_outer_deadline (tests.manager.test_authoring_manager_guard.ManagerComposition.test_blocked_author_keeps_exclusion_and_outer_deadline) ... ok
+test_manager_loss_retains_unknown_and_restart_does_not_repeat (tests.manager.test_authoring_manager_guard.ManagerComposition.test_manager_loss_retains_unknown_and_restart_does_not_repeat) ... ok
+test_operator_stop_preserves_partial_output_and_original_envelope (tests.manager.test_authoring_manager_guard.ManagerComposition.test_operator_stop_preserves_partial_output_and_original_envelope) ... ok
+test_parent_loss_kills_manager_without_inherited_workspace_guard (tests.manager.test_authoring_manager_guard.ManagerComposition.test_parent_loss_kills_manager_without_inherited_workspace_guard) ... ok
+test_preexisting_independent_manager_refuses_before_author_admission (tests.manager.test_authoring_manager_guard.ManagerComposition.test_preexisting_independent_manager_refuses_before_author_admission) ... ok
+test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes) ... ok
+test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) ... ok
+test_a_cancelled_attempt_settles_through_the_same_act (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_cancelled_attempt_settles_through_the_same_act)
+The CANCELLATION ending, driven rather than counted. ... ok
+test_a_failure_ending_settles_through_the_same_act (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_failure_ending_settles_through_the_same_act)
+The FAILURE ending. `destroy` carries the manager's authorization ... ok
+test_a_runtime_not_proved_gone_leaves_the_lifecycle_unresolved (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_runtime_not_proved_gone_leaves_the_lifecycle_unresolved)
+A container this manager cannot say is absent may still be reading ... ok
+test_destroy_tears_down_once_the_runtime_is_proved_gone (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_destroy_tears_down_once_the_runtime_is_proved_gone) ... ok
+test_a_document_with_a_transport_alone_is_still_version_two (tests.manager.test_execution_limits.TheVersionMovesWithTheMember.test_a_document_with_a_transport_alone_is_still_version_two) ... FAIL
+test_a_job_context_keeps_a_real_transport (tests.manager.test_execution_limits.TheVersionMovesWithTheMember.test_a_job_context_keeps_a_real_transport) ... FAIL
+test_closed_version_refuses_omission_extra_and_downgrade (tests.manager.test_launch.TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade) ... 
+  test_closed_version_refuses_omission_extra_and_downgrade (tests.manager.test_launch.TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade) (change=<function TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade.<locals>.<lambda> at 0x7f7334a93880>) ... ERROR
+test_owner_launch_and_worker_reader_agree (tests.manager.test_launch.TheContextLaunchIsClosed.test_owner_launch_and_worker_reader_agree) ... FAIL
+test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) ... 
+  test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) (key='attempt_id') ... ERROR
+  test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) (key='conversation_id') ... ERROR
+  test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) (key='task_digest') ... ERROR
+test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) ... ERROR
+test_a_committed_start_delayed_at_the_adapter_refuses_the_proof (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_committed_start_delayed_at_the_adapter_refuses_the_proof)
+ORDER TWO, AT THE REAL WINDOW. The start's operation committed and ... ok
+test_an_exact_committed_start_replays_without_running_its_action (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_exact_committed_start_replays_without_running_its_action)
+THE REPLAY THAT THE AXIS CANNOT SEE, driven rather than described. ... ok
+test_a_settled_cleanup_releases_the_lane_and_the_successor_starts (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_settled_cleanup_releases_the_lane_and_the_successor_starts) ... ok
+test_cleanup_still_releases_the_lane_through_the_same_helper (tests.manager.test_runtime_lane.TheValidatedBoundaryLeavesEveryLifecycleCallerAlone.test_cleanup_still_releases_the_lane_through_the_same_helper)
+The two intake release sites reach `lane_reference` with an ... ok
+test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered) ... FAIL
+test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale)
+A list of exceptions nobody compares to the code is a list of ... 
+  test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'create_line', 'review_lines'))
+A list of exceptions nobody compares to the code is a list of ... FAIL
+test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class) ... FAIL
+test_manager_recomposition_preserves_both_positive_counts (tests.tools.test_correction_restart.CountedReopen.test_manager_recomposition_preserves_both_positive_counts) ... FAIL
+setUpClass (tests.tools.test_correction_restart.CountedReopenInvalidEvidence) ... ERROR
+test_no_external_reader_runs_inside_a_control_transaction (tests.tools.test_correction_restart.TransactionBoundaryThroughTheConnectedPath.test_no_external_reader_runs_inside_a_control_transaction) ... FAIL
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... FAIL
+setUpClass (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence) ... ERROR
+test_a_named_distribution_that_is_absent_is_refused_BY_NAME (tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper.test_a_named_distribution_that_is_absent_is_refused_BY_NAME)
+With two operands the recipe BUILDS, so the missing-runtime refusal ... ok
+test_the_child_answers_each_jobs_own_numbers (tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches.test_the_child_answers_each_jobs_own_numbers) ... FAIL
+test_the_retained_intent_is_what_the_launch_states (tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob.test_the_retained_intent_is_what_the_launch_states)
+The runtime half is the judge's OWN configured identities, not the ... ERROR
+test_a_foreign_job_is_refused_on_the_read_only_path_too (tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically.test_a_foreign_job_is_refused_on_the_read_only_path_too) ... FAIL
+test_both_compositions_resolve_the_same_bytes (tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically.test_both_compositions_resolve_the_same_bytes) ... ERROR
+test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting. ... ok
+test_initial_partial_preparation_continues_to_real_work (tests.tools.test_next_run_flow.JoinedFlow.test_initial_partial_preparation_continues_to_real_work) ... ok
+test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation) ... ok
+test_the_view_is_gone_after_every_refusal (tests.tools.test_operator_verification_view.TheOperatorsViewRefusesWhatThePacketSays.test_the_view_is_gone_after_every_refusal) ... ok
+test_it_takes_no_agent_and_no_runtime_capability (tests.tools.test_quiescent_assignment_finalization.TheQuiescentAssignmentIsEndedAndNothingElseIs.test_it_takes_no_agent_and_no_runtime_capability)
+THE PROOF IS THE SIGNATURE, not a promise in a docstring. An ... FAIL
+test_a_real_observing_status_run_mutates_no_durable_state (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state)
+W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability. ... FAIL
+test_fresh_process_observes_owned_completion_after_serving_closes (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes) ... ok
+test_worker_construction_failure_closes_every_acquired_handle (tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle) ... FAIL
+
+======================================================================
+ERROR: test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_native_stop_restart.py", line 138, in test_reopened_store_preserves_deadline_and_generation_without_revival
+    self.govern.reserve(self.store, self.row(), operation=self.operation)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4218, in reserve
+    tokens.journal_launch(asking, token, operation)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 858, in journal_launch
+    return _acting_record(control, token, _launch_id(token["domain"], token["generation"]), LAUNCH_KIND, document)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 899, in _acting_record
+    _owning(control, token, kind)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 1394, in _owning
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"holding positive cessation evidence may act on it now")
+baton_v12.contracts.errors.ContractRefusal: resource-token.launch for generation 1 of 'workspace:66306:19416253' is refused: that generation has been REVOKED, so its entitlement is withdrawn; only a manager settlement holding positive cessation evidence may act on it now
+
+======================================================================
+ERROR: test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds (tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_serving_renewal.py", line 159, in test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds
+    replay = self.acquire()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_serving_renewal.py", line 66, in acquire
+    governance.reserve(self.store, row, operation=operation)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4218, in reserve
+    tokens.journal_launch(asking, token, operation)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 858, in journal_launch
+    return _acting_record(control, token, _launch_id(token["domain"], token["generation"]), LAUNCH_KIND, document)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 899, in _acting_record
+    _owning(control, token, kind)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/tokens.py", line 1394, in _owning
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"holding positive cessation evidence may act on it now")
+baton_v12.contracts.errors.ContractRefusal: resource-token.launch for generation 1 of 'workspace:66306:19416248' is refused: that generation has been REVOKED, so its entitlement is withdrawn; only a manager settlement holding positive cessation evidence may act on it now
+
+======================================================================
+ERROR: test_closed_version_refuses_omission_extra_and_downgrade (tests.manager.test_launch.TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade) (change=<function TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade.<locals>.<lambda> at 0x7f7334a93880>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_launch.py", line 48, in test_closed_version_refuses_omission_extra_and_downgrade
+    change(value)
+    ~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_launch.py", line 45, in <lambda>
+    for change in (lambda value: value.pop("provider_context"), lambda value: value.update(extra=True), lambda value: value.update(schema="baton.worker-launch/3")):
+                                 ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'provider_context'
+
+======================================================================
+ERROR: test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) (key='attempt_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_launch.py", line 58, in test_wrong_role_uuid_attempt_and_binding_refuse_both_readers
+    value["provider_context"][key] = replacement
+    ~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'provider_context'
+
+======================================================================
+ERROR: test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) (key='conversation_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_launch.py", line 58, in test_wrong_role_uuid_attempt_and_binding_refuse_both_readers
+    value["provider_context"][key] = replacement
+    ~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'provider_context'
+
+======================================================================
+ERROR: test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) (key='task_digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_launch.py", line 58, in test_wrong_role_uuid_attempt_and_binding_refuse_both_readers
+    value["provider_context"][key] = replacement
+    ~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'provider_context'
+
+======================================================================
+ERROR: test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_launch.py", line 64, in test_wrong_role_uuid_attempt_and_binding_refuse_both_readers
+    launch.launch_document(**dict({one: self.document[one] for one in ("session", "contract", "transport", "job_execution", "provider_context")}, role="review"))
+                                        ~~~~~~~~~~~~~^^^^^
+KeyError: 'session'
+
+======================================================================
+ERROR: setUpClass (tests.tools.test_correction_restart.CountedReopenInvalidEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 299, in setUpClass
+    cls.observed = artifact(counted_reopen=True)
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 732, in fail
+    raise self.failureException(msg)
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 89024, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-11-18T02:05:03.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+ERROR: setUpClass (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 127, in setUpClass
+    cls.observed = artifact()
+                   ~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 732, in fail
+    raise self.failureException(msg)
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 89761, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-11-18T02:05:10.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 17}
+
+======================================================================
+ERROR: test_the_retained_intent_is_what_the_launch_states (tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob.test_the_retained_intent_is_what_the_launch_states)
+The runtime half is the judge's OWN configured identities, not the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1086, in test_the_retained_intent_is_what_the_launch_states
+    answer = self.module._SingleWorker._job_execution(
+        held, {"job_id": "job-b", "attempt_id": "judgment-1"})
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 3394, in _job_execution
+    given = self._given_for(stage)
+            ^^^^^^^^^^^^^^^
+AttributeError: 'types.SimpleNamespace' object has no attribute '_given_for'
+
+======================================================================
+ERROR: test_both_compositions_resolve_the_same_bytes (tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically.test_both_compositions_resolve_the_same_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 3051, in test_both_compositions_resolve_the_same_bytes
+    first = single_worker._SingleWorker._job_execution(serving, stage)
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 3394, in _job_execution
+    given = self._given_for(stage)
+            ^^^^^^^^^^^^^^^
+AttributeError: 'types.SimpleNamespace' object has no attribute '_given_for'
+
+======================================================================
+FAIL: test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)
+The unique LEXICAL identity, pinned.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_boundary.py", line 839, in test_every_named_site_covers_the_paths_it_was_written_for
+    self.assertEqual(excused, [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+        ("core.py", "_require_capability", "capability"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+        ("store.py", "create", "failure.errno"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+AssertionError: Lists differ: [('co[642 chars]', '_connect_readonly', 'failure'), ('store.py[233 chars]no')] != [('co[642 chars]', '_describe_target', 'failure.errno'), ('sto[30 chars]no')]
+
+First differing element 14:
+('store.py', '_connect_readonly', 'failure')
+('store.py', '_describe_target', 'failure.errno')
+
+First list contains 4 additional elements.
+First extra element 16:
+('store.py', '_connect_readonly', 'type(failure).__name__')
+
+Diff is 991 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_boundary.py", line 800, in test_no_refusal_renders_an_unbounded_value
+    self.assertEqual(self.offenders(self.interpolations()), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "unbounded refusal diagnostics")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('store.py', '_writable', 378, 'what'), ([176 chars]re')] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+('store.py', '_writable', 378, 'what')
+
++ []
+- [('store.py', '_writable', 378, 'what'),
+-  ('store.py', '_connect_readonly', 649, 'type(failure).__name__'),
+-  ('store.py', '_connect_readonly', 662, 'type(failure).__name__'),
+-  ('store.py', '_connect_readonly', 662, 'failure')] : unbounded refusal diagnostics
+
+======================================================================
+FAIL: test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) (source='source_boundary.py', word='opt/baton')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_boundary.py", line 280, in test_nothing_reaches_for_v11_the_node_host_or_a_dossier
+    self.assertNotIn(word, literal)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'opt/baton' unexpectedly found in '/opt/baton/verifier-layout-marker.json'
+
+======================================================================
+FAIL: test_a_document_with_a_transport_alone_is_still_version_two (tests.manager.test_execution_limits.TheVersionMovesWithTheMember.test_a_document_with_a_transport_alone_is_still_version_two)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 54, in test_a_document_with_a_transport_alone_is_still_version_two
+    self.assertEqual(held["schema"], "baton.worker-launch/2")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'baton.worker-launch/5' != 'baton.worker-launch/2'
+- baton.worker-launch/5
+?                     ^
++ baton.worker-launch/2
+?                     ^
+
+
+======================================================================
+FAIL: test_a_job_context_keeps_a_real_transport (tests.manager.test_execution_limits.TheVersionMovesWithTheMember.test_a_job_context_keeps_a_real_transport)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 75, in test_a_job_context_keeps_a_real_transport
+    self.assertEqual(held["schema"], "baton.worker-launch/3")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'baton.worker-launch/5' != 'baton.worker-launch/3'
+- baton.worker-launch/5
+?                     ^
++ baton.worker-launch/3
+?                     ^
+
+
+======================================================================
+FAIL: test_owner_launch_and_worker_reader_agree (tests.manager.test_launch.TheContextLaunchIsClosed.test_owner_launch_and_worker_reader_agree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_launch.py", line 39, in test_owner_launch_and_worker_reader_agree
+    self.assertEqual(baton_worker.launched(self.document), self.document)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'sch[22 chars]unch/4', 'session': 'session-ea86db1b98609e9e5[2834 chars]03'}} != {'sch[22 chars]unch/5', 'wire_profile': 'typed-adapter-file-e[2931 chars]3'}}}
+Diff is 11309 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_secrets.py", line 2321, in test_every_durable_writer_is_covered
+    self.assertEqual(uncovered, [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+                     "durable writers with no §13 coverage")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('intake.py', '_no_start_declared', 'atte[496 chars]es')] != []
+
+First list contains 9 additional elements.
+First extra element 0:
+('intake.py', '_no_start_declared', 'attempts')
+
++ []
+- [('intake.py', '_no_start_declared', 'attempts'),
+-  ('review_cycles.py', '_completed_line', 'review_lines'),
+-  ('review_cycles.py', '_published_recorded_line', 'review_lines'),
+-  ('review_cycles.py', '_reserved_line', 'review_lines'),
+-  ('review_cycles.py', '_withdraw_publication', 'review_lines'),
+-  ('review_cycles.py', 'release_writer', 'line_writers'),
+-  ('review_cycles.py', 'release_writer', 'review_lines'),
+-  ('review_cycles.py', 'restore_abandoned_correction', 'line_writers'),
+-  ('review_cycles.py', 'restore_abandoned_correction', 'review_lines')] : durable writers with no §13 coverage
+
+======================================================================
+FAIL: test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'create_line', 'review_lines'))
+A list of exceptions nobody compares to the code is a list of
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_secrets.py", line 2330, in test_no_declared_coverage_is_stale
+    self.assertIn(entry, writers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: ('review_cycles.py', 'create_line', 'review_lines') not found in {('posture_slots.py', '_occupy_slot', 'posture_slots'), ('review_cycles.py', 'freeze_checkpoint', 'review_lines'), ('offers.py', '_settle_terminal', 'offers'), ('store.py', 'ControlStore._record', 'operations'), ('output.py', '_record', 'output_artifacts'), ('handshake.py', 'certify_agent_session_profile', 'profiles'), ('offers.py', 'certify_profile', 'meta'), ('offers.py', 'issue_offer', 'offers'), ('review_cycles.py', '_withdraw_publication', 'review_lines'), ('sessions.py', 'adopt_provider_session', 'agent_sessions'), ('interrogation.py', '_ask', 'interrogations'), ('review_cycles.py', 'grant_writer', 'line_writers'), ('output.py', '_record', 'outputs'), ('attempts.py', '_attach', 'attempts'), ('intake.py', '_retain', 'retentions'), ('attempts.py', '_decide', 'observations'), ('lanes.py', '_occupy_lane', 'runtime_lanes'), ('intake.py', '_no_start_declared', 'attempts'), ('offers.py', 'accept_offer', 'offers'), ('review_cycles.py', '_completed_line', 'review_lines'), ('intake.py', '_seal', 'intake_artifacts'), ('attempts.py', '_decide', 'attempts'), ('review_cycles.py', 'record_verdict', 'review_lines'), ('review_cycles.py', 'attach_review', 'review_attachments'), ('store.py', 'ControlStore._initialize', 'meta'), ('review_cycles.py', 'record_verdict', 'checkpoint_verdicts'), ('review_cycles.py', 'grant_writer', 'review_lines'), ('attempts.py', 'record_attempt', 'attempts'), ('review_cycles.py', 'release_writer', 'line_writers'), ('workspaces.py', 'configure_workspace_group', 'meta'), ('review_cycles.py', 'freeze_checkpoint', 'line_checkpoints'), ('sessions.py', '_open', 'agent_sessions'), ('attempts.py', 'observe_activity', 'attempts'), ('workspaces.py', 'configure_workspace_storage', 'meta'), ('posture_slots.py', '_require_slot_recovery_in', 'posture_slots'), ('review_cycles.py', 'attach_review', 'review_lines'), ('review_cycles.py', 'restore_abandoned_correction', 'line_writers'), ('posture_slots.py', '_release_slot_in', 'posture_slots'), ('review_cycles.py', 'record_verdict', 'integration_eligibility'), ('sessions.py', '_observe_session_state_in', 'agent_sessions'), ('manifests.py', '_retain_canonical', 'manifests'), ('interrogation.py', 'publish_inquiry_answer', 'interrogations'), ('review_cycles.py', 'freeze_checkpoint', 'line_writers'), ('review_cycles.py', 'release_writer', 'review_lines'), ('intake.py', '_seal', 'intakes'), ('interrogation.py', 'record_inquiry_answer', 'interrogations'), ('attempts.py', 'activate_assignment', 'attempts'), ('review_cycles.py', 'record_progress', 'line_progress'), ('review_cycles.py', 'record_verdict', 'review_attachments'), ('review_cycles.py', 'restore_abandoned_correction', 'review_lines'), ('attempts.py', 'pin_boundary_identity', 'attempts'), ('review_cycles.py', '_published_recorded_line', 'review_lines'), ('review_cycles.py', '_reserved_line', 'review_lines'), ('interrogation.py', '_settle', 'interrogations'), ('offers.py', '_record_claim', 'offers')}
+
+======================================================================
+FAIL: test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_secrets.py", line 1477, in test_every_exported_callable_is_in_exactly_one_class
+    self.assertEqual(sorted(exported - classed), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "exported surfaces with no §13 accounting")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ControlStore.open_readonly', 'ControlSto[252 chars]ine'] != []
+
+First list contains 11 additional elements.
+First extra element 0:
+'ControlStore.open_readonly'
+
++ []
+- ['ControlStore.open_readonly',
+-  'ControlStore.snapshot',
+-  'abandoned_gate_discharge_of',
+-  'abandonment_cleanup_of',
+-  'advance_deadline',
+-  'deadline_cleanup_of',
+-  'deadline_of',
+-  'discharge_abandoned_quiescence_gate',
+-  'discharge_deadline_quiescence_gate',
+-  'fence_pre_attach_abandonment',
+-  'observe_deadline'] : exported surfaces with no §13 accounting
+
+======================================================================
+FAIL: test_manager_recomposition_preserves_both_positive_counts (tests.tools.test_correction_restart.CountedReopen.test_manager_recomposition_preserves_both_positive_counts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 287, in test_manager_recomposition_preserves_both_positive_counts
+    observed = artifact(counted_reopen=True)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 88787, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-11-18T02:05:01.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+FAIL: test_no_external_reader_runs_inside_a_control_transaction (tests.tools.test_correction_restart.TransactionBoundaryThroughTheConnectedPath.test_no_external_reader_runs_inside_a_control_transaction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 115, in test_no_external_reader_runs_inside_a_control_transaction
+    observed = artifact()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 89245, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-11-18T02:05:06.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+FAIL: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 28, in test_useful_correction_reaches_managed_target
+    observed = artifact()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 89532, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-11-18T02:05:08.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+FAIL: test_the_child_answers_each_jobs_own_numbers (tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches.test_the_child_answers_each_jobs_own_numbers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 3484, in test_the_child_answers_each_jobs_own_numbers
+    self.assertEqual(answered.returncode, 0, answered.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/var/tmp/v12-w71917-28fdbqt5/w156162-fresh.py", line 61, in <module>
+    answered = reader.observe_exchange(stage)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 7072, in observe_exchange
+    return reader.observe_exchange(stage)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 4297, in observe_exchange
+    delivery = self.exchange_delivery(stage)
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 4276, in exchange_delivery
+    launched = launch.adopt(
+        self.launch_home, attempt_id=attempt_id,
+    ...<5 lines>...
+        provider_context=_context_descriptor(self.control, self.given, attempt_id),
+        workspace_group=self.group)
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/var/tmp/v12-w71917-28fdbqt5/w156162-fresh.py", line 47, in watched
+    context = launch.payload_of(answered.document)["job_execution"]
+              ^^^^^^
+NameError: name 'launch' is not defined
+
+
+======================================================================
+FAIL: test_a_foreign_job_is_refused_on_the_read_only_path_too (tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically.test_a_foreign_job_is_refused_on_the_read_only_path_too)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 3068, in test_a_foreign_job_is_refused_on_the_read_only_path_too
+    self.assertIn("no such Job", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'no such Job' not found in "'types.SimpleNamespace' object has no attribute 'job_task'"
+
+======================================================================
+FAIL: test_it_takes_no_agent_and_no_runtime_capability (tests.tools.test_quiescent_assignment_finalization.TheQuiescentAssignmentIsEndedAndNothingElseIs.test_it_takes_no_agent_and_no_runtime_capability)
+THE PROOF IS THE SIGNATURE, not a promise in a docstring. An
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_quiescent_assignment_finalization.py", line 227, in test_it_takes_no_agent_and_no_runtime_capability
+    self.assertEqual(taken, ["store", "port", "attempt_id", "reason"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['store', 'port', 'attempt_id', 'reason', 'govern', 'cessation'] != ['store', 'port', 'attempt_id', 'reason']
+
+First list contains 2 additional elements.
+First extra element 4:
+'govern'
+
+- ['store', 'port', 'attempt_id', 'reason', 'govern', 'cessation']
+?                                         -----------------------
+
++ ['store', 'port', 'attempt_id', 'reason']
+
+======================================================================
+FAIL: test_a_real_observing_status_run_mutates_no_durable_state (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state)
+W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 6068, in test_a_real_observing_status_run_mutates_no_durable_state
+    self.assertEqual(sorted(after), sorted(before),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "an observing status run added or removed a durable "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "file")
+                     ^^^^^^^
+AssertionError: Lists differ: ['aut[33 chars]', 'control.sqlite3-shm', 'control.sqlite3-wal[1345 chars]son'] != ['aut[33 chars]', 'credentials/credential-state/attempt-7b5e0[1259 chars]son']
+
+First differing element 2:
+'control.sqlite3-shm'
+'credentials/credential-state/attempt-7b5e0[60 chars]json'
+
+First list contains 4 additional elements.
+First extra element 18:
+'storage/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/inputs/assignment.json'
+
+Diff is 1500 characters long. Set self.maxDiff to None to see it. : an observing status run added or removed a durable file
+
+======================================================================
+FAIL: test_worker_construction_failure_closes_every_acquired_handle (tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution_hardening.py", line 112, in test_worker_construction_failure_closes_every_acquired_handle
+    self.assertEqual(closed, ["implementation", "coordinator", "authority"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['coordinator', 'authority'] != ['implementation', 'coordinator', 'authority']
+
+First differing element 0:
+'coordinator'
+'implementation'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'authority'
+
+- ['coordinator', 'authority']
++ ['implementation', 'coordinator', 'authority']
+?  ++++++++++++++++++
+
+
+----------------------------------------------------------------------
+Ran 65 tests in 112.907s
+
+FAILED (failures=17, errors=11)
+error: Recipe `test-one` failed with exit code 1
+[b5-reconcile] exit 1 elapsed 113s finished 2026-11-18T02:05:38Z

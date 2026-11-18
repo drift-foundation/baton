@@ -159,3 +159,27 @@ Owner committed39850ad85071e1ad75a5545a03a6260a421981c3 (reviewed four engine fi
 
 Read child review-2026-11-17T20-13-12Z.md. Independent28/28 tests+20/20 subtests pass in1.965s, exact sources stable/roots cleaned. Both historical engine and pure/driver repair inventories now empty on selected snapshot. Child waits unclaimed at baton.decide for checkpoint and accepted-current-source join; no broad/full tests or closure yet. K/parent B5 and final gates remain open.
 
+
+## 2026-11-18T01-45-36Z — joined current-source verification released
+
+Parent review `review-2026-11-18T01-45-36Z.md` defines this verification-only slice. Materialize committed438eefa68f592e159f42cf1d190c7d7de4afde12 plus declared inputs, replacing the historical snapshot/overlays. Claim after reroute; verify the nine repaired B4 modules and four accepted pure-driver classes, exact accounting, source stability and created-resource cleanup. One necessary offline worker build permitted under the existing installed-base/no-pull/no-network boundary. Child records/evidence only; no shared source edits or parent progress edits. K independently repairs long-root diagnostics; import none of her new bytes. Stop/report failures and pass baton.decide. This supersedes the prior checkpoint/join wait, not final parent acceptance.
+
+## 2026-11-18T01-59-25Z — joined143 accepted as partial;99-case harness continuation released
+
+Read `review-2026-11-18T01-59-25Z.md`. Fix evidence shim streaming, prove with a local fake command, resume only99 unfinished cases on same438eefa6. Reuse recorded image or one explicitly selected offline rebuild if absent. No shared source edits. Preserve prior evidence/interruption and combine exact IDs with143 accepted passes. Claim after reroute, pass baton.decide on result.
+
+## 2026-11-18T02-08-00Z — combined B4 accepted:242/242
+
+Child `review-2026-11-18T02-08-00Z.md` independently verifies exact242 unique passes plus114 successful subtests on438eefa6, stable source/evidence and78 continuation containers absent. Codexpc is finished with this slice and waits unclaimed at baton.decide; no new tests assigned. Parent consumes accepted B4; K B5 reconciliation, final source checkpoint/full suite and owner closure remain due. Later diagnostic bytes are not claimed covered by this earlier committed snapshot.
+
+## 2026-11-18T02-15-55Z — follow-on environment/package verification released
+
+Parent `review-2026-11-18T02-15-55Z.md` selects the25 historically unverified cases: manager test_refused_session_engine and test_oci_engine, tools test_packaged_creation. Prior242 acceptance remains. Same isolated438eefa6 source plus declared inputs; collect exact current IDs; installed images only/no pulls; one local snapshot distribution build selected with required packaging flag and artifact provenance. No shared source edits or new K bytes. Child evidence/docs only, claim after reroute, return failures before repair and pass baton.decide.
+
+## 2026-11-18T02-21-34Z — follow-on22 accepted;8 image-dependent cases released
+
+Child `review-2026-11-18T02-21-34Z.md` verifies22 passes (9OCI+13packaged), stable438eefa6 source and four created containers absent. Actual collection30 supersedes historical25;8 refused-session cases were correctly withheld for missing worker image. One bounded offline same-context reference-worker build and those8 cases now released to codexpc, no pulls/shared edits or repeated accepted tests. K G4/G5 unchanged. Parent final acceptance remains open.
+
+## 2026-11-18T02-26-07Z — follow-on30/30 accepted; codexpc verification complete
+
+Child `review-2026-11-18T02-26-07Z.md` independently verifies8 resumed+22 prior =30 unique passes, stable438eefa6 source/evidence and9 created containers absent. Prior242 acceptance remains. The25 historical unverified environment/package entries are resolved by current30-ID coverage. Codexpc waits unclaimed at baton.decide, no new tests. K G4/G5 and remaining B5/final gates continue.

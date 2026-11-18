@@ -1,0 +1,33 @@
+test_every_pinned_build_artifact_carries_a_hash (tests.authority.test_boundary.Distribution.test_every_pinned_build_artifact_carries_a_hash) ... ok
+test_the_authority_slice_still_reaches_for_no_validator (tests.authority.test_boundary.Distribution.test_the_authority_slice_still_reaches_for_no_validator) ... ok
+test_the_distribution_declares_the_python_it_requires (tests.authority.test_boundary.Distribution.test_the_distribution_declares_the_python_it_requires) ... ok
+test_the_runtime_lock_says_which_slice_its_pins_are_for (tests.authority.test_boundary.Distribution.test_the_runtime_lock_says_which_slice_its_pins_are_for) ... ok
+test_every_caller_text_family_is_bounded (tests.authority.test_boundary.EveryCallerTextFamilyIsBounded.test_every_caller_text_family_is_bounded) ... ok
+test_the_digest_and_receipt_collision_families_are_bounded (tests.authority.test_boundary.EveryCallerTextFamilyIsBounded.test_the_digest_and_receipt_collision_families_are_bounded) ... ok
+test_the_store_path_family_is_bounded (tests.authority.test_boundary.EveryCallerTextFamilyIsBounded.test_the_store_path_family_is_bounded) ... ok
+test_a_named_site_does_not_travel (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_a_named_site_does_not_travel) ... ok
+test_a_named_site_does_not_travel_between_same_named_functions (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_a_named_site_does_not_travel_between_same_named_functions) ... ok
+test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)
+The unique LEXICAL identity, pinned. ... ok
+test_every_named_site_is_actually_there (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_is_actually_there) ... ok
+test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value) ... ok
+test_origin_proof_respects_modules_scopes_and_control_flow (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_origin_proof_respects_modules_scopes_and_control_flow) ... ok
+test_the_analyzer_refuses_what_it_cannot_prove (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_analyzer_refuses_what_it_cannot_prove)
+The conservative half, stated as cases rather than as intent. ... ok
+test_the_check_itself_is_not_vacuous (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_check_itself_is_not_vacuous) ... ok
+test_the_classifier_accepts_only_the_exact_bounded_shape (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_classifier_accepts_only_the_exact_bounded_shape) ... ok
+test_the_shapes_the_classifier_must_still_reject (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_shapes_the_classifier_must_still_reject) ... ok
+test_a_later_cut_adds_methods_rather_than_stubs (tests.authority.test_boundary.ExportedSurface.test_a_later_cut_adds_methods_rather_than_stubs) ... ok
+test_no_exported_name_is_a_store_a_path_or_a_way_to_run_sql (tests.authority.test_boundary.ExportedSurface.test_no_exported_name_is_a_store_a_path_or_a_way_to_run_sql) ... ok
+test_the_bootstrap_face_configures_and_reads_and_never_acts (tests.authority.test_boundary.ExportedSurface.test_the_bootstrap_face_configures_and_reads_and_never_acts) ... ok
+test_the_exported_names_are_the_promise (tests.authority.test_boundary.ExportedSurface.test_the_exported_names_are_the_promise) ... ok
+test_an_in_container_declaration_is_not_a_reach (tests.authority.test_boundary.Isolation.test_an_in_container_declaration_is_not_a_reach)
+W384870 B5: `opt/baton` is forbidden because it is where a v11 ... ok
+test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) ... ok
+test_the_authority_imports_nothing_but_the_standard_library_and_itself (tests.authority.test_boundary.Isolation.test_the_authority_imports_nothing_but_the_standard_library_and_itself) ... ok
+test_the_authority_schema_carries_no_manager_or_control_facts (tests.authority.test_boundary.Isolation.test_the_authority_schema_carries_no_manager_or_control_facts) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 1.568s
+
+OK

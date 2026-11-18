@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "frames": 2,
+  "stdout_before_stdin_closed": true,
+  "stderr_separate": true,
+  "exit_status": 23,
+  "signal_status": -15,
+  "seconds": 0.03300547999970149
+}

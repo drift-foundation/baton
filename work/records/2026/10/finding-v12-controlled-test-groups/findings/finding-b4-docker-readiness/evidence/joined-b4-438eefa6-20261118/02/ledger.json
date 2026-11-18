@@ -1,0 +1,29 @@
+{
+  "collected": [
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_correction_runtime_advances_the_same_line",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_reviewer_runtime_cannot_write_the_checkpoint_it_reads",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_initial_populated_line_is_writable_by_the_fixed_runtime",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_the_composed_ending_consumes_reviews_and_corrects_one_line"
+  ],
+  "started": [
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_correction_runtime_advances_the_same_line",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_reviewer_runtime_cannot_write_the_checkpoint_it_reads",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_initial_populated_line_is_writable_by_the_fixed_runtime",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_the_composed_ending_consumes_reviews_and_corrects_one_line"
+  ],
+  "passed": [
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_correction_runtime_advances_the_same_line",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_reviewer_runtime_cannot_write_the_checkpoint_it_reads",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_initial_populated_line_is_writable_by_the_fixed_runtime",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_the_composed_ending_consumes_reviews_and_corrects_one_line"
+  ],
+  "failed": [],
+  "errors": [],
+  "skipped": [],
+  "expected_failures": [],
+  "unexpected_successes": [],
+  "subtests": [],
+  "unaccounted": [],
+  "duplicates": 0,
+  "loader_errors": []
+}

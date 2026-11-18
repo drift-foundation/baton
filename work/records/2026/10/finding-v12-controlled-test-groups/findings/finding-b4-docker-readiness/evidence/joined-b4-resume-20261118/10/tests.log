@@ -1,0 +1,12 @@
+test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted) ... ok
+test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate) ... ok
+test_a_real_proposal_from_another_producer_refuses_before_receipts (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts) ... ok
+test_actual_command_custody_cleanup_and_authority_admission (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission) ... ok
+test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit) ... ok
+test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence) ... ok
+test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.711s
+
+OK

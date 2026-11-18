@@ -1,0 +1,27 @@
+{
+  "selection": "tests.manager.test_refused_session_engine",
+  "exit": 0,
+  "seconds": 4.318839223000396,
+  "timed_out": false,
+  "passed": 8,
+  "started": 8,
+  "skipped": [],
+  "created_container_ids": [
+    "0772e21024991b3343afbd5aefd4bf98a0d4f0a4396f873cf452174fb469f281",
+    "1852352b3d554889497c3d5bcc540b43402c334732e0f2d4229a7065fee18bed",
+    "211689a23d109d6f755d20c26401aececd15299ca90612a1907e7281a843d6e2",
+    "3adb17e279569213fa26585b0b2df88377f6e2e5e4ea10dd436124b27b9d9184",
+    "41c6be2fb5e773ee2d01087d82730fb1b54f886b42cdfb6146ea96515f6b125e",
+    "765958b8f1a9a4f6f4b64e02aadcf0bd89b678a2c40e75f813f33edea0fa1c42",
+    "94dfc3398610562501795ed2813fa4fefeb7b3367c6afc36881001b2cf9de51e",
+    "eda0d46d6730870ed5259087f873b1274516dc32c10244fa2ce2d7c4544f04cc",
+    "ffbaefeb3a3227061cfed4238726f652b9ebc5f8fb377da2eaef5902f9a22705"
+  ],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

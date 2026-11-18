@@ -1,0 +1,6 @@
+test_neither_order_fails (tests.manager.test_oci_integration.TheModulesImportInEitherOrder.test_neither_order_fails) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.294s
+
+OK

@@ -2325,7 +2325,10 @@ class InitialStableLineAccess(unittest.TestCase):
         THE ENTRY GOES IN THE RENDERED SLOT and the root in the sentence after
         it, because a refusal renders a bounded prefix of a value and an
         absolute checkout path would spend it before reaching the name that
-        matters.
+        matters. The root itself is rendered by the PATH rule (W384870 B5,
+        review 2026-11-18T01-45-36Z): whole up to `_PATH_LIMIT`, so the
+        `assertIn(str(self.line))` below holds under a long disk-backed
+        fixture root too, where the sixty-code-point value rule cut it.
         """
         (self.line / "readable-entry").write_bytes(b"payload")
         blocked = self.line / "blocked-entry"
@@ -2389,6 +2392,99 @@ class InitialStableLineAccess(unittest.TestCase):
         self.assertIn(str(self.line), said)
         self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
         self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+
+    def _long_line(self, components, width):
+        """A line root `components` directories deep under the fixture root, each
+        component `width` characters: the root's spelling exceeds the value rule's
+        sixty code points however short TMPDIR is."""
+        line = self.root
+        for index in range(components):
+            line = line / (chr(ord("a") + index) * width)
+        line.mkdir(parents=True, mode=0o700)
+        self.assertGreater(len(str(line)), 60)
+        return line, (line.stat().st_dev, line.stat().st_ino)
+
+    def test_a_long_line_root_is_named_in_full_by_every_access_refusal(self):
+        """W384870 B5, review 2026-11-18T01-45-36Z: the four refusals above
+        asserted the whole root and the product rendered sixty code points of
+        it, so they held only under a short fixture root. The root is a path
+        an operator acts on by spelling it exactly; it is rendered by the path
+        rule now, whole up to its bound, under ANY root this test can make."""
+        from baton_v12.contracts.errors import MESSAGE_LIMIT
+        line, pin = self._long_line(3, 40)
+        prove = lambda: workspaces.prove_line_integrity(str(line), pin, self.identity)
+        said = {}
+        # the root cannot be opened
+        line.chmod(0)
+        with self.assertRaises(ContractRefusal) as raised:
+            prove()
+        said["could not open the line root"] = str(raised.exception)
+        line.chmod(0o700)
+        # an entry cannot be opened; the root is in the sentence after it
+        blocked = line / "blocked-entry"
+        blocked.write_bytes(b"retained")
+        blocked.chmod(0)
+        self.addCleanup(blocked.chmod, 0o600)
+        with self.assertRaises(ContractRefusal) as raised:
+            prove()
+        said["could not open 'blocked-entry'"] = str(raised.exception)
+        blocked.chmod(0o600)
+        # a directory cannot be listed
+        nested = line / "nested"
+        nested.mkdir()
+        (nested / "below").write_bytes(b"payload")
+        original = workspaces.os.scandir
+        calls = []
+
+        def listing(descriptor):
+            calls.append(descriptor)
+            if len(calls) == 2:
+                raise PermissionError(errno.EACCES, "injected list fault")
+            return original(descriptor)
+
+        with mock.patch.object(workspaces.os, "scandir", side_effect=listing):
+            with self.assertRaises(ContractRefusal) as raised:
+                prove()
+        said["could not list 'nested'"] = str(raised.exception)
+        # the group and mode cannot be set while establishing
+        def failing(descriptor, mode):
+            raise PermissionError(errno.EPERM, "injected permission fault")
+
+        with mock.patch.object(workspaces.os, "fchmod", side_effect=failing):
+            with self.assertRaises(ContractRefusal) as raised:
+                workspaces.establish_line_access(str(line), pin, self.identity)
+        said["could not set the group and mode of"] = str(raised.exception)
+        for operation, message in said.items():
+            with self.subTest(operation=operation):
+                self.assertIn(operation, message)
+                self.assertIn(str(line), message)
+                self.assertNotIn("\u2026", message)
+                self.assertIn("E", message)  # an errno NAME survives beside the whole path
+                self.assertLessEqual(len(message), MESSAGE_LIMIT)
+        self.assertIn("EACCES", said["could not open the line root"])
+        self.assertIn("EPERM", said["could not set the group and mode of"])
+        # the three proofs performed no permission act; establishing set the group once before its mode failed
+        self.assertEqual(self.acts(), {"chown": 1, "chmod": 0})
+
+    def test_a_line_root_beyond_the_path_bound_is_named_by_its_prefix(self):
+        """The path rule is a RULE: a root longer than its bound is cut and
+        marked, the message stays under the message limit, and what survives
+        is the prefix an operator can still start from."""
+        from baton_v12.contracts import errors as errors_module
+        line, pin = self._long_line(6, 200)
+        self.assertGreater(len(str(line)), errors_module._PATH_LIMIT)
+        line.chmod(0)
+        self.addCleanup(line.chmod, 0o700)
+        with self.assertRaises(ContractRefusal) as raised:
+            workspaces.prove_line_integrity(str(line), pin, self.identity)
+        said = str(raised.exception)
+        self.assertIn("could not open the line root", said)
+        self.assertIn(str(line)[:errors_module._PATH_LIMIT - 2], said)
+        self.assertNotIn(str(line), said)
+        self.assertIn("\u2026", said)
+        self.assertIn("EACCES", said)
+        self.assertLessEqual(len(said), errors_module.MESSAGE_LIMIT)
+
 
     def test_a_proof_failure_that_is_NOT_a_permission_one_gets_no_hint(self):
         """An `ENOSPC` while walking is not an identity arrangement either."""
@@ -2501,6 +2597,43 @@ class InitialStableLineAccess(unittest.TestCase):
         with self.assertRaises(ContractRefusal):
             workspaces._prove_execution_workspace(
                 {"workspace": str(self.line)}, self.gid, {})
+
+
+class PathValueIsTheBoundedPathRule(unittest.TestCase):
+    """`contracts.errors.path_value` (W384870 B5): the inert rendering of a
+    filesystem path under a path-sized bound, so a refusal names a path whole
+    enough to act on and is still bounded by a rule rather than by the value."""
+
+    def test_a_path_within_the_bound_is_rendered_whole(self):
+        from baton_v12.contracts import errors as errors_module
+        for path in ("/var/tmp/x", "/" + "a" * (errors_module._PATH_LIMIT - 3)):
+            with self.subTest(length=len(path)):
+                shown = errors_module.path_value(path)
+                self.assertEqual(shown, ascii(path))
+                self.assertIn(path, shown)
+                self.assertNotIn("\u2026", shown)
+        self.assertGreater(errors_module._PATH_LIMIT, 60, "wider than the value rule, or it changes nothing")
+
+    def test_a_path_beyond_the_bound_is_cut_and_marked_in_the_escaped_unit(self):
+        from baton_v12.contracts import errors as errors_module
+        path = "/" + "b" * (errors_module._PATH_LIMIT * 2)
+        shown = errors_module.path_value(path)
+        self.assertTrue(shown.endswith("\u2026"))
+        self.assertLessEqual(len(shown), errors_module._PATH_LIMIT + 1)
+        self.assertTrue(shown.startswith(ascii(path)[:errors_module._PATH_LIMIT - 2]))
+        # the ESCAPED form is bounded too: an astral code point escapes to ten
+        astral = "/" + "\U0001f600" * errors_module._PATH_LIMIT
+        self.assertLessEqual(len(errors_module.path_value(astral)), errors_module._PATH_LIMIT + 1)
+
+    def test_a_path_is_rendered_inertly_and_a_non_path_as_a_value(self):
+        from baton_v12.contracts import errors as errors_module
+        self.assertEqual(errors_module.path_value("/x/\ud800"), ascii("/x/\ud800"))  # a lone surrogate does not raise
+        self.assertEqual(errors_module.path_value(None), "none")
+        self.assertEqual(errors_module.path_value(7), "7")
+        self.assertEqual(errors_module.path_value(b"/x"), errors_module.name_value(b"/x"))
+        self.assertIn("path_value", errors_module.__all__)
+        # and two whole paths plus this package's longest access prose fit the message limit
+        self.assertLess(2 * (errors_module._PATH_LIMIT + 1) + 1200, errors_module.MESSAGE_LIMIT)
 
 
 class TheSharedExecutionIdentityReachesTheVECTORS(unittest.TestCase):

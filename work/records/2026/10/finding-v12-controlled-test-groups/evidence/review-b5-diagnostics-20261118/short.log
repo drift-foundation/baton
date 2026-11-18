@@ -1,0 +1,55 @@
+test_NO_permission_walk_touches_unrelated_entries (tests.manager.test_workspaces.InitialStableLineAccess.test_NO_permission_walk_touches_unrelated_entries)
+The other half of the same property: what the worker created keeps ... ok
+test_REPEATED_preparation_is_idempotent_and_still_two_acts (tests.manager.test_workspaces.InitialStableLineAccess.test_REPEATED_preparation_is_idempotent_and_still_two_acts) ... ok
+test_a_STABLE_symlink_still_passes_and_is_still_NOT_followed (tests.manager.test_workspaces.InitialStableLineAccess.test_a_STABLE_symlink_still_passes_and_is_still_NOT_followed)
+The control for the two above: what is refused is a CHANGE, not a ... ok
+test_a_bad_identity_root_or_pin_refuses_before_any_act (tests.manager.test_workspaces.InitialStableLineAccess.test_a_bad_identity_root_or_pin_refuses_before_any_act) ... ok
+test_a_directory_that_cannot_be_LISTED_names_that_operation (tests.manager.test_workspaces.InitialStableLineAccess.test_a_directory_that_cannot_be_LISTED_names_that_operation)
+The enumeration boundary, which no real fixture reaches on this ... ok
+test_a_failure_that_is_NOT_a_permission_one_gets_no_mapping_hint (tests.manager.test_workspaces.InitialStableLineAccess.test_a_failure_that_is_NOT_a_permission_one_gets_no_mapping_hint)
+An `ENOSPC` is not an identity arrangement, and saying so would send ... ok
+test_a_failure_while_establishing_NAMES_its_errno (tests.manager.test_workspaces.InitialStableLineAccess.test_a_failure_while_establishing_NAMES_its_errno)
+The incident lost the errno. The refusal carries all of it now. ... ok
+test_a_line_root_beyond_the_path_bound_is_named_by_its_prefix (tests.manager.test_workspaces.InitialStableLineAccess.test_a_line_root_beyond_the_path_bound_is_named_by_its_prefix)
+The path rule is a RULE: a root longer than its bound is cut and ... ok
+test_a_link_added_AFTER_an_entry_was_checked_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_a_link_added_AFTER_an_entry_was_checked_is_refused)
+Review 2026-09-17T12-47-56Z finding 1, and it was a real regression. ... ok
+test_a_long_line_root_is_named_in_full_by_every_access_refusal (tests.manager.test_workspaces.InitialStableLineAccess.test_a_long_line_root_is_named_in_full_by_every_access_refusal)
+W384870 B5, review 2026-11-18T01-45-36Z: the four refusals above ... ok
+test_a_proof_failure_that_is_NOT_a_permission_one_gets_no_hint (tests.manager.test_workspaces.InitialStableLineAccess.test_a_proof_failure_that_is_NOT_a_permission_one_gets_no_hint)
+An `ENOSPC` while walking is not an identity arrangement either. ... ok
+test_a_shared_identity_is_MINTED_and_never_root (tests.manager.test_workspaces.InitialStableLineAccess.test_a_shared_identity_is_MINTED_and_never_root)
+The `WorkspaceGroup` shape, for the same reason: a pair a caller can ... ok
+test_a_symlink_that_becomes_a_REGULAR_FILE_is_refused_too (tests.manager.test_workspaces.InitialStableLineAccess.test_a_symlink_that_becomes_a_REGULAR_FILE_is_refused_too)
+The transition is refused in BOTH directions, because the recorded ... ok
+test_an_entry_REPLACED_during_the_walk_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_REPLACED_during_the_walk_is_refused)
+The other half of the same invariant: same path, different object. ... ok
+test_an_entry_that_APPEARS_during_the_walk_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_that_APPEARS_during_the_walk_is_refused) ... ok
+test_an_entry_that_DISAPPEARS_during_the_walk_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_that_DISAPPEARS_during_the_walk_is_refused)
+A reversal probe earned this one. Removing the directory ... ok
+test_an_entry_that_becomes_a_SYMLINK_during_the_walk_is_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_that_becomes_a_SYMLINK_during_the_walk_is_refused)
+Review 2026-09-17T15-42-06Z finding 1, and it was the same ... ok
+test_an_unchanged_tree_still_passes_BOTH_passes (tests.manager.test_workspaces.InitialStableLineAccess.test_an_unchanged_tree_still_passes_BOTH_passes)
+The control: revalidation refuses change, not stability. ... ok
+test_an_unreadable_entry_NAMES_the_operation_and_the_entry (tests.manager.test_workspaces.InitialStableLineAccess.test_an_unreadable_entry_NAMES_the_operation_and_the_entry)
+Review 2026-09-17T15-42-06Z finding 2. This is the FIRST ... ok
+test_an_unreadable_line_ROOT_names_the_operation_and_the_root (tests.manager.test_workspaces.InitialStableLineAccess.test_an_unreadable_line_ROOT_names_the_operation_and_the_root)
+The same refusal one level up, where there is no relative entry to ... ok
+test_hardlinks_and_special_files_are_STILL_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_hardlinks_and_special_files_are_STILL_refused)
+Kept from the removed pass, and still changing nothing. ... ok
+test_it_runs_UNDER_a_soft_limit_the_old_pass_exhausted (tests.manager.test_workspaces.InitialStableLineAccess.test_it_runs_UNDER_a_soft_limit_the_old_pass_exhausted)
+The incident's shape, in a child with the incident's limit. ... ok
+test_the_ceilings_and_a_foreign_owner_are_STILL_refused (tests.manager.test_workspaces.InitialStableLineAccess.test_the_ceilings_and_a_foreign_owner_are_STILL_refused) ... ok
+test_the_peak_descriptor_count_is_bounded_by_DEPTH (tests.manager.test_workspaces.InitialStableLineAccess.test_the_peak_descriptor_count_is_bounded_by_DEPTH)
+W194457 review finding 1: the removed pass peaked at one descriptor ... ok
+test_the_permission_work_is_TWO_ACTS_whatever_the_tree_holds (tests.manager.test_workspaces.InitialStableLineAccess.test_the_permission_work_is_TWO_ACTS_whatever_the_tree_holds)
+THE PROPERTY THIS WORK EXISTS FOR, and it is a COUNT rather than a ... ok
+test_the_proof_does_not_retrofit_an_unestablished_line (tests.manager.test_workspaces.InitialStableLineAccess.test_the_proof_does_not_retrofit_an_unestablished_line) ... ok
+test_a_path_beyond_the_bound_is_cut_and_marked_in_the_escaped_unit (tests.manager.test_workspaces.PathValueIsTheBoundedPathRule.test_a_path_beyond_the_bound_is_cut_and_marked_in_the_escaped_unit) ... ok
+test_a_path_is_rendered_inertly_and_a_non_path_as_a_value (tests.manager.test_workspaces.PathValueIsTheBoundedPathRule.test_a_path_is_rendered_inertly_and_a_non_path_as_a_value) ... ok
+test_a_path_within_the_bound_is_rendered_whole (tests.manager.test_workspaces.PathValueIsTheBoundedPathRule.test_a_path_within_the_bound_is_rendered_whole) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.215s
+
+OK

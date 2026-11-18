@@ -1,0 +1,32 @@
+test_every_exported_function_bounds_the_label_it_is_given (tests.manager.test_dependencies.AnExportedLabelIsCallerInput.test_every_exported_function_bounds_the_label_it_is_given) ... ok
+test_the_sweep_finds_the_exported_functions_it_claims_to (tests.manager.test_dependencies.AnExportedLabelIsCallerInput.test_the_sweep_finds_the_exported_functions_it_claims_to) ... ok
+test_a_message_has_the_approved_fixed_bound (tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion.test_a_message_has_the_approved_fixed_bound)
+4,096 Unicode scalars pass and the next one is asserted here. ... ok
+test_a_message_this_build_could_not_store_is_refused (tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion.test_a_message_this_build_could_not_store_is_refused)
+A refusal is the value most likely to be stored, journalled and ... ok
+test_durability_is_exactly_a_boolean (tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion.test_durability_is_exactly_a_boolean)
+The truth value of an arbitrary object is decided by running ... ok
+test_the_category_and_code_pair_is_owned_by_an_assertion (tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion.test_the_category_and_code_pair_is_owned_by_an_assertion) ... ok
+test_the_public_message_limit_is_the_constructor_s_one_rule (tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion.test_the_public_message_limit_is_the_constructor_s_one_rule)
+The exported rule and the owning constructor cannot drift apart. ... ok
+test_every_label_probe_proves_the_label_reached_its_owner (tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe.test_every_label_probe_proves_the_label_reached_its_owner) ... ok
+test_every_owned_entry_has_exactly_one_probe (tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe.test_every_owned_entry_has_exactly_one_probe) ... ok
+test_every_probe_reaches_a_refusal (tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe.test_every_probe_reaches_a_refusal) ... ok
+test_the_probe_gate_can_actually_fail (tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe.test_the_probe_gate_can_actually_fail)
+A guard with nothing to catch is tested by handing it something. ... ok
+test_each_public_wrapper_owns_then_delegates (tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally.test_each_public_wrapper_owns_then_delegates) ... ok
+test_the_composite_calls_the_private_bodies (tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally.test_the_composite_calls_the_private_bodies) ... ok
+test_every_entry_has_exactly_one_stated_owner (tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared.test_every_entry_has_exactly_one_stated_owner) ... ok
+test_every_exported_callable_is_reachable_from_the_package (tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared.test_every_exported_callable_is_reachable_from_the_package) ... ok
+test_no_receiving_entry_is_marked_unowned (tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared.test_no_receiving_entry_is_marked_unowned) ... ok
+test_the_universe_is_not_read_from_the_ownership_table (tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared.test_the_universe_is_not_read_from_the_ownership_table)
+The guard on the guard. ... ok
+test_every_text_operand_refuses_a_lone_surrogate (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_every_text_operand_refuses_a_lone_surrogate) ... ok
+test_the_sweep_is_not_vacuous (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_sweep_is_not_vacuous) ... ok
+test_the_table_names_every_exported_callable (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_table_names_every_exported_callable)
+The completeness half, and the reason this file exists. ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.360s
+
+OK

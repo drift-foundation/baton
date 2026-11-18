@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "docker",
+    "image",
+    "inspect",
+    "sha256:358141000ac06aa4719d4721ac9cfb258c66159896587e9776828f753c3c5934",
+    "--format",
+    "{{.Id}}"
+  ],
+  "status": 1,
+  "stdout": "\n",
+  "stderr": "Error response from daemon: No such image: sha256:358141000ac06aa4719d4721ac9cfb258c66159896587e9776828f753c3c5934\n"
+}

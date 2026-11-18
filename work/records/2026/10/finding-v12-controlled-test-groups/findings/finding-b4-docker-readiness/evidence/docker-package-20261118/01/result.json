@@ -1,0 +1,22 @@
+{
+  "selection": "tests.manager.test_oci_engine",
+  "exit": 0,
+  "seconds": 1.2648803629999747,
+  "timed_out": false,
+  "passed": 9,
+  "started": 9,
+  "skipped": [],
+  "created_container_ids": [
+    "6143530ad994c9b3f50b57692d07ea2d65a1d20d5036aa86104fbb7badcfb646",
+    "6ba960cf57db31706966a082f3773675adfed3a4439b3de3685c47f8d95213af",
+    "a7a5805b079a0d04a6be07c2d64d07c16fbd0c98b11d32d36e590557b08e453f",
+    "e668cf1a9e7f0d5648821641ee02875cd2de102d1aa8815e99de7e4b4e5340d7"
+  ],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

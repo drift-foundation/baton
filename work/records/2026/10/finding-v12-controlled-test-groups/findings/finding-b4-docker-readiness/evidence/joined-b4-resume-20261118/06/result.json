@@ -1,0 +1,23 @@
+{
+  "selection": "tests.manager.test_negative_race_endings",
+  "exit": 0,
+  "seconds": 32.994580252998276,
+  "timed_out": false,
+  "passed": 5,
+  "started": 5,
+  "skipped": [],
+  "created_container_ids": [
+    "1c3cd300ed23cd2ec8646df937243eda501a4442a1ec2baaef045cb114aa66ee",
+    "3729b07517354e682546feca80f5e3a49e501dd33eefc4e10f3eb7ef1c2bf115",
+    "6c65338a759f9c42ec024f8e83e4056b9c0e330d5f6ede773006657c4c3c3e93",
+    "b9c356fb40ebc8bc82b007ee497fbcff27c1cf7d7770c3f054eafd3c7ef139d6",
+    "e37dcd83c1d639c3a623c84340f61744e4b72253a8bd6296b87593e898269bf9"
+  ],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

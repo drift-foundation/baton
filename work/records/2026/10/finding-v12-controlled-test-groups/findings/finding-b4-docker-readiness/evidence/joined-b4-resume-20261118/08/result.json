@@ -1,0 +1,17 @@
+{
+  "selection": "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry",
+  "exit": 0,
+  "seconds": 0.4138503159992979,
+  "timed_out": false,
+  "passed": 5,
+  "started": 5,
+  "skipped": [],
+  "created_container_ids": [],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

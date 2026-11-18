@@ -1,0 +1,20 @@
+test_a_real_refusal_after_the_container_exists_reaches_the_ending (tests.manager.test_refused_session_engine.DockerRefusedSession.test_a_real_refusal_after_the_container_exists_reaches_the_ending)
+THE ACCEPTANCE, in one case. ... ok
+test_a_restart_between_the_refusal_and_the_ending_still_ends_once (tests.manager.test_refused_session_engine.DockerRefusedSession.test_a_restart_between_the_refusal_and_the_ending_still_ends_once)
+RESTART, and it is a real one: a new store handle over the same ... ok
+test_a_second_attempts_container_is_untouched (tests.manager.test_refused_session_engine.DockerRefusedSession.test_a_second_attempts_container_is_untouched)
+SIBLING PRESERVATION, over two real containers. ... ok
+test_a_successful_negotiation_leaves_the_container_running (tests.manager.test_refused_session_engine.DockerRefusedSession.test_a_successful_negotiation_leaves_the_container_running)
+The refusal is DERIVED, so a version the profile accepts has no ... ok
+test_the_delivered_roots_are_torn_down_on_that_absence (tests.manager.test_refused_session_engine.DockerRefusedSession.test_the_delivered_roots_are_torn_down_on_that_absence)
+Positive container absence is what makes it safe to settle the ... ok
+test_the_freeze_door_is_still_shut_and_this_one_is_not (tests.manager.test_refused_session_engine.DockerRefusedSession.test_the_freeze_door_is_still_shut_and_this_one_is_not)
+Measured rather than argued, against the real composition. ... ok
+test_the_lane_is_given_back_only_after_the_daemon_agrees (tests.manager.test_refused_session_engine.DockerRefusedSession.test_the_lane_is_given_back_only_after_the_daemon_agrees) ... ok
+test_the_untrusted_result_directory_survives_the_removal (tests.manager.test_refused_session_engine.DockerRefusedSession.test_the_untrusted_result_directory_survives_the_removal)
+Whatever the worker wrote before the handshake refused was written ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 4.012s
+
+OK

@@ -1,0 +1,24 @@
+{
+  "selection": "tests.manager.test_private_line_access_engine",
+  "exit": 0,
+  "seconds": 2.4663454170004115,
+  "timed_out": false,
+  "passed": 4,
+  "started": 4,
+  "skipped": [],
+  "created_container_ids": [
+    "8ad44fcc89c14b3f8958bce1cfbbf4c450aedd00945d3205d230907f77c6cffd",
+    "8b99f8677345738b364969c49b5af351eb48a12f3d272a20fb59093ce2e3f958",
+    "a245b64c42be6a221f6be2a56c8b3353ab3a83922425d72cd373e4530173a13d",
+    "b2cc97cede9179ddf2154e98e73852452529951c4226e6f5d0cab9fbeb95e34c",
+    "c4db01765c5b104b1f4bdc44eaee1fe793935fd8ca0b8dc48c372e3271cced5b",
+    "fb456b28b4ba4947729cb5774267bbf0efbf002dad93a0791779c6991989e007"
+  ],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

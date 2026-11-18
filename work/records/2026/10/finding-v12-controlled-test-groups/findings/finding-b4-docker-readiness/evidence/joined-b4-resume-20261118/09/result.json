@@ -1,0 +1,17 @@
+{
+  "selection": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated",
+  "exit": 0,
+  "seconds": 0.313740265002707,
+  "timed_out": false,
+  "passed": 9,
+  "started": 9,
+  "skipped": [],
+  "created_container_ids": [],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

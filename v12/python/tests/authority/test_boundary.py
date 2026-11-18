@@ -52,6 +52,24 @@ def authority_sources():
     return sorted((PACKAGE / "authority").rglob("*.py"))
 
 
+# In-container paths this manager DECLARES for the worker image and never
+# reaches itself: (module, constant) -> (exact value, why it is not a reach).
+# Proved semantically by `Isolation.test_an_in_container_declaration_is_not_a_reach`;
+# the forbidden-word scan skips exactly these values in exactly these modules.
+IN_CONTAINER_DECLARATIONS = {
+    ("source_boundary.py", "MARKER_TARGET"): (
+        "/opt/baton/verifier-layout-marker.json",
+        "the verifier-layout marker the image recipe writes into the worker's "
+        "rootfs (v12/worker/Dockerfile.claude) and `claude_agent.LAYOUT_MARKER` "
+        "reads; the manager composes the marker's content and never opens the path"),
+}
+
+
+def _declared_container_paths(source):
+    return {value for (module, _), (value, _) in IN_CONTAINER_DECLARATIONS.items()
+            if module == source.name}
+
+
 def _runtime_strings(source):
     """Every string literal in `source` that is NOT a docstring.
 
@@ -274,10 +292,45 @@ class Isolation(unittest.TestCase):
         forbidden = ("baton_work", "v12/src/authority", "work.sqlite3",
                      "work/records", "baton-v11", "opt/baton")
         for source in package_sources():
+            declared = _declared_container_paths(source)
             for literal in _runtime_strings(source):
+                if literal in declared:
+                    continue  # proved an in-container declaration below, not a reach
                 for word in forbidden:
                     with self.subTest(source=source.name, word=word):
                         self.assertNotIn(word, literal)
+
+    def test_an_in_container_declaration_is_not_a_reach(self):
+        """W384870 B5: `opt/baton` is forbidden because it is where a v11
+        deployment lives on the HOST. `source_boundary.MARKER_TARGET` spells
+        `/opt/baton/verifier-layout-marker.json`, which is a file INSIDE the
+        worker image's rootfs: the image recipe copies it there and the worker
+        reads it; this manager never opens it. The exemption is exact -- one
+        module, one constant, one value -- and semantic rather than textual:
+        the value must be that constant's module-level assignment, the manager
+        package must never LOAD the constant (so no code here can reach through
+        it), and the worker that does read it must name the same path."""
+        for (module, constant), (value, _reason) in IN_CONTAINER_DECLARATIONS.items():
+            with self.subTest(module=module, constant=constant):
+                source = next(path for path in package_sources() if path.name == module)
+                tree = ast.parse(source.read_text(encoding="utf-8"), str(source))
+                assigned = [node.value.value for node in tree.body
+                            if isinstance(node, ast.Assign) and len(node.targets) == 1
+                            and isinstance(node.targets[0], ast.Name) and node.targets[0].id == constant
+                            and isinstance(node.value, ast.Constant)]
+                self.assertEqual(assigned, [value], "the declared value is the constant's one assignment")
+                # the literal appears in the manager package ONLY as that assignment
+                self.assertEqual(sum(1 for path in package_sources() for literal in _runtime_strings(path)
+                                     if literal == value), 1)
+                # and nothing in the manager package loads the constant: a declaration cannot be a reach
+                loads = [(path.name, node.lineno) for path in package_sources()
+                         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8")))
+                         if isinstance(node, ast.Name) and node.id == constant and isinstance(node.ctx, ast.Load)]
+                self.assertEqual(loads, [], "the manager package reaches through the constant")
+                # the consumer inside the container spells the same path
+                worker = (DISTRIBUTION.parent / "worker" / "claude_agent.py").read_text(encoding="utf-8")
+                self.assertIn(f'LAYOUT_MARKER = "{value}"', worker)
+        self.assertEqual(_declared_container_paths(next(path for path in package_sources() if path.name == "core.py")), set())
 
     def test_the_authority_schema_carries_no_manager_or_control_facts(self):
         with tempfile.TemporaryDirectory(prefix="v12-authority-") as root:

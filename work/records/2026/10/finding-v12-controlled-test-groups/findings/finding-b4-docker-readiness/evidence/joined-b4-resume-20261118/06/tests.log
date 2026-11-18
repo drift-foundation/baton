@@ -1,0 +1,15 @@
+test_a_post_create_failure_leaves_no_duplicate_and_no_container (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_post_create_failure_leaves_no_duplicate_and_no_container)
+THE RACE THIS ORDERING EXISTS FOR, with the failure INJECTED. ... ok
+test_a_reached_deadline_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing)
+THE FIFTH NAMED ENDING, and the last one this Work was waiting on. ... ok
+test_an_expired_offer_creates_no_runtime_and_no_runtime_delivery (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_an_expired_offer_creates_no_runtime_and_no_runtime_delivery)
+A reservation that timed out is a reservation nobody may execute. ... ok
+test_no_ending_settles_before_every_required_one_is_established (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established)
+THE LANE IS NOT RELEASED EARLY. ... ok
+test_plan_rejected_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing)
+A terminal disposition that is not `completed` ends the same way. ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 32.676s
+
+OK

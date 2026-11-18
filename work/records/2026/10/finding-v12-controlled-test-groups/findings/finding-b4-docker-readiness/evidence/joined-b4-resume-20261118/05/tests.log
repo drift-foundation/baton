@@ -1,0 +1,21 @@
+test_a_destroy_answer_about_another_runtime_is_refused (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_a_destroy_answer_about_another_runtime_is_refused)
+THE REACHABLE IDENTITY DISAGREEMENT, at the answer boundary. ... ok
+test_a_restart_adopts_the_exact_ended_runtime_as_quiescent (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_a_restart_adopts_the_exact_ended_runtime_as_quiescent)
+NOT running, and NOT absent. ... ok
+test_an_exited_container_does_not_admit_a_replacement (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_exited_container_does_not_admit_a_replacement)
+THE LANE IS NOT REUSABLE while the domain still exists. ... ok
+test_an_observation_the_adapter_cannot_make_never_releases_the_lane (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_observation_the_adapter_cannot_make_never_releases_the_lane)
+Uncertainty preserves the retry obligation. ... ok
+test_an_unrelated_attempts_runtime_survives_the_target_cleanup (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_unrelated_attempts_runtime_survives_the_target_cleanup)
+A SIBLING RUNTIME, not only a sibling root. ... ok
+test_exited_but_present_does_not_satisfy_cleanup (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_exited_but_present_does_not_satisfy_cleanup)
+Cleanup is authorized by an intake receipt, and an exited container ... ok
+test_force_removal_absence_teardown_then_and_only_then_reuse (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_force_removal_absence_teardown_then_and_only_then_reuse)
+THE WHOLE ORDERING, TRACED, WITH A SIBLING BESIDE IT AND THE LANE ... ok
+test_two_ended_restart_candidates_cancel_without_removing_either (tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_two_ended_restart_candidates_cancel_without_removing_either)
+MULTIPLICITY AT THE ENDED-RESTART SEAM, which is reachable. ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 3.528s
+
+OK

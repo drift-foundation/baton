@@ -1,0 +1,69 @@
+{
+  "collected": [
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission"
+  ],
+  "started": [
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission"
+  ],
+  "passed": [
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission"
+  ],
+  "failed": [],
+  "errors": [],
+  "skipped": [],
+  "expected_failures": [],
+  "unexpected_successes": [],
+  "subtests": [
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (command_status=3, unrun=False)",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (command_status=0, unrun=True)",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (member='task_id')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (member='task_digest')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (member='argv')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (member='input_manifest_digest')",
+      "outcome": "passed"
+    }
+  ],
+  "unaccounted": [],
+  "duplicates": 0,
+  "loader_errors": []
+}

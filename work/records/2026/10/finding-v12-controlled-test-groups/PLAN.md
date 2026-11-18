@@ -1,4 +1,78 @@
 
+## 2026-11-18T02-32-07Z — G4/G5 six IDs accepted; G6 three tools cases released
+
+Read `review-2026-11-18T02-32-07Z.md`. Independent284 focused tests pass in6.603s, stable source/clean fixtures. G4/G5 accepted;36 affected IDs remain across G1/G2/G3/G6. K next owns only the three G6 tools failures: finalizer capability/signature, status read-only behavior, constructor handle cleanup. Focused regressions and return before next batch; no full/group/Docker/live execution. Codexpc idle; parent final acceptance remains outstanding.
+
+
+## 2026-11-18 — K: G4+G5 six ids repaired; awaiting review; 36 ids remain (G1 9, G2 22, G3 2, G6 3)
+
+`evidence/b5-secrets-boundary-20261118/RESULT.md`: secrets registries re-sited with measured negative
+evidence; authority store diagnostics bounded; in-container marker declaration proved, not exempted.
+Six ids OK; test_secrets 95, authority test_boundary 25, authority store readers 164 OK; identity
+stable over 438eefa6 + the accepted diagnostic candidate. Candidate: authority/store.py,
+tests/authority/test_boundary.py, tests/manager/test_secrets.py. Next proposed batch: G6 (3), then G2
+(22, one fixture cause), G3 (2), G1 (9, required here since W376586 is closed). Open: review of this
+candidate; final suite; owner checkpoint/closure.
+
+## 2026-11-18T02-26-07Z — follow-on30/30 accepted; codexpc verification complete
+
+Child `review-2026-11-18T02-26-07Z.md` independently verifies8 resumed+22 prior =30 unique passes, stable438eefa6 source/evidence and9 created containers absent. Prior242 acceptance remains. The25 historical unverified environment/package entries are resolved by current30-ID coverage. Codexpc waits unclaimed at baton.decide, no new tests. K G4/G5 and remaining B5/final gates continue.
+
+
+## 2026-11-18T02-21-34Z — follow-on22 accepted;8 image-dependent cases released
+
+Child `review-2026-11-18T02-21-34Z.md` verifies22 passes (9OCI+13packaged), stable438eefa6 source and four created containers absent. Actual collection30 supersedes historical25;8 refused-session cases were correctly withheld for missing worker image. One bounded offline same-context reference-worker build and those8 cases now released to codexpc, no pulls/shared edits or repeated accepted tests. K G4/G5 unchanged. Parent final acceptance remains open.
+
+
+## 2026-11-18T02-15-55Z — B5 finite inventory; six-ID repair and25-case verification released
+
+Read `review-2026-11-18T02-15-55Z.md`. Historical315 rows reconciled;42 affected IDs in six causes include19 blocked by fixture setup,25 remain unverified. W376586 is closed satisfying, so G1 ownership annotation is stale and does not defer its nine required failures. K takes G4/G5 six-ID bounded secrets/authority correction. Codexpc takes only13 remaining Docker+12 packaged checks on isolated438eefa6, one local distribution build, no pulls/shared edits. No full suite selected. Other repair groups remain pending explicit allocation.
+
+
+## 2026-11-18 — K: B5 reconciliation delivered; 42 exact ids remain in six causes
+
+`evidence/b5-reconciliation-20261118/RECONCILIATION.md` (+ reconciliation.tsv, every B0 adverse id). Of
+315: 200 accepted at 438eefa6 (scans 14, combined B4 186), 43 verified OK now, 25 unverified (13 Docker
+engine ids outside the B4 selection, 12 bundle-gated), 2 removed/replaced, 3 fixture keys, 42 still
+failing: G1 launch drift 9 (W376586-owned, report only), G2 correction_restart 22 (one fixture cause),
+G3 job_manager 2 (launch refused after revoke), G4 secrets inventories 3, G5 authority boundary 3, G6
+tools singletons 3. Proposed next batch: G5+G4 (6 ids), then G6, G2, G3. Open: coordinator acceptance
+and batch selection; final clean accounted suite; owner checkpoint/closure.
+
+## 2026-11-18T02-08-00Z — combined B4 accepted:242/242
+
+Child `review-2026-11-18T02-08-00Z.md` independently verifies exact242 unique passes plus114 successful subtests on438eefa6, stable source/evidence and78 continuation containers absent. Codexpc is finished with this slice and waits unclaimed at baton.decide; no new tests assigned. Parent consumes accepted B4; K B5 reconciliation, final source checkpoint/full suite and owner closure remain due. Later diagnostic bytes are not claimed covered by this earlier committed snapshot.
+
+
+## 2026-11-18T01-59-25Z — long-root diagnostic batch accepted; finite B5 reconciliation next
+
+Read `review-2026-11-18T01-59-25Z.md`: independent29 short-root and382 long-root pass, stable source and clean fixtures. K fixes one rendered-character docstring nit then reconciles historical C10/B5 IDs using accepted evidence and only unresolved focused deterministic cases, returning a finite remaining list before repairs. No95-use sweep or broad run. Codexpc separately resumes99 unfinished joined B4 cases after evidence-wrapper streaming correction; completed143 retained. Final acceptance remains open.
+
+
+## 2026-11-18 — K: B5 first batch delivered (long-root access diagnostics); awaiting review
+
+`evidence/b5-line-access-diagnostics-20261118/RESULT.md`: `path_value` path-sized rule in
+contracts.errors, used by `_access_failure` and the line-proof's root sentence; 4 failures
+reproduced under a 142-char root before, 29 OK after under short and long roots; reviewer's
+three modules 382 OK under both; affected scans classes 20 OK; boundary inventory classes 149 OK.
+Candidate: errors.py, workspaces.py, test_workspaces.py over 438eefa6. Open: coordinator review of
+this candidate; the ~95 other `name_value(path)` renderings as later B5 debt or a decision; B4
+joined-source verification (codexpc, on 438eefa6); final clean accounted suite; owner
+closure/check-in.
+
+## 2026-11-18T01-45-36Z — scans accepted; B4 join and first B5 diagnostic batch released
+
+Read `review-2026-11-18T01-45-36Z.md`. Scans494 = passed492 + allowed optional2, all adverse accounting empty; before/after/current identity verified at438eefa6. K takes only the four long-root diagnostic failures, focused verification and handback. Codexpc takes verification-only joined B4 on a separate snapshot of438eefa6, with the repaired modules and four pure-driver classes; no shared code edits or K source import. This supersedes scans waiting and codexpc idle instructions for these bounded slices. Final suite/closure remain outstanding.
+
+
+## 2026-11-18 — K: scans group clean on 438eefa6; awaiting coordinator acceptance
+
+`evidence/scans-20261118/RESULT.md`: one accounted `scans` run on owner commit 438eefa6 (reviewed
+callback-trace candidate committed; identity 52a08680… stable): 494 collected, 492 passed + 2
+registered optional skips, 0 failed/errors/required skips/duplicates/unaccounted, 138 s, /var/tmp
+unchanged. Open: coordinator acceptance of this result; B4 joined-source assignment (codexpc, on
+explicit release); B5 (long-root diagnostics); final clean accounted suite; owner closure/check-in.
+
 ## 2026-11-18T01-30-50Z — M385049 accepted; scans verification released
 
 Read `review-2026-11-18T01-30-50Z.md`. Callback correction accepted: both independent probes reject, StageCProtections25/25 passes in87.116s, exact sources stable/fixtures clean. Prior renewal/cleanup acceptance remains. K's next bounded milestone is one accounted scans-group run with complete counts, source identity and retained evidence; report before further edits. No full suite/B4/B5 execution in this slice. Codexpc remains idle pending explicit joined-source assignment. Final acceptance is still open. This supersedes the M385049 awaiting-review state and M385048 callback correction request.

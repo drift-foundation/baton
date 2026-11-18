@@ -1,0 +1,32 @@
+{
+  "collected": [
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_post_create_failure_leaves_no_duplicate_and_no_container",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_an_expired_offer_creates_no_runtime_and_no_runtime_delivery",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing"
+  ],
+  "started": [
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_post_create_failure_leaves_no_duplicate_and_no_container",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_an_expired_offer_creates_no_runtime_and_no_runtime_delivery",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing"
+  ],
+  "passed": [
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_post_create_failure_leaves_no_duplicate_and_no_container",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_an_expired_offer_creates_no_runtime_and_no_runtime_delivery",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing"
+  ],
+  "failed": [],
+  "errors": [],
+  "skipped": [],
+  "expected_failures": [],
+  "unexpected_successes": [],
+  "subtests": [],
+  "unaccounted": [],
+  "duplicates": 0,
+  "loader_errors": []
+}

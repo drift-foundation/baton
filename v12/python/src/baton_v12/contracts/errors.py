@@ -33,8 +33,8 @@ review round:
 from types import MappingProxyType
 
 __all__ = ["ContractRefusal", "ERROR_CODES", "is_closed_pair", "name_value",
-           "label_of", "sample_of", "counted_sample_of", "type_name_of",
-           "MESSAGE_LIMIT"]
+           "path_value", "label_of", "sample_of", "counted_sample_of",
+           "type_name_of", "MESSAGE_LIMIT"]
 
 # The bound on any caller-controlled text this module puts into a message.
 _NAME_LIMIT = 60
@@ -59,6 +59,16 @@ MESSAGE_LIMIT = 4096
 # this package's own prose naming the operand a rule is about, and a bound below
 # what we legitimately write breaks us rather than a caller.
 _LABEL_LIMIT = 160
+
+# The bound on a FILESYSTEM PATH a refusal names so that an operator can act on
+# it. W384870 B5 (review 2026-11-18T01-45-36Z): the development-line access
+# refusals rendered their root through the sixty-code-point value rule, and a
+# checkout under a long disk-backed root came out as a prefix nobody can `ls`.
+# A path is identified by its WHOLE spelling, so the rule for one is sized to
+# a path rather than to a rejected member name; it is still a rule, and the
+# message stays under MESSAGE_LIMIT with two such paths and the prose beside
+# them. Beyond it a path is named by its prefix, as every bounded value is.
+_PATH_LIMIT = 1024
 
 # Integers wider than this are named by their bit length rather than rendered:
 # `str()` of an integer above 4,300 digits RAISES, so the one helper whose job
@@ -494,6 +504,26 @@ def name_value(value):
             return str(value)
         return f"an integer of {value.bit_length()} bits"
     return f"a {type_name_of(value)}"
+
+
+def path_value(value):
+    """Name a FILESYSTEM PATH a refusal is about, whole enough to act on.
+
+    The same inert rendering as `name_value` -- `ascii()` of an exact `str`
+    runs nothing and cannot fail -- under the path bound rather than the
+    value bound: an operation, an errno and a path an operator can spell
+    exactly are what make an access refusal a diagnostic (W194457, owner
+    2026-09-17). The bound is on the RENDERED, `ascii()`-escaped form, as
+    `_rendered` explains: a path whose escaped spelling, quotes included, fits
+    `_PATH_LIMIT` appears in full, which for plain ASCII is up to
+    `_PATH_LIMIT` minus two characters; a path with non-ASCII characters
+    escapes to more than its length and may be cut sooner, and any path cut
+    is named by its prefix and marked. Anything that is not text is named as
+    a rejected value would be.
+    """
+    if type(value) is not str:
+        return name_value(value)
+    return _rendered(value, _PATH_LIMIT)
 
 
 def label_of(what):

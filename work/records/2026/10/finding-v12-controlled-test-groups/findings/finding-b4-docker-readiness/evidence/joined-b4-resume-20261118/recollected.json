@@ -1,0 +1,121 @@
+{
+  "tests.manager.test_worker_entry_engine": [
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_a_frame_for_another_session_is_refused_by_the_real_worker",
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_a_real_container_answers_describe_and_work_through_exec",
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_an_exec_against_a_runtime_that_is_gone_is_lost",
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_stderr_stays_apart_from_the_answers",
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_the_interactive_start_is_what_makes_the_container_reachable"
+  ],
+  "tests.manager.test_custody_engine": [
+    "tests.manager.test_custody_engine.DockerCustody.test_a_same_prefix_stranger_is_left_running",
+    "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_exited_helper_is_reclaimed_too",
+    "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes",
+    "tests.manager.test_custody_engine.DockerCustody.test_a_verb_outside_the_vocabulary_never_reaches_the_engine",
+    "tests.manager.test_custody_engine.DockerCustody.test_failed_removal_ownership_excludes_custody_without_starting_a_helper",
+    "tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose",
+    "tests.manager.test_custody_engine.DockerCustody.test_nested_hostile_modes_do_not_hide_objects_from_custody",
+    "tests.manager.test_custody_engine.DockerCustody.test_the_custodian_touches_nothing_it_does_not_own",
+    "tests.manager.test_custody_engine.DockerCustody.test_the_derived_identity_survives_a_new_manager_incarnation",
+    "tests.manager.test_custody_engine.DockerCustody.test_the_helper_does_not_outlive_its_act",
+    "tests.manager.test_custody_engine.DockerCustody.test_the_inspection_sees_the_attempt_and_nothing_above_it",
+    "tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act"
+  ],
+  "tests.manager.test_credentials_engine": [
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_bearer_in_a_label_never_reaches_the_daemon_at_all",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_delivery_that_launched_nothing_settles_through_the_adapter",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_runtime_without_the_ruled_group_cannot_read_it",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_teardown_forgets_only_after_the_bytes_are_proved_gone",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_bearer_stays_live_while_the_container_exists",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_credential_is_mounted_read_only_at_the_fixed_path",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_daemon_holds_no_bearer_anywhere_it_records",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_execution_runtime_can_actually_READ_its_credential"
+  ],
+  "tests.manager.test_lifecycle_composition": [
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_claimed_but_unactivated_attempt_starts_no_container",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_declined_offer_reaches_neither_workspace_nor_engine",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_delivery_that_was_never_made_is_not_reported_torn_down",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_lost_claim_cannot_cross_into_execution",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_plan_that_omits_the_input_root_is_refused_before_the_journal",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_reservation_launches_no_runtime",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_root_composed_for_another_attempt_starts_nothing",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_root_from_a_superseded_generation_starts_nothing",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_runtime_removed_underneath_the_manager_is_observed_absent",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_incarnation_adopts_the_running_runtime",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_reconciliation_re_reads_the_state",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_start_is_refused_and_creates_no_second_container",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_a_stranger_carrying_this_assignments_labels_cancels",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_an_agreeing_plan_over_an_unauthorized_root_starts_nothing",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_an_engine_that_cannot_start_leaves_no_running_attempt",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_an_observation_the_adapter_cannot_make_is_never_running",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_cancellation_fences_the_authority_before_it_stops_the_runtime",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_cleanup_without_an_intake_receipt_is_blocked_rather_than_run",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_nothing_this_module_made_survives_it",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_observe_tells_a_live_runtime_from_a_gone_one",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_only_a_successful_claim_launches_one_container",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_orphan_recovery_cannot_delete_a_siblings_delivery",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_reconciliation_records_what_the_engine_says_the_runtime_is",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_reconciling_again_attaches_the_same_runtime",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_the_adapter_refuses_a_mismatched_root_at_its_own_seam",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_the_adapter_starts_a_worker_that_actually_runs",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_the_live_container_cannot_reach_the_authority_or_the_host",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_the_live_container_sees_exactly_the_four_intended_mounts",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_the_manager_derives_exactly_these_labels",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_the_ordered_arc_starts_one_runtime_over_the_proved_root",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_the_runtime_boundary_is_the_one_the_launcher_composed",
+    "tests.manager.test_lifecycle_composition.DockerComposition.test_the_whole_one_container_arc_reaches_a_clean_settlement"
+  ],
+  "tests.manager.test_ended_runtime_adoption": [
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_a_destroy_answer_about_another_runtime_is_refused",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_a_restart_adopts_the_exact_ended_runtime_as_quiescent",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_exited_container_does_not_admit_a_replacement",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_observation_the_adapter_cannot_make_never_releases_the_lane",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_unrelated_attempts_runtime_survives_the_target_cleanup",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_exited_but_present_does_not_satisfy_cleanup",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_force_removal_absence_teardown_then_and_only_then_reuse",
+    "tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_two_ended_restart_candidates_cancel_without_removing_either"
+  ],
+  "tests.manager.test_negative_race_endings": [
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_post_create_failure_leaves_no_duplicate_and_no_container",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_an_expired_offer_creates_no_runtime_and_no_runtime_delivery",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established",
+    "tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing"
+  ],
+  "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay": [
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_declares_no_volume_port_or_healthcheck",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_nothing_is_installed_over_the_selected_base",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_base_is_a_required_operand_with_no_default",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_entrypoint_is_exec_form_and_is_the_integration_entry",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_runtime_identity_is_the_fixed_non_root_pair",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_there_is_no_default_credential_and_no_provider_variable"
+  ],
+  "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry": [
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_entry_imports_with_nothing_but_the_copied_files",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_manager_is_not_reachable_from_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_profile_package_is_a_top_level_name_in_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_staged_modules_are_the_reviewed_bytes",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_worker_data_the_modules_read_travelled_with_them"
+  ],
+  "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated": [
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_healthy_container_keeps_answering_after_a_foreign_frame",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_does_not_answer_another_sessions_envelope",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_refuses_a_foreign_protocol_the_same_way",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_with_no_readable_envelope_says_nothing",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_refused_binding_on_a_latched_container_still_answers_once",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched"
+  ],
+  "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission": [
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission"
+  ]
+}

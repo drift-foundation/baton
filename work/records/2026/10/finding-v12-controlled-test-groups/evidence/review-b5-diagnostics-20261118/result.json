@@ -1,0 +1,32 @@
+{
+  "runs": [
+    {
+      "name": "short",
+      "root": "/var/tmp/rv-2kgntf38",
+      "root_length": 20,
+      "ids": [
+        "tests.manager.test_workspaces.InitialStableLineAccess",
+        "tests.manager.test_workspaces.PathValueIsTheBoundedPathRule"
+      ],
+      "exit": 0,
+      "seconds": 0.5013492139987648,
+      "leftovers": [],
+      "root_removed": true
+    },
+    {
+      "name": "long",
+      "root": "/var/tmp/rv-long-root-long-root-long-root-long-root-long-root-long-root-long-root-long-root-long-root-long-root-long-root-long-root-long-root-p4cnq94a",
+      "root_length": 150,
+      "ids": [
+        "tests.manager.test_stopped_settlement",
+        "tests.manager.test_intake",
+        "tests.manager.test_workspaces"
+      ],
+      "exit": 0,
+      "seconds": 9.305319580998912,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

@@ -127,3 +127,35 @@ Owner checkpoint39850ad8 releases five historical IDs under review-2026-11-17T19
 ## 2026-11-17 — E385041: five pure image/driver failures green, awaiting review
 
 M385038 outcome:5/5 affected IDs and11 subtests, final28/28 tests and20 subtests pass without errors/skips/unaccounted. Corrected recipe's exhaustive verification_context entry, unsupported-launch test to selected W197661 prompt stderr/no-stdin/no-agent behavior with genuine /999, and driver retained-root identity/content assertions while preserving failed/unrun admission, requirements, receipts and replay. Three allocated test files only. All1133 prior selected hashes matched; final source changes exactly these three, no K/product import. Shared bases checked before exact publication,0664 modes preserved, focused diff check passes. Candidate manifest SHA2563b708c49358d52adbd1cbc0fc13d2e8e05b555a090237bf8b76d33a3461090b4. Evidence/pure-driver-20261117/RESULT.md, candidate.json, SHA256.json, exact candidates/diffs and per-run ledgers/source/cleanup. Wall3.894363s, no timeout; all three temporary roots removed. Zero Docker/build/live/full execution. Historical five-ID pure/driver inventory now empty pending acceptance; parent joined-current-source/B5/supervised/full gates remain. Return baton.decide for independent review.
+
+## 2026-11-18 — E385055 / M385053: joined B4 verification in progress
+
+Materialized committed438eefa68f592e159f42cf1d190c7d7de4afde12 into separate work/scratch/w384944-joined-438eefa6-20261118 using read-only Git object reads;1134 exact source/input files including41 consumed files. This supersedes historical a8 overlays for this slice; no moving K bytes. Current exact collection retained in evidence/joined-b4-438eefa6-20261118/collected.json. Nine named B4 modules plus four accepted pure-driver classes only, serial/fail-fast execution,600s per selection plus120s cleanup; no source/test edits. Group/interpreter/Docker/pinned base and initial-access image verified; initial optional Docker template field read failed, corrected explicit inspection retained. Prior exact worker context matches but prior image is absent; one offline current-snapshot reference build selected. No pulls/live/supervised/full runs. Stop/report any test failure before repair and return baton.decide.
+
+## 2026-11-18T01:53:47.044976+00:00 — E385055 joined verification interrupted
+
+M385053 exact438eefa6 snapshot collected242. First three selections143 passed / zero skips; worker-entry first test interrupted because my evidence wrapper buffered interactive docker exec stdout. No product failure established, no source/test repair made. One interrupted /98 not started; raw finalized-ledger summary is corrected by accounted-summary.json. All38 created containers absent, old images/containers preserved, own tag/root cleaned, interrupted fixture archived durably. Returning to baton.decide with incomplete acceptance and bounded wrapper-continuation requirement. Full evidence: evidence/joined-b4-438eefa6-20261118/RESULT.md.
+
+## 2026-11-18 — M385061 / E385063 continuation
+
+Claimed verification-only continuation. Prior evidence hashes verified unchanged. New evidence/joined-b4-resume-20261118 preserves prior143 passes; selection is exactly remaining99 IDs on identical438eefa6. Correct evidence wrapper exec with direct process replacement preserving descriptors/signals/status, prove bidirectional streaming locally before Docker. Inspect recorded image first; one additional same-context offline build authorized if absent. No shared source/test edits.
+
+## 2026-11-18T02:03:36.158720+00:00 — E385063 combined result ready for review
+
+M385061 completed: evidence shim direct-exec streaming proved with deterministic local fake, then99/99 unfinished tests passed (26 subtests) on identical438eefa6. Accepted143 retained unchanged; exact disjoint union242/242 plus114 successful subtests, no failures/errors/skips/duplicates/unaccounted IDs. Same source hashes; authorized single offline rebuild used because prior image absent. All78 continuation containers absent, own roots/tag removed and old image/container sets preserved. No shared product/test edits. Evidence: evidence/joined-b4-resume-20261118/RESULT.md and combined-ledger.json; prior interruption remains intact. Returning to baton.decide for independent review.
+
+## 2026-11-18 — M385071 / E385073 Docker/package follow-on
+
+Verification-only on unchanged438eefa6; collected current exact IDs. Prior current-context worker images absent; no new Docker build permitted, so refused-session dependent execution withheld pending prerequisite report. Installed pinned base permits independent OCI checks. One local distribution build selected using prepared pinned dependencies and isolated output, packaging-required flag. Evidence: evidence/docker-package-20261118. No shared edits or K bytes.
+
+## 2026-11-18T02:19:37.484292+00:00 — E385073 follow-on outcome
+
+Current collection30 (8 refused-session,9 OCI,13 packaged creation), historical expectation25 not treated as skip authority.22/22 executable cases pass with no skips/fixture errors;8 refused-session IDs withheld before execution because exact current-context worker images absent and Docker build not selected. Prerequisite reported M385074. One selected offline/local distribution build with installed locked dependencies, durable artifact archive+digests, source unchanged. All4 created containers absent, old resources preserved, task test/build roots removed. No source repair or shared edits. Evidence: evidence/docker-package-20261118/RESULT.md and accounted-summary.json. Returning to baton.decide for22-pass review and image prerequisite continuation.
+
+## 2026-11-18 — M385078 / E385081 refused-session continuation
+
+Claimed released8-ID continuation; prior22 accepted passes and evidence preserved. Recollected exact8 IDs, identical to prior blocked list. One explicitly selected offline same438eefa6 worker build, installed pinned base, no pulls/network. Streaming-safe wrapper and600s test timeout, exact container cleanup; no source/test changes. New evidence/refused-session-20261118.
+
+## 2026-11-18T02:23:14.387530+00:00 — E385081 eight-case completion
+
+M385078 complete: one authorized offline same-context build,8/8 refused-session tests pass in4.319s with no skips/errors/fixture failures. Exact disjoint union with accepted22 gives30/30 current follow-on IDs; prior evidence unchanged and no accepted test repeated. Source1134-file hashes unchanged, all9 created containers absent, old images/containers preserved, own root/tag removed, no emergency cleanup. Evidence/refused-session-20261118/RESULT.md and combined-ledger.json. Return to baton.decide for independent review; no shared edits.

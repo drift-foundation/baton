@@ -1,0 +1,17 @@
+{
+  "selection": "tests.manager.test_integration_worker",
+  "exit": 0,
+  "seconds": 18.431828759999917,
+  "timed_out": false,
+  "passed": 83,
+  "started": 83,
+  "skipped": [],
+  "created_container_ids": [],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

@@ -1,0 +1,7 @@
+{
+  "prior_context_matches": true,
+  "prior_image": "sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747",
+  "installed": false,
+  "inspection_status": 1,
+  "inspection_stderr": "Error response from daemon: No such image: sha256:e45807c1a9b07638fba9e25d33a6a6a101e35ef6ecd7d5e00cfbc72cb8d7a747\n"
+}

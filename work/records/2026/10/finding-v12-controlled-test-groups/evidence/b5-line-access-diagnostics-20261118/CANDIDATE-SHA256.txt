@@ -1,0 +1,3 @@
+8b66672cd336e3f6f6091237bc045e32cf0cd22307a183f6cd3a641e857abdf9  v12/python/src/baton_v12/contracts/errors.py
+6e8748820ab4ebb18dc69fd0cb8aa3be979637bb9aa5b586868fa37e0fa67d4f  v12/python/src/baton_v12/worker_manager/workspaces.py
+3e51b10f67e6193cf03ea5c3dbb8db7fd8410b13494815b75fe614c173d0c06e  v12/python/tests/manager/test_workspaces.py

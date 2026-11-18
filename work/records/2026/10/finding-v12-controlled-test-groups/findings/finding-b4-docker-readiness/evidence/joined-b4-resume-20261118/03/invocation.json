@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/10/finding-v12-controlled-test-groups/findings/finding-b4-docker-readiness/evidence/joined-b4-resume-20261118/audit-tests.py",
+    "tests.manager.test_credentials_engine"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w384944-joined-438eefa6-20261118/v12",
+  "timeout_seconds": 600,
+  "cleanup_timeout_seconds": 120,
+  "environment": {
+    "PATH": "/var/tmp/baton-w384944-joined-jzprieoz/bin:/home/sl/.codex/packages/app-server-daemon/releases/0.169.1-x86_64-unknown-linux-musl/codex-path:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.codex/tmp/arg0-linux/codex-arg00LzVpP:/home/sl/.codex/packages/app-server-daemon/releases/0.169.1-x86_64-unknown-linux-musl/codex-path:/home/sl/.codex/tmp/arg0-linux/codex-arg07Q1Qi0:/home/sl/.codex/packages/app-server-daemon/releases/0.169.0-x86_64-unknown-linux-musl/codex-path:/home/sl/.codex/tmp/arg0-linux/codex-arg0HKWWwW:/home/sl/.codex/packages/app-server-daemon/releases/0.166.0-x86_64-unknown-linux-musl/codex-path:/home/sl/.codex/tmp/arg0-linux/codex-arg06DNUkb:/home/sl/.nvm/versions/node/v24.14.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/codex-path:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.nvm/versions/node/v24.14.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+    "TMPDIR": "/var/tmp/baton-w384944-joined-jzprieoz",
+    "BATON_V12_DISK_ROOT": "/var/tmp/baton-w384944-joined-jzprieoz",
+    "BATON_V12_INITIAL_ACCESS_ENGINE": "1",
+    "BATON_V12_PRIVATE_LINE_IMAGE": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+    "BATON_V12_WORKSPACE_GROUP": "1001",
+    "BATON_TEST_ENGINE": "docker",
+    "W384944_SNAPSHOT": "/home/sl/src/baton/work/scratch/w384944-joined-438eefa6-20261118",
+    "W384944_LEDGER": "/home/sl/src/baton/work/records/2026/10/finding-v12-controlled-test-groups/findings/finding-b4-docker-readiness/evidence/joined-b4-resume-20261118/03/ledger.json",
+    "TASK_LABEL": "baton.w384944.run=204d9686f21342dfa98ac444495e7912",
+    "BATON_V12_INPUT_DELIVERY_IMAGE": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83",
+    "BATON_V12_WORKER_ENTRY_IMAGE": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83",
+    "BATON_V12_CUSTODY_IMAGE": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83",
+    "BATON_V12_LIFECYCLE_IMAGE": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83"
+  },
+  "root": "/var/tmp/baton-w384944-joined-jzprieoz"
+}

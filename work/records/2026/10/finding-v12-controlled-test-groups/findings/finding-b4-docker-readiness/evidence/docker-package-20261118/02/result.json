@@ -1,0 +1,17 @@
+{
+  "selection": "tests.tools.test_packaged_creation",
+  "exit": 0,
+  "seconds": 12.37520287100051,
+  "timed_out": false,
+  "passed": 13,
+  "started": 13,
+  "skipped": [],
+  "created_container_ids": [],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

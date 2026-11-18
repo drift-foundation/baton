@@ -64,7 +64,7 @@ from types import MappingProxyType
 # neither one a manager that receives an already staged directory performs.
 from ..contracts import (ContractRefusal, canonical_bytes, check_input_pair,
                         digest, digest_of_bytes)
-from ..contracts.errors import label_of, name_value
+from ..contracts.errors import label_of, name_value, path_value
 from . import boundaries
 
 # S_IFMT and S_IFREG, written out. The `stat` module is not on this package's
@@ -584,12 +584,18 @@ def _access_failure(operation, place, failure, *, what, identity_hint=True):
     dropped the number, which is exactly why this Work's own incident has its
     cause strongly supported rather than recorded. The operation, the path, the
     errno NAME and the kernel's own sentence for it all survive.
+
+    AND THE PATH IS RENDERED AS A PATH. W384870 B5 (review
+    2026-11-18T01-45-36Z): `place` went through the sixty-code-point value rule,
+    so a line root under a long disk-backed storage root was named by a prefix
+    an operator cannot act on. `path_value` is the path-sized rule: the whole
+    spelling up to its bound, the same inert escaping, still bounded.
     """
     number = getattr(failure, "errno", None)
     named = errno.errorcode.get(number, "unknown") if number is not None \
         else "unknown"
     spelled = os.strerror(number) if number is not None else "no errno"
-    said = (f"{operation} {name_value(place)} "
+    said = (f"{operation} {path_value(place)} "
             f"({type(failure).__name__} {named}: {spelled}); {what}")
     if identity_hint and number in _IDENTITY_ERRNOS:
         said += (f" A permission failure on material the worker created is "
@@ -1827,12 +1833,14 @@ def prove_line_integrity(place, pinned, identity):
     def named(relative):
         """The failing entry as an operator can act on it. The RELATIVE path
         goes in the rendered slot and the root is named in the sentence after
-        it, rather than the other way round: a refusal renders a bounded
-        prefix of a value, and an absolute checkout path spends all of it
-        before reaching the entry that actually failed."""
+        it, rather than the other way round: the slot renders a bounded prefix
+        of a value, and an absolute checkout path spends all of it before
+        reaching the entry that actually failed. Both are rendered by the
+        path rule (`path_value`), so the root in the sentence after is whole
+        up to that rule's bound rather than cut at sixty code points."""
         return relative if relative else place
 
-    inside = (f"it is an entry in the development line at {name_value(place)} "
+    inside = (f"it is an entry in the development line at {path_value(place)} "
               f"this manager is proving; nothing was changed and the line "
               f"stays materializing and ungranted")
 

@@ -1,0 +1,3 @@
+d67f1052ce06030f59ccb63411a6ae2257c6d6465721b88a15a5e495fbf4ea75  v12/python/src/baton_v12/authority/store.py
+2d25cc18e803702dc54338b4efa0f3141924fa1431040c9c8dc1f08c4663ceae  v12/python/tests/authority/test_boundary.py
+95608dbad02d38e7e27c939c7fe6012f68d092e34c7aa617be20b1269918a907  v12/python/tests/manager/test_secrets.py

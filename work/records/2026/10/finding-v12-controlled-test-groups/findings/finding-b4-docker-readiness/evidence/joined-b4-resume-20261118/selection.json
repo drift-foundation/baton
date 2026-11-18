@@ -1,0 +1,12 @@
+[
+  "tests.manager.test_worker_entry_engine",
+  "tests.manager.test_custody_engine",
+  "tests.manager.test_credentials_engine",
+  "tests.manager.test_lifecycle_composition",
+  "tests.manager.test_ended_runtime_adoption",
+  "tests.manager.test_negative_race_endings",
+  "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay",
+  "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry",
+  "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated",
+  "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission"
+]

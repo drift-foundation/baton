@@ -1,0 +1,29 @@
+{
+  "locked": {
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "attrs": "26.1.0",
+    "rpds-py": "2026.6.3",
+    "pip": "25.1.1",
+    "setuptools": "84.0.0",
+    "altgraph": "0.17.5",
+    "packaging": "26.3",
+    "pyinstaller": "6.16.0",
+    "pyinstaller-hooks-contrib": "2026.7"
+  },
+  "installed": {
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "attrs": "26.1.0",
+    "rpds-py": "2026.6.3",
+    "pip": "25.1.1",
+    "setuptools": "84.0.0",
+    "altgraph": "0.17.5",
+    "packaging": "26.3",
+    "pyinstaller": "6.16.0",
+    "pyinstaller-hooks-contrib": "2026.7"
+  },
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python"
+}

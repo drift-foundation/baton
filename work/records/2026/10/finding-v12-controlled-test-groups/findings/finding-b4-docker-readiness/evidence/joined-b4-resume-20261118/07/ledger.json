@@ -1,0 +1,38 @@
+{
+  "collected": [
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_declares_no_volume_port_or_healthcheck",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_nothing_is_installed_over_the_selected_base",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_base_is_a_required_operand_with_no_default",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_entrypoint_is_exec_form_and_is_the_integration_entry",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_runtime_identity_is_the_fixed_non_root_pair",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_there_is_no_default_credential_and_no_provider_variable"
+  ],
+  "started": [
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_declares_no_volume_port_or_healthcheck",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_nothing_is_installed_over_the_selected_base",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_base_is_a_required_operand_with_no_default",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_entrypoint_is_exec_form_and_is_the_integration_entry",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_runtime_identity_is_the_fixed_non_root_pair",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_there_is_no_default_credential_and_no_provider_variable"
+  ],
+  "passed": [
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_declares_no_volume_port_or_healthcheck",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_nothing_is_installed_over_the_selected_base",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_base_is_a_required_operand_with_no_default",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_entrypoint_is_exec_form_and_is_the_integration_entry",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_runtime_identity_is_the_fixed_non_root_pair",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_there_is_no_default_credential_and_no_provider_variable"
+  ],
+  "failed": [],
+  "errors": [],
+  "skipped": [],
+  "expected_failures": [],
+  "unexpected_successes": [],
+  "subtests": [],
+  "unaccounted": [],
+  "duplicates": 0,
+  "loader_errors": []
+}

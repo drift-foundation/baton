@@ -1,0 +1,17 @@
+test_it_copies_the_worker_modules_and_no_manager_package (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package) ... ok
+test_it_declares_no_volume_port_or_healthcheck (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_declares_no_volume_port_or_healthcheck)
+The four namespaces are mounts the manager names per attempt, and ... ok
+test_nothing_is_installed_over_the_selected_base (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_nothing_is_installed_over_the_selected_base)
+A second `npm install` or `apt-get` here would mint a second ... ok
+test_the_base_is_a_required_operand_with_no_default (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_base_is_a_required_operand_with_no_default)
+A DEFAULT WOULD BE A SELECTION NOBODY MADE. ... ok
+test_the_entrypoint_is_exec_form_and_is_the_integration_entry (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_entrypoint_is_exec_form_and_is_the_integration_entry)
+No shell in the process tree: the manager stops this container by ... ok
+test_the_runtime_identity_is_the_fixed_non_root_pair (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_runtime_identity_is_the_fixed_non_root_pair) ... ok
+test_there_is_no_default_credential_and_no_provider_variable (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_there_is_no_default_credential_and_no_provider_variable)
+An `ANTHROPIC_API_KEY` baked here would silently outrank the ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.000s
+
+OK

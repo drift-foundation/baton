@@ -1,0 +1,5 @@
+[
+  "tests.manager.test_refused_session_engine",
+  "tests.manager.test_oci_engine",
+  "tests.tools.test_packaged_creation"
+]

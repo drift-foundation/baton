@@ -1,0 +1,11 @@
+{
+  "created_ids_absent": true,
+  "preexisting_containers_preserved": true,
+  "preexisting_images_preserved": true,
+  "fixture_archive": "work/records/2026/10/finding-v12-controlled-test-groups/findings/finding-b4-docker-readiness/evidence/joined-b4-438eefa6-20261118/04/interrupted-fixture.tar.gz",
+  "archive_sha256": "51cb23278f10aa75bde19b54e70ac84178e3349df3fd6ed28fc163d1fa8bc6a6",
+  "temporary_root_removed": true,
+  "interrupted_process_group": 70575,
+  "termination": "SIGTERM deliberately sent after diagnosing wrapper buffering; no per-run timeout reached",
+  "fixture_cleanup": "Archived before removal. Initial removal met read-only owned directories; added owner rwx to remaining task-only directories and removed exact root."
+}

@@ -1,0 +1,13 @@
+test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)
+The unique LEXICAL identity, pinned. ... ok
+test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value) ... ok
+test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) ... ok
+test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered) ... ok
+test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale)
+A list of exceptions nobody compares to the code is a list of ... ok
+test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.091s
+
+OK

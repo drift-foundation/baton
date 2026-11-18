@@ -1,0 +1,22 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-yb3h12w1",
+      "root_length": 20,
+      "ids": [
+        "tests.manager.test_secrets",
+        "tests.authority.test_boundary",
+        "tests.authority.test_store",
+        "tests.job_manager.test_store_readonly",
+        "tests.job_manager.test_status",
+        "tests.tools.test_accepted_base"
+      ],
+      "exit": 0,
+      "seconds": 6.602996649999113,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

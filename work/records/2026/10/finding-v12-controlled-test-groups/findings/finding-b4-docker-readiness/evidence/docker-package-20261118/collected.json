@@ -1,0 +1,28 @@
+{
+  "tests.manager.test_oci_engine": [
+    "tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_a_runtime_starts_is_found_stops_and_is_destroyed",
+    "tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_a_second_start_under_one_identity_is_refused",
+    "tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_a_workspace_mount_reaches_the_container",
+    "tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_an_absent_identity_is_absence_and_not_confusion",
+    "tests.manager.test_oci_engine.DockerRunsWhatTheAdapterComposes.test_the_engine_applied_the_restrictions_the_adapter_asked_for",
+    "tests.manager.test_oci_engine.TheEngineGateLeavesNothingBehind.test_a_failed_cleanup_query_is_not_positive_absence",
+    "tests.manager.test_oci_engine.TheEngineGateLeavesNothingBehind.test_cleanup_queries_the_label_namespace_the_tests_create",
+    "tests.manager.test_oci_engine.TheEngineGateLeavesNothingBehind.test_every_engine_this_adapter_claims_is_covered",
+    "tests.manager.test_oci_engine.TheEngineGateLeavesNothingBehind.test_no_runtime_of_this_module_survives_it"
+  ],
+  "tests.tools.test_packaged_creation": [
+    "tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_bundle_creates_binds_and_submits_one_template_job",
+    "tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_created_job_carries_its_own_task_and_its_binding",
+    "tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_template_resolved_is_one_THIS_BUILD_carries",
+    "tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_two_ordinary_creations_bind_two_jobs",
+    "tests.tools.test_packaged_creation.TheFrozenCommandInstallsTheBundleItIsGiven.test_the_identity_the_install_recorded_is_the_commands_own",
+    "tests.tools.test_packaged_creation.TheFrozenCommandInstallsTheBundleItIsGiven.test_the_instance_binds_this_bundle_and_verifies_against_it",
+    "tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_a_template_this_build_does_not_carry_is_refused_by_name",
+    "tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_operand_this_command_does_not_serve_is_refused",
+    "tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_unknown_subcommand_is_refused_rather_than_guessed",
+    "tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_unsupported_source_selection_is_refused_by_name",
+    "tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_the_permitted_override_reaches_the_resolved_limits",
+    "tests.tools.test_packaged_creation.TheSameIntentReplaysThroughTheBundle.test_a_changed_intent_under_the_same_task_is_refused",
+    "tests.tools.test_packaged_creation.TheSameIntentReplaysThroughTheBundle.test_the_same_request_again_answers_the_same_job_once"
+  ]
+}

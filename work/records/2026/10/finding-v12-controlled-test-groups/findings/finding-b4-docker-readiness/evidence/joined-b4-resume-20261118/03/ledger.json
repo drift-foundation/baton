@@ -1,0 +1,44 @@
+{
+  "collected": [
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_bearer_in_a_label_never_reaches_the_daemon_at_all",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_delivery_that_launched_nothing_settles_through_the_adapter",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_runtime_without_the_ruled_group_cannot_read_it",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_teardown_forgets_only_after_the_bytes_are_proved_gone",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_bearer_stays_live_while_the_container_exists",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_credential_is_mounted_read_only_at_the_fixed_path",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_daemon_holds_no_bearer_anywhere_it_records",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_execution_runtime_can_actually_READ_its_credential"
+  ],
+  "started": [
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_bearer_in_a_label_never_reaches_the_daemon_at_all",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_delivery_that_launched_nothing_settles_through_the_adapter",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_runtime_without_the_ruled_group_cannot_read_it",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_teardown_forgets_only_after_the_bytes_are_proved_gone",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_bearer_stays_live_while_the_container_exists",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_credential_is_mounted_read_only_at_the_fixed_path",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_daemon_holds_no_bearer_anywhere_it_records",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_execution_runtime_can_actually_READ_its_credential"
+  ],
+  "passed": [
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_bearer_in_a_label_never_reaches_the_daemon_at_all",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_delivery_that_launched_nothing_settles_through_the_adapter",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_runtime_without_the_ruled_group_cannot_read_it",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_teardown_forgets_only_after_the_bytes_are_proved_gone",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_bearer_stays_live_while_the_container_exists",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_credential_is_mounted_read_only_at_the_fixed_path",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_daemon_holds_no_bearer_anywhere_it_records",
+    "tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_execution_runtime_can_actually_READ_its_credential"
+  ],
+  "failed": [],
+  "errors": [],
+  "skipped": [],
+  "expected_failures": [],
+  "unexpected_successes": [],
+  "subtests": [],
+  "unaccounted": [],
+  "duplicates": 0,
+  "loader_errors": []
+}

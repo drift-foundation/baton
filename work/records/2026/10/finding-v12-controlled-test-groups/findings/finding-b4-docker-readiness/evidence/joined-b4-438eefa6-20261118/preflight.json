@@ -1,0 +1,97 @@
+{
+  "uid": 1000,
+  "gid": 1000,
+  "groups": [
+    4,
+    24,
+    27,
+    30,
+    46,
+    100,
+    113,
+    119,
+    1000,
+    1001
+  ],
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.environment",
+        "interpreter"
+      ],
+      "status": 0,
+      "stdout": "/home/sl/.local/state/baton-v12-venv/bin/python\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "-c",
+        "import sys,importlib.metadata;print(sys.version);print(importlib.metadata.version(\"jsonschema\"))"
+      ],
+      "status": 0,
+      "stdout": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]\n4.26.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{.Server.Version}}"
+      ],
+      "status": 0,
+      "stdout": "29.1.3\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc994d3",
+        "--format",
+        "{{.Id}}"
+      ],
+      "status": 0,
+      "stdout": "sha256:9351a9a0a697a69e156f8bd067dd5ef3f9fa9b110abbdbbda1f343c622c7adc0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+        "--format",
+        "{{json .Id}} {{json .Config.Entrypoint}} {{json .Config.Volumes}}"
+      ],
+      "status": 1,
+      "stdout": "\n",
+      "stderr": "template parsing error: template: :1:55: executing \"\" at <.Config.Volumes>: map has no entry for key \"Volumes\"\n"
+    },
+    {
+      "argv": [
+        "df",
+        "-h",
+        "/home/sl/src/baton/work/scratch/w384944-joined-438eefa6-20261118",
+        "/var/tmp"
+      ],
+      "status": 0,
+      "stdout": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/nvme0n1p2  915G  291G  578G  34% /\n/dev/nvme0n1p2  915G  291G  578G  34% /\n",
+      "stderr": ""
+    }
+  ],
+  "private_line_image": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "base": "python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc994d3",
+  "base_id": "sha256:9351a9a0a697a69e156f8bd067dd5ef3f9fa9b110abbdbbda1f343c622c7adc0",
+  "required_environment": {
+    "BATON_V12_INITIAL_ACCESS_ENGINE": "1",
+    "BATON_V12_PRIVATE_LINE_IMAGE": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+    "BATON_V12_WORKSPACE_GROUP": "1001",
+    "BATON_TEST_ENGINE": "docker"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "438eefa68f592e159f42cf1d190c7d7de4afde12",
+  "expected": 99,
+  "started": 99,
+  "passed": 99,
+  "subtests": 26,
+  "unrun": [],
+  "all_passed": true,
+  "created_container_count": 78,
+  "worker_tag_removed": "baton-w384944-joined:52a81f20ad0b",
+  "source_unchanged": true
+}

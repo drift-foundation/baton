@@ -1,0 +1,20 @@
+[
+  {
+    "image": "sha256:358141000ac06aa4719d4721ac9cfb258c66159896587e9776828f753c3c5934",
+    "status": 1,
+    "stdout": "\n",
+    "stderr": "Error response from daemon: No such image: sha256:358141000ac06aa4719d4721ac9cfb258c66159896587e9776828f753c3c5934\n"
+  },
+  {
+    "image": "sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83",
+    "status": 1,
+    "stdout": "\n",
+    "stderr": "Error response from daemon: No such image: sha256:4da24074d73c8bdeb7ad676ca646287f356f84fbccf517f1f6052686b020ef83\n"
+  },
+  {
+    "image": "python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc994d3",
+    "status": 0,
+    "stdout": "sha256:9351a9a0a697a69e156f8bd067dd5ef3f9fa9b110abbdbbda1f343c622c7adc0\n",
+    "stderr": ""
+  }
+]

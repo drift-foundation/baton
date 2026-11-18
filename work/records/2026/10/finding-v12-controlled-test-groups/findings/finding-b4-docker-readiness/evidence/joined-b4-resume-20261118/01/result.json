@@ -1,0 +1,23 @@
+{
+  "selection": "tests.manager.test_worker_entry_engine",
+  "exit": 0,
+  "seconds": 1.615443721999327,
+  "timed_out": false,
+  "passed": 5,
+  "started": 5,
+  "skipped": [],
+  "created_container_ids": [
+    "4e22a80865dd61a8af7af2717409015236df52d96e40e94c2cd68a45d5fef37f",
+    "920a70fde39c293013290acb93b88cf2b9d87d4e0a430b343170d249eb15aaf6",
+    "a5cedc795d3339dfb89d233cc18276d0d131b785a40b4159812ec6c20c2835cd",
+    "c4bf2d1231f47716d8545624ebfc9aa6cff998abc594e2217e678780b7599739",
+    "e2fc208727c88caaf08c356d3063537a28d0ca73e696212e340285a59245602e"
+  ],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

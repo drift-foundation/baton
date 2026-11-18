@@ -1,0 +1,15 @@
+{
+  "Id": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "RepoTags": [
+    "baton-w71917-provider-gate:20260905"
+  ],
+  "Created": "1970-01-01T00:00:00Z",
+  "Config": {
+    "Entrypoint": [
+      "python3",
+      "/opt/baton/dogfood_entry.py"
+    ],
+    "Volumes": null,
+    "User": "65532:65532"
+  }
+}

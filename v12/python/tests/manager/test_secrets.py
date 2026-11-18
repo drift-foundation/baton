@@ -930,9 +930,47 @@ COVERED_ELSEWHERE = {
     # exception in mechanics, not coverage: its values are manager-derived
     # identities, closed profile name, revision, and manager clock. Profile
     # evidence reaches only the later journalled finalization.
-    ("review_cycles.py", "create_line", "review_lines"):
-        "the immutable line operands cross the prepare-signature secret guard "
-        "before the recoverable row and later ride the create operation signature",
+    # W301404 moved `create_line`'s row writes into held-preparation helpers,
+    # and W365075 / the abandoned-correction restoration added writers of their
+    # own; none of those registrations travelled with the code, so the sweep
+    # found nine writers with no coverage (W384870 B5, review
+    # 2026-11-18T02-15-55Z). Each is accounted for by the path that actually
+    # runs, and the three that can be handed a free value are MEASURED in
+    # `TheReviewLineWritersRefuseALiveBearerBeforeTheyWrite` below.
+    ("review_cycles.py", "_reserved_line", "review_lines"):
+        "the former `create_line` INSERT, under the held preparation: every "
+        "free operand (declared base, source place, Work and Authority "
+        "identities, the derived line path) crossed the "
+        "`review-line.create.prepare` signature's walk in `create_line` before "
+        "this row is reserved; the profile name is a closed vocabulary and the "
+        "instant is this manager's clock",
+    ("review_cycles.py", "_completed_line", "review_lines"):
+        "two whole numbers this manager measured on the materialized line "
+        "(device, inode) and the constant state `idle`, written inside the "
+        "journalled `review-line.create` act",
+    ("review_cycles.py", "_published_recorded_line", "review_lines"):
+        "re-applies the RECORDED creation's own device and inode -- members of "
+        "a journalled result the sweep walked -- and the constant state `idle`",
+    ("review_cycles.py", "_withdraw_publication", "review_lines"):
+        "constants and NULLs only: `materializing` and the cleared object "
+        "members; no operand reaches it",
+    ("review_cycles.py", "release_writer", "line_writers"):
+        "the constant state `revoked`, this manager's clock and the constant "
+        "reason `released`; the caller's free reason is NOT a column here -- it "
+        "is a member of the result the journalled release act walks, inside "
+        "the same transaction, so a live bearer rolls this write back (measured)",
+    ("review_cycles.py", "release_writer", "review_lines"):
+        "the state the line returns to, decided from the row under the lock "
+        "out of a two-word closed vocabulary",
+    ("review_cycles.py", "restore_abandoned_correction", "line_writers"):
+        "the constant state `revoked`, this manager's clock and the module's "
+        "own `_ABANDONED_REVOCATION` constant, inside the journalled restore act",
+    ("review_cycles.py", "restore_abandoned_correction", "review_lines"):
+        "the module's own `_CORRECTION_READY` constant, inside the same act",
+    ("intake.py", "_no_start_declared", "attempts"):
+        "the constant axis value `cancel-requested`, written inside the "
+        "journalled pre-attach abandonment declaration whose signature walked "
+        "the operator's reason before the transaction opened (measured)",
     ("review_cycles.py", "grant_writer", "line_writers"):
         "the attachment fence and identities ride the writer-grant signature",
     ("review_cycles.py", "grant_writer", "review_lines"): "the same",
@@ -1350,6 +1388,49 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
     "cleanup_of":
         "replays the journalled ordinary cleanup this manager committed; its "
         "operands select an act and compose nothing",
+    # W384870 B5 (review 2026-11-18T02-15-55Z): eleven surfaces exported since
+    # this table was last complete, classified by what each ANSWERS.
+    "ControlStore.open_readonly":
+        "answers a read-only handle on an existing store; the path is a "
+        "selector, and a failed open answers `reading_refusal`, a refusal "
+        "whose constructor proves its own message against the live registry",
+    "ControlStore.snapshot":
+        "a read-coherence context over the store's own connection; it answers "
+        "the store and composes nothing",
+    "deadline_of":
+        "projects the recorded deadline pin -- a journalled result -- off the "
+        "attempt; there is no operand to construct from",
+    "observe_deadline":
+        "answers the journalled first-reached observation it commits through "
+        "`transact`; its one operand selects the attempt",
+    "advance_deadline":
+        "answers `documents.deadline_advanced` composed from the recorded "
+        "observation, a closed action vocabulary, a journalled cleanup proof "
+        "and the authority's discharge answer; the policy digest is a selector "
+        "that reaches a durable artefact only through `manager_signature`",
+    "deadline_cleanup_of":
+        "replays the journalled deadline cleanup this manager committed; its "
+        "operands select an act and compose nothing",
+    "discharge_deadline_quiescence_gate":
+        "the same as `discharge_quiescence_gate`, one ending family over: "
+        "through `manager_signature`, over the gate token and the runtime "
+        "identity this manager derived rather than any caller named",
+    "fence_pre_attach_abandonment":
+        "answers the journalled closed abandonment declaration beside the "
+        "authority's own fence answer. The operator's reason is durable text "
+        "this manager was handed; it rides `manager_signature` and is walked "
+        "there before any row is written or any external call made -- measured "
+        "in `TheReviewLineWritersRefuseALiveBearerBeforeTheyWrite`",
+    "abandonment_cleanup_of":
+        "replays the journalled ABANDONED cleanup this manager committed, one "
+        "family over from `cleanup_of`; its operands select an act",
+    "abandoned_gate_discharge_of":
+        "replays the journalled abandoned discharge, as `gate_discharge_of` "
+        "does for the ordinary one; nothing is composed on the way out",
+    "discharge_abandoned_quiescence_gate":
+        "the same as `discharge_quiescence_gate` for the abandoned family: "
+        "every operand but the two selectors is derived from durable rows and "
+        "rides `manager_signature`",
 
     "negotiate_acp": "the wire version and this build's own capability "
                      "constants",
@@ -2343,6 +2424,155 @@ class EveryDurableWriterIsGuarded(unittest.TestCase):
         fabricated = ("nowhere.py", "invented", "table")
         self.assertNotIn(fabricated, COVERED_ELSEWHERE)
         self.assertNotIn(fabricated, self.writers())
+
+
+class _LinePort:
+    """The fixture's authority port for the review-line and abandonment acts: it
+    answers the fence and remembers whether it was ever asked."""
+
+    def __init__(self, participant):
+        self.participant = participant
+        self.calls = []
+
+    def cancel(self, expect, operation_id, reason, work_id, authority_uuid):
+        self.calls.append((dict(expect), operation_id, reason, work_id, authority_uuid))
+        return {"operation_id": operation_id, "participant": self.participant,
+                "generation": expect["generation"], "status": "fenced"}
+
+
+class _LineProfile:
+    name = "test-profile"
+
+    def __init__(self):
+        self.materialize_calls = 0
+
+    def materialize(self, source, repository, declared_base):
+        self.materialize_calls += 1
+        if not os.path.exists(repository):
+            os.mkdir(repository)
+        return {"profile": self.name, "base": declared_base, "head": declared_base}
+
+    def validate(self, *arguments, **keywords):
+        return None
+
+    def freeze(self, *arguments, **keywords):
+        return None
+
+    def restore(self, *arguments, **keywords):
+        return None
+
+
+class TheReviewLineWritersRefuseALiveBearerBeforeTheyWrite(SecretCase):
+    """W384870 B5 (review 2026-11-18T02-15-55Z): the COVERED_ELSEWHERE reasons for
+    the review-line and pre-attach writers that can be handed a free value are
+    MEASURED, not remembered. Each drive hands the real exported operation a live
+    bearer where a caller could, requires the closed `secret-leak` pair, and
+    then proves the durable row the writer owns was never written or changed."""
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.worker_manager.workspaces import configure_workspace_storage
+        from . import input_roots
+        from .disk_roots import disk_backed_under
+        self.source = os.path.join(self._root.name, "source")
+        os.mkdir(self.source)
+        self.storage = os.path.join(disk_backed_under(self), "storage")
+        os.mkdir(self.storage)
+        input_roots.configured_group(self.store)
+        configure_workspace_storage(self.store, self.storage)
+        self.profile = _LineProfile()
+
+    def attempt(self, attempt_id, generation, participant):
+        self.store._connection.execute(
+            "INSERT INTO attempts (runtime_attempt_id, adapter_name, adapter_digest, "
+            "profile_digest, policy_digest, created_at, work_id, authority_uuid, "
+            "assignment_participant, assignment_generation, assignment_claim_event_seq, "
+            "assignment_principal, assignment_scope, assignment_role, assignment_grant, "
+            "assignment_policy_generation) VALUES (?, 'adapter', 'adapter-digest', "
+            "'profile-digest', ?, ?, ?, ?, ?, ?, ?, ?, 'scope', 'role', 'grant', 1)",
+            (attempt_id, "sha256:" + "5" * 64, NOW, WORK, UUID, participant,
+             generation, generation, f"principal-{generation}"))
+        return attempt_id
+
+    def line(self, declared_base="a" * 40):
+        from baton_v12.worker_manager.review_cycles import create_line
+        from baton_v12.worker_manager.source_boundary import nominate_source
+        return create_line(self.store, source=nominate_source(self.source),
+                           declared_base=declared_base, profile=self.profile,
+                           authority_uuid=UUID, work_id=WORK)
+
+    def one(self, sql, *operands):
+        return self.store._connection.execute(sql, operands).fetchone()
+
+    def test_a_line_creation_carrying_a_bearer_reserves_no_row(self):
+        """`_reserved_line`'s INSERT: the declared base is a free operand, and it
+        crosses the prepare signature's walk before the row -- so nothing is
+        reserved and nothing is materialized."""
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                self.line(declared_base=BEARER)
+        self.assertEqual(caught.exception.code, "secret-leak", caught.exception.message)
+        self.assertNotIn(BEARER, caught.exception.message)
+        self.assertEqual(self.one("SELECT count(*) FROM review_lines")[0], 0)
+        self.assertEqual(self.profile.materialize_calls, 0)
+
+    def test_a_writer_release_carrying_a_bearer_reason_leaves_the_writer_active(self):
+        """`release_writer`'s two UPDATEs: the reason is a member of the result
+        the journalled act walks inside the same transaction, so the revocation
+        and the line's return are rolled back with it."""
+        from baton_v12.worker_manager.review_cycles import grant_writer, release_writer
+        line = self.line()
+        attempt = self.attempt("writer-attempt-1", 1, "baton.impl")
+        writer = grant_writer(self.store, line_id=line["line_id"], attempt_id=attempt,
+                              generation=1, worker_id="worker-1", profile=self.profile)
+        self.assertEqual(self.one("SELECT state FROM line_writers WHERE writer_id = ?",
+                                  writer["writer_id"])[0], "active")
+        # the release's preconditions are met -- the writer's runtime is positively
+        # quiescent and the round produced nothing to review (`unable`, W365075) --
+        # so the ONLY thing between the act and its commit is the walk
+        self.store._connection.execute(
+            "UPDATE attempts SET runtime_id = ?, execution_runtime = 'quiescent', "
+            "worker_disposition = 'unable' WHERE runtime_attempt_id = ?",
+            ("runtime-" + attempt, attempt))
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                release_writer(self.store, writer_id=writer["writer_id"], generation=1,
+                               port=_LinePort("baton.impl"), reason=BEARER)
+        self.assertEqual(caught.exception.code, "secret-leak", caught.exception.message)
+        self.assertNotIn(BEARER, caught.exception.message)
+        self.assertEqual(self.one("SELECT state, revoked_at FROM line_writers WHERE writer_id = ?",
+                                  writer["writer_id"])[:], ("active", None))
+        self.assertEqual(self.one("SELECT state FROM review_lines WHERE line_id = ?",
+                                  line["line_id"])[0], "writing")
+        # and the same release with an ordinary reason is the act the table describes
+        released = release_writer(self.store, writer_id=writer["writer_id"], generation=1,
+                                  port=_LinePort("baton.impl"), reason="nothing to review")
+        self.assertEqual((released["state"], released["reason"]), ("idle", "nothing to review"))
+        self.assertEqual(self.one("SELECT state, revocation_reason FROM line_writers WHERE writer_id = ?",
+                                  writer["writer_id"])[:], ("revoked", "released"))
+
+    def test_a_pre_attach_fence_carrying_a_bearer_reason_declares_nothing(self):
+        """`_no_start_declared`'s UPDATE: the operator's reason rides the
+        declaration's `manager_signature` and is walked there, before the
+        transaction that would write the axis and before the authority is asked."""
+        from baton_v12.worker_manager import intake
+        attempt = self.attempt("fenced-attempt-1", 1, "baton.impl")
+        port = _LinePort("baton.impl")
+        before = self.one("SELECT execution_runtime FROM attempts WHERE runtime_attempt_id = ?", attempt)[0]
+        self.assertNotEqual(before, "cancel-requested")
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                intake.fence_pre_attach_abandonment(self.store, port, attempt_id=attempt, reason=BEARER)
+        self.assertEqual(caught.exception.code, "secret-leak", caught.exception.message)
+        self.assertNotIn(BEARER, caught.exception.message)
+        self.assertEqual(self.one("SELECT execution_runtime FROM attempts WHERE runtime_attempt_id = ?", attempt)[0], before)
+        self.assertEqual(port.calls, [])
+        self.assertEqual(self.one("SELECT count(*) FROM operations WHERE operation_id LIKE ?", "%abandon%")[0], 0)
+        # and the same declaration with an ordinary reason is the act the table describes
+        fenced = intake.fence_pre_attach_abandonment(self.store, port, attempt_id=attempt, reason="operator gave up")
+        self.assertEqual(fenced["intent"]["reason"], "operator gave up")
+        self.assertEqual(self.one("SELECT execution_runtime FROM attempts WHERE runtime_attempt_id = ?", attempt)[0], "cancel-requested")
+        self.assertEqual(len(port.calls), 1)
 
 
 class TheAgentSessionProfileIsWalked(SecretCase):

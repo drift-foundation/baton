@@ -1,0 +1,41 @@
+{
+  "selection": "tests.manager.test_worker_entry_engine",
+  "exit": -15,
+  "seconds": 57.664239189998625,
+  "timed_out": false,
+  "passed": 0,
+  "started": 0,
+  "skipped": [],
+  "created_container_ids": [
+    "ed62d40406b1a61fa3a047e5ffa444ade56e89b50e4e3fa7dd20b48e34b565e0"
+  ],
+  "emergency_cleanup": [
+    "ed62d40406b1a61fa3a047e5ffa444ade56e89b50e4e3fa7dd20b48e34b565e0"
+  ],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [
+    "v12-w6636-eea4a5lq",
+    "v12-w6636-eea4a5lq/control.sqlite3",
+    "v12-w6636-eea4a5lq/control.sqlite3-shm",
+    "v12-w6636-eea4a5lq/control.sqlite3-wal",
+    "v12-w6636-eea4a5lq/launch-attempt-54f7fafff8",
+    "v12-w6636-eea4a5lq/launch-attempt-54f7fafff8/attempt-54f7fafff8",
+    "v12-w6636-eea4a5lq/launch-attempt-54f7fafff8/attempt-54f7fafff8/launch.json",
+    "v12-w6636-eea4a5lq/storage",
+    "v12-w6636-eea4a5lq/storage/.baton-workspace-authority",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8/credential-state",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8/credentials",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8/custody",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8/inputs",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8/inputs/assignment.json",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8/inputs/input.json",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8/scratch",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8/workspace",
+    "v12-w6636-eea4a5lq/storage/attempt-54f7fafff8/workspace/result-attempt-54f7fafff8"
+  ],
+  "root_removed": false,
+  "ok": false
+}

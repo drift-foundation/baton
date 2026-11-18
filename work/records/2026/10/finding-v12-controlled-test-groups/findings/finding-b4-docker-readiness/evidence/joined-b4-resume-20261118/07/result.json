@@ -1,0 +1,17 @@
+{
+  "selection": "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay",
+  "exit": 0,
+  "seconds": 0.3137606419986696,
+  "timed_out": false,
+  "passed": 7,
+  "started": 7,
+  "skipped": [],
+  "created_container_ids": [],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

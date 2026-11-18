@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "PyInstaller",
+    "--noconfirm",
+    "--clean",
+    "--distpath",
+    "/home/sl/src/baton/work/scratch/w384944-package-build-20261118/out",
+    "--workpath",
+    "/home/sl/src/baton/work/scratch/w384944-package-build-20261118/work",
+    "packaging/stack.spec"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w384944-joined-438eefa6-20261118/v12/python",
+  "timeout_seconds": 1800,
+  "output": "/home/sl/src/baton/work/scratch/w384944-package-build-20261118",
+  "git_ceiling": "/home/sl/src/baton/work/scratch"
+}

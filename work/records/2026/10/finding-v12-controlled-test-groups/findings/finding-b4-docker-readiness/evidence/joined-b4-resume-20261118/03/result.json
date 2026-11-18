@@ -1,0 +1,24 @@
+{
+  "selection": "tests.manager.test_credentials_engine",
+  "exit": 0,
+  "seconds": 1.6656200679972244,
+  "timed_out": false,
+  "passed": 9,
+  "started": 9,
+  "skipped": [],
+  "created_container_ids": [
+    "639689decc64afe7a7bd912cf1edc74490fac32177a7c0ac5e7bdbd9ee569c49",
+    "65c0f87085abe042830c6775d3f7146891dee5cd2c54f7a88b33ac6d1dc2bf56",
+    "6902709dc81dcf12c48c11cbe2dd8f2c6cf97f73ec0c531a34d18f5b4d171e47",
+    "c6deaf9bdef276c65d169b1b24b651c7e2ad232b16cc6d0862077e24e1655672",
+    "d65dfaacd18a826ac88d5be048aaa807d8cd14f604167714a3ae8bd203426888",
+    "d98611ff4474fbc55cc2c783b6ef8f3d751bcf339382b06a6c11a896600f223b"
+  ],
+  "emergency_cleanup": [],
+  "containers_remaining": [],
+  "old_containers_preserved": true,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true,
+  "ok": true
+}

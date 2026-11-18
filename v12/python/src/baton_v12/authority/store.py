@@ -67,7 +67,7 @@ import json
 import os
 import sqlite3
 
-from .errors import Refusal, label_of, name_of
+from .errors import Refusal, label_of, name_of, type_name_of
 from .schema import (META_AUTHORITY_UUID, META_SCHEMA_VERSION, META_STORE_KIND,
                      SCHEMA, SCHEMA_VERSION, STORE_KIND)
 
@@ -375,8 +375,8 @@ class Store:
         if self._readonly:
             raise Refusal(
                 f"this authority store was opened for reading and cannot "
-                f"{what}; a read-only handle answers the committed record and "
-                f"performs no transition")
+                f"{label_of(what)}; a read-only handle answers the committed "
+                f"record and performs no transition")
 
     # -- transactions --------------------------------------------------------
 
@@ -646,7 +646,7 @@ def _connect_readonly(path):
     except sqlite3.Error as failure:
         raise Refusal(
             f"the authority store at {name_of(path)} could not be opened for "
-            f"reading: {type(failure).__name__}. A read-only open refuses "
+            f"reading: {type_name_of(failure)}. A read-only open refuses "
             f"rather than reopening a store it may not write") from None
     try:
         connection.row_factory = sqlite3.Row
@@ -657,11 +657,14 @@ def _connect_readonly(path):
         connection.execute("SELECT 1").fetchone()
     except sqlite3.Error as failure:
         connection.close()
+        # BOUNDED LIKE EVERY OTHER DIAGNOSTIC (W384870 B5): the driver's class
+        # name and its own words are rendered through the rule, not raw. `str`
+        # on a `sqlite3.Error` runs the driver's formatting, not a caller's.
         raise Refusal(
             f"the authority store at {name_of(path)} is not readable through "
-            f"a non-writing connection: {type(failure).__name__}: {failure}; "
-            f"this refuses rather than opening the store in a mode that "
-            f"could repair it") from None
+            f"a non-writing connection: {type_name_of(failure)}: "
+            f"{name_of(str(failure))}; this refuses rather than opening the "
+            f"store in a mode that could repair it") from None
     return connection
 
 
