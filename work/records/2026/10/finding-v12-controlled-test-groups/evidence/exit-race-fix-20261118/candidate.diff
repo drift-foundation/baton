@@ -1,0 +1,182 @@
+diff --git a/v12/python/tests/tools/next_run_flow_fixture.py b/v12/python/tests/tools/next_run_flow_fixture.py
+index 3e24a9e7..ab39bbd0 100644
+--- a/v12/python/tests/tools/next_run_flow_fixture.py
++++ b/v12/python/tests/tools/next_run_flow_fixture.py
+@@ -11,6 +11,8 @@ import shutil
+ import threading
+ import subprocess
+ import hashlib
++import signal
++import atexit
+ import time
+ 
+ 
+@@ -100,6 +102,23 @@ def main():
+     # result at all" instead of as a pre-runtime source refusal.
+     deny_line = '--fixture-deny-line' in args
+     if deny_line: args.remove('--fixture-deny-line')
++    # W384870 second full run: the controller SIGTERMs its manager's process
++    # group on observing the manager's own final publication, while that
++    # manager may still be exiting. The delay holds the WATCHDOG'S CHILD in
++    # its exit (after `child_main` returned, inside interpreter finalization)
++    # so the controller's late stop request lands every time, not only under
++    # parallel load; the trace records the disposition SIGTERM meets there.
++    exit_delay = next((a for a in args if a.startswith('--fixture-exit-delay=')), None)
++    if exit_delay is not None:
++        args.remove(exit_delay)
++        exit_delay = float(exit_delay.partition('=')[2])
++        if '--child-of' in args:
++            def linger():
++                handler = signal.getsignal(signal.SIGTERM)
++                named = 'SIG_DFL' if handler is signal.SIG_DFL else 'SIG_IGN' if handler is signal.SIG_IGN else repr(handler)
++                record('manager-exit-delay', dict(seconds=exit_delay, monotonic=time.monotonic(), sigterm=named))
++                time.sleep(exit_delay)
++            atexit.register(linger)
+     worker_threads = []
+     def run_worker():
+         try:
+@@ -170,7 +189,7 @@ def main():
+             # consumed it out of this process's argv and the child is where the
+             # product's own source line runs. It precedes `argv[3:]` so the
+             # child still sees the controller's operands in the same order.
+-            carried = ['--fixture-deny-line'] if deny_line else []
++            carried = (['--fixture-deny-line'] if deny_line else []) + ([f'--fixture-exit-delay={exit_delay}'] if exit_delay is not None else [])
+             super().__init__([argv[0], '-I', '-B', __file__, code, tests_root, trace, *carried, *argv[3:]], **kwargs)
+     enforcement.Process = Process
+     if args[0] == '--fixture-recover':
+diff --git a/v12/python/tests/tools/test_next_run_flow.py b/v12/python/tests/tools/test_next_run_flow.py
+index 92ffb152..b963ae08 100644
+--- a/v12/python/tests/tools/test_next_run_flow.py
++++ b/v12/python/tests/tools/test_next_run_flow.py
+@@ -42,6 +42,7 @@ class JoinedFlow(unittest.TestCase):
+         self.host.recovery_evidence = self.recovery
+         self.fail_start = False
+         self.deny_line = False
++        self.exit_delay = None
+ 
+     def request(self, **data):
+         return managed.execute_request(self.broker, managed.read_request(io.BytesIO(json.dumps(data).encode())))
+@@ -65,6 +66,7 @@ class JoinedFlow(unittest.TestCase):
+         args = ['--packet', str(root / 'runs' / record['run_id'] / 'PACKET.json')]
+         if self.fail_start: args.append('--fixture-fail-start')
+         if self.deny_line: args.append('--fixture-deny-line')
++        if self.exit_delay is not None: args.append(f'--fixture-exit-delay={self.exit_delay}')
+         result = self.invoke(record, packet, root, args)
+         logs = {p.name: p.read_text() for p in (Path(record['storage']) / 'packet').glob('*') if p.is_file()}
+         from baton_v12.worker_manager import ControlStore, attempts
+@@ -168,6 +170,71 @@ class JoinedFlow(unittest.TestCase):
+                 json.dump(dict(kind='deterministic joined owner proof', simulated=['host privileges and process uid exclusion', 'engine', 'provider', 'Git command backend'], installed_once=True, receipts=receipts, recovery=self.recovery_receipt, runs=self.results), out, indent=2)
+                 out.write('\n')
+ 
++    def exit_delayed_start(self, seconds):
++        """One prepared task whose controller child lingers `seconds` in its exit.
++
++        The product's own ordering, from the second owner full run of W384870
++        (evidence/final-suite-20261118-r2/failed-scenario.json): the manager
++        publishes its final enforcement snapshot, the controller's next poll
++        sees `stopping`/`finished`, requests shutdown and SIGTERMs the manager's
++        process group; the manager is still exiting. The delay makes that
++        interleaving certain instead of load-dependent. Returns the run's
++        result row, the controller's parsed report, the stop request the
++        controller wrote (`.shutdown.json`, absent when no stop was requested)
++        and the trace record the manager wrote on entering its delayed exit.
++        """
++        received = time.monotonic()
++        self.request(action='prepare', task=self.task('first'))
++        self.exit_delay = seconds
++        code = self.start('first')
++        result = self.results[-1]
++        outer = json.loads(result['stdout'])
++        requests = [json.loads(v) for k, v in result['logs'].items() if k.endswith('.shutdown.json')]
++        lingers = [json.loads(line)['value'] for line in result['trace'].splitlines() if json.loads(line)['kind'] == 'manager-exit-delay']
++        return received, code, result, outer, requests, lingers
++
++    def test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status(self):
++        """The exact second-full-run failure, made deterministic.
++
++        The controller's stop request must land AFTER the manager entered its
++        exit (same host monotonic clock: the request is written at
++        `deadline - tail`, tail 2 s for cleanup 4 s), and the manager must
++        still meet it with its cooperative disposition, never SIG_DFL. Before
++        the correction the manager died -15 there and the completed run was
++        held; its inner outcome was already settled.
++        """
++        received, code, result, outer, requests, lingers = self.exit_delayed_start(1.5)
++        request = self.only(requests, 'the controller requested shutdown of the exiting manager')
++        linger = self.only(lingers, 'the manager entered its delayed exit')
++        self.assertEqual(request['run_id'], 'first')
++        self.assertLessEqual(linger['monotonic'], request['deadline'] - 2, (linger, request))
++        self.assertIn('child_main', linger['sigterm'], linger)  # the cooperative handler, never SIG_DFL (was 'SIG_DFL' before the correction)
++        self.assertEqual(outer['operator_signals'], [])
++        self.assertEqual((code, outer['child_status'], outer['state']), (0, 0, 'completed'), json.dumps(dict(linger=linger, request=request, outer=outer), indent=2))
++        self.assertEqual(result['outcome']['state'], 'settled')
++        self.assertEqual(result['outcome']['stage_states'], {'implementation': 'completed'})
++        self.assertGreaterEqual(outer['elapsed_seconds'], 1.5)
++
++    def test_a_manager_that_never_leaves_after_its_final_publication_is_killed_at_the_deadline_and_held(self):
++        """The kept disposition cannot make a manager immortal.
++
++        A manager that lingers past the controller's shortened deadline is
++        SIGKILLed there (-9, never the absorbed -15), reported exited and held
++        within the packet's total bound, and its settled inner outcome does not
++        make the controller's report a success.
++        """
++        received, code, result, outer, requests, lingers = self.exit_delayed_start(60)
++        self.only(requests, 'the controller requested shutdown of the lingering manager')
++        self.only(lingers, 'the manager entered its delayed exit')
++        self.assertNotEqual(code, 0)
++        self.assertEqual(outer['state'], 'held')
++        self.assertTrue(outer['child_exited'])
++        self.assertEqual(outer['child_status'], -9, json.dumps(outer, indent=2))
++        self.assertEqual(outer['operator_signals'], [])
++        self.assertLessEqual(outer['elapsed_seconds'], 12)
++        self.assertEqual(result['outcome']['state'], 'settled')
++        self.assertEqual(result['outcome']['stage_states'], {'implementation': 'completed'})
++
+     def test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned(self):
+         """W339626: the live C failure's own shape, through real accounting.
+ 
+diff --git a/v12/python/tools/authoring_enforcement.py b/v12/python/tools/authoring_enforcement.py
+index f4fb4ad3..4281a1fc 100644
+--- a/v12/python/tools/authoring_enforcement.py
++++ b/v12/python/tools/authoring_enforcement.py
+@@ -514,7 +514,15 @@ def child_main(packet_path, parent, lock_fd, status_path):
+     guard = Guard(packet, lock_fd=lock_fd, publish=lambda held: publish_guard(status_path, held), prepare=prepare_manager)
+     shutdown = Shutdown(packet, status_path + ".shutdown.json", status_path + ".progress.json")
+     failure = None
+-    previous = {number: signal.signal(number, lambda number, frame: guard.stopping.set()) for number in (signal.SIGTERM, signal.SIGINT)}
++    # Cooperative stop for the WHOLE process lifetime. The controller SIGTERMs this
++    # process group whenever it observes `stopping`, including on this manager's
++    # own final publication while the process is still exiting; a default
++    # disposition restored before exit turned that late request into a -15
++    # death of a completed invocation (W384870, second owner full run). The
++    # controller's SIGKILL at its deadline remains the backstop for a manager
++    # that does not leave.
++    for number in (signal.SIGTERM, signal.SIGINT):
++        signal.signal(number, lambda number, frame: guard.stopping.set())
+     try:
+         guard.start()
+         reserve = packet["bounds"]["cleanup_seconds"]
+@@ -535,16 +543,12 @@ def child_main(packet_path, parent, lock_fd, status_path):
+         raise
+     finally:
+         guard.stopping.set()
+-        try:
+-            shutdown.begin()
+-            guard.report = shutdown.call('guard-stop', 'guard stop/join', lambda: guard.stop(timeout=max(0, shutdown.until('guard-stop') - time.monotonic())))
+-            if failure is not None:
+-                guard.report = dict(guard.report, state='held', faults=[*guard.report.get('faults', []), failure])
+-            if not guard.thread.is_alive():
+-                shutdown.call('guard-publication', 'final enforcement publication', lambda: publish_guard(status_path, guard))
+-        finally:
+-            for number, handler in previous.items():
+-                signal.signal(number, handler)
++        shutdown.begin()
++        guard.report = shutdown.call('guard-stop', 'guard stop/join', lambda: guard.stop(timeout=max(0, shutdown.until('guard-stop') - time.monotonic())))
++        if failure is not None:
++            guard.report = dict(guard.report, state='held', faults=[*guard.report.get('faults', []), failure])
++        if not guard.thread.is_alive():
++            shutdown.call('guard-publication', 'final enforcement publication', lambda: publish_guard(status_path, guard))
+ 
+ 
+ def main(argv=None):

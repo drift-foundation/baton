@@ -1,0 +1,12 @@
+[batch] 2026-11-18T15:36:25Z env=default module=tests.tools.test_next_run_recovery HEAD=5b9659f0 WORKSPACE_GROUP=<unset> INITIAL_ACCESS_ENGINE=<unset>
+test_returned_token_and_exact_absence_permit_fenced_continuation (tests.tools.test_next_run_recovery.OwnerCessation.test_returned_token_and_exact_absence_permit_fenced_continuation) ... ok
+test_running_unsettled_and_unknown_effects_refuse (tests.tools.test_next_run_recovery.OwnerCessation.test_running_unsettled_and_unknown_effects_refuse) ... ok
+test_unlinked_effect_is_not_inferred_absent_from_job_selection (tests.tools.test_next_run_recovery.OwnerCessation.test_unlinked_effect_is_not_inferred_absent_from_job_selection) ... ok
+test_real_current_uid_is_not_mistaken_for_cessation (tests.tools.test_next_run_recovery.ProcessEvidence.test_real_current_uid_is_not_mistaken_for_cessation) ... ok
+test_unreadable_process_identity_refuses (tests.tools.test_next_run_recovery.ProcessEvidence.test_unreadable_process_identity_refuses) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.065s
+
+OK
+[batch] exit 0

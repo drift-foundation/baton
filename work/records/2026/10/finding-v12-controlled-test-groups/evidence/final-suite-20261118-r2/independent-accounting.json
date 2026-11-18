@@ -1,0 +1,9 @@
+{
+  "collected": 11269,
+  "executed": 11269,
+  "unique_execution": true,
+  "exact_execution": true,
+  "exact_disjoint_outcomes": true,
+  "source_stable": true,
+  "roots_before_after_equal": true
+}

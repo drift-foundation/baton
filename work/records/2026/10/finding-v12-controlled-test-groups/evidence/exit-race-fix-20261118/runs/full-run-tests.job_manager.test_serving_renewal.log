@@ -1,0 +1,21 @@
+[batch] 2026-11-18T15:34:10Z env=full-run module=tests.job_manager.test_serving_renewal HEAD=5b9659f0 WORKSPACE_GROUP=1001 INITIAL_ACCESS_ENGINE=1
+test_child_composition_delivers_policy_to_real_stage_workers (tests.job_manager.test_serving_renewal.AuthoringComposition.test_child_composition_delivers_policy_to_real_stage_workers) ... ok
+test_job_serving_reaches_envelope_acquisition_and_dispatch (tests.job_manager.test_serving_renewal.ProductionLaunch.test_job_serving_reaches_envelope_acquisition_and_dispatch) ... ok
+test_cancellation_before_acquisition_refuses_new_permission (tests.job_manager.test_serving_renewal.ServingPermission.test_cancellation_before_acquisition_refuses_new_permission) ... ok
+test_closed_admission_competes_inside_acquisition (tests.job_manager.test_serving_renewal.ServingPermission.test_closed_admission_competes_inside_acquisition) ... ok
+test_exhausted_or_regressed_clock_cannot_acquire (tests.job_manager.test_serving_renewal.ServingPermission.test_exhausted_or_regressed_clock_cannot_acquire) ... ok
+test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds (tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds) ... ok
+test_fixed_envelope_cannot_be_renewed_or_rebound (tests.job_manager.test_serving_renewal.ServingPermission.test_fixed_envelope_cannot_be_renewed_or_rebound) ... ok
+test_foreign_prepared_assignment_cannot_use_the_policy (tests.job_manager.test_serving_renewal.ServingPermission.test_foreign_prepared_assignment_cannot_use_the_policy) ... ok
+test_malformed_permission_reaches_its_token_validator_without_acquiring (tests.job_manager.test_serving_renewal.ServingPermission.test_malformed_permission_reaches_its_token_validator_without_acquiring) ... ok
+test_missing_invalid_foreign_and_oversized_limits_refuse (tests.job_manager.test_serving_renewal.ServingPermission.test_missing_invalid_foreign_and_oversized_limits_refuse) ... ok
+test_real_acquisition_and_enforcement_support_3600_then_cleanup (tests.job_manager.test_serving_renewal.ServingPermission.test_real_acquisition_and_enforcement_support_3600_then_cleanup) ... ok
+test_replay_and_restart_never_reset_the_deadline (tests.job_manager.test_serving_renewal.ServingPermission.test_replay_and_restart_never_reset_the_deadline) ... ok
+test_shorter_populated_limits_and_envelope_are_not_a_new_constant (tests.job_manager.test_serving_renewal.ServingPermission.test_shorter_populated_limits_and_envelope_are_not_a_new_constant) ... ok
+test_startup_cannot_consume_the_required_invocation_and_cleanup_reserve (tests.job_manager.test_serving_renewal.ServingPermission.test_startup_cannot_consume_the_required_invocation_and_cleanup_reserve) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.301s
+
+OK
+[batch] exit 0

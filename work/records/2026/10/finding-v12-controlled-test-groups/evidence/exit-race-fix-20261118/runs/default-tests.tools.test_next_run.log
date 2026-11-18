@@ -1,0 +1,18 @@
+[batch] 2026-11-18T15:36:25Z env=default module=tests.tools.test_next_run HEAD=5b9659f0 WORKSPACE_GROUP=<unset> INITIAL_ACCESS_ENGINE=<unset>
+test_collision_and_partial_preparation_never_dispatch (tests.tools.test_next_run.NextRun.test_collision_and_partial_preparation_never_dispatch) ... ok
+test_helper_is_required_by_actual_controller_binding (tests.tools.test_next_run.NextRun.test_helper_is_required_by_actual_controller_binding) ... ok
+test_invalid_prerequisite_does_not_consume_then_supported_start_recovers (tests.tools.test_next_run.NextRun.test_invalid_prerequisite_does_not_consume_then_supported_start_recovers) ... ok
+test_missing_output_parent_is_prepared_before_consumption (tests.tools.test_next_run.NextRun.test_missing_output_parent_is_prepared_before_consumption) ... ok
+test_partial_recovery_reuses_installation_without_erasing_evidence (tests.tools.test_next_run.NextRun.test_partial_recovery_reuses_installation_without_erasing_evidence) ... ok
+test_runtime_and_foreign_import_refusal (tests.tools.test_next_run.NextRun.test_runtime_and_foreign_import_refusal) ... ok
+test_source_links_and_missing_inputs_refuse (tests.tools.test_next_run.NextRun.test_source_links_and_missing_inputs_refuse) ... ok
+test_stale_task_and_base_refuse_before_slot_reservation (tests.tools.test_next_run.NextRun.test_stale_task_and_base_refuse_before_slot_reservation) ... ok
+test_status_does_not_create_missing_run_or_stores (tests.tools.test_next_run.NextRun.test_status_does_not_create_missing_run_or_stores) ... ok
+test_two_input_only_preparations_bind_distinct_tasks_and_enforced_commands (tests.tools.test_next_run.NextRun.test_two_input_only_preparations_bind_distinct_tasks_and_enforced_commands) ... ok
+test_unknown_dispatch_is_retained_and_never_replayed (tests.tools.test_next_run.NextRun.test_unknown_dispatch_is_retained_and_never_replayed) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 7.196s
+
+OK
+[batch] exit 0

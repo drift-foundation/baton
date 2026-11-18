@@ -514,7 +514,15 @@ def child_main(packet_path, parent, lock_fd, status_path):
     guard = Guard(packet, lock_fd=lock_fd, publish=lambda held: publish_guard(status_path, held), prepare=prepare_manager)
     shutdown = Shutdown(packet, status_path + ".shutdown.json", status_path + ".progress.json")
     failure = None
-    previous = {number: signal.signal(number, lambda number, frame: guard.stopping.set()) for number in (signal.SIGTERM, signal.SIGINT)}
+    # Cooperative stop for the WHOLE process lifetime. The controller SIGTERMs this
+    # process group whenever it observes `stopping`, including on this manager's
+    # own final publication while the process is still exiting; a default
+    # disposition restored before exit turned that late request into a -15
+    # death of a completed invocation (W384870, second owner full run). The
+    # controller's SIGKILL at its deadline remains the backstop for a manager
+    # that does not leave.
+    for number in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(number, lambda number, frame: guard.stopping.set())
     try:
         guard.start()
         reserve = packet["bounds"]["cleanup_seconds"]
@@ -535,16 +543,12 @@ def child_main(packet_path, parent, lock_fd, status_path):
         raise
     finally:
         guard.stopping.set()
-        try:
-            shutdown.begin()
-            guard.report = shutdown.call('guard-stop', 'guard stop/join', lambda: guard.stop(timeout=max(0, shutdown.until('guard-stop') - time.monotonic())))
-            if failure is not None:
-                guard.report = dict(guard.report, state='held', faults=[*guard.report.get('faults', []), failure])
-            if not guard.thread.is_alive():
-                shutdown.call('guard-publication', 'final enforcement publication', lambda: publish_guard(status_path, guard))
-        finally:
-            for number, handler in previous.items():
-                signal.signal(number, handler)
+        shutdown.begin()
+        guard.report = shutdown.call('guard-stop', 'guard stop/join', lambda: guard.stop(timeout=max(0, shutdown.until('guard-stop') - time.monotonic())))
+        if failure is not None:
+            guard.report = dict(guard.report, state='held', faults=[*guard.report.get('faults', []), failure])
+        if not guard.thread.is_alive():
+            shutdown.call('guard-publication', 'final enforcement publication', lambda: publish_guard(status_path, guard))
 
 
 def main(argv=None):

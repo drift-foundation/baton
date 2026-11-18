@@ -1,0 +1,15 @@
+[batch] 2026-11-18T15:34:13Z env=default module=tests.tools.test_next_run_flow HEAD=5b9659f0 WORKSPACE_GROUP=<unset> INITIAL_ACCESS_ENGINE=<unset>
+test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status (tests.tools.test_next_run_flow.JoinedFlow.test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status)
+The exact second-full-run failure, made deterministic. ... ok
+test_a_manager_that_never_leaves_after_its_final_publication_is_killed_at_the_deadline_and_held (tests.tools.test_next_run_flow.JoinedFlow.test_a_manager_that_never_leaves_after_its_final_publication_is_killed_at_the_deadline_and_held)
+The kept disposition cannot make a manager immortal. ... ok
+test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting. ... ok
+test_initial_partial_preparation_continues_to_real_work (tests.tools.test_next_run_flow.JoinedFlow.test_initial_partial_preparation_continues_to_real_work) ... ok
+test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 37.970s
+
+OK
+[batch] exit 0

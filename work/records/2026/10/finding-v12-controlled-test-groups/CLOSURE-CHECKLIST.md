@@ -1,4 +1,14 @@
 
+## 2026-11-18T16-29-13Z — exit-ordering product correction accepted
+
+Read `review-2026-11-18T16-29-13Z.md`. Independent46/46 in51.6s, stable source/no residue; exact3-file candidate verified. Late cooperative signal is absorbed through process exit; hung child still killed/held. Priority advance to human checkpoint and next accounted full run. Coordinator prepares next packet directly after checkpoint; K/codexpc idle. Supersedes pending exit-race review; final acceptance/closure still outstanding.
+
+
+## 2026-11-18T15-19-10Z — second full suite: one workflow failure, clean accounting and residue
+
+Read `review-2026-11-18T15-19-10Z.md`.11269 executed=11266 passed+2 optional skips+1 failure; zero errors, exact accounting, stable source, no residue. All26 former adverse IDs repaired. K next diagnoses/corrects only next_run_flow second-task outer held/-15 versus inner settled discrepancy, with focused deterministic shutdown/deadline evidence; no full/group retry. Priority CONTINUE one bounded correction. Closure not yet accepted.
+
+
 ## 2026-11-18T15-06-05Z — full-run correction accepted; checkpoint and fresh run preparation
 
 Read `review-2026-11-18T15-06-05Z.md`. Four fixture files accepted; independent584/584 under dedicated group1001, stable source, no residue. K focused Docker29 passes clean. Seven historical roots require owner cleanup via reviewed helper (automatic safety review blocked K deletion; no agent retry). Priority advance to owner checkpoint and fresh final-run preparation; no full retry executed/released to K. Old full-suite failure evidence preserved.

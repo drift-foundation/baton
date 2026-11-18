@@ -1,0 +1,1 @@
+{"actual_timeout": 30, "command": ["docker", "inspect", "--format", "{{.State.Running}}", "w32577-sibling-a51b441a78"], "elapsed": 0.005027716004406102, "expected": 1, "margin": 1, "phase_end": 71947.700521444, "returncode": 0, "state": "completed", "stderr": "", "stdout": "true\n", "timeout": 30, "total_end": 72007.700521444}

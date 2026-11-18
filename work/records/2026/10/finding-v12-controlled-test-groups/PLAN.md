@@ -1,4 +1,38 @@
 
+## 2026-11-18T16-29-13Z — exit-ordering product correction accepted
+
+Read `review-2026-11-18T16-29-13Z.md`. Independent46/46 in51.6s, stable source/no residue; exact3-file candidate verified. Late cooperative signal is absorbed through process exit; hung child still killed/held. Priority advance to human checkpoint and next accounted full run. Coordinator prepares next packet directly after checkpoint; K/codexpc idle. Supersedes pending exit-race review; final acceptance/closure still outstanding.
+
+## 2026-11-18 — K: second full run's one failure repaired (M385119); awaiting technical + priority review
+
+`evidence/exit-race-fix-20261118/RESULT.md`. Product ordering defect, not fixture timing: the controller SIGTERMs its
+manager's process group on observing the manager's own `stopping`/`finished` snapshot while the manager is still
+exiting, and the manager had restored `SIG_DFL` before leaving, so a completed invocation died `-15` and was held.
+Fix (one product file): `child_main` keeps its cooperative dispositions for the whole process lifetime; controller,
+deadlines and SIGKILL backstop unchanged. Two deterministic JoinedFlow witnesses (exit-delay fixture flag): the exact
+race completes; a manager that never leaves is SIGKILLed at the deadline (-9, held). Pre-fix both fail `-15`.
+146 tests x 2 environments OK, 0 residue. Candidate 3 files over 5b9659f0. Next: review; owner checkpoint; fresh
+packet + evidence directory for the next owner-run full suite; final accounting; closure. W383215 stays gated.
+
+## 2026-11-18T15-19-10Z — second full suite: one workflow failure, clean accounting and residue
+
+Read `review-2026-11-18T15-19-10Z.md`.11269 executed=11266 passed+2 optional skips+1 failure; zero errors, exact accounting, stable source, no residue. All26 former adverse IDs repaired. K next diagnoses/corrects only next_run_flow second-task outer held/-15 versus inner settled discrepancy, with focused deterministic shutdown/deadline evidence; no full/group retry. Priority CONTINUE one bounded correction. Closure not yet accepted.
+
+
+## 2026-11-18 — K: fresh owner-run packet prepared, pinned to 5b9659f0 (M385115/M385116); awaiting review
+
+`evidence/final-suite-20261118-r2/PREREQUISITES.md`: same reviewed wrapper and recipe as the first packet, new evidence
+directory (wrapper refuses existing run evidence), preflight pinned to checkpoint `5b9659f0` with clean `v12/`, and an
+explicit `sg` prerequisite check (`sg baton-workspace -c 'id -g'` -> 1001, uid unchanged). Preflight 11/11 recorded
+(`preflight-20261118T15.txt`); nothing else executed, no source/Git change, first-run failed evidence untouched.
+Next: review of the packet; owner runs `run-final-suite.sh` once; independent final accounting/review; child/parent
+closure; final check-in. W383215 stays gated.
+
+## 2026-11-18T15:07:07.782192+00:00 — owner checkpoint and historical cleanup confirmed
+
+Owner reports done; coordinator readback confirms checkpoint `5b9659f0b44cbabdc3b8ef1b242375b911f071c7`, clean working tree before this record, all seven selected roots absent and /var/tmp restored to376 entries. Receipt: evidence/final-suite-20261118/leftover-roots/owner-cleanup-confirmed.json. K may finish the already assigned fresh owner-run packet pinned to this checkpoint; no execution selected for K.
+
+
 ## 2026-11-18T15-06-05Z — full-run correction accepted; checkpoint and fresh run preparation
 
 Read `review-2026-11-18T15-06-05Z.md`. Four fixture files accepted; independent584/584 under dedicated group1001, stable source, no residue. K focused Docker29 passes clean. Seven historical roots require owner cleanup via reviewed helper (automatic safety review blocked K deletion; no agent retry). Priority advance to owner checkpoint and fresh final-run preparation; no full retry executed/released to K. Old full-suite failure evidence preserved.

@@ -11,6 +11,8 @@ import shutil
 import threading
 import subprocess
 import hashlib
+import signal
+import atexit
 import time
 
 
@@ -100,6 +102,23 @@ def main():
     # result at all" instead of as a pre-runtime source refusal.
     deny_line = '--fixture-deny-line' in args
     if deny_line: args.remove('--fixture-deny-line')
+    # W384870 second full run: the controller SIGTERMs its manager's process
+    # group on observing the manager's own final publication, while that
+    # manager may still be exiting. The delay holds the WATCHDOG'S CHILD in
+    # its exit (after `child_main` returned, inside interpreter finalization)
+    # so the controller's late stop request lands every time, not only under
+    # parallel load; the trace records the disposition SIGTERM meets there.
+    exit_delay = next((a for a in args if a.startswith('--fixture-exit-delay=')), None)
+    if exit_delay is not None:
+        args.remove(exit_delay)
+        exit_delay = float(exit_delay.partition('=')[2])
+        if '--child-of' in args:
+            def linger():
+                handler = signal.getsignal(signal.SIGTERM)
+                named = 'SIG_DFL' if handler is signal.SIG_DFL else 'SIG_IGN' if handler is signal.SIG_IGN else repr(handler)
+                record('manager-exit-delay', dict(seconds=exit_delay, monotonic=time.monotonic(), sigterm=named))
+                time.sleep(exit_delay)
+            atexit.register(linger)
     worker_threads = []
     def run_worker():
         try:
@@ -170,7 +189,7 @@ def main():
             # consumed it out of this process's argv and the child is where the
             # product's own source line runs. It precedes `argv[3:]` so the
             # child still sees the controller's operands in the same order.
-            carried = ['--fixture-deny-line'] if deny_line else []
+            carried = (['--fixture-deny-line'] if deny_line else []) + ([f'--fixture-exit-delay={exit_delay}'] if exit_delay is not None else [])
             super().__init__([argv[0], '-I', '-B', __file__, code, tests_root, trace, *carried, *argv[3:]], **kwargs)
     enforcement.Process = Process
     if args[0] == '--fixture-recover':

@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-11-18T15:07:07.782192+00:00",
+  "checkpoint": "5b9659f0b44cbabdc3b8ef1b242375b911f071c7",
+  "owner_reported_cleanup_complete": true,
+  "selected_roots_absent": {
+    "v12-worker-roots-78ca8ao8": true,
+    "v12-worker-roots-hhy37lad": true,
+    "v12-worker-roots-nz4ckmfp": true,
+    "v12-worker-roots-pbqsu9nz": true,
+    "v12-worker-roots-xjbhv9_v": true,
+    "v12-w39358-arc-p1ma63lu": true,
+    "v12-w39358-arc-qdt5r4ho": true
+  },
+  "var_tmp_entry_count": 376,
+  "verification": "Read-only post-action observation; coordinator did not execute removal."
+}

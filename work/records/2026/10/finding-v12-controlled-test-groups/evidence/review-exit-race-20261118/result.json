@@ -1,0 +1,19 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "root": "/var/tmp/rv-p_yn374j",
+      "root_length": 20,
+      "ids": [
+        "tests.tools.test_next_run_flow",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_authoring_manager_guard"
+      ],
+      "exit": 0,
+      "seconds": 51.61755032000656,
+      "leftovers": [],
+      "root_removed": true
+    }
+  ],
+  "source_stable": true
+}

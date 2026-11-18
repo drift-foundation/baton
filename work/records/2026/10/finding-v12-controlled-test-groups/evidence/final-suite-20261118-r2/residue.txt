@@ -1,0 +1,4 @@
+[final-suite] recipe exit 1 wall 418s finished 2026-11-18T15:17:30Z
+[final-suite] /var/tmp before 376 after 376; new entries: 0
+[final-suite] containers before 70 after 70; new: 0
+[final-suite] images before 79 after 79; new: 0

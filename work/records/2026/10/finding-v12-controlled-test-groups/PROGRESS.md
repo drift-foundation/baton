@@ -1226,3 +1226,33 @@ full-run and default environments; worker-container topology 27/27 and arc 2/2 w
 containers/images each; identity ae7eb489… stable. Seven full-run leftover roots inventoried (metadata preserved); K's
 container-based removal was blocked by the harness safety check and left for the owner (`leftover-roots/remove-leftover-roots.sh`, check mode run).
 - Handoff posted: T384870 seq 385114. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: fresh owner-run full-suite packet pinned to checkpoint 5b9659f0 (M385115/M385116)
+
+`evidence/final-suite-20261118-r2/`: `PREREQUISITES.md`, `preflight.sh` (pinned to `5b9659f0b44cbabdc3b8ef1b242375b911f071c7`
+with clean `v12/`; new `sg` section: `sg` present, `sg baton-workspace -c 'id -g'` really reports 1001, uid stays 1000;
+run once read-only: 11 ok / 0 failing in `preflight-20261118T15.txt`), `run-final-suite.sh` (identical to the reviewed
+first wrapper except the evidence directory; refuses existing run evidence), `summarize.py` (copied). Environment
+unchanged: W32577 image 9b8c9882…, private line image 0697b659…, workspace group 1001, INITIAL_ACCESS_ENGINE=1,
+TMPDIR/DISK_ROOT=/var/tmp; optional image/bundle/large-proof overrides must stay unset. /var/tmp at the 376 baseline,
+70 containers, the seven historic roots absent (owner receipt). Nothing executed beyond the preflight; no test, build,
+pull, source edit or Git mutation. The first run's failed evidence in `final-suite-20261118/` is preserved unchanged.
+- Handoff posted: T384870 seq 385117. detail: W384870 remains under the owner claim; K holds no claim.
+
+## 2026-11-18 — K: second full run's one failure repaired (M385119): controller's late SIGTERM killed its exiting manager
+
+`evidence/exit-race-fix-20261118/RESULT.md`. Reconstructed ordering from the retained scenario: inner finalized at
+15:11:51.150Z; manager began its own shutdown (mono 71519.004); its enforcement thread published `stopping`/`finished`;
+the controller's next poll requested shutdown and `killpg(SIGTERM)` (71519.035); the manager had already published its
+final enforcement report and restored `SIG_DFL`, so it died `-15` during interpreter exit; controller `held`. The first
+run of the same test never wrote a stop request (child exited first). Product fix, `tools/authoring_enforcement.py`
+`child_main`: cooperative SIGTERM/SIGINT dispositions kept for the whole process lifetime (no restoration to the
+defaults); controller and its SIGKILL backstop unchanged. Test side: `next_run_flow_fixture.py` `--fixture-exit-delay`
+(child `atexit` linger recording the named disposition) and two `JoinedFlow` witnesses (late stop during exit completes;
+manager that never leaves is SIGKILLed at the deadline, -9, held). Pre-fix both fail `-15` (deterministic reproduction
+of the full-run failure); post-fix OK. Batch: 10 modules (next_run_flow, authoring_enforcement, authoring_shutdown_deadline,
+authoring_manager_guard, next_run_managed, next_run_recovery, next_run, serving_renewal, native_stop_restart,
+native_permission), 146 tests, OK under both the full-run and default environments, 0 new /var/tmp entries and 0 new
+containers per run. Candidate 3 files (+102/-12) over 5b9659f0, identity f079e729…; no existing assertion changed. r2
+evidence untouched; no group/full/live/Docker run; no Git mutation.
+- Handoff posted: T384870 seq 385120. detail: W384870 remains under the owner claim; K holds no claim.

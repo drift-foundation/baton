@@ -42,6 +42,7 @@ class JoinedFlow(unittest.TestCase):
         self.host.recovery_evidence = self.recovery
         self.fail_start = False
         self.deny_line = False
+        self.exit_delay = None
 
     def request(self, **data):
         return managed.execute_request(self.broker, managed.read_request(io.BytesIO(json.dumps(data).encode())))
@@ -65,6 +66,7 @@ class JoinedFlow(unittest.TestCase):
         args = ['--packet', str(root / 'runs' / record['run_id'] / 'PACKET.json')]
         if self.fail_start: args.append('--fixture-fail-start')
         if self.deny_line: args.append('--fixture-deny-line')
+        if self.exit_delay is not None: args.append(f'--fixture-exit-delay={self.exit_delay}')
         result = self.invoke(record, packet, root, args)
         logs = {p.name: p.read_text() for p in (Path(record['storage']) / 'packet').glob('*') if p.is_file()}
         from baton_v12.worker_manager import ControlStore, attempts
@@ -167,6 +169,71 @@ class JoinedFlow(unittest.TestCase):
             with open(target, 'x') as out:
                 json.dump(dict(kind='deterministic joined owner proof', simulated=['host privileges and process uid exclusion', 'engine', 'provider', 'Git command backend'], installed_once=True, receipts=receipts, recovery=self.recovery_receipt, runs=self.results), out, indent=2)
                 out.write('\n')
+
+    def exit_delayed_start(self, seconds):
+        """One prepared task whose controller child lingers `seconds` in its exit.
+
+        The product's own ordering, from the second owner full run of W384870
+        (evidence/final-suite-20261118-r2/failed-scenario.json): the manager
+        publishes its final enforcement snapshot, the controller's next poll
+        sees `stopping`/`finished`, requests shutdown and SIGTERMs the manager's
+        process group; the manager is still exiting. The delay makes that
+        interleaving certain instead of load-dependent. Returns the run's
+        result row, the controller's parsed report, the stop request the
+        controller wrote (`.shutdown.json`, absent when no stop was requested)
+        and the trace record the manager wrote on entering its delayed exit.
+        """
+        received = time.monotonic()
+        self.request(action='prepare', task=self.task('first'))
+        self.exit_delay = seconds
+        code = self.start('first')
+        result = self.results[-1]
+        outer = json.loads(result['stdout'])
+        requests = [json.loads(v) for k, v in result['logs'].items() if k.endswith('.shutdown.json')]
+        lingers = [json.loads(line)['value'] for line in result['trace'].splitlines() if json.loads(line)['kind'] == 'manager-exit-delay']
+        return received, code, result, outer, requests, lingers
+
+    def test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status(self):
+        """The exact second-full-run failure, made deterministic.
+
+        The controller's stop request must land AFTER the manager entered its
+        exit (same host monotonic clock: the request is written at
+        `deadline - tail`, tail 2 s for cleanup 4 s), and the manager must
+        still meet it with its cooperative disposition, never SIG_DFL. Before
+        the correction the manager died -15 there and the completed run was
+        held; its inner outcome was already settled.
+        """
+        received, code, result, outer, requests, lingers = self.exit_delayed_start(1.5)
+        request = self.only(requests, 'the controller requested shutdown of the exiting manager')
+        linger = self.only(lingers, 'the manager entered its delayed exit')
+        self.assertEqual(request['run_id'], 'first')
+        self.assertLessEqual(linger['monotonic'], request['deadline'] - 2, (linger, request))
+        self.assertIn('child_main', linger['sigterm'], linger)  # the cooperative handler, never SIG_DFL (was 'SIG_DFL' before the correction)
+        self.assertEqual(outer['operator_signals'], [])
+        self.assertEqual((code, outer['child_status'], outer['state']), (0, 0, 'completed'), json.dumps(dict(linger=linger, request=request, outer=outer), indent=2))
+        self.assertEqual(result['outcome']['state'], 'settled')
+        self.assertEqual(result['outcome']['stage_states'], {'implementation': 'completed'})
+        self.assertGreaterEqual(outer['elapsed_seconds'], 1.5)
+
+    def test_a_manager_that_never_leaves_after_its_final_publication_is_killed_at_the_deadline_and_held(self):
+        """The kept disposition cannot make a manager immortal.
+
+        A manager that lingers past the controller's shortened deadline is
+        SIGKILLed there (-9, never the absorbed -15), reported exited and held
+        within the packet's total bound, and its settled inner outcome does not
+        make the controller's report a success.
+        """
+        received, code, result, outer, requests, lingers = self.exit_delayed_start(60)
+        self.only(requests, 'the controller requested shutdown of the lingering manager')
+        self.only(lingers, 'the manager entered its delayed exit')
+        self.assertNotEqual(code, 0)
+        self.assertEqual(outer['state'], 'held')
+        self.assertTrue(outer['child_exited'])
+        self.assertEqual(outer['child_status'], -9, json.dumps(outer, indent=2))
+        self.assertEqual(outer['operator_signals'], [])
+        self.assertLessEqual(outer['elapsed_seconds'], 12)
+        self.assertEqual(result['outcome']['state'], 'settled')
+        self.assertEqual(result['outcome']['stage_states'], {'implementation': 'completed'})
 
     def test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned(self):
         """W339626: the live C failure's own shape, through real accounting.

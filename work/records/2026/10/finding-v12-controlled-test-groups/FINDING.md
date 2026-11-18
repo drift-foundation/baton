@@ -923,3 +923,19 @@ Read `review-2026-11-18T07-13-25Z.md`. 11265 executed:11237 passed,2 optional sk
 ## 2026-11-18T15-06-05Z — full-run correction accepted; checkpoint and fresh run preparation
 
 Read `review-2026-11-18T15-06-05Z.md`. Four fixture files accepted; independent584/584 under dedicated group1001, stable source, no residue. K focused Docker29 passes clean. Seven historical roots require owner cleanup via reviewed helper (automatic safety review blocked K deletion; no agent retry). Priority advance to owner checkpoint and fresh final-run preparation; no full retry executed/released to K. Old full-suite failure evidence preserved.
+
+## 2026-11-18T15:07:07.782192+00:00 — owner checkpoint and historical cleanup confirmed
+
+Owner reports done; coordinator readback confirms checkpoint `5b9659f0b44cbabdc3b8ef1b242375b911f071c7`, clean working tree before this record, all seven selected roots absent and /var/tmp restored to376 entries. Receipt: evidence/final-suite-20261118/leftover-roots/owner-cleanup-confirmed.json. K may finish the already assigned fresh owner-run packet pinned to this checkpoint; no execution selected for K.
+
+## 2026-11-18T15-10-13Z — second full-suite packet accepted
+
+M385117 packet ACCEPTED: wrapper differs from reviewed first wrapper only in new evidence directory/comment; preflight pins full 5b9659f0 checkpoint, clean v12, and verifies sg adoption without uid change. Independent read-only preflight:11 ok/0 failing; shell syntax passes. No tests/build executed. Owner may run final-suite-20261118-r2/run-final-suite.sh once; K/codexpc hold. Preserve HEAD/source and old evidence. Full result, independent accounting/residue review, closure and final check-in remain pending. Read `review-2026-11-18T15-10-13Z.md`.
+
+## 2026-11-18T15-19-10Z — second full suite: one workflow failure, clean accounting and residue
+
+Read `review-2026-11-18T15-19-10Z.md`.11269 executed=11266 passed+2 optional skips+1 failure; zero errors, exact accounting, stable source, no residue. All26 former adverse IDs repaired. K next diagnoses/corrects only next_run_flow second-task outer held/-15 versus inner settled discrepancy, with focused deterministic shutdown/deadline evidence; no full/group retry. Priority CONTINUE one bounded correction. Closure not yet accepted.
+
+## 2026-11-18T16-29-13Z — exit-ordering product correction accepted
+
+Read `review-2026-11-18T16-29-13Z.md`. Independent46/46 in51.6s, stable source/no residue; exact3-file candidate verified. Late cooperative signal is absorbed through process exit; hung child still killed/held. Priority advance to human checkpoint and next accounted full run. Coordinator prepares next packet directly after checkpoint; K/codexpc idle. Supersedes pending exit-race review; final acceptance/closure still outstanding.
