@@ -1,0 +1,64 @@
+--- a/v12/python/tests/integration/test_driver.py
++++ b/v12/python/tests/integration/test_driver.py
+@@ -1944,13 +1944,15 @@
+         if self.answered["disposition"] != "completed":
+             from baton_v12.worker_manager.attempts import finalize_quiescent_assignment
+             finalize_quiescent_assignment(self.manager, self.port, attempt_id="public-writer", reason="actual worker unable")
+-            authorize_cleanup(self.manager, self.port, self.adapter, attempt_id="public-writer", retention_policy_digest=self.policy)
++            self.before_cleanup = self.execution_roots()
++            self.cleanup = authorize_cleanup(self.manager, self.port, self.adapter, attempt_id="public-writer", retention_policy_digest=self.policy)
+             return
+         self.proposal_manifest = driver.retain_proposal(self.manager, self.publisher, attempt_id="public-writer")
+         self.published = driver.publish_candidate(self.manager, self.publisher, attempt_id="public-writer", proposal_manifest_digest=self.proposal_manifest)
+         self.proposal_id = self.published["proposal_id"]
+         checkpoint = freeze_checkpoint(self.manager, writer_id=self.writer["writer_id"], generation=1, profile=owner.profile, port=self.port)
+-        authorize_cleanup(self.manager, self.port, self.adapter, attempt_id="public-writer", retention_policy_digest=self.policy)
++        self.before_cleanup = self.execution_roots()
++        self.cleanup = authorize_cleanup(self.manager, self.port, self.adapter, attempt_id="public-writer", retention_policy_digest=self.policy)
+         port, adapter, assignment = owner.registered("public-review", lifecycle.REVIEWER, "public-review-principal")
+         attachment = lifecycle.review_driver.prepare_review(self.manager, checkpoint_id=checkpoint["checkpoint_id"],
+             attempt_id="public-review", generation=1, reviewer_worker_id="public-review-worker", profile=owner.profile)
+@@ -1978,6 +1980,20 @@
+                 self.manager, self.adapter.input_digest, "inputManifest")),
+             policy_digest=self.adapter.policy)
+         submit(self.jobs, submission)
++
++    def execution_roots(self):
++        """Record the real writer trees before cleanup and compare after it."""
++        from hashlib import sha256
++        from pathlib import Path
++        result = {}
++        for name in ("inputs", "workspace"):
++            root = Path(self.adapter.roots[name])
++            self.case.assertTrue(root.is_dir(), str(root))
++            for place in [root, *sorted(root.rglob("*"))]:
++                info = place.lstat()
++                content = os.readlink(place) if place.is_symlink() else sha256(place.read_bytes()).hexdigest() if place.is_file() else None
++                result[(name, str(place.relative_to(root)))] = (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_gid, content)
++        return result
+ 
+     def assert_retained_history(self):
+         import json
+@@ -2009,7 +2025,13 @@
+             case.assertEqual(report["base"], self.observation["base"])
+             case.assertEqual(report["head"], self.observation["head"])
+         case.assertEqual(attempt_runtime_of(self.manager, "public-writer")["execution_runtime"], "destroyed")
+-        case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
++        # Completion preserves execution roots independently of retained intake
++        # copies. Prove both their identity and contents survive the crossing.
++        case.assertEqual(self.cleanup["cleanup"], "retained")
++        case.assertEqual(self.cleanup["state"], "absent")
++        case.assertIsNone(self.cleanup["directory_custody"])
++        case.assertEqual(set(self.cleanup["kept"]), {one["artifact_id"] for one in receipt["artifacts"]})
++        case.assertEqual(self.execution_roots(), self.before_cleanup)
+         case.assertEqual(len(self.adapter.destroyed_with), 1)
+         if hasattr(self, "review"):
+             self.owner.assert_owned_custody(self.review, self.ended)
+@@ -2089,6 +2111,7 @@
+                 self.assertEqual(world.admit(), first)
+                 self.assertEqual(world.publisher.receipts(world.proposal_id), receipts)
+                 self.assertEqual(world.evidence()["observation"], world.observation)
++        world.assert_retained_history()
+         self.assertEqual(world.calls, calls * 3)
+         self.assertEqual(world.manager._connection.total_changes, manager_changes)
+         self.assertEqual(world.coordinator._connection.total_changes, coordinator_changes)

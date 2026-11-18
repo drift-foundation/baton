@@ -1,3 +1,11 @@
+## 2026-11-17T20-13-12Z — pure/driver five historical failures accepted
+
+Read child review-2026-11-17T20-13-12Z.md. Independent28/28 tests+20/20 subtests pass in1.965s, exact sources stable/roots cleaned. Both historical engine and pure/driver repair inventories now empty on selected snapshot. Child waits unclaimed at baton.decide for checkpoint and accepted-current-source join; no broad/full tests or closure yet. K/parent B5 and final gates remain open.
+
+## 2026-11-17T19:49:19.926009+00:00 — owner checkpoint confirmed; pure image/driver slice released
+
+Owner committed39850ad85071e1ad75a5545a03a6260a421981c3 (reviewed four engine fixtures and child evidence). This supersedes the selective-checkpoint wait. Release the five historical pure image/driver IDs under review-2026-11-17T19-48-23Z.md's prepared allocation: test_integration_image.py, test_worker_image.py and tests/integration/test_driver.py only, plus child records/evidence. Claim child before execution. Preserve isolated accepted source, no K/product import, no Docker/build/live/broad/full execution. Revalidate five IDs first, then focused affected classes; return exact outcomes/digests/cleanup and pass baton.decide. Product conflicts require precise reproduction and ownership coordination. Full acceptance remains open.
+
 ## 2026-11-17T19-48-23Z — historical engine batch accepted; selective checkpoint
 
 Read review-2026-11-17T19-48-23Z.md:54/54 plus3/3 subtests, exact sources/candidates/resources verified. All historical engine IDs cleared on selected isolated source; full B4/current-tree acceptance still open. Child remains unclaimed at baton.decide while owner checkpoints reviewed four-file batch/evidence. Prepared next slice is five pure image/driver IDs; release follows checkpoint.

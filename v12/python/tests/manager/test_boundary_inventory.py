@@ -4495,7 +4495,7 @@ STAGE_C_PASSTHRU = (
     "review_cycles.py:record_progress", "review_cycles.py:record_verdict", "review_cycles.py:release_writer",
     "review_cycles.py:restore_abandoned_correction",
     "stopped_settlement.py:settle_stopped", "stopped_settlement.py:status",
-    "store.py:ControlStore.transact", "tokens.py:_acting_record", "tokens.py:_fence_settlement",
+    "store.py:ControlStore.transact", "tokens.py:_fence_settlement",
 )
 
 # -- public doors over an attempts row the caller already owns ------------------------
@@ -4504,11 +4504,11 @@ STAGE_C_PASSTHRU = (
 # the validators that own it where it lands are declared here, with their witness.
 NOT_AN_ENTRY.update({
     ("intake.py:reclaim_expired_resource", "document", "the resource governor's overdue answer"):
-        "the answer of the typed governor capability's `overdue`, owned where it lands: a non-document "
-        "or one without `generation` refuses before anything is ordered; "
+        "the answer of the typed governor capability's `overdue`, owned where it lands as an open document: a non-document "
+        "refuses before anything is ordered (an absent generation is the accepted unknown-generation path); "
         "StageCProtections.test_a_malformed_governor_answer_refuses_before_any_reclaim witnesses it",
     ("intake.py:reclaim_expired_resource", "generation", "the resource governor's overdue generation"):
-        "the overdue answer's generation, which names the reclaim operation; a non-generation refuses "
+        "the overdue answer's generation when present, which names the reclaim operation; a present non-generation refuses "
         "before anything is ordered; the same witness drives it",
 })
 
@@ -4987,7 +4987,7 @@ STAGE_C_STATED = {
        "checked, not labelled (site comment): a dict with ordinal and owner; the owner is compared with the admission's current owner (identity-mismatch refuses)"
        for subject in ("admitted", "admitted.ordinal", "admitted.owner")},
     ("caller", "workspaces.py:settle_cleanup", "connection"):
-        "never read by the body (B2 Case H: the docstring states a transaction contract the parameter does not carry); an unread operand reaches no effect -- the contract question is an open owner decision",
+        "owner selection 2026-11-17 (SETTLE-CLEANUP-DECISION.md option 1, B2 Case H): an inline proof, not a document -- the connection must be THIS store's (`is control._connection`) with an open transaction (`in_transaction`) or nothing is read or written; the write-lock mode is the accepted `transact` caller's BEGIN IMMEDIATE (StageCProtections.test_a_cleanup_settlement_runs_only_inside_its_endings_transaction; the full matrix is test_workspaces.CleanupSettlementRunsInItsEndingsTransaction)",
     **{("adopted", "workspaces.py:_durably_in_use", table): "an existence read (`LIMIT 1`); the id reaches only the refusal prose" for table in ("line_writers", "review_attachments")},
 
     # -- tokens ------------------------------------------------------------------------
@@ -4995,8 +4995,13 @@ STAGE_C_STATED = {
        "the one read of a self-signed journal record (resource tokens, removal ownership and binding, cleanup admission and takeover, restoration locks, the settlement selection): the replayed result is compared whole with the signature's own operands and any difference refuses (stage C correction after review 2026-10-31T02:06:09Z; a rewritten token expiry used to flip the expiry decision)"
        for subject in ("replay", "replay.attempt_id", "replay.container", "replay.decided_at", "replay.device", "replay.execution",
                        "replay.expired_at", "replay.expires_at", "replay.generation", "replay.inode", "replay.launch", "replay.observed_at",
-                       "replay.operation", "replay.operation_id", "replay.owner", "replay.permission", "replay.settlement",
+                       "replay.operation", "replay.operation_id", "replay.owner", "replay.permission", "replay.renewed_at", "replay.settlement",
                        "replay.settlement.operation", "replay.settlement.signature", "replay.started", "replay.token")},
+    # owner selection 2026-11-17 (renewal option A): the renewal's replayed REQUEST result is no longer handed back unread --
+    # `_extended` hands it to `_verified_renewal`, which compares its two decided instants with the self-signed decision record
+    **{("adopted", "tokens.py:_acting_record", subject):
+       "the replayed renewal request result is answered only through `_verified_renewal` (owner selection 2026-11-17, option A): its `renewed_at` and `expires_at` are comparison operands against the self-signed decision record read by `replayed_as_signed`, and a difference refuses (test_stopped_settlement.RenewalDecisionRecord drives every reader and the direct retry)"
+       for subject in ("replay", "replay.expires_at", "replay.renewed_at")},
     ("caller", "store.py:replayed_as_signed", "kind"): "compared by `replay(kind=kind)` with the recorded kind (a mismatch refuses)",
     ("caller", "store.py:replayed_as_signed", "what"): _LABEL_OPERAND,
 
@@ -5058,6 +5063,8 @@ def _stage_c_witness(entry):
         return "test_every_internal_operand_arrives_owned"
     if entry == ("caller", "provider_context.py:qualification_grant_of", "run_id"):
         return "test_a_redirected_or_corrupted_qualification_row_grants_nothing"
+    if entry == ("caller", "workspaces.py:settle_cleanup", "connection"):
+        return "test_a_cleanup_settlement_runs_only_inside_its_endings_transaction"
     if site.startswith("documents.py:"):
         return "test_outbound_constructors_have_no_caller_outside_the_package"
     if subject == "control":
@@ -13290,6 +13297,17 @@ class DeadlineForwardingInventory(unittest.TestCase):
             case.model("def first(agent):\n    return agent.cancel({})\ndef second(agent):\n    return agent.cancel({})\n")
 
 
+def _binds_attribute(target, attr):
+    """Does this assignment target bind `self.attr`/`cls.attr` (through tuple unpacking and starring)?"""
+    if isinstance(target, ast.Attribute):
+        return isinstance(target.value, ast.Name) and target.value.id in ("self", "cls") and target.attr == attr
+    if isinstance(target, (ast.Tuple, ast.List)):
+        return any(_binds_attribute(piece, attr) for piece in target.elts)
+    if isinstance(target, ast.Starred):
+        return _binds_attribute(target.value, attr)
+    return False
+
+
 def _binds_name(target, name):
     """Does this assignment/loop/with target bind `name` (through tuple unpacking and starring)?"""
     if isinstance(target, ast.Name):
@@ -13536,13 +13554,17 @@ class StageCProtections(BoundaryCase):
             if owner is None:
                 raise AssertionError(f"{site} hands its unowned {head} on")
             return
-        # a private helper's parameter is whatever its callers hand it: every caller proves it
+        # a private helper that validates the parameter ITSELF, under its own literal label (`_real`'s
+        # `boundaries.text(path, "a filesystem root")`), owns it there: the same rule a public door's owner_of applies
+        if any(origin == f"caller:{head}" for _, _, origin in owning_validators().get(site, ())):
+            return
+        # otherwise a private helper's parameter is whatever its callers hand it: every caller proves it
         hop = f"{site}#{head}"
         if hop in trail:
-            raise AssertionError("provenance loops: " + " -> ".join(trail + (hop,)))
+            return  # a cycle through this parameter (`_transition -> _operation -> _id -> _transition`): the outer frame is proving every other caller, and the cycle adds no source
         callers = self._bindings_at_callers(site, head)
         if not callers:
-            raise AssertionError(f"private {site} binds {head} from no caller in the package")
+            raise AssertionError(f"private {site} binds {head} from no caller in the package ({' -> '.join(trail + (site,))})")
         for caller, argument, origins in callers:
             self._owned_value(argument, caller, origins, case, trail + (hop,))
 
@@ -13555,8 +13577,12 @@ class StageCProtections(BoundaryCase):
         every caller hands it something this trace proves in turn; a composed
         expression counts when every leaf it is built from does.
         """
-        if len(trail) > 8:
-            raise AssertionError("provenance runs deeper than eight hops: " + " -> ".join(trail + (site,)))
+        if len(trail) > 16:
+            raise AssertionError("provenance runs deeper than sixteen hops: " + " -> ".join(trail + (site,)))
+        if isinstance(expression, ast.Call) and self._validator_call(expression.func, site):
+            return  # THE RULED VALIDATOR'S RESULT IS THE OWNED VALUE -- before `_source` strips the layer to its argument's origin
+        if isinstance(expression, ast.Call) and ast.unparse(expression.func) in self._DERIVING:
+            return  # an identity-shaped derivation (see _DERIVING)
         returns = _helper_returns()
         entries = receiving_entries()
         origin = _source(expression, origins, site, returns)
@@ -13573,7 +13599,12 @@ class StageCProtections(BoundaryCase):
 
     def _owned_construction(self, expression, site, origins, case, trail):
         recurse = lambda piece: self._owned_value(piece, site, origins, case, trail)
-        if isinstance(expression, (ast.Constant, ast.Lambda)):
+        if isinstance(expression, ast.Constant):
+            return
+        if isinstance(expression, ast.Lambda):
+            # Review 2026-11-17T23:24:47Z P1: A CALLBACK IS NOT HARMLESS BY BEING A LAMBDA. What it answers is
+            # its body, traced here; its parameters are whatever invokes it binds (`_owned_lambda_parameter`).
+            recurse(expression.body)
             return
         if isinstance(expression, ast.JoinedStr):
             for piece in expression.values:
@@ -13616,13 +13647,22 @@ class StageCProtections(BoundaryCase):
             function = expression.func
             gap = self._callee_gap(function, site)
             if gap is not None:
-                raise AssertionError(f"{site}: {gap}")
+                raise AssertionError(f"{site}: {gap}" + (f" ({' -> '.join(trail + (site,))})" if trail else ""))
             if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name) and function.value.id == "boundaries" \
                     and self._import_kind(site.split(":")[0], "boundaries") == "package":
                 return  # THE RULED VALIDATOR: its result is the owned value, whatever it was given
             if isinstance(function, ast.Attribute) and ast.unparse(function) not in self._COMPOSING_EXTERNAL \
-                    and not (isinstance(function.value, ast.Name) and (function.value.id in ("self", "cls") or self._is_module(function.value.id, site))):
+                    and not (isinstance(function.value, ast.Name) and (function.value.id in ("self", "cls") or function.value.id in self._COMPOSING_BUILTINS
+                                                                       or self._is_module(function.value.id, site))):
                 recurse(function.value)
+            if self._owned_call_result(function, site, case, trail):
+                return  # the callee's RETURNS were traced; what they depend on was traced through its parameters
+            callback = self._callback_of(expression)
+            if callback is not None and not isinstance(callback, ast.Lambda) and not (isinstance(callback, ast.Name)
+                                                                                     and callback.id in (self._COMPOSING_BUILTINS | self._COMPOSING_PACKAGE)):
+                # `map(json.loads, texts)`, `sorted(rows, key=_decode)`: the builtin answers what the callback answers,
+                # and only a lambda (its body traced above) or a composer of the elements is followed
+                raise AssertionError(f"{site}: {ast.unparse(callback)[:60]} is a callback handed to {ast.unparse(function)}; what it answers is owned by nothing this trace follows (only a lambda or a composing callee is)")
             doors = self._callee_doors(expression, site)
             for piece in expression.args:
                 self._owned_argument(piece.value if isinstance(piece, ast.Starred) else piece, doors, site, origins, case, trail)
@@ -13645,6 +13685,13 @@ class StageCProtections(BoundaryCase):
                 assigned = [piece.value for piece in ast.walk(node) if isinstance(piece, ast.Assign) and any(_binds_name(target, name) for target in piece.targets)]
                 assigned += [piece.value for piece in ast.walk(node) if isinstance(piece, (ast.AnnAssign, ast.NamedExpr))
                              and piece.value is not None and _binds_name(piece.target, name)]
+                # `report = _qualification_review(...)` then `report = _document(report, ...)`: the rebinding consumed the
+                # earlier value, so the later binding is what every read after it sees; only the rebindings are traced
+                # (their own argument `report` is the earlier value, traced through them when they do not own it).
+                rebindings = [value for value in assigned if isinstance(value, ast.Call)
+                              and any(isinstance(piece, ast.Name) and piece.id == name for piece in ast.walk(value))]
+                if rebindings:
+                    assigned = rebindings
                 if assigned:
                     for value in assigned:
                         recurse(value)
@@ -13664,9 +13711,13 @@ class StageCProtections(BoundaryCase):
                     return
                 if self._owned_lambda_parameter(name, expression, site, origins, case, trail):
                     return
+                if self._owned_nested_parameter(name, expression, site, origins, case, trail):
+                    return
                 if self._module_binds(site, name):
                     self._owned_module_binding(site.split(":")[0], name, site, case, trail)
                     return
+                if name in self._COMPOSING_BUILTINS and name in dir(builtins):
+                    return  # a composing builtin handed on as a callback (`map(str, values)`): it composes what it is given
                 raise AssertionError(f"{site}: {name} is bound by nothing this trace can follow ({' -> '.join(trail + (site,))})")
             finally:
                 self._tracing.discard((site, name))
@@ -13683,7 +13734,11 @@ class StageCProtections(BoundaryCase):
         "dict", "tuple", "list", "set", "frozenset", "sorted", "reversed", "enumerate", "zip",
         "len", "str", "int", "float", "bool", "repr", "max", "min", "sum", "abs", "range",
         "any", "all", "isinstance", "type", "iter", "next", "hash", "id", "format", "bytes",
-        "divmod", "round", "map", "filter", "slice"))
+        "divmod", "round", "slice",
+        # `map`/`filter` compose what their CALLBACK answers over a traced iterable: the callback is traced too
+        # (`_callback_of`; review 2026-11-17T23:24:47Z P1), so these compose only traced values
+        "map", "filter",
+        "object"))  # `object()` is an opaque sentinel (a mint token) with no content
     _COMPOSING_EXTERNAL = frozenset((
         # path text composed from traced parts; none of these reads the filesystem
         "os.path.join", "os.path.dirname", "os.path.basename", "os.path.normpath",
@@ -13695,8 +13750,18 @@ class StageCProtections(BoundaryCase):
         "hashlib.sha256", "base64.b64encode", "base64.urlsafe_b64encode",
         # a frozen view of a traced mapping
         "MappingProxyType", "types.MappingProxyType",
+        # a deterministic name-based derivation of its traced arguments (NOT uuid4, which is new content)
+        "uuid.uuid5", "uuid.uuid3",
+        # the kernel's answer about a traced path or handle of the manager's own storage: a descriptor or a
+        # stat result (device, inode, mode) is this manager's observation, not content anybody handed in;
+        # reading THROUGH a descriptor (`.read()`, `os.read`) is content and stays unowned
+        "os.open", "os.fstat", "os.stat", "os.lstat", "os.scandir", "os.listdir", "os.walk",
         # canonical text of a traced document
-        "json.dumps"))
+        "json.dumps",
+        # a re-spelling of traced text (percent-escapes), not new content
+        "quote", "unquote", "urllib.parse.quote", "urllib.parse.unquote",
+        # a partition of traced text into its components, not new content
+        "urlsplit", "urlparse", "urllib.parse.urlsplit", "urllib.parse.urlparse"))
     _COMPOSING_METHODS = frozenset((
         # a member or a re-spelling of the traced object, never new content
         "get", "items", "keys", "values", "copy", "encode", "decode", "strip", "lstrip", "rstrip",
@@ -13705,20 +13770,29 @@ class StageCProtections(BoundaryCase):
         "setdefault", "pop", "update", "append", "extend", "index", "count", "partition",
         "rpartition", "splitlines", "casefold", "title"))
 
-    def _import_kind(self, module, name):
-        """'package' for this package's own import of `name` in `module`, 'external' for any other import, None if not imported."""
+    def _import_kind(self, module, name, site=None):
+        """'package' for this package's own import of `name` (at module level, or inside `site`'s function when given),
+        'external' for any other import, None if not imported."""
+        module = module.split(":")[0]
         for source, tree in _sources():
             if source.name != module:
                 continue
-            for piece in tree.body:
-                if isinstance(piece, ast.ImportFrom):
-                    for alias in piece.names:
-                        if (alias.asname or alias.name) == name:
-                            return "package" if piece.level or (piece.module or "").startswith("baton_v12") else "external"
-                elif isinstance(piece, ast.Import):
-                    for alias in piece.names:
-                        if (alias.asname or alias.name).split(".")[0] == name:
-                            return "package" if alias.name.startswith("baton_v12") else "external"
+            scopes = [tree.body]
+            if site is not None:
+                try:
+                    scopes.append([piece for piece in ast.walk(self._function(site)) if isinstance(piece, (ast.Import, ast.ImportFrom))])
+                except AssertionError:
+                    pass
+            for body in scopes:
+                for piece in body:
+                    if isinstance(piece, ast.ImportFrom):
+                        for alias in piece.names:
+                            if (alias.asname or alias.name) == name:
+                                return "package" if piece.level or (piece.module or "").startswith("baton_v12") else "external"
+                    elif isinstance(piece, ast.Import):
+                        for alias in piece.names:
+                            if (alias.asname or alias.name).split(".")[0] == name:
+                                return "package" if alias.name.startswith("baton_v12") else "external"
         return None
 
     def _callee_gap(self, function, site):
@@ -13727,26 +13801,31 @@ class StageCProtections(BoundaryCase):
         dotted = ast.unparse(function)
         if isinstance(function, ast.Name):
             name = function.id
-            if name in self._COMPOSING_BUILTINS or name in self._COMPOSING_EXTERNAL:
+            if name in self._COMPOSING_BUILTINS or name in self._COMPOSING_EXTERNAL or name in self._DERIVING:
                 return None
             if name in dir(builtins):
                 return f"{dotted} is a builtin that produces content the trace cannot own"
             if _helper_site(function, site, _helper_returns()) is not None and self._module_binds(site, name) and self._import_kind(module, name) is None:
                 return None  # this module's own function or class
-            kind = self._import_kind(module, name)
+            try:
+                if name in _parameters(self._function(site)):
+                    return None  # a callable handed in: `_owned_call_result` follows what each caller hands
+            except AssertionError:
+                pass
+            kind = self._import_kind(module, name, site)
             if kind == "package":
                 return None  # this package's own function, class or validator
             if kind == "external":
                 return f"{dotted} is an external call whose result nothing here owns"
             return f"{dotted} is not a package function, a composing builtin or a module binding"
         if isinstance(function, ast.Attribute):
-            if dotted in self._COMPOSING_EXTERNAL:
+            if dotted in self._COMPOSING_EXTERNAL or dotted in self._DERIVING:
                 return None
             base = function.value
             if isinstance(base, ast.Name):
                 if base.id in ("self", "cls"):
                     return None  # a method of the same class: package code
-                kind = self._import_kind(module, base.id)
+                kind = self._import_kind(module, base.id, site)
                 if kind == "package":
                     return None  # `boundaries.x`, `documents.y`, `_attempts.z`: package code
                 if kind == "external":
@@ -13757,8 +13836,172 @@ class StageCProtections(BoundaryCase):
                 return None
             if function.attr in self._COMPOSING_METHODS:
                 return None  # the object itself is traced by the caller
+            if isinstance(base, ast.Name) and base.id in self._COMPOSING_BUILTINS:
+                return None  # `dict.fromkeys(...)`, `str.join(...)`: a composing builtin's constructor over traced arguments
+            if function.attr == "transact" and (isinstance(base, ast.Name) and base.id in ("control", "store", "self")
+                                                or isinstance(base, ast.Attribute) and isinstance(base.value, ast.Name) and base.value.id == "self"):
+                return None  # the store's transact: its result is its action's return, traced by `_owned_transact_result`
             return f"{dotted} is a method call whose result nothing here owns"
         return f"cannot classify the callee {dotted[:60]}"
+
+    # Review 2026-11-17T19:43:26Z P1: PACKAGE MEMBERSHIP IS NOT A PROOF OF WHAT A CALL RETURNS.
+    # A package callee's result is owned only when every value it returns is traced at ITS
+    # site -- to a validator, a composition of owned values, or its own parameters (which
+    # `_owned_caller` traces back through every caller). The few package-level callees whose
+    # source this inventory does not read are admitted one by one as composers of their
+    # (traced) arguments; everything else fails closed.
+    # `check_no_durable_secret` (contracts.secrets) walks the document it is handed for a live bearer value, refuses
+    # one, and RETURNS THAT SAME DOCUMENT; it introduces no content (review 2026-11-17T23:24:47Z: `_staged`'s
+    # `admits` callback answers it over the content `copied_manifest` hands the callback).
+    _COMPOSING_PACKAGE = frozenset(("canonical_text", "name_value", "sample_of", "check_no_durable_secret"))
+    # An identity-shaped DERIVATION: a digest summarises its argument into a fixed-shape key whose content cannot
+    # cross as content -- what a key reaches is bound by the lookup that verifies it (`operation_record` ->
+    # `boundaries.identity`, then the found record's own signature). Its argument is therefore not traced.
+    _DERIVING = frozenset(("digest", "digest_of_bytes", "hashlib.sha256", "hashlib.sha512", "hashlib.blake2b"))
+    # The contracts layer's validators, whose source this inventory does not read: each returns the
+    # owned, schema-checked document it was given (validate_fragment + digest + no-secret walk), so
+    # its result is a validated construction whatever it was handed.
+    _VALIDATING_PACKAGE = frozenset(("check_manifest_structure", "check_content_manifest"))
+    # A library CONSTANT read as a value (`os.O_RDONLY`, `stat.S_IRWXU`, `uuid.NAMESPACE_OID`, `errno.ENOENT`) is
+    # fixed by the library, not content of the deployment's or a caller's; the convention that names one is the
+    # all-capitals name. `os.environ`, `sys.argv` and every other lower-case module value stay unowned.
+    @staticmethod
+    def _library_constant(base, attr):
+        return attr.isupper() and attr.replace("_", "").isalnum()
+    _owned_returns = set()
+
+    def _owned_call_result(self, function, site, case, trail):
+        """True when the callee's result is owned by its own returns (a package callee traced through
+        them, a package constructor, or the contracts layer's validators); False when the result is only
+        a composition of the call's arguments, which the caller then traces."""
+        dotted = ast.unparse(function)
+        if isinstance(function, ast.Name) and function.id in self._VALIDATING_PACKAGE and self._import_kind(site.split(":")[0], function.id, site) == "package":
+            return True
+        if isinstance(function, ast.Name):
+            try:
+                parameters = _parameters(self._function(site))
+            except AssertionError:
+                parameters = ()
+            if function.id in parameters and not self._module_binds(site, function.id):
+                return self._owned_callable_parameter_result(function.id, site, case, trail)
+        if dotted in self._COMPOSING_EXTERNAL or isinstance(function, ast.Name) and function.id in (self._COMPOSING_BUILTINS | self._COMPOSING_PACKAGE):
+            return False
+        if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name) and function.value.id == "boundaries":
+            return True  # the ruled validator, admitted above
+        if isinstance(function, ast.Attribute) and function.attr == "transact" and isinstance(function.value, ast.Name) \
+                and function.value.id in ("control", "store", "self") or isinstance(function, ast.Attribute) and function.attr == "transact" \
+                and isinstance(function.value, ast.Attribute) and isinstance(function.value.value, ast.Name) and function.value.value.id == "self":
+            return self._owned_transact_result(function, site, case, trail)
+        if isinstance(function, ast.Attribute) and not (isinstance(function.value, ast.Name)
+                                                       and (function.value.id in ("self", "cls") or self._import_kind(site.split(":")[0], function.value.id) == "package")):
+            return False  # a method on a traced object: `_callee_gap` admitted only a re-spelling of it
+        returns = _helper_returns()
+        callee = _helper_site(function, site, returns)
+        module = site.split(":")[0]
+        if callee is None and isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name):
+            callee = self._aliased_package_site(module, function.value.id, function.attr)  # `context._document(...)`
+        if callee is None:
+            if isinstance(function, ast.Name) and self._import_kind(module, function.id, site) == "package":
+                raise AssertionError(f"{site}: {dotted} is a package callee whose source this inventory does not read, so its result is owned by nothing it can see")
+            return False  # external callees were already classified by `_callee_gap`
+        hop = f"{callee}#return"
+        if hop in trail or callee in self._owned_returns:
+            return True
+        node = None
+        try:
+            node = self._function(callee)
+        except AssertionError:
+            klass = self._class_node(callee.split(":")[0], callee.split(":")[1])
+            if klass is not None:
+                return False  # construction: the arguments are traced here, the attributes when they are read
+            if self._import_kind(module, dotted.split(".")[0]) == "package":
+                raise AssertionError(f"{site}: {dotted} is a package callee whose source this inventory does not read, so its result is owned by nothing it can see")
+            return False
+        inside = _origins(node, callee, returns)
+        for piece in _scope_nodes(node):
+            # every value the callee hands out: a return, a yield, or what it yields from
+            if isinstance(piece, (ast.Return, ast.Yield, ast.YieldFrom)) and piece.value is not None:
+                self._owned_value(piece.value, callee, inside, case, trail + (hop,))
+        self._owned_returns.add(callee)
+        return True
+
+    def _owned_callable_parameter_result(self, name, site, case, trail):
+        """`reader(...)` where `reader` is a parameter: a private helper's callers each hand a package function or a
+        lambda, whose returns are traced; a public door's callable parameter is an injected capability, and what it
+        answers is owned by nothing here unless the door validates the answer where it lands."""
+        lexical = site.split(":")[1].split(".")[-1]
+        hop = f"{site}#call:{name}"
+        if hop in trail:
+            return True
+        if not lexical.startswith("_") or lexical == "__init__":
+            raise AssertionError(f"{site}: {name} is a callable handed in by the caller; what it answers is owned by nothing here")
+        callers = self._bindings_at_callers(site, name)
+        if not callers:
+            raise AssertionError(f"private {site} binds callable {name} from no caller in the package")
+        returns = _helper_returns()
+        for caller, argument, origins in callers:
+            if isinstance(argument, ast.Name):
+                # a local bound to a lambda (`reader = lambda ...`) stands for that lambda
+                node = self._function(caller)
+                assigned = [piece.value for piece in ast.walk(node) if isinstance(piece, ast.Assign) and any(_binds_name(target, argument.id) for target in piece.targets)]
+                if len(assigned) == 1 and isinstance(assigned[0], ast.Lambda):
+                    argument = assigned[0]
+            if isinstance(argument, ast.Lambda):
+                self._owned_value(argument.body, caller, origins, case, trail + (hop,))
+                continue
+            if isinstance(argument, (ast.Name, ast.Attribute)) and self._owned_call_result(argument, caller, case, trail + (hop,)):
+                continue
+            raise AssertionError(f"{caller}: hands {site} a callable ({ast.unparse(argument)[:60]}) whose answers this trace cannot follow")
+        return True
+
+    def _owned_transact_result(self, function, site, case, trail):
+        """`store.transact(operation_id, kind, signature, action)` answers the ACTION's return (a fresh
+        transaction) or the recorded result of the same operation (a replay). The action is traced here;
+        the replayed branch answers journal result bytes, which `replay` does not bind -- the W375444
+        REPLAY_DEBT class, pinned in StoppedSettlementInventory, and not papered over by this rule."""
+        node = self._function(site)
+        for call in ast.walk(node):
+            if not (isinstance(call, ast.Call) and call.func is function):
+                continue
+            action = call.args[3] if len(call.args) > 3 else next((piece.value for piece in call.keywords if piece.arg == "action"), None)
+            if action is None:
+                raise AssertionError(f"{site}: a transact call hands no action this trace can follow")
+            origins = _origins(node, site, _helper_returns())
+            if isinstance(action, ast.Lambda):
+                self._owned_value(action.body, site, origins, case, trail + (f"{site}#transact",))
+                return True
+            if isinstance(action, ast.Name):
+                callee = _helper_site(action, site, _helper_returns())
+                if callee is None:
+                    raise AssertionError(f"{site}: transact's action {action.id} is bound by nothing this trace can follow")
+                target = self._function(callee)
+                inside = _origins(target, callee, _helper_returns())
+                for piece in _scope_nodes(target):
+                    if isinstance(piece, ast.Return) and piece.value is not None:
+                        self._owned_value(piece.value, callee, inside, case, trail + (f"{callee}#return",))
+                return True
+            raise AssertionError(f"{site}: transact's action is a {type(action).__name__} this trace does not follow")
+        raise AssertionError(f"{site}: the transact call was not found in its own function")
+
+    def _validator_call(self, function, site):
+        module = site.split(":")[0]
+        if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name) and function.value.id == "boundaries":
+            return self._import_kind(module, "boundaries") == "package" or module == "boundaries.py"
+        return isinstance(function, ast.Name) and function.id in self._VALIDATING_PACKAGE and self._import_kind(module, function.id, site) == "package"
+
+    def _aliased_package_site(self, module, base, attr):
+        """`from . import provider_context as context` makes `context.x` the site `provider_context.py:x`, when that module is read."""
+        for source, tree in _sources():
+            if source.name != module:
+                continue
+            for piece in tree.body:
+                if isinstance(piece, ast.ImportFrom) and piece.level and piece.module is None:
+                    for alias in piece.names:
+                        if (alias.asname or alias.name) == base:
+                            if any(other.name == alias.name + ".py" for other, _ in _sources()):
+                                return f"{alias.name}.py:{attr}"
+                            return None
+        return None
 
     def _callee_doors(self, call, site):
         """{id(argument): (callee site, parameter)} for a call of a public package function."""
@@ -13858,8 +14101,7 @@ class StageCProtections(BoundaryCase):
                 method = f"{module}:{lexical.rsplit('.', 1)[0]}.{piece.name}"
                 inside = None
                 for statement in ast.walk(piece):
-                    if isinstance(statement, ast.Assign) and any(isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name)
-                                                                  and target.value.id in ("self", "cls") and target.attr == attr for target in statement.targets):
+                    if isinstance(statement, ast.Assign) and any(_binds_attribute(target, attr) for target in statement.targets):
                         found = True
                         inside = inside or _origins(piece, method, returns)
                         self._owned_value(statement.value, method, inside, case, trail + (hop,))
@@ -13870,6 +14112,8 @@ class StageCProtections(BoundaryCase):
         module = site.split(":")[0]
         kind = self._import_kind(module, base)
         if kind == "external":
+            if self._library_constant(base, attr):
+                return
             raise AssertionError(f"{site}: {base}.{attr} is an external module's value, owned by nothing here")
         if kind == "package":
             for source, tree in _sources():
@@ -13905,10 +14149,19 @@ class StageCProtections(BoundaryCase):
 
     def _owned_module_value(self, expression, module, site, case, trail):
         """A module-level (or class-level) expression: literals, containers and compositions of other traced module bindings."""
-        if len(trail) > 12:
+        if sum(1 for hop in trail if ":" not in hop.split("#")[0]) > 12:  # module-binding hops only; function hops are bounded by `_owned_value`
             raise AssertionError("module-level provenance runs too deep: " + " -> ".join(trail))
         again = lambda piece: self._owned_module_value(piece, module, site, case, trail)
-        if isinstance(expression, (ast.Constant, ast.Lambda)):
+        if isinstance(expression, ast.Constant):
+            return
+        if isinstance(expression, ast.Lambda):
+            # Review 2026-11-17T23:24:47Z P1: a module-level lambda answers its body; a parameter it reads is bound
+            # only where it is invoked, which this trace does not follow at module level, so that lambda fails closed
+            bound = {one.arg for one in expression.args.args + expression.args.kwonlyargs + expression.args.posonlyargs}
+            read = sorted(piece.id for piece in ast.walk(expression.body) if isinstance(piece, ast.Name) and piece.id in bound)
+            if read:
+                raise AssertionError(f"{site}: module-level lambda's {read[0]} is bound only where the lambda is invoked, which this trace does not follow ({' -> '.join(trail)})")
+            again(expression.body)
             return
         if isinstance(expression, ast.JoinedStr):
             for piece in expression.values:
@@ -13952,10 +14205,14 @@ class StageCProtections(BoundaryCase):
                 if kind == "package":
                     return  # another package module's own constant
                 if kind == "external":
+                    if self._library_constant(expression.value.id, expression.attr):
+                        return
                     raise AssertionError(f"{site}: {ast.unparse(expression)} is an external module's value, owned by nothing here ({' -> '.join(trail)})")
             again(expression.value)
             return
         if isinstance(expression, ast.Call):
+            if ast.unparse(expression.func) in self._DERIVING:
+                return
             gap = self._callee_gap(expression.func, f"{module}:*")
             if gap is not None:
                 raise AssertionError(f"{site}: module-level {gap} ({' -> '.join(trail)})")
@@ -13967,6 +14224,66 @@ class StageCProtections(BoundaryCase):
                 again(piece.value)
             return
         raise AssertionError(f"{site}: cannot trace module-level {type(expression).__name__} {ast.unparse(expression)[:60]}")
+
+    def _owned_nested_parameter(self, name, expression, site, origins, case, trail):
+        """A nested function's parameter (`def walk(parent, ...)` inside `_state`) is whatever every call of
+        that function inside its enclosing function hands it, including its own recursive calls."""
+        node = self._function(site)
+        inner = next((piece for piece in ast.walk(node) if isinstance(piece, (ast.FunctionDef, ast.AsyncFunctionDef)) and piece is not node
+                      and any(one.arg == name for one in piece.args.args + piece.args.kwonlyargs)
+                      and any(found is expression for found in ast.walk(piece))), None)
+        if inner is None:
+            return False
+        hop = f"{site}#{inner.name}:{name}"
+        if hop in trail:
+            return True  # a recursive call hands its own parameter on; the other calls bind it
+        names = [one.arg for one in inner.args.args]
+        index = names.index(name) if name in names else None
+        calls = [piece for piece in ast.walk(node) if isinstance(piece, ast.Call) and isinstance(piece.func, ast.Name) and piece.func.id == inner.name]
+        if not calls:
+            raise AssertionError(f"{site}: nested {inner.name} is never called, so its {name} is bound by nothing")
+        for call in calls:
+            argument = call.args[index] if index is not None and index < len(call.args) else next((piece.value for piece in call.keywords if piece.arg == name), None)
+            if argument is None:
+                first_default = len(names) - len(inner.args.defaults)
+                if index is not None and index >= first_default:
+                    argument = inner.args.defaults[index - first_default]
+                else:
+                    raise AssertionError(f"{site}: a call of nested {inner.name} binds no {name}")
+            self._owned_value(argument, site, origins, case, trail + (hop,))
+        return True
+
+    # Review 2026-11-17T23:24:47Z P1: the composing builtins that INVOKE a callback on the elements of a traced
+    # iterable. The builtin's result is what the callback answers (`map`) or the elements themselves (`filter`,
+    # `sorted`, `min`, `max`, `.sort`); either way the callback's body is traced and its parameters are the elements.
+    _CALLBACK_BUILTINS = frozenset(("map", "filter"))
+    _KEYED_BUILTINS = frozenset(("sorted", "min", "max"))
+
+    def _callback_of(self, call):
+        """The callback a composing builtin invokes, or None when `call` invokes nothing it was handed."""
+        function = call.func
+        if isinstance(function, ast.Name) and function.id in self._CALLBACK_BUILTINS and call.args:
+            return call.args[0]
+        if isinstance(function, ast.Name) and function.id in self._KEYED_BUILTINS or isinstance(function, ast.Attribute) and function.attr == "sort":
+            return next((piece.value for piece in call.keywords if piece.arg == "key"), None)
+        return None
+
+    def _callback_elements(self, call, held, index):
+        """What a composing builtin binds the callback's parameter `index` to: the iterable whose elements it hands."""
+        function = call.func
+        if isinstance(function, ast.Name) and function.id in self._CALLBACK_BUILTINS:
+            if function.id == "map" and 1 + index < len(call.args):
+                return call.args[1 + index]  # `map(lambda x, y: ..., xs, ys)`: the i-th parameter walks the i-th iterable
+            if function.id == "filter" and index == 0 and len(call.args) > 1:
+                return call.args[1]
+            return None
+        if index != 0:
+            return None
+        if isinstance(function, ast.Name) and function.id in self._KEYED_BUILTINS and call.args:
+            return call.args[0]
+        if isinstance(function, ast.Attribute) and function.attr == "sort":
+            return function.value
+        return None
 
     def _owned_lambda_parameter(self, name, expression, site, origins, case, trail):
         """A lambda's parameter is whatever the package call the lambda is handed to invokes it with.
@@ -13998,7 +14315,15 @@ class StageCProtections(BoundaryCase):
         for call in ast.walk(node):
             if not isinstance(call, ast.Call) or not (any(piece is held for piece in call.args) or any(piece.value is held for piece in call.keywords)):
                 continue
+            if self._callback_of(call) is held:
+                elements = self._callback_elements(call, held, index if index is not None else -1)
+                if elements is None:
+                    raise AssertionError(f"{site}: {ast.unparse(call.func)} binds the lambda's {name} to nothing this trace follows")
+                self._owned_value(elements, site, origins, case, trail + (f"{site}#lambda:{name}",))
+                return True
             callee = _helper_site(call.func, site, returns)
+            if callee is None and isinstance(call.func, ast.Attribute) and call.func.attr == "transact" and index == 0:
+                return True  # `transact`'s action receives the store's own connection, a handle and not an input
             if callee is None:
                 raise AssertionError(f"{site}: the lambda binding {name} is handed to {ast.unparse(call.func)}, not to a package function")
             target = self._function(callee)
@@ -14036,10 +14361,11 @@ class StageCProtections(BoundaryCase):
         return False
 
     def _is_module(self, name, site):
-        return self._module_binds(site, name) and name not in dir(builtins)
+        return (self._module_binds(site, name) or self._import_kind(site.split(":")[0], name, site) is not None) and name not in dir(builtins)
 
     def _handed_owned(self, target, parameter, case, subtests=True):
         """Every call site hands a value this trace proves owned; the first gap is named."""
+        self._owned_returns.clear()
         calls = self._bindings_at_callers(target, parameter)
         self.assertTrue(calls, f"nothing in the package calls {target} with {parameter}")
         for site, argument, origins in calls:
@@ -14052,6 +14378,7 @@ class StageCProtections(BoundaryCase):
     def _synthetic(self, source):
         """A one-module universe for the trace's own witnesses."""
         sources = ((pathlib.Path("sample.py"), ast.parse(source)),)
+        self._owned_returns.clear()
         _clear_boundary_projections()
         self.addCleanup(_clear_boundary_projections)
         patched = patch.object(sys.modules[__name__], "_sources", lambda: sources)
@@ -14169,6 +14496,105 @@ def composed(store, value):
 def spelled(store, value):
     boundaries.text(value, "a value")
     return _consume(value.encode("utf-8"))
+''')
+        self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+
+    def test_the_owned_input_trace_follows_a_package_wrapper_to_what_it_returns(self):
+        """Review 2026-11-17T19:43:26Z P1: a package wrapper around a producer owns nothing by membership."""
+        consumer = "def _consume(record):\n    return record[\"state\"]\n"
+        for name, source, gap in (
+                ("package parser wrapper", "import json\ndef _read():\n    return json.loads('{\"state\": 42}')\n" + consumer + "def door(store):\n    return _consume(_read())\n",
+                 "json.loads is an external call whose result nothing here owns"),
+                ("package environment wrapper", "import os\ndef _read():\n    return os.environ.get('RAW')\n" + consumer + "def door(store):\n    return _consume(_read())\n",
+                 "os.environ is an external module's value"),
+                ("method wrapper", "import json\n" + consumer + "class Door:\n    def _read(self):\n        return json.loads('{\"state\": 42}')\n    def door(self):\n        return _consume(self._read())\n",
+                 "json.loads is an external call whose result nothing here owns"),
+                ("wrapper returning its unowned parameter", consumer + "def _pass(value):\n    return value\ndef door(store, value):\n    return _consume(_pass(value))\n",
+                 "hands its unowned value on"),
+                ("generator wrapper", "import json\ndef _rows():\n    yield json.loads('[1]')\n" + consumer + "def door(store):\n    return _consume(next(_rows()))\n",
+                 "json.loads is an external call whose result nothing here owns")):
+            with self.subTest(universe=name):
+                case = self._synthetic(source)
+                self.assertEqual(dict(owning_validators()), {})
+                with self.assertRaises(AssertionError) as caught:
+                    self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+                self.assertIn(gap, str(caught.exception))
+        # a VALIDATED wrapper is followed to the validator; a wrapper returning its OWNED parameter to that parameter's owner
+        case = self._synthetic('''
+import json
+from . import boundaries
+def _consume(record):
+    return record["state"]
+def _read(store):
+    row = store._connection.execute("SELECT * FROM held").fetchone()
+    return boundaries.row(row, "a held row", HELD_COLUMNS)
+def _decoded(text):
+    return boundaries.document(json.loads(text), "a decoded document", required=("state",))
+def _pass(value):
+    return value
+class Door:
+    def _read(self):
+        return boundaries.text(self.raw, "a value")
+    def __init__(self, raw):
+        self.raw = boundaries.text(raw, "a raw value")
+    def door(self):
+        return _consume(self._read())
+def door(store):
+    return _consume(_read(store))
+def decoded(store, text):
+    boundaries.text(text, "a text")
+    return _consume(_decoded(text))
+def passed(store, value):
+    boundaries.text(value, "a value")
+    return _consume(_pass(value))
+''')
+        self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+
+    def test_the_owned_input_trace_follows_a_callback_to_what_it_answers(self):
+        """Review 2026-11-17T23:24:47Z P1: a lambda is not harmless by being a lambda, and a composing
+        builtin that invokes a callback answers what the callback answers."""
+        consumer = "def _consume(record):\n    return record[\"state\"]\n"
+        for name, source, gap in (
+                ("map over a parser lambda", "import json\ndef _read():\n    return list(map(lambda x: json.loads(x), ['{\"state\":42}']))\n" + consumer + "def door(store):\n    return _consume(_read()[0])\n",
+                 "json.loads is an external call whose result nothing here owns"),
+                ("map over an environment lambda", "import os\ndef _read():\n    return list(map(lambda x: os.environ.get(x), ['RAW']))\n" + consumer + "def door(store):\n    return _consume(_read()[0])\n",
+                 "os.environ is an external module's value"),
+                ("map over a parser function", "import json\ndef _read():\n    return list(map(json.loads, ['{\"state\":42}']))\n" + consumer + "def door(store):\n    return _consume(_read()[0])\n",
+                 "json.loads is a callback handed to map"),
+                ("map over a package function", "import json\ndef _decode(text):\n    return json.loads(text)\ndef _read():\n    return list(map(_decode, ['{\"state\":42}']))\n" + consumer + "def door(store):\n    return _consume(_read()[0])\n",
+                 "_decode is a callback handed to map"),
+                ("sorted by a parser key", "import json\ndef _read(store):\n    return sorted(['{\"state\":42}'], key=lambda text: json.loads(text))\n" + consumer + "def door(store):\n    return _consume(_read(store)[0])\n",
+                 "json.loads is an external call whose result nothing here owns"),
+                ("a lambda handed on as a value", "import json\n" + consumer + "def door(store):\n    return _consume(lambda x: json.loads(x))\n",
+                 "json.loads is an external call whose result nothing here owns"),
+                ("a local lambda invoked", "import json\ndef _read():\n    decode = lambda x: json.loads(x)\n    return decode('{}')\n" + consumer + "def door(store):\n    return _consume(_read())\n",
+                 "decode is not a package function, a composing builtin or a module binding"),
+                ("a module-level lambda", "import json\n_DECODE = lambda text: text\ndef _read():\n    return sorted(['{}'], key=_DECODE)\n" + consumer + "def door(store):\n    return _consume(_read()[0])\n",
+                 "_DECODE is a callback handed to sorted")):
+            with self.subTest(universe=name):
+                case = self._synthetic(source)
+                self.assertEqual(dict(owning_validators()), {})
+                with self.assertRaises(AssertionError) as caught:
+                    self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+                self.assertIn(gap, str(caught.exception))
+        # a callback over OWNED elements answers an owned composition: the elements are the traced iterable's
+        case = self._synthetic('''
+from . import boundaries
+def _consume(record):
+    return record["state"]
+def _rows(store):
+    rows = store._connection.execute("SELECT * FROM held").fetchall()
+    return [boundaries.row(row, "a held row", HELD_COLUMNS) for row in rows]
+def door(store):
+    held = sorted(_rows(store), key=lambda row: row["state"])
+    return _consume(list(map(lambda row: {"state": row["state"], "fixed": 1}, held))[0])
+def filtered(store):
+    held = list(filter(lambda row: row["state"], _rows(store)))
+    held.sort(key=lambda row: row["state"])
+    return _consume(min(held, key=lambda row: row["state"]))
+def typed(store, value):
+    boundaries.text(value, "a value")
+    return _consume(list(map(str, [value]))[0])
 ''')
         self._handed_owned("sample.py:_consume", "record", case, subtests=False)
 
@@ -14352,6 +14778,29 @@ def composed(store, value):
         fixture.admit()
         self.assertIsNotNone(context._grant_consumer(fixture.control, "qualification-regression"))
 
+    def test_a_cleanup_settlement_runs_only_inside_its_endings_transaction(self):
+        """Owner selection 2026-11-17 option 1: the connection operand is a proof, checked before any read or write."""
+        import sqlite3
+        from baton_v12.worker_manager import workspaces
+        from baton_v12.worker_manager.store import _recorded, manager_signature
+        store = self.store
+        admission = {"attempt_id": "attempt-1", "ordinal": 1, "act": "a probe", "owner": "owner-1",
+                     "settlement": {"operation": "op-1", "signature": "sig", "incarnation": "manager-1"}}
+        store._record(workspaces._cleanup_admission_id("attempt-1", 1), workspaces.CLEANUP_ADMISSION_KIND,
+                      manager_signature(workspaces.CLEANUP_ADMISSION_KIND, admission), "committed", _recorded(admission), None)
+        settled = lambda: store.operation_record(workspaces._cleanup_settled_id("attempt-1", 1))
+        foreign = sqlite3.connect(":memory:")
+        self.addCleanup(foreign.close)
+        for name, connection in (("a foreign connection", foreign), ("this store's connection outside a transaction", store._connection), ("None", None)):
+            with self.subTest(connection=name):
+                with self.assertRaises(ContractRefusal) as caught:
+                    workspaces.settle_cleanup(store, connection, "attempt-1", admission, "a probe")
+                self.assertIn("inside the ending's own open transaction", caught.exception.message)
+                self.assertIsNone(settled())
+        store.transact("probe.settle:1", "probe.settle", manager_signature("probe.settle", {"probe": 1}),
+                       lambda connection: workspaces.settle_cleanup(store, connection, "attempt-1", admission, "a probe"))
+        self.assertIsNotNone(settled())
+
     def test_a_malformed_governor_answer_refuses_before_any_reclaim(self):
         """Review 2026-10-31T03:05:05Z: the governor's `overdue` answer is owned where it lands."""
         import types
@@ -14362,8 +14811,8 @@ def composed(store, value):
         ordered = []
         stopping = types.SimpleNamespace(stop_expired=lambda *arguments, **named: ordered.append(("stop", arguments, named)))
         acting = lambda *arguments, **named: ordered.append(("act", arguments, named))
+        # an ABSENT generation is the accepted unknown-generation path (the outcome records None), not a refusal here
         for answer, label in ((["not a document"], "the resource governor's overdue answer"),
-                              ({"container": "c"}, "the resource governor's overdue answer"),
                               ({"generation": "one"}, "the resource governor's overdue generation"),
                               ({"generation": -1}, "the resource governor's overdue generation")):
             with self.subTest(answer=answer):

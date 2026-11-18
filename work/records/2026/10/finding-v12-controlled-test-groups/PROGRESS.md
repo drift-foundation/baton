@@ -946,3 +946,55 @@ digests, logs and the two decision packets are in the dossier (see the entry abo
 pending work pinned at the top of PLAN.md. K holds no claim; W384870 remains under owner
 arrangement E384905. K resumes only on explicit owner instruction, after reading
 SHUTDOWN-20261031.md and the latest canonical messages; no tests start automatically.
+
+## 2026-11-17 — owner selections implemented (renewal A, settle_cleanup 1) and the wrapper P1 folded in (K, copilot under owner claim E384905; no claim held)
+
+Ruling: `RESUME-DECISIONS-20261117.md`; review 2026-11-17T19:43:26Z (M385032) folded in. Narrative,
+logs, candidate.diff (against 6477a8db) and digests: `evidence/owner-selections-20261117/RESULT.md`.
+Clarification pinned in `work/records/2026/09/finding-v12-token-renewal/FINDING.md` (2026-11-17).
+
+- Renewal option A: self-signed decision record (`resource-token.renewal-decided`) written in the
+  same `_acting_record` transaction; request identity/operands/replay unchanged; `_verified_renewal`
+  binds every reader and the direct retry; absent/corrupted/mis-correlated decision and changed
+  request instants refuse; no adoption of old bytes. `RenewalDecisionRecord` (9 tests).
+- settle_cleanup option 1: connection must be this store's and in an open transaction before any
+  read or write (write-lock mode stated as transact's); `CleanupSettlementRunsInItsEndingsTransaction`
+  (5 tests) + StageCProtections witness; inventory row restated.
+- Wrapper P1: a package callee's result is owned only through its traced returns (yields too);
+  validator-first rule; aliased modules, function-level imports, callable and nested-function
+  parameters, rebinding, transact's action, cycles; justified composers/derivations/constants
+  listed in RESULT.md. Reviewer's three wrapper universes rejected; negatives/positives added.
+  Operand audit: 28 of 28 traced at every call site, 0 failures (48 s; the failure sequence that drove the trace rules is in work/scratch/w384870-c/audit-28-w1.txt onwards). Rows whose proof depended on the shortcut are listed with their proof now.
+- Also: the governor's overdue answer is an OPEN document (the closed contract broke 18 reclaim
+  tests in the earlier candidate; generation validated when present); `_acting_record`'s renewal
+  replay restated (compared with the decision record); `replayed_as_signed` gained `replay.renewed_at`.
+- Verification: product modules of every touched module 1396 OK; selected-correction focused 17 OK;
+  gates StageCProtections, EveryReceivingEntryHasOneOwner, EveryProbeProvesItArrived, EveryStatedOwnerHasAWitness, HelperDeclarationsHaveExactAccounting, StatedRules, StoppedSettlementInventory, Lanes, CallerResolved, DynamicTable: 199 run, OK, 144.1 s (gates.log). No scans/Docker/B4/full/live. Paths: tokens.py, workspaces.py, intake.py;
+  test_stopped_settlement.py, test_workspaces.py, test_boundary_inventory.py; codexpc's four engine
+  fixture modules untouched.
+- Handoff posted: T384870 seq 385047. detail: W384870 active under owner episode E384905; K holds no claim.
+
+## 2026-11-17 — K: callback-tracing correction (review 2026-11-17T23:24:47Z P1, M385048)
+
+Review accepted renewal A and cleanup 1 for the seq 385047 candidate and required one Stage C
+correction. Narrative, logs, candidate.diff (against 6477a8db) and digests:
+`evidence/callback-trace-20261117/RESULT.md`.
+
+- A lambda as a value now answers its traced body; its parameters are bound by what invokes it,
+  including `map`/`filter`/`sorted`/`min`/`max`/`.sort` over a traced iterable. A non-lambda callback
+  handed to those builtins fails closed unless it is a composing builtin/package function; a
+  module-level lambda reading a parameter fails closed.
+- Two narrow rules from the operand audit, each from a concrete failure: `check_no_durable_secret`
+  admitted as a pass-through composer (returns the document it walked); a private helper that
+  validates its own parameter under its own literal label (`_real`) owns it there instead of fanning
+  out to every caller (the fan-out reached test-only `intake._output_root_identities`).
+- Witness `test_the_owned_input_trace_follows_a_callback_to_what_it_answers` (8 negatives incl. the
+  reviewer's two, validated-callback positives). Prior witnesses unchanged.
+- Verification: reviewer callback/wrapper/trace probes all REJECTED, renewal probe refuses; operand
+  audit 31 of 31 (the 28 stated + LayoutDelivery's 3), 0 failures; StageCProtections 25 OK; ten
+  gate classes 200 run, OK, 145.2 s. No scans/Docker/B4/full/live.
+- RESULT.md of owner-selections-20261117 corrected in place (dated): PRODUCT_MODULES -> 1396 OK;
+  16 -> selected 17; intake.py added to touched paths.
+- Paths: test_boundary_inventory.py only (product unchanged; the other thirteen digests equal the
+  seq 385047 candidate). Long-fixture-root diagnostic failures left for B5 as ruled.
+- Handoff posted: T384870 seq 385049. detail: W384870 remains under the owner claim; K holds no claim.

@@ -1,8 +1,10 @@
 """Deterministic owner proof; no engine or provider is executed."""
 import copy
+import json
 import os
 import threading
 import sqlite3
+import unittest
 from unittest import mock
 
 from baton_v12.contracts import ContractRefusal
@@ -295,3 +297,137 @@ class StoppedSettlement(AttemptCase, Home):
         for call in (lambda: tokens.settlement_fence_of(self.store, self.domain, 1), lambda: workspaces.settlement_preparation(self.store, ATTEMPT)):
             with self.assertRaises(sqlite3.ProgrammingError):
                 call()
+
+
+class RenewalDecisionRecord(unittest.TestCase):
+    """Owner selection 2026-11-17 (RENEWAL-DECISION.md option A), review 2026-10-31T03:05:05Z P1.
+
+    The renewal REQUEST keeps its identity, signed operands and lost-reply replay; the
+    decided instants are a self-signed DECISION record written in the same transaction.
+    Every reader and every replay verifies the request against its decision.
+    """
+    EXECUTION, OPERATION = "attempt-support", "runtime.start:support"
+
+    def setUp(self):
+        from .token_support import TokenFixture
+        self.fixture = TokenFixture(self)
+        self.store = self.fixture.store
+        self.held = self.fixture.held(seconds=900)
+        self.fixture.instant = "2026-09-26T14:10:00.000Z"
+
+    def renew(self, revision=0):
+        return tokens.renew(self.store, self.held, execution=self.EXECUTION, operation=self.OPERATION,
+                            expected_revision=revision)
+
+    def current(self):
+        return tokens.token_of(self.store, self.fixture.domain, self.held["generation"])
+
+    def rows(self, kind):
+        return self.store._connection.execute(
+            "SELECT operation_id, signature, result FROM operations WHERE kind = ? ORDER BY rowid", (kind,)).fetchall()
+
+    def rewrite(self, kind, **changes):
+        row = self.rows(kind)[0]
+        document = json.loads(row["result"])
+        document.update(changes)
+        self.store._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
+                                       (json.dumps(document, sort_keys=True), row["operation_id"]))
+
+    def every_reader_refuses(self, fragment):
+        """token_of, the direct renew retry (replay) and an owner-gated act all refuse with `fragment`."""
+        for name, act in (("token_of", self.current), ("renew retry", lambda: self.renew(0)),
+                          ("journal_launch through _owning", lambda: tokens.journal_launch(self.store, self.held, "launch:probe"))):
+            with self.subTest(reader=name):
+                with self.assertRaises(ContractRefusal) as caught:
+                    act()
+                self.assertIn(fragment, caught.exception.message)
+
+    def test_an_honest_renewal_writes_request_and_decision_together_and_reads_through_both(self):
+        first = self.renew(0)
+        requests, decisions = self.rows(tokens.RENEWED_KIND), self.rows(tokens.RENEWAL_DECIDED_KIND)
+        self.assertEqual((len(requests), len(decisions)), (1, 1))
+        decision = json.loads(decisions[0]["result"])
+        self.assertEqual(decision, json.loads(decisions[0]["signature"])["operands"], "the decision IS its signed operands")
+        self.assertEqual(decision, {"version": tokens.TOKEN_VERSION, "domain": self.fixture.domain, "generation": 1,
+                                    "revision": 1, "renewed_at": "2026-09-26T14:10:00.000Z",
+                                    "expires_at": "2026-09-26T14:25:00.000Z"})
+        self.assertNotIn("renewed_at", json.loads(requests[0]["signature"])["operands"], "the request signs the request, not the clock")
+        self.assertEqual((first["expires_at"], first["renewed_at"]), (decision["expires_at"], decision["renewed_at"]))
+        answer = self.current()
+        self.assertEqual((answer["revision"], answer["expires_at"], answer["renewed_at"], answer["expired"]),
+                         (1, decision["expires_at"], decision["renewed_at"], False))
+        self.fixture.instant = "2026-09-26T14:25:00.000Z"
+        self.assertTrue(self.current()["expired"])
+
+    def test_a_lost_reply_replays_the_same_renewal_under_another_clock_without_a_second_decision(self):
+        first = self.renew(0)
+        self.fixture.instant = "2026-09-26T14:13:00.000Z"
+        self.assertEqual(self.renew(0), first)
+        self.assertEqual((len(self.rows(tokens.RENEWED_KIND)), len(self.rows(tokens.RENEWAL_DECIDED_KIND))), (1, 1))
+        self.assertEqual(self.current()["revision"], 1)
+        with self.assertRaises(ContractRefusal):
+            self.renew(5)  # a revision ahead of the state is refused, not decided
+
+    def test_a_rewritten_request_deadline_refuses_at_every_reader_and_replay(self):
+        self.renew(0)
+        self.fixture.instant = "2030-01-01T00:00:00.000Z"
+        self.assertTrue(self.current()["expired"], "honest: expired")
+        self.rewrite(tokens.RENEWED_KIND, expires_at="2099-01-01T00:00:00.000Z")
+        self.every_reader_refuses("changed after the renewal was decided")
+
+    def test_a_rewritten_request_renewed_at_refuses_too(self):
+        self.renew(0)
+        self.rewrite(tokens.RENEWED_KIND, renewed_at="2026-09-26T14:11:00.000Z")
+        self.every_reader_refuses("changed after the renewal was decided")
+
+    def test_a_corrupted_decision_refuses(self):
+        self.renew(0)
+        self.rewrite(tokens.RENEWAL_DECIDED_KIND, expires_at="2099-01-01T00:00:00.000Z")
+        self.every_reader_refuses("signed operands")
+
+    def test_a_renewal_without_a_decision_record_is_refused_not_adopted(self):
+        """Every renewal committed before this correction looks like this: fail closed, no adoption."""
+        self.renew(0)
+        self.store._connection.execute("DELETE FROM operations WHERE kind = ?", (tokens.RENEWAL_DECIDED_KIND,))
+        self.every_reader_refuses("no committed decision record")
+        self.assertEqual(len(self.rows(tokens.RENEWAL_DECIDED_KIND)), 0, "nothing wrote a decision from the old bytes")
+
+    def test_a_decision_about_another_renewal_does_not_verify_this_one(self):
+        from baton_v12.worker_manager.store import _recorded, manager_signature
+        self.renew(0)
+        identity = tokens._renewal_decision_id(self.fixture.domain, 1, 1)
+        self.store._connection.execute("DELETE FROM operations WHERE operation_id = ?", (identity,))
+        for member, value in (("revision", 2), ("generation", 2), ("domain", "workspace:line-8/workspace")):
+            with self.subTest(member=member):
+                other = {"version": tokens.TOKEN_VERSION, "domain": self.fixture.domain, "generation": 1, "revision": 1,
+                         "renewed_at": "2026-09-26T14:10:00.000Z", "expires_at": "2026-09-26T14:25:00.000Z", member: value}
+                self.store._record(identity, tokens.RENEWAL_DECIDED_KIND, manager_signature(tokens.RENEWAL_DECIDED_KIND, other),
+                                   "committed", _recorded(other), None)
+                self.every_reader_refuses("a decision about another renewal")
+                self.store._connection.execute("DELETE FROM operations WHERE operation_id = ?", (identity,))
+
+    def test_a_fault_after_the_decision_rolls_both_halves_back(self):
+        original = ControlStore._record
+
+        def failing(self_store, operation_id, kind, *rest):
+            if kind == tokens.RENEWED_KIND:
+                raise RuntimeError("the request row could not be written")
+            return original(self_store, operation_id, kind, *rest)
+        with mock.patch.object(ControlStore, "_record", failing):
+            with self.assertRaises(RuntimeError):
+                self.renew(0)
+        self.assertEqual((len(self.rows(tokens.RENEWED_KIND)), len(self.rows(tokens.RENEWAL_DECIDED_KIND))), (0, 0),
+                         "neither half survives the rolled-back transaction")
+        self.assertEqual(self.current()["revision"], 0)
+        self.assertEqual(self.renew(0)["revision"], 1, "the next honest renewal is the first")
+        self.assertEqual((len(self.rows(tokens.RENEWED_KIND)), len(self.rows(tokens.RENEWAL_DECIDED_KIND))), (1, 1))
+
+    def test_the_expiry_judgement_reads_the_verified_renewal(self):
+        """`_judge_expired` correlates against the renewed deadline; a corrupted renewal cannot feed it."""
+        self.renew(0)
+        self.rewrite(tokens.RENEWED_KIND, expires_at="2099-01-01T00:00:00.000Z")
+        self.fixture.instant = "2030-01-01T00:00:00.000Z"
+        with self.assertRaises(ContractRefusal) as caught:
+            self.renew(1)
+        self.assertIn("changed after the renewal was decided", caught.exception.message)
+        self.assertEqual(self.rows(tokens.EXPIRED_KIND), [], "no expiry judgement was written from an unverifiable deadline")

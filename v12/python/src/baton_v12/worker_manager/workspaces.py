@@ -2758,6 +2758,12 @@ def settle_cleanup(control, connection, assignment_id, admitted, what):
     one, so this writes through `_record` rather than `transact` -- pure database work
     under a lock the caller already holds, which is what owner 270664's rule permits.
 
+    AND THAT IS CHECKED, NOT ASSUMED (owner selection 2026-11-17, SETTLE-CLEANUP-DECISION.md
+    option 1): `connection` must be THIS store's connection and must have an open
+    transaction, or nothing is read or written. `in_transaction` proves an open
+    transaction on that connection; the write-lock mode comes from the accepted
+    `transact` path's `BEGIN IMMEDIATE`, which is the only caller.
+
     THE ADMISSION IS RE-READ RATHER THAN TRUSTED. The document the caller holds is one
     the caller is holding; what authorizes the settlement is the record this journal
     still has, with its signature recomputed, naming this act as its owner.
@@ -2770,6 +2776,14 @@ def settle_cleanup(control, connection, assignment_id, admitted, what):
             or "owner" not in admitted:
         _refuse("settling a cleanup needs the admission this act was given",
                 code="schema")
+    if connection is not getattr(control, "_connection", None) \
+            or not getattr(connection, "in_transaction", False):
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s cleanup settlement runs only inside the ending's own open "
+            f"transaction on this store's connection; a foreign connection, or this "
+            f"store's connection with no open transaction, is refused before anything "
+            f"is read or written")
     ordinal = admitted["ordinal"]
     record = control.operation_record(
         _cleanup_admission_id(assignment_id, ordinal))

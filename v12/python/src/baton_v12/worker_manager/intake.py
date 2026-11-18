@@ -5665,8 +5665,14 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
     # W384870 stage C (review 2026-10-31T03:05:05Z): THE GOVERNOR'S ANSWER IS AN INJECTED
     # DOCUMENT, owned where it lands -- its generation names the reclaim operation and
     # its container is compared with the attempt's, so neither is taken on faith.
-    overdue = boundaries.document(answered, "the resource governor's overdue answer", required=("generation",))
-    boundaries.generation(overdue["generation"], "the resource governor's overdue generation")
+    # An OPEN document: governors answer the token as they know it (the production
+    # governor answers `token_of`'s whole document, test governors slimmer ones), so
+    # the contract is the two members this ending consumes, not a closed shape.
+    overdue = boundaries.document(answered, "the resource governor's overdue answer")
+    # A PRESENT generation is a generation; an absent one is the accepted
+    # unknown-generation path (the outcome is recorded with `generation=None`).
+    if overdue.get("generation") is not None:
+        boundaries.generation(overdue["generation"], "the resource governor's overdue generation")
     runtime_id = overdue.get("container")
     if attempt["runtime_id"] is not None and runtime_id != attempt["runtime_id"]:
         # W333486: THE MISMATCH IS THIS MANAGER'S OWN TYPED FACT, recorded

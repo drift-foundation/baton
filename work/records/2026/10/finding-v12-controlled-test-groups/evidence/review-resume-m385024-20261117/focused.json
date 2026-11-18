@@ -1,0 +1,18 @@
+{
+  "exit": 0,
+  "seconds": 0.5212536690000888,
+  "selected": [
+    "test_the_owned_input_trace_rejects_an_unowned_read",
+    "test_the_owned_input_trace_rejects_an_unowned_public_operand_and_an_unresolved_name",
+    "test_the_owned_input_trace_rejects_an_attribute_a_module_value_and_a_parser",
+    "test_the_owned_input_trace_accepts_a_typed_attribute_a_constant_and_a_composition_call",
+    "test_the_owned_input_trace_binds_only_the_signature_compared_members_of_a_decoded_result",
+    "test_the_owned_input_trace_accepts_an_owned_read_operand_and_composition",
+    "test_an_honest_renewal_moves_the_deadline_once_and_a_lost_reply_replays_it",
+    "test_a_redirected_or_corrupted_qualification_row_grants_nothing",
+    "test_a_malformed_governor_answer_refuses_before_any_reclaim"
+  ],
+  "root_removed": true,
+  "leftovers": [],
+  "source_drift": []
+}

@@ -1,0 +1,47 @@
+test_it_copies_the_worker_modules_and_no_manager_package (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package) ... ok
+test_it_declares_no_volume_port_or_healthcheck (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_declares_no_volume_port_or_healthcheck)
+The four namespaces are mounts the manager names per attempt, and ... ok
+test_nothing_is_installed_over_the_selected_base (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_nothing_is_installed_over_the_selected_base)
+A second `npm install` or `apt-get` here would mint a second ... ok
+test_the_base_is_a_required_operand_with_no_default (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_base_is_a_required_operand_with_no_default)
+A DEFAULT WOULD BE A SELECTION NOBODY MADE. ... ok
+test_the_entrypoint_is_exec_form_and_is_the_integration_entry (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_entrypoint_is_exec_form_and_is_the_integration_entry)
+No shell in the process tree: the manager stops this container by ... ok
+test_the_runtime_identity_is_the_fixed_non_root_pair (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_runtime_identity_is_the_fixed_non_root_pair) ... ok
+test_there_is_no_default_credential_and_no_provider_variable (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_there_is_no_default_credential_and_no_provider_variable)
+An `ANTHROPIC_API_KEY` baked here would silently outrank the ... ok
+test_the_entry_imports_with_nothing_but_the_copied_files (tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_entry_imports_with_nothing_but_the_copied_files) ... ok
+test_the_manager_is_not_reachable_from_that_layout (tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_manager_is_not_reachable_from_that_layout) ... ok
+test_the_profile_package_is_a_top_level_name_in_that_layout (tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_profile_package_is_a_top_level_name_in_that_layout) ... ok
+test_the_staged_modules_are_the_reviewed_bytes (tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_staged_modules_are_the_reviewed_bytes)
+Byte identity between the tree and what the recipe would ship, so a ... ok
+test_the_worker_data_the_modules_read_travelled_with_them (tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_worker_data_the_modules_read_travelled_with_them)
+A module whose data was left behind imports cleanly and fails at ... ok
+test_a_document_carrying_material_it_should_not_latches_too (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too)
+CLOSED, not an allowlist. An extra top-level member is how a second ... ok
+test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches)
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is ... ok
+test_a_document_short_a_member_or_carrying_a_bad_value_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches) ... ok
+test_a_healthy_container_keeps_answering_after_a_foreign_frame (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_healthy_container_keeps_answering_after_a_foreign_frame)
+The other half of the same move: lifting the binding out of ... ok
+test_a_latched_fault_does_not_answer_another_sessions_envelope (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_does_not_answer_another_sessions_envelope)
+Startup correlation does not relax the common session binding. ... ok
+test_a_latched_fault_refuses_a_foreign_protocol_the_same_way (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_refuses_a_foreign_protocol_the_same_way)
+The binding is protocol AND session, and both precede the latched ... ok
+test_a_latched_fault_with_no_readable_envelope_says_nothing (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_with_no_readable_envelope_says_nothing) ... ok
+test_a_refused_binding_on_a_latched_container_still_answers_once (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_refused_binding_on_a_latched_container_still_answers_once)
+The three properties the correction had to KEEP. Which fault a ... ok
+test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched)
+Reading the envelope grants no task, workspace, output, tool or ... ok
+test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted) ... ok
+test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate) ... ok
+test_a_real_proposal_from_another_producer_refuses_before_receipts (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts) ... ok
+test_actual_command_custody_cleanup_and_authority_admission (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission) ... ok
+test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit) ... ok
+test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence) ... ok
+test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 1.713s
+
+OK

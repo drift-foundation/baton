@@ -1,0 +1,163 @@
+test_it_copies_the_worker_modules_and_no_manager_package (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package) ... FAIL
+test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches)
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is ... baton-worker: launch: /var/tmp/baton-w384944-pure-oszvva_x/v12-worker-launch-c1wqzyjf/launch-0.json is exactly schema, session, contract, role, transport; missing transport
+
+  test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='baton.worker-launch/2')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is ... FAIL
+baton-worker: launch: /var/tmp/baton-w384944-pure-oszvva_x/v12-worker-launch-c1wqzyjf/launch-1.json says it is 'baton.worker-entry/1' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of
+  test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='baton.worker-entry/1')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is ... FAIL
+baton-worker: launch: /var/tmp/baton-w384944-pure-oszvva_x/v12-worker-launch-c1wqzyjf/launch-2.json says it is '' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of
+  test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is ... FAIL
+baton-worker: launch: /var/tmp/baton-w384944-pure-oszvva_x/v12-worker-launch-c1wqzyjf/launch-3.json says it is 'BATON.WORKER-LAUNCH/1' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of
+  test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='BATON.WORKER-LAUNCH/1')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is ... FAIL
+baton-worker: launch: /var/tmp/baton-w384944-pure-oszvva_x/v12-worker-launch-c1wqzyjf/launch-4.json says it is 'baton.worker-launch/1 ' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of
+  test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='baton.worker-launch/1 ')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is ... FAIL
+test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit) ... 
+  test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit) (command_status=3, unrun=False) ... FAIL
+  test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit) (command_status=0, unrun=True) ... FAIL
+test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence) ... FAIL
+test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission) ... FAIL
+
+======================================================================
+FAIL: test_it_copies_the_worker_modules_and_no_manager_package (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_integration_image.py", line 120, in test_it_copies_the_worker_modules_and_no_manager_package
+    self.assertEqual(sorted(sources), [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+        # W198667's shared capture format. THIS CASE WAS ALREADY RED for
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<17 lines>...
+        "worker/integration_workload.py",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "worker/worker-control-1.0.schema.json"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['pyt[78 chars]s', 'python/src/baton_v12/verification_context[221 chars]son'] != ['pyt[78 chars]s', 'worker/adapter_refusal.py', 'worker/baton[173 chars]son']
+
+First differing element 2:
+'python/src/baton_v12/verification_context.py'
+'worker/adapter_refusal.py'
+
+First list contains 1 additional elements.
+First extra element 9:
+'worker/worker-control-1.0.schema.json'
+
+  ['python/src/baton_v12/attempt_log_format.py',
+   'python/src/baton_v12/source_profiles',
+-  'python/src/baton_v12/verification_context.py',
+   'worker/adapter_refusal.py',
+   'worker/baton_worker.py',
+   'worker/claude_agent.py',
+   'worker/integration_contract.py',
+   'worker/integration_entry.py',
+   'worker/integration_workload.py',
+   'worker/worker-control-1.0.schema.json']
+
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='baton.worker-launch/2')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='baton.worker-entry/1')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='BATON.WORKER-LAUNCH/1')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='baton.worker-launch/1 ')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit) (command_status=3, unrun=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/integration/test_driver.py", line 2107, in test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit
+    world.assert_retained_history()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/integration/test_driver.py", line 2012, in assert_retained_history
+    case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit) (command_status=0, unrun=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/integration/test_driver.py", line 2107, in test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit
+    world.assert_retained_history()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/integration/test_driver.py", line 2012, in assert_retained_history
+    case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/integration/test_driver.py", line 2068, in test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence
+    world.assert_retained_history()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/integration/test_driver.py", line 2012, in assert_retained_history
+    case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/integration/test_driver.py", line 2114, in test_wrong_requirements_refuse_before_any_authority_receipt_or_admission
+    world.assert_retained_history()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12/python/tests/integration/test_driver.py", line 2012, in assert_retained_history
+    case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.569s
+
+FAILED (failures=10)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

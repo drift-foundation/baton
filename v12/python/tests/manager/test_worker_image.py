@@ -1413,15 +1413,31 @@ class ABootstrapFaultIsLatchedAndCorrelated(unittest.TestCase):
         document to read the recognised parts out of, and the version is
         checked by equality rather than parsed and reasoned about.
         """
-        for schema in ("baton.worker-launch/2", "baton.worker-entry/1", "",
+        # W197661 supersedes correlated framing for unknown generations: fail
+        # promptly on stderr without consuming stdin or constructing an agent.
+        class UnreadableInput:
+            def read(self, *args):
+                raise AssertionError("an unknown launch generation read stdin")
+
+            readline = read
+
+        for schema in ("baton.worker-launch/999", "baton.worker-entry/1", "",
                        "BATON.WORKER-LAUNCH/1", "baton.worker-launch/1 "):
             with self.subTest(schema=schema):
-                status, given = self.latched({**LAUNCH, "schema": schema})
-                self.assertEqual(status, 1)
-                self.assertEqual(len(given), 1)
-                self.assertEqual(given[0]["code"], "launch")
-                self.assertEqual(given[0]["session"], EXECUTION_SESSION)
-                self.assertEqual(given[0]["protocol"], PROTOCOL)
+                out, diagnostic = io.BytesIO(), io.StringIO()
+                agent = mock.Mock(side_effect=AssertionError("a refused launch reached the agent"))
+                status = serve(UnreadableInput(), out, agent, delivered({**LAUNCH, "schema": schema}), stderr=diagnostic)
+                self.assertEqual(status, 3)
+                self.assertEqual(out.getvalue(), b"")
+                self.assertEqual(agent.mock_calls, [])
+                said = diagnostic.getvalue()
+                self.assertTrue(said.startswith("baton-worker: launch: "), said)
+                self.assertIn(repr(schema), said)
+                self.assertIn("another generation", said)
+                self.assertIn("this worker reads", said)
+                self.assertEqual(said.count("\n"), 1)
+                self.assertTrue(all(" " <= char <= "~" for char in said.rstrip("\n")))
+                self.assertLessEqual(len(said), baton_worker.MAX_STARTUP_DIAGNOSTIC + len("baton-worker: ") + 1)
 
     def test_a_document_carrying_material_it_should_not_latches_too(self):
         """CLOSED, not an allowlist. An extra top-level member is how a second

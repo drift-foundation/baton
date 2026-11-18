@@ -126,6 +126,8 @@ class TheRecipeSaysWhatItWasReviewedToSay(unittest.TestCase):
             # and the recipe says this.
             "python/src/baton_v12/attempt_log_format.py",
             "python/src/baton_v12/source_profiles",
+            # W321776: shared verification grammar, copied as a top-level module.
+            "python/src/baton_v12/verification_context.py",
             # W376586: the shared typed declaration refusal, which
             # `claude_agent` below imports at its top level. Review
             # 2026-10-28T20-07-16Z: this overlay copied the adapter without

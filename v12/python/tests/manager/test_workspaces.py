@@ -2982,3 +2982,84 @@ class ReadonlyConfiguredGroup(unittest.TestCase):
         with self.assertRaises(ContractRefusal):
             workspaces.configure_workspace_group(self.reader, WORKSPACE_GROUP)
         self.assertIsNone(self.writer._connection.execute('SELECT value FROM meta WHERE key=?', (workspaces.WORKSPACE_GROUP_KEY,)).fetchone())
+
+
+class CleanupSettlementRunsInItsEndingsTransaction(Workspace):
+    """Owner selection 2026-11-17 (SETTLE-CLEANUP-DECISION.md option 1), B2 Case H.
+
+    `settle_cleanup`'s `connection` is now a proof: this store's connection, with an open
+    transaction, or nothing is read or written. `in_transaction` proves the open
+    transaction; the write-lock mode is the accepted `transact` path's BEGIN IMMEDIATE.
+    """
+    ADMISSION = {"attempt_id": "attempt-1", "ordinal": 1, "act": "a probe", "owner": "owner-1",
+                 "settlement": {"operation": "op-1", "signature": "sig", "incarnation": "workspaces-1"}}
+
+    def admitted(self):
+        from baton_v12.worker_manager.store import _recorded, manager_signature
+        self.store._record(workspaces._cleanup_admission_id("attempt-1", 1), workspaces.CLEANUP_ADMISSION_KIND,
+                           manager_signature(workspaces.CLEANUP_ADMISSION_KIND, self.ADMISSION), "committed",
+                           _recorded(self.ADMISSION), None)
+        return dict(self.ADMISSION)
+
+    def settled_record(self):
+        return self.store.operation_record(workspaces._cleanup_settled_id("attempt-1", 1))
+
+    def in_transaction(self, action, operation="probe.settle:1"):
+        from baton_v12.worker_manager.store import manager_signature
+        return self.store.transact(operation, "probe.settle", manager_signature("probe.settle", {"probe": operation}), action)
+
+    def test_a_foreign_connection_is_refused_before_anything_is_read_or_written(self):
+        import sqlite3
+        admission = self.admitted()
+        foreign = sqlite3.connect(":memory:")
+        self.addCleanup(foreign.close)
+        foreign.execute("BEGIN")
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.settle_cleanup(self.store, foreign, "attempt-1", admission, "a test")
+        self.assertIn("this store's connection", caught.exception.message)
+        self.assertIsNone(self.settled_record())
+
+    def test_the_stores_own_connection_outside_a_transaction_is_refused(self):
+        admission = self.admitted()
+        self.assertFalse(self.store._connection.in_transaction)
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.settle_cleanup(self.store, self.store._connection, "attempt-1", admission, "a test")
+        self.assertIn("no open transaction", caught.exception.message)
+        self.assertIsNone(self.settled_record())
+
+    def test_a_missing_connection_is_refused_the_same_way(self):
+        admission = self.admitted()
+        with self.assertRaises(ContractRefusal):
+            workspaces.settle_cleanup(self.store, None, "attempt-1", admission, "a test")
+        self.assertIsNone(self.settled_record())
+
+    def test_inside_the_endings_transaction_it_settles_and_commits_with_it(self):
+        admission = self.admitted()
+        seen = []
+
+        def ending(connection):
+            seen.append((connection is self.store._connection, connection.in_transaction))
+            return workspaces.settle_cleanup(self.store, connection, "attempt-1", admission, "a test")
+        document = self.in_transaction(ending)
+        self.assertEqual(seen, [(True, True)])
+        self.assertEqual(document["owner"], "owner-1")
+        self.assertIsNotNone(self.settled_record())
+        self.assertFalse(self.store._connection.in_transaction)
+        # a replayed ending settles nothing twice: the committed record is the answer
+        self.assertEqual(self.in_transaction(ending, operation="probe.settle:2")["owner"], "owner-1")
+        self.assertEqual(self.store._connection.execute(
+            "SELECT COUNT(*) FROM operations WHERE kind = ?", (workspaces.CLEANUP_SETTLED_KIND,)).fetchone()[0], 1)
+
+    def test_a_fault_after_the_settlement_rolls_it_back_with_the_ending(self):
+        admission = self.admitted()
+
+        def ending(connection):
+            workspaces.settle_cleanup(self.store, connection, "attempt-1", admission, "a test")
+            raise RuntimeError("the ending failed after settling")
+        with self.assertRaises(RuntimeError):
+            self.in_transaction(ending)
+        self.assertIsNone(self.settled_record(), "the settlement does not outlive the ending's transaction")
+        self.assertFalse(self.store._connection.in_transaction)
+        self.assertIsNotNone(self.in_transaction(lambda connection: workspaces.settle_cleanup(
+            self.store, connection, "attempt-1", admission, "a test"), operation="probe.settle:3"))
+        self.assertIsNotNone(self.settled_record())

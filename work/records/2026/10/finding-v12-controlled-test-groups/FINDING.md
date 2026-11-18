@@ -784,3 +784,36 @@ Owner requests shutdown preparation. Read SHUTDOWN-20261031.md (parent dossier);
 
 Both developers stopped: K M385025, codexpc handback E385020 and user-confirmed closed session. Child queued unclaimed at baton.decide; parent owner claim retained. Read SHUTDOWN-20261031.md before explicit resume. K M385024 and custody M385019 await independent review; owner decisions remain unselected. No new execution until resume. Final Git checkpoint belongs to Slawomir.
 
+
+## Resumed — 2026-11-17T19-36-36Z
+
+Owner resumes and selects renewal A plus cleanup connection1. Read RESUME-DECISIONS-20261117.md (parent dossier). K implements those bounded corrections while coordinator reviews committed M385024 bytes at6477a8db. Codexpc custody12/12 historical result accepted; next seven engine IDs/four fixture modules per child review-2026-11-17T19-36-36Z.md, after fresh prerequisite checks. This supersedes shutdown hold for these assignments only. Final acceptance remains open.
+
+
+## 2026-11-17T19-43-26Z — M385024 focused review, one ownership-proof bypass remains
+
+Read review-2026-11-17T19-43-26Z.md. Nine focused tests pass on immutable6477a8db; all1133 sources stable. Package function/method wrappers still cause unvalidated parser/environment results to count owned. K receives exact three reproductions and a bounded conservative correction alongside already selected renewal A/connection1 work. No broad discovery or codexpc overlap.
+
+
+## 2026-11-17T19-48-23Z — historical engine batch accepted; selective checkpoint
+
+Read review-2026-11-17T19-48-23Z.md:54/54 plus3/3 subtests, exact sources/candidates/resources verified. All historical engine IDs cleared on selected isolated source; full B4/current-tree acceptance still open. Child remains unclaimed at baton.decide while owner checkpoints reviewed four-file batch/evidence. Prepared next slice is five pure image/driver IDs; release follows checkpoint.
+
+
+## 2026-11-17T19:49:19.926009+00:00 — owner checkpoint confirmed; pure image/driver slice released
+
+Owner committed39850ad85071e1ad75a5545a03a6260a421981c3 (reviewed four engine fixtures and child evidence). This supersedes the selective-checkpoint wait. Release the five historical pure image/driver IDs under review-2026-11-17T19-48-23Z.md's prepared allocation: test_integration_image.py, test_worker_image.py and tests/integration/test_driver.py only, plus child records/evidence. Claim child before execution. Preserve isolated accepted source, no K/product import, no Docker/build/live/broad/full execution. Revalidate five IDs first, then focused affected classes; return exact outcomes/digests/cleanup and pass baton.decide. Product conflicts require precise reproduction and ownership coordination. Full acceptance remains open.
+
+
+## 2026-11-17T20-13-12Z — pure/driver five historical failures accepted
+
+Read child review-2026-11-17T20-13-12Z.md. Independent28/28 tests+20/20 subtests pass in1.965s, exact sources stable/roots cleaned. Both historical engine and pure/driver repair inventories now empty on selected snapshot. Child waits unclaimed at baton.decide for checkpoint and accepted-current-source join; no broad/full tests or closure yet. K/parent B5 and final gates remain open.
+
+
+## 2026-11-17T23-24-47Z — M385047 partial acceptance and bounded callback correction
+
+Review `review-2026-11-17T23-24-47Z.md` accepts renewal A and cleanup connection1; independent selected17 and regression377 pass on exact stable source. Stage C is not yet accepted: map callbacks returning parser/environment values bypass ownership proof. K corrects that exact counterexample, preserves positive/negative witnesses, rechecks the finite28 operands and affected gates, and corrects RESULT accounting. No scans/full/B4 release. Four long-fixture-path diagnostic assertions failed in the first regression run and remain recorded for B5; a short-root rerun passed377. This supersedes the M385047 awaiting-review status only to the extent stated here. Joined/full acceptance and human Git checkpoint remain open.
+
+## 2026-11-18T01-30-50Z — M385049 accepted; scans verification released
+
+Read `review-2026-11-18T01-30-50Z.md`. Callback correction accepted: both independent probes reject, StageCProtections25/25 passes in87.116s, exact sources stable/fixtures clean. Prior renewal/cleanup acceptance remains. K's next bounded milestone is one accounted scans-group run with complete counts, source identity and retained evidence; report before further edits. No full suite/B4/B5 execution in this slice. Codexpc remains idle pending explicit joined-source assignment. Final acceptance is still open. This supersedes the M385049 awaiting-review state and M385048 callback correction request.

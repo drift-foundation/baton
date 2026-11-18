@@ -1,0 +1,20 @@
+{
+  "claim": 385041,
+  "assignment": 385038,
+  "restored_files": 1133,
+  "mismatches": [],
+  "bases": {
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "8d33c6a8d324bc776eecab94413eb93c932adef81e770f3eed89ee201a4fcdb1",
+      "mode": 436
+    },
+    "v12/python/tests/manager/test_worker_image.py": {
+      "sha256": "85e85a7d3cb2508bd437e9846fc7c6dfa00c505c2f528dd29e59a89dbec635ba",
+      "mode": 436
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "fb7ff03bcf2077228a69a026d16bda636cfb4061ac385bcc374566a4d9671af6",
+      "mode": 436
+    }
+  }
+}

@@ -1,0 +1,6 @@
+package_parser_wrapper validators {}
+REJECTED sample.py:_read: json.loads is an external call whose result nothing here owns (sample.py:_consume#record -> sample.py:_read#return -> sample.py:_read)
+package_environment_wrapper validators {}
+REJECTED sample.py:_read: os.environ is an external module's value, owned by nothing here
+method_wrapper validators {}
+REJECTED sample.py:Door._read: json.loads is an external call whose result nothing here owns (sample.py:_consume#record -> sample.py:Door._read#return -> sample.py:Door._read)

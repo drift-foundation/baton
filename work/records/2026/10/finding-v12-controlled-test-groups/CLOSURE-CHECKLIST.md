@@ -1,3 +1,12 @@
+
+## 2026-11-18T01-30-50Z — M385049 accepted; scans verification released
+
+Read `review-2026-11-18T01-30-50Z.md`. Callback correction accepted: both independent probes reject, StageCProtections25/25 passes in87.116s, exact sources stable/fixtures clean. Prior renewal/cleanup acceptance remains. K's next bounded milestone is one accounted scans-group run with complete counts, source identity and retained evidence; report before further edits. No full suite/B4/B5 execution in this slice. Codexpc remains idle pending explicit joined-source assignment. Final acceptance is still open. This supersedes the M385049 awaiting-review state and M385048 callback correction request.
+
+## Resumed — 2026-11-17T19-36-36Z
+
+Owner resumes and selects renewal A plus cleanup connection1. Read RESUME-DECISIONS-20261117.md (parent dossier). K implements those bounded corrections while coordinator reviews committed M385024 bytes at6477a8db. Codexpc custody12/12 historical result accepted; next seven engine IDs/four fixture modules per child review-2026-11-17T19-36-36Z.md, after fresh prerequisite checks. This supersedes shutdown hold for these assignments only. Final acceptance remains open.
+
 ## Shutdown ready for owner checkpoint — 2026-10-31T03:31:26.667239+00:00
 
 Both developers stopped: K M385025, codexpc handback E385020 and user-confirmed closed session. Child queued unclaimed at baton.decide; parent owner claim retained. Read SHUTDOWN-20261031.md before explicit resume. K M385024 and custody M385019 await independent review; owner decisions remain unselected. No new execution until resume. Final Git checkpoint belongs to Slawomir.

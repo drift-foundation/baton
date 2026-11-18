@@ -174,6 +174,20 @@ def _renewed_id(domain, generation, revision):
     return f"{RENEWED_KIND}:{domain}:{generation}:{revision}"
 
 
+# Owner selection 2026-11-17 (RENEWAL-DECISION.md option A): THE DECIDED DEADLINE IS
+# SELF-SIGNED. The renewal REQUEST record keeps its identity, its signed request
+# operands and its lost-reply replay; the instants this manager ANSWERED ride a
+# second record whose signed operands are its result, written in the same
+# transaction. A request result that disagrees with its decision, a decision that
+# names another renewal, a corrupted decision or a renewal with no decision record
+# (every renewal committed before this correction) is refused rather than read.
+RENEWAL_DECIDED_KIND = "resource-token.renewal-decided"
+
+
+def _renewal_decision_id(domain, generation, revision):
+    return f"{RENEWAL_DECIDED_KIND}:{domain}:{generation}:{revision}"
+
+
 def _returned_id(domain, generation):
     return f"{RETURNED_KIND}:{domain}:{generation}"
 
@@ -285,12 +299,55 @@ def outstanding(control, domain):
         generation += 1
 
 
+def _verified_renewal(control, domain, generation, revision, request):
+    """The renewal REQUEST record, verified against its self-signed DECISION record.
+
+    Owner selection 2026-11-17 (option A). `replay` binds the signature and not the
+    result bytes, and the request's signature covers the request, not the instants
+    this manager answered -- so the instants are verified here against the decision
+    record whose signed operands ARE its result (`replayed_as_signed`). Every reader
+    of a renewal and every replay of one passes through this; a renewal whose
+    decision is absent (committed before this correction), corrupted, or about another
+    renewal, or whose request result no longer matches its decision, is refused rather
+    than read. Nothing adopts old result bytes as a decision.
+    """
+    from .store import replayed_as_signed
+
+    decision = replayed_as_signed(
+        control, _renewal_decision_id(domain, generation, revision), RENEWAL_DECIDED_KIND,
+        what="a renewal decision record")
+    if decision is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"renewal {revision} of {name_value(domain)} generation {generation} has no "
+            f"committed decision record; a renewed deadline this manager cannot verify "
+            f"against its own signed decision is refused rather than read")
+    for member, value in (("version", TOKEN_VERSION), ("domain", domain),
+                          ("generation", generation), ("revision", revision)):
+        if decision[member] != value:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the decision record for renewal {revision} of {name_value(domain)} "
+                f"generation {generation} names {member} {name_value(decision[member])}; "
+                f"a decision about another renewal does not verify this one")
+    for member in ("renewed_at", "expires_at"):
+        if request[member] != decision[member]:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"renewal {revision} of {name_value(domain)} generation {generation} "
+                f"records {member} {name_value(request[member])} and its signed decision "
+                f"says {name_value(decision[member])}; the request result was changed "
+                f"after the renewal was decided")
+    return request
+
+
 def _renewals_of(control, domain, generation):
     """Every committed renewal of this generation, in revision order.
 
     W275775. READ FROM THE JOURNAL BY DERIVED IDENTITY, like every other token fact:
     revision 1 is the first renewal, and the walk stops at the first absent one, so a
-    record written under some other identity cannot lengthen a lifetime here.
+    record written under some other identity cannot lengthen a lifetime here. Each
+    renewal is answered only through `_verified_renewal` (owner selection 2026-11-17).
     """
     found = []
     revision = 1
@@ -299,7 +356,7 @@ def _renewals_of(control, domain, generation):
                              RENEWED_KIND)
         if document is None:
             return found
-        found.append(document)
+        found.append(_verified_renewal(control, domain, generation, revision, document))
         revision += 1
 
 
@@ -677,7 +734,7 @@ def _extended(control, token, domain, generation, what, execution, operation,
     Split out of `renew` so the expiry judgement can wrap the WHOLE attempt rather than only
     its preflight -- W275775 review 2026-09-27T03-02-01Z asked for exactly that equivalence.
     """
-    from .store import manager_signature
+    from .store import _recorded, manager_signature
 
     held = _owning(control, token, what)
     if held["execution"] != execution or held["operation"] != operation:
@@ -764,9 +821,23 @@ def _extended(control, token, domain, generation, what, execution, operation,
                 f"and the bounded policy allows {RENEWAL_LIMIT}. Exhaustion does not free "
                 f"the resource -- the holder finishes or is revoked, and the resource stays "
                 f"held either way")
+        # THE DECISION, SELF-SIGNED, IN THIS SAME TRANSACTION (owner selection 2026-11-17,
+        # option A). Its signed operands are its result, so `replayed_as_signed` verifies
+        # it whole; the request record above keeps the request as its identity, so a
+        # lost-reply retry still replays instead of colliding. `_acting_record` commits
+        # both or rolls both back.
+        decision = {"version": TOKEN_VERSION, "domain": domain, "generation": generation,
+                    "revision": revision + 1, "renewed_at": taken,
+                    "expires_at": document["expires_at"]}
+        control._record(_renewal_decision_id(domain, generation, revision + 1),
+                        RENEWAL_DECIDED_KIND, manager_signature(RENEWAL_DECIDED_KIND, decision),
+                        "committed", _recorded(decision), None)
         return dict(document)
 
-    return _acting_record(control, token, identity, RENEWED_KIND, operands, action=extend)
+    # THE REPLAY IS VERIFIED TOO: a retry answers the recorded request result, and that
+    # result is bound to its decision exactly as `_renewals_of` binds every read.
+    answered = _acting_record(control, token, identity, RENEWED_KIND, operands, action=extend)
+    return _verified_renewal(control, domain, generation, revision + 1, answered)
 
 
 def journal_launch(control, token, launch):

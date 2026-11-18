@@ -1,0 +1,4 @@
+map_parser validators {}
+REJECTED sample.py:_read: json.loads is an external call whose result nothing here owns (sample.py:_consume#record -> sample.py:_read#return -> sample.py:_read)
+map_environment validators {}
+REJECTED sample.py:_read: os.environ is an external module's value, owned by nothing here

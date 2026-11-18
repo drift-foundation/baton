@@ -1,0 +1,201 @@
+{
+  "collected": [
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_declares_no_volume_port_or_healthcheck",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_nothing_is_installed_over_the_selected_base",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_base_is_a_required_operand_with_no_default",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_entrypoint_is_exec_form_and_is_the_integration_entry",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_runtime_identity_is_the_fixed_non_root_pair",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_there_is_no_default_credential_and_no_provider_variable",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_entry_imports_with_nothing_but_the_copied_files",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_manager_is_not_reachable_from_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_profile_package_is_a_top_level_name_in_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_staged_modules_are_the_reviewed_bytes",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_worker_data_the_modules_read_travelled_with_them",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_healthy_container_keeps_answering_after_a_foreign_frame",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_does_not_answer_another_sessions_envelope",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_refuses_a_foreign_protocol_the_same_way",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_with_no_readable_envelope_says_nothing",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_refused_binding_on_a_latched_container_still_answers_once",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission"
+  ],
+  "started": [
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_declares_no_volume_port_or_healthcheck",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_nothing_is_installed_over_the_selected_base",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_base_is_a_required_operand_with_no_default",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_entrypoint_is_exec_form_and_is_the_integration_entry",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_runtime_identity_is_the_fixed_non_root_pair",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_there_is_no_default_credential_and_no_provider_variable",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_entry_imports_with_nothing_but_the_copied_files",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_manager_is_not_reachable_from_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_profile_package_is_a_top_level_name_in_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_staged_modules_are_the_reviewed_bytes",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_worker_data_the_modules_read_travelled_with_them",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_healthy_container_keeps_answering_after_a_foreign_frame",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_does_not_answer_another_sessions_envelope",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_refuses_a_foreign_protocol_the_same_way",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_with_no_readable_envelope_says_nothing",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_refused_binding_on_a_latched_container_still_answers_once",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission"
+  ],
+  "passed": [
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_declares_no_volume_port_or_healthcheck",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_nothing_is_installed_over_the_selected_base",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_base_is_a_required_operand_with_no_default",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_entrypoint_is_exec_form_and_is_the_integration_entry",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_the_runtime_identity_is_the_fixed_non_root_pair",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_there_is_no_default_credential_and_no_provider_variable",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_entry_imports_with_nothing_but_the_copied_files",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_manager_is_not_reachable_from_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_profile_package_is_a_top_level_name_in_that_layout",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_staged_modules_are_the_reviewed_bytes",
+    "tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_worker_data_the_modules_read_travelled_with_them",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_healthy_container_keeps_answering_after_a_foreign_frame",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_does_not_answer_another_sessions_envelope",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_refuses_a_foreign_protocol_the_same_way",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_with_no_readable_envelope_says_nothing",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_refused_binding_on_a_latched_container_still_answers_once",
+    "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence",
+    "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission"
+  ],
+  "failed": [],
+  "errors": [],
+  "skipped": [],
+  "expected_failures": [],
+  "unexpected_successes": [],
+  "subtests": [
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too (name='posture')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too (name='assignment')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too (name='workspace')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too (name='output')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='baton.worker-launch/999')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='baton.worker-entry/1')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='BATON.WORKER-LAUNCH/1')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='baton.worker-launch/1 ')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches (what='no contract')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches (what='no role')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches (what='an empty role')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches (what='a numeric role')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches",
+      "id": "tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches (what='an over-long role')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (command_status=3, unrun=False)",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (command_status=0, unrun=True)",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (member='task_id')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (member='task_digest')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (member='argv')",
+      "outcome": "passed"
+    },
+    {
+      "parent": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+      "id": "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (member='input_manifest_digest')",
+      "outcome": "passed"
+    }
+  ],
+  "unaccounted": [],
+  "duplicates": 0
+}

@@ -1,0 +1,33 @@
+# Five pure image/driver failures — W384944 / E385041
+
+M385038 released this slice after owner checkpoint39850ad8, under review-2026-11-17T19-48-23Z.md. All five historical IDs reproduce, then pass after three allocated test corrections. Final affected classes plus the copied-image layout: **28 collected/started/passed, 20 successful subtests**, zero failures/errors/skips/duplicates/unaccounted/expected failures/unexpected successes. Independent acceptance, joined current source, B5/supervised and final full-suite gates remain open.
+
+Candidate manifest candidate.json SHA256: **3b708c49358d52adbd1cbc0fc13d2e8e05b555a090237bf8b76d33a3461090b4**. Exact base/candidate bytes and individual diffs are retained here. All three shared targets matched their recorded base before any publication; final bytes match candidates, original0664 modes preserved. Focused git diff --check passes. No product, K path, recipe, registry, shared helper or Git state was changed.
+
+## Revalidated contract and exact correction
+
+1. `test_integration_image.py`: exhaustive COPY inventory lacked `python/src/baton_v12/verification_context.py`, already explicitly carried at top level by the accepted W321776 recipe. Add that exact entry; retain exhaustive source comparison, required-base/no-install policy, non-root entrypoint and no-manager-package constraints. The copied-layout class also runs: exact recipe files staged with no checkout import fallback, entry and profile imports work and manager remains unreachable. No image build is involved.
+2. `test_worker_image.py`: the historical unsupported-generation test treated `/2` (now supported) as unknown and expected a correlated stdout fault for every foreign generation. The selected W197661 rule in `work/records/2026/09/finding-v12-worker-launch-version-mismatch/FINDING.md` (owner decision and startup-failure contract) preserves `/1` one-shot correlation but makes invalid non-/1 launches refuse promptly on stderr with exit3, without consuming stdin. Revalidated `baton_worker.serve`, `_startup_refusal` and `launched` on the exact snapshot. Use truly unsupported `/999`; retain other foreign, empty, case/whitespace-mismatched versions. Each now proves no stdin read, no agent call, no stdout protocol frame, status3, the rejected version and generation diagnosis in a bounded single printable diagnostic line. Existing `/1` correlation/foreign-session/protocol/one-envelope cases remain unchanged and all pass in the class. The historical test ID is retained for accounting; its inline supersession explains why unknown versions no longer latch a frame.
+3. `tests/integration/test_driver.py`: `_OrdinaryAdmissionWorld.assert_retained_history` expected writer workspace deletion even while asserting retained custody. DESIGN's selected primary lifecycle and isolated `intake.authorize_cleanup` preserve execution roots; `test_review_driver.assert_owned_custody` already enforces the same rule for reviewer output. Capture both writer execution-root trees immediately before cleanup in completed and unable branches, then prove their device/inode/mode/UID/GID, regular bytes and symlink targets unchanged afterwards. Assert real cleanup returns retained+absent, no fabricated directory-custody receipt, and kept IDs exactly match retained artifacts. Existing frozen/completion/result/receipt identities, content digests, runtime-destroyed and exact one destroy, reviewer custody, failed/unrun refusal, requirement mismatch and no-admission checks remain. Recheck retained history after admission replay as well; existing DB total-change counters still prove replay wrote nothing.
+
+These are revalidated stale expectations, not new product/specification choices. No product conflict was found in this slice.
+
+## Focused verification and evidence
+
+All1133 source files matched the preceding accepted remaining-engine selected manifest before editing. Prior reviewed overlays and cleanup-only workspaces.py stayed intact; no current K product import. Every run hashes all1133 files before/after and reports zero drift. Final source differs from that prior selection at exactly these three test paths. `selected-source.json` pins the final set; `source-restored.json` preserves the prior selection.
+
+| Run | Result | Body seconds | Command wall seconds |
+| --- | --- | ---: | ---: |
+| baseline | five top-level IDs fail;10 assertion events including subtests | 0.569 | 0.814350 |
+| affected | 5/5 tests,11/11 subtests | 0.859 | 1.114585 |
+| classes | 28/28 tests,20/20 subtests | 1.725 | 1.965427 |
+
+Total focused command wall3.894363s. Baseline uses version-level just test-one and retains all original failures. Affected/final use the already reviewed evidence-only unittest recorder with the same prepared Python3.13.7 interpreter so successful subtests are enumerated. `affected/ledger.json` and `classes/ledger.json` bind exact collected/started/outcome IDs; no skipped or unaccounted cases. The final selection includes only the three assigned classes and the directly relevant isolated-copy layout class. No broad module/group/full run. Per-run cap600s, no timeout.
+
+The integration fixture uses deterministic provider/engine substitutes at their existing boundaries, actual command execution in disposable fixture repositories, real local authority/public admission and retained artifacts. This is deterministic coverage, not live provider/Docker proof. No Docker command, image build, live provider, installation or external authority mutation was performed by these tests. Canonical Baton claim/handoff is separate coordination. All three fresh /var/tmp/baton-w384944-pure-* roots are removed; each result.json proves no leftovers, and test subprocesses exited. No container/image resource was created.
+
+## Remaining inventory and recovery
+
+`resolved-historical-ids.tsv` lists the exact five prior failures. `remaining-pure-driver-historical.tsv` is header-only pending independent acceptance. The prior selected historical engine inventory is already accepted empty. This does not close B4: current-tree joins with accepted Stage C, parent B5 singleton triage, supervised/final full accounting, independent final review and owner closure/check-in remain. No next slice was started.
+
+Scratch remains disposable. Recover a8cbc974 with the original allocation manifest, then exact overlays from custody-final-20261031, remaining-engine-20261117 and these three candidates; verify every entry against this selected-source.json. Use durable base/candidate files and preserve modes; do not substitute moving shared product source. run-focused.py resolves the isolated snapshot from source-restored.json; audit-tests.py is the retained outcome recorder. No required evidence exists only in scratch.

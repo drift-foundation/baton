@@ -135,3 +135,22 @@ comparison artifact retained. Historical _deadline_of probes no longer reach the
 new review_final_arbitration_20260927.py supersedes their current-proof role without
 rewriting evidence. Child C restart/integrated recovery and parent remain unfinished.
 Pass accepted delivery to owner; no graph, Git, live execution or consumer migration.
+
+## 2026-11-17 — Clarification: the recorded new deadline is self-signed (W384870 owner selection, RENEWAL-DECISION.md option A)
+
+Pinned here without changing this Work's state. W384870's Stage C review
+(2026-10-31T03:05:05Z) showed that `renew` signs the REQUEST operands and records the
+answered instants (`renewed_at`, `expires_at`) only in the result; `ControlStore.replay`
+binds the signature, not the result bytes, so a rewritten renewal `expires_at` changed
+the expiry decision. The owner selected (2026-11-17, W384870
+RESUME-DECISIONS-20261117.md): the renewal request record keeps its identity, signed
+operands and lost-reply replay exactly as accepted here (TOK-9); a second,
+self-signed DECISION record (`resource-token.renewal-decided`, identity derived from the
+renewal's, operands = result = version/domain/generation/revision/renewed_at/expires_at)
+is written in the same `_acting_record` transaction; every reader and every replay of
+a renewal verifies the request against its decision (`tokens._verified_renewal`) and
+refuses an absent, corrupted or mis-correlated decision or a changed request result.
+Renewals committed before this correction have no decision record and are refused on
+read; no adoption from unverified result bytes. No TOK-9 text changes; "recorded new
+deadline" now names a signed record. Evidence and tests: W384870
+`evidence/owner-selections-20261117/`, `test_stopped_settlement.RenewalDecisionRecord`.

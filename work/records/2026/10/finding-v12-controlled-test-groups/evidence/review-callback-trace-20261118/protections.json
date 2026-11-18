@@ -1,0 +1,13 @@
+{
+  "command": [
+    "just",
+    "test-one",
+    "tests.manager.test_boundary_inventory.StageCProtections"
+  ],
+  "root": "/var/tmp/rv-tdild3f5",
+  "exit": 0,
+  "seconds": 87.11565145799977,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true
+}

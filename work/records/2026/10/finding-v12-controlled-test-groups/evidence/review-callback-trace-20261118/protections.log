@@ -1,0 +1,44 @@
+test_a_cleanup_settlement_runs_only_inside_its_endings_transaction (tests.manager.test_boundary_inventory.StageCProtections.test_a_cleanup_settlement_runs_only_inside_its_endings_transaction)
+Owner selection 2026-11-17 option 1: the connection operand is a proof, checked before any read or write. ... ok
+test_a_corrupted_self_signed_record_refuses (tests.manager.test_boundary_inventory.StageCProtections.test_a_corrupted_self_signed_record_refuses)
+The reviewer's token counterexample, and the same proof for every self-signed journal family. ... ok
+test_a_forged_custody_member_releases_nothing (tests.manager.test_boundary_inventory.StageCProtections.test_a_forged_custody_member_releases_nothing)
+A `directory_custody` member forged into a committed ending must not release the resource. ... ok
+test_a_malformed_governor_answer_refuses_before_any_reclaim (tests.manager.test_boundary_inventory.StageCProtections.test_a_malformed_governor_answer_refuses_before_any_reclaim)
+Review 2026-10-31T03:05:05Z: the governor's `overdue` answer is owned where it lands. ... ok
+test_a_pass_through_replay_reads_no_member (tests.manager.test_boundary_inventory.StageCProtections.test_a_pass_through_replay_reads_no_member) ... ok
+test_a_redirected_or_corrupted_qualification_row_grants_nothing (tests.manager.test_boundary_inventory.StageCProtections.test_a_redirected_or_corrupted_qualification_row_grants_nothing)
+The parsed run_id in `_qualified`'s candidate loop is a lookup key, owned by the lookup. ... ok
+test_an_honest_renewal_moves_the_deadline_once_and_a_lost_reply_replays_it (tests.manager.test_boundary_inventory.StageCProtections.test_an_honest_renewal_moves_the_deadline_once_and_a_lost_reply_replays_it)
+TOK-9's accepted renewal behaviour, pinned before the renewal-record correction. ... ok
+test_every_adopted_row_door_is_handed_an_owned_row (tests.manager.test_boundary_inventory.StageCProtections.test_every_adopted_row_door_is_handed_an_owned_row) ... ok
+test_every_forwarded_entry_reaches_an_owned_target (tests.manager.test_boundary_inventory.StageCProtections.test_every_forwarded_entry_reaches_an_owned_target) ... ok
+test_every_internal_operand_arrives_owned (tests.manager.test_boundary_inventory.StageCProtections.test_every_internal_operand_arrives_owned) ... ok
+test_every_mint_is_package_private (tests.manager.test_boundary_inventory.StageCProtections.test_every_mint_is_package_private) ... ok
+test_label_operands_reach_only_the_refusal_prose (tests.manager.test_boundary_inventory.StageCProtections.test_label_operands_reach_only_the_refusal_prose)
+A `what` operand is this manager's own noun: it names the refusal and decides nothing. ... ok
+test_outbound_constructors_have_no_caller_outside_the_package (tests.manager.test_boundary_inventory.StageCProtections.test_outbound_constructors_have_no_caller_outside_the_package) ... ok
+test_replayed_or_keyed_members_are_compared_carried_or_re_read (tests.manager.test_boundary_inventory.StageCProtections.test_replayed_or_keyed_members_are_compared_carried_or_re_read)
+Every remaining stated read of a journal or key column is used as a comparison operand, ... ok
+test_stated_rules_refuse_what_they_say (tests.manager.test_boundary_inventory.StageCProtections.test_stated_rules_refuse_what_they_say) ... ok
+test_strict_columns_are_read_as_their_declared_type (tests.manager.test_boundary_inventory.StageCProtections.test_strict_columns_are_read_as_their_declared_type)
+`COALESCE(MAX(c), 0) + 1` over a STRICT INTEGER and a STRICT TEXT key listing. ... ok
+test_the_owned_input_trace_accepts_a_typed_attribute_a_constant_and_a_composition_call (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_accepts_a_typed_attribute_a_constant_and_a_composition_call) ... ok
+test_the_owned_input_trace_accepts_an_owned_read_operand_and_composition (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_accepts_an_owned_read_operand_and_composition) ... ok
+test_the_owned_input_trace_binds_only_the_signature_compared_members_of_a_decoded_result (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_binds_only_the_signature_compared_members_of_a_decoded_result)
+`_qualified`'s idiom: a decoded journal result whose named members are compared, through ... ok
+test_the_owned_input_trace_follows_a_callback_to_what_it_answers (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_follows_a_callback_to_what_it_answers)
+Review 2026-11-17T23:24:47Z P1: a lambda is not harmless by being a lambda, and a composing ... ok
+test_the_owned_input_trace_follows_a_package_wrapper_to_what_it_returns (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_follows_a_package_wrapper_to_what_it_returns)
+Review 2026-11-17T19:43:26Z P1: a package wrapper around a producer owns nothing by membership. ... ok
+test_the_owned_input_trace_rejects_an_attribute_a_module_value_and_a_parser (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_rejects_an_attribute_a_module_value_and_a_parser)
+Review 2026-10-31T03:05:05Z P1: the three universes that passed with zero owning validators. ... ok
+test_the_owned_input_trace_rejects_an_unowned_public_operand_and_an_unresolved_name (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_rejects_an_unowned_public_operand_and_an_unresolved_name) ... ok
+test_the_owned_input_trace_rejects_an_unowned_read (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_rejects_an_unowned_read)
+The reviewer's counterexample: a raw row handed to a helper, no validator anywhere. ... ok
+test_the_reclaim_answers_are_never_read (tests.manager.test_boundary_inventory.StageCProtections.test_the_reclaim_answers_are_never_read) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 86.431s
+
+OK

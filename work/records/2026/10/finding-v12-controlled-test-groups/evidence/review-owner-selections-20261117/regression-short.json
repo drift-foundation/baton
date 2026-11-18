@@ -1,0 +1,15 @@
+{
+  "command": [
+    "just",
+    "test-one",
+    "tests.manager.test_stopped_settlement",
+    "tests.manager.test_intake",
+    "tests.manager.test_workspaces"
+  ],
+  "root": "/var/tmp/rv-p4d4h7uq",
+  "exit": 0,
+  "seconds": 9.304652271999657,
+  "source_drift": [],
+  "leftovers": [],
+  "root_removed": true
+}

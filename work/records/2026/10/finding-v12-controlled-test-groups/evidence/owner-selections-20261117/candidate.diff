@@ -1,0 +1,1049 @@
+diff --git a/v12/python/src/baton_v12/worker_manager/intake.py b/v12/python/src/baton_v12/worker_manager/intake.py
+index 3dab2d06..3b77ca43 100644
+--- a/v12/python/src/baton_v12/worker_manager/intake.py
++++ b/v12/python/src/baton_v12/worker_manager/intake.py
+@@ -5665,8 +5665,14 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
+     # W384870 stage C (review 2026-10-31T03:05:05Z): THE GOVERNOR'S ANSWER IS AN INJECTED
+     # DOCUMENT, owned where it lands -- its generation names the reclaim operation and
+     # its container is compared with the attempt's, so neither is taken on faith.
+-    overdue = boundaries.document(answered, "the resource governor's overdue answer", required=("generation",))
+-    boundaries.generation(overdue["generation"], "the resource governor's overdue generation")
++    # An OPEN document: governors answer the token as they know it (the production
++    # governor answers `token_of`'s whole document, test governors slimmer ones), so
++    # the contract is the two members this ending consumes, not a closed shape.
++    overdue = boundaries.document(answered, "the resource governor's overdue answer")
++    # A PRESENT generation is a generation; an absent one is the accepted
++    # unknown-generation path (the outcome is recorded with `generation=None`).
++    if overdue.get("generation") is not None:
++        boundaries.generation(overdue["generation"], "the resource governor's overdue generation")
+     runtime_id = overdue.get("container")
+     if attempt["runtime_id"] is not None and runtime_id != attempt["runtime_id"]:
+         # W333486: THE MISMATCH IS THIS MANAGER'S OWN TYPED FACT, recorded
+diff --git a/v12/python/src/baton_v12/worker_manager/tokens.py b/v12/python/src/baton_v12/worker_manager/tokens.py
+index b2a8cddd..fe252783 100644
+--- a/v12/python/src/baton_v12/worker_manager/tokens.py
++++ b/v12/python/src/baton_v12/worker_manager/tokens.py
+@@ -174,6 +174,20 @@ def _renewed_id(domain, generation, revision):
+     return f"{RENEWED_KIND}:{domain}:{generation}:{revision}"
+ 
+ 
++# Owner selection 2026-11-17 (RENEWAL-DECISION.md option A): THE DECIDED DEADLINE IS
++# SELF-SIGNED. The renewal REQUEST record keeps its identity, its signed request
++# operands and its lost-reply replay; the instants this manager ANSWERED ride a
++# second record whose signed operands are its result, written in the same
++# transaction. A request result that disagrees with its decision, a decision that
++# names another renewal, a corrupted decision or a renewal with no decision record
++# (every renewal committed before this correction) is refused rather than read.
++RENEWAL_DECIDED_KIND = "resource-token.renewal-decided"
++
++
++def _renewal_decision_id(domain, generation, revision):
++    return f"{RENEWAL_DECIDED_KIND}:{domain}:{generation}:{revision}"
++
++
+ def _returned_id(domain, generation):
+     return f"{RETURNED_KIND}:{domain}:{generation}"
+ 
+@@ -285,12 +299,55 @@ def outstanding(control, domain):
+         generation += 1
+ 
+ 
++def _verified_renewal(control, domain, generation, revision, request):
++    """The renewal REQUEST record, verified against its self-signed DECISION record.
++
++    Owner selection 2026-11-17 (option A). `replay` binds the signature and not the
++    result bytes, and the request's signature covers the request, not the instants
++    this manager answered -- so the instants are verified here against the decision
++    record whose signed operands ARE its result (`replayed_as_signed`). Every reader
++    of a renewal and every replay of one passes through this; a renewal whose
++    decision is absent (committed before this correction), corrupted, or about another
++    renewal, or whose request result no longer matches its decision, is refused rather
++    than read. Nothing adopts old result bytes as a decision.
++    """
++    from .store import replayed_as_signed
++
++    decision = replayed_as_signed(
++        control, _renewal_decision_id(domain, generation, revision), RENEWAL_DECIDED_KIND,
++        what="a renewal decision record")
++    if decision is None:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"renewal {revision} of {name_value(domain)} generation {generation} has no "
++            f"committed decision record; a renewed deadline this manager cannot verify "
++            f"against its own signed decision is refused rather than read")
++    for member, value in (("version", TOKEN_VERSION), ("domain", domain),
++                          ("generation", generation), ("revision", revision)):
++        if decision[member] != value:
++            raise ContractRefusal(
++                "integrity", "schema",
++                f"the decision record for renewal {revision} of {name_value(domain)} "
++                f"generation {generation} names {member} {name_value(decision[member])}; "
++                f"a decision about another renewal does not verify this one")
++    for member in ("renewed_at", "expires_at"):
++        if request[member] != decision[member]:
++            raise ContractRefusal(
++                "integrity", "schema",
++                f"renewal {revision} of {name_value(domain)} generation {generation} "
++                f"records {member} {name_value(request[member])} and its signed decision "
++                f"says {name_value(decision[member])}; the request result was changed "
++                f"after the renewal was decided")
++    return request
++
++
+ def _renewals_of(control, domain, generation):
+     """Every committed renewal of this generation, in revision order.
+ 
+     W275775. READ FROM THE JOURNAL BY DERIVED IDENTITY, like every other token fact:
+     revision 1 is the first renewal, and the walk stops at the first absent one, so a
+-    record written under some other identity cannot lengthen a lifetime here.
++    record written under some other identity cannot lengthen a lifetime here. Each
++    renewal is answered only through `_verified_renewal` (owner selection 2026-11-17).
+     """
+     found = []
+     revision = 1
+@@ -299,7 +356,7 @@ def _renewals_of(control, domain, generation):
+                              RENEWED_KIND)
+         if document is None:
+             return found
+-        found.append(document)
++        found.append(_verified_renewal(control, domain, generation, revision, document))
+         revision += 1
+ 
+ 
+@@ -677,7 +734,7 @@ def _extended(control, token, domain, generation, what, execution, operation,
+     Split out of `renew` so the expiry judgement can wrap the WHOLE attempt rather than only
+     its preflight -- W275775 review 2026-09-27T03-02-01Z asked for exactly that equivalence.
+     """
+-    from .store import manager_signature
++    from .store import _recorded, manager_signature
+ 
+     held = _owning(control, token, what)
+     if held["execution"] != execution or held["operation"] != operation:
+@@ -764,9 +821,23 @@ def _extended(control, token, domain, generation, what, execution, operation,
+                 f"and the bounded policy allows {RENEWAL_LIMIT}. Exhaustion does not free "
+                 f"the resource -- the holder finishes or is revoked, and the resource stays "
+                 f"held either way")
++        # THE DECISION, SELF-SIGNED, IN THIS SAME TRANSACTION (owner selection 2026-11-17,
++        # option A). Its signed operands are its result, so `replayed_as_signed` verifies
++        # it whole; the request record above keeps the request as its identity, so a
++        # lost-reply retry still replays instead of colliding. `_acting_record` commits
++        # both or rolls both back.
++        decision = {"version": TOKEN_VERSION, "domain": domain, "generation": generation,
++                    "revision": revision + 1, "renewed_at": taken,
++                    "expires_at": document["expires_at"]}
++        control._record(_renewal_decision_id(domain, generation, revision + 1),
++                        RENEWAL_DECIDED_KIND, manager_signature(RENEWAL_DECIDED_KIND, decision),
++                        "committed", _recorded(decision), None)
+         return dict(document)
+ 
+-    return _acting_record(control, token, identity, RENEWED_KIND, operands, action=extend)
++    # THE REPLAY IS VERIFIED TOO: a retry answers the recorded request result, and that
++    # result is bound to its decision exactly as `_renewals_of` binds every read.
++    answered = _acting_record(control, token, identity, RENEWED_KIND, operands, action=extend)
++    return _verified_renewal(control, domain, generation, revision + 1, answered)
+ 
+ 
+ def journal_launch(control, token, launch):
+diff --git a/v12/python/src/baton_v12/worker_manager/workspaces.py b/v12/python/src/baton_v12/worker_manager/workspaces.py
+index a62a9543..b7ac2849 100644
+--- a/v12/python/src/baton_v12/worker_manager/workspaces.py
++++ b/v12/python/src/baton_v12/worker_manager/workspaces.py
+@@ -2758,6 +2758,12 @@ def settle_cleanup(control, connection, assignment_id, admitted, what):
+     one, so this writes through `_record` rather than `transact` -- pure database work
+     under a lock the caller already holds, which is what owner 270664's rule permits.
+ 
++    AND THAT IS CHECKED, NOT ASSUMED (owner selection 2026-11-17, SETTLE-CLEANUP-DECISION.md
++    option 1): `connection` must be THIS store's connection and must have an open
++    transaction, or nothing is read or written. `in_transaction` proves an open
++    transaction on that connection; the write-lock mode comes from the accepted
++    `transact` path's `BEGIN IMMEDIATE`, which is the only caller.
++
+     THE ADMISSION IS RE-READ RATHER THAN TRUSTED. The document the caller holds is one
+     the caller is holding; what authorizes the settlement is the record this journal
+     still has, with its signature recomputed, naming this act as its owner.
+@@ -2770,6 +2776,14 @@ def settle_cleanup(control, connection, assignment_id, admitted, what):
+             or "owner" not in admitted:
+         _refuse("settling a cleanup needs the admission this act was given",
+                 code="schema")
++    if connection is not getattr(control, "_connection", None) \
++            or not getattr(connection, "in_transaction", False):
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what}'s cleanup settlement runs only inside the ending's own open "
++            f"transaction on this store's connection; a foreign connection, or this "
++            f"store's connection with no open transaction, is refused before anything "
++            f"is read or written")
+     ordinal = admitted["ordinal"]
+     record = control.operation_record(
+         _cleanup_admission_id(assignment_id, ordinal))
+diff --git a/v12/python/tests/manager/test_boundary_inventory.py b/v12/python/tests/manager/test_boundary_inventory.py
+index 066124c4..7c2f42a3 100644
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -4495,7 +4495,7 @@ STAGE_C_PASSTHRU = (
+     "review_cycles.py:record_progress", "review_cycles.py:record_verdict", "review_cycles.py:release_writer",
+     "review_cycles.py:restore_abandoned_correction",
+     "stopped_settlement.py:settle_stopped", "stopped_settlement.py:status",
+-    "store.py:ControlStore.transact", "tokens.py:_acting_record", "tokens.py:_fence_settlement",
++    "store.py:ControlStore.transact", "tokens.py:_fence_settlement",
+ )
+ 
+ # -- public doors over an attempts row the caller already owns ------------------------
+@@ -4504,11 +4504,11 @@ STAGE_C_PASSTHRU = (
+ # the validators that own it where it lands are declared here, with their witness.
+ NOT_AN_ENTRY.update({
+     ("intake.py:reclaim_expired_resource", "document", "the resource governor's overdue answer"):
+-        "the answer of the typed governor capability's `overdue`, owned where it lands: a non-document "
+-        "or one without `generation` refuses before anything is ordered; "
++        "the answer of the typed governor capability's `overdue`, owned where it lands as an open document: a non-document "
++        "refuses before anything is ordered (an absent generation is the accepted unknown-generation path); "
+         "StageCProtections.test_a_malformed_governor_answer_refuses_before_any_reclaim witnesses it",
+     ("intake.py:reclaim_expired_resource", "generation", "the resource governor's overdue generation"):
+-        "the overdue answer's generation, which names the reclaim operation; a non-generation refuses "
++        "the overdue answer's generation when present, which names the reclaim operation; a present non-generation refuses "
+         "before anything is ordered; the same witness drives it",
+ })
+ 
+@@ -4987,7 +4987,7 @@ STAGE_C_STATED = {
+        "checked, not labelled (site comment): a dict with ordinal and owner; the owner is compared with the admission's current owner (identity-mismatch refuses)"
+        for subject in ("admitted", "admitted.ordinal", "admitted.owner")},
+     ("caller", "workspaces.py:settle_cleanup", "connection"):
+-        "never read by the body (B2 Case H: the docstring states a transaction contract the parameter does not carry); an unread operand reaches no effect -- the contract question is an open owner decision",
++        "owner selection 2026-11-17 (SETTLE-CLEANUP-DECISION.md option 1, B2 Case H): an inline proof, not a document -- the connection must be THIS store's (`is control._connection`) with an open transaction (`in_transaction`) or nothing is read or written; the write-lock mode is the accepted `transact` caller's BEGIN IMMEDIATE (StageCProtections.test_a_cleanup_settlement_runs_only_inside_its_endings_transaction; the full matrix is test_workspaces.CleanupSettlementRunsInItsEndingsTransaction)",
+     **{("adopted", "workspaces.py:_durably_in_use", table): "an existence read (`LIMIT 1`); the id reaches only the refusal prose" for table in ("line_writers", "review_attachments")},
+ 
+     # -- tokens ------------------------------------------------------------------------
+@@ -4995,8 +4995,13 @@ STAGE_C_STATED = {
+        "the one read of a self-signed journal record (resource tokens, removal ownership and binding, cleanup admission and takeover, restoration locks, the settlement selection): the replayed result is compared whole with the signature's own operands and any difference refuses (stage C correction after review 2026-10-31T02:06:09Z; a rewritten token expiry used to flip the expiry decision)"
+        for subject in ("replay", "replay.attempt_id", "replay.container", "replay.decided_at", "replay.device", "replay.execution",
+                        "replay.expired_at", "replay.expires_at", "replay.generation", "replay.inode", "replay.launch", "replay.observed_at",
+-                       "replay.operation", "replay.operation_id", "replay.owner", "replay.permission", "replay.settlement",
++                       "replay.operation", "replay.operation_id", "replay.owner", "replay.permission", "replay.renewed_at", "replay.settlement",
+                        "replay.settlement.operation", "replay.settlement.signature", "replay.started", "replay.token")},
++    # owner selection 2026-11-17 (renewal option A): the renewal's replayed REQUEST result is no longer handed back unread --
++    # `_extended` hands it to `_verified_renewal`, which compares its two decided instants with the self-signed decision record
++    **{("adopted", "tokens.py:_acting_record", subject):
++       "the replayed renewal request result is answered only through `_verified_renewal` (owner selection 2026-11-17, option A): its `renewed_at` and `expires_at` are comparison operands against the self-signed decision record read by `replayed_as_signed`, and a difference refuses (test_stopped_settlement.RenewalDecisionRecord drives every reader and the direct retry)"
++       for subject in ("replay", "replay.expires_at", "replay.renewed_at")},
+     ("caller", "store.py:replayed_as_signed", "kind"): "compared by `replay(kind=kind)` with the recorded kind (a mismatch refuses)",
+     ("caller", "store.py:replayed_as_signed", "what"): _LABEL_OPERAND,
+ 
+@@ -5058,6 +5063,8 @@ def _stage_c_witness(entry):
+         return "test_every_internal_operand_arrives_owned"
+     if entry == ("caller", "provider_context.py:qualification_grant_of", "run_id"):
+         return "test_a_redirected_or_corrupted_qualification_row_grants_nothing"
++    if entry == ("caller", "workspaces.py:settle_cleanup", "connection"):
++        return "test_a_cleanup_settlement_runs_only_inside_its_endings_transaction"
+     if site.startswith("documents.py:"):
+         return "test_outbound_constructors_have_no_caller_outside_the_package"
+     if subject == "control":
+@@ -13290,6 +13297,17 @@ class DeadlineForwardingInventory(unittest.TestCase):
+             case.model("def first(agent):\n    return agent.cancel({})\ndef second(agent):\n    return agent.cancel({})\n")
+ 
+ 
++def _binds_attribute(target, attr):
++    """Does this assignment target bind `self.attr`/`cls.attr` (through tuple unpacking and starring)?"""
++    if isinstance(target, ast.Attribute):
++        return isinstance(target.value, ast.Name) and target.value.id in ("self", "cls") and target.attr == attr
++    if isinstance(target, (ast.Tuple, ast.List)):
++        return any(_binds_attribute(piece, attr) for piece in target.elts)
++    if isinstance(target, ast.Starred):
++        return _binds_attribute(target.value, attr)
++    return False
++
++
+ def _binds_name(target, name):
+     """Does this assignment/loop/with target bind `name` (through tuple unpacking and starring)?"""
+     if isinstance(target, ast.Name):
+@@ -13539,7 +13557,7 @@ class StageCProtections(BoundaryCase):
+         # a private helper's parameter is whatever its callers hand it: every caller proves it
+         hop = f"{site}#{head}"
+         if hop in trail:
+-            raise AssertionError("provenance loops: " + " -> ".join(trail + (hop,)))
++            return  # a cycle through this parameter (`_transition -> _operation -> _id -> _transition`): the outer frame is proving every other caller, and the cycle adds no source
+         callers = self._bindings_at_callers(site, head)
+         if not callers:
+             raise AssertionError(f"private {site} binds {head} from no caller in the package")
+@@ -13555,8 +13573,12 @@ class StageCProtections(BoundaryCase):
+         every caller hands it something this trace proves in turn; a composed
+         expression counts when every leaf it is built from does.
+         """
+-        if len(trail) > 8:
+-            raise AssertionError("provenance runs deeper than eight hops: " + " -> ".join(trail + (site,)))
++        if len(trail) > 16:
++            raise AssertionError("provenance runs deeper than sixteen hops: " + " -> ".join(trail + (site,)))
++        if isinstance(expression, ast.Call) and self._validator_call(expression.func, site):
++            return  # THE RULED VALIDATOR'S RESULT IS THE OWNED VALUE -- before `_source` strips the layer to its argument's origin
++        if isinstance(expression, ast.Call) and ast.unparse(expression.func) in self._DERIVING:
++            return  # an identity-shaped derivation (see _DERIVING)
+         returns = _helper_returns()
+         entries = receiving_entries()
+         origin = _source(expression, origins, site, returns)
+@@ -13616,13 +13638,16 @@ class StageCProtections(BoundaryCase):
+             function = expression.func
+             gap = self._callee_gap(function, site)
+             if gap is not None:
+-                raise AssertionError(f"{site}: {gap}")
++                raise AssertionError(f"{site}: {gap}" + (f" ({' -> '.join(trail + (site,))})" if trail else ""))
+             if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name) and function.value.id == "boundaries" \
+                     and self._import_kind(site.split(":")[0], "boundaries") == "package":
+                 return  # THE RULED VALIDATOR: its result is the owned value, whatever it was given
+             if isinstance(function, ast.Attribute) and ast.unparse(function) not in self._COMPOSING_EXTERNAL \
+-                    and not (isinstance(function.value, ast.Name) and (function.value.id in ("self", "cls") or self._is_module(function.value.id, site))):
++                    and not (isinstance(function.value, ast.Name) and (function.value.id in ("self", "cls") or function.value.id in self._COMPOSING_BUILTINS
++                                                                       or self._is_module(function.value.id, site))):
+                 recurse(function.value)
++            if self._owned_call_result(function, site, case, trail):
++                return  # the callee's RETURNS were traced; what they depend on was traced through its parameters
+             doors = self._callee_doors(expression, site)
+             for piece in expression.args:
+                 self._owned_argument(piece.value if isinstance(piece, ast.Starred) else piece, doors, site, origins, case, trail)
+@@ -13645,6 +13670,13 @@ class StageCProtections(BoundaryCase):
+                 assigned = [piece.value for piece in ast.walk(node) if isinstance(piece, ast.Assign) and any(_binds_name(target, name) for target in piece.targets)]
+                 assigned += [piece.value for piece in ast.walk(node) if isinstance(piece, (ast.AnnAssign, ast.NamedExpr))
+                              and piece.value is not None and _binds_name(piece.target, name)]
++                # `report = _qualification_review(...)` then `report = _document(report, ...)`: the rebinding consumed the
++                # earlier value, so the later binding is what every read after it sees; only the rebindings are traced
++                # (their own argument `report` is the earlier value, traced through them when they do not own it).
++                rebindings = [value for value in assigned if isinstance(value, ast.Call)
++                              and any(isinstance(piece, ast.Name) and piece.id == name for piece in ast.walk(value))]
++                if rebindings:
++                    assigned = rebindings
+                 if assigned:
+                     for value in assigned:
+                         recurse(value)
+@@ -13664,6 +13696,8 @@ class StageCProtections(BoundaryCase):
+                     return
+                 if self._owned_lambda_parameter(name, expression, site, origins, case, trail):
+                     return
++                if self._owned_nested_parameter(name, expression, site, origins, case, trail):
++                    return
+                 if self._module_binds(site, name):
+                     self._owned_module_binding(site.split(":")[0], name, site, case, trail)
+                     return
+@@ -13683,7 +13717,8 @@ class StageCProtections(BoundaryCase):
+         "dict", "tuple", "list", "set", "frozenset", "sorted", "reversed", "enumerate", "zip",
+         "len", "str", "int", "float", "bool", "repr", "max", "min", "sum", "abs", "range",
+         "any", "all", "isinstance", "type", "iter", "next", "hash", "id", "format", "bytes",
+-        "divmod", "round", "map", "filter", "slice"))
++        "divmod", "round", "map", "filter", "slice",
++        "object"))  # `object()` is an opaque sentinel (a mint token) with no content
+     _COMPOSING_EXTERNAL = frozenset((
+         # path text composed from traced parts; none of these reads the filesystem
+         "os.path.join", "os.path.dirname", "os.path.basename", "os.path.normpath",
+@@ -13695,8 +13730,18 @@ class StageCProtections(BoundaryCase):
+         "hashlib.sha256", "base64.b64encode", "base64.urlsafe_b64encode",
+         # a frozen view of a traced mapping
+         "MappingProxyType", "types.MappingProxyType",
++        # a deterministic name-based derivation of its traced arguments (NOT uuid4, which is new content)
++        "uuid.uuid5", "uuid.uuid3",
++        # the kernel's answer about a traced path or handle of the manager's own storage: a descriptor or a
++        # stat result (device, inode, mode) is this manager's observation, not content anybody handed in;
++        # reading THROUGH a descriptor (`.read()`, `os.read`) is content and stays unowned
++        "os.open", "os.fstat", "os.stat", "os.lstat", "os.scandir", "os.listdir", "os.walk",
+         # canonical text of a traced document
+-        "json.dumps"))
++        "json.dumps",
++        # a re-spelling of traced text (percent-escapes), not new content
++        "quote", "unquote", "urllib.parse.quote", "urllib.parse.unquote",
++        # a partition of traced text into its components, not new content
++        "urlsplit", "urlparse", "urllib.parse.urlsplit", "urllib.parse.urlparse"))
+     _COMPOSING_METHODS = frozenset((
+         # a member or a re-spelling of the traced object, never new content
+         "get", "items", "keys", "values", "copy", "encode", "decode", "strip", "lstrip", "rstrip",
+@@ -13705,20 +13750,29 @@ class StageCProtections(BoundaryCase):
+         "setdefault", "pop", "update", "append", "extend", "index", "count", "partition",
+         "rpartition", "splitlines", "casefold", "title"))
+ 
+-    def _import_kind(self, module, name):
+-        """'package' for this package's own import of `name` in `module`, 'external' for any other import, None if not imported."""
++    def _import_kind(self, module, name, site=None):
++        """'package' for this package's own import of `name` (at module level, or inside `site`'s function when given),
++        'external' for any other import, None if not imported."""
++        module = module.split(":")[0]
+         for source, tree in _sources():
+             if source.name != module:
+                 continue
+-            for piece in tree.body:
+-                if isinstance(piece, ast.ImportFrom):
+-                    for alias in piece.names:
+-                        if (alias.asname or alias.name) == name:
+-                            return "package" if piece.level or (piece.module or "").startswith("baton_v12") else "external"
+-                elif isinstance(piece, ast.Import):
+-                    for alias in piece.names:
+-                        if (alias.asname or alias.name).split(".")[0] == name:
+-                            return "package" if alias.name.startswith("baton_v12") else "external"
++            scopes = [tree.body]
++            if site is not None:
++                try:
++                    scopes.append([piece for piece in ast.walk(self._function(site)) if isinstance(piece, (ast.Import, ast.ImportFrom))])
++                except AssertionError:
++                    pass
++            for body in scopes:
++                for piece in body:
++                    if isinstance(piece, ast.ImportFrom):
++                        for alias in piece.names:
++                            if (alias.asname or alias.name) == name:
++                                return "package" if piece.level or (piece.module or "").startswith("baton_v12") else "external"
++                    elif isinstance(piece, ast.Import):
++                        for alias in piece.names:
++                            if (alias.asname or alias.name).split(".")[0] == name:
++                                return "package" if alias.name.startswith("baton_v12") else "external"
+         return None
+ 
+     def _callee_gap(self, function, site):
+@@ -13727,26 +13781,31 @@ class StageCProtections(BoundaryCase):
+         dotted = ast.unparse(function)
+         if isinstance(function, ast.Name):
+             name = function.id
+-            if name in self._COMPOSING_BUILTINS or name in self._COMPOSING_EXTERNAL:
++            if name in self._COMPOSING_BUILTINS or name in self._COMPOSING_EXTERNAL or name in self._DERIVING:
+                 return None
+             if name in dir(builtins):
+                 return f"{dotted} is a builtin that produces content the trace cannot own"
+             if _helper_site(function, site, _helper_returns()) is not None and self._module_binds(site, name) and self._import_kind(module, name) is None:
+                 return None  # this module's own function or class
+-            kind = self._import_kind(module, name)
++            try:
++                if name in _parameters(self._function(site)):
++                    return None  # a callable handed in: `_owned_call_result` follows what each caller hands
++            except AssertionError:
++                pass
++            kind = self._import_kind(module, name, site)
+             if kind == "package":
+                 return None  # this package's own function, class or validator
+             if kind == "external":
+                 return f"{dotted} is an external call whose result nothing here owns"
+             return f"{dotted} is not a package function, a composing builtin or a module binding"
+         if isinstance(function, ast.Attribute):
+-            if dotted in self._COMPOSING_EXTERNAL:
++            if dotted in self._COMPOSING_EXTERNAL or dotted in self._DERIVING:
+                 return None
+             base = function.value
+             if isinstance(base, ast.Name):
+                 if base.id in ("self", "cls"):
+                     return None  # a method of the same class: package code
+-                kind = self._import_kind(module, base.id)
++                kind = self._import_kind(module, base.id, site)
+                 if kind == "package":
+                     return None  # `boundaries.x`, `documents.y`, `_attempts.z`: package code
+                 if kind == "external":
+@@ -13757,9 +13816,170 @@ class StageCProtections(BoundaryCase):
+                 return None
+             if function.attr in self._COMPOSING_METHODS:
+                 return None  # the object itself is traced by the caller
++            if isinstance(base, ast.Name) and base.id in self._COMPOSING_BUILTINS:
++                return None  # `dict.fromkeys(...)`, `str.join(...)`: a composing builtin's constructor over traced arguments
++            if function.attr == "transact" and (isinstance(base, ast.Name) and base.id in ("control", "store", "self")
++                                                or isinstance(base, ast.Attribute) and isinstance(base.value, ast.Name) and base.value.id == "self"):
++                return None  # the store's transact: its result is its action's return, traced by `_owned_transact_result`
+             return f"{dotted} is a method call whose result nothing here owns"
+         return f"cannot classify the callee {dotted[:60]}"
+ 
++    # Review 2026-11-17T19:43:26Z P1: PACKAGE MEMBERSHIP IS NOT A PROOF OF WHAT A CALL RETURNS.
++    # A package callee's result is owned only when every value it returns is traced at ITS
++    # site -- to a validator, a composition of owned values, or its own parameters (which
++    # `_owned_caller` traces back through every caller). The few package-level callees whose
++    # source this inventory does not read are admitted one by one as composers of their
++    # (traced) arguments; everything else fails closed.
++    _COMPOSING_PACKAGE = frozenset(("canonical_text", "name_value", "sample_of"))
++    # An identity-shaped DERIVATION: a digest summarises its argument into a fixed-shape key whose content cannot
++    # cross as content -- what a key reaches is bound by the lookup that verifies it (`operation_record` ->
++    # `boundaries.identity`, then the found record's own signature). Its argument is therefore not traced.
++    _DERIVING = frozenset(("digest", "digest_of_bytes", "hashlib.sha256", "hashlib.sha512", "hashlib.blake2b"))
++    # The contracts layer's validators, whose source this inventory does not read: each returns the
++    # owned, schema-checked document it was given (validate_fragment + digest + no-secret walk), so
++    # its result is a validated construction whatever it was handed.
++    _VALIDATING_PACKAGE = frozenset(("check_manifest_structure", "check_content_manifest"))
++    # A library CONSTANT read as a value (`os.O_RDONLY`, `stat.S_IRWXU`, `uuid.NAMESPACE_OID`, `errno.ENOENT`) is
++    # fixed by the library, not content of the deployment's or a caller's; the convention that names one is the
++    # all-capitals name. `os.environ`, `sys.argv` and every other lower-case module value stay unowned.
++    @staticmethod
++    def _library_constant(base, attr):
++        return attr.isupper() and attr.replace("_", "").isalnum()
++    _owned_returns = set()
++
++    def _owned_call_result(self, function, site, case, trail):
++        """True when the callee's result is owned by its own returns (a package callee traced through
++        them, a package constructor, or the contracts layer's validators); False when the result is only
++        a composition of the call's arguments, which the caller then traces."""
++        dotted = ast.unparse(function)
++        if isinstance(function, ast.Name) and function.id in self._VALIDATING_PACKAGE and self._import_kind(site.split(":")[0], function.id, site) == "package":
++            return True
++        if isinstance(function, ast.Name):
++            try:
++                parameters = _parameters(self._function(site))
++            except AssertionError:
++                parameters = ()
++            if function.id in parameters and not self._module_binds(site, function.id):
++                return self._owned_callable_parameter_result(function.id, site, case, trail)
++        if dotted in self._COMPOSING_EXTERNAL or isinstance(function, ast.Name) and function.id in (self._COMPOSING_BUILTINS | self._COMPOSING_PACKAGE):
++            return False
++        if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name) and function.value.id == "boundaries":
++            return True  # the ruled validator, admitted above
++        if isinstance(function, ast.Attribute) and function.attr == "transact" and isinstance(function.value, ast.Name) \
++                and function.value.id in ("control", "store", "self") or isinstance(function, ast.Attribute) and function.attr == "transact" \
++                and isinstance(function.value, ast.Attribute) and isinstance(function.value.value, ast.Name) and function.value.value.id == "self":
++            return self._owned_transact_result(function, site, case, trail)
++        if isinstance(function, ast.Attribute) and not (isinstance(function.value, ast.Name)
++                                                       and (function.value.id in ("self", "cls") or self._import_kind(site.split(":")[0], function.value.id) == "package")):
++            return False  # a method on a traced object: `_callee_gap` admitted only a re-spelling of it
++        returns = _helper_returns()
++        callee = _helper_site(function, site, returns)
++        module = site.split(":")[0]
++        if callee is None and isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name):
++            callee = self._aliased_package_site(module, function.value.id, function.attr)  # `context._document(...)`
++        if callee is None:
++            if isinstance(function, ast.Name) and self._import_kind(module, function.id, site) == "package":
++                raise AssertionError(f"{site}: {dotted} is a package callee whose source this inventory does not read, so its result is owned by nothing it can see")
++            return False  # external callees were already classified by `_callee_gap`
++        hop = f"{callee}#return"
++        if hop in trail or callee in self._owned_returns:
++            return True
++        node = None
++        try:
++            node = self._function(callee)
++        except AssertionError:
++            klass = self._class_node(callee.split(":")[0], callee.split(":")[1])
++            if klass is not None:
++                return False  # construction: the arguments are traced here, the attributes when they are read
++            if self._import_kind(module, dotted.split(".")[0]) == "package":
++                raise AssertionError(f"{site}: {dotted} is a package callee whose source this inventory does not read, so its result is owned by nothing it can see")
++            return False
++        inside = _origins(node, callee, returns)
++        for piece in _scope_nodes(node):
++            # every value the callee hands out: a return, a yield, or what it yields from
++            if isinstance(piece, (ast.Return, ast.Yield, ast.YieldFrom)) and piece.value is not None:
++                self._owned_value(piece.value, callee, inside, case, trail + (hop,))
++        self._owned_returns.add(callee)
++        return True
++
++    def _owned_callable_parameter_result(self, name, site, case, trail):
++        """`reader(...)` where `reader` is a parameter: a private helper's callers each hand a package function or a
++        lambda, whose returns are traced; a public door's callable parameter is an injected capability, and what it
++        answers is owned by nothing here unless the door validates the answer where it lands."""
++        lexical = site.split(":")[1].split(".")[-1]
++        hop = f"{site}#call:{name}"
++        if hop in trail:
++            return True
++        if not lexical.startswith("_") or lexical == "__init__":
++            raise AssertionError(f"{site}: {name} is a callable handed in by the caller; what it answers is owned by nothing here")
++        callers = self._bindings_at_callers(site, name)
++        if not callers:
++            raise AssertionError(f"private {site} binds callable {name} from no caller in the package")
++        returns = _helper_returns()
++        for caller, argument, origins in callers:
++            if isinstance(argument, ast.Name):
++                # a local bound to a lambda (`reader = lambda ...`) stands for that lambda
++                node = self._function(caller)
++                assigned = [piece.value for piece in ast.walk(node) if isinstance(piece, ast.Assign) and any(_binds_name(target, argument.id) for target in piece.targets)]
++                if len(assigned) == 1 and isinstance(assigned[0], ast.Lambda):
++                    argument = assigned[0]
++            if isinstance(argument, ast.Lambda):
++                self._owned_value(argument.body, caller, origins, case, trail + (hop,))
++                continue
++            if isinstance(argument, (ast.Name, ast.Attribute)) and self._owned_call_result(argument, caller, case, trail + (hop,)):
++                continue
++            raise AssertionError(f"{caller}: hands {site} a callable ({ast.unparse(argument)[:60]}) whose answers this trace cannot follow")
++        return True
++
++    def _owned_transact_result(self, function, site, case, trail):
++        """`store.transact(operation_id, kind, signature, action)` answers the ACTION's return (a fresh
++        transaction) or the recorded result of the same operation (a replay). The action is traced here;
++        the replayed branch answers journal result bytes, which `replay` does not bind -- the W375444
++        REPLAY_DEBT class, pinned in StoppedSettlementInventory, and not papered over by this rule."""
++        node = self._function(site)
++        for call in ast.walk(node):
++            if not (isinstance(call, ast.Call) and call.func is function):
++                continue
++            action = call.args[3] if len(call.args) > 3 else next((piece.value for piece in call.keywords if piece.arg == "action"), None)
++            if action is None:
++                raise AssertionError(f"{site}: a transact call hands no action this trace can follow")
++            origins = _origins(node, site, _helper_returns())
++            if isinstance(action, ast.Lambda):
++                self._owned_value(action.body, site, origins, case, trail + (f"{site}#transact",))
++                return True
++            if isinstance(action, ast.Name):
++                callee = _helper_site(action, site, _helper_returns())
++                if callee is None:
++                    raise AssertionError(f"{site}: transact's action {action.id} is bound by nothing this trace can follow")
++                target = self._function(callee)
++                inside = _origins(target, callee, _helper_returns())
++                for piece in _scope_nodes(target):
++                    if isinstance(piece, ast.Return) and piece.value is not None:
++                        self._owned_value(piece.value, callee, inside, case, trail + (f"{callee}#return",))
++                return True
++            raise AssertionError(f"{site}: transact's action is a {type(action).__name__} this trace does not follow")
++        raise AssertionError(f"{site}: the transact call was not found in its own function")
++
++    def _validator_call(self, function, site):
++        module = site.split(":")[0]
++        if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name) and function.value.id == "boundaries":
++            return self._import_kind(module, "boundaries") == "package" or module == "boundaries.py"
++        return isinstance(function, ast.Name) and function.id in self._VALIDATING_PACKAGE and self._import_kind(module, function.id, site) == "package"
++
++    def _aliased_package_site(self, module, base, attr):
++        """`from . import provider_context as context` makes `context.x` the site `provider_context.py:x`, when that module is read."""
++        for source, tree in _sources():
++            if source.name != module:
++                continue
++            for piece in tree.body:
++                if isinstance(piece, ast.ImportFrom) and piece.level and piece.module is None:
++                    for alias in piece.names:
++                        if (alias.asname or alias.name) == base:
++                            if any(other.name == alias.name + ".py" for other, _ in _sources()):
++                                return f"{alias.name}.py:{attr}"
++                            return None
++        return None
++
+     def _callee_doors(self, call, site):
+         """{id(argument): (callee site, parameter)} for a call of a public package function."""
+         callee = _helper_site(call.func, site, _helper_returns())
+@@ -13858,8 +14078,7 @@ class StageCProtections(BoundaryCase):
+                 method = f"{module}:{lexical.rsplit('.', 1)[0]}.{piece.name}"
+                 inside = None
+                 for statement in ast.walk(piece):
+-                    if isinstance(statement, ast.Assign) and any(isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name)
+-                                                                  and target.value.id in ("self", "cls") and target.attr == attr for target in statement.targets):
++                    if isinstance(statement, ast.Assign) and any(_binds_attribute(target, attr) for target in statement.targets):
+                         found = True
+                         inside = inside or _origins(piece, method, returns)
+                         self._owned_value(statement.value, method, inside, case, trail + (hop,))
+@@ -13870,6 +14089,8 @@ class StageCProtections(BoundaryCase):
+         module = site.split(":")[0]
+         kind = self._import_kind(module, base)
+         if kind == "external":
++            if self._library_constant(base, attr):
++                return
+             raise AssertionError(f"{site}: {base}.{attr} is an external module's value, owned by nothing here")
+         if kind == "package":
+             for source, tree in _sources():
+@@ -13905,7 +14126,7 @@ class StageCProtections(BoundaryCase):
+ 
+     def _owned_module_value(self, expression, module, site, case, trail):
+         """A module-level (or class-level) expression: literals, containers and compositions of other traced module bindings."""
+-        if len(trail) > 12:
++        if sum(1 for hop in trail if ":" not in hop.split("#")[0]) > 12:  # module-binding hops only; function hops are bounded by `_owned_value`
+             raise AssertionError("module-level provenance runs too deep: " + " -> ".join(trail))
+         again = lambda piece: self._owned_module_value(piece, module, site, case, trail)
+         if isinstance(expression, (ast.Constant, ast.Lambda)):
+@@ -13952,10 +14173,14 @@ class StageCProtections(BoundaryCase):
+                 if kind == "package":
+                     return  # another package module's own constant
+                 if kind == "external":
++                    if self._library_constant(expression.value.id, expression.attr):
++                        return
+                     raise AssertionError(f"{site}: {ast.unparse(expression)} is an external module's value, owned by nothing here ({' -> '.join(trail)})")
+             again(expression.value)
+             return
+         if isinstance(expression, ast.Call):
++            if ast.unparse(expression.func) in self._DERIVING:
++                return
+             gap = self._callee_gap(expression.func, f"{module}:*")
+             if gap is not None:
+                 raise AssertionError(f"{site}: module-level {gap} ({' -> '.join(trail)})")
+@@ -13968,6 +14193,34 @@ class StageCProtections(BoundaryCase):
+             return
+         raise AssertionError(f"{site}: cannot trace module-level {type(expression).__name__} {ast.unparse(expression)[:60]}")
+ 
++    def _owned_nested_parameter(self, name, expression, site, origins, case, trail):
++        """A nested function's parameter (`def walk(parent, ...)` inside `_state`) is whatever every call of
++        that function inside its enclosing function hands it, including its own recursive calls."""
++        node = self._function(site)
++        inner = next((piece for piece in ast.walk(node) if isinstance(piece, (ast.FunctionDef, ast.AsyncFunctionDef)) and piece is not node
++                      and any(one.arg == name for one in piece.args.args + piece.args.kwonlyargs)
++                      and any(found is expression for found in ast.walk(piece))), None)
++        if inner is None:
++            return False
++        hop = f"{site}#{inner.name}:{name}"
++        if hop in trail:
++            return True  # a recursive call hands its own parameter on; the other calls bind it
++        names = [one.arg for one in inner.args.args]
++        index = names.index(name) if name in names else None
++        calls = [piece for piece in ast.walk(node) if isinstance(piece, ast.Call) and isinstance(piece.func, ast.Name) and piece.func.id == inner.name]
++        if not calls:
++            raise AssertionError(f"{site}: nested {inner.name} is never called, so its {name} is bound by nothing")
++        for call in calls:
++            argument = call.args[index] if index is not None and index < len(call.args) else next((piece.value for piece in call.keywords if piece.arg == name), None)
++            if argument is None:
++                first_default = len(names) - len(inner.args.defaults)
++                if index is not None and index >= first_default:
++                    argument = inner.args.defaults[index - first_default]
++                else:
++                    raise AssertionError(f"{site}: a call of nested {inner.name} binds no {name}")
++            self._owned_value(argument, site, origins, case, trail + (hop,))
++        return True
++
+     def _owned_lambda_parameter(self, name, expression, site, origins, case, trail):
+         """A lambda's parameter is whatever the package call the lambda is handed to invokes it with.
+ 
+@@ -13999,6 +14252,8 @@ class StageCProtections(BoundaryCase):
+             if not isinstance(call, ast.Call) or not (any(piece is held for piece in call.args) or any(piece.value is held for piece in call.keywords)):
+                 continue
+             callee = _helper_site(call.func, site, returns)
++            if callee is None and isinstance(call.func, ast.Attribute) and call.func.attr == "transact" and index == 0:
++                return True  # `transact`'s action receives the store's own connection, a handle and not an input
+             if callee is None:
+                 raise AssertionError(f"{site}: the lambda binding {name} is handed to {ast.unparse(call.func)}, not to a package function")
+             target = self._function(callee)
+@@ -14036,10 +14291,11 @@ class StageCProtections(BoundaryCase):
+         return False
+ 
+     def _is_module(self, name, site):
+-        return self._module_binds(site, name) and name not in dir(builtins)
++        return (self._module_binds(site, name) or self._import_kind(site.split(":")[0], name, site) is not None) and name not in dir(builtins)
+ 
+     def _handed_owned(self, target, parameter, case, subtests=True):
+         """Every call site hands a value this trace proves owned; the first gap is named."""
++        self._owned_returns.clear()
+         calls = self._bindings_at_callers(target, parameter)
+         self.assertTrue(calls, f"nothing in the package calls {target} with {parameter}")
+         for site, argument, origins in calls:
+@@ -14052,6 +14308,7 @@ class StageCProtections(BoundaryCase):
+     def _synthetic(self, source):
+         """A one-module universe for the trace's own witnesses."""
+         sources = ((pathlib.Path("sample.py"), ast.parse(source)),)
++        self._owned_returns.clear()
+         _clear_boundary_projections()
+         self.addCleanup(_clear_boundary_projections)
+         patched = patch.object(sys.modules[__name__], "_sources", lambda: sources)
+@@ -14172,6 +14429,57 @@ def spelled(store, value):
+ ''')
+         self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+ 
++    def test_the_owned_input_trace_follows_a_package_wrapper_to_what_it_returns(self):
++        """Review 2026-11-17T19:43:26Z P1: a package wrapper around a producer owns nothing by membership."""
++        consumer = "def _consume(record):\n    return record[\"state\"]\n"
++        for name, source, gap in (
++                ("package parser wrapper", "import json\ndef _read():\n    return json.loads('{\"state\": 42}')\n" + consumer + "def door(store):\n    return _consume(_read())\n",
++                 "json.loads is an external call whose result nothing here owns"),
++                ("package environment wrapper", "import os\ndef _read():\n    return os.environ.get('RAW')\n" + consumer + "def door(store):\n    return _consume(_read())\n",
++                 "os.environ is an external module's value"),
++                ("method wrapper", "import json\n" + consumer + "class Door:\n    def _read(self):\n        return json.loads('{\"state\": 42}')\n    def door(self):\n        return _consume(self._read())\n",
++                 "json.loads is an external call whose result nothing here owns"),
++                ("wrapper returning its unowned parameter", consumer + "def _pass(value):\n    return value\ndef door(store, value):\n    return _consume(_pass(value))\n",
++                 "hands its unowned value on"),
++                ("generator wrapper", "import json\ndef _rows():\n    yield json.loads('[1]')\n" + consumer + "def door(store):\n    return _consume(next(_rows()))\n",
++                 "json.loads is an external call whose result nothing here owns")):
++            with self.subTest(universe=name):
++                case = self._synthetic(source)
++                self.assertEqual(dict(owning_validators()), {})
++                with self.assertRaises(AssertionError) as caught:
++                    self._handed_owned("sample.py:_consume", "record", case, subtests=False)
++                self.assertIn(gap, str(caught.exception))
++        # a VALIDATED wrapper is followed to the validator; a wrapper returning its OWNED parameter to that parameter's owner
++        case = self._synthetic('''
++import json
++from . import boundaries
++def _consume(record):
++    return record["state"]
++def _read(store):
++    row = store._connection.execute("SELECT * FROM held").fetchone()
++    return boundaries.row(row, "a held row", HELD_COLUMNS)
++def _decoded(text):
++    return boundaries.document(json.loads(text), "a decoded document", required=("state",))
++def _pass(value):
++    return value
++class Door:
++    def _read(self):
++        return boundaries.text(self.raw, "a value")
++    def __init__(self, raw):
++        self.raw = boundaries.text(raw, "a raw value")
++    def door(self):
++        return _consume(self._read())
++def door(store):
++    return _consume(_read(store))
++def decoded(store, text):
++    boundaries.text(text, "a text")
++    return _consume(_decoded(text))
++def passed(store, value):
++    boundaries.text(value, "a value")
++    return _consume(_pass(value))
++''')
++        self._handed_owned("sample.py:_consume", "record", case, subtests=False)
++
+     def test_the_owned_input_trace_binds_only_the_signature_compared_members_of_a_decoded_result(self):
+         """`_qualified`'s idiom: a decoded journal result whose named members are compared, through
+         manager_signature, with the record's signature. Those members are owned; the rest is not."""
+@@ -14352,6 +14660,29 @@ def composed(store, value):
+         fixture.admit()
+         self.assertIsNotNone(context._grant_consumer(fixture.control, "qualification-regression"))
+ 
++    def test_a_cleanup_settlement_runs_only_inside_its_endings_transaction(self):
++        """Owner selection 2026-11-17 option 1: the connection operand is a proof, checked before any read or write."""
++        import sqlite3
++        from baton_v12.worker_manager import workspaces
++        from baton_v12.worker_manager.store import _recorded, manager_signature
++        store = self.store
++        admission = {"attempt_id": "attempt-1", "ordinal": 1, "act": "a probe", "owner": "owner-1",
++                     "settlement": {"operation": "op-1", "signature": "sig", "incarnation": "manager-1"}}
++        store._record(workspaces._cleanup_admission_id("attempt-1", 1), workspaces.CLEANUP_ADMISSION_KIND,
++                      manager_signature(workspaces.CLEANUP_ADMISSION_KIND, admission), "committed", _recorded(admission), None)
++        settled = lambda: store.operation_record(workspaces._cleanup_settled_id("attempt-1", 1))
++        foreign = sqlite3.connect(":memory:")
++        self.addCleanup(foreign.close)
++        for name, connection in (("a foreign connection", foreign), ("this store's connection outside a transaction", store._connection), ("None", None)):
++            with self.subTest(connection=name):
++                with self.assertRaises(ContractRefusal) as caught:
++                    workspaces.settle_cleanup(store, connection, "attempt-1", admission, "a probe")
++                self.assertIn("inside the ending's own open transaction", caught.exception.message)
++                self.assertIsNone(settled())
++        store.transact("probe.settle:1", "probe.settle", manager_signature("probe.settle", {"probe": 1}),
++                       lambda connection: workspaces.settle_cleanup(store, connection, "attempt-1", admission, "a probe"))
++        self.assertIsNotNone(settled())
++
+     def test_a_malformed_governor_answer_refuses_before_any_reclaim(self):
+         """Review 2026-10-31T03:05:05Z: the governor's `overdue` answer is owned where it lands."""
+         import types
+@@ -14362,8 +14693,8 @@ def composed(store, value):
+         ordered = []
+         stopping = types.SimpleNamespace(stop_expired=lambda *arguments, **named: ordered.append(("stop", arguments, named)))
+         acting = lambda *arguments, **named: ordered.append(("act", arguments, named))
++        # an ABSENT generation is the accepted unknown-generation path (the outcome records None), not a refusal here
+         for answer, label in ((["not a document"], "the resource governor's overdue answer"),
+-                              ({"container": "c"}, "the resource governor's overdue answer"),
+                               ({"generation": "one"}, "the resource governor's overdue generation"),
+                               ({"generation": -1}, "the resource governor's overdue generation")):
+             with self.subTest(answer=answer):
+diff --git a/v12/python/tests/manager/test_stopped_settlement.py b/v12/python/tests/manager/test_stopped_settlement.py
+index 436c0ecc..37e3c96f 100644
+--- a/v12/python/tests/manager/test_stopped_settlement.py
++++ b/v12/python/tests/manager/test_stopped_settlement.py
+@@ -1,8 +1,10 @@
+ """Deterministic owner proof; no engine or provider is executed."""
+ import copy
++import json
+ import os
+ import threading
+ import sqlite3
++import unittest
+ from unittest import mock
+ 
+ from baton_v12.contracts import ContractRefusal
+@@ -295,3 +297,137 @@ class StoppedSettlement(AttemptCase, Home):
+         for call in (lambda: tokens.settlement_fence_of(self.store, self.domain, 1), lambda: workspaces.settlement_preparation(self.store, ATTEMPT)):
+             with self.assertRaises(sqlite3.ProgrammingError):
+                 call()
++
++
++class RenewalDecisionRecord(unittest.TestCase):
++    """Owner selection 2026-11-17 (RENEWAL-DECISION.md option A), review 2026-10-31T03:05:05Z P1.
++
++    The renewal REQUEST keeps its identity, signed operands and lost-reply replay; the
++    decided instants are a self-signed DECISION record written in the same transaction.
++    Every reader and every replay verifies the request against its decision.
++    """
++    EXECUTION, OPERATION = "attempt-support", "runtime.start:support"
++
++    def setUp(self):
++        from .token_support import TokenFixture
++        self.fixture = TokenFixture(self)
++        self.store = self.fixture.store
++        self.held = self.fixture.held(seconds=900)
++        self.fixture.instant = "2026-09-26T14:10:00.000Z"
++
++    def renew(self, revision=0):
++        return tokens.renew(self.store, self.held, execution=self.EXECUTION, operation=self.OPERATION,
++                            expected_revision=revision)
++
++    def current(self):
++        return tokens.token_of(self.store, self.fixture.domain, self.held["generation"])
++
++    def rows(self, kind):
++        return self.store._connection.execute(
++            "SELECT operation_id, signature, result FROM operations WHERE kind = ? ORDER BY rowid", (kind,)).fetchall()
++
++    def rewrite(self, kind, **changes):
++        row = self.rows(kind)[0]
++        document = json.loads(row["result"])
++        document.update(changes)
++        self.store._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
++                                       (json.dumps(document, sort_keys=True), row["operation_id"]))
++
++    def every_reader_refuses(self, fragment):
++        """token_of, the direct renew retry (replay) and an owner-gated act all refuse with `fragment`."""
++        for name, act in (("token_of", self.current), ("renew retry", lambda: self.renew(0)),
++                          ("journal_launch through _owning", lambda: tokens.journal_launch(self.store, self.held, "launch:probe"))):
++            with self.subTest(reader=name):
++                with self.assertRaises(ContractRefusal) as caught:
++                    act()
++                self.assertIn(fragment, caught.exception.message)
++
++    def test_an_honest_renewal_writes_request_and_decision_together_and_reads_through_both(self):
++        first = self.renew(0)
++        requests, decisions = self.rows(tokens.RENEWED_KIND), self.rows(tokens.RENEWAL_DECIDED_KIND)
++        self.assertEqual((len(requests), len(decisions)), (1, 1))
++        decision = json.loads(decisions[0]["result"])
++        self.assertEqual(decision, json.loads(decisions[0]["signature"])["operands"], "the decision IS its signed operands")
++        self.assertEqual(decision, {"version": tokens.TOKEN_VERSION, "domain": self.fixture.domain, "generation": 1,
++                                    "revision": 1, "renewed_at": "2026-09-26T14:10:00.000Z",
++                                    "expires_at": "2026-09-26T14:25:00.000Z"})
++        self.assertNotIn("renewed_at", json.loads(requests[0]["signature"])["operands"], "the request signs the request, not the clock")
++        self.assertEqual((first["expires_at"], first["renewed_at"]), (decision["expires_at"], decision["renewed_at"]))
++        answer = self.current()
++        self.assertEqual((answer["revision"], answer["expires_at"], answer["renewed_at"], answer["expired"]),
++                         (1, decision["expires_at"], decision["renewed_at"], False))
++        self.fixture.instant = "2026-09-26T14:25:00.000Z"
++        self.assertTrue(self.current()["expired"])
++
++    def test_a_lost_reply_replays_the_same_renewal_under_another_clock_without_a_second_decision(self):
++        first = self.renew(0)
++        self.fixture.instant = "2026-09-26T14:13:00.000Z"
++        self.assertEqual(self.renew(0), first)
++        self.assertEqual((len(self.rows(tokens.RENEWED_KIND)), len(self.rows(tokens.RENEWAL_DECIDED_KIND))), (1, 1))
++        self.assertEqual(self.current()["revision"], 1)
++        with self.assertRaises(ContractRefusal):
++            self.renew(5)  # a revision ahead of the state is refused, not decided
++
++    def test_a_rewritten_request_deadline_refuses_at_every_reader_and_replay(self):
++        self.renew(0)
++        self.fixture.instant = "2030-01-01T00:00:00.000Z"
++        self.assertTrue(self.current()["expired"], "honest: expired")
++        self.rewrite(tokens.RENEWED_KIND, expires_at="2099-01-01T00:00:00.000Z")
++        self.every_reader_refuses("changed after the renewal was decided")
++
++    def test_a_rewritten_request_renewed_at_refuses_too(self):
++        self.renew(0)
++        self.rewrite(tokens.RENEWED_KIND, renewed_at="2026-09-26T14:11:00.000Z")
++        self.every_reader_refuses("changed after the renewal was decided")
++
++    def test_a_corrupted_decision_refuses(self):
++        self.renew(0)
++        self.rewrite(tokens.RENEWAL_DECIDED_KIND, expires_at="2099-01-01T00:00:00.000Z")
++        self.every_reader_refuses("signed operands")
++
++    def test_a_renewal_without_a_decision_record_is_refused_not_adopted(self):
++        """Every renewal committed before this correction looks like this: fail closed, no adoption."""
++        self.renew(0)
++        self.store._connection.execute("DELETE FROM operations WHERE kind = ?", (tokens.RENEWAL_DECIDED_KIND,))
++        self.every_reader_refuses("no committed decision record")
++        self.assertEqual(len(self.rows(tokens.RENEWAL_DECIDED_KIND)), 0, "nothing wrote a decision from the old bytes")
++
++    def test_a_decision_about_another_renewal_does_not_verify_this_one(self):
++        from baton_v12.worker_manager.store import _recorded, manager_signature
++        self.renew(0)
++        identity = tokens._renewal_decision_id(self.fixture.domain, 1, 1)
++        self.store._connection.execute("DELETE FROM operations WHERE operation_id = ?", (identity,))
++        for member, value in (("revision", 2), ("generation", 2), ("domain", "workspace:line-8/workspace")):
++            with self.subTest(member=member):
++                other = {"version": tokens.TOKEN_VERSION, "domain": self.fixture.domain, "generation": 1, "revision": 1,
++                         "renewed_at": "2026-09-26T14:10:00.000Z", "expires_at": "2026-09-26T14:25:00.000Z", member: value}
++                self.store._record(identity, tokens.RENEWAL_DECIDED_KIND, manager_signature(tokens.RENEWAL_DECIDED_KIND, other),
++                                   "committed", _recorded(other), None)
++                self.every_reader_refuses("a decision about another renewal")
++                self.store._connection.execute("DELETE FROM operations WHERE operation_id = ?", (identity,))
++
++    def test_a_fault_after_the_decision_rolls_both_halves_back(self):
++        original = ControlStore._record
++
++        def failing(self_store, operation_id, kind, *rest):
++            if kind == tokens.RENEWED_KIND:
++                raise RuntimeError("the request row could not be written")
++            return original(self_store, operation_id, kind, *rest)
++        with mock.patch.object(ControlStore, "_record", failing):
++            with self.assertRaises(RuntimeError):
++                self.renew(0)
++        self.assertEqual((len(self.rows(tokens.RENEWED_KIND)), len(self.rows(tokens.RENEWAL_DECIDED_KIND))), (0, 0),
++                         "neither half survives the rolled-back transaction")
++        self.assertEqual(self.current()["revision"], 0)
++        self.assertEqual(self.renew(0)["revision"], 1, "the next honest renewal is the first")
++        self.assertEqual((len(self.rows(tokens.RENEWED_KIND)), len(self.rows(tokens.RENEWAL_DECIDED_KIND))), (1, 1))
++
++    def test_the_expiry_judgement_reads_the_verified_renewal(self):
++        """`_judge_expired` correlates against the renewed deadline; a corrupted renewal cannot feed it."""
++        self.renew(0)
++        self.rewrite(tokens.RENEWED_KIND, expires_at="2099-01-01T00:00:00.000Z")
++        self.fixture.instant = "2030-01-01T00:00:00.000Z"
++        with self.assertRaises(ContractRefusal) as caught:
++            self.renew(1)
++        self.assertIn("changed after the renewal was decided", caught.exception.message)
++        self.assertEqual(self.rows(tokens.EXPIRED_KIND), [], "no expiry judgement was written from an unverifiable deadline")
+diff --git a/v12/python/tests/manager/test_workspaces.py b/v12/python/tests/manager/test_workspaces.py
+index 86c860a7..dbab43c4 100644
+--- a/v12/python/tests/manager/test_workspaces.py
++++ b/v12/python/tests/manager/test_workspaces.py
+@@ -2982,3 +2982,84 @@ class ReadonlyConfiguredGroup(unittest.TestCase):
+         with self.assertRaises(ContractRefusal):
+             workspaces.configure_workspace_group(self.reader, WORKSPACE_GROUP)
+         self.assertIsNone(self.writer._connection.execute('SELECT value FROM meta WHERE key=?', (workspaces.WORKSPACE_GROUP_KEY,)).fetchone())
++
++
++class CleanupSettlementRunsInItsEndingsTransaction(Workspace):
++    """Owner selection 2026-11-17 (SETTLE-CLEANUP-DECISION.md option 1), B2 Case H.
++
++    `settle_cleanup`'s `connection` is now a proof: this store's connection, with an open
++    transaction, or nothing is read or written. `in_transaction` proves the open
++    transaction; the write-lock mode is the accepted `transact` path's BEGIN IMMEDIATE.
++    """
++    ADMISSION = {"attempt_id": "attempt-1", "ordinal": 1, "act": "a probe", "owner": "owner-1",
++                 "settlement": {"operation": "op-1", "signature": "sig", "incarnation": "workspaces-1"}}
++
++    def admitted(self):
++        from baton_v12.worker_manager.store import _recorded, manager_signature
++        self.store._record(workspaces._cleanup_admission_id("attempt-1", 1), workspaces.CLEANUP_ADMISSION_KIND,
++                           manager_signature(workspaces.CLEANUP_ADMISSION_KIND, self.ADMISSION), "committed",
++                           _recorded(self.ADMISSION), None)
++        return dict(self.ADMISSION)
++
++    def settled_record(self):
++        return self.store.operation_record(workspaces._cleanup_settled_id("attempt-1", 1))
++
++    def in_transaction(self, action, operation="probe.settle:1"):
++        from baton_v12.worker_manager.store import manager_signature
++        return self.store.transact(operation, "probe.settle", manager_signature("probe.settle", {"probe": operation}), action)
++
++    def test_a_foreign_connection_is_refused_before_anything_is_read_or_written(self):
++        import sqlite3
++        admission = self.admitted()
++        foreign = sqlite3.connect(":memory:")
++        self.addCleanup(foreign.close)
++        foreign.execute("BEGIN")
++        with self.assertRaises(ContractRefusal) as caught:
++            workspaces.settle_cleanup(self.store, foreign, "attempt-1", admission, "a test")
++        self.assertIn("this store's connection", caught.exception.message)
++        self.assertIsNone(self.settled_record())
++
++    def test_the_stores_own_connection_outside_a_transaction_is_refused(self):
++        admission = self.admitted()
++        self.assertFalse(self.store._connection.in_transaction)
++        with self.assertRaises(ContractRefusal) as caught:
++            workspaces.settle_cleanup(self.store, self.store._connection, "attempt-1", admission, "a test")
++        self.assertIn("no open transaction", caught.exception.message)
++        self.assertIsNone(self.settled_record())
++
++    def test_a_missing_connection_is_refused_the_same_way(self):
++        admission = self.admitted()
++        with self.assertRaises(ContractRefusal):
++            workspaces.settle_cleanup(self.store, None, "attempt-1", admission, "a test")
++        self.assertIsNone(self.settled_record())
++
++    def test_inside_the_endings_transaction_it_settles_and_commits_with_it(self):
++        admission = self.admitted()
++        seen = []
++
++        def ending(connection):
++            seen.append((connection is self.store._connection, connection.in_transaction))
++            return workspaces.settle_cleanup(self.store, connection, "attempt-1", admission, "a test")
++        document = self.in_transaction(ending)
++        self.assertEqual(seen, [(True, True)])
++        self.assertEqual(document["owner"], "owner-1")
++        self.assertIsNotNone(self.settled_record())
++        self.assertFalse(self.store._connection.in_transaction)
++        # a replayed ending settles nothing twice: the committed record is the answer
++        self.assertEqual(self.in_transaction(ending, operation="probe.settle:2")["owner"], "owner-1")
++        self.assertEqual(self.store._connection.execute(
++            "SELECT COUNT(*) FROM operations WHERE kind = ?", (workspaces.CLEANUP_SETTLED_KIND,)).fetchone()[0], 1)
++
++    def test_a_fault_after_the_settlement_rolls_it_back_with_the_ending(self):
++        admission = self.admitted()
++
++        def ending(connection):
++            workspaces.settle_cleanup(self.store, connection, "attempt-1", admission, "a test")
++            raise RuntimeError("the ending failed after settling")
++        with self.assertRaises(RuntimeError):
++            self.in_transaction(ending)
++        self.assertIsNone(self.settled_record(), "the settlement does not outlive the ending's transaction")
++        self.assertFalse(self.store._connection.in_transaction)
++        self.assertIsNotNone(self.in_transaction(lambda connection: workspaces.settle_cleanup(
++            self.store, connection, "attempt-1", admission, "a test"), operation="probe.settle:3"))
++        self.assertIsNotNone(self.settled_record())

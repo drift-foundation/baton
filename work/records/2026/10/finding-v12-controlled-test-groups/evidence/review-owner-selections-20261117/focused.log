@@ -1,0 +1,27 @@
+test_a_corrupted_decision_refuses (tests.manager.test_stopped_settlement.RenewalDecisionRecord.test_a_corrupted_decision_refuses) ... ok
+test_a_decision_about_another_renewal_does_not_verify_this_one (tests.manager.test_stopped_settlement.RenewalDecisionRecord.test_a_decision_about_another_renewal_does_not_verify_this_one) ... ok
+test_a_fault_after_the_decision_rolls_both_halves_back (tests.manager.test_stopped_settlement.RenewalDecisionRecord.test_a_fault_after_the_decision_rolls_both_halves_back) ... ok
+test_a_lost_reply_replays_the_same_renewal_under_another_clock_without_a_second_decision (tests.manager.test_stopped_settlement.RenewalDecisionRecord.test_a_lost_reply_replays_the_same_renewal_under_another_clock_without_a_second_decision) ... ok
+test_a_renewal_without_a_decision_record_is_refused_not_adopted (tests.manager.test_stopped_settlement.RenewalDecisionRecord.test_a_renewal_without_a_decision_record_is_refused_not_adopted)
+Every renewal committed before this correction looks like this: fail closed, no adoption. ... ok
+test_a_rewritten_request_deadline_refuses_at_every_reader_and_replay (tests.manager.test_stopped_settlement.RenewalDecisionRecord.test_a_rewritten_request_deadline_refuses_at_every_reader_and_replay) ... ok
+test_a_rewritten_request_renewed_at_refuses_too (tests.manager.test_stopped_settlement.RenewalDecisionRecord.test_a_rewritten_request_renewed_at_refuses_too) ... ok
+test_an_honest_renewal_writes_request_and_decision_together_and_reads_through_both (tests.manager.test_stopped_settlement.RenewalDecisionRecord.test_an_honest_renewal_writes_request_and_decision_together_and_reads_through_both) ... ok
+test_the_expiry_judgement_reads_the_verified_renewal (tests.manager.test_stopped_settlement.RenewalDecisionRecord.test_the_expiry_judgement_reads_the_verified_renewal)
+`_judge_expired` correlates against the renewed deadline; a corrupted renewal cannot feed it. ... ok
+test_a_fault_after_the_settlement_rolls_it_back_with_the_ending (tests.manager.test_workspaces.CleanupSettlementRunsInItsEndingsTransaction.test_a_fault_after_the_settlement_rolls_it_back_with_the_ending) ... ok
+test_a_foreign_connection_is_refused_before_anything_is_read_or_written (tests.manager.test_workspaces.CleanupSettlementRunsInItsEndingsTransaction.test_a_foreign_connection_is_refused_before_anything_is_read_or_written) ... ok
+test_a_missing_connection_is_refused_the_same_way (tests.manager.test_workspaces.CleanupSettlementRunsInItsEndingsTransaction.test_a_missing_connection_is_refused_the_same_way) ... ok
+test_inside_the_endings_transaction_it_settles_and_commits_with_it (tests.manager.test_workspaces.CleanupSettlementRunsInItsEndingsTransaction.test_inside_the_endings_transaction_it_settles_and_commits_with_it) ... ok
+test_the_stores_own_connection_outside_a_transaction_is_refused (tests.manager.test_workspaces.CleanupSettlementRunsInItsEndingsTransaction.test_the_stores_own_connection_outside_a_transaction_is_refused) ... ok
+test_the_owned_input_trace_follows_a_package_wrapper_to_what_it_returns (tests.manager.test_boundary_inventory.StageCProtections.test_the_owned_input_trace_follows_a_package_wrapper_to_what_it_returns)
+Review 2026-11-17T19:43:26Z P1: a package wrapper around a producer owns nothing by membership. ... ok
+test_an_honest_renewal_moves_the_deadline_once_and_a_lost_reply_replays_it (tests.manager.test_boundary_inventory.StageCProtections.test_an_honest_renewal_moves_the_deadline_once_and_a_lost_reply_replays_it)
+TOK-9's accepted renewal behaviour, pinned before the renewal-record correction. ... ok
+test_a_malformed_governor_answer_refuses_before_any_reclaim (tests.manager.test_boundary_inventory.StageCProtections.test_a_malformed_governor_answer_refuses_before_any_reclaim)
+Review 2026-10-31T03:05:05Z: the governor's `overdue` answer is owned where it lands. ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.197s
+
+OK

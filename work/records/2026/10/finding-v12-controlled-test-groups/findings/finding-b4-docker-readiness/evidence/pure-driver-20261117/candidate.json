@@ -1,0 +1,20 @@
+{
+  "v12/python/tests/manager/test_integration_image.py": {
+    "base_sha256": "8d33c6a8d324bc776eecab94413eb93c932adef81e770f3eed89ee201a4fcdb1",
+    "candidate_sha256": "14320c05dbe9058c20e3688349829dfdca8c72f829752e3ffba97144e0416752",
+    "mode": 436,
+    "artifact": "candidate-test_integration_image.py"
+  },
+  "v12/python/tests/manager/test_worker_image.py": {
+    "base_sha256": "85e85a7d3cb2508bd437e9846fc7c6dfa00c505c2f528dd29e59a89dbec635ba",
+    "candidate_sha256": "340513e5ad2989d6a6fc15367f0d2df7c03e1b82a46bd1596afb74648fec79fd",
+    "mode": 436,
+    "artifact": "candidate-test_worker_image.py"
+  },
+  "v12/python/tests/integration/test_driver.py": {
+    "base_sha256": "fb7ff03bcf2077228a69a026d16bda636cfb4061ac385bcc374566a4d9671af6",
+    "candidate_sha256": "4b7666a3aea302e95b2b78cf0ea6f78382cf1e74ba99214c2fa27ba423873414",
+    "mode": 436,
+    "artifact": "candidate-test_driver.py"
+  }
+}
