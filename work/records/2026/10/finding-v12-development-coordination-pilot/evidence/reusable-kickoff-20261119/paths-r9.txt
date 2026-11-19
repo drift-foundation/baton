@@ -1,0 +1,4 @@
+v12/python/src/baton_v12/authority/api.py
+v12/python/tests/tools/test_connected_creation.py
+v12/python/tools/fresh_attempt_ports.py
+v12/python/tools/job_manager.py

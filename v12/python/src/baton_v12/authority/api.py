@@ -161,6 +161,12 @@ class Authority:
         return self._core.holds_capability(participant, capability,
                                            scope=scope)
 
+    def handles_route(self, route, participant):
+        """Whether `participant` is a configured handler of `route`: the
+        decision a claim on a Work created there would be authorized by,
+        asked BEFORE such a Work is created (W321608, native-labels-3)."""
+        return self._core.authorize(participant, route=route) is not None
+
     # -- the principal mapping (W16821) --------------------------------------
     #
     # ON THIS FACE AND NOT ON THE SESSION, for the reason the two faces exist

@@ -573,9 +573,16 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         return runner
 
     def installed_with_repositories(self, issued):
+        # THE CHECKPOINT PROFILE IS THE DETERMINISTIC SEAM every connected
+        # serving case uses (`test_connected_startup`, `test_job_task_delivery`):
+        # the line is materialized without version control, so dispatch is
+        # proved up to the engine boundary and no git process runs.
+        from tests.job_manager.test_review_driver import Profile
+        self.profile_seam = Profile()
         document = self.document(workers=[], jobs=[],
                                  line_declared_base=self.BASE,
-                                 canonical_target_id=self.BASE)
+                                 canonical_target_id=self.BASE,
+                                 checkpoint_profile=self.profile_seam.name)
         document.pop("state_root", None)
         inputs = os.path.join(self.root, "operator-inputs.json")
         Path(inputs).write_text(json.dumps(document))
@@ -663,6 +670,7 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
                    for name in ("integration_target", "integration_workspace")
                    if before.get(name)}
         document = self.document(workers=workers, jobs=[],
+                                 checkpoint_profile=self.profile_seam.name,
                                  line_declared_base=self.BASE,
                                  canonical_target_id=self.BASE, **carried)
         updated = os.path.join(self.root, "updated-inputs.json")
@@ -705,11 +713,13 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         # 2026-11-19T05-33-40Z): configured capacity, zero bound Jobs, no
         # receipt session minted, honest zeros from a real sweep and status,
         # and not one engine call.
-        from baton_v12.job_manager import JobStore, status, sweep
+        from baton_v12.job_manager import JobStore, reconcile, status, sweep
         from baton_v12.worker_manager import ControlStore
         from tests.job_manager import fixtures
         from tests.tools.test_single_worker import Engine
         from tools import stage_execution
+
+        profile_seam = self.profile_seam
 
         def composed_now():
             engine = Engine()
@@ -724,8 +734,9 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
             self.addCleanup(control.close)
             composed = stage_execution.operations_from(
                 self.configuration(), job_store, control, engine_run=engine,
-                credential_provider=lambda provider, reference: b"secret",
-                clock=lambda: fixtures.NOW, checkout=self.checkout)
+                credential_provider=lambda provider, reference: "a-secret",
+                clock=lambda: fixtures.NOW, checkout=self.checkout,
+                checkpoint_profile=profile_seam)
             self.addCleanup(composed.close)
             return job_store, composed, engine
 
@@ -738,6 +749,32 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         self.assertEqual(engine.vectors, [])
         idle.close()
         job_store.close()
+        # AN EXPLICIT ROUTE NO CONFIGURED IMPLEMENTATION WORKER HANDLES IS
+        # REFUSED BEFORE ANY WORK OR JOB EXISTS (W321608, native-labels-3):
+        # the first create on an idle instance makes the derived Work, and a
+        # Work on an unhandled route could never be claimed.
+        from baton_v12.authority.api import Authority
+
+        def authority():
+            opened = Authority.open_readonly(
+                self.owned["authority_store"],
+                expected_authority_uuid=self.owned["authority_uuid"])
+            self.addCleanup(opened.dispose)
+            return opened
+
+        workers = {one["worker_id"]: one
+                   for one in self.configuration()["workers"]}
+        derived = (workers["impl-a"]["deployment"]["input_manifest"]
+                   ["work_ref"]["work_id"])
+        unserved = self.argv(task="labels-zero", statement="Never created.")
+        unserved += ["--route", "baton.impl"]
+        with self.assertRaises(ContractRefusal) as caught:
+            job_manager.main(unserved, stream=io.StringIO())
+        self.assertIn("baton.impl", caught.exception.message)
+        self.assertIn("baton.impl-a", caught.exception.message)
+        self.assertIsNone(authority().work_creation(derived))
+        self.assertEqual(self.bindings(), {})
+        self.assertEqual(self.install_document().get("jobs") or [], [])
         # TWO ORDINARY JOBS, input-only, each with its own instructions and
         # its own verification; the installation is not written per Job.
         configured = json.dumps(self.configuration()["workers"],
@@ -771,6 +808,21 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         self.assertEqual(
             {one["job_id"] for one in self.install_document()["jobs"]},
             {"job-labels-one", "job-labels-two"})
+        # THE DERIVED WORK WAS CREATED ON THE DEPLOYMENT'S OWN IMPLEMENTATION
+        # ROUTE -- the one its bootstrap registered impl-a on -- and the
+        # review handoff route the implementation worker carries resolves to
+        # the configured reviewer, so stage two does not meet the same
+        # mismatch. The old fixture spelling resolves to nobody here.
+        held = authority()
+        self.assertEqual(held.project_work(derived)["route"],
+                         bootstrap.ROUTES["implementation"])  # "impl"
+        self.assertTrue(held.handles_route(bootstrap.ROUTES["implementation"],
+                                           "baton.impl-a"))
+        self.assertEqual(workers["impl-a"]["deployment"]["review_route"],
+                         bootstrap.ROUTES["review"])
+        self.assertTrue(held.handles_route(
+            workers["impl-a"]["deployment"]["review_route"], "baton.reviewer"))
+        self.assertFalse(held.handles_route("baton.impl", "baton.impl-a"))
         # AND THE BOUND WORK IS AUTHORIZED BEFORE ANYTHING IS SERVED: the
         # same composition over the configuration that now binds the two Jobs
         # mints the receipt sessions in the bound Work's own scope (the
@@ -783,6 +835,50 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         self.assertEqual(sorted(one["job_id"] for one in shown["jobs"]),
                          ["job-labels-one", "job-labels-two"])
         self.assertEqual(engine.vectors, [])
+        # ONE REAL SWEEP CLAIMS THE FIRST JOB'S IMPLEMENTATION THROUGH THE
+        # AUTHORITY -- the claim native-labels-3 refused -- and dispatches it
+        # once through the deterministic engine; the next sweep over the same
+        # state dispatches nothing again.
+        from tests.tools.test_single_worker import launching
+
+        def implementation_stages():
+            return {one["job_id"]: stage
+                    for one in status(job_store, bound,
+                                      observed_at=fixtures.NOW)["jobs"]
+                    for stage in one["stages"]
+                    if stage["kind"] == "implementation"}
+
+        # The scheduler reaches a launch over a few ticks (offer, claim,
+        # allocation, writer, dispatch), as `test_connected_startup.driven`
+        # drives it; this stops at the first launch and bounds the rounds.
+        reports = []
+        for _ in range(16):
+            reconcile(job_store, bound, now=fixtures.NOW)
+            reports.append(sweep(job_store, bound, now=fixtures.NOW))
+            if any(launching(one) for one in engine.vectors):
+                break
+        launched = [one for one in engine.vectors if launching(one)]
+        self.assertEqual(len(launched), 1,
+                         (engine.vectors, implementation_stages(), reports))
+        stages = implementation_stages()
+        for job_id, stage in stages.items():
+            self.assertNotIn("does not resolve",
+                             json.dumps(stage.get("deferral") or []), job_id)
+        # ONE JOB IS RUNNING ON THE ONE IMPLEMENTATION WORKER (`waiting`, the
+        # state `test_connected_startup.driven` drives to) and the other is
+        # honestly queued behind it, not refused and not dispatched.
+        self.assertEqual({job_id: stage["state"]
+                          for job_id, stage in stages.items()},
+                         {"job-labels-one": "waiting",
+                          "job-labels-two": "queued"}, stages)
+        dispatched = ["job-labels-one"]
+        for _ in range(4):
+            reconcile(job_store, bound, now=fixtures.NOW)
+            sweep(job_store, bound, now=fixtures.NOW)
+        self.assertEqual(len([one for one in engine.vectors if launching(one)]),
+                         1, engine.vectors)
+        self.assertEqual(implementation_stages()[dispatched[0]]["state"],
+                         stages[dispatched[0]]["state"])
         bound.close()
         job_store.close()
         # A BOUND WORK WHOSE RECEIPT ACTOR HOLDS NO GRANT REFUSES AT
@@ -803,8 +899,9 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         with self.assertRaises(ContractRefusal) as caught:
             stage_execution.operations_from(
                 configured, job_store, control, engine_run=engine,
-                credential_provider=lambda provider, reference: b"secret",
-                clock=lambda: fixtures.NOW, checkout=self.checkout)
+                credential_provider=lambda provider, reference: "a-secret",
+                clock=lambda: fixtures.NOW, checkout=self.checkout,
+                checkpoint_profile=profile_seam)
         self.assertIn("verify", caught.exception.message)
         self.assertIn("baton.impl-a", caught.exception.message)
         self.assertEqual(engine.vectors, [])

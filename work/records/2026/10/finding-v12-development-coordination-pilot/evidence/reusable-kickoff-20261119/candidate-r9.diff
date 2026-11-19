@@ -1,0 +1,358 @@
+diff --git a/v12/python/src/baton_v12/authority/api.py b/v12/python/src/baton_v12/authority/api.py
+index dc1b151c..214996a1 100644
+--- a/v12/python/src/baton_v12/authority/api.py
++++ b/v12/python/src/baton_v12/authority/api.py
+@@ -161,6 +161,12 @@ class Authority:
+         return self._core.holds_capability(participant, capability,
+                                            scope=scope)
+ 
++    def handles_route(self, route, participant):
++        """Whether `participant` is a configured handler of `route`: the
++        decision a claim on a Work created there would be authorized by,
++        asked BEFORE such a Work is created (W321608, native-labels-3)."""
++        return self._core.authorize(participant, route=route) is not None
++
+     # -- the principal mapping (W16821) --------------------------------------
+     #
+     # ON THIS FACE AND NOT ON THE SESSION, for the reason the two faces exist
+diff --git a/v12/python/tests/tools/test_connected_creation.py b/v12/python/tests/tools/test_connected_creation.py
+index 810069ca..974b8a4a 100644
+--- a/v12/python/tests/tools/test_connected_creation.py
++++ b/v12/python/tests/tools/test_connected_creation.py
+@@ -573,9 +573,16 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+         return runner
+ 
+     def installed_with_repositories(self, issued):
++        # THE CHECKPOINT PROFILE IS THE DETERMINISTIC SEAM every connected
++        # serving case uses (`test_connected_startup`, `test_job_task_delivery`):
++        # the line is materialized without version control, so dispatch is
++        # proved up to the engine boundary and no git process runs.
++        from tests.job_manager.test_review_driver import Profile
++        self.profile_seam = Profile()
+         document = self.document(workers=[], jobs=[],
+                                  line_declared_base=self.BASE,
+-                                 canonical_target_id=self.BASE)
++                                 canonical_target_id=self.BASE,
++                                 checkpoint_profile=self.profile_seam.name)
+         document.pop("state_root", None)
+         inputs = os.path.join(self.root, "operator-inputs.json")
+         Path(inputs).write_text(json.dumps(document))
+@@ -663,6 +670,7 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+                    for name in ("integration_target", "integration_workspace")
+                    if before.get(name)}
+         document = self.document(workers=workers, jobs=[],
++                                 checkpoint_profile=self.profile_seam.name,
+                                  line_declared_base=self.BASE,
+                                  canonical_target_id=self.BASE, **carried)
+         updated = os.path.join(self.root, "updated-inputs.json")
+@@ -705,12 +713,14 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+         # 2026-11-19T05-33-40Z): configured capacity, zero bound Jobs, no
+         # receipt session minted, honest zeros from a real sweep and status,
+         # and not one engine call.
+-        from baton_v12.job_manager import JobStore, status, sweep
++        from baton_v12.job_manager import JobStore, reconcile, status, sweep
+         from baton_v12.worker_manager import ControlStore
+         from tests.job_manager import fixtures
+         from tests.tools.test_single_worker import Engine
+         from tools import stage_execution
+ 
++        profile_seam = self.profile_seam
++
+         def composed_now():
+             engine = Engine()
+             job_store = JobStore.open(self.owned["job_store"],
+@@ -724,8 +734,9 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+             self.addCleanup(control.close)
+             composed = stage_execution.operations_from(
+                 self.configuration(), job_store, control, engine_run=engine,
+-                credential_provider=lambda provider, reference: b"secret",
+-                clock=lambda: fixtures.NOW, checkout=self.checkout)
++                credential_provider=lambda provider, reference: "a-secret",
++                clock=lambda: fixtures.NOW, checkout=self.checkout,
++                checkpoint_profile=profile_seam)
+             self.addCleanup(composed.close)
+             return job_store, composed, engine
+ 
+@@ -738,6 +749,32 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+         self.assertEqual(engine.vectors, [])
+         idle.close()
+         job_store.close()
++        # AN EXPLICIT ROUTE NO CONFIGURED IMPLEMENTATION WORKER HANDLES IS
++        # REFUSED BEFORE ANY WORK OR JOB EXISTS (W321608, native-labels-3):
++        # the first create on an idle instance makes the derived Work, and a
++        # Work on an unhandled route could never be claimed.
++        from baton_v12.authority.api import Authority
++
++        def authority():
++            opened = Authority.open_readonly(
++                self.owned["authority_store"],
++                expected_authority_uuid=self.owned["authority_uuid"])
++            self.addCleanup(opened.dispose)
++            return opened
++
++        workers = {one["worker_id"]: one
++                   for one in self.configuration()["workers"]}
++        derived = (workers["impl-a"]["deployment"]["input_manifest"]
++                   ["work_ref"]["work_id"])
++        unserved = self.argv(task="labels-zero", statement="Never created.")
++        unserved += ["--route", "baton.impl"]
++        with self.assertRaises(ContractRefusal) as caught:
++            job_manager.main(unserved, stream=io.StringIO())
++        self.assertIn("baton.impl", caught.exception.message)
++        self.assertIn("baton.impl-a", caught.exception.message)
++        self.assertIsNone(authority().work_creation(derived))
++        self.assertEqual(self.bindings(), {})
++        self.assertEqual(self.install_document().get("jobs") or [], [])
+         # TWO ORDINARY JOBS, input-only, each with its own instructions and
+         # its own verification; the installation is not written per Job.
+         configured = json.dumps(self.configuration()["workers"],
+@@ -771,6 +808,21 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+         self.assertEqual(
+             {one["job_id"] for one in self.install_document()["jobs"]},
+             {"job-labels-one", "job-labels-two"})
++        # THE DERIVED WORK WAS CREATED ON THE DEPLOYMENT'S OWN IMPLEMENTATION
++        # ROUTE -- the one its bootstrap registered impl-a on -- and the
++        # review handoff route the implementation worker carries resolves to
++        # the configured reviewer, so stage two does not meet the same
++        # mismatch. The old fixture spelling resolves to nobody here.
++        held = authority()
++        self.assertEqual(held.project_work(derived)["route"],
++                         bootstrap.ROUTES["implementation"])  # "impl"
++        self.assertTrue(held.handles_route(bootstrap.ROUTES["implementation"],
++                                           "baton.impl-a"))
++        self.assertEqual(workers["impl-a"]["deployment"]["review_route"],
++                         bootstrap.ROUTES["review"])
++        self.assertTrue(held.handles_route(
++            workers["impl-a"]["deployment"]["review_route"], "baton.reviewer"))
++        self.assertFalse(held.handles_route("baton.impl", "baton.impl-a"))
+         # AND THE BOUND WORK IS AUTHORIZED BEFORE ANYTHING IS SERVED: the
+         # same composition over the configuration that now binds the two Jobs
+         # mints the receipt sessions in the bound Work's own scope (the
+@@ -783,6 +835,50 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+         self.assertEqual(sorted(one["job_id"] for one in shown["jobs"]),
+                          ["job-labels-one", "job-labels-two"])
+         self.assertEqual(engine.vectors, [])
++        # ONE REAL SWEEP CLAIMS THE FIRST JOB'S IMPLEMENTATION THROUGH THE
++        # AUTHORITY -- the claim native-labels-3 refused -- and dispatches it
++        # once through the deterministic engine; the next sweep over the same
++        # state dispatches nothing again.
++        from tests.tools.test_single_worker import launching
++
++        def implementation_stages():
++            return {one["job_id"]: stage
++                    for one in status(job_store, bound,
++                                      observed_at=fixtures.NOW)["jobs"]
++                    for stage in one["stages"]
++                    if stage["kind"] == "implementation"}
++
++        # The scheduler reaches a launch over a few ticks (offer, claim,
++        # allocation, writer, dispatch), as `test_connected_startup.driven`
++        # drives it; this stops at the first launch and bounds the rounds.
++        reports = []
++        for _ in range(16):
++            reconcile(job_store, bound, now=fixtures.NOW)
++            reports.append(sweep(job_store, bound, now=fixtures.NOW))
++            if any(launching(one) for one in engine.vectors):
++                break
++        launched = [one for one in engine.vectors if launching(one)]
++        self.assertEqual(len(launched), 1,
++                         (engine.vectors, implementation_stages(), reports))
++        stages = implementation_stages()
++        for job_id, stage in stages.items():
++            self.assertNotIn("does not resolve",
++                             json.dumps(stage.get("deferral") or []), job_id)
++        # ONE JOB IS RUNNING ON THE ONE IMPLEMENTATION WORKER (`waiting`, the
++        # state `test_connected_startup.driven` drives to) and the other is
++        # honestly queued behind it, not refused and not dispatched.
++        self.assertEqual({job_id: stage["state"]
++                          for job_id, stage in stages.items()},
++                         {"job-labels-one": "waiting",
++                          "job-labels-two": "queued"}, stages)
++        dispatched = ["job-labels-one"]
++        for _ in range(4):
++            reconcile(job_store, bound, now=fixtures.NOW)
++            sweep(job_store, bound, now=fixtures.NOW)
++        self.assertEqual(len([one for one in engine.vectors if launching(one)]),
++                         1, engine.vectors)
++        self.assertEqual(implementation_stages()[dispatched[0]]["state"],
++                         stages[dispatched[0]]["state"])
+         bound.close()
+         job_store.close()
+         # A BOUND WORK WHOSE RECEIPT ACTOR HOLDS NO GRANT REFUSES AT
+@@ -803,8 +899,9 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+         with self.assertRaises(ContractRefusal) as caught:
+             stage_execution.operations_from(
+                 configured, job_store, control, engine_run=engine,
+-                credential_provider=lambda provider, reference: b"secret",
+-                clock=lambda: fixtures.NOW, checkout=self.checkout)
++                credential_provider=lambda provider, reference: "a-secret",
++                clock=lambda: fixtures.NOW, checkout=self.checkout,
++                checkpoint_profile=profile_seam)
+         self.assertIn("verify", caught.exception.message)
+         self.assertIn("baton.impl-a", caught.exception.message)
+         self.assertEqual(engine.vectors, [])
+diff --git a/v12/python/tools/fresh_attempt_ports.py b/v12/python/tools/fresh_attempt_ports.py
+index 0711be09..ef5b9a98 100644
+--- a/v12/python/tools/fresh_attempt_ports.py
++++ b/v12/python/tools/fresh_attempt_ports.py
+@@ -320,6 +320,11 @@ class HostExclusion:
+         return answer
+ 
+ 
++# The contract a deployment's Works are created under; `bootstrap` names the
++# same one for the Works its bound Jobs bring.
++ASSIGNMENT_CONTRACT = "v12-assignment-1"
++
++
+ class WorkAuthorization:
+     """The Authority's own answer about one Work, and its own creation act.
+ 
+@@ -330,9 +335,14 @@ class WorkAuthorization:
+     also absent, which is a fact rather than a message.
+     """
+ 
+-    def __init__(self, authority, *, route, identity):
++    def __init__(self, authority, *, route, identity, producers=()):
+         self._authority = authority
+         self._route = route
++        # W321608 (native-labels-3): THE CONFIGURED IMPLEMENTATION WORKERS a
++        # first Work must be claimable by. `create_work` refuses a route none
++        # of them handles rather than creating a Work no configured worker
++        # could ever claim -- which is what a hard-coded default once did.
++        self._producers = tuple(producers)
+         self._identity = _required(identity, "a Work authorization port")
+         # THE AUTHORITY IT WRAPS IS THIS INSTANCE'S. An Authority handle is
+         # the one capability here that can mint a Work, so which one it is
+@@ -359,15 +369,32 @@ class WorkAuthorization:
+             raise
+ 
+     def create_work(self, work_id, *, operation_id):
++        if self._producers and not any(
++                self._authority.handles_route(self._route, one)
++                for one in self._producers):
++            raise ContractRefusal(
++                "refused", "precondition",
++                f"route {name_value(self._route)} resolves to none of this "
++                f"deployment's configured implementation workers "
++                f"({', '.join(self._producers)}); a Work created there could "
++                f"never be claimed, so no Work and no Job was created. The "
++                f"deployment registers its implementation workers on the "
++                f"route its bootstrap names; omit --route to create there")
++        # UNDER THE V12 ASSIGNMENT CONTRACT, as `bootstrap` creates a bound
++        # Job's Work (W321608): a Work created without it answers its claim
++        # with no assignment generation, and the serving composition refuses
++        # that answer -- "the claim answer's generation is a whole assignment
++        # generation ... this is none" -- so the first Job never dispatches.
+         self._authority.create_work(work_id, self._route,
+-                                    operation_id=operation_id)
++                                    operation_id=operation_id,
++                                    contract=ASSIGNMENT_CONTRACT)
+         return self._authority.project_work(work_id)
+ 
+     @classmethod
+-    def opened(cls, path, *, authority_uuid, route, identity):
++    def opened(cls, path, *, authority_uuid, route, identity, producers=()):
+         return cls(Authority.open(path,
+                                   expected_authority_uuid=authority_uuid),
+-                   route=route, identity=identity)
++                   route=route, identity=identity, producers=producers)
+ 
+ 
+ class DeploymentBinding:
+diff --git a/v12/python/tools/job_manager.py b/v12/python/tools/job_manager.py
+index cb82a831..32657795 100644
+--- a/v12/python/tools/job_manager.py
++++ b/v12/python/tools/job_manager.py
+@@ -797,7 +797,8 @@ def _fresh_attempt(taken, clock, stream):
+                                         clock=clock) as control:
+             authorization = WorkAuthorization.opened(
+                 taken.authority, authority_uuid=taken.authority_uuid,
+-                route=taken.route, identity=identity)
++                route=_first_work_route(taken.route), identity=identity,
++                producers=_producers_of(deployment.configuration()))
+             # THE REFUSING READ-ONLY OPERATIONS OBJECT, which is `status`'s.
+             # Deriving the prior Job's stage states is a READ, and handing
+             # this operation something that could issue an offer would put a
+@@ -856,7 +857,8 @@ def _create(taken, clock, stream):
+                                         clock=clock) as control:
+             authorization = WorkAuthorization.opened(
+                 taken.authority, authority_uuid=taken.authority_uuid,
+-                route=taken.route, identity=identity)
++                route=_first_work_route(taken.route), identity=identity,
++                producers=_producers_of(deployment.configuration()))
+             return _emit(create_template_job(
+                 store, _ReadOnly(control), request=request,
+                 derivation=derivation, authorization=authorization,
+@@ -1247,6 +1249,39 @@ def _serve(taken, clock, stream):
+                     _release(operations, stream)
+ 
+ 
++def _first_work_route(named):
++    """The route a FIRST Work is created on: the operator's explicit one, or
++    the deployment's own implementation route.
++
++    W321608 (native-labels-3): this used to default to a fixture's spelling,
++    `baton.impl`, while `bootstrap` registers a deployment's implementation
++    workers on its own `ROUTES["implementation"]` -- and an idle instance's
++    first `create` makes the derived Work BEFORE the binding runs, so the
++    Work landed on a route nobody handled and its first claim refused. The
++    deployment's naming is the one source; the operand remains for a
++    deployment that deliberately routes elsewhere, and `WorkAuthorization`
++    refuses one no configured implementation worker handles.
++    """
++    from tools import bootstrap
++
++    return bootstrap.ROUTES["implementation"] if named is None else named
++
++
++def _producers_of(configuration):
++    """The configured implementation workers' participants: who a first Work
++    must be claimable by."""
++    # THE EMITTED CONFIGURATION'S SHAPE: a configured worker's participant is
++    # its `deployment`'s, which is what the serving composition reads.
++    found = []
++    for one in configuration.get("workers") or []:
++        deployment = one.get("deployment") or {}
++        role = one.get("role") or deployment.get("launch_role")
++        participant = deployment.get("participant")
++        if role == "implementation" and type(participant) is str:
++            found.append(participant)
++    return tuple(found)
++
++
+ def main(argv, *, clock=None, stream=None):
+     import argparse
+     from tools import job_cancellation, stopped_settlement
+@@ -1312,9 +1347,12 @@ def main(argv, *, clock=None, stream=None):
+                                "bootstrap prepares the additive Job binding "
+                                "and whose selector is asked whether a worker "
+                                "can serve each stage")
+-    retrying.add_argument("--route", default="baton.impl",
++    retrying.add_argument("--route", default=None,
+                           help="the route a Work is created under, used only "
+-                               "when the selected Work does not exist yet")
++                               "when the selected Work does not exist yet; "
++                               "omitted, the deployment's own implementation "
++                               "route, and an explicit route no configured "
++                               "implementation worker handles is refused")
+     retrying.add_argument("--job-id", default=None,
+                           help="the fresh Job identity; derived from the "
+                                "prior one when omitted, so no operator or "
+@@ -1390,10 +1428,15 @@ def main(argv, *, clock=None, stream=None):
+                                "installed -- and it is an operand rather "
+                                "than an assumption so a later source "
+                                "selection has somewhere to go")
+-    creating.add_argument("--route", default="baton.impl",
++    creating.add_argument("--route", default=None,
+                           help="the route a Work is created under, used only "
+                                "when the deployment's derived Work does not "
+-                               "exist yet")
++                               "exist yet; omitted, the deployment's own "
++                               "implementation route (the one its bootstrap "
++                               "registers the implementation workers on), and "
++                               "an explicit route no configured implementation "
++                               "worker handles is refused before any Work or "
++                               "Job is created")
+     creating.add_argument("--job-id", default=None,
+                           help="the Job identity; derived from --task when "
+                                "omitted, so no operator or model has to "

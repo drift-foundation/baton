@@ -797,7 +797,8 @@ def _fresh_attempt(taken, clock, stream):
                                         clock=clock) as control:
             authorization = WorkAuthorization.opened(
                 taken.authority, authority_uuid=taken.authority_uuid,
-                route=taken.route, identity=identity)
+                route=_first_work_route(taken.route), identity=identity,
+                producers=_producers_of(deployment.configuration()))
             # THE REFUSING READ-ONLY OPERATIONS OBJECT, which is `status`'s.
             # Deriving the prior Job's stage states is a READ, and handing
             # this operation something that could issue an offer would put a
@@ -856,7 +857,8 @@ def _create(taken, clock, stream):
                                         clock=clock) as control:
             authorization = WorkAuthorization.opened(
                 taken.authority, authority_uuid=taken.authority_uuid,
-                route=taken.route, identity=identity)
+                route=_first_work_route(taken.route), identity=identity,
+                producers=_producers_of(deployment.configuration()))
             return _emit(create_template_job(
                 store, _ReadOnly(control), request=request,
                 derivation=derivation, authorization=authorization,
@@ -1247,6 +1249,39 @@ def _serve(taken, clock, stream):
                     _release(operations, stream)
 
 
+def _first_work_route(named):
+    """The route a FIRST Work is created on: the operator's explicit one, or
+    the deployment's own implementation route.
+
+    W321608 (native-labels-3): this used to default to a fixture's spelling,
+    `baton.impl`, while `bootstrap` registers a deployment's implementation
+    workers on its own `ROUTES["implementation"]` -- and an idle instance's
+    first `create` makes the derived Work BEFORE the binding runs, so the
+    Work landed on a route nobody handled and its first claim refused. The
+    deployment's naming is the one source; the operand remains for a
+    deployment that deliberately routes elsewhere, and `WorkAuthorization`
+    refuses one no configured implementation worker handles.
+    """
+    from tools import bootstrap
+
+    return bootstrap.ROUTES["implementation"] if named is None else named
+
+
+def _producers_of(configuration):
+    """The configured implementation workers' participants: who a first Work
+    must be claimable by."""
+    # THE EMITTED CONFIGURATION'S SHAPE: a configured worker's participant is
+    # its `deployment`'s, which is what the serving composition reads.
+    found = []
+    for one in configuration.get("workers") or []:
+        deployment = one.get("deployment") or {}
+        role = one.get("role") or deployment.get("launch_role")
+        participant = deployment.get("participant")
+        if role == "implementation" and type(participant) is str:
+            found.append(participant)
+    return tuple(found)
+
+
 def main(argv, *, clock=None, stream=None):
     import argparse
     from tools import job_cancellation, stopped_settlement
@@ -1312,9 +1347,12 @@ def main(argv, *, clock=None, stream=None):
                                "bootstrap prepares the additive Job binding "
                                "and whose selector is asked whether a worker "
                                "can serve each stage")
-    retrying.add_argument("--route", default="baton.impl",
+    retrying.add_argument("--route", default=None,
                           help="the route a Work is created under, used only "
-                               "when the selected Work does not exist yet")
+                               "when the selected Work does not exist yet; "
+                               "omitted, the deployment's own implementation "
+                               "route, and an explicit route no configured "
+                               "implementation worker handles is refused")
     retrying.add_argument("--job-id", default=None,
                           help="the fresh Job identity; derived from the "
                                "prior one when omitted, so no operator or "
@@ -1390,10 +1428,15 @@ def main(argv, *, clock=None, stream=None):
                                "installed -- and it is an operand rather "
                                "than an assumption so a later source "
                                "selection has somewhere to go")
-    creating.add_argument("--route", default="baton.impl",
+    creating.add_argument("--route", default=None,
                           help="the route a Work is created under, used only "
                                "when the deployment's derived Work does not "
-                               "exist yet")
+                               "exist yet; omitted, the deployment's own "
+                               "implementation route (the one its bootstrap "
+                               "registers the implementation workers on), and "
+                               "an explicit route no configured implementation "
+                               "worker handles is refused before any Work or "
+                               "Job is created")
     creating.add_argument("--job-id", default=None,
                           help="the Job identity; derived from --task when "
                                "omitted, so no operator or model has to "

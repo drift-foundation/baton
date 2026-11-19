@@ -320,6 +320,11 @@ class HostExclusion:
         return answer
 
 
+# The contract a deployment's Works are created under; `bootstrap` names the
+# same one for the Works its bound Jobs bring.
+ASSIGNMENT_CONTRACT = "v12-assignment-1"
+
+
 class WorkAuthorization:
     """The Authority's own answer about one Work, and its own creation act.
 
@@ -330,9 +335,14 @@ class WorkAuthorization:
     also absent, which is a fact rather than a message.
     """
 
-    def __init__(self, authority, *, route, identity):
+    def __init__(self, authority, *, route, identity, producers=()):
         self._authority = authority
         self._route = route
+        # W321608 (native-labels-3): THE CONFIGURED IMPLEMENTATION WORKERS a
+        # first Work must be claimable by. `create_work` refuses a route none
+        # of them handles rather than creating a Work no configured worker
+        # could ever claim -- which is what a hard-coded default once did.
+        self._producers = tuple(producers)
         self._identity = _required(identity, "a Work authorization port")
         # THE AUTHORITY IT WRAPS IS THIS INSTANCE'S. An Authority handle is
         # the one capability here that can mint a Work, so which one it is
@@ -359,15 +369,32 @@ class WorkAuthorization:
             raise
 
     def create_work(self, work_id, *, operation_id):
+        if self._producers and not any(
+                self._authority.handles_route(self._route, one)
+                for one in self._producers):
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"route {name_value(self._route)} resolves to none of this "
+                f"deployment's configured implementation workers "
+                f"({', '.join(self._producers)}); a Work created there could "
+                f"never be claimed, so no Work and no Job was created. The "
+                f"deployment registers its implementation workers on the "
+                f"route its bootstrap names; omit --route to create there")
+        # UNDER THE V12 ASSIGNMENT CONTRACT, as `bootstrap` creates a bound
+        # Job's Work (W321608): a Work created without it answers its claim
+        # with no assignment generation, and the serving composition refuses
+        # that answer -- "the claim answer's generation is a whole assignment
+        # generation ... this is none" -- so the first Job never dispatches.
         self._authority.create_work(work_id, self._route,
-                                    operation_id=operation_id)
+                                    operation_id=operation_id,
+                                    contract=ASSIGNMENT_CONTRACT)
         return self._authority.project_work(work_id)
 
     @classmethod
-    def opened(cls, path, *, authority_uuid, route, identity):
+    def opened(cls, path, *, authority_uuid, route, identity, producers=()):
         return cls(Authority.open(path,
                                   expected_authority_uuid=authority_uuid),
-                   route=route, identity=identity)
+                   route=route, identity=identity, producers=producers)
 
 
 class DeploymentBinding:

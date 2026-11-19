@@ -1,0 +1,256 @@
+{
+  "schema": "baton.v12.job-status/9",
+  "observed_at": "2026-11-19T06:38:27.124Z",
+  "incarnation": "prompt-read-status",
+  "canonical": false,
+  "jobs": [
+    {
+      "job_id": "w29401-labels-2",
+      "submission_id": "w29401-labels-2-1",
+      "input_digest": "sha256:dae3030cfb10a26daacb8c9e0c37a13e1a55c3919be02ca2546f7377b0ad7b52",
+      "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+      "test_scope": [
+        "v12/python/tests",
+        "v12/python/tools/parallel_test.py"
+      ],
+      "terminal_policy": "report-and-hold",
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {},
+        "boundaries": {
+          "host_verification": {
+            "seconds": 300,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 1800,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "compatibility",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "w29401-labels-2/implementation",
+          "job_id": "w29401-labels-2",
+          "kind": "implementation",
+          "state": "offered",
+          "work_id": "4de901a8-W1",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:b4de49c04093514dd33159967dbff1fcda6b6d8d6e6e7093ffc9de21bc865049",
+          "episode": 1,
+          "offer_id": "offer-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+          "attempt_id": "attempt-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+          "episodes": [
+            {
+              "stage_id": "w29401-labels-2/implementation",
+              "episode": 1,
+              "offer_id": "offer-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+              "attempt_id": "attempt-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+              "opened_at": "2026-11-19T06:37:54.232Z",
+              "incarnation": "owner-create-labels-2",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+            "stage_id": "w29401-labels-2/implementation",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "impl-a",
+            "lane": "implementation",
+            "participant": "baton.claude-native",
+            "canonical_principal": "principal:baton.claude-native",
+            "preferred_worker_id": null,
+            "selection_outcome": "initial",
+            "allocation_state": "reserved",
+            "reserved_at": "2026-11-19T06:38:01.657Z",
+            "recovery_required_at": null,
+            "released_at": null,
+            "release_reason": null,
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:f9167f807fe48da91ed7863f148ebc98d06bd44795fff9d20be554d28d230708",
+            "worker_profile_name": "claude-fresh-implementation",
+            "worker_profile_digest": "sha256:b4de49c04093514dd33159967dbff1fcda6b6d8d6e6e7093ffc9de21bc865049"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+              "stage_id": "w29401-labels-2/implementation",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "impl-a",
+              "lane": "implementation",
+              "participant": "baton.claude-native",
+              "canonical_principal": "principal:baton.claude-native",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "reserved",
+              "reserved_at": "2026-11-19T06:38:01.657Z",
+              "recovery_required_at": null,
+              "released_at": null,
+              "release_reason": null,
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:f9167f807fe48da91ed7863f148ebc98d06bd44795fff9d20be554d28d230708",
+              "worker_profile_name": "claude-fresh-implementation",
+              "worker_profile_digest": "sha256:b4de49c04093514dd33159967dbff1fcda6b6d8d6e6e7093ffc9de21bc865049"
+            }
+          ],
+          "gates": [],
+          "receipts": [
+            {
+              "stage_id": "w29401-labels-2/implementation",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+              "state": "performed",
+              "recorded_at": "2026-11-19T06:38:01.663Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-11-19T06:40:01.661Z",
+                  "issued_at": "2026-11-19T06:38:01.661Z",
+                  "offer_id": "offer-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+                  "participant": "baton.claude-native",
+                  "runtime_attempt_id": "attempt-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+                  "verifier": "sha256:6a16c9ffd93dbe2cf0fc5cf0b551951a3ec8e897cea0cb7d0f8450ae5b5e5cee",
+                  "work_id": "4de901a8-W1"
+                },
+                "settled_at": "2026-11-19T06:38:01.661Z"
+              }
+            }
+          ],
+          "deferral": [
+            {
+              "act": "claim",
+              "episode": 1,
+              "outstanding": true,
+              "attempt_id": "attempt-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+              "operation_id": "offer.settle:offer-cb1fd0135a0ad43e653594533bb4c1a03218f0610a07387cd2e752b54cabba38",
+              "category": "refused",
+              "code": "precondition",
+              "message": "the authority refused this claim: route 'baton.impl' does not resolve to 'baton.claude-native'",
+              "since": "2026-11-19T06:38:06.695Z",
+              "observed": "2026-11-19T06:38:26.971Z",
+              "incarnation": "v12-stack-1827286-1795070281392022927",
+              "why_retained": null
+            }
+          ],
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null,
+          "attempt_diagnostics": null,
+          "diagnostic_degradation": null
+        },
+        {
+          "stage_id": "w29401-labels-2/review",
+          "job_id": "w29401-labels-2",
+          "kind": "review",
+          "state": "blocked",
+          "work_id": "4de901a8-W1",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:b4de49c04093514dd33159967dbff1fcda6b6d8d6e6e7093ffc9de21bc865049",
+          "episode": 1,
+          "offer_id": "offer-1890a8ac0b9afa8594154c7f8885fc7b6e53f2f2290181b52df3e838fcc97a61",
+          "attempt_id": "attempt-1890a8ac0b9afa8594154c7f8885fc7b6e53f2f2290181b52df3e838fcc97a61",
+          "episodes": [
+            {
+              "stage_id": "w29401-labels-2/review",
+              "episode": 1,
+              "offer_id": "offer-1890a8ac0b9afa8594154c7f8885fc7b6e53f2f2290181b52df3e838fcc97a61",
+              "attempt_id": "attempt-1890a8ac0b9afa8594154c7f8885fc7b6e53f2f2290181b52df3e838fcc97a61",
+              "opened_at": "2026-11-19T06:37:54.232Z",
+              "incarnation": "owner-create-labels-2",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [
+            {
+              "stage_id": "w29401-labels-2/implementation",
+              "state": "offered",
+              "open": false
+            }
+          ],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null,
+          "attempt_diagnostics": null,
+          "diagnostic_degradation": null
+        }
+      ],
+      "cancellation": null,
+      "control": {
+        "profile": "documentation/1",
+        "resolved": {
+          "correction_rounds": 0,
+          "job_seconds": 9960,
+          "profile": "documentation/1",
+          "provider_turn_seconds": 3600,
+          "stage_seconds": 4800,
+          "units": "seconds",
+          "verification_command_seconds": 900
+        },
+        "timing": "trusted",
+        "observed_at": "2026-11-19T06:38:27.125Z",
+        "watermark": "2026-11-19T06:38:26.969Z",
+        "job": {
+          "origin": "2026-11-19T06:37:54.232Z",
+          "deadline_at": "2026-11-19T09:23:54.232Z",
+          "elapsed_seconds": 32,
+          "reached": false
+        },
+        "stages": [
+          {
+            "stage_id": "w29401-labels-2/implementation",
+            "origin": "2026-11-19T06:38:01.661Z",
+            "deadline_at": "2026-11-19T07:58:01.661Z",
+            "elapsed_seconds": 25,
+            "reached": false
+          },
+          {
+            "stage_id": "w29401-labels-2/review",
+            "origin": null,
+            "deadline_at": null,
+            "elapsed_seconds": null,
+            "reached": false
+          }
+        ],
+        "corrections": {
+          "allowance": 0,
+          "used": 0
+        },
+        "fence": null
+      }
+    }
+  ]
+}

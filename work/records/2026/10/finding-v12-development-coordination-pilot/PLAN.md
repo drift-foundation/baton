@@ -1,3 +1,15 @@
+## Current — r9 accepted for human checkpoint
+
+Supersedes prior Current sections below. See review-2026-11-19T13-55-44Z.md. Four-path candidate bc3fc378 accepted; independent132 tests pass. Owner commit then rebuilt packaging gate. K holds edits. Cancel/retain unservable native-labels-3 using supported interface before replacement; no live changes by coordinator. Create while stopped, then start installed instance.
+
+## Current — route correction before another kickoff
+
+Supersedes earlier Current sections below. K diagnosis accepted: default create route disagrees with bootstrap. Proceed with bounded product correction and deterministic creation-through-claim and review-route evidence, under existing owner-held assignment. Preserve native-labels-3 and w29401-labels-2; no cancellation or replacement executed by coordinator. See FINDING latest continuation and evidence/native-labels-3-route-refusal/DIAGNOSIS.md.
+
+## Current — corrected instance ready for owner create
+
+Supersedes all earlier Current sections below. Checkpoint 13b0890e built and packaging24/24 passed. native-labels-2 cancelled completely, retained. native-labels-3 installed; two composed worker inputs match the verified preparation exactly. Source-tree launch used native-labels-3 stores with default lifecycle root; owner stopped it and both PIDs are gone. Next: owner creates w29401-labels-2 using installed binary, then starts only the instance justfile. K holds edits. No Job execution or acceptance is claimed.
+
 ## Current — old Job cancelled before admission; checkpoint r8
 
 Supported cancel-status confirms shutdown complete and both stages retired-before-admission; retained evidence/native-labels-2-cancellation/cancel-status.json. Preserve native-labels-2. Commit accepted r8 six-file candidate and dossier, then rebuild/package gate before any new instance. K holds edits.

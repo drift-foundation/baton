@@ -1,0 +1,47 @@
+{
+  "checked_at": "2026-11-19T06:32:42.932233+00:00",
+  "workers": [
+    {
+      "worker": "impl-a",
+      "manifest": "sha256:f24d91ce9b0e66cb60ea53b269b3f0df34bd1505ba285850e69956e48866f66d",
+      "record_binding": {
+        "finding_digest": "sha256:f786cc74a41520800646885c0cfb38abbf87f42389200c6c4858c01008170be6",
+        "path": "work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli",
+        "plan_digest": "sha256:84bca018c48fa8368e84dcc1dfeb604c1007a9f00a1f7c8fffaabfd6f9674e35",
+        "root": "baton-repository"
+      },
+      "policy_bindings": {
+        "credential_policy_digest": "sha256:b192d53c96e1611b035f95c7f2d27ea3a6a48e2cd9499bfc45ba6b2ec6e6779c",
+        "tool_policy_digest": "sha256:f9549df6179c2d19dbc8f9966264e711d5f831ef2646b01bb569f80556dac186",
+        "network_policy_digest": "sha256:5313a62ea6f521910530ff366b50747810eaf71a0a2f302c06e2013828c84e4d",
+        "resource_policy_digest": "sha256:7205e02e37db76ba642de3a041bffeb435cf5985ac6a460290cc746d7858db97",
+        "mount_policy_digest": "sha256:e82b23a50fae74fc9d28201d3032dbcc8f2d838e80e050c90cd66abfb9c98b37",
+        "toolchain_digest": "sha256:fa406db782d4be7b3db89972d3f1ac4111d10dab38a25d529d19359d847be67f",
+        "role_instructions_digest": "sha256:f41ec6cae6db564e239654c3d25e871ea468853eeec9fb9c2ee6a9d0c51af386"
+      },
+      "checks": "dossier bytes, retention, all seven derived policy identities, no specimen values: pass"
+    },
+    {
+      "worker": "review-a",
+      "manifest": "sha256:d95bd9aa2ed4bded5ecdebf0715352820225446fc3090d35e7c4d41195dbfe8b",
+      "record_binding": {
+        "finding_digest": "sha256:f786cc74a41520800646885c0cfb38abbf87f42389200c6c4858c01008170be6",
+        "path": "work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli",
+        "plan_digest": "sha256:84bca018c48fa8368e84dcc1dfeb604c1007a9f00a1f7c8fffaabfd6f9674e35",
+        "root": "baton-repository"
+      },
+      "policy_bindings": {
+        "credential_policy_digest": "sha256:b192d53c96e1611b035f95c7f2d27ea3a6a48e2cd9499bfc45ba6b2ec6e6779c",
+        "tool_policy_digest": "sha256:f9549df6179c2d19dbc8f9966264e711d5f831ef2646b01bb569f80556dac186",
+        "network_policy_digest": "sha256:5313a62ea6f521910530ff366b50747810eaf71a0a2f302c06e2013828c84e4d",
+        "resource_policy_digest": "sha256:7205e02e37db76ba642de3a041bffeb435cf5985ac6a460290cc746d7858db97",
+        "mount_policy_digest": "sha256:e82b23a50fae74fc9d28201d3032dbcc8f2d838e80e050c90cd66abfb9c98b37",
+        "toolchain_digest": "sha256:fa406db782d4be7b3db89972d3f1ac4111d10dab38a25d529d19359d847be67f",
+        "role_instructions_digest": "sha256:f7b08f79be1001ac83d4a678ded21904b0691bf159f3957587ab1905492fed46"
+      },
+      "checks": "dossier bytes, retention, all seven derived policy identities, no specimen values: pass"
+    }
+  ],
+  "shared_job_input_identity": "sha256:ecc552b3c8cded11a33b67ead1024bc65da6431ca807faeea6e224fe9a347753",
+  "job_created": false
+}

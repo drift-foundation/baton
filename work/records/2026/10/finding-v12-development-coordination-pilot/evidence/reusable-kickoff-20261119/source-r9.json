@@ -1,0 +1,23 @@
+{
+  "base": "13b0890e049a9209338240a1b393034c70cdf0c4",
+  "method": "sha256 over the sorted '<path> sha256:<digest>\\n' lines of every changed v12 path (git status --porcelain -- v12)",
+  "paths": [
+    {
+      "path": "v12/python/src/baton_v12/authority/api.py",
+      "sha256": "4e3850504b55f4bbf845433e533eaa0a95336428e0eb50a40ac5bc5aa99aa46e"
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "sha256": "1eec1e6e839b012d7d4db89cce782891867bbac1a29831c6a8e2b3ba15cf9872"
+    },
+    {
+      "path": "v12/python/tools/fresh_attempt_ports.py",
+      "sha256": "153c6bc1c2084e023ac8ca13115d6db3b8a04dc3dc369a9d5336572697193914"
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "5116b6773f35c9f3831a4d25d7aa03731f7ab5edb84635a2b03e8426287958f2"
+    }
+  ],
+  "candidate": "sha256:bc3fc378ab0083bceea21610fc15eedca9b9cd05c6e60a89cac14695f983bb7c"
+}
