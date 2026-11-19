@@ -552,7 +552,18 @@ class ComposingAWorkerForThisInstance(PoolCase):
         Path(place).write_bytes(json.dumps(held, sort_keys=True).encode())
         return place
 
+    RECORD = ("work/records/2026/08/finding-v12-work-tags/findings/"
+              "finding-v12-work-label-protocol-cli")
+
+    def record_in(self, checkout, finding="# Finding\n", plan="# Plan\n"):
+        place = Path(checkout, self.RECORD)
+        place.mkdir(parents=True, exist_ok=True)
+        (place / "FINDING.md").write_text(finding)
+        (place / "PLAN.md").write_text(plan)
+        return str(place)
+
     def selection(self, **changes):
+        self.record_in(self.checkout)
         held = dict(worker_id="impl-c", role="implementation",
                     participant="baton.impl-c",
                     image_reference="baton-v12-worker:test",
@@ -561,7 +572,9 @@ class ComposingAWorkerForThisInstance(PoolCase):
                     credential_sources=os.path.join(self.root, "credential-sources.json"),
                     credentials=["claude=operator-file:w202663-development"],
                     workspace_group=self.config["workspace_group"],
-                    task_document=self.task_file())
+                    task_document=self.task_file(),
+                    record_path=self.RECORD, checkout=self.checkout,
+                    now="2026-11-19T06:30:00.000Z")
         held.update(changes)
         return held
 
@@ -665,10 +678,80 @@ class ComposingAWorkerForThisInstance(PoolCase):
         finally:
             os.chdir(before)
         manifest = answer["worker"]["deployment"]["input_manifest"]
-        for name in ("credential_policy_digest", "mount_policy_digest",
-                     "record_binding", "extensions", "version"):
-            if name in published:
-                self.assertEqual(manifest[name], published[name], name)
+        # THE STRUCTURE IS THE PUBLISHED DOCUMENT'S; the provenance members
+        # are bound to this instance (the provenance case holds those).
+        for name in ("schema", "version", "extensions", "assignment_contract"):
+            self.assertEqual(manifest[name], published[name], name)
+        self.assertEqual([one["name"] for one in manifest["outputs"]],
+                         [one["name"] for one in published["outputs"]])
+
+    def test_every_provenance_member_is_bound_and_none_is_a_specimen(self):
+        """Review 2026-11-19T06-06-42Z: the template's specimen record,
+        retention, policy, credential, role, toolchain, id and clock values
+        used to travel as this run's provenance. Each is now the digest of the
+        product document that governs it, or the selection the operator
+        named, and a specimen refuses."""
+        import hashlib
+
+        from baton_v12.contracts import digest, frozen
+        from tools import next_run_bindings
+
+        answer = self.composing()
+        manifest = answer["worker"]["deployment"]["input_manifest"]
+        template = frozen.input_manifest_template()
+        for name in next_run_bindings.BOUND_MEMBERS:
+            self.assertNotEqual(manifest[name], template[name], name)
+        self.assertEqual(manifest["retention_policy_digest"],
+                         self.held["retention_policy_digest"])
+        record = Path(self.checkout, self.RECORD)
+        self.assertEqual(manifest["record_binding"], {
+            "root": "baton-repository", "path": self.RECORD,
+            "finding_digest": "sha256:" + hashlib.sha256(
+                (record / "FINDING.md").read_bytes()).hexdigest(),
+            "plan_digest": "sha256:" + hashlib.sha256(
+                (record / "PLAN.md").read_bytes()).hexdigest()})
+        self.assertEqual(manifest["manifest_id"], "input-manifest-impl-c")
+        self.assertEqual(manifest["created_at"], "2026-11-19T06:30:00.000Z")
+        self.assertEqual(manifest["credential_policy_digest"], digest(
+            {"schema": "baton.worker-credential-policy/1",
+             "profile": {"claude": {"provider": "operator-file",
+                                    "reference": "w202663-development"}}}))
+        self.assertEqual(manifest["toolchain_digest"], digest(
+            {"schema": "baton.worker-toolchain/1",
+             "image_reference": "baton-v12-worker:test",
+             "image_digest": self.IMAGE, "cli_build": "2.1.247"}))
+        self.assertEqual(manifest["network_policy_digest"], digest(
+            {"schema": "baton.worker-network-policy/1", "engine": "docker",
+             "network": self.config["network"]}))
+        # THE ROLE'S OWN DECLARATION: implementation and review differ.
+        review = self.composing(worker_id="review-c", role="review",
+                                participant="baton.reviewer-c")
+        self.assertNotEqual(
+            manifest["role_instructions_digest"],
+            review["worker"]["deployment"]["input_manifest"]
+            ["role_instructions_digest"])
+        for name in ("tool_policy_digest", "resource_policy_digest",
+                     "mount_policy_digest", "credential_policy_digest"):
+            self.assertEqual(manifest[name], review["worker"]["deployment"]
+                             ["input_manifest"][name], name)
+        # THE RECORD IS A SELECTION: no record, no checkout, no dossier.
+        for changes, said in (({"record_path": "/abs/olute"}, "relative"),
+                              ({"record_path": "work/records/absent"},
+                               "no readable FINDING.md"),
+                              ({"checkout": None}, "no checkout")):
+            with self.subTest(changes=changes):
+                with self.assertRaises(pool.PoolRefusal) as caught:
+                    kept = os.environ.get("X")
+                    if "checkout" in changes:
+                        from unittest import mock as _mock
+                        with _mock.patch("tools.build_stamp.checkout",
+                                         lambda start=None: None):
+                            self.composing(**changes)
+                    else:
+                        self.composing(**changes)
+                    del kept
+                self.assertIn(said, str(caught.exception))
+        self.unchanged()
 
     def test_two_defined_tasks_compose_two_workers_without_an_installation(self):
         first = self.composing(task_document=self.task_file("task-one", "a.json"))
@@ -764,6 +847,7 @@ class ComposingAWorkerForThisInstance(PoolCase):
         self.assertEqual(target.read_text(), "arrived first")
 
     def test_the_command_line_writes_one_fresh_file_and_refuses_a_second(self):
+        self.record_in(self.checkout)
         into = os.path.join(self.root, "composed", "impl-c.json")
         argv = [pool.VERB_COMPOSE, "--deployment", self.place,
                 "--worker-id", "impl-c", "--role", "implementation",
@@ -774,7 +858,9 @@ class ComposingAWorkerForThisInstance(PoolCase):
                 "--credential-sources", os.path.join(self.root, "credential-sources.json"),
                 "--credential", "claude=operator-file:w202663-development",
                 "--workspace-group", str(self.config["workspace_group"]),
-                "--task-document", self.task_file(), "--into", into]
+                "--task-document", self.task_file(),
+                "--record", self.RECORD, "--checkout", self.checkout,
+                "--into", into]
         said = io.StringIO()
         self.assertEqual(pool.main(argv, stream=said), 0, said.getvalue())
         written = json.loads(Path(into).read_text())

@@ -620,6 +620,12 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         held = json.loads(Path(self.config["task_document"]).read_bytes())
         held["task_id"] = "installed-task"
         Path(task_place).write_bytes(json.dumps(held, sort_keys=True).encode())
+        record_path = ("work/records/2026/08/finding-v12-work-tags/findings/"
+                       "finding-v12-work-label-protocol-cli")
+        record = Path(self.checkout, record_path)
+        record.mkdir(parents=True, exist_ok=True)
+        (record / "FINDING.md").write_text("# Finding\n")
+        (record / "PLAN.md").write_text("# Plan\n")
         workers = []
         for worker_id, role, participant in (
                 ("impl-a", "implementation", "baton.impl-a"),
@@ -634,7 +640,18 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
                                                 "credential-sources.json"),
                 credentials=["claude=operator-file:w202663-development"],
                 workspace_group=self.config["workspace_group"],
-                task_document=task_place)
+                task_document=task_place, record_path=record_path,
+                checkout=self.checkout)
+            manifest = answer["worker"]["deployment"]["input_manifest"]
+            # PROVENANCE IS THIS INSTANCE'S (review 2026-11-19T06-06-42Z).
+            self.assertEqual(manifest["record_binding"]["path"], record_path)
+            self.assertEqual(manifest["retention_policy_digest"],
+                             before["retention_policy_digest"])
+            from baton_v12.contracts import frozen
+            from tools import next_run_bindings
+            template = frozen.input_manifest_template()
+            for name in next_run_bindings.BOUND_MEMBERS:
+                self.assertNotEqual(manifest[name], template[name], name)
             workers.append(answer["worker"])
         for worker in workers:
             self.assertFalse(os.path.exists(

@@ -1,0 +1,499 @@
+diff --git a/v12/python/tests/tools/test_bootstrap.py b/v12/python/tests/tools/test_bootstrap.py
+index 28173481..27816870 100644
+--- a/v12/python/tests/tools/test_bootstrap.py
++++ b/v12/python/tests/tools/test_bootstrap.py
+@@ -296,10 +296,18 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
+         self.assertEqual(code, 0, out.getvalue())
+         return destination
+ 
++    RECORD = ("work/records/2026/08/finding-v12-work-tags/findings/"
++              "finding-v12-work-label-protocol-cli")
++
+     def composed_for(self, destination, worker_id, role, participant):
+         from tools import instance as instances
+         from tools import pool
+ 
++        record = Path(self.checkout, self.RECORD)
++        record.mkdir(parents=True, exist_ok=True)
++        (record / "FINDING.md").write_text("# Finding\n")
++        (record / "PLAN.md").write_text("# Plan\n")
++
+         configured = json.loads(
+             Path(instances.layout(destination)["deployment"]).read_bytes())
+         task = os.path.join(self.root, "task-" + worker_id + ".json")
+@@ -315,7 +323,8 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
+                                             "credential-sources.json"),
+             credentials=["claude=operator-file:w202663-development"],
+             workspace_group=self.config["workspace_group"],
+-            task_document=task)["worker"]
++            task_document=task, record_path=self.RECORD,
++            checkout=self.checkout)["worker"]
+ 
+     def repeated(self, destination, issued, workers, *extra):
+         from tools import instance as instances
+diff --git a/v12/python/tests/tools/test_connected_creation.py b/v12/python/tests/tools/test_connected_creation.py
+index 9ad94abe..810069ca 100644
+--- a/v12/python/tests/tools/test_connected_creation.py
++++ b/v12/python/tests/tools/test_connected_creation.py
+@@ -620,6 +620,12 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+         held = json.loads(Path(self.config["task_document"]).read_bytes())
+         held["task_id"] = "installed-task"
+         Path(task_place).write_bytes(json.dumps(held, sort_keys=True).encode())
++        record_path = ("work/records/2026/08/finding-v12-work-tags/findings/"
++                       "finding-v12-work-label-protocol-cli")
++        record = Path(self.checkout, record_path)
++        record.mkdir(parents=True, exist_ok=True)
++        (record / "FINDING.md").write_text("# Finding\n")
++        (record / "PLAN.md").write_text("# Plan\n")
+         workers = []
+         for worker_id, role, participant in (
+                 ("impl-a", "implementation", "baton.impl-a"),
+@@ -634,7 +640,18 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+                                                 "credential-sources.json"),
+                 credentials=["claude=operator-file:w202663-development"],
+                 workspace_group=self.config["workspace_group"],
+-                task_document=task_place)
++                task_document=task_place, record_path=record_path,
++                checkout=self.checkout)
++            manifest = answer["worker"]["deployment"]["input_manifest"]
++            # PROVENANCE IS THIS INSTANCE'S (review 2026-11-19T06-06-42Z).
++            self.assertEqual(manifest["record_binding"]["path"], record_path)
++            self.assertEqual(manifest["retention_policy_digest"],
++                             before["retention_policy_digest"])
++            from baton_v12.contracts import frozen
++            from tools import next_run_bindings
++            template = frozen.input_manifest_template()
++            for name in next_run_bindings.BOUND_MEMBERS:
++                self.assertNotEqual(manifest[name], template[name], name)
+             workers.append(answer["worker"])
+         for worker in workers:
+             self.assertFalse(os.path.exists(
+diff --git a/v12/python/tests/tools/test_pool.py b/v12/python/tests/tools/test_pool.py
+index 1ecf28ac..5031befd 100644
+--- a/v12/python/tests/tools/test_pool.py
++++ b/v12/python/tests/tools/test_pool.py
+@@ -552,7 +552,18 @@ class ComposingAWorkerForThisInstance(PoolCase):
+         Path(place).write_bytes(json.dumps(held, sort_keys=True).encode())
+         return place
+ 
++    RECORD = ("work/records/2026/08/finding-v12-work-tags/findings/"
++              "finding-v12-work-label-protocol-cli")
++
++    def record_in(self, checkout, finding="# Finding\n", plan="# Plan\n"):
++        place = Path(checkout, self.RECORD)
++        place.mkdir(parents=True, exist_ok=True)
++        (place / "FINDING.md").write_text(finding)
++        (place / "PLAN.md").write_text(plan)
++        return str(place)
++
+     def selection(self, **changes):
++        self.record_in(self.checkout)
+         held = dict(worker_id="impl-c", role="implementation",
+                     participant="baton.impl-c",
+                     image_reference="baton-v12-worker:test",
+@@ -561,7 +572,9 @@ class ComposingAWorkerForThisInstance(PoolCase):
+                     credential_sources=os.path.join(self.root, "credential-sources.json"),
+                     credentials=["claude=operator-file:w202663-development"],
+                     workspace_group=self.config["workspace_group"],
+-                    task_document=self.task_file())
++                    task_document=self.task_file(),
++                    record_path=self.RECORD, checkout=self.checkout,
++                    now="2026-11-19T06:30:00.000Z")
+         held.update(changes)
+         return held
+ 
+@@ -665,10 +678,80 @@ class ComposingAWorkerForThisInstance(PoolCase):
+         finally:
+             os.chdir(before)
+         manifest = answer["worker"]["deployment"]["input_manifest"]
+-        for name in ("credential_policy_digest", "mount_policy_digest",
+-                     "record_binding", "extensions", "version"):
+-            if name in published:
+-                self.assertEqual(manifest[name], published[name], name)
++        # THE STRUCTURE IS THE PUBLISHED DOCUMENT'S; the provenance members
++        # are bound to this instance (the provenance case holds those).
++        for name in ("schema", "version", "extensions", "assignment_contract"):
++            self.assertEqual(manifest[name], published[name], name)
++        self.assertEqual([one["name"] for one in manifest["outputs"]],
++                         [one["name"] for one in published["outputs"]])
++
++    def test_every_provenance_member_is_bound_and_none_is_a_specimen(self):
++        """Review 2026-11-19T06-06-42Z: the template's specimen record,
++        retention, policy, credential, role, toolchain, id and clock values
++        used to travel as this run's provenance. Each is now the digest of the
++        product document that governs it, or the selection the operator
++        named, and a specimen refuses."""
++        import hashlib
++
++        from baton_v12.contracts import digest, frozen
++        from tools import next_run_bindings
++
++        answer = self.composing()
++        manifest = answer["worker"]["deployment"]["input_manifest"]
++        template = frozen.input_manifest_template()
++        for name in next_run_bindings.BOUND_MEMBERS:
++            self.assertNotEqual(manifest[name], template[name], name)
++        self.assertEqual(manifest["retention_policy_digest"],
++                         self.held["retention_policy_digest"])
++        record = Path(self.checkout, self.RECORD)
++        self.assertEqual(manifest["record_binding"], {
++            "root": "baton-repository", "path": self.RECORD,
++            "finding_digest": "sha256:" + hashlib.sha256(
++                (record / "FINDING.md").read_bytes()).hexdigest(),
++            "plan_digest": "sha256:" + hashlib.sha256(
++                (record / "PLAN.md").read_bytes()).hexdigest()})
++        self.assertEqual(manifest["manifest_id"], "input-manifest-impl-c")
++        self.assertEqual(manifest["created_at"], "2026-11-19T06:30:00.000Z")
++        self.assertEqual(manifest["credential_policy_digest"], digest(
++            {"schema": "baton.worker-credential-policy/1",
++             "profile": {"claude": {"provider": "operator-file",
++                                    "reference": "w202663-development"}}}))
++        self.assertEqual(manifest["toolchain_digest"], digest(
++            {"schema": "baton.worker-toolchain/1",
++             "image_reference": "baton-v12-worker:test",
++             "image_digest": self.IMAGE, "cli_build": "2.1.247"}))
++        self.assertEqual(manifest["network_policy_digest"], digest(
++            {"schema": "baton.worker-network-policy/1", "engine": "docker",
++             "network": self.config["network"]}))
++        # THE ROLE'S OWN DECLARATION: implementation and review differ.
++        review = self.composing(worker_id="review-c", role="review",
++                                participant="baton.reviewer-c")
++        self.assertNotEqual(
++            manifest["role_instructions_digest"],
++            review["worker"]["deployment"]["input_manifest"]
++            ["role_instructions_digest"])
++        for name in ("tool_policy_digest", "resource_policy_digest",
++                     "mount_policy_digest", "credential_policy_digest"):
++            self.assertEqual(manifest[name], review["worker"]["deployment"]
++                             ["input_manifest"][name], name)
++        # THE RECORD IS A SELECTION: no record, no checkout, no dossier.
++        for changes, said in (({"record_path": "/abs/olute"}, "relative"),
++                              ({"record_path": "work/records/absent"},
++                               "no readable FINDING.md"),
++                              ({"checkout": None}, "no checkout")):
++            with self.subTest(changes=changes):
++                with self.assertRaises(pool.PoolRefusal) as caught:
++                    kept = os.environ.get("X")
++                    if "checkout" in changes:
++                        from unittest import mock as _mock
++                        with _mock.patch("tools.build_stamp.checkout",
++                                         lambda start=None: None):
++                            self.composing(**changes)
++                    else:
++                        self.composing(**changes)
++                    del kept
++                self.assertIn(said, str(caught.exception))
++        self.unchanged()
+ 
+     def test_two_defined_tasks_compose_two_workers_without_an_installation(self):
+         first = self.composing(task_document=self.task_file("task-one", "a.json"))
+@@ -764,6 +847,7 @@ class ComposingAWorkerForThisInstance(PoolCase):
+         self.assertEqual(target.read_text(), "arrived first")
+ 
+     def test_the_command_line_writes_one_fresh_file_and_refuses_a_second(self):
++        self.record_in(self.checkout)
+         into = os.path.join(self.root, "composed", "impl-c.json")
+         argv = [pool.VERB_COMPOSE, "--deployment", self.place,
+                 "--worker-id", "impl-c", "--role", "implementation",
+@@ -774,7 +858,9 @@ class ComposingAWorkerForThisInstance(PoolCase):
+                 "--credential-sources", os.path.join(self.root, "credential-sources.json"),
+                 "--credential", "claude=operator-file:w202663-development",
+                 "--workspace-group", str(self.config["workspace_group"]),
+-                "--task-document", self.task_file(), "--into", into]
++                "--task-document", self.task_file(),
++                "--record", self.RECORD, "--checkout", self.checkout,
++                "--into", into]
+         said = io.StringIO()
+         self.assertEqual(pool.main(argv, stream=said), 0, said.getvalue())
+         written = json.loads(Path(into).read_text())
+diff --git a/v12/python/tools/creation_ports.py b/v12/python/tools/creation_ports.py
+index bbe6c465..c164cdc0 100644
+--- a/v12/python/tools/creation_ports.py
++++ b/v12/python/tools/creation_ports.py
+@@ -139,8 +139,20 @@ class DeploymentDerivation:
+ 
+         installed_task = self._agreed(lanes, self._task_of,
+                                       "the installed task document")
++        # THE PRODUCER'S MANIFEST IS THE BASE (W321608, review 2026-11-19T06-
++        # 06-42Z). The lanes already agreed on the Job input identity above
++        # (`_input_of`, the projection `contracts.manifest` defines), and the
++        # members that projection leaves out -- this worker's image, toolchain,
++        # runtime profile, credential profile, role instructions, manifest id
++        # and clock -- are PER WORKER by that same ruling, so a review lane on
++        # its own identity legitimately disagrees with the producer about
++        # them. Requiring the whole document to agree refused every honestly
++        # composed pool; each stage is still served from its own worker's
++        # held deployment (`_served_deployment`), and the Job records its
++        # producer's, which is the one `_correspondent` compares against.
+         installed_manifest = json.loads(self._agreed(
+-            lanes, self._manifest_of, "the installed input manifest"))
++            {"implementation": lanes["implementation"]}, self._manifest_of,
++            "the producer's installed input manifest"))
+         # THE WORK IS THIS PORT'S OWN ANSWER and is added here rather than
+         # asked of the caller. A creation that had to learn the Work before it
+         # could compose a selection would have to call this port twice --
+diff --git a/v12/python/tools/next_run_bindings.py b/v12/python/tools/next_run_bindings.py
+index 80bee9d7..8163be5b 100644
+--- a/v12/python/tools/next_run_bindings.py
++++ b/v12/python/tools/next_run_bindings.py
+@@ -243,6 +243,98 @@ def _evidence(value):
+     return value
+ 
+ 
++BOUND_MEMBERS = ("record_binding", "retention_policy_digest",
++                 "credential_policy_digest", "role_instructions_digest",
++                 "toolchain_digest", "mount_policy_digest",
++                 "network_policy_digest", "resource_policy_digest",
++                 "tool_policy_digest", "manifest_id", "created_at")
++
++
++def deployment_bounds(*, identities, provider_network, image_reference,
++                      image_digest, cli_build, credential_profile,
++                      template_version, role):
++    """The Job-wide bounds and per-worker identities a deployment is actually
++    under, each the digest of the PRODUCT DOCUMENT that governs it.
++
++    W321608 (review 2026-11-19T06-06-42Z): the template's specimen digests
++    travelled into every composed deployment as if they were this run's
++    provenance. `contracts.manifest` says what each member is; this binds
++    each to the document that already decides it in this build, composed
++    from the same operator selections `deployment_identities` takes:
++
++      credential_policy_digest  the credential profile (the ruling) -- the
++                                slot-to-provider mapping the operator named;
++      tool_policy_digest        the provider's argv and environment policy
++                                (`provider_context`), which the adapter
++                                document already embeds;
++      network_policy_digest     the engine and the one approved network;
++      resource_policy_digest    the scratch and workspace bounds the runtime
++                                profile declares;
++      mount_policy_digest       how the nominated source lands: the
++                                destination and the source-boundary
++                                consumption the worker's manifest declares;
++      toolchain_digest          what travels with the image: its reference,
++                                digest and CLI build;
++      role_instructions_digest  the role's own declaration in the selected
++                                template -- what it consumes and produces --
++                                since this build carries no other document
++                                that tells one role something different.
++
++    Nothing here is a grant and nothing is read from disk; what a build
++    cannot derive from a selected document it must be told, and that is the
++    record binding, which the caller names.
++    """
++    from baton_v12.contracts import digest
++    from baton_v12.job_manager import templates
++    from baton_v12.worker_manager import provider_context as context
++    from baton_v12.worker_manager import source_boundary
++    from tools import single_worker
++
++    held = templates.template_of(template_version)
++    declared = [one for one in held["roles"] if one["role"] == role]
++    if len(declared) != 1:
++        _refuse(f"template {template_version!r} declares no role {role!r}")
++    profile = identities["runtime_profile"]
++    return {
++        "credential_policy_digest": digest(
++            {"schema": "baton.worker-credential-policy/1",
++             "profile": {slot: dict(credential_profile[slot])
++                         for slot in sorted(credential_profile)}}),
++        "tool_policy_digest": digest(
++            {"schema": "baton.worker-tool-policy/1",
++             "argv_policy": dict(context.ARGV_POLICY),
++             "environment_policy": dict(context.ENVIRONMENT_POLICY)}),
++        "network_policy_digest": digest(
++            {"schema": "baton.worker-network-policy/1",
++             "engine": "docker", "network": provider_network}),
++        "resource_policy_digest": digest(
++            {"schema": "baton.worker-resource-policy/1",
++             "scratch": dict(profile["scratch"]),
++             "workspace_min_bytes": profile["workspace_min_bytes"]}),
++        "mount_policy_digest": digest(
++            {"schema": "baton.worker-mount-policy/1",
++             "source_destination": single_worker.SOURCE_DESTINATION,
++             "consumption": source_boundary.source_consumption("git-line")}),
++        "toolchain_digest": digest(
++            {"schema": "baton.worker-toolchain/1",
++             "image_reference": image_reference,
++             "image_digest": image_digest, "cli_build": cli_build}),
++        "role_instructions_digest": digest(
++            {"schema": "baton.worker-role-instructions/1",
++             "template": template_version,
++             "role": _plain(declared[0])}),
++    }
++
++
++def _plain(value):
++    """A frozen template declaration as plain containers, for digesting."""
++    if isinstance(value, dict) or type(value).__name__ == "mappingproxy":
++        return {str(name): _plain(value[name]) for name in sorted(value)}
++    if isinstance(value, (list, tuple)):
++        return [_plain(one) for one in value]
++    return value
++
++
+ def deployment_identities(*, image_reference, image_digest, cli_build,
+                           provider_network, runtime_uid, turn_seconds,
+                           verification_seconds, implementer_invocations,
+@@ -295,7 +387,7 @@ def deployment_identities(*, image_reference, image_digest, cli_build,
+ 
+ def input_manifest(vectors, *, authority_uuid, work_id, policy_digest,
+                    profile_digest, image_digest, task_bytes, artifact_id,
+-                   contextual):
++                   contextual, bound=None):
+     """The frozen input manifest, from the published conformance vector, bound
+     to one Authority, Work, policy, profile, image and task artifact, and
+     resealed. Moved verbatim from `compose` (W321608) for the same reason as
+@@ -354,6 +446,17 @@ def input_manifest(vectors, *, authority_uuid, work_id, policy_digest,
+             "constraints": {"max_bytes": 16384, "max_entries": 1,
+                             "allowed_media_types": ["application/octet-stream"],
+                             "link_policy": "forbid", "validator_digest": None}})
++    # W321608 (review 2026-11-19T06-06-42Z): THE PROVENANCE MEMBERS A CALLER
++    # BINDS. The template carries specimen values for the record binding, the
++    # retention and policy identities, the credential profile, the role
++    # instructions, the toolchain and the manifest's own id and clock; a
++    # composer that knows the actual deployment hands them here, and only
++    # these names are accepted. Absent, the document is exactly what it was.
++    for name, value in (bound or {}).items():
++        if name not in BOUND_MEMBERS:
++            _refuse(f"{name!r} is not a provenance member this composer binds; "
++                    f"the bound members are {', '.join(BOUND_MEMBERS)}")
++        manifest[name] = value
+     manifest.pop("manifest_digest", None)
+     manifest["manifest_digest"] = digest(manifest)
+     return manifest
+diff --git a/v12/python/tools/pool.py b/v12/python/tools/pool.py
+index 051d7fb1..bfd898ad 100644
+--- a/v12/python/tools/pool.py
++++ b/v12/python/tools/pool.py
+@@ -462,10 +462,66 @@ def _task_artifact(place):
+     return raw, held["task_id"]
+ 
+ 
++# The one template this deployment serves; the role declaration the
++# role-instructions identity is bound to is read from it.
++TEMPLATE_VERSION = "baton.v12.job-template.implementation-review/1"
++
++
++def _record_binding(record_path, checkout):
++    """The Work's durable record: a repository-relative dossier path the
++    operator SELECTS, with the digests of its FINDING and PLAN read from the
++    checkout. This is the one provenance member a build cannot derive: which
++    record this instance's Jobs are bound to is the owner's decision."""
++    from tools import build_stamp
++
++    if type(record_path) is not str or not record_path \
++            or record_path.startswith("/") or ".." in record_path.split("/"):
++        raise PoolRefusal("the record is one repository-relative dossier path; "
++                          "this is " + repr(record_path) + ". Nothing was "
++                          "changed.")
++    root = checkout or build_stamp.checkout()
++    if not root:
++        raise PoolRefusal("no checkout was named and this command runs outside "
++                          "one, so the record's FINDING and PLAN digests cannot "
++                          "be read; name --checkout. Nothing was changed.")
++    binding = {"root": "baton-repository", "path": record_path}
++    for name, member in (("FINDING.md", "finding_digest"),
++                         ("PLAN.md", "plan_digest")):
++        place = Path(root, record_path, name)
++        try:
++            raw = place.read_bytes()
++        except (FileNotFoundError, OSError) as failure:
++            raise PoolRefusal("the record " + record_path + " has no readable "
++                              + name + " under " + str(root) + " ("
++                              + type(failure).__name__ + "); a record binding "
++                              "names a dossier that exists. Nothing was "
++                              "changed.")
++        import hashlib
++        binding[member] = "sha256:" + hashlib.sha256(raw).hexdigest()
++    return binding
++
++
++def _no_specimen(manifest):
++    """No member of the composed manifest may still be the template's
++    specimen value: a composition that left one would present a conformance
++    fixture as this run's provenance."""
++    from baton_v12.contracts import frozen
++    from tools import next_run_bindings
++
++    template = frozen.input_manifest_template()
++    left = [name for name in next_run_bindings.BOUND_MEMBERS
++            if manifest.get(name) == template.get(name)]
++    if left:
++        raise PoolRefusal("the composed manifest still carries the template's "
++                          "specimen value for " + ", ".join(left)
++                          + "; a conformance fixture is not this instance's "
++                          "provenance. Nothing was changed.")
++
++
+ def composed(held, *, worker_id, role, participant, image_reference,
+              image_digest, cli_build, network, credential_sources,
+-             credentials, workspace_group, task_document, work_id=None,
+-             runtime_uid=None):
++             credentials, workspace_group, task_document, record_path,
++             checkout=None, work_id=None, runtime_uid=None, now=None):
+     """One worker document for the instance `held` describes. READS ONLY.
+ 
+     Every member the instance binds is derived from the instance; every
+@@ -524,6 +580,7 @@ def composed(held, *, worker_id, role, participant, image_reference,
+     work = work_id or held.get("job_work_id") or (held["authority_uuid"][:8]
+                                                  + "-W1")
+     raw, task_id = _task_artifact(task_document)
++    record = _record_binding(record_path, checkout)
+     limits = execution_limits.resolved(None)["boundaries"]
+     try:
+         identities = next_run_bindings.deployment_identities(
+@@ -533,14 +590,28 @@ def composed(held, *, worker_id, role, participant, image_reference,
+             turn_seconds=limits["provider_turn"]["seconds"],
+             verification_seconds=limits["ordinary_verification"]["seconds"],
+             implementer_invocations=1, contextual=False)
++        from datetime import datetime, timezone
++
++        bounds = next_run_bindings.deployment_bounds(
++            identities=identities, provider_network=network,
++            image_reference=image_reference, image_digest=image_digest,
++            cli_build=cli_build, credential_profile=profile,
++            template_version=TEMPLATE_VERSION, role=role)
++        bound = dict(bounds,
++                     retention_policy_digest=held["retention_policy_digest"],
++                     record_binding=record,
++                     manifest_id="input-manifest-" + worker_id,
++                     created_at=(now or datetime.now(timezone.utc).strftime(
++                         "%Y-%m-%dT%H:%M:%S.000Z")))
+         manifest = next_run_bindings.input_manifest(
+             None, authority_uuid=held["authority_uuid"], work_id=work,
+             policy_digest=identities["policy_digest"],
+             profile_digest=identities["profile_digest"],
+             image_digest=image_digest, task_bytes=raw, artifact_id=task_id,
+-            contextual=False)
++            contextual=False, bound=bound)
+         manifest = check_manifest_structure(manifest, "inputManifest",
+                                             what="the composed input manifest")
++        _no_specimen(manifest)
+     except (next_run_bindings.BindingRefusal, Exception) as failure:  # noqa: BLE001
+         raise PoolRefusal("the worker could not be composed from this build's "
+                           "documents: " + str(failure) + ". Nothing was "
+@@ -690,6 +761,15 @@ def main(argv=None, *, stream=sys.stdout):
+     composing.add_argument("--task-document", required=True,
+                            help="absolute path of the installed task document "
+                                 "this worker is sealed over")
++    composing.add_argument("--record", required=True, metavar="PATH",
++                           help="the repository-relative dossier path this "
++                                "instance's Jobs are bound to (the Work's "
++                                "durable record); its FINDING.md and PLAN.md "
++                                "are digested from the checkout")
++    composing.add_argument("--checkout", default=None,
++                           help="the repository checkout the record is read "
++                                "from; omitted, the one this command runs "
++                                "from, and refused when there is none")
+     composing.add_argument("--work-id", default=None,
+                            help="the Work this worker serves; omitted, the "
+                                 "instance's own Work")
+@@ -712,6 +792,7 @@ def main(argv=None, *, stream=sys.stdout):
+                     credentials=taken.credential,
+                     workspace_group=taken.workspace_group,
+                     task_document=taken.task_document,
++                    record_path=taken.record, checkout=taken.checkout,
+                     work_id=taken.work_id)
+             return 0
+         admit(taken.deployment, read_worker(taken.worker), stream=stream)

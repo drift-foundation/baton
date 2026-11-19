@@ -673,3 +673,23 @@ Owner bootstrap succeeded at /home/sl/baton-instances/native-labels-1, Authority
 ## 2026-11-19T05-23-45Z — repeat prepared sources but omitted startup roots
 
 Owner worker bootstrap succeeded, zero Jobs. Read-only check confirmed workspaces/launch/credentials roots absent; actual workspace validator refuses. See review-2026-11-19T05-23-45Z.md. Required bounded correction: reuse installer prerequisite machinery when adding workers, without manual mkdir workaround. No worker start, Job or provider call performed.
+
+## 2026-11-19 — checkpoint 093e6bbc verified; new destination proposed
+
+Human commit 093e6bbca60eff41726e9af16013cb0cbdaaaca8 matches all four accepted r7 paths. Rebuild via just test-packaging passed 24/24 required tests (13.935s test phase); evidence under evidence/checkpoint-093e6bbc-packaging. Supported bootstrap refuses runtime replacement and instructs preparing a new destination. Coordinator proposes native-labels-2 from config/native-instance-093e6bbc.json; this is a fresh Authority with no Jobs, not a migration or in-place update. Existing native-labels-1 and its evidence remain untouched. No new instance installed yet; owner executes the concrete bootstrap command to select it. Worker recipe and copied input source paths are unchanged between e670e624 and 093e6bbc, so reuse image f2b86df0…; no image rebuild proposed. No live execution or labels Job selected by this preparation.
+
+## 2026-11-19 — corrected runtime installed at native-labels-2
+
+Owner installed clean 093e6bbc bundle into native-labels-2; Authority 744a5ec954514fc9a23537c5e09877f1, zero Jobs/workers. Coordinator used its installed pool compose-worker to prepare config/native-workers-093e6bbc.json, reusing the selected image/credential reference/group and changing Authority/path/base through product composition. Reusable task bytes retained in config/native-installed-task-093e6bbc.json and installed state/task/installed-task.json. No worker configuration applied, Job created or start executed by coordinator. Next owner sequence: bootstrap repeat, then empty manager start/status on success. native-labels-1 unchanged.
+
+## 2026-11-19 — owner stopped idle instance for first labels creation
+
+Owner stopped native-labels-2; manager/publisher stopped, zero runtime episodes reported. User selects labels as first native Job and serving-time create (W375518) as a subsequent native v12 Job; no implementation of the latter now. Prepared complete task description config/labels-job.txt for ordinary manager create. Proposed Job w29401-labels-1, submission w29401-labels-1-1, task w29401-labels-cli, installed source 093e6bbc, implementation-review/1 and existing finite documentation/1 values (zero correction rounds, 4800s stage, 9960s Job, 3600s provider, 900s verification). This is a task-neutral profile selection, not documentation payload. Focused worker verification uses env/PYTHONPATH and unittest for the new work command, creation, connected creation and authority-label modules; required counts/skips must be accounted, packaged coverage remains host post-candidate gate. Creation queues only; no manager start or live run executed by coordinator. Historical W29401 exposure identity retained; W321608 remains owner-held coordination/execution evidence. Resolve canonical allocation before live execution, with no parallel interactive labels implementation.
+
+## 2026-11-19T06-26-02Z — labels provenance record and old-Job disposition recommendation
+
+Coordinator selects W29401 own dossier for the already owner-selected labels outcome; W321608 keeps execution evidence. R8 source accepted for checkpoint, see review-2026-11-19T06-26-02Z.md. Recommend explicit owner cancellation fence for never-run w29401-labels-1 plus retention of native-labels-2; not executed and not claimed settled. Per-Job retargeting to another dossier remains an explicit reusable-kickoff limitation, not silently solved by installation-time --record.
+
+## 2026-11-19 — never-run labels Job cancellation confirmed complete
+
+Owner issued cancel-job. Supported cancel-status readback reports shutdown=complete, both implementation/review targets retired-before-admission, runtime=null, and the operator cancellation fence present. Evidence: evidence/native-labels-2-cancellation/cancel-status.json. Prior expectation that cancellation might remain pending is superseded by this actual readback. Native-labels-2 is retained; no restart or store edit required. R8 source/dossier checkpoint is next.

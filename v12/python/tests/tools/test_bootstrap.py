@@ -296,9 +296,17 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
         self.assertEqual(code, 0, out.getvalue())
         return destination
 
+    RECORD = ("work/records/2026/08/finding-v12-work-tags/findings/"
+              "finding-v12-work-label-protocol-cli")
+
     def composed_for(self, destination, worker_id, role, participant):
         from tools import instance as instances
         from tools import pool
+
+        record = Path(self.checkout, self.RECORD)
+        record.mkdir(parents=True, exist_ok=True)
+        (record / "FINDING.md").write_text("# Finding\n")
+        (record / "PLAN.md").write_text("# Plan\n")
 
         configured = json.loads(
             Path(instances.layout(destination)["deployment"]).read_bytes())
@@ -315,7 +323,8 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
                                             "credential-sources.json"),
             credentials=["claude=operator-file:w202663-development"],
             workspace_group=self.config["workspace_group"],
-            task_document=task)["worker"]
+            task_document=task, record_path=self.RECORD,
+            checkout=self.checkout)["worker"]
 
     def repeated(self, destination, issued, workers, *extra):
         from tools import instance as instances

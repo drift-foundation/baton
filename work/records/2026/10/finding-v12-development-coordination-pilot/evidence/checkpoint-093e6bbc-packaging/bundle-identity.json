@@ -1,0 +1,26 @@
+{
+  "build_stamp": {
+    "changed_entries": 0,
+    "commit": "093e6bbca60eff41726e9af16013cb0cbdaaaca8",
+    "detail": null,
+    "dirty": false,
+    "excused_build_output": 0,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton"
+  },
+  "command": "baton-v12-stack",
+  "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+  "frozen": true,
+  "machine": "x86_64",
+  "native_rpds": "/home/sl/src/baton/v12/python/build/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+  "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+  "python": "3.13.7",
+  "resources": "/home/sl/src/baton/v12/python/build/out/distro/_internal",
+  "schema_assets": {
+    "agent-session-1.0": 48212,
+    "input-manifest-template": 2990,
+    "worker-control-1.0": 51419
+  },
+  "sha256": "a5ad852a637a84bdc89fc177b4bced1ac83747d31749ef4a88626dc51c507438",
+  "version": "12.0.0"
+}

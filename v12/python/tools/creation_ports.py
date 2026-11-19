@@ -139,8 +139,20 @@ class DeploymentDerivation:
 
         installed_task = self._agreed(lanes, self._task_of,
                                       "the installed task document")
+        # THE PRODUCER'S MANIFEST IS THE BASE (W321608, review 2026-11-19T06-
+        # 06-42Z). The lanes already agreed on the Job input identity above
+        # (`_input_of`, the projection `contracts.manifest` defines), and the
+        # members that projection leaves out -- this worker's image, toolchain,
+        # runtime profile, credential profile, role instructions, manifest id
+        # and clock -- are PER WORKER by that same ruling, so a review lane on
+        # its own identity legitimately disagrees with the producer about
+        # them. Requiring the whole document to agree refused every honestly
+        # composed pool; each stage is still served from its own worker's
+        # held deployment (`_served_deployment`), and the Job records its
+        # producer's, which is the one `_correspondent` compares against.
         installed_manifest = json.loads(self._agreed(
-            lanes, self._manifest_of, "the installed input manifest"))
+            {"implementation": lanes["implementation"]}, self._manifest_of,
+            "the producer's installed input manifest"))
         # THE WORK IS THIS PORT'S OWN ANSWER and is added here rather than
         # asked of the caller. A creation that had to learn the Work before it
         # could compose a selection would have to call this port twice --

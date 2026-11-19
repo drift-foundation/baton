@@ -1,3 +1,15 @@
+## Current — old Job cancelled before admission; checkpoint r8
+
+Supported cancel-status confirms shutdown complete and both stages retired-before-admission; retained evidence/native-labels-2-cancellation/cancel-status.json. Preserve native-labels-2. Commit accepted r8 six-file candidate and dossier, then rebuild/package gate before any new instance. K holds edits.
+
+## Current — r8 reviewed; checkpoint and old-Job disposition
+
+Read review-2026-11-19T06-26-02Z.md. Six-path provenance candidate accepted for checkpoint; selected labels record is W29401 own dossier. Recommend owner cancel-job fence then retain native-labels-2; not yet executed. Build/new installation/live execution pending. K holds edits.
+
+## Current — labels queued; provenance discrepancy before live start
+
+Read review-2026-11-19T06-06-42Z.md. Owner create succeeded for w29401-labels-1/744a5ec9-W1. Manager remains stopped. Product composer still carries specimen record/policy digests into the actual request; review/correct concrete provenance binding before live start. Preserve existing queued request/history; no direct store edits or changed replay.
+
 ## Current — r7 accepted for immediate human checkpoint
 
 Read review-2026-11-19T05-53-13Z.md. Four source/test paths accepted; nine independent focused tests pass. Checkpoint before further operations. K holds edits. After checkpoint rebuild/package gate; resolve unsupported runtime-update assumption separately. No in-place copy, fresh replacement or updater implementation selected.

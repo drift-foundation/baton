@@ -243,6 +243,98 @@ def _evidence(value):
     return value
 
 
+BOUND_MEMBERS = ("record_binding", "retention_policy_digest",
+                 "credential_policy_digest", "role_instructions_digest",
+                 "toolchain_digest", "mount_policy_digest",
+                 "network_policy_digest", "resource_policy_digest",
+                 "tool_policy_digest", "manifest_id", "created_at")
+
+
+def deployment_bounds(*, identities, provider_network, image_reference,
+                      image_digest, cli_build, credential_profile,
+                      template_version, role):
+    """The Job-wide bounds and per-worker identities a deployment is actually
+    under, each the digest of the PRODUCT DOCUMENT that governs it.
+
+    W321608 (review 2026-11-19T06-06-42Z): the template's specimen digests
+    travelled into every composed deployment as if they were this run's
+    provenance. `contracts.manifest` says what each member is; this binds
+    each to the document that already decides it in this build, composed
+    from the same operator selections `deployment_identities` takes:
+
+      credential_policy_digest  the credential profile (the ruling) -- the
+                                slot-to-provider mapping the operator named;
+      tool_policy_digest        the provider's argv and environment policy
+                                (`provider_context`), which the adapter
+                                document already embeds;
+      network_policy_digest     the engine and the one approved network;
+      resource_policy_digest    the scratch and workspace bounds the runtime
+                                profile declares;
+      mount_policy_digest       how the nominated source lands: the
+                                destination and the source-boundary
+                                consumption the worker's manifest declares;
+      toolchain_digest          what travels with the image: its reference,
+                                digest and CLI build;
+      role_instructions_digest  the role's own declaration in the selected
+                                template -- what it consumes and produces --
+                                since this build carries no other document
+                                that tells one role something different.
+
+    Nothing here is a grant and nothing is read from disk; what a build
+    cannot derive from a selected document it must be told, and that is the
+    record binding, which the caller names.
+    """
+    from baton_v12.contracts import digest
+    from baton_v12.job_manager import templates
+    from baton_v12.worker_manager import provider_context as context
+    from baton_v12.worker_manager import source_boundary
+    from tools import single_worker
+
+    held = templates.template_of(template_version)
+    declared = [one for one in held["roles"] if one["role"] == role]
+    if len(declared) != 1:
+        _refuse(f"template {template_version!r} declares no role {role!r}")
+    profile = identities["runtime_profile"]
+    return {
+        "credential_policy_digest": digest(
+            {"schema": "baton.worker-credential-policy/1",
+             "profile": {slot: dict(credential_profile[slot])
+                         for slot in sorted(credential_profile)}}),
+        "tool_policy_digest": digest(
+            {"schema": "baton.worker-tool-policy/1",
+             "argv_policy": dict(context.ARGV_POLICY),
+             "environment_policy": dict(context.ENVIRONMENT_POLICY)}),
+        "network_policy_digest": digest(
+            {"schema": "baton.worker-network-policy/1",
+             "engine": "docker", "network": provider_network}),
+        "resource_policy_digest": digest(
+            {"schema": "baton.worker-resource-policy/1",
+             "scratch": dict(profile["scratch"]),
+             "workspace_min_bytes": profile["workspace_min_bytes"]}),
+        "mount_policy_digest": digest(
+            {"schema": "baton.worker-mount-policy/1",
+             "source_destination": single_worker.SOURCE_DESTINATION,
+             "consumption": source_boundary.source_consumption("git-line")}),
+        "toolchain_digest": digest(
+            {"schema": "baton.worker-toolchain/1",
+             "image_reference": image_reference,
+             "image_digest": image_digest, "cli_build": cli_build}),
+        "role_instructions_digest": digest(
+            {"schema": "baton.worker-role-instructions/1",
+             "template": template_version,
+             "role": _plain(declared[0])}),
+    }
+
+
+def _plain(value):
+    """A frozen template declaration as plain containers, for digesting."""
+    if isinstance(value, dict) or type(value).__name__ == "mappingproxy":
+        return {str(name): _plain(value[name]) for name in sorted(value)}
+    if isinstance(value, (list, tuple)):
+        return [_plain(one) for one in value]
+    return value
+
+
 def deployment_identities(*, image_reference, image_digest, cli_build,
                           provider_network, runtime_uid, turn_seconds,
                           verification_seconds, implementer_invocations,
@@ -295,7 +387,7 @@ def deployment_identities(*, image_reference, image_digest, cli_build,
 
 def input_manifest(vectors, *, authority_uuid, work_id, policy_digest,
                    profile_digest, image_digest, task_bytes, artifact_id,
-                   contextual):
+                   contextual, bound=None):
     """The frozen input manifest, from the published conformance vector, bound
     to one Authority, Work, policy, profile, image and task artifact, and
     resealed. Moved verbatim from `compose` (W321608) for the same reason as
@@ -354,6 +446,17 @@ def input_manifest(vectors, *, authority_uuid, work_id, policy_digest,
             "constraints": {"max_bytes": 16384, "max_entries": 1,
                             "allowed_media_types": ["application/octet-stream"],
                             "link_policy": "forbid", "validator_digest": None}})
+    # W321608 (review 2026-11-19T06-06-42Z): THE PROVENANCE MEMBERS A CALLER
+    # BINDS. The template carries specimen values for the record binding, the
+    # retention and policy identities, the credential profile, the role
+    # instructions, the toolchain and the manifest's own id and clock; a
+    # composer that knows the actual deployment hands them here, and only
+    # these names are accepted. Absent, the document is exactly what it was.
+    for name, value in (bound or {}).items():
+        if name not in BOUND_MEMBERS:
+            _refuse(f"{name!r} is not a provenance member this composer binds; "
+                    f"the bound members are {', '.join(BOUND_MEMBERS)}")
+        manifest[name] = value
     manifest.pop("manifest_digest", None)
     manifest["manifest_digest"] = digest(manifest)
     return manifest

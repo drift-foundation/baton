@@ -462,10 +462,66 @@ def _task_artifact(place):
     return raw, held["task_id"]
 
 
+# The one template this deployment serves; the role declaration the
+# role-instructions identity is bound to is read from it.
+TEMPLATE_VERSION = "baton.v12.job-template.implementation-review/1"
+
+
+def _record_binding(record_path, checkout):
+    """The Work's durable record: a repository-relative dossier path the
+    operator SELECTS, with the digests of its FINDING and PLAN read from the
+    checkout. This is the one provenance member a build cannot derive: which
+    record this instance's Jobs are bound to is the owner's decision."""
+    from tools import build_stamp
+
+    if type(record_path) is not str or not record_path \
+            or record_path.startswith("/") or ".." in record_path.split("/"):
+        raise PoolRefusal("the record is one repository-relative dossier path; "
+                          "this is " + repr(record_path) + ". Nothing was "
+                          "changed.")
+    root = checkout or build_stamp.checkout()
+    if not root:
+        raise PoolRefusal("no checkout was named and this command runs outside "
+                          "one, so the record's FINDING and PLAN digests cannot "
+                          "be read; name --checkout. Nothing was changed.")
+    binding = {"root": "baton-repository", "path": record_path}
+    for name, member in (("FINDING.md", "finding_digest"),
+                         ("PLAN.md", "plan_digest")):
+        place = Path(root, record_path, name)
+        try:
+            raw = place.read_bytes()
+        except (FileNotFoundError, OSError) as failure:
+            raise PoolRefusal("the record " + record_path + " has no readable "
+                              + name + " under " + str(root) + " ("
+                              + type(failure).__name__ + "); a record binding "
+                              "names a dossier that exists. Nothing was "
+                              "changed.")
+        import hashlib
+        binding[member] = "sha256:" + hashlib.sha256(raw).hexdigest()
+    return binding
+
+
+def _no_specimen(manifest):
+    """No member of the composed manifest may still be the template's
+    specimen value: a composition that left one would present a conformance
+    fixture as this run's provenance."""
+    from baton_v12.contracts import frozen
+    from tools import next_run_bindings
+
+    template = frozen.input_manifest_template()
+    left = [name for name in next_run_bindings.BOUND_MEMBERS
+            if manifest.get(name) == template.get(name)]
+    if left:
+        raise PoolRefusal("the composed manifest still carries the template's "
+                          "specimen value for " + ", ".join(left)
+                          + "; a conformance fixture is not this instance's "
+                          "provenance. Nothing was changed.")
+
+
 def composed(held, *, worker_id, role, participant, image_reference,
              image_digest, cli_build, network, credential_sources,
-             credentials, workspace_group, task_document, work_id=None,
-             runtime_uid=None):
+             credentials, workspace_group, task_document, record_path,
+             checkout=None, work_id=None, runtime_uid=None, now=None):
     """One worker document for the instance `held` describes. READS ONLY.
 
     Every member the instance binds is derived from the instance; every
@@ -524,6 +580,7 @@ def composed(held, *, worker_id, role, participant, image_reference,
     work = work_id or held.get("job_work_id") or (held["authority_uuid"][:8]
                                                  + "-W1")
     raw, task_id = _task_artifact(task_document)
+    record = _record_binding(record_path, checkout)
     limits = execution_limits.resolved(None)["boundaries"]
     try:
         identities = next_run_bindings.deployment_identities(
@@ -533,14 +590,28 @@ def composed(held, *, worker_id, role, participant, image_reference,
             turn_seconds=limits["provider_turn"]["seconds"],
             verification_seconds=limits["ordinary_verification"]["seconds"],
             implementer_invocations=1, contextual=False)
+        from datetime import datetime, timezone
+
+        bounds = next_run_bindings.deployment_bounds(
+            identities=identities, provider_network=network,
+            image_reference=image_reference, image_digest=image_digest,
+            cli_build=cli_build, credential_profile=profile,
+            template_version=TEMPLATE_VERSION, role=role)
+        bound = dict(bounds,
+                     retention_policy_digest=held["retention_policy_digest"],
+                     record_binding=record,
+                     manifest_id="input-manifest-" + worker_id,
+                     created_at=(now or datetime.now(timezone.utc).strftime(
+                         "%Y-%m-%dT%H:%M:%S.000Z")))
         manifest = next_run_bindings.input_manifest(
             None, authority_uuid=held["authority_uuid"], work_id=work,
             policy_digest=identities["policy_digest"],
             profile_digest=identities["profile_digest"],
             image_digest=image_digest, task_bytes=raw, artifact_id=task_id,
-            contextual=False)
+            contextual=False, bound=bound)
         manifest = check_manifest_structure(manifest, "inputManifest",
                                             what="the composed input manifest")
+        _no_specimen(manifest)
     except (next_run_bindings.BindingRefusal, Exception) as failure:  # noqa: BLE001
         raise PoolRefusal("the worker could not be composed from this build's "
                           "documents: " + str(failure) + ". Nothing was "
@@ -690,6 +761,15 @@ def main(argv=None, *, stream=sys.stdout):
     composing.add_argument("--task-document", required=True,
                            help="absolute path of the installed task document "
                                 "this worker is sealed over")
+    composing.add_argument("--record", required=True, metavar="PATH",
+                           help="the repository-relative dossier path this "
+                                "instance's Jobs are bound to (the Work's "
+                                "durable record); its FINDING.md and PLAN.md "
+                                "are digested from the checkout")
+    composing.add_argument("--checkout", default=None,
+                           help="the repository checkout the record is read "
+                                "from; omitted, the one this command runs "
+                                "from, and refused when there is none")
     composing.add_argument("--work-id", default=None,
                            help="the Work this worker serves; omitted, the "
                                 "instance's own Work")
@@ -712,6 +792,7 @@ def main(argv=None, *, stream=sys.stdout):
                     credentials=taken.credential,
                     workspace_group=taken.workspace_group,
                     task_document=taken.task_document,
+                    record_path=taken.record, checkout=taken.checkout,
                     work_id=taken.work_id)
             return 0
         admit(taken.deployment, read_worker(taken.worker), stream=stream)
