@@ -1,0 +1,7 @@
+v12/python/src/baton_v12/contracts/frozen.py
+v12/python/tests/tools/test_bootstrap.py
+v12/python/tests/tools/test_connected_creation.py
+v12/python/tests/tools/test_instance.py
+v12/python/tests/tools/test_packaging.py
+v12/python/tools/bootstrap.py
+v12/python/tools/stack_command.py

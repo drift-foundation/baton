@@ -20,7 +20,9 @@ argues for a superseded state is worse than no comment.
 import json
 import pathlib
 
-__all__ = ["WORKER_CONTROL_BYTES", "WORKER_CONTROL", "AGENT_SESSION_BYTES",
+__all__ = ["REQUIRED_ASSETS", "ASSET_NAMES", "INPUT_MANIFEST_TEMPLATE_BYTES",
+           "input_manifest_template",
+           "WORKER_CONTROL_BYTES", "WORKER_CONTROL", "AGENT_SESSION_BYTES",
            "AGENT_SESSION", "PROTOCOL", "VERSION", "CAPABILITIES",
            "OPAQUE_ID_LIMIT", "schema_bytes"]
 
@@ -64,6 +66,16 @@ WORKER_CONTROL_BYTES = schema_bytes("worker-control-1.0.schema.json")
 WORKER_CONTROL = json.loads(WORKER_CONTROL_BYTES.decode("utf-8"))
 
 AGENT_SESSION_BYTES = schema_bytes("agent-session-1.0.schema.json")
+
+# W321608 (packaging review 2026-11-19T05-02-14Z): THE ONE INVENTORY. The
+# installed command reports exactly these under `identity.schema_assets`, the
+# installer admits a bundle only if it reports exactly these, and the
+# packaging gate asserts exactly these -- all three read this mapping, so a
+# resource added here cannot be reported by one and refused by another.
+REQUIRED_ASSETS = {"agent-session-1.0": AGENT_SESSION_BYTES,
+                   "worker-control-1.0": WORKER_CONTROL_BYTES,
+                   "input-manifest-template": INPUT_MANIFEST_TEMPLATE_BYTES}
+ASSET_NAMES = tuple(sorted(REQUIRED_ASSETS))
 AGENT_SESSION = json.loads(AGENT_SESSION_BYTES.decode("utf-8"))
 
 PROTOCOL = "baton.worker-control"

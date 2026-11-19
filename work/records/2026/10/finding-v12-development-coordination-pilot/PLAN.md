@@ -1,3 +1,11 @@
+## Current — rebuilt packaging gate passes; checkpoint eight-file delta
+
+Read review-2026-11-19T05-09-37Z.md. K asset-inventory correction plus one coordinator-authored packaging assertion: 24/24 required packaged tests pass against rebuilt bundle. Combined manifest work/records/2026/10/finding-v12-development-coordination-pilot/evidence/packaging-r5-accepted-2026-11-19T05-09-37Z/source.json. Human checkpoint next; K holds edits. No live labels or timing acceptance yet.
+
+## Current — artifact gate exposed one asset-inventory defect
+
+Checkpoint 387f2969 verified. Owner built bundle; 24 packaging tests produce 13 failures from one stale exact asset inventory. Read review-2026-11-19T05-02-14Z.md. K corrects producer/admission/test agreement with focused evidence, then corrected-source bundle gate must pass. No operational installation or live kickoff accepted.
+
 ## Current — r4 source candidate accepted; human checkpoint next
 
 Read review-2026-11-19T04-48-39Z.md. Exact candidate 5d04fb8509bb8730c30b0777bd890c32cada525a5b809729e79b57dc41d0e7ad accepted for source checkpoint. K holds edits. Next: selective human commit, then bounded artifact verification. Installation/live kickoff, timing and Work closure are not accepted yet; r3 group timing failure remains recorded. This supersedes the r3 correction milestone.

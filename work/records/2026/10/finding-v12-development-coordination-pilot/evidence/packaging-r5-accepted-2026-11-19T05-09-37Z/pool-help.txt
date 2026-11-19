@@ -1,0 +1,43 @@
+usage: pool compose-worker [-h] --deployment DEPLOYMENT --worker-id WORKER_ID
+                           --role {implementation,review,integration}
+                           --participant PARTICIPANT
+                           --image-reference IMAGE_REFERENCE
+                           --image-digest IMAGE_DIGEST --cli-build CLI_BUILD
+                           --network NETWORK
+                           --credential-sources CREDENTIAL_SOURCES
+                           --credential SLOT=PROVIDER:REFERENCE
+                           --workspace-group WORKSPACE_GROUP
+                           --task-document TASK_DOCUMENT [--work-id WORK_ID]
+                           --into INTO [--admit]
+
+options:
+  -h, --help            show this help message and exit
+  --deployment DEPLOYMENT
+                        the instance's deployment.json
+  --worker-id WORKER_ID
+  --role {implementation,review,integration}
+  --participant PARTICIPANT
+  --image-reference IMAGE_REFERENCE
+                        the worker image as named to the engine, e.g.
+                        baton-v12-worker:f34e1576
+  --image-digest IMAGE_DIGEST
+                        its immutable digest, sha256:…
+  --cli-build CLI_BUILD
+                        the provider CLI build the image carries, as the
+                        recipe pins it
+  --network NETWORK     the approved OCI network name
+  --credential-sources CREDENTIAL_SOURCES
+                        absolute path of the private credential registry
+  --credential SLOT=PROVIDER:REFERENCE
+                        one credential slot mapping, repeatable
+  --workspace-group WORKSPACE_GROUP
+                        the provisioned workspace group id
+  --task-document TASK_DOCUMENT
+                        absolute path of the installed task document this
+                        worker is sealed over
+  --work-id WORK_ID     the Work this worker serves; omitted, the instance's
+                        own Work
+  --into INTO           the fresh file to write the worker document to; an
+                        existing entry is refused
+  --admit               also admit it into the instance's pool (needs the
+                        nominated source to exist)

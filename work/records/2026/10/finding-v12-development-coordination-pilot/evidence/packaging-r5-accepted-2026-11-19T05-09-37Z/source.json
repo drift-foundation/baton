@@ -1,0 +1,38 @@
+{
+  "base": "387f29693bfc6bd81a2325373e7a32da4f70476d",
+  "paths": [
+    {
+      "path": "v12/python/src/baton_v12/contracts/frozen.py",
+      "sha256": "dee9a8c0e06ad7e09fc354f635a6d27b51facbebbd10260ff9c294f7d833d65c"
+    },
+    {
+      "path": "v12/python/tests/tools/test_bootstrap.py",
+      "sha256": "7cd7aef52f3b16e07d3f9afa46de9661aaa9299636e6c8a6daa9fca10485f811"
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "sha256": "c99f943123cd3c44430827fbd6714d7a406ab8aed837a154b7f550f46b300972"
+    },
+    {
+      "path": "v12/python/tests/tools/test_instance.py",
+      "sha256": "c0a0e065c7c2bc730d1f90072397cb290fad392e893b231376c73123209253dd"
+    },
+    {
+      "path": "v12/python/tests/tools/test_packaged_creation.py",
+      "sha256": "fdddb4b32d3cc301ecbce30e162cbe109da822a100f1c57dcb3b1661f89736e0"
+    },
+    {
+      "path": "v12/python/tests/tools/test_packaging.py",
+      "sha256": "73f5a3ca25168e637ef6f13e6fabefe44e337c9ac3cdee0d54b50443ea2b0087"
+    },
+    {
+      "path": "v12/python/tools/bootstrap.py",
+      "sha256": "afecaab14ba9692114697a005fcd0fce511c3f1283371a9bea803210de6b72f5"
+    },
+    {
+      "path": "v12/python/tools/stack_command.py",
+      "sha256": "38b6d0c539adaa380e989616013b40d839a3e93d7e85bc8e489b66d8ed49cfe6"
+    }
+  ],
+  "candidate": "sha256:93c1efae04dd9c6af84db1b8d9c165fc007257648de1f48bcfacf9d65befb6ca"
+}

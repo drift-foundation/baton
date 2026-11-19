@@ -274,6 +274,7 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": os.path.join(distro, "_internal", "rpds",
                                             "rpds.so")}
@@ -501,6 +502,67 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
         self.assertEqual(code, 2, said)
         self.assertIn("no target repository", said)
         self.assertEqual([one for one in issued if one[1] == "clone"], [])
+
+
+class TheAssetInventoryIsOneInventory(unittest.TestCase):
+    """Packaging review 2026-11-19T05-02-14Z: the command reported three
+    assets and the installer admitted exactly two, refusing a correctly built
+    bundle. Producer, admission and gate now read `frozen.REQUIRED_ASSETS`;
+    these cases hold the admission to it, negatively and positively."""
+
+    def identity(self, **assets):
+        return {"command": "baton-v12-stack", "frozen": True,
+                "schema_assets": assets}
+
+    def test_the_real_three_asset_identity_is_admitted(self):
+        from baton_v12.contracts import frozen
+
+        said = self.identity(**{name: len(held) for name, held
+                                in frozen.REQUIRED_ASSETS.items()})
+        self.assertEqual(sorted(bootstrap.admitted_identity(said, "cmd")),
+                         ["agent-session-1.0", "input-manifest-template",
+                          "worker-control-1.0"])
+        self.assertEqual(bootstrap.expected_assets(), frozen.ASSET_NAMES)
+
+    def test_a_bundle_missing_the_template_is_refused_by_name(self):
+        said = self.identity(**{"agent-session-1.0": 10,
+                                "worker-control-1.0": 20})
+        with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
+            bootstrap.admitted_identity(said, "cmd")
+        self.assertIn("input-manifest-template", str(caught.exception))
+
+    def test_unexpected_missing_and_malformed_entries_still_refuse(self):
+        for assets in ({"agent-session-1.0": 10, "worker-control-1.0": 20,
+                        "input-manifest-template": 30, "extra": 1},
+                       {"agent-session-1.0": 10},
+                       {"agent-session-1.0": 10, "worker-control-1.0": 20,
+                        "input-manifest-template": 0},
+                       {"agent-session-1.0": 10, "worker-control-1.0": 20,
+                        "input-manifest-template": "30"},
+                       {}):
+            with self.subTest(assets=assets):
+                with self.assertRaises(bootstrap.BootstrapRefusal):
+                    bootstrap.admitted_identity(self.identity(**assets),
+                                                "cmd")
+        with self.assertRaises(bootstrap.BootstrapRefusal):
+            bootstrap.admitted_identity({"frozen": True}, "cmd")
+
+    def test_the_producer_reports_exactly_the_inventory(self):
+        """What `identity` says is what admission wants; one source."""
+        import io
+        from contextlib import redirect_stdout
+
+        from baton_v12.contracts import frozen
+        from tools import stack_command
+
+        said = io.StringIO()
+        with redirect_stdout(said):
+            code = stack_command.main(["identity"])
+        self.assertEqual(code, 0)
+        reported = json.loads(said.getvalue())["schema_assets"]
+        self.assertEqual(reported, {name: len(held) for name, held
+                                    in frozen.REQUIRED_ASSETS.items()})
+        bootstrap.admitted_identity({"schema_assets": reported}, "cmd")
 
 
 class TheInstanceGeneratesItsOwnIdentity(Fixture):
@@ -1760,6 +1822,7 @@ class TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY(unittest.TestCase):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(Path(self.stand_in_runtime())
                                    / "_internal" / "lib.so")}
@@ -2496,6 +2559,7 @@ class TheInstallerOperandNeverReachesTheManager(ValidFixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": os.path.join(distro, "_internal", "rpds",
                                             "rpds.so")}
@@ -2844,6 +2908,7 @@ class TheInstallPathRefusesBadBasesBeforeAnyEffect(ValidFixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": os.path.join(distro, "_internal", "rpds",
                                             "rpds.so")}

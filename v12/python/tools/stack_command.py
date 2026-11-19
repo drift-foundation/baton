@@ -211,11 +211,10 @@ def _identity(operands):
     # fallback, so "it imported" is the whole question.
     try:
         from baton_v12.contracts import frozen as assets
-        said["schema_assets"] = {
-            "worker-control-1.0": len(assets.WORKER_CONTROL_BYTES),
-            "agent-session-1.0": len(assets.AGENT_SESSION_BYTES),
-            "input-manifest-template": len(
-                assets.INPUT_MANIFEST_TEMPLATE_BYTES)}
+        # THE ONE INVENTORY, `frozen.REQUIRED_ASSETS`: what is reported here
+        # is what `bootstrap` admits and what the packaging gate asserts.
+        said["schema_assets"] = {name: len(held) for name, held
+                                 in assets.REQUIRED_ASSETS.items()}
     except Exception as failure:                             # noqa: BLE001
         said["schema_assets"] = "%s: %s" % (type(failure).__name__, failure)
     try:

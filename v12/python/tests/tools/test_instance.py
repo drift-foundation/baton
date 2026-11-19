@@ -330,6 +330,7 @@ class BootstrapFixture(Fixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(self.source / "_internal" / "rpds" / "rpds.so"),
                 "resources": str(self.source / "_internal")}
@@ -893,6 +894,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
         with mock.patch.object(self.bootstrap, "_identity_of",
@@ -926,6 +928,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
         theirs = "# it appeared after custody looked\n"
@@ -953,6 +956,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
         with mock.patch.object(self.bootstrap, "_identity_of",
@@ -1400,6 +1404,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
         inputs = self.root / "inputs.json"
@@ -1457,6 +1462,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
         inputs = self.root / "inputs.json"
@@ -1519,6 +1525,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
         inputs = self.root / "inputs.json"
@@ -1602,6 +1609,7 @@ class TheCREATEStepFailureIsProvedConnected(Fixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(self.source / "_internal" / "rpds"
                                    / "rpds.so")}

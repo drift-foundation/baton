@@ -1,0 +1,10 @@
+test_a_bundle_missing_the_template_is_refused_by_name (tests.tools.test_bootstrap.TheAssetInventoryIsOneInventory.test_a_bundle_missing_the_template_is_refused_by_name) ... ok
+test_the_producer_reports_exactly_the_inventory (tests.tools.test_bootstrap.TheAssetInventoryIsOneInventory.test_the_producer_reports_exactly_the_inventory)
+What `identity` says is what admission wants; one source. ... ok
+test_the_real_three_asset_identity_is_admitted (tests.tools.test_bootstrap.TheAssetInventoryIsOneInventory.test_the_real_three_asset_identity_is_admitted) ... ok
+test_unexpected_missing_and_malformed_entries_still_refuse (tests.tools.test_bootstrap.TheAssetInventoryIsOneInventory.test_unexpected_missing_and_malformed_entries_still_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.047s
+
+OK

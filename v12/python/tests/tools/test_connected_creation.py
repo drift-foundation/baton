@@ -87,6 +87,7 @@ class ConnectedCreationCase(test_bootstrap.ValidFixture):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(Path(self.stand_in_runtime())
                                    / "_internal" / "lib.so")}
@@ -246,6 +247,7 @@ class TheInstallerInputIsOwnedOrRefused(ConnectedCreationCase):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(Path(self.stand_in_runtime())
                                    / "_internal" / "lib.so")}
@@ -580,6 +582,7 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         said = {"command": "baton-v12-stack", "frozen": True,
                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
                 "schema_assets": {"agent-session-1.0": 10,
+                                  "input-manifest-template": 30,
                                   "worker-control-1.0": 20},
                 "native_rpds": str(Path(self.stand_in_runtime())
                                    / "_internal" / "lib.so")}

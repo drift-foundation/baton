@@ -181,3 +181,23 @@ Tests (`tests/tools/test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames`): `
 | reviewer's retry-proof probe rerun | both repeats refuse; proofs issued; no clone | <1 s | `retry-proof-probe-after.txt` |
 
 No group reruns this round (the review asked for none; r3's group results and the recorded unresolved `JoinedFlow` turn-bound failure stand). The stale-bundle `test_packaging` mismatch stands as recorded. Supported operator path: as r3.
+
+---
+
+# r5 — asset inventory alignment after packaging review 2026-11-19T05-02-14Z
+
+K, 2026-11-19, same assignment. Base is now the owner checkpoint `387f29693bfc6bd81a2325373e7a32da4f70476d` (accepted candidate `5d04fb85…` committed). Delta candidate `sha256:a513185c79337f493e6d69c1af8ebc3c8ee9e73484140fb90d4a61ce32213a7d` over 7 paths (`source-r5.json`, `CANDIDATE-SHA256-r5.txt`, `candidate-r5.diff`, 333 lines).
+
+## The one cause, corrected at one source
+
+`identity` reported three assets; `bootstrap.EXPECTED_ASSETS` and `test_packaging` still named the old two, so the installer refused a correctly built bundle. Now `contracts.frozen.REQUIRED_ASSETS` (name → bytes) and `ASSET_NAMES` are the one inventory: `stack_command` reports `{name: len(bytes)}` from it; `bootstrap.expected_assets()` reads it and `bootstrap.admitted_identity(said, command)` (factored out of `_identity_of`, unchanged rule) holds a bundle to exactly those names with positive lengths — missing, unexpected and malformed entries refuse by name; `test_packaging` asserts the inventory both through `frozen.ASSET_NAMES` and spelled out, and that each reported length equals the shipped bytes. Every stand-in identity in `test_bootstrap`, `test_connected_creation` and `test_instance` (15 fixtures) now reports the full three-asset inventory, so a stand-in can no longer mask a producer/admission disagreement. New `test_bootstrap.TheAssetInventoryIsOneInventory` (4): the real three-asset identity is admitted; a bundle missing the template is refused by name; unexpected/missing/zero/non-integer/absent entries refuse; the live producer (`stack_command.main(["identity"])`) reports exactly the inventory and admission accepts it.
+
+## Verification (r5)
+
+| what | result | wall | log |
+|---|---|---|---|
+| bootstrap (incl. the four new cases), connected creation, instance, stack, packaging, packaged creation — against the owner's already-built clean `387f2969` bundle, no rebuild | 433/445 OK; 12 failures, ALL in `tests.tools.test_packaged_creation` | 54 s | `focused-r5-inventory.log` |
+
+The 12 failures are the frozen bundle refusing itself: its BUILT `bootstrap` still carries the old two-asset admission while its `identity` reports three (`did not bring exactly … ['agent-session-1.0', 'worker-control-1.0']; it reports {…three…}`). Only a rebuild from this corrected source can change that; it is the owner's packaging gate (`just test-packaging`) the review names. `test_packaging.WhatTheBundleSaysItIs.test_the_frozen_schema_assets_travelled` passes against that bundle with the corrected gate. No Docker, live provider, full suite, group rerun or Git mutation; the recorded `JoinedFlow` timing failure stands.
+
+Expected after the rebuild: `just test-packaging` runs 24 required cases against the rebuilt bundle with 0 failures; if it does not, the first refusal text is the next finding.

@@ -95,12 +95,19 @@ class WhatTheBundleSaysItIs(Fixture):
         """`contracts.frozen` reads them at IMPORT time, so a bundle without
         them refuses every document later -- inside a child a supervisor has
         already started."""
+        from baton_v12.contracts import frozen
+
         said = json.loads(self.ran("identity").stdout)
         assets = said["schema_assets"]
+        # THE ONE INVENTORY, and spelled out as well so this stays a check:
+        # the bundle, the installer's admission and this gate agree.
+        self.assertEqual(sorted(assets), sorted(frozen.ASSET_NAMES))
         self.assertEqual(sorted(assets), ["agent-session-1.0",
+                                          "input-manifest-template",
                                           "worker-control-1.0"])
         for name, length in assets.items():
             self.assertGreater(length, 0, name)
+            self.assertEqual(length, len(frozen.REQUIRED_ASSETS[name]), name)
 
     def test_the_native_validator_is_ONE_OF_THE_FILES_THIS_BUNDLE_BINDS(self):
         """The defect a real build found. `rpds` has no pure-Python fallback,

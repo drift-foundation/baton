@@ -3487,8 +3487,33 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
 
 # The frozen assets this distribution ships, by name. [K3]: `schema_assets` was
 # accepted as any dict of positive integers, so an empty one -- or one carrying
-# an arbitrary key -- passed.
-EXPECTED_ASSETS = ("agent-session-1.0", "worker-control-1.0")
+# an arbitrary key -- passed. W321608 (packaging review 2026-11-19T05-02-14Z):
+# the names are `contracts.frozen.ASSET_NAMES`, the ONE inventory the command
+# reports and the packaging gate asserts; a literal copy here admitted a
+# bundle that reported one asset fewer than it shipped and refused the one
+# that was built correctly.
+
+
+def expected_assets():
+    from baton_v12.contracts import frozen
+    return frozen.ASSET_NAMES
+
+
+def admitted_identity(said, command):
+    """The asset inventory a built command reports, held to the one this
+    distribution ships: exactly those names, each a positive length. Missing,
+    unexpected and malformed entries all refuse, by name."""
+    expected = expected_assets()
+    assets = said.get("schema_assets")
+    if type(assets) is not dict or sorted(assets) != sorted(expected) \
+            or not all(type(one) is int and one > 0 for one in assets.values()):
+        raise BootstrapRefusal(
+            "the command at " + str(command) + " did not bring exactly the "
+            "frozen schema assets this distribution ships "
+            + repr(sorted(expected)) + "; it reports " + repr(assets)
+            + ". They are read at import time, so a bundle without them "
+            "refuses every document it is given.")
+    return assets
 
 
 def _identity_of(command, runtime=None, distro=None):
@@ -3518,15 +3543,7 @@ def _identity_of(command, runtime=None, distro=None):
             "the command at " + str(command) + " is not a frozen build; an "
             "installed instance runs a bundle, not an interpreter reading a "
             "checkout.")
-    assets = said.get("schema_assets")
-    if type(assets) is not dict or sorted(assets) != sorted(EXPECTED_ASSETS) \
-            or not all(type(one) is int and one > 0 for one in assets.values()):
-        raise BootstrapRefusal(
-            "the command at " + str(command) + " did not bring exactly the "
-            "frozen schema assets this distribution ships "
-            + repr(sorted(EXPECTED_ASSETS)) + "; it reports " + repr(assets)
-            + ". They are read at import time, so a bundle without them "
-            "refuses every document it is given.")
+    admitted_identity(said, command)
     if runtime is not None:
         problem = _resources_of(said, runtime, distro)
         if problem is not None:

@@ -1,0 +1,77 @@
+usage: job_manager create [-h] --instance INSTANCE --control CONTROL
+                          --authority AUTHORITY --task TASK
+                          --statement STATEMENT --acceptance CRITERION
+                          --work-scope PATH [--test-scope PATH]
+                          [--template TEMPLATE] [--source SOURCE]
+                          [--route ROUTE] [--job-id JOB_ID]
+                          [--submission-id SUBMISSION_ID]
+                          [--provider-turn-seconds PROVIDER_TURN_SECONDS]
+                          [--verification-command-seconds VERIFICATION_COMMAND_SECONDS]
+                          [--verification WORD]
+                          [--control-profile CONTROL_PROFILE]
+
+options:
+  -h, --help            show this help message and exit
+  --instance INSTANCE   the deployment's state root, whose installed workers
+                        supply this Job's Work, input digest, policy digest
+                        and runtime profiles, and whose own bootstrap
+                        publishes its binding
+  --control CONTROL     the Worker Manager control store, opened READ-ONLY: a
+                        creation reads nothing of it but the instance guard
+                        beside its workspace root
+  --authority AUTHORITY
+                        the Authority store whose Work this Job runs under;
+                        the deployment's derived Work is reused when it is
+                        open and created once when it does not exist
+  --task TASK           what this Job is called, in the operator's own words;
+                        the Job and submission identities are derived from it
+                        unless named
+  --statement STATEMENT
+                        the task as stated. Preserved in the resolution and
+                        enforced by nothing; the authoritative statement is
+                        the Work's own dossier
+  --acceptance CRITERION
+                        one acceptance criterion, repeatable. At least one is
+                        required: a Job with nothing to be judged against
+                        cannot be independently reviewed, which is this
+                        template's second stage
+  --work-scope PATH     one repository-relative path this task covers,
+                        repeatable. This is the SELECTED WORK scope a reviewer
+                        and an integrator read a proposal against; it grants
+                        no test-change authority
+  --test-scope PATH     one repository-relative path this Work may change
+                        tests at, repeatable and empty by default. This is the
+                        bounded test-change scope the submission carries as
+                        test_scope
+  --template TEMPLATE   the exact template version; omitted resolves the
+                        configured default, which is still shown in the answer
+                        with its origin
+  --source SOURCE       which source this Job runs against. One value is
+                        supported -- the one this instance installed -- and it
+                        is an operand rather than an assumption so a later
+                        source selection has somewhere to go
+  --route ROUTE         the route a Work is created under, used only when the
+                        deployment's derived Work does not exist yet
+  --job-id JOB_ID       the Job identity; derived from --task when omitted, so
+                        no operator or model has to invent a name
+  --submission-id SUBMISSION_ID
+                        the submission identity; derived from the Job id when
+                        omitted
+  --provider-turn-seconds PROVIDER_TURN_SECONDS
+                        this Job's provider-turn ceiling in seconds, a
+                        permitted override; omitted preserves the runner
+                        default and submits a /1 document
+  --verification-command-seconds VERIFICATION_COMMAND_SECONDS
+                        this Job's verification-command ceiling in seconds, a
+                        permitted override reaching all three verification
+                        boundaries
+  --verification WORD   one argument word of the command this Job is verified
+                        by, repeatable in order (write a word that starts with
+                        a dash as --verification=-m); omitted, the
+                        deployment's installed verification runs
+  --control-profile CONTROL_PROFILE
+                        the finite control profile this Job is admitted under
+                        (LIM-5), for example documentation/1: persisted
+                        correction-round allowance and stage/Job wall
+                        deadlines, enforced by the serving manager; omitted
+                        admits the Job under no finite control

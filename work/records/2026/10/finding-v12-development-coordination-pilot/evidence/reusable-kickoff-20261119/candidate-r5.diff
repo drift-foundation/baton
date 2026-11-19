@@ -1,0 +1,333 @@
+diff --git a/v12/python/src/baton_v12/contracts/frozen.py b/v12/python/src/baton_v12/contracts/frozen.py
+index 30b5ff8c..2e75b014 100644
+--- a/v12/python/src/baton_v12/contracts/frozen.py
++++ b/v12/python/src/baton_v12/contracts/frozen.py
+@@ -20,7 +20,9 @@ argues for a superseded state is worse than no comment.
+ import json
+ import pathlib
+ 
+-__all__ = ["WORKER_CONTROL_BYTES", "WORKER_CONTROL", "AGENT_SESSION_BYTES",
++__all__ = ["REQUIRED_ASSETS", "ASSET_NAMES", "INPUT_MANIFEST_TEMPLATE_BYTES",
++           "input_manifest_template",
++           "WORKER_CONTROL_BYTES", "WORKER_CONTROL", "AGENT_SESSION_BYTES",
+            "AGENT_SESSION", "PROTOCOL", "VERSION", "CAPABILITIES",
+            "OPAQUE_ID_LIMIT", "schema_bytes"]
+ 
+@@ -64,6 +66,16 @@ WORKER_CONTROL_BYTES = schema_bytes("worker-control-1.0.schema.json")
+ WORKER_CONTROL = json.loads(WORKER_CONTROL_BYTES.decode("utf-8"))
+ 
+ AGENT_SESSION_BYTES = schema_bytes("agent-session-1.0.schema.json")
++
++# W321608 (packaging review 2026-11-19T05-02-14Z): THE ONE INVENTORY. The
++# installed command reports exactly these under `identity.schema_assets`, the
++# installer admits a bundle only if it reports exactly these, and the
++# packaging gate asserts exactly these -- all three read this mapping, so a
++# resource added here cannot be reported by one and refused by another.
++REQUIRED_ASSETS = {"agent-session-1.0": AGENT_SESSION_BYTES,
++                   "worker-control-1.0": WORKER_CONTROL_BYTES,
++                   "input-manifest-template": INPUT_MANIFEST_TEMPLATE_BYTES}
++ASSET_NAMES = tuple(sorted(REQUIRED_ASSETS))
+ AGENT_SESSION = json.loads(AGENT_SESSION_BYTES.decode("utf-8"))
+ 
+ PROTOCOL = "baton.worker-control"
+diff --git a/v12/python/tests/tools/test_bootstrap.py b/v12/python/tests/tools/test_bootstrap.py
+index bb50b584..1efa6fbb 100644
+--- a/v12/python/tests/tools/test_bootstrap.py
++++ b/v12/python/tests/tools/test_bootstrap.py
+@@ -274,6 +274,7 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": os.path.join(distro, "_internal", "rpds",
+                                             "rpds.so")}
+@@ -503,6 +504,67 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
+         self.assertEqual([one for one in issued if one[1] == "clone"], [])
+ 
+ 
++class TheAssetInventoryIsOneInventory(unittest.TestCase):
++    """Packaging review 2026-11-19T05-02-14Z: the command reported three
++    assets and the installer admitted exactly two, refusing a correctly built
++    bundle. Producer, admission and gate now read `frozen.REQUIRED_ASSETS`;
++    these cases hold the admission to it, negatively and positively."""
++
++    def identity(self, **assets):
++        return {"command": "baton-v12-stack", "frozen": True,
++                "schema_assets": assets}
++
++    def test_the_real_three_asset_identity_is_admitted(self):
++        from baton_v12.contracts import frozen
++
++        said = self.identity(**{name: len(held) for name, held
++                                in frozen.REQUIRED_ASSETS.items()})
++        self.assertEqual(sorted(bootstrap.admitted_identity(said, "cmd")),
++                         ["agent-session-1.0", "input-manifest-template",
++                          "worker-control-1.0"])
++        self.assertEqual(bootstrap.expected_assets(), frozen.ASSET_NAMES)
++
++    def test_a_bundle_missing_the_template_is_refused_by_name(self):
++        said = self.identity(**{"agent-session-1.0": 10,
++                                "worker-control-1.0": 20})
++        with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
++            bootstrap.admitted_identity(said, "cmd")
++        self.assertIn("input-manifest-template", str(caught.exception))
++
++    def test_unexpected_missing_and_malformed_entries_still_refuse(self):
++        for assets in ({"agent-session-1.0": 10, "worker-control-1.0": 20,
++                        "input-manifest-template": 30, "extra": 1},
++                       {"agent-session-1.0": 10},
++                       {"agent-session-1.0": 10, "worker-control-1.0": 20,
++                        "input-manifest-template": 0},
++                       {"agent-session-1.0": 10, "worker-control-1.0": 20,
++                        "input-manifest-template": "30"},
++                       {}):
++            with self.subTest(assets=assets):
++                with self.assertRaises(bootstrap.BootstrapRefusal):
++                    bootstrap.admitted_identity(self.identity(**assets),
++                                                "cmd")
++        with self.assertRaises(bootstrap.BootstrapRefusal):
++            bootstrap.admitted_identity({"frozen": True}, "cmd")
++
++    def test_the_producer_reports_exactly_the_inventory(self):
++        """What `identity` says is what admission wants; one source."""
++        import io
++        from contextlib import redirect_stdout
++
++        from baton_v12.contracts import frozen
++        from tools import stack_command
++
++        said = io.StringIO()
++        with redirect_stdout(said):
++            code = stack_command.main(["identity"])
++        self.assertEqual(code, 0)
++        reported = json.loads(said.getvalue())["schema_assets"]
++        self.assertEqual(reported, {name: len(held) for name, held
++                                    in frozen.REQUIRED_ASSETS.items()})
++        bootstrap.admitted_identity({"schema_assets": reported}, "cmd")
++
++
+ class TheInstanceGeneratesItsOwnIdentity(Fixture):
+     """OWNER-FRESH-INSTALL-20260916.md: generated once, persisted at the
+     destination, reused by every later operation, and distinct per install.
+@@ -1760,6 +1822,7 @@ class TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY(unittest.TestCase):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(Path(self.stand_in_runtime())
+                                    / "_internal" / "lib.so")}
+@@ -2496,6 +2559,7 @@ class TheInstallerOperandNeverReachesTheManager(ValidFixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": os.path.join(distro, "_internal", "rpds",
+                                             "rpds.so")}
+@@ -2844,6 +2908,7 @@ class TheInstallPathRefusesBadBasesBeforeAnyEffect(ValidFixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": os.path.join(distro, "_internal", "rpds",
+                                             "rpds.so")}
+diff --git a/v12/python/tests/tools/test_connected_creation.py b/v12/python/tests/tools/test_connected_creation.py
+index c86cadfc..17ebf919 100644
+--- a/v12/python/tests/tools/test_connected_creation.py
++++ b/v12/python/tests/tools/test_connected_creation.py
+@@ -87,6 +87,7 @@ class ConnectedCreationCase(test_bootstrap.ValidFixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(Path(self.stand_in_runtime())
+                                    / "_internal" / "lib.so")}
+@@ -246,6 +247,7 @@ class TheInstallerInputIsOwnedOrRefused(ConnectedCreationCase):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(Path(self.stand_in_runtime())
+                                    / "_internal" / "lib.so")}
+@@ -580,6 +582,7 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(Path(self.stand_in_runtime())
+                                    / "_internal" / "lib.so")}
+diff --git a/v12/python/tests/tools/test_instance.py b/v12/python/tests/tools/test_instance.py
+index 0933bbd7..7219801f 100644
+--- a/v12/python/tests/tools/test_instance.py
++++ b/v12/python/tests/tools/test_instance.py
+@@ -330,6 +330,7 @@ class BootstrapFixture(Fixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(self.source / "_internal" / "rpds" / "rpds.so"),
+                 "resources": str(self.source / "_internal")}
+@@ -893,6 +894,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
+         with mock.patch.object(self.bootstrap, "_identity_of",
+@@ -926,6 +928,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
+         theirs = "# it appeared after custody looked\n"
+@@ -953,6 +956,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
+         with mock.patch.object(self.bootstrap, "_identity_of",
+@@ -1400,6 +1404,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
+         inputs = self.root / "inputs.json"
+@@ -1457,6 +1462,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
+         inputs = self.root / "inputs.json"
+@@ -1519,6 +1525,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
+         inputs = self.root / "inputs.json"
+@@ -1602,6 +1609,7 @@ class TheCREATEStepFailureIsProvedConnected(Fixture):
+         said = {"command": "baton-v12-stack", "frozen": True,
+                 "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                 "schema_assets": {"agent-session-1.0": 10,
++                                  "input-manifest-template": 30,
+                                   "worker-control-1.0": 20},
+                 "native_rpds": str(self.source / "_internal" / "rpds"
+                                    / "rpds.so")}
+diff --git a/v12/python/tests/tools/test_packaging.py b/v12/python/tests/tools/test_packaging.py
+index a257644c..08e08271 100644
+--- a/v12/python/tests/tools/test_packaging.py
++++ b/v12/python/tests/tools/test_packaging.py
+@@ -95,12 +95,19 @@ class WhatTheBundleSaysItIs(Fixture):
+         """`contracts.frozen` reads them at IMPORT time, so a bundle without
+         them refuses every document later -- inside a child a supervisor has
+         already started."""
++        from baton_v12.contracts import frozen
++
+         said = json.loads(self.ran("identity").stdout)
+         assets = said["schema_assets"]
++        # THE ONE INVENTORY, and spelled out as well so this stays a check:
++        # the bundle, the installer's admission and this gate agree.
++        self.assertEqual(sorted(assets), sorted(frozen.ASSET_NAMES))
+         self.assertEqual(sorted(assets), ["agent-session-1.0",
++                                          "input-manifest-template",
+                                           "worker-control-1.0"])
+         for name, length in assets.items():
+             self.assertGreater(length, 0, name)
++            self.assertEqual(length, len(frozen.REQUIRED_ASSETS[name]), name)
+ 
+     def test_the_native_validator_is_ONE_OF_THE_FILES_THIS_BUNDLE_BINDS(self):
+         """The defect a real build found. `rpds` has no pure-Python fallback,
+diff --git a/v12/python/tools/bootstrap.py b/v12/python/tools/bootstrap.py
+index 9b719471..048a1920 100644
+--- a/v12/python/tools/bootstrap.py
++++ b/v12/python/tools/bootstrap.py
+@@ -3487,8 +3487,33 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
+ 
+ # The frozen assets this distribution ships, by name. [K3]: `schema_assets` was
+ # accepted as any dict of positive integers, so an empty one -- or one carrying
+-# an arbitrary key -- passed.
+-EXPECTED_ASSETS = ("agent-session-1.0", "worker-control-1.0")
++# an arbitrary key -- passed. W321608 (packaging review 2026-11-19T05-02-14Z):
++# the names are `contracts.frozen.ASSET_NAMES`, the ONE inventory the command
++# reports and the packaging gate asserts; a literal copy here admitted a
++# bundle that reported one asset fewer than it shipped and refused the one
++# that was built correctly.
++
++
++def expected_assets():
++    from baton_v12.contracts import frozen
++    return frozen.ASSET_NAMES
++
++
++def admitted_identity(said, command):
++    """The asset inventory a built command reports, held to the one this
++    distribution ships: exactly those names, each a positive length. Missing,
++    unexpected and malformed entries all refuse, by name."""
++    expected = expected_assets()
++    assets = said.get("schema_assets")
++    if type(assets) is not dict or sorted(assets) != sorted(expected) \
++            or not all(type(one) is int and one > 0 for one in assets.values()):
++        raise BootstrapRefusal(
++            "the command at " + str(command) + " did not bring exactly the "
++            "frozen schema assets this distribution ships "
++            + repr(sorted(expected)) + "; it reports " + repr(assets)
++            + ". They are read at import time, so a bundle without them "
++            "refuses every document it is given.")
++    return assets
+ 
+ 
+ def _identity_of(command, runtime=None, distro=None):
+@@ -3518,15 +3543,7 @@ def _identity_of(command, runtime=None, distro=None):
+             "the command at " + str(command) + " is not a frozen build; an "
+             "installed instance runs a bundle, not an interpreter reading a "
+             "checkout.")
+-    assets = said.get("schema_assets")
+-    if type(assets) is not dict or sorted(assets) != sorted(EXPECTED_ASSETS) \
+-            or not all(type(one) is int and one > 0 for one in assets.values()):
+-        raise BootstrapRefusal(
+-            "the command at " + str(command) + " did not bring exactly the "
+-            "frozen schema assets this distribution ships "
+-            + repr(sorted(EXPECTED_ASSETS)) + "; it reports " + repr(assets)
+-            + ". They are read at import time, so a bundle without them "
+-            "refuses every document it is given.")
++    admitted_identity(said, command)
+     if runtime is not None:
+         problem = _resources_of(said, runtime, distro)
+         if problem is not None:
+diff --git a/v12/python/tools/stack_command.py b/v12/python/tools/stack_command.py
+index 4d6f77fd..eedcefae 100644
+--- a/v12/python/tools/stack_command.py
++++ b/v12/python/tools/stack_command.py
+@@ -211,11 +211,10 @@ def _identity(operands):
+     # fallback, so "it imported" is the whole question.
+     try:
+         from baton_v12.contracts import frozen as assets
+-        said["schema_assets"] = {
+-            "worker-control-1.0": len(assets.WORKER_CONTROL_BYTES),
+-            "agent-session-1.0": len(assets.AGENT_SESSION_BYTES),
+-            "input-manifest-template": len(
+-                assets.INPUT_MANIFEST_TEMPLATE_BYTES)}
++        # THE ONE INVENTORY, `frozen.REQUIRED_ASSETS`: what is reported here
++        # is what `bootstrap` admits and what the packaging gate asserts.
++        said["schema_assets"] = {name: len(held) for name, held
++                                 in assets.REQUIRED_ASSETS.items()}
+     except Exception as failure:                             # noqa: BLE001
+         said["schema_assets"] = "%s: %s" % (type(failure).__name__, failure)
+     try:

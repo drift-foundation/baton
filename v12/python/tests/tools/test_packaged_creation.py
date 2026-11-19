@@ -223,8 +223,8 @@ class TheFrozenCommandInstallsTheBundleItIsGiven(PackagedCreationCase):
         """`_identity_of` RAN THE COMMAND, and this is what it got back.
 
         The stand-in install this suite exists beside supplies this document
-        itself; here it is the bundle's own answer, so `frozen`, the two
-        packaged schema assets and the native extension are facts about the
+        itself; here it is the bundle's own answer, so `frozen`, the three
+        packaged assets and the native extension are facts about the
         thing installed rather than about a fixture.
         """
         self.packaged_install()
@@ -233,7 +233,8 @@ class TheFrozenCommandInstallsTheBundleItIsGiven(PackagedCreationCase):
         self.assertIs(said["frozen"], True)
         self.assertEqual(said["command"], stack_command.COMMAND)
         self.assertEqual(sorted(said["schema_assets"]),
-                         ["agent-session-1.0", "worker-control-1.0"])
+                         ["agent-session-1.0", "input-manifest-template",
+                          "worker-control-1.0"])
         self.assertTrue(all(one > 0 for one in
                             said["schema_assets"].values()), said)
         # THE EXTENSION IS ON DISK INSIDE WHAT THIS INSTANCE BINDS, which is
