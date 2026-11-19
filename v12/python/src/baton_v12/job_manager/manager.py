@@ -126,12 +126,12 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
        the replacement's `admit` an act THIS tick performs rather than one the
        operator waits another tick for.
 
-    Both are no-ops on an ordinary tick, which is what a level-triggered
-    design buys: the recovery path and the running path are one piece of code
-    rather than two that have to agree.
+    Ordinary ticks also attach admitted live offers, so a lost terminal
+    assertion is repaired without restarting. Resume attaches every live
+    episode, including an admission whose receipt was lost.
     """
     boundaries.instant(now, "the sweep's instant")
-    observed = _observe(store, operations, attach=attach)
+    observed = _observe(store, operations, attach=True, admitted_only=not attach)
     scheduler.reconcile_allocations(store)
     replaced = _replace(store, operations)
     # W85500: AND THE ENGINE IS ASKED BEFORE ANYTHING IS PROJECTED.
@@ -154,6 +154,27 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # write-side owner decides the same question under its own lock -- it
     # is the one that journals the trigger and orders the cessation.
     expired = _control(store, operations, now)
+    # Settlement is not admission: fenced offers still need their Authority
+    # operation reconciled. Publish the resulting owner state before adoption.
+    settle = getattr(operations, "settle_offer", None)
+    settled = False
+    if settle is not None:
+        for entry in projection.stage_states(store, operations).values():
+            if entry["attempt"] is None or "admit" not in entry["receipts"]:
+                continue
+            attempt = entry["attempt"]
+            job = submission.job_of(store, attempt["job_id"])
+            delegation.check_binding(operations, attempt, job)
+            try:
+                settled = settle(attempt, now=now) is not None or settled
+            except ContractRefusal as refusal:
+                _defer(store, dict(stage_id=attempt["stage_id"],
+                                   episode=attempt["episode"], act="claim",
+                                   attempt_id=attempt["attempt_id"]),
+                       {"category": refusal.category, "code": refusal.code,
+                        "message": refusal.message},
+                       operation_id=operations.canonical_operation("claim", attempt["offer_id"]))
+    observed += _observe(store, operations, attach=settled)
     refreshed = _refresh(store, operations)
     held = projection.stage_states(store, operations)
     scheduler.reconcile_allocations(store, held)
@@ -167,6 +188,7 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
         acts.append(_delegate(store, operations, owed, entry["attempt"],
                               submission.job_of(store,
                                                 entry["stage"]["job_id"])))
+    observed += _observe(store, operations, attach=False)
     # THE LAUNCH PASS IS LAST, AND IT REACQUIRES STATE FIRST. W76207: what a
     # stage is owed here depends on receipts this same tick may have written,
     # so deriving it from the `held` above would be deciding from state the
@@ -579,7 +601,7 @@ def _launch(store, operations, held):
     return started
 
 
-def _observe(store, operations, *, attach):
+def _observe(store, operations, *, attach, admitted_only=False):
     """Apply every canonical state assertion waiting for this store.
 
     NOTHING IS READ OUT OF THE WORKER MANAGER HERE. This asks its seam to
@@ -597,8 +619,12 @@ def _observe(store, operations, *, attach):
     can say so rather than leaving it to be inferred from what followed.
     """
     if attach:
-        operations.attach([episode["offer_id"]
-                           for episode in _live_episodes(store)])
+        live = _live_episodes(store)
+        if admitted_only:
+            live = [episode for episode in live
+                    if "admit" in projection.receipts_of(store, episode["stage_id"], episode["episode"])]
+        if live or not admitted_only:
+            operations.attach([episode["offer_id"] for episode in live])
     return operations.drain(
         {events.OFFER_STATE_KIND: lambda event: apply_offer_state(store,
                                                                   event)},
@@ -1041,7 +1067,7 @@ def _adopt(store, operations, held):
             record = _proved(operations, operation_id, attempt, job)
             if record is None:
                 continue
-            state = "refused" if record["state"] == "refused" else "adopted"
+            state = "refused" if _refused_act(act, record) else "adopted"
             _record(store, {"stage_id": stage_id, "act": act,
                             "episode": attempt["episode"]}, record, state)
             adopted.append(documents.reconciliation(
@@ -1192,7 +1218,7 @@ def _delegate(store, operations, owed, stage, job):
                 f"that names nothing would make every sweep repeat the "
                 f"act")
         performed = True
-    state = ("refused" if record["state"] == "refused"
+    state = ("refused" if _refused_act(owed["act"], record)
              else ("performed" if performed else "adopted"))
     # AND A SETTLED ACT HAS NO OUTSTANDING REASON. A deferral left behind after
     # its act succeeded would be worse than none: an operator would be reading
@@ -1206,6 +1232,12 @@ def _delegate(store, operations, owed, stage, job):
         # leave an operator reading a live explanation of something that is
         # over, which is the same class of falsehood as an unrecorded reason.
         **({} if cleared.get("cleared") else {"detail": {"evidence": cleared}}))
+
+
+def _refused_act(act, record):
+    # offer.settle commits both successful claims and terminal non-claims.
+    return (record["state"] == "refused"
+            or (act == "claim" and json.loads(record["result"]).get("state") in documents.EPISODE_ENDINGS))
 
 
 def _perform(operations, act, stage, job):

@@ -69,7 +69,8 @@ ROOT = HERE.parents[1]
 # mechanically, so a new module is a loud failure rather than a silent
 # assumption. `tests/tools/test_parallel_runner.py` owns that check.
 
-PARALLEL_MODULES = ("tests.tools.test_stack",
+PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
+                    "tests.tools.test_stack",
                     # W183883. The prepared-environment checks: the one command
                     # that reaches an index is injected, so they need no
                     # network, Docker, engine or serial resource either.

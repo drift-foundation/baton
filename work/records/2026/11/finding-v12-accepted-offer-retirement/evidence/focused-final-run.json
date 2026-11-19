@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_accepted_offer_retirement",
+    "tests.job_manager.test_delegation",
+    "tests.job_manager.test_recovery",
+    "tests.job_manager.test_job_cancellation",
+    "tests.manager.test_offers",
+    "tests.job_manager.test_scheduling",
+    "tests.job_manager.test_job_control",
+    "tests.tools.test_single_worker.TheManagerClaimSessionMapsOneRefusalAndNothingElse",
+    "tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep",
+    "tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone",
+    "tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep",
+    "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree",
+    "tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree"
+  ],
+  "cwd": "v12/python",
+  "timeout_seconds": 180,
+  "exit_code": 0,
+  "wall_seconds": 8.870732456998667,
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "TMPDIR": "/var/tmp",
+    "BATON_V12_DISK_ROOT": "/var/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

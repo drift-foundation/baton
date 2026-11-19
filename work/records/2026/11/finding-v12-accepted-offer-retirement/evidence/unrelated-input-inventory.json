@@ -1,0 +1,7 @@
+{
+  "v12/python/tests/tools/test_bootstrap.py": true,
+  "v12/python/tests/tools/test_connected_creation.py": true,
+  "v12/python/tests/tools/test_pool.py": true,
+  "v12/python/tests/tools/test_parallel_runner.py": true,
+  "CONSUMED_INPUTS AST unchanged": true
+}

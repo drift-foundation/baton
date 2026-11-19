@@ -1,0 +1,401 @@
+............................................E......E...........................E.............E.E..F.EEEEEEEEEEE.............................................................................................
+======================================================================
+ERROR: test_the_successor_is_held_by_a_claim_that_is_still_a_claim (tests.job_manager.test_recovery.AClaimedStageGatesItsSuccessor.test_the_successor_is_held_by_a_claim_that_is_still_a_claim)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_recovery.py", line 321, in test_the_successor_is_held_by_a_claim_that_is_still_a_claim
+    reconcile(self.jobs, self.acts, now=SOON)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 102, in reconcile
+    return sweep(store, operations, now=now, recovered=recovered,
+                 attach=True)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_periodic_republication_after_the_replacement_changes_nothing (tests.job_manager.test_recovery.DeliveryIsAtLeastOnce.test_periodic_republication_after_the_replacement_changes_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_recovery.py", line 423, in test_periodic_republication_after_the_replacement_changes_nothing
+    sweep(self.jobs, self.acts, now=SOON)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_a_second_manager_replays_the_replacement_it_did_not_open (tests.job_manager.test_recovery.OneReplacementPerEnding.test_a_second_manager_replays_the_replacement_it_did_not_open)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_recovery.py", line 581, in test_a_second_manager_replays_the_replacement_it_did_not_open
+    report = sweep(other, self.acts, now=SOON)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_a_claimed_stage_survives_another_restart (tests.job_manager.test_recovery.TheRealRestart.test_a_claimed_stage_survives_another_restart)
+Review [P1, 2026-09-03]: A TERMINAL OFFER IS NOT A TERMINAL STAGE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_recovery.py", line 235, in test_a_claimed_stage_survives_another_restart
+    resumed = self.claim_it()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_recovery.py", line 217, in claim_it
+    reconcile(resumed, self.acts, now=SOON)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 102, in reconcile
+    return sweep(store, operations, now=now, recovered=recovered,
+                 attach=True)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_an_accepted_offer_is_recovered_and_never_replaced (tests.job_manager.test_recovery.TheRealRestart.test_an_accepted_offer_is_recovered_and_never_replaced)
+THE CASE A BLUNTER CORRECTION WOULD BREAK.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_recovery.py", line 272, in test_an_accepted_offer_is_recovered_and_never_replaced
+    report = reconcile(resumed, self.acts, now=SOON)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 102, in reconcile
+    return sweep(store, operations, now=now, recovered=recovered,
+                 attach=True)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_a_claimed_stage_is_fenced_instead_of_launched (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_claimed_stage_is_fenced_instead_of_launched)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 257, in test_a_claimed_stage_is_fenced_instead_of_launched
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_a_deployment_without_the_capability_is_reported_not_guessed (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_deployment_without_the_capability_is_reported_not_guessed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 459, in test_a_deployment_without_the_capability_is_reported_not_guessed
+    self.running()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 137, in running
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_a_running_stage_is_ordered_to_cease_and_reported_ordered (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_running_stage_is_ordered_to_cease_and_reported_ordered)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 275, in test_a_running_stage_is_ordered_to_cease_and_reported_ordered
+    held = self.running()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 137, in running
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_a_terminal_label_does_not_suppress_a_live_unanswered_runtime (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_terminal_label_does_not_suppress_a_live_unanswered_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 423, in test_a_terminal_label_does_not_suppress_a_live_unanswered_runtime
+    held = self.running()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 137, in running
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_a_transient_stop_refusal_is_retried_on_the_next_tick (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_a_transient_stop_refusal_is_retried_on_the_next_tick)
+Review 2026-11-18T19-56-12Z P1: one failed stop, removed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 325, in test_a_transient_stop_refusal_is_retried_on_the_next_tick
+    held = self.running()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 137, in running
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_an_answered_attempt_is_left_to_its_ending_owners (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_an_answered_attempt_is_left_to_its_ending_owners)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 411, in test_an_answered_attempt_is_left_to_its_ending_owners
+    self.running()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 137, in running
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_an_ended_job_keeps_its_outcome_and_nothing_is_ordered (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_an_ended_job_keeps_its_outcome_and_nothing_is_ordered)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 468, in test_an_ended_job_keeps_its_outcome_and_nothing_is_ordered
+    self.running()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 137, in running
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_an_in_flight_start_is_ordered_not_fenced (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_an_in_flight_start_is_ordered_not_fenced)
+Review 2026-11-18T20-12-59Z P1: `start-requested` with nothing
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 371, in test_an_in_flight_start_is_ordered_not_fenced
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_an_order_for_another_runtime_identity_does_not_cover_this_one (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_an_order_for_another_runtime_identity_does_not_cover_this_one)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 347, in test_an_order_for_another_runtime_identity_does_not_cover_this_one
+    held = self.running()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 137, in running
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_an_owner_refusal_is_contained_reported_and_leaves_pending (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_an_owner_refusal_is_contained_reported_and_leaves_pending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 441, in test_an_owner_refusal_is_contained_reported_and_leaves_pending
+    self.running()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 137, in running
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_the_order_is_decided_by_the_owners_record_not_the_axis (tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets.test_the_order_is_decided_by_the_owners_record_not_the_axis)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 292, in test_the_order_is_decided_by_the_owners_record_not_the_axis
+    held = self.running()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_cancellation.py", line 137, in running
+    sweep(self.jobs, self.acts, now=NOW)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 187, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1216, in _delegate
+    state = ("refused" if _refused_act(owed["act"], record)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 1235, in _refused_act
+    or (act == "claim" and record["result"].get("state") in documents.EPISODE_ENDINGS))
+                           ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+FAIL: test_the_abandoned_stage_becomes_admissible_again (tests.job_manager.test_recovery.TheRealRestart.test_the_abandoned_stage_becomes_admissible_again)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_recovery.py", line 127, in test_the_abandoned_stage_becomes_admissible_again
+    self.assertEqual(report["observed"], 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+----------------------------------------------------------------------
+Ran 204 tests in 3.409s
+
+FAILED (failures=1, errors=16)

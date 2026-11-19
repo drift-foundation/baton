@@ -1,0 +1,12 @@
+test_external_authority_calls_never_hold_job_or_control_transaction (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_external_authority_calls_never_hold_job_or_control_transaction) ... ok
+test_fenced_accepted_offer_waits_for_settlement_then_completes_and_replays (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_fenced_accepted_offer_waits_for_settlement_then_completes_and_replays) ... ok
+test_lost_committed_claim_is_adopted_under_fence_not_retired_or_launched (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_lost_committed_claim_is_adopted_under_fence_not_retired_or_launched) ... ok
+test_positive_route_refusal_retires_once_and_never_becomes_a_claim (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_positive_route_refusal_retires_once_and_never_becomes_a_claim) ... ok
+test_settlement_unavailable_retains_offer_and_cancellation_then_retries (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_settlement_unavailable_retains_offer_and_cancellation_then_retries) ... ok
+test_terminal_settlement_with_dropped_event_cannot_be_adopted_as_success (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_terminal_settlement_with_dropped_event_cannot_be_adopted_as_success) ... ok
+test_unknown_claim_answer_keeps_identity_open_before_deadline (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_unknown_claim_answer_keeps_identity_open_before_deadline) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.159s
+
+OK

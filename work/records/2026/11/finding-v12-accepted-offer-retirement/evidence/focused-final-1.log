@@ -1,0 +1,18 @@
+.....................................................................................................................................................................................................................................................................................................................................................................................................................F.......................
+======================================================================
+FAIL: test_every_record_path_in_the_tree_is_declared_or_synthetic (tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead.test_every_record_path_in_the_tree_is_declared_or_synthetic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_parallel_runner.py", line 1393, in test_every_record_path_in_the_tree_is_declared_or_synthetic
+    self.assertEqual(undeclared, {}, "declare these in CONSUMED_INPUTS, or list them as synthetic with a reason")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'work/records/2026/08/finding-v12-work-ta[149 chars]py']} != {}
++ {}
+- {'work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli': ['tests/tools/test_bootstrap.py',
+-                                                                                              'tests/tools/test_connected_creation.py',
+-                                                                                              'tests/tools/test_pool.py']} : declare these in CONSUMED_INPUTS, or list them as synthetic with a reason
+
+----------------------------------------------------------------------
+Ran 429 tests in 24.721s
+
+FAILED (failures=1)

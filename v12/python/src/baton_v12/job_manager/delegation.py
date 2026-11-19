@@ -61,7 +61,8 @@ from ..worker_manager import (attempt_activity_of, attempt_runtime_of,
                               attempt_preparation_failure_of,
                               attempt_start_failure_of, boundaries,
                               claimed_offers_for, frozen_output_of,
-                              issue_offer, recover_on_restart, submit_claim)
+                              issue_offer, recover_on_restart, submit_claim,
+                              outstanding_offers, settle_claim)
 from ..worker_manager.failure_cause import (DIAGNOSTIC_SCHEMA,
                                             attempt_failure_cause_of, degradation_of,
                                             DEGRADATION_MEMBER)
@@ -937,7 +938,19 @@ class ManagerOperations:
         The sweep leaves the act owed and asks again, rather than recording a
         receipt for something that did not happen.
         """
-        return submit_claim(self.control, self.port, offer_id=stage["offer_id"])
+        answer = submit_claim(self.control, self.port, offer_id=stage["offer_id"])
+        if answer["state"] not in ("accepted", "claimed"):
+            self.attach([stage["offer_id"]])
+        return answer
+
+    def settle_offer(self, stage, *, now):
+        """Reconcile an overdue accepted offer, never infer an absent claim."""
+        for offer in outstanding_offers(self.control):
+            if offer["offer_id"] == stage["offer_id"]:
+                if offer["state"] == "accepted" and now >= offer["settle_by"]:
+                    return settle_claim(self.control, self.port,
+                                        offer_id=offer["offer_id"], now=now)
+                return None
 
     def launch(self, stage, job):
         """Drive ONE claimed stage into a live worker, through the deployment.

@@ -5784,6 +5784,9 @@ class _PerJobIntegration:
     def claim(self, stage):
         return self._serving(stage).claim(stage)
 
+    def settle_offer(self, stage, *, now):
+        return self._serving(stage).settle_offer(stage, now=now)
+
     def launch(self, stage, job):
         return self._serving(stage).launch(stage, job)
 

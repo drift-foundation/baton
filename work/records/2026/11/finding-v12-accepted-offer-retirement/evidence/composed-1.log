@@ -1,0 +1,139 @@
+.......................................................................................F........F.................................FF.FF...FFFF..
+======================================================================
+FAIL: test_a_queued_job_past_its_job_deadline_is_retired_before_admission (tests.job_manager.test_job_control.TheExpiryFence.test_a_queued_job_past_its_job_deadline_is_retired_before_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_control.py", line 479, in test_a_queued_job_past_its_job_deadline_is_retired_before_admission
+    self.assertEqual(self.acts.calls, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attach', ('offer-e78478c409a32c432d03b3[42 chars]',))] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+('attach', ('offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1',))
+
++ []
+- [('attach',
+-   ('offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1',))]
+
+======================================================================
+FAIL: test_a_rollback_before_the_first_watermark_holds_admission (tests.job_manager.test_job_control.TheOwnersEvidence.test_a_rollback_before_the_first_watermark_holds_admission)
+P3, the reviewer's probe: submitted at the origin, first sweep
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_job_control.py", line 806, in test_a_rollback_before_the_first_watermark_holds_admission
+    self.assertEqual(self.acts.calls, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attach', ('offer-e78478c409a32c432d03b3[42 chars]',))] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+('attach', ('offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1',))
+
++ []
+- [('attach',
+-   ('offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1',))]
+
+======================================================================
+FAIL: test_no_claim_receipt_and_no_review_runtime_follow_it (tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep.test_no_claim_receipt_and_no_review_runtime_follow_it)
+A contained refusal is not a quiet success.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7069, in test_no_claim_receipt_and_no_review_runtime_follow_it
+    self.assertEqual(self.states(held.job, held.composed)["review"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "offered")
+                     ^^^^^^^^^^
+AssertionError: 'exceptional' != 'offered'
+- exceptional
++ offered
+
+
+======================================================================
+FAIL: test_the_wrong_route_claim_defers_and_the_sweep_finishes (tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep.test_the_wrong_route_claim_defers_and_the_sweep_finishes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7052, in test_the_wrong_route_claim_defers_and_the_sweep_finishes
+    self.assertEqual({one["outcome"] for one in claims}, {"deferred"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the first set but not the second:
+'refused'
+Items in the second set but not the first:
+'deferred'
+
+======================================================================
+FAIL: test_correcting_the_route_lets_the_same_claim_succeed (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_correcting_the_route_lets_the_same_claim_succeed)
+THE FIXED CLAIM IDENTITY, not a second one.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7175, in test_correcting_the_route_lets_the_same_claim_succeed
+    self.assertTrue(performed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_the_other_jobs_act_is_still_reached_in_the_same_tick (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_the_other_jobs_act_is_still_reached_in_the_same_tick)
+THE HARM THE ESCAPE ACTUALLY DID, and its repair.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7126, in test_the_other_jobs_act_is_still_reached_in_the_same_tick
+    self.assertEqual(claim["outcome"], "deferred")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'deferred'
+- refused
++ deferred
+
+
+======================================================================
+FAIL: test_correcting_the_route_lets_the_same_offer_claim (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_correcting_the_route_lets_the_same_offer_claim)
+THE FIXED CLAIM IDENTITY, not a second one.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7513, in test_correcting_the_route_lets_the_same_offer_claim
+    self.assertTrue(performed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_one_claim_refuses_while_the_other_performs_in_one_sweep (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_one_claim_refuses_while_the_other_performs_in_one_sweep)
+BOTH IN ONE TICK, which is the whole statement.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7421, in test_one_claim_refuses_while_the_other_performs_in_one_sweep
+    self.assertEqual(refused["outcome"], "deferred")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'deferred'
+- refused
++ deferred
+
+
+======================================================================
+FAIL: test_the_other_job_advances_past_the_one_that_refuses (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_the_other_job_advances_past_the_one_that_refuses)
+Performing an act is not the same as getting somewhere.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7432, in test_the_other_job_advances_past_the_one_that_refuses
+    self.assertEqual(states[self.REFUSING_JOB], "offered")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'offered'
+- exceptional
++ offered
+
+
+======================================================================
+FAIL: test_the_refused_claim_records_no_success_and_releases_nothing (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_the_refused_claim_records_no_success_and_releases_nothing)
+A contained refusal is not a quiet success, and not a retirement.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7457, in test_the_refused_claim_records_no_success_and_releases_nothing
+    self.assertEqual(allocation["allocation_state"], "reserved")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'released' != 'reserved'
+- released
++ reserved
+
+
+----------------------------------------------------------------------
+Ran 144 tests in 4.650s
+
+FAILED (failures=10)

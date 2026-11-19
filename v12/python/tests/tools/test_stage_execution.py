@@ -7007,21 +7007,11 @@ class UnfinishedWorkIsFencedBeforeAnythingRepeatsIt(ComposedOneJobCase):
                                          generation=1)
 
 class TheWrongRouteClaimDefersInsteadOfStoppingTheSweep(ComposedOneJobCase):
-    """W125032's accepted negative, RESTORED with its precondition made
-    deliberate.
+    """W125032 refusal containment, with W385222 terminal retirement.
 
-    Review 2026-09-09T05:33Z [4]: retiring this was not mine to do, and the
-    PLAN preserves it explicitly. What changed underneath it is that W122060's
-    handoff now moves the Work to the review route, so the wrong-route claim no
-    longer happens by accident -- exactly as W124782's fix stopped the
-    deferred-cleanup window happening by accident. The precondition is
-    therefore withheld on purpose and the expected behaviour is unchanged.
-
-    THE BEHAVIOUR IT PINS. A concrete Authority `Refusal` is not a
-    `ContractRefusal`, so the scheduler's per-stage handler did not contain it
-    and one refused claim left the tick entirely. The deployment's manager
-    session maps it into this manager's closed vocabulary, so the stage defers,
-    stays owed, and the tick finishes.
+    Withholding handoff still creates the deliberate wrong-route negative.
+    Positive refusal now ends the offer instead of keeping it owed forever;
+    an unknown claim outcome retains the separate reconciliation behavior.
     """
 
     def wrong_route(self):
@@ -7036,7 +7026,7 @@ class TheWrongRouteClaimDefersInsteadOfStoppingTheSweep(ComposedOneJobCase):
                                "_handed_off", lambda *arguments: None):
             return self.implemented()
 
-    def test_the_wrong_route_claim_defers_and_the_sweep_finishes(self):
+    def test_the_wrong_route_claim_retires_and_the_sweep_finishes(self):
         from baton_v12.job_manager import sweep as tick
         from tests.job_manager import fixtures
 
@@ -7048,15 +7038,10 @@ class TheWrongRouteClaimDefersInsteadOfStoppingTheSweep(ComposedOneJobCase):
         self.assertEqual(len(reports), 4)
         claims = [one for report in reports for one in report["acts"]
                   if one.get("act") == "claim"]
-        self.assertTrue(claims)
-        self.assertEqual({one["outcome"] for one in claims}, {"deferred"})
-        for claim in claims:
-            self.assertEqual(claim["detail"]["category"], "refused")
-            self.assertEqual(claim["detail"]["code"], "precondition")
-            self.assertIn("does not resolve to", claim["detail"]["message"])
-            self.assertIn("baton.reviewer", claim["detail"]["message"])
+        self.assertEqual(len(claims), 1)
+        self.assertEqual(claims[0]["outcome"], "refused")
 
-    def test_no_claim_receipt_and_no_review_runtime_follow_it(self):
+    def test_no_successful_claim_and_no_review_runtime_follow_it(self):
         """A contained refusal is not a quiet success."""
         from baton_v12.job_manager import sweep as tick
         from tests.job_manager import fixtures
@@ -7067,7 +7052,7 @@ class TheWrongRouteClaimDefersInsteadOfStoppingTheSweep(ComposedOneJobCase):
         for _ in range(4):
             tick(held.job, held.composed, now=fixtures.NOW)
         self.assertEqual(self.states(held.job, held.composed)["review"],
-                         "offered")
+                         "exceptional")
         self.assertEqual(len([one for one in self.engine.starts
                               if "--entrypoint" not in one]), starts)
         self.assertEqual(held.control._connection.execute(
@@ -7116,17 +7101,15 @@ class OneRefusedClaimLeavesEveryOtherJobAlone(ComposedOneJobCase):
         from tests.job_manager import fixtures
 
         held = self.carried()
+        refused = []
         for _ in range(4):
             report = tick(held.job, held.composed, now=fixtures.NOW)
             spoken = {one["stage_id"]: one for one in report["acts"]}
-            self.assertIn("job-a/review", spoken)
-            self.assertIn("job-b/implementation", spoken)
-            claim = spoken["job-a/review"]
-            if claim["act"] == "claim":
-                self.assertEqual(claim["outcome"], "deferred")
-                self.assertEqual(claim["detail"]["code"], "precondition")
-                self.assertIn("does not resolve to",
-                              claim["detail"]["message"])
+            claim = spoken.get("job-a/review", {})
+            if claim.get("act") == "claim":
+                self.assertIn("job-b/implementation", spoken)
+                refused.append(claim)
+        self.assertEqual([one["outcome"] for one in refused], ["refused"])
 
     def test_without_the_containment_the_other_job_is_never_reached(self):
         """The counterfactual, driven rather than described."""
@@ -7146,8 +7129,8 @@ class OneRefusedClaimLeavesEveryOtherJobAlone(ComposedOneJobCase):
         self.assertIn("job-b/implementation",
                       {one["stage_id"] for one in report["acts"]})
 
-    def test_correcting_the_route_lets_the_same_claim_succeed(self):
-        """THE FIXED CLAIM IDENTITY, not a second one."""
+    def test_correcting_the_route_cannot_revive_the_retired_claim(self):
+        """A terminally retired operation stays retired after route repair."""
         from baton_v12.authority import Authority
         from baton_v12.job_manager import sweep as tick
         from tests.job_manager import fixtures
@@ -7172,7 +7155,7 @@ class OneRefusedClaimLeavesEveryOtherJobAlone(ComposedOneJobCase):
                 if one["stage_id"] == "job-a/review"
                 and one.get("act") == "claim"
                 and one["outcome"] == "performed")
-        self.assertTrue(performed)
+        self.assertEqual(performed, [])
         self.assertEqual(self.offers(held, "job-a/review"), offered)
 
     def test_why_the_joined_proof_is_composed_outside_this_deployment(self):
@@ -7418,10 +7401,7 @@ class TwoIndependentlyBoundWorkersShareOneSweep(SingleWorkerCase):
         for spoken in together:
             refused = spoken[self.REFUSING_JOB + "/implementation"]
             performed = spoken[self.PROGRESSING_JOB + "/implementation"]
-            self.assertEqual(refused["outcome"], "deferred")
-            self.assertEqual(refused["detail"]["category"], "refused")
-            self.assertEqual(refused["detail"]["code"], "precondition")
-            self.assertIn("does not resolve to", refused["detail"]["message"])
+            self.assertEqual(refused["outcome"], "refused")
             self.assertEqual(performed["outcome"], "performed")
 
     def test_the_other_job_advances_past_the_one_that_refuses(self):
@@ -7429,15 +7409,14 @@ class TwoIndependentlyBoundWorkersShareOneSweep(SingleWorkerCase):
         held = self.serving_pair()
         self.ticks(held, 6)
         states = self.states(held)
-        self.assertEqual(states[self.REFUSING_JOB], "offered")
+        self.assertEqual(states[self.REFUSING_JOB], "exceptional")
         self.assertNotIn(states[self.PROGRESSING_JOB],
                          ("blocked", "queued", "offered"))
 
-    def test_the_refused_claim_records_no_success_and_releases_nothing(self):
-        """A contained refusal is not a quiet success, and not a retirement.
+    def test_the_refused_claim_records_no_success_and_releases_capacity(self):
+        """A positive refusal retires its offer and releases logical capacity.
 
-        The stage keeps the offer it was refused on, its allocation stays
-        reserved rather than released, and no claim is recorded for it.
+        No successful claim is recorded for it.
 
         `claimed_offers_for` IS KEYED BY THE ATTEMPT, and review
         2026-09-09T05-09-21Z caught this call passing a participant instead:
@@ -7454,7 +7433,7 @@ class TwoIndependentlyBoundWorkersShareOneSweep(SingleWorkerCase):
         self.ticks(held)
         refused = self.attempt_of(held, self.REFUSING_JOB)
         allocation = allocation_of(held.job, refused)
-        self.assertEqual(allocation["allocation_state"], "reserved")
+        self.assertEqual(allocation["allocation_state"], "released")
         self.assertEqual(claimed_offers_for(held.control, refused), [])
 
     def test_the_same_reader_sees_the_claim_the_other_job_did_record(self):
@@ -7484,13 +7463,13 @@ class TwoIndependentlyBoundWorkersShareOneSweep(SingleWorkerCase):
             (job_id + "/implementation",))]
         return attempt
 
-    def test_correcting_the_route_lets_the_same_offer_claim(self):
+    def test_correcting_the_route_cannot_revive_the_same_offer(self):
         """THE FIXED CLAIM IDENTITY, not a second one.
 
         `add_route_handler` is an authorized Authority bootstrap action taken
         by this fixture, not a production routing remedy -- that is W124786's.
-        What it establishes here is that the deferral left the claim intact:
-        the very offer that was refused is the one that succeeds.
+        W385222 changes the former retry expectation: the retired operation
+        cannot revive even when the routing precondition later becomes true.
         """
         from baton_v12.authority import Authority
         from tests.job_manager import fixtures
@@ -7510,7 +7489,7 @@ class TwoIndependentlyBoundWorkersShareOneSweep(SingleWorkerCase):
         performed = [one for one in self.claims(self.ticks(held))
                      if one["stage_id"] == stage_id
                      and one["outcome"] == "performed"]
-        self.assertTrue(performed)
+        self.assertEqual(performed, [])
         self.assertEqual(self.offers(held, stage_id), before)
 
     def test_without_the_containment_the_other_job_is_never_reached(self):

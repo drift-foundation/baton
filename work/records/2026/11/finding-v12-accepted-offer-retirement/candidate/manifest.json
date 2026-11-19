@@ -1,0 +1,73 @@
+{
+  "base_commit": "a62bc9a3a108acd0f6a1d759034b98af4bd1fa55",
+  "claim": "E385224",
+  "files": [
+    {
+      "base_sha256": "f2d78b9291931550822dede381c7f71074f1a54bedaae5900dad6839d0df8a0b",
+      "bytes": 70771,
+      "candidate_sha256": "b8d0e238c8a10b67b816ab8b7a2df02ea6a08f8c5a6de6052206caef873f7b3b",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "snapshot": "work/records/2026/11/finding-v12-accepted-offer-retirement/candidate/files/v12/python/src/baton_v12/job_manager/delegation.py"
+    },
+    {
+      "base_sha256": "79bf6c405feb042e4b8d0ab151f7aeb4f4e883881a7b7fc96dd1b23ef721ef04",
+      "bytes": 73387,
+      "candidate_sha256": "0b36586125701b756cdfb782d1898e3fef0ae76510649fb0c08c4f0b093d2320",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/manager.py",
+      "snapshot": "work/records/2026/11/finding-v12-accepted-offer-retirement/candidate/files/v12/python/src/baton_v12/job_manager/manager.py"
+    },
+    {
+      "base_sha256": "a1f1e28de8e975e93caf5baf215b4092f401d040e0400703175d59c60d02eb17",
+      "bytes": 49621,
+      "candidate_sha256": "1421d1850845334b1b6ccca087cafa57bf9e2a399c47da3bd67d207df9514ae4",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/scheduler.py",
+      "snapshot": "work/records/2026/11/finding-v12-accepted-offer-retirement/candidate/files/v12/python/src/baton_v12/job_manager/scheduler.py"
+    },
+    {
+      "base_sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+      "bytes": 53785,
+      "candidate_sha256": "2a984417efc373c03a24cd710835eb441b771d99eb9afa085ac5fd4d7481a7d1",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/worker_manager/offers.py",
+      "snapshot": "work/records/2026/11/finding-v12-accepted-offer-retirement/candidate/files/v12/python/src/baton_v12/worker_manager/offers.py"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 11077,
+      "candidate_sha256": "8e3bcfc8b04e05bd9744de93d22b799dba9a19fd03d3302fc758840894b4c7d7",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_accepted_offer_retirement.py",
+      "snapshot": "work/records/2026/11/finding-v12-accepted-offer-retirement/candidate/files/v12/python/tests/job_manager/test_accepted_offer_retirement.py"
+    },
+    {
+      "base_sha256": "ca451fccb3b23c02c1684c8804131e7853e08a577ecf5f1160fd536b1f75cf18",
+      "bytes": 685725,
+      "candidate_sha256": "2596473888c0c8d3d444157add13d121ed52d540cb834764ea7dd61ca3eff127",
+      "mode": "0o664",
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "snapshot": "work/records/2026/11/finding-v12-accepted-offer-retirement/candidate/files/v12/python/tests/tools/test_stage_execution.py"
+    },
+    {
+      "base_sha256": "d993a6550289170a3eddf33a8fc5cdb9d23e237b87afd614a49c8baf7589eeab",
+      "bytes": 104326,
+      "candidate_sha256": "11363712cf2a94586ca62bda3113c91d1aaf89832d7061ee124b2538e197deb6",
+      "mode": "0o644",
+      "path": "v12/python/tools/parallel_test.py",
+      "snapshot": "work/records/2026/11/finding-v12-accepted-offer-retirement/candidate/files/v12/python/tools/parallel_test.py"
+    },
+    {
+      "base_sha256": "3e80356640c06c805558ef1fb67608eabd2488e8a2c198bf6e0381d04be4bf87",
+      "bytes": 408065,
+      "candidate_sha256": "8f0d85f8f3553321f892976c674bb08658758602cbb0d1c4053267fb68da137b",
+      "mode": "0o664",
+      "path": "v12/python/tools/stage_execution.py",
+      "snapshot": "work/records/2026/11/finding-v12-accepted-offer-retirement/candidate/files/v12/python/tools/stage_execution.py"
+    }
+  ],
+  "participant": "baton.codxpc",
+  "patch_sha256": "e936fbe3286e55b66d86587df74c4d8ec34bc8cec3f042eb4f16df63d96d0eae",
+  "work": "W385222"
+}

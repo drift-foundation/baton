@@ -1,0 +1,15 @@
+.............................................................................................................................................F.........
+======================================================================
+FAIL: test_the_other_jobs_act_is_still_reached_in_the_same_tick (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_the_other_jobs_act_is_still_reached_in_the_same_tick)
+THE HARM THE ESCAPE ACTUALLY DID, and its repair.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7108, in test_the_other_jobs_act_is_still_reached_in_the_same_tick
+    self.assertIn("job-b/implementation", spoken)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'job-b/implementation' not found in {}
+
+----------------------------------------------------------------------
+Ran 151 tests in 4.912s
+
+FAILED (failures=1)

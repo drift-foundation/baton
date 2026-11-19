@@ -923,6 +923,11 @@ class PooledManagerOperations:
                     "no scheduler allocation")
         answer = self.workers[(allocation["generation"],
                                allocation["worker_id"])].claim(stage)
+        return self._claim_answer(stage, allocation, answer)
+
+    def _claim_answer(self, stage, allocation, answer):
+        if (answer or {}).get("state") in RELEASE_ENDINGS:
+            return answer
         principal = ((answer or {}).get("decision") or {}).get("principal")
         if principal != allocation["canonical_principal"]:
             require_recovery(self.store, stage["attempt_id"])
@@ -933,6 +938,15 @@ class PooledManagerOperations:
                 f"claim returned {name_value(principal)}; the allocation "
                 f"requires explicit recovery", durable=True)
         return answer
+
+    def settle_offer(self, stage, *, now):
+        worker = self._worker(stage)
+        settle = getattr(worker, "settle_offer", None)
+        if settle is not None:
+            answer = settle(stage, now=now)
+            if (answer or {}).get("state") == "claimed":
+                return self._claim_answer(stage, self._allocation(stage), answer)
+            return answer
 
     def launch(self, stage, job):
         return self._worker(stage).launch(stage, job)

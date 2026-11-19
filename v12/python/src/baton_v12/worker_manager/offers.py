@@ -875,9 +875,24 @@ def submit_claim(store, port, *, offer_id):
     the conflation this Work exists to correct.
     """
     offer = _require_accepted(store, offer_id)
-    result = port.claim(offer["work_id"], offer["claim_operation_id"],
-                        offer["authority_uuid"], offer["work_scope"],
-                        offer["work_route"])
+    now = store._now()
+    if now >= offer["settle_by"]:
+        return settle_claim(store, port, offer_id=offer_id, now=now)
+    try:
+        result = port.claim(offer["work_id"], offer["claim_operation_id"],
+                            offer["authority_uuid"], offer["work_scope"],
+                            offer["work_route"])
+    except ContractRefusal as refusal:
+        # Only the participant session's positive refusal permits early
+        # retirement. Unknown/ambiguous replies remain recoverable; settlement
+        # itself must still adopt any claim the Authority already committed.
+        if (refusal.category, refusal.code) != ("refused", "precondition"):
+            raise
+        answer = settle_claim(store, port, offer_id=offer_id, now=now,
+                              refused_evidence=refusal.message)
+        if answer["state"] == "accepted":
+            raise
+        return answer
     return _record_claim(store, offer, "claimed",
                          {"assignment": result["assignment"],
                           "claim_event": result["claim_event"],
