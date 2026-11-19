@@ -427,6 +427,127 @@ class Status(Fixture):
         self.assertIn("unconfigured", text)
 
 
+class JobOutcomesFirst(Fixture):
+    """W385227: published Job facts lead; lifecycle facts stay independent."""
+
+    def job(self, job_id="job-a", states=("exceptional", "blocked")):
+        stages = [{"stage_id": job_id + "/" + kind, "kind": kind, "state": state}
+                  for kind, state in zip(("implementation", "review"), states)]
+        return {"job_id": job_id, "stages": stages}
+
+    def shown(self, jobs=None, **members):
+        if jobs is not None:
+            self.publish_snapshot(jobs=jobs, **members)
+        code, text = self.output(lambda stream: stack.status(self.root, stream=stream, environ=self.environ))
+        self.assertEqual(code, 0)
+        return text
+
+    def test_failed_job_and_its_blocked_review_lead_healthy_services(self):
+        self.start_both()
+        job = self.job()
+        job["stages"][0]["exchange"] = {"terminal": {"ending": "faulted", "fault_code": "agent", "adapter_failure": None}}
+        job["stages"][1]["gates"] = [{"stage_id": "job-a/implementation", "state": "exceptional", "open": False}]
+        text = self.shown([job])
+        self.assertIn("Job job-a: FAILED", text)
+        self.assertIn("implementation: exceptional; agent fault; cause unknown", text)
+        self.assertIn("review: blocked; waiting on job-a/implementation (exceptional)", text)
+        self.assertLess(text.index("Job job-a:"), text.index("Services:"))
+        self.assertLess(text.index("review: blocked"), text.index("manager"))
+        self.assertIn("manager    running", text)
+        self.assertIn("publisher  running", text)
+        self.assertNotIn("no proposal", text)
+        self.assertNotIn("coding", text)
+
+    def test_active_queued_completed_and_changes_requested_jobs_keep_distinct_outcomes(self):
+        jobs = [self.job("active", ("running", "blocked")), self.job("queued", ("queued", "blocked")),
+                self.job("done", ("completed", "completed")), self.job("correction", ("completed", "changes-requested")),
+                self.job("held", ("completed", "blocked")), self.job("unknown", (None, "blocked"))]
+        text = self.shown(jobs)
+        for job_id, outcome in [("active", "IN PROGRESS"), ("queued", "QUEUED"), ("done", "COMPLETED"), ("correction", "CHANGES REQUESTED"), ("held", "BLOCKED"), ("unknown", "UNKNOWN")]:
+            self.assertIn("Job " + job_id + ": " + outcome, text)
+        self.assertNotIn("accepted", text)
+
+    def test_absent_unreadable_and_empty_are_not_conflated(self):
+        text = self.shown()
+        self.assertTrue(text.startswith("Jobs: unknown (snapshot absent)"))
+        stack.snapshot_path(self.root).write_text("{broken")
+        self.assertTrue(self.shown().startswith("Jobs: unknown (snapshot unreadable)"))
+        self.assertIn("No Jobs observed; idle", self.shown([]))
+
+    def test_stale_and_noncanonical_qualifications_precede_the_reported_outcome(self):
+        for members, qualification in [({"observed": time.time() - 1000}, "stale"), ({"canonical": False}, "noncanonical; outcomes unconfirmed")]:
+            with self.subTest(members=members):
+                text = self.shown([self.job()], **members)
+                self.assertLess(text.index(qualification), text.index("Job job-a: FAILED"))
+                self.assertIn("runtime", text)
+                self.assertIn("unknown", text)
+                empty = self.shown([], **members)
+                self.assertNotIn("; idle", empty)
+                self.assertIn("current workload unknown", empty)
+
+    def test_missing_reason_output_and_gate_evidence_stay_unknown(self):
+        text = self.shown([self.job()])
+        self.assertIn("exceptional; cause unknown", text)
+        self.assertIn("blocked; blocker unknown", text)
+        self.assertNotIn("no proposal", text)
+        self.assertNotIn("waiting on", text)
+        self.assertNotIn("agent fault", text)
+
+    def test_typed_adapter_failure_is_shown_without_worker_prose(self):
+        job = self.job()
+        job["stages"][0]["exchange"] = {"terminal": {"ending": "faulted", "fault_code": "agent", "adapter_failure": {"component": "role-adapter", "code": "role-output-missing", "role": "implementation", "operation": "work", "operation_id": "work-1", "message": "PRIVATE PROSE"}}}
+        text = self.shown([job])
+        self.assertIn("agent fault; role-output-missing", text)
+        self.assertNotIn("PRIVATE PROSE", text)
+        job["stages"][0]["exchange"]["terminal"]["adapter_failure"]["code"] = "PRIVATE PROSE"
+        self.assertIn("agent fault; cause unknown", self.shown([job]))
+        job["stages"][0]["exchange"]["terminal"]["fault_code"] = "PRIVATE PROSE"
+        text = self.shown([job])
+        self.assertNotIn("PRIVATE PROSE", text)
+        self.assertIn("cause unknown", text)
+
+    def test_cancellation_does_not_turn_unresolved_shutdown_into_completion(self):
+        job = self.job(states=("claimed", "blocked"))
+        job["cancellation"] = {"trigger": "stage-deadline", "shutdown": "unresolved"}
+        text = self.shown([job])
+        self.assertIn("CANCELLATION REQUESTED", text)
+        self.assertIn("Cancellation: stage-deadline; shutdown unresolved", text)
+        self.assertNotIn("COMPLETED", text)
+        job["stages"][0]["state"] = "exceptional"
+        text = self.shown([job])
+        self.assertIn("Job job-a: FAILED", text)
+        self.assertIn("shutdown unresolved", text)
+
+    def test_one_snapshot_supplies_jobs_and_runtime_without_writes(self):
+        place = self.publish_snapshot(jobs=[self.job()])
+        before = {path: path.read_bytes() for path in self.root.rglob("*") if path.is_file()}
+        with mock.patch.object(stack, "snapshot", wraps=stack.snapshot) as read:
+            self.shown()
+        self.assertEqual(read.call_count, 1)
+        self.assertEqual(before, {path: path.read_bytes() for path in self.root.rglob("*") if path.is_file()})
+        self.assertEqual(stack.observe(self.root, environ=self.environ)["jobs"], {"state": "observed", "count": 1, "canonical": True})
+
+    def test_optional_malformed_details_and_missing_stages_do_not_crash(self):
+        job = self.job()
+        job["stages"][0]["exchange"] = []
+        job["stages"][1]["gates"] = "unknown"
+        text = self.shown([job, {"job_id": "empty", "stages": None}])
+        self.assertIn("Job empty: UNKNOWN", text)
+        self.assertIn("blocker unknown", text)
+
+    def test_published_identities_cannot_inject_terminal_lines(self):
+        text = self.shown([self.job("id\nServices:\x1b[2J")])
+        self.assertEqual(text.count("\nServices:\n"), 1)
+        self.assertNotIn("\x1b", text)
+
+    def test_launcher_vocabulary_matches_its_producers(self):
+        from baton_v12.job_manager import documents
+        from baton_v12.worker_manager import exchange
+        self.assertEqual(stack._STATUS_STAGE_STATES, documents.STAGE_STATES)
+        self.assertEqual(stack._STATUS_FAULT_CODES, exchange.FAULT_CODES)
+        self.assertEqual(stack._STATUS_ADAPTER_CODES, exchange.ADAPTER_CODES)
+
+
 class Publication(Fixture):
     def test_the_snapshot_is_published_atomically(self):
         """A viewer must never read a half-written document, so publication is

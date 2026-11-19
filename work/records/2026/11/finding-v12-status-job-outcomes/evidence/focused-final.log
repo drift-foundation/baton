@@ -1,0 +1,184 @@
+test_a_second_start_cannot_enter_while_the_first_holds_admission (tests.tools.test_stack.Admission.test_a_second_start_cannot_enter_while_the_first_holds_admission) ... ok
+test_a_spawn_that_cannot_be_recorded_leaves_no_orphan (tests.tools.test_stack.Admission.test_a_spawn_that_cannot_be_recorded_leaves_no_orphan)
+R1's last clause. A process admitted but never recorded is owned by ... ok
+test_a_stop_cannot_interleave_with_a_start (tests.tools.test_stack.Admission.test_a_stop_cannot_interleave_with_a_start)
+A stop that ran mid-start would clear a record for a process the ... ok
+test_admission_is_released_even_when_its_holder_is_killed (tests.tools.test_stack.Admission.test_admission_is_released_even_when_its_holder_is_killed)
+An flock rather than a lock FILE, and this is the difference: a ... ok
+test_a_repeated_start_waits_bounded_and_then_refuses (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_a_repeated_start_waits_bounded_and_then_refuses) ... ok
+test_an_acknowledged_manager_is_never_asked_to_initialize_again (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_an_acknowledged_manager_is_never_asked_to_initialize_again) ... ok
+test_an_existing_manager_that_acknowledges_late_is_waited_for (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_an_existing_manager_that_acknowledges_late_is_waited_for)
+The legitimate race: a previous start was interrupted while its ... ok
+test_both_live_but_unacknowledged_is_not_ready (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_both_live_but_unacknowledged_is_not_ready) ... ok
+test_replacing_only_the_publisher_still_needs_the_managers_evidence (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_replacing_only_the_publisher_still_needs_the_managers_evidence) ... ok
+test_no_executable_token_reaches_the_older_stack_or_version_control (tests.tools.test_stack.Boundary.test_no_executable_token_reaches_the_older_stack_or_version_control) ... ok
+test_no_store_is_defaulted_into_the_checkout (tests.tools.test_stack.Boundary.test_no_store_is_defaulted_into_the_checkout) ... ok
+test_the_manager_is_started_with_serve_and_never_submit (tests.tools.test_stack.Boundary.test_the_manager_is_started_with_serve_and_never_submit)
+The argv is where a command would actually be issued, so it is ... ok
+test_a_configured_stack_resolves (tests.tools.test_stack.Configuration.test_a_configured_stack_resolves) ... ok
+test_a_missing_configuration_file_refuses_rather_than_idling (tests.tools.test_stack.Configuration.test_a_missing_configuration_file_refuses_rather_than_idling)
+The FINDING's rule: do not conceal a missing worker configuration ... ok
+test_a_relative_store_refuses (tests.tools.test_stack.Configuration.test_a_relative_store_refuses) ... ok
+test_every_missing_operand_is_named_at_once (tests.tools.test_stack.Configuration.test_every_missing_operand_is_named_at_once) ... ok
+test_the_state_root_is_outside_the_checkout_by_default (tests.tools.test_stack.Configuration.test_the_state_root_is_outside_the_checkout_by_default) ... ok
+test_a_publisher_record_failure_takes_the_manager_back_too (tests.tools.test_stack.EveryFailedAdmissionUnwinds.test_a_publisher_record_failure_takes_the_manager_back_too) ... ok
+test_a_publisher_spawn_failure_takes_the_manager_back (tests.tools.test_stack.EveryFailedAdmissionUnwinds.test_a_publisher_spawn_failure_takes_the_manager_back) ... ok
+test_cleanup_after_an_ordinary_failure_still_keeps_unknown_ownership (tests.tools.test_stack.EveryFailedAdmissionUnwinds.test_cleanup_after_an_ordinary_failure_still_keeps_unknown_ownership)
+C1 and C2 meet here: interruption cleanup must not erase what it ... ok
+test_a_record_write_failure_still_rolls_the_process_back (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_a_record_write_failure_still_rolls_the_process_back)
+The real `_spawn`, and the one write it makes, made to fail. ... ok
+test_nothing_is_written_to_a_record_after_a_start_succeeds (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_nothing_is_written_to_a_record_after_a_start_succeeds)
+The `serving_acknowledged` cache is gone: the manager's own log is ... ok
+test_one_process_that_cannot_be_unwound_does_not_hide_the_others (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_one_process_that_cannot_be_unwound_does_not_hide_the_others)
+D1's last clause. Taking the manager back raises outright, and the ... ok
+test_start_adds_no_record_write_of_its_own_after_a_spawn (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_start_adds_no_record_write_of_its_own_after_a_spawn) ... ok
+test_the_spawned_identity_is_published_in_one_write (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_the_spawned_identity_is_published_in_one_write)
+Against the REAL `_spawn`, because a substitute cannot be asked how ... ok
+test_a_dead_process_is_not_alive (tests.tools.test_stack.Identity.test_a_dead_process_is_not_alive) ... ok
+test_a_live_process_is_matched_by_pid_and_start_time (tests.tools.test_stack.Identity.test_a_live_process_is_matched_by_pid_and_start_time) ... ok
+test_a_malformed_record_is_unreadable_not_absent (tests.tools.test_stack.Identity.test_a_malformed_record_is_unreadable_not_absent) ... ok
+test_a_reused_pid_is_not_our_process (tests.tools.test_stack.Identity.test_a_reused_pid_is_not_our_process)
+THE CASE A PID FILE ALONE GETS WRONG. The recorded start time no ... ok
+test_absent_unreadable_and_empty_are_not_conflated (tests.tools.test_stack.JobOutcomesFirst.test_absent_unreadable_and_empty_are_not_conflated) ... ok
+test_active_queued_completed_and_changes_requested_jobs_keep_distinct_outcomes (tests.tools.test_stack.JobOutcomesFirst.test_active_queued_completed_and_changes_requested_jobs_keep_distinct_outcomes) ... ok
+test_cancellation_does_not_turn_unresolved_shutdown_into_completion (tests.tools.test_stack.JobOutcomesFirst.test_cancellation_does_not_turn_unresolved_shutdown_into_completion) ... ok
+test_failed_job_and_its_blocked_review_lead_healthy_services (tests.tools.test_stack.JobOutcomesFirst.test_failed_job_and_its_blocked_review_lead_healthy_services) ... ok
+test_launcher_vocabulary_matches_its_producers (tests.tools.test_stack.JobOutcomesFirst.test_launcher_vocabulary_matches_its_producers) ... ok
+test_missing_reason_output_and_gate_evidence_stay_unknown (tests.tools.test_stack.JobOutcomesFirst.test_missing_reason_output_and_gate_evidence_stay_unknown) ... ok
+test_one_snapshot_supplies_jobs_and_runtime_without_writes (tests.tools.test_stack.JobOutcomesFirst.test_one_snapshot_supplies_jobs_and_runtime_without_writes) ... ok
+test_optional_malformed_details_and_missing_stages_do_not_crash (tests.tools.test_stack.JobOutcomesFirst.test_optional_malformed_details_and_missing_stages_do_not_crash) ... ok
+test_published_identities_cannot_inject_terminal_lines (tests.tools.test_stack.JobOutcomesFirst.test_published_identities_cannot_inject_terminal_lines) ... ok
+test_stale_and_noncanonical_qualifications_precede_the_reported_outcome (tests.tools.test_stack.JobOutcomesFirst.test_stale_and_noncanonical_qualifications_precede_the_reported_outcome) ... ok
+test_typed_adapter_failure_is_shown_without_worker_prose (tests.tools.test_stack.JobOutcomesFirst.test_typed_adapter_failure_is_shown_without_worker_prose) ... ok
+test_a_process_that_will_not_die_fails_the_stop (tests.tools.test_stack.Lifecycle.test_a_process_that_will_not_die_fails_the_stop)
+R4: this used to print the truth and return 0 anyway, so a caller ... ok
+test_a_repeated_start_does_not_duplicate_the_manager (tests.tools.test_stack.Lifecycle.test_a_repeated_start_does_not_duplicate_the_manager) ... ok
+test_a_repeated_stop_is_not_an_error (tests.tools.test_stack.Lifecycle.test_a_repeated_stop_is_not_an_error) ... ok
+test_a_stale_record_is_cleared_and_replaced_not_signalled (tests.tools.test_stack.Lifecycle.test_a_stale_record_is_cleared_and_replaced_not_signalled) ... ok
+test_first_start_runs_both_owned_processes (tests.tools.test_stack.Lifecycle.test_first_start_runs_both_owned_processes) ... ok
+test_restart_preserves_the_configured_stores (tests.tools.test_stack.Lifecycle.test_restart_preserves_the_configured_stores) ... ok
+test_start_refuses_an_unconfigured_stack_and_starts_nothing (tests.tools.test_stack.Lifecycle.test_start_refuses_an_unconfigured_stack_and_starts_nothing) ... ok
+test_stop_ends_only_the_owned_processes (tests.tools.test_stack.Lifecycle.test_stop_ends_only_the_owned_processes) ... ok
+test_stop_never_signals_a_reused_pid (tests.tools.test_stack.Lifecycle.test_stop_never_signals_a_reused_pid)
+The record claims a pid that is now somebody else's. ... ok
+test_a_document_that_never_says_when_it_looked_is_unreadable (tests.tools.test_stack.MalformedSnapshots.test_a_document_that_never_says_when_it_looked_is_unreadable) ... ok
+test_a_freshly_written_but_stalely_observed_document_is_unknown (tests.tools.test_stack.MalformedSnapshots.test_a_freshly_written_but_stalely_observed_document_is_unknown) ... ok
+test_a_non_canonical_snapshot_cannot_say_what_is_not_executing (tests.tools.test_stack.MalformedSnapshots.test_a_non_canonical_snapshot_cannot_say_what_is_not_executing)
+It does not describe every Job, so it cannot support the one claim ... ok
+test_a_stop_over_a_malformed_snapshot_does_not_crash_after_signalling (tests.tools.test_stack.MalformedSnapshots.test_a_stop_over_a_malformed_snapshot_does_not_crash_after_signalling)
+The failure mode that matters: the crash happened AFTER the ... ok
+test_an_absent_nested_member_is_absence_rather_than_malformation (tests.tools.test_stack.MalformedSnapshots.test_an_absent_nested_member_is_absence_rather_than_malformation)
+`null` where a list would go is "there are none", which is the same ... ok
+test_every_nested_shape_is_refused_before_it_is_walked (tests.tools.test_stack.MalformedSnapshots.test_every_nested_shape_is_refused_before_it_is_walked) ... ok
+test_a_failed_status_leaves_the_previous_snapshot_in_place (tests.tools.test_stack.Publication.test_a_failed_status_leaves_the_previous_snapshot_in_place) ... status refused (returncode 1):
+boom
+ok
+test_the_publisher_observes_read_only (tests.tools.test_stack.Publication.test_the_publisher_observes_read_only)
+It reads with the OBSERVING factory, never the serving one. ... ok
+test_the_publisher_refreshes_until_it_is_asked_to_stop (tests.tools.test_stack.Publication.test_the_publisher_refreshes_until_it_is_asked_to_stop) ... ok
+test_the_snapshot_is_published_atomically (tests.tools.test_stack.Publication.test_the_snapshot_is_published_atomically)
+A viewer must never read a half-written document, so publication is ... ok
+test_a_previous_runs_snapshot_is_not_this_starts_acknowledgement (tests.tools.test_stack.Readiness.test_a_previous_runs_snapshot_is_not_this_starts_acknowledgement) ... ok
+test_an_empty_or_absent_operator_path_adds_no_empty_entry (tests.tools.test_stack.Readiness.test_an_empty_or_absent_operator_path_adds_no_empty_entry) ... ok
+test_an_unwind_that_cannot_take_a_process_back_retains_its_record (tests.tools.test_stack.Readiness.test_an_unwind_that_cannot_take_a_process_back_retains_its_record)
+TRUTHFUL OWNERSHIP DURING CLEANUP: a record is cleared only for a ... ok
+test_every_recipe_that_runs_a_child_names_the_runtime_prerequisite (tests.tools.test_stack.Readiness.test_every_recipe_that_runs_a_child_names_the_runtime_prerequisite) ... ok
+test_start_fails_when_nothing_is_ever_published (tests.tools.test_stack.Readiness.test_start_fails_when_nothing_is_ever_published)
+Both processes alive is not acknowledgement. Only a snapshot is: ... ok
+test_start_fails_with_the_childs_own_reason_when_it_exits_at_once (tests.tools.test_stack.Readiness.test_start_fails_with_the_childs_own_reason_when_it_exits_at_once) ... ok
+test_the_child_environment_carries_this_distributions_package_path (tests.tools.test_stack.Readiness.test_the_child_environment_carries_this_distributions_package_path) ... ok
+test_the_documented_child_can_actually_import_its_package (tests.tools.test_stack.Readiness.test_the_documented_child_can_actually_import_its_package)
+The EXACT failure the review reproduced: `python3 -m ... ok
+test_the_monitors_child_can_import_the_same_package (tests.tools.test_stack.Readiness.test_the_monitors_child_can_import_the_same_package)
+`monitor` was broken for the identical reason: `job_viewer` imports ... ok
+test_a_stale_snapshot_is_unknown_rather_than_its_own_contents (tests.tools.test_stack.RuntimeBoundary.test_a_stale_snapshot_is_unknown_rather_than_its_own_contents)
+A stale document describes a world the manager has moved on from. ... ok
+test_a_torn_snapshot_is_unknown_rather_than_zero (tests.tools.test_stack.RuntimeBoundary.test_a_torn_snapshot_is_unknown_rather_than_zero) ... ok
+test_no_snapshot_is_unknown_rather_than_nothing_running (tests.tools.test_stack.RuntimeBoundary.test_no_snapshot_is_unknown_rather_than_nothing_running) ... ok
+test_open_episodes_and_recorded_runtimes_are_counted (tests.tools.test_stack.RuntimeBoundary.test_open_episodes_and_recorded_runtimes_are_counted) ... ok
+test_status_carries_the_same_boundary (tests.tools.test_stack.RuntimeBoundary.test_status_carries_the_same_boundary) ... ok
+test_stop_reports_what_it_did_not_resolve (tests.tools.test_stack.RuntimeBoundary.test_stop_reports_what_it_did_not_resolve) ... ok
+test_stop_without_a_snapshot_says_unknown_rather_than_none (tests.tools.test_stack.RuntimeBoundary.test_stop_without_a_snapshot_says_unknown_rather_than_none) ... ok
+test_a_manager_already_running_is_not_this_starts_to_acknowledge (tests.tools.test_stack.ServingAcknowledgement.test_a_manager_already_running_is_not_this_starts_to_acknowledge)
+A second start that only replaces the publisher must not demand an ... ok
+test_a_manager_that_never_acknowledges_fails_the_start (tests.tools.test_stack.ServingAcknowledgement.test_a_manager_that_never_acknowledges_fails_the_start)
+The reviewer's counterexample: the publisher publishes perfectly ... ok
+test_a_previous_runs_acknowledgement_does_not_answer_for_this_start (tests.tools.test_stack.ServingAcknowledgement.test_a_previous_runs_acknowledgement_does_not_answer_for_this_start)
+Stale acknowledgement across restart. The line is in the log; it was ... ok
+test_an_acknowledgement_naming_another_incarnation_is_not_this_ones (tests.tools.test_stack.ServingAcknowledgement.test_an_acknowledgement_naming_another_incarnation_is_not_this_ones) ... ok
+test_an_acknowledgement_written_before_this_start_does_not_count (tests.tools.test_stack.ServingAcknowledgement.test_an_acknowledgement_written_before_this_start_does_not_count)
+BOTH HALVES ARE LOAD-BEARING, and a reversal probe is how I found ... ok
+test_every_manager_start_is_given_a_fresh_incarnation (tests.tools.test_stack.ServingAcknowledgement.test_every_manager_start_is_given_a_fresh_incarnation) ... ok
+test_status_reports_a_running_manager_that_has_not_acknowledged (tests.tools.test_stack.ServingAcknowledgement.test_status_reports_a_running_manager_that_has_not_acknowledged) ... ok
+test_the_observer_composes_no_deployment (tests.tools.test_stack.ServingAcknowledgement.test_the_observer_composes_no_deployment)
+The static distinction the whole finding rests on, asserted against ... ok
+test_the_publisher_argv_parses (tests.tools.test_stack.SpawnedArgv.test_the_publisher_argv_parses) ... ok
+test_the_reversed_operand_order_is_refused_by_the_parser (tests.tools.test_stack.SpawnedArgv.test_the_reversed_operand_order_is_refused_by_the_parser) ... usage: stack [-h] [--instance INSTANCE] [--root ROOT]
+             {start,stop,status,publish,repository,monitor} ...
+stack: error: unrecognized arguments: --root /var/tmp/v12-stack-0d4m431p/state
+ok
+test_a_document_of_another_schema_is_unreadable_not_empty (tests.tools.test_stack.Status.test_a_document_of_another_schema_is_unreadable_not_empty) ... ok
+test_a_freshly_written_document_can_still_be_stalely_observed (tests.tools.test_stack.Status.test_a_freshly_written_document_can_still_be_stalely_observed)
+C4. `observed_at` is the MANAGER'S reading of the store; the file's ... ok
+test_absence_running_and_stale_are_distinguished (tests.tools.test_stack.Status.test_absence_running_and_stale_are_distinguished) ... ok
+test_an_empty_configured_stack_is_a_valid_idle_state (tests.tools.test_stack.Status.test_an_empty_configured_stack_is_a_valid_idle_state) ... ok
+test_no_snapshot_is_not_an_empty_pipeline (tests.tools.test_stack.Status.test_no_snapshot_is_not_an_empty_pipeline)
+`absent` is nobody looked; `unreadable` is we looked and could not ... ok
+test_snapshot_freshness_and_absence_are_distinguished (tests.tools.test_stack.Status.test_snapshot_freshness_and_absence_are_distinguished) ... ok
+test_status_reports_an_unconfigured_stack_rather_than_idling (tests.tools.test_stack.Status.test_status_reports_an_unconfigured_stack_rather_than_idling) ... ok
+test_the_pinned_status_schema_is_the_one_the_manager_writes (tests.tools.test_stack.Status.test_the_pinned_status_schema_is_the_one_the_manager_writes)
+The constant is copied so this launcher stays standard-library-only; ... ok
+test_a_subcommand_this_command_does_not_serve_is_refused (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_a_subcommand_this_command_does_not_serve_is_refused) ... ok
+test_every_child_the_supervisor_starts_is_a_real_subcommand (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_every_child_the_supervisor_starts_is_a_real_subcommand) ... ok
+test_from_source_the_child_is_this_interpreter_and_the_module (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_from_source_the_child_is_this_interpreter_and_the_module) ... ok
+test_frozen_the_child_is_the_command_itself (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_frozen_the_child_is_the_command_itself) ... ok
+test_a_root_inside_the_checkout_is_named (tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_inside_the_checkout_is_named) ... ok
+test_a_root_that_cannot_be_written_is_named_rather_than_passed_over (tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_that_cannot_be_written_is_named_rather_than_passed_over) ... ok
+test_an_unset_or_blank_selection_still_falls_back (tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_an_unset_or_blank_selection_still_falls_back) ... ok
+test_a_refusal_is_said_in_the_command_s_own_voice (tests.tools.test_stack.TheInstalledMonitor.test_a_refusal_is_said_in_the_command_s_own_voice) ... ok
+test_a_stack_that_has_published_nothing_is_said_so_rather_than_watched (tests.tools.test_stack.TheInstalledMonitor.test_a_stack_that_has_published_nothing_is_said_so_rather_than_watched) ... ok
+test_it_watches_THIS_root_s_own_snapshot (tests.tools.test_stack.TheInstalledMonitor.test_it_watches_THIS_root_s_own_snapshot) ... ok
+test_the_bundled_command_puts_a_verb_s_options_AFTER_the_verb (tests.tools.test_stack.TheInstalledMonitor.test_the_bundled_command_puts_a_verb_s_options_AFTER_the_verb)
+`--instance` is the command's; `--interval` is the monitor's, and ... ok
+test_the_interval_reaches_the_viewer (tests.tools.test_stack.TheInstalledMonitor.test_the_interval_reaches_the_viewer) ... ok
+test_the_older_verbs_are_dispatched_exactly_as_before (tests.tools.test_stack.TheInstalledMonitor.test_the_older_verbs_are_dispatched_exactly_as_before) ... ok
+test_the_verb_reaches_it_through_main (tests.tools.test_stack.TheInstalledMonitor.test_the_verb_reaches_it_through_main) ... ok
+test_a_denied_process_read_also_stops_a_start (tests.tools.test_stack.UnknownOwnership.test_a_denied_process_read_also_stops_a_start) ... ok
+test_a_denied_process_read_is_unknown_rather_than_absent (tests.tools.test_stack.UnknownOwnership.test_a_denied_process_read_is_unknown_rather_than_absent) ... ok
+test_a_record_whose_identity_cannot_be_read_is_unknown (tests.tools.test_stack.UnknownOwnership.test_a_record_whose_identity_cannot_be_read_is_unknown) ... ok
+test_a_terminated_but_unreaped_process_is_gone (tests.tools.test_stack.UnknownOwnership.test_a_terminated_but_unreaped_process_is_gone)
+A zombie keeps its /proc entry AND its original start time, so an ... ok
+test_an_unreadable_record_is_unknown_rather_than_gone (tests.tools.test_stack.UnknownOwnership.test_an_unreadable_record_is_unknown_rather_than_gone) ... ok
+test_every_positive_absence_is_still_gone (tests.tools.test_stack.UnknownOwnership.test_every_positive_absence_is_still_gone)
+The distinction only matters if `gone` is still reachable. ... ok
+test_start_refuses_to_replace_an_owner_it_cannot_establish (tests.tools.test_stack.UnknownOwnership.test_start_refuses_to_replace_an_owner_it_cannot_establish) ... ok
+test_stop_retains_an_unknown_record_and_reports_failure (tests.tools.test_stack.UnknownOwnership.test_stop_retains_an_unknown_record_and_reports_failure) ... ok
+test_the_proc_read_itself_tells_denial_from_absence (tests.tools.test_stack.UnknownOwnership.test_the_proc_read_itself_tells_denial_from_absence)
+The mapping under the substitution the case below makes: a `/proc` ... ok
+test_a_deployment_that_does_not_compose_fails_the_start (tests.tools.test_stack.ValidIdleComposition.test_a_deployment_that_does_not_compose_fails_the_start)
+The counterexample to the case above, over the SAME machinery: a ... ok
+test_the_real_children_compose_an_empty_configured_stack (tests.tools.test_stack.ValidIdleComposition.test_the_real_children_compose_an_empty_configured_stack) ... ok
+test_a_failed_start_does_not_take_back_what_it_can_no_longer_see (tests.tools.test_stack.VisibilityLostDuringCleanup.test_a_failed_start_does_not_take_back_what_it_can_no_longer_see) ... ok
+test_a_positively_gone_process_is_still_cleared_and_announced (tests.tools.test_stack.VisibilityLostDuringCleanup.test_a_positively_gone_process_is_still_cleared_and_announced)
+The distinction only matters if the ordinary path still works. ... ok
+test_stop_does_not_announce_a_process_it_can_no_longer_see (tests.tools.test_stack.VisibilityLostDuringCleanup.test_stop_does_not_announce_a_process_it_can_no_longer_see) ... ok
+test_a_WORK_TREE_is_read_through_its_own_marker (tests.tools.test_stack.WhatTheRepositoryIS.test_a_WORK_TREE_is_read_through_its_own_marker) ... ok
+test_a_deployment_document_it_cannot_read_is_refused (tests.tools.test_stack.WhatTheRepositoryIS.test_a_deployment_document_it_cannot_read_is_refused) ... ok
+test_a_directory_that_is_not_a_repository_is_said_so (tests.tools.test_stack.WhatTheRepositoryIS.test_a_directory_that_is_not_a_repository_is_said_so) ... ok
+test_a_target_OUTSIDE_the_instance_is_said_so_rather_than_refused (tests.tools.test_stack.WhatTheRepositoryIS.test_a_target_OUTSIDE_the_instance_is_said_so_rather_than_refused)
+The target is the owner's repository. It is normal for it to be ... ok
+test_a_workspace_inside_the_instance_is_reported_as_inside (tests.tools.test_stack.WhatTheRepositoryIS.test_a_workspace_inside_the_instance_is_reported_as_inside) ... ok
+test_a_workspace_that_IS_a_repository_says_nothing_of_the_kind (tests.tools.test_stack.WhatTheRepositoryIS.test_a_workspace_that_IS_a_repository_says_nothing_of_the_kind) ... ok
+test_a_workspace_that_is_not_a_repository_says_what_that_costs (tests.tools.test_stack.WhatTheRepositoryIS.test_a_workspace_that_is_not_a_repository_says_what_that_costs)
+`reconciliation._prove_isolation` resolves the workspace's own ... ok
+test_an_absent_target_is_named_as_absent (tests.tools.test_stack.WhatTheRepositoryIS.test_an_absent_target_is_named_as_absent) ... ok
+test_an_empty_workspace_is_said_to_be_empty (tests.tools.test_stack.WhatTheRepositoryIS.test_an_empty_workspace_is_said_to_be_empty) ... ok
+test_nothing_it_reports_is_a_command_it_ran (tests.tools.test_stack.WhatTheRepositoryIS.test_nothing_it_reports_is_a_command_it_ran)
+The whole point: this Work performs no version-control mutation, ... ok
+test_the_declared_bases_are_reported_from_the_bindings (tests.tools.test_stack.WhatTheRepositoryIS.test_the_declared_bases_are_reported_from_the_bindings) ... ok
+test_the_verb_needs_an_instance (tests.tools.test_stack.WhatTheRepositoryIS.test_the_verb_needs_an_instance) ... ok
+
+----------------------------------------------------------------------
+Ran 133 tests in 26.134s
+
+OK

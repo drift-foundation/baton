@@ -1,0 +1,23 @@
+{
+  "base_commit": "85e646ba63ee70e932c989252b61558bc3a821f5",
+  "claim": "E385238",
+  "files": [
+    {
+      "base_sha256": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+      "candidate_sha256": "cb70b63d246c11f81d04dc6e2347f7579594686a5fb0c7a47eb749b80aaace97",
+      "mode": "0o664",
+      "path": "v12/python/tests/tools/test_stack.py",
+      "snapshot": "work/records/2026/11/finding-v12-status-job-outcomes/candidate/files/v12/python/tests/tools/test_stack.py"
+    },
+    {
+      "base_sha256": "dc074c5027a77ea4a757d9aa9e6680f441d233081a2b637de50ee94d0ae4cbc1",
+      "candidate_sha256": "dccd50551e51c13842b42227c677939fe770da5306a32ffe7a0f8f8453329422",
+      "mode": "0o664",
+      "path": "v12/python/tools/stack.py",
+      "snapshot": "work/records/2026/11/finding-v12-status-job-outcomes/candidate/files/v12/python/tools/stack.py"
+    }
+  ],
+  "participant": "baton.codxpc",
+  "patch_sha256": "b36541036777a7923d8033e5fa7b76d0029ee69dfa0f11f935cf3d93299384c1",
+  "work": "W385227"
+}

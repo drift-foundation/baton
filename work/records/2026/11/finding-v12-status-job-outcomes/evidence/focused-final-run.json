@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_stack"
+  ],
+  "cwd": "v12/python",
+  "timeout_seconds": 180,
+  "exit_code": 0,
+  "wall_seconds": 26.33705981800449,
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "TMPDIR": "/var/tmp",
+    "BATON_V12_DISK_ROOT": "/var/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}
