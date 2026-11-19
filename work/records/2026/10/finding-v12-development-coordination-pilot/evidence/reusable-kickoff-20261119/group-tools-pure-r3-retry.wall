@@ -1,0 +1,3 @@
+tools-pure retry exit 1 wall 151.687803914
+=== FAILURE: tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned ===
+[accounting] passed 3387 + optional skipped 0 = 3387 of collected 3388 -> FAILED

@@ -1,0 +1,682 @@
+test_a_review_worker_is_admitted_the_same_way (tests.tools.test_pool.AValidWorkerIsAdmitted.test_a_review_worker_is_admitted_the_same_way)
+The role is not hard-wired to implementation; what a role may be is ... ok
+test_a_review_worker_sharing_the_IMPLEMENTATION_participant_is_refused (tests.tools.test_pool.AValidWorkerIsAdmitted.test_a_review_worker_sharing_the_IMPLEMENTATION_participant_is_refused)
+An honest review is not one the implementer performs, and that rule ... ok
+test_it_is_appended_to_the_pool_the_instance_already_has (tests.tools.test_pool.AValidWorkerIsAdmitted.test_it_is_appended_to_the_pool_the_instance_already_has) ... ok
+test_it_says_what_it_did_and_what_it_did_NOT_do (tests.tools.test_pool.AValidWorkerIsAdmitted.test_it_says_what_it_did_and_what_it_did_NOT_do) ... ok
+test_the_five_derived_members_are_the_deployments_own (tests.tools.test_pool.AValidWorkerIsAdmitted.test_the_five_derived_members_are_the_deployments_own)
+Exactly the five `bootstrap.configuration` fills in, taken from the ... ok
+test_what_it_wrote_is_a_document_the_MANAGER_still_accepts (tests.tools.test_pool.AValidWorkerIsAdmitted.test_what_it_wrote_is_a_document_the_MANAGER_still_accepts)
+`admit` calls the accepted validator itself, so reaching this line ... ok
+test_an_identity_already_configured_is_refused (tests.tools.test_pool.AnExistingWorkerIdIsRefused.test_an_identity_already_configured_is_refused) ... ok
+test_it_is_refused_for_EVERY_configured_identity_not_only_its_role (tests.tools.test_pool.AnExistingWorkerIdIsRefused.test_it_is_refused_for_EVERY_configured_identity_not_only_its_role) ... ok
+test_the_configured_worker_it_names_is_left_exactly_as_it_is (tests.tools.test_pool.AnExistingWorkerIdIsRefused.test_the_configured_worker_it_names_is_left_exactly_as_it_is)
+Nothing here replaces a configured worker: the refusal is the whole ... ok
+test_a_worker_sealed_to_ANOTHER_Authority_cannot_be_RESEALED (tests.tools.test_pool.AnImageDigestDisagreeingWithItsManifestIsRefused.test_a_worker_sealed_to_ANOTHER_Authority_cannot_be_RESEALED)
+The identity the manifest names is sealed the same way, which is ... ok
+test_it_is_refused_by_name_and_nothing_is_written (tests.tools.test_pool.AnImageDigestDisagreeingWithItsManifestIsRefused.test_it_is_refused_by_name_and_nothing_is_written) ... ok
+test_the_MANIFEST_cannot_be_moved_to_agree_instead (tests.tools.test_pool.AnImageDigestDisagreeingWithItsManifestIsRefused.test_the_MANIFEST_cannot_be_moved_to_agree_instead)
+The other direction, and it is refused EARLIER and harder. ... ok
+test_a_composed_worker_is_admitted_once_its_source_exists (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_a_composed_worker_is_admitted_once_its_source_exists) ... ok
+test_the_command_line_writes_one_fresh_file_and_refuses_a_second (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_the_command_line_writes_one_fresh_file_and_refuses_a_second) ... ok
+test_the_instance_bound_members_are_derived_and_the_rest_inherited (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_the_instance_bound_members_are_derived_and_the_rest_inherited) ... ok
+test_two_defined_tasks_compose_two_workers_without_an_installation (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_two_defined_tasks_compose_two_workers_without_an_installation) ... ok
+test_what_it_refuses_and_that_nothing_is_written (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_what_it_refuses_and_that_nothing_is_written) ... ok
+test_it_creates_no_Job_store_to_read_a_generation_from (tests.tools.test_pool.ItPreparesNoJobAndTouchesNoWork.test_it_creates_no_Job_store_to_read_a_generation_from)
+An instance whose scheduler has never run has no Job store, and ... ok
+test_no_Work_grant_or_Job_store_is_composed (tests.tools.test_pool.ItPreparesNoJobAndTouchesNoWork.test_no_Work_grant_or_Job_store_is_composed) ... ok
+test_the_job_store_is_the_Authority_stores_sibling_in_BOTH_layouts (tests.tools.test_pool.ItPreparesNoJobAndTouchesNoWork.test_the_job_store_is_the_Authority_stores_sibling_in_BOTH_layouts)
+`job_store_of` derives one path from another, and this is why it ... ok
+test_every_worker_that_was_configured_is_unchanged (tests.tools.test_pool.NothingElseInTheConfigurationChanges.test_every_worker_that_was_configured_is_unchanged)
+Said separately from the byte comparison because this is the ... ok
+test_removing_the_admitted_worker_reproduces_the_original_bytes (tests.tools.test_pool.NothingElseInTheConfigurationChanges.test_removing_the_admitted_worker_reproduces_the_original_bytes) ... ok
+test_the_custody_record_beside_it_is_not_touched_either (tests.tools.test_pool.NothingElseInTheConfigurationChanges.test_the_custody_record_beside_it_is_not_touched_either) ... ok
+test_the_pool_generation_does_not_move_on_an_instance_never_activated (tests.tools.test_pool.NothingElseInTheConfigurationChanges.test_the_pool_generation_does_not_move_on_an_instance_never_activated)
+The one member this verb may also move stays where it is when the ... ok
+test_a_refusal_is_said_rather_than_raised_and_returns_two (tests.tools.test_pool.TheCommandLine.test_a_refusal_is_said_rather_than_raised_and_returns_two) ... ok
+test_a_worker_document_that_is_not_JSON_is_refused (tests.tools.test_pool.TheCommandLine.test_a_worker_document_that_is_not_JSON_is_refused) ... ok
+test_add_worker_admits_and_returns_zero (tests.tools.test_pool.TheCommandLine.test_add_worker_admits_and_returns_zero) ... ok
+test_it_is_the_ONLY_verb_and_it_adds_nothing_else (tests.tools.test_pool.TheCommandLine.test_it_is_the_ONLY_verb_and_it_adds_nothing_else)
+The Work admits one tool and one verb. A second one arriving here ... ok
+test_a_STALE_generation_is_what_that_rule_refuses (tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer.test_a_STALE_generation_is_what_that_rule_refuses)
+The counter-case, so the one above is not passing for free. ... ok
+test_an_activated_pool_moves_the_generation_on_by_one (tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer.test_an_activated_pool_moves_the_generation_on_by_one) ... ok
+test_the_activated_generation_itself_is_left_alone (tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer.test_the_activated_generation_itself_is_left_alone)
+It activates nothing: the store still holds generation 1, and the ... ok
+test_what_it_wrote_is_a_deployment_that_would_still_ACTIVATE (tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer.test_what_it_wrote_is_a_deployment_that_would_still_ACTIVATE)
+The whole reason the member moves. The amended configuration is ... ok
+test_a_configuration_that_is_not_there_is_named (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_configuration_that_is_not_there_is_named) ... ok
+test_a_role_this_deployment_does_not_serve_is_refused (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_role_this_deployment_does_not_serve_is_refused) ... ok
+test_a_worker_id_that_is_not_ONE_NAME_is_refused (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_worker_id_that_is_not_ONE_NAME_is_refused) ... ok
+test_a_worker_missing_a_member_is_refused_by_NAME (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_worker_missing_a_member_is_refused_by_NAME) ... ok
+test_a_worker_naming_a_member_nothing_reads_is_refused (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_worker_naming_a_member_nothing_reads_is_refused) ... ok
+test_the_one_job_variant_has_no_admission_to_make (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_the_one_job_variant_has_no_admission_to_make)
+`/1` serves exactly one worker per role, and nothing here rewrites ... ok
+test_an_interruption_after_the_binding_is_finished_by_a_rerun (tests.tools.test_connected_creation.AnInterruptedPublicationIsRecoverable.test_an_interruption_after_the_binding_is_finished_by_a_rerun) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-f5wrz76t/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-f5wrz76t/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-f5wrz76t/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-f5wrz76t/bootstrap-deployment/deployment.json"
+ok
+test_an_interruption_before_the_prepare_is_finished_by_a_rerun (tests.tools.test_connected_creation.AnInterruptedPublicationIsRecoverable.test_an_interruption_before_the_prepare_is_finished_by_a_rerun) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-3n9ub_z2/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-3n9ub_z2/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-3n9ub_z2/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-3n9ub_z2/bootstrap-deployment/deployment.json"
+ok
+test_a_created_job_carries_the_verification_it_named (tests.tools.test_connected_creation.TheConnectedCreation.test_a_created_job_carries_the_verification_it_named)
+W321608: through the real command and the real install, two ... /home/sl/src/baton/v12/python/src/baton_v12/worker_manager/store.py:603: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf14e0>
+  connection.execute("BEGIN")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/store.py:603: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf17b0>
+  connection.execute("BEGIN")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/store.py:603: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf13f0>
+  connection.execute("BEGIN")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-cd3e03s5/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-cd3e03s5/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-cd3e03s5/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-cd3e03s5/bootstrap-deployment/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-cd3e03s5/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a", "job-cli-verified": "impl-a"}, "jobs": 3, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-cd3e03s5/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-cd3e03s5/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-cd3e03s5/bootstrap-deployment/deployment.json"
+ok
+test_the_command_creates_binds_and_submits_one_job (tests.tools.test_connected_creation.TheConnectedCreation.test_the_command_creates_binds_and_submits_one_job) ... /home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:690: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429add36a0>
+  connection.execute(statement)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:690: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf15d0>
+  connection.execute(statement)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:690: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf2020>
+  connection.execute(statement)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:690: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf2200>
+  connection.execute(statement)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-st_hokbt/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-st_hokbt/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-st_hokbt/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-st_hokbt/bootstrap-deployment/deployment.json"
+ok
+test_two_ordinary_creations_bind_two_jobs (tests.tools.test_connected_creation.TheConnectedCreation.test_two_ordinary_creations_bind_two_jobs) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-1lgtwpna/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-1lgtwpna/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-1lgtwpna/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-1lgtwpna/bootstrap-deployment/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-1lgtwpna/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a", "job-cli-second": "impl-a"}, "jobs": 3, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-1lgtwpna/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-1lgtwpna/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-1lgtwpna/bootstrap-deployment/deployment.json"
+ok
+test_a_real_install_leaves_a_preparable_input_document (tests.tools.test_connected_creation.TheInstallKeepsTheDocumentItConsumed.test_a_real_install_leaves_a_preparable_input_document) ... ok
+test_the_installer_says_where_it_put_it (tests.tools.test_connected_creation.TheInstallKeepsTheDocumentItConsumed.test_the_installer_says_where_it_put_it) ... ok
+test_a_dangling_link_at_the_input_name_is_refused (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_dangling_link_at_the_input_name_is_refused) ... ok
+test_a_foreign_regular_input_document_is_refused_untouched (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_foreign_regular_input_document_is_refused_untouched) ... ok
+test_a_link_at_the_input_name_is_refused_and_its_target_survives (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_link_at_the_input_name_is_refused_and_its_target_survives) ... ok
+test_a_link_at_the_temporary_name_is_refused_and_not_followed (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_link_at_the_temporary_name_is_refused_and_not_followed)
+The reviewer's second consequence, closed twice over. ... ok
+test_a_selector_failure_RETAINS_what_this_attempt_made (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_selector_failure_RETAINS_what_this_attempt_made)
+The third consequence: the cleanup now covers the input document. ... ok
+test_a_stale_tmp_link_cannot_be_followed_because_none_is_used (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_stale_tmp_link_cannot_be_followed_because_none_is_used)
+The reviewer's exact second setup, and why it is now inert. ... /home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:365: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429add36a0>
+  return self._db.execute(sql, args)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:365: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf2200>
+  return self._db.execute(sql, args)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-nq49rvjm/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-nq49rvjm/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-nq49rvjm/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-nq49rvjm/bootstrap-deployment/deployment.json"
+ok
+test_a_successful_install_owns_the_document_it_wrote (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_successful_install_owns_the_document_it_wrote)
+And it is a regular file this install created, not a link. ... ok
+test_an_input_replaced_during_the_failure_is_left_alone (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_an_input_replaced_during_the_failure_is_left_alone)
+A path is not an identity, and the unwind knows the difference. ... ok
+test_the_install_verified_the_runtime_it_recorded (tests.tools.test_connected_creation.ThePackagedResourcesResolve.test_the_install_verified_the_runtime_it_recorded)
+The selector the install emitted, read back off the instance. ... ok
+test_the_template_the_answer_names_is_the_one_this_build_carries (tests.tools.test_connected_creation.ThePackagedResourcesResolve.test_the_template_the_answer_names_is_the_one_this_build_carries) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-zbca4mzw/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-zbca4mzw/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-zbca4mzw/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-zbca4mzw/bootstrap-deployment/deployment.json"
+ok
+test_a_store_that_belongs_to_another_deployment_refuses (tests.tools.test_connected_creation.TheRefusalsAreTruthful.test_a_store_that_belongs_to_another_deployment_refuses) ... ok
+test_a_template_this_build_does_not_carry_refuses (tests.tools.test_connected_creation.TheRefusalsAreTruthful.test_a_template_this_build_does_not_carry_refuses) ... <attrs generated methods referencing._core.Resource>:30: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf1120>
+  _setattr = _cached_setattr_get(self)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<attrs generated methods referencing._core.Resource>:30: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf16c0>
+  _setattr = _cached_setattr_get(self)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<attrs generated methods referencing._core.Resource>:30: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf15d0>
+  _setattr = _cached_setattr_get(self)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<attrs generated methods referencing._core.Resource>:30: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf34c0>
+  _setattr = _cached_setattr_get(self)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_an_override_this_template_does_not_permit_refuses (tests.tools.test_connected_creation.TheRefusalsAreTruthful.test_an_override_this_template_does_not_permit_refuses)
+The permitted set is the template's, and it is named in the answer. ... ok
+test_an_unsupported_source_selection_refuses (tests.tools.test_connected_creation.TheRefusalsAreTruthful.test_an_unsupported_source_selection_refuses) ... ok
+test_a_changed_intent_under_the_same_job_refuses (tests.tools.test_connected_creation.TheSameIntentConverges.test_a_changed_intent_under_the_same_job_refuses) ... /usr/lib/python3.13/argparse.py:2018: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf1300>
+  for conflict_action in action_conflicts.get(action, []):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/argparse.py:2018: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf3010>
+  for conflict_action in action_conflicts.get(action, []):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/argparse.py:2018: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf1210>
+  for conflict_action in action_conflicts.get(action, []):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-2fdc1_xe/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-2fdc1_xe/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-2fdc1_xe/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-2fdc1_xe/bootstrap-deployment/deployment.json"
+ok
+test_the_same_request_again_answers_the_same_job_once (tests.tools.test_connected_creation.TheSameIntentConverges.test_the_same_request_again_answers_the_same_job_once) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-p6aeb5jd/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-p6aeb5jd/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-p6aeb5jd/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-p6aeb5jd/bootstrap-deployment/deployment.json"
+ok
+test_a_changed_acceptance_contract_is_a_different_creation (tests.job_manager.test_creation.ChangedIntent.test_a_changed_acceptance_contract_is_a_different_creation) ... ok
+test_a_changed_derivation_is_the_SAME_creation_and_replays (tests.job_manager.test_creation.ChangedIntent.test_a_changed_derivation_is_the_SAME_creation_and_replays)
+CORRECTED, AND THIS IS R2 ITSELF. ... /home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py:96: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf1210>
+  for name, member in value.items():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py:96: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf3010>
+  for name, member in value.items():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py:96: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf17b0>
+  for name, member in value.items():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py:96: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x76429acf16c0>
+  for name, member in value.items():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_changed_override_is_a_different_creation (tests.job_manager.test_creation.ChangedIntent.test_a_changed_override_is_a_different_creation) ... ok
+test_a_changed_statement_is_a_different_creation (tests.job_manager.test_creation.ChangedIntent.test_a_changed_statement_is_a_different_creation) ... ok
+test_a_changed_work_scope_is_a_different_creation (tests.job_manager.test_creation.ChangedIntent.test_a_changed_work_scope_is_a_different_creation) ... ok
+test_submit_alone_would_have_replayed_every_one_of_those (tests.job_manager.test_creation.ChangedIntent.test_submit_alone_would_have_replayed_every_one_of_those)
+THE CONTROL CASE, so the refusals above are not a coincidence. ... ok
+test_a_creation_interrupted_after_the_binding_is_finished_by_a_rerun (tests.job_manager.test_creation.InterruptionAndRecovery.test_a_creation_interrupted_after_the_binding_is_finished_by_a_rerun)
+CUT B PUBLISHED, CUT C NOT. The intent row says so. ... ok
+test_a_reopened_store_replays_the_recorded_creation (tests.job_manager.test_creation.InterruptionAndRecovery.test_a_reopened_store_replays_the_recorded_creation)
+REPLAY SURVIVES A REOPEN, which is what makes it durable. ... ok
+test_a_reservation_held_by_another_incarnation_refuses_naming_it (tests.job_manager.test_creation.InterruptionAndRecovery.test_a_reservation_held_by_another_incarnation_refuses_naming_it)
+DECIDING AN UNSEEN MANAGER HAS STOPPED IS NOT THIS OPERATION'S. ... ok
+test_the_same_incarnation_continues_its_own_interrupted_work (tests.job_manager.test_creation.InterruptionAndRecovery.test_the_same_incarnation_continues_its_own_interrupted_work) ... ok
+test_a_creation_cannot_take_a_reserved_retry_identity (tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint.test_a_creation_cannot_take_a_reserved_retry_identity)
+AND THE SAME PAIR FROM THE OTHER SIDE. ... ok
+test_a_creation_then_an_ordinary_submission_of_another_job_is_fine (tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint.test_a_creation_then_an_ordinary_submission_of_another_job_is_fine)
+THE EXCLUSION IS ABOUT IDENTITY, NOT ABOUT ENTRY POINTS. ... ok
+test_a_foreign_submission_reusing_the_reserved_submission_id_refuses (tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint.test_a_foreign_submission_reusing_the_reserved_submission_id_refuses)
+BY SUBMISSION NAME AS WELL AS BY JOB NAME. ... ok
+test_a_fresh_attempt_cannot_take_a_reserved_creation_identity (tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint.test_a_fresh_attempt_cannot_take_a_reserved_creation_identity)
+THE SECOND PAIR, and the symmetry R1 asked for. ... ok
+test_a_recorded_ordinary_job_blocks_a_creation_of_that_identity (tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint.test_a_recorded_ordinary_job_blocks_a_creation_of_that_identity)
+THE THIRD PAIR. A recorded Job is not a reservation but it is ... ok
+test_a_refused_intruder_does_not_poison_the_holders_journal (tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint.test_a_refused_intruder_does_not_poison_the_holders_journal)
+THE REFUSAL IS ORDINARY, NOT DURABLE. ... ok
+test_the_exact_reserved_submission_still_consumes_the_reservation (tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint.test_the_exact_reserved_submission_still_consumes_the_reservation)
+ONLY THE EXACT DOCUMENT PASSES, which is the other half. ... ok
+test_the_reviewers_counterexample_now_refuses (tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint.test_the_reviewers_counterexample_now_refuses)
+THE EXACT PROBE, AND NOTHING IS STRANDED. ... ok
+test_a_chosen_job_identity_is_used_and_derived_otherwise (tests.job_manager.test_creation.ReplayAndIdentity.test_a_chosen_job_identity_is_used_and_derived_otherwise) ... ok
+test_a_chosen_submission_identity_is_used_and_derived_otherwise (tests.job_manager.test_creation.ReplayAndIdentity.test_a_chosen_submission_identity_is_used_and_derived_otherwise) ... ok
+test_a_concurrent_creation_of_one_identity_is_one_creation (tests.job_manager.test_creation.ReplayAndIdentity.test_a_concurrent_creation_of_one_identity_is_one_creation) ... ok
+test_a_replay_asks_no_owner_anything (tests.job_manager.test_creation.ReplayAndIdentity.test_a_replay_asks_no_owner_anything)
+A COMPLETED CREATION CANNOT START REFUSING LATER. ... ok
+test_a_submission_identity_another_document_recorded_refuses (tests.job_manager.test_creation.ReplayAndIdentity.test_a_submission_identity_another_document_recorded_refuses) ... ok
+test_an_identity_a_fresh_attempt_reserved_refuses (tests.job_manager.test_creation.ReplayAndIdentity.test_an_identity_a_fresh_attempt_reserved_refuses)
+THE TWO RESERVATION RELATIONS SEE EACH OTHER. ... ok
+test_an_identity_an_ordinary_submission_holds_refuses (tests.job_manager.test_creation.ReplayAndIdentity.test_an_identity_an_ordinary_submission_holds_refuses) ... ok
+test_the_same_request_replays_its_recorded_answer (tests.job_manager.test_creation.ReplayAndIdentity.test_the_same_request_replays_its_recorded_answer) ... ok
+test_two_creations_sharing_one_submission_identity_refuse (tests.job_manager.test_creation.ReplayAndIdentity.test_two_creations_sharing_one_submission_identity_refuse) ... ok
+test_a_verification_is_one_word_per_operand_and_absent_otherwise (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_a_verification_is_one_word_per_operand_and_absent_otherwise)
+W321608: `--verification` carries one argument word per operand, in ... ok
+test_an_absent_override_is_absent_rather_than_empty (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_an_absent_override_is_absent_rather_than_empty)
+WHICH IS WHAT KEEPS AN UNCONFIGURED JOB A `/1` DOCUMENT. ... ok
+test_an_explicit_template_and_identities_travel (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_an_explicit_template_and_identities_travel) ... ok
+test_repeating_an_operand_accumulates_a_list (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_repeating_an_operand_accumulates_a_list) ... ok
+test_the_operator_words_become_the_resolvers_own_request (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_the_operator_words_become_the_resolvers_own_request) ... ok
+test_the_verb_delegates_every_decision_to_the_manager (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_the_verb_delegates_every_decision_to_the_manager)
+IT HOLDS NO RULE, asserted from the source. ... ok
+test_the_verb_offers_no_operand_for_a_derived_fact (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_the_verb_offers_no_operand_for_a_derived_fact) ... usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --input-digest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --policy-digest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --profile x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --profile-name x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --profile-digest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --work-id x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --document x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --manifest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --packet x
+ok
+test_a_binding_already_configured_is_used_rather_than_added (tests.job_manager.test_creation.TheCreation.test_a_binding_already_configured_is_used_rather_than_added) ... ok
+test_a_work_that_does_not_exist_yet_is_created_replayably (tests.job_manager.test_creation.TheCreation.test_a_work_that_does_not_exist_yet_is_created_replayably) ... ok
+test_an_explicit_template_selection_travels_and_is_shown (tests.job_manager.test_creation.TheCreation.test_an_explicit_template_selection_travels_and_is_shown) ... ok
+test_both_stages_run_under_the_one_derived_work (tests.job_manager.test_creation.TheCreation.test_both_stages_run_under_the_one_derived_work) ... ok
+test_every_digest_comes_from_the_deployment_and_none_from_the_request (tests.job_manager.test_creation.TheCreation.test_every_digest_comes_from_the_deployment_and_none_from_the_request)
+THE WHOLE POINT OF THE OPERATION, asserted as an absence. ... ok
+test_the_answer_carries_the_full_resolution_and_its_digest (tests.job_manager.test_creation.TheCreation.test_the_answer_carries_the_full_resolution_and_its_digest) ... ok
+test_the_answer_names_the_job_its_work_and_its_stages (tests.job_manager.test_creation.TheCreation.test_the_answer_names_the_job_its_work_and_its_stages) ... ok
+test_the_binding_is_published_through_its_owner (tests.job_manager.test_creation.TheCreation.test_the_binding_is_published_through_its_owner) ... ok
+test_the_derivation_is_read_exactly_once_inside_the_guard (tests.job_manager.test_creation.TheCreation.test_the_derivation_is_read_exactly_once_inside_the_guard)
+CORRECTED. Review 2026-10-26T19-22-51Z R2. ... ok
+test_the_instance_guard_is_held_for_the_whole_creation (tests.job_manager.test_creation.TheCreation.test_the_instance_guard_is_held_for_the_whole_creation) ... ok
+test_the_job_is_really_recorded_and_its_stages_gated (tests.job_manager.test_creation.TheCreation.test_the_job_is_really_recorded_and_its_stages_gated)
+THE STORE IS THE PROOF, not the answer document. ... ok
+test_the_reservation_is_durable_and_records_the_digest (tests.job_manager.test_creation.TheCreation.test_the_reservation_is_durable_and_records_the_digest) ... ok
+test_the_selector_is_asked_for_every_stage_with_its_own_profile (tests.job_manager.test_creation.TheCreation.test_the_selector_is_asked_for_every_stage_with_its_own_profile)
+THE OPERANDS ARE THE SUBMITTED ONES, per stage. ... ok
+test_the_statement_and_acceptance_survive_where_the_submission_cannot (tests.job_manager.test_creation.TheCreation.test_the_statement_and_acceptance_survive_where_the_submission_cannot) ... ok
+test_the_two_scopes_stay_separate_through_the_creation (tests.job_manager.test_creation.TheCreation.test_the_two_scopes_stay_separate_through_the_creation)
+R3 OF THE RESOLVER, PRESERVED BY ITS CONSUMER. ... ok
+test_the_work_is_reused_rather_than_created (tests.job_manager.test_creation.TheCreation.test_the_work_is_reused_rather_than_created) ... ok
+test_a_creation_under_a_moved_default_is_honest_about_it (tests.job_manager.test_creation.TheGenerationAgreement.test_a_creation_under_a_moved_default_is_honest_about_it)
+THE RESOLUTION IS COMPOSED AND CONSUMED INSIDE ONE OPERATION. ... ok
+test_an_override_reaches_the_store_through_the_creation (tests.job_manager.test_creation.TheGenerationAgreement.test_an_override_reaches_the_store_through_the_creation) ... ok
+test_the_consumption_contract_is_reached_rather_than_bypassed (tests.job_manager.test_creation.TheGenerationAgreement.test_the_consumption_contract_is_reached_rather_than_bypassed)
+A STALE RESOLUTION CANNOT BE SUBMITTED BY THIS OPERATION. ... ok
+test_the_created_job_reports_the_ceilings_the_store_gives_it (tests.job_manager.test_creation.TheGenerationAgreement.test_the_created_job_reports_the_ceilings_the_store_gives_it) ... ok
+test_an_identical_request_replays_after_a_reopen (tests.job_manager.test_creation.TheReplayIsTheCallersIntent.test_an_identical_request_replays_after_a_reopen)
+THE JOURNAL IS IN THE STORE, not in this process. ... ok
+test_an_identical_request_replays_when_the_default_generation_moved (tests.job_manager.test_creation.TheReplayIsTheCallersIntent.test_an_identical_request_replays_when_the_default_generation_moved) ... ok
+test_an_identical_request_replays_when_the_derivation_is_unavailable (tests.job_manager.test_creation.TheReplayIsTheCallersIntent.test_an_identical_request_replays_when_the_derivation_is_unavailable)
+A RECORDED CREATION DOES NOT DEPEND ON THE POOL STILL ANSWERING. ... ok
+test_every_caller_stated_member_still_refuses_when_it_changes (tests.job_manager.test_creation.TheReplayIsTheCallersIntent.test_every_caller_stated_member_still_refuses_when_it_changes)
+THE CHANGED-INTENT CHECK IS NOT WEAKENED, member by member. ... ok
+test_one_intent_spelled_two_ways_is_one_creation (tests.job_manager.test_creation.TheReplayIsTheCallersIntent.test_one_intent_spelled_two_ways_is_one_creation)
+THE DIGEST IS OVER THE OWNED REQUEST, not the caller's bytes. ... ok
+test_the_recorded_provenance_is_the_first_creations_derivation (tests.job_manager.test_creation.TheReplayIsTheCallersIntent.test_the_recorded_provenance_is_the_first_creations_derivation)
+REPLAY DOES NOT REWRITE WHAT WAS CREATED. ... ok
+test_a_malformed_verification_refuses_before_any_effect (tests.job_manager.test_creation.TheRequestedVerificationIsTheJobsOwn.test_a_malformed_verification_refuses_before_any_effect) ... ok
+test_it_reaches_the_selection_and_is_part_of_the_intent (tests.job_manager.test_creation.TheRequestedVerificationIsTheJobsOwn.test_it_reaches_the_selection_and_is_part_of_the_intent) ... ok
+test_a_created_job_can_be_retried_by_the_existing_operation (tests.job_manager.test_creation.TheRetryContractIsPreserved.test_a_created_job_can_be_retried_by_the_existing_operation)
+FRESH-ATTEMPT SEMANTICS ARE UNTOUCHED. ... ok
+test_the_legacy_hand_authored_submission_still_records (tests.job_manager.test_creation.TheRetryContractIsPreserved.test_the_legacy_hand_authored_submission_still_records) ... ok
+test_a_binding_owner_refusal_propagates_as_itself (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_binding_owner_refusal_propagates_as_itself)
+NOTHING IS CAUGHT AND TRANSLATED. ... ok
+test_a_closed_work_refuses_and_nothing_is_submitted (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_closed_work_refuses_and_nothing_is_submitted) ... ok
+test_a_deployment_binding_another_work_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_deployment_binding_another_work_refuses) ... ok
+test_a_deployment_that_can_serve_no_stage_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_deployment_that_can_serve_no_stage_refuses) ... ok
+test_a_derivation_answering_a_malformed_profile_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_derivation_answering_a_malformed_profile_refuses) ... ok
+test_a_derivation_missing_a_member_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_derivation_missing_a_member_refuses) ... ok
+test_a_derivation_missing_the_review_profile_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_derivation_missing_the_review_profile_refuses)
+AND IT REFUSES AT THE RESOLVER, naming the role. ... ok
+test_a_guard_this_process_cannot_take_refuses_before_reserving (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_guard_this_process_cannot_take_refuses_before_reserving) ... ok
+test_a_request_that_is_not_a_document_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_request_that_is_not_a_document_refuses) ... ok
+test_a_request_the_resolver_owns_refuses_before_any_effect (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_request_the_resolver_owns_refuses_before_any_effect)
+AND THE RESOLVER'S OWN MEMBERS REFUSE WITH NOTHING PUBLISHED. ... ok
+test_a_request_this_operation_owns_refuses_before_any_derivation (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_request_this_operation_owns_refuses_before_any_derivation)
+THE MEMBERS `_asked` OWNS COST THE DEPLOYMENT NOTHING. ... ok
+test_an_absent_owner_port_refuses_naming_it (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_an_absent_owner_port_refuses_naming_it) ... ok
+test_an_owner_answering_for_another_authority_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_an_owner_answering_for_another_authority_refuses) ... ok
+test_no_broad_except_stands_between_a_fault_and_its_caller (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_no_broad_except_stands_between_a_fault_and_its_caller)
+ASSERTED FROM THE SOURCE, not remembered. ... ok
+test_owners_answering_for_two_instances_refuse (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_owners_answering_for_two_instances_refuse) ... ok
+test_a_crash_at_the_boundary_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_boundary_resumes_delivered) ... ok
+test_a_crash_at_the_credential_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_credential_resumes_delivered) ... ok
+test_a_crash_at_the_published_input_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_published_input_resumes_delivered)
+THE ONE THAT MATTERS MOST: the root is on disk, half-trusted. ... ok
+test_a_crash_at_the_recorded_attempt_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_recorded_attempt_resumes_delivered)
+The point where `record_attempt` has fixed the input digest. ... ok
+test_a_crash_at_the_retained_manifest_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_retained_manifest_resumes_delivered) ... ok
+test_a_crash_before_the_claim_resumes_on_the_delivered_identity (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_before_the_claim_resumes_on_the_delivered_identity)
+THE EARLY CONTROL: nothing has been prepared yet. ... ok
+test_a_restart_that_would_deliver_another_task_publishes_nothing (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_restart_that_would_deliver_another_task_publishes_nothing)
+AND THE ADOPTION IS NOT A RE-PREPARATION. ... ok
+test_a_job_naming_a_verification_gets_it_and_the_other_keeps_the_installed (tests.tools.test_job_task_delivery.EachJobCarriesItsOwnVerification.test_a_job_naming_a_verification_gets_it_and_the_other_keeps_the_installed) ... ok
+test_a_malformed_verification_refuses_before_anything_is_composed (tests.tools.test_job_task_delivery.EachJobCarriesItsOwnVerification.test_a_malformed_verification_refuses_before_anything_is_composed) ... ok
+test_an_installed_task_without_a_verification_cannot_take_one (tests.tools.test_job_task_delivery.EachJobCarriesItsOwnVerification.test_an_installed_task_without_a_verification_cannot_take_one) ... ok
+test_a_fresh_reader_over_the_same_state_reproduces_the_context (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_a_fresh_reader_over_the_same_state_reproduces_the_context)
+RESTART. A reader that remembered anything would fail here. ... ok
+test_a_removed_root_refuses_rather_than_substituting_the_installed (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_a_removed_root_refuses_rather_than_substituting_the_installed)
+A ROOT THAT CANNOT BE PROVED IS NOT ANSWERED FROM ELSEWHERE. ... ok
+test_a_stage_that_resolves_the_wrong_input_refuses (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_a_stage_that_resolves_the_wrong_input_refuses)
+THE OTHER ROUTE TO THE SAME WRONG ANSWER, closed. ... ok
+test_an_attempt_whose_WHOLE_root_was_substituted_refuses (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_an_attempt_whose_WHOLE_root_was_substituted_refuses)
+A COMPLETE, INTERNALLY VALID PAIR, refused by the RECORD alone. ... ok
+test_an_attempt_whose_root_HALF_was_substituted_refuses (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_an_attempt_whose_root_HALF_was_substituted_refuses)
+ONE DOCUMENT REPLACED, which is a MISMATCHED pair. ... ok
+test_an_installed_attempt_with_no_root_still_reconciles (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_an_installed_attempt_with_no_root_still_reconciles)
+THE PRESERVED PATH, and it must not acquire a new failure. ... ok
+test_the_installed_delivery_is_still_what_a_jobless_task_gets (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_installed_delivery_is_still_what_a_jobless_task_gets)
+THE FALLBACK, preserved. A Job with no own task is every Job that ... ok
+test_the_observation_adopts_the_materialized_launch (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_observation_adopts_the_materialized_launch)
+THE BEHAVIOUR AN OPERATOR SEES, through the real surface. ... ok
+test_the_policy_digest_and_the_limits_are_still_the_deployments (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_policy_digest_and_the_limits_are_still_the_deployments)
+ONLY the input manifest and the task move. ... ok
+test_the_recovery_entrypoint_identifies_the_delivered_attempt (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_recovery_entrypoint_identifies_the_delivered_attempt)
+`refresh_runtime`, the serving loop's own runtime read. ... ok
+test_the_shared_configuration_is_never_written_to (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_shared_configuration_is_never_written_to)
+NO CONTAMINATION. The installed document is shared by every Job ... ok
+test_the_stageless_adapter_describes_the_delivered_input (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_stageless_adapter_describes_the_delivered_input)
+THE CORRECTION, asked of the function the recovery callers use. ... ok
+test_the_started_attempt_is_recorded_against_the_delivered_input (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_started_attempt_is_recorded_against_the_delivered_input)
+THE RECORD AND THE DISK, after a real start. ... ok
+test_the_two_compositions_agree_on_the_launch_context (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_two_compositions_agree_on_the_launch_context)
+THE IDENTITY AGREEMENT, asserted directly on the bytes. ... ok
+test_two_jobs_on_one_worker_resolve_their_own_contexts (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_two_jobs_on_one_worker_resolve_their_own_contexts)
+CROSS-CONTAMINATION, asked of the reader rather than the writer. ... ok
+test_a_missing_published_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_missing_published_task_refuses) ... ok
+test_a_restart_proves_the_published_task_and_continues (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_restart_proves_the_published_task_and_continues)
+NOT A SECOND RENDERING COMPARED WITH ITSELF. ... /home/sl/src/baton/v12/python/tests/tools/test_job_task_delivery.py:354: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/v12-w71917-90zk6x92/inputs-job-first/inputs/task.json'>
+  "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_restart_that_would_deliver_another_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_restart_that_would_deliver_another_task_refuses)
+THE MISMATCH, which is the cross-Job accident made concrete. ... ok
+test_a_tampered_published_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_tampered_published_task_refuses) ... ok
+test_publishing_over_an_existing_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_publishing_over_an_existing_task_refuses)
+PROVENANCE THIS COMPOSITION CANNOT PROVE. ... ok
+test_a_job_with_no_own_task_prepares_the_installed_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_job_with_no_own_task_prepares_the_installed_one)
+THE PRESERVED PATH, through the same owning sequence. ... ok
+test_a_missing_task_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_missing_task_refuses_on_the_reopened_preparation) ... ok
+test_a_reopened_preparation_proves_the_same_root (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_reopened_preparation_proves_the_same_root)
+RESTART THROUGH THE OWNING PATH, not a second rendering. ... ok
+test_a_tampered_root_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_tampered_root_refuses_on_the_reopened_preparation) ... ok
+test_an_assignment_from_the_installed_manifest_refuses (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_an_assignment_from_the_installed_manifest_refuses)
+THE REVIEWER'S R2, AS A CASE. ... ok
+test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task)
+THE WHOLE SEQUENCE, for implementation AND review. ... ok
+test_the_recorded_and_launch_identities_are_the_delivered_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_the_recorded_and_launch_identities_are_the_delivered_one)
+EVERY OWNER DESCRIBES ONE RUNTIME INPUT. ... ok
+test_two_jobs_prepare_independently_on_one_worker (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_two_jobs_prepare_independently_on_one_worker) ... ok
+test_a_job_with_no_own_task_is_served_the_installed_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_a_job_with_no_own_task_is_served_the_installed_one)
+THE PRESERVED PATH, through the same loop and the same fix. ... ok
+test_the_created_jobs_own_task_reaches_a_started_runtime (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_created_jobs_own_task_reaches_a_started_runtime)
+THE WHOLE SCENARIO: creation, loop, publication, start. ... ok
+test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one)
+THE RECOVERY IDENTITY, after a real pool start. ... ok
+test_a_job_the_reader_answers_none_for_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_job_the_reader_answers_none_for_gets_the_installed_task) ... ok
+test_a_stage_with_no_job_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_stage_with_no_job_gets_the_installed_task)
+THE BOOTSTRAP COMPOSITION, which binds no Job. ... ok
+test_a_worker_with_no_reader_at_all_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_worker_with_no_reader_at_all_gets_the_installed_task) ... ok
+test_a_corrupted_launch_document_is_refused (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_corrupted_launch_document_is_refused)
+TAMPERING. The bytes on disk are proved, not trusted. ... ok
+test_a_removed_root_refuses_rather_than_substituting_the_installed (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_removed_root_refuses_rather_than_substituting_the_installed)
+A ROOT THAT CANNOT BE PROVED IS NOT ANSWERED FROM ELSEWHERE. ... ok
+test_a_stage_naming_another_attempt_is_refused (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_stage_naming_another_attempt_is_refused)
+CROSS-ATTEMPT. The launch on disk belongs to one attempt. ... ok
+test_a_stage_naming_another_job_is_refused (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_stage_naming_another_job_is_refused)
+THE EXACT-BYTE CHECK, still doing its work. ... ok
+test_a_stage_naming_no_job_is_refused (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_stage_naming_no_job_is_refused)
+AN UNBOUND EXECUTION. Both compositions refuse it, identically, ... ok
+test_a_stage_that_resolves_the_wrong_input_refuses (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_stage_that_resolves_the_wrong_input_refuses)
+THE OTHER ROUTE TO THE SAME WRONG ANSWER, closed. ... ok
+test_an_attempt_whose_WHOLE_root_was_substituted_refuses (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_an_attempt_whose_WHOLE_root_was_substituted_refuses)
+A COMPLETE, INTERNALLY VALID PAIR, refused by the RECORD alone. ... ok
+test_an_attempt_whose_root_HALF_was_substituted_refuses (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_an_attempt_whose_root_HALF_was_substituted_refuses)
+ONE DOCUMENT REPLACED, which is a MISMATCHED pair. ... ok
+test_an_installed_attempt_with_no_root_still_reconciles (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_an_installed_attempt_with_no_root_still_reconciles)
+THE PRESERVED PATH, and it must not acquire a new failure. ... ok
+test_the_observation_still_holds_no_act_and_no_engine (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_the_observation_still_holds_no_act_and_no_engine)
+WHAT IT IS NOT, re-asserted after the correction added a reader. ... ok
+test_the_recovery_entrypoint_identifies_the_delivered_attempt (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_the_recovery_entrypoint_identifies_the_delivered_attempt)
+`refresh_runtime`, the serving loop's own runtime read. ... ok
+test_the_stageless_adapter_describes_the_delivered_input (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_the_stageless_adapter_describes_the_delivered_input)
+THE CORRECTION, asked of the function the recovery callers use. ... ok
+test_the_started_attempt_is_recorded_against_the_delivered_input (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_the_started_attempt_is_recorded_against_the_delivered_input)
+THE RECORD AND THE DISK, after a real start. ... ok
+test_it_answers_the_stored_document_and_none_for_everything_else (tests.tools.test_job_task_delivery.TheReaderOverARealStore.test_it_answers_the_stored_document_and_none_for_everything_else) ... ok
+test_a_review_job_with_no_own_task_is_delivered_the_installed_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_a_review_job_with_no_own_task_is_delivered_the_installed_one)
+THE PRESERVED PATH for the review role, through the same mount. ... ok
+test_one_job_gives_both_roles_one_job_scoped_identity (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_one_job_gives_both_roles_one_job_scoped_identity)
+ONE JOB, TWO ROLES, TWO RUNTIME MANIFESTS, ONE IDENTITY. ... ok
+test_the_review_attempt_is_delivered_the_jobs_requested_task (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_attempt_is_delivered_the_jobs_requested_task)
+THE BYTES IN THE REVIEW ATTEMPT'S OWN INPUT ROOT. ... ok
+test_the_review_mount_is_the_frozen_checkpoint_read_only (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_mount_is_the_frozen_checkpoint_read_only)
+REVIEW SEMANTICS, from the boundary the manager composed. ... ok
+test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one)
+AND THE RECOVERY PATH, for the role that was never covered. ... ok
+test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input)
+THE IDENTITIES: recorded, manifest, context and adapter. ... ok
+test_the_review_mount_is_the_checkpoint_the_round_froze (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_mount_is_the_checkpoint_the_round_froze)
+REVIEW SEMANTICS, from the attachment the loop granted. ... ok
+test_the_review_runtime_is_started_with_the_requested_task (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_runtime_is_started_with_the_requested_task)
+THE MILESTONE: the loop, the ending, and the review runtime. ... ok
+test_a_removed_root_refuses_rather_than_substituting_the_installed (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_a_removed_root_refuses_rather_than_substituting_the_installed)
+A ROOT THAT CANNOT BE PROVED IS NOT ANSWERED FROM ELSEWHERE. ... ok
+test_a_stage_that_resolves_the_wrong_input_refuses (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_a_stage_that_resolves_the_wrong_input_refuses)
+THE OTHER ROUTE TO THE SAME WRONG ANSWER, closed. ... ok
+test_an_attempt_whose_WHOLE_root_was_substituted_refuses (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_an_attempt_whose_WHOLE_root_was_substituted_refuses)
+A COMPLETE, INTERNALLY VALID PAIR, refused by the RECORD alone. ... ok
+test_an_attempt_whose_root_HALF_was_substituted_refuses (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_an_attempt_whose_root_HALF_was_substituted_refuses)
+ONE DOCUMENT REPLACED, which is a MISMATCHED pair. ... ok
+test_an_installed_attempt_with_no_root_still_reconciles (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_an_installed_attempt_with_no_root_still_reconciles)
+THE PRESERVED PATH, and it must not acquire a new failure. ... ok
+test_the_recovery_entrypoint_identifies_the_delivered_attempt (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_the_recovery_entrypoint_identifies_the_delivered_attempt)
+`refresh_runtime`, the serving loop's own runtime read. ... ok
+test_the_stageless_adapter_describes_the_delivered_input (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_the_stageless_adapter_describes_the_delivered_input)
+THE CORRECTION, asked of the function the recovery callers use. ... ok
+test_the_started_attempt_is_recorded_against_the_delivered_input (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_the_started_attempt_is_recorded_against_the_delivered_input)
+THE RECORD AND THE DISK, after a real start. ... ok
+test_both_attempts_are_recorded_against_their_own_identity (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_both_attempts_are_recorded_against_their_own_identity)
+THE DURABLE RECORD, for both, written by the loop. ... ok
+test_both_created_jobs_are_served_their_own_requested_bytes (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_both_created_jobs_are_served_their_own_requested_bytes)
+TWO JOBS, ONE LOOP, TWO DELIVERIES, NOTHING CROSSED. ... ok
+test_both_jobs_reach_their_own_started_runtime (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_both_jobs_reach_their_own_started_runtime)
+TWO JOBS CODING SIMULTANEOUSLY, through one loop. ... ok
+test_each_job_reached_its_own_line_and_producer (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_each_job_reached_its_own_line_and_producer)
+THE POOL'S OWN PER-JOB BINDING, read back through its reader. ... ok
+test_the_single_container_engine_refuses_the_second_delivery (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_the_single_container_engine_refuses_the_second_delivery)
+AND THE REFUSAL IS KEPT, because it is worth keeping. ... ok
+test_neither_jobs_bytes_reach_the_others_root (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_neither_jobs_bytes_reach_the_others_root)
+NO CROSS-JOB EFFECT, from ONE worker object. ... /home/sl/src/baton/v12/python/tests/tools/test_job_task_delivery.py:190: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/v12-w71917-47n4to8e/inputs-job-first/inputs/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/tools/test_job_task_delivery.py:193: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/v12-w71917-47n4to8e/inputs-job-second/inputs/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_published_file_is_this_jobs_own_task (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_published_file_is_this_jobs_own_task)
+THE BYTES ON DISK, read back and compared whole. ... ok
+test_the_review_role_is_delivered_the_same_task (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_review_role_is_delivered_the_same_task)
+ROLE-SPECIFIC SEMANTICS PRESERVED, and the task is the JOB's. ... ok
+test_the_two_jobs_input_identities_differ_and_both_are_consistent (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_two_jobs_input_identities_differ_and_both_are_consistent) ... ok
+test_each_job_gets_its_own_bytes_identity_and_root (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool.test_each_job_gets_its_own_bytes_identity_and_root)
+TWO ATTEMPTS, TWO ROOTS, NOTHING OF EITHER IN THE OTHER. ... ok
+test_each_job_is_granted_its_own_line (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool.test_each_job_is_granted_its_own_line)
+THE POOL'S OWN REASON this is possible at all. ... ok
+test_the_shared_configuration_is_not_mutated_by_either_job (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool.test_the_shared_configuration_is_not_mutated_by_either_job)
+ONE WORKER OBJECT, SERVING TWO JOBS, UNCHANGED BY BOTH. ... ok
+test_the_served_job_gets_its_own_bytes_and_the_second_waits (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop.test_the_served_job_gets_its_own_bytes_and_the_second_waits)
+WHAT ONE BOOTSTRAP LOOP CAN ACTUALLY SERVE, measured. ... ok
+
+----------------------------------------------------------------------
+Ran 227 tests in 12.313s
+
+OK

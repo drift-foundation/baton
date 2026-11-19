@@ -213,7 +213,9 @@ def _identity(operands):
         from baton_v12.contracts import frozen as assets
         said["schema_assets"] = {
             "worker-control-1.0": len(assets.WORKER_CONTROL_BYTES),
-            "agent-session-1.0": len(assets.AGENT_SESSION_BYTES)}
+            "agent-session-1.0": len(assets.AGENT_SESSION_BYTES),
+            "input-manifest-template": len(
+                assets.INPUT_MANIFEST_TEMPLATE_BYTES)}
     except Exception as failure:                             # noqa: BLE001
         said["schema_assets"] = "%s: %s" % (type(failure).__name__, failure)
     try:
@@ -240,6 +242,12 @@ def _identity(operands):
     return 0
 
 
+def _pool(operands):
+    """W202663 / W321608: compose and admit workers of an installed instance."""
+    from tools import pool
+    return pool.main(operands)
+
+
 COMMANDS = {
     "bootstrap": _bootstrap,
     "start": _stack("start"), "stop": _stack("stop"),
@@ -262,6 +270,10 @@ COMMANDS = {
     # durable transition through a participant-bound session.
     "disposition": _disposition,
     "identity": _identity,
+    # W321608: THE POOL VERBS -- composing a worker document for THIS
+    # instance and admitting one -- are installation tooling (OBS-0a), so an
+    # operator holding the bundle reaches them without a checkout.
+    "pool": _pool,
     # W333486: READ-ONLY, and a pure projection over one status document.
     "attempt-diagnostics": _attempt_diagnostics,
 }

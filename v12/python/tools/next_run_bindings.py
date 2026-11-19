@@ -243,6 +243,122 @@ def _evidence(value):
     return value
 
 
+def deployment_identities(*, image_reference, image_digest, cli_build,
+                          provider_network, runtime_uid, turn_seconds,
+                          verification_seconds, implementer_invocations,
+                          contextual):
+    """The three identities a deployment is accountable for, as THIS build
+    composes them: the runtime profile, the execution policy and the adapter,
+    each with its digest. W321608: factored out verbatim so the installed
+    stack's `pool compose-worker` composes a worker from the same product-owned
+    documents the standard next-run packet does, rather than from a reviewed
+    deployment somebody has to keep around. Nothing here is read from the
+    environment except what the caller passes.
+    """
+    from baton_v12.contracts import digest
+    from baton_v12.worker_manager import provider_context as context
+    from baton_v12.worker_manager import source_boundary
+
+    # -- the three identities this deployment is accountable for ------------
+    runtime_profile = {
+        "schema": "baton.single-implementation-runtime-profile/1",
+        "name": "claude-context-implementation" if contextual else "claude-fresh-implementation",
+        "engine": "docker", "network": provider_network,
+        "image_reference": image_reference, "image_digest": image_digest,
+        "cli_build": cli_build, "model": "opus",
+        "runtime_uid": os.getuid() if runtime_uid is None else runtime_uid,
+        "scratch": {"tmp_bytes": 64 * 1024 * 1024,
+                    "shm_bytes": 16 * 1024 * 1024},
+        "workspace_min_bytes": source_boundary.MIN_WORKSPACE_BYTES + 1,
+        "note": "one bounded managed implementation; W239528"}
+    policy = {
+        "schema": "baton.single-implementation-execution-policy/1",
+        "provider_turn_seconds": turn_seconds,
+        "verification_command_seconds": verification_seconds,
+        "automatic_retry": False,
+        "implementer_invocations": implementer_invocations,
+        "note": "the caps the admission gate enforces; W239528"}
+    adapter = {
+        "schema": "baton.single-implementation-adapter/1",
+        "adapter_name": "docker-single-worker",
+        "engine": "docker", "network": provider_network,
+        "entrypoint": ["python3", "/opt/baton/dogfood_entry.py"],
+        "argv_policy": dict(context.ARGV_POLICY),
+        "environment_policy": dict(context.ENVIRONMENT_POLICY)}
+    profile_digest = digest(runtime_profile)
+    policy_digest = digest(policy)
+    adapter_digest = digest(adapter)
+    return {"runtime_profile": runtime_profile, "policy": policy,
+            "adapter": adapter, "profile_digest": profile_digest,
+            "policy_digest": policy_digest, "adapter_digest": adapter_digest}
+
+
+def input_manifest(vectors, *, authority_uuid, work_id, policy_digest,
+                   profile_digest, image_digest, task_bytes, artifact_id,
+                   contextual):
+    """The frozen input manifest, from the published conformance vector, bound
+    to one Authority, Work, policy, profile, image and task artifact, and
+    resealed. Moved verbatim from `compose` (W321608) for the same reason as
+    `deployment_identities`.
+    """
+    from baton_v12.contracts import digest, digest_of_bytes
+    from baton_v12.worker_manager import source_boundary
+    from tools import single_worker
+
+    # -- the input manifest, from the published vector ----------------------
+    if vectors is None:
+        # W321608: THE INSTALLED RESOURCE, when no vector file is named --
+        # the same document, shipped beside the schema assets.
+        from baton_v12.contracts import frozen
+        manifest = frozen.input_manifest_template()
+    else:
+        with open(vectors, "r", encoding="utf-8") as handle:
+            corpus = json.loads(handle.read())
+        manifest = dict(next(
+            one["document"] for one in corpus["valid"]
+            if one["document"].get("schema") == "baton.worker-manifest/input"))
+    manifest["work_ref"] = {"authority_uuid": authority_uuid,
+                            "work_id": work_id}
+    manifest["policy_digest"] = policy_digest
+    manifest["runtime_profile_digest"] = profile_digest
+    manifest["worker_image_digest"] = image_digest
+    manifest["human_contract"] = {
+        "artifact_id": artifact_id,
+        "media_type": "application/json",
+        "bytes": len(task_bytes),
+        "content_digest": digest_of_bytes(task_bytes),
+        "locator": "artifact://contracts/" + artifact_id}
+    source = dict(manifest["sources"][0])
+    source["destination"] = single_worker.SOURCE_DESTINATION
+    # THE EMPTY MOUNTPOINT'S MANIFEST, NOT THE SOURCE'S. `/4` nominates and
+    # mounts; it does not walk, copy or hash the nominated tree, so the frozen
+    # manifest declares the empty directory the read-only bind lands on.
+    source["content_manifest"] = {"entries": [], "entry_count": 0,
+                                  "total_bytes": 0,
+                                  "tree_digest": single_worker.EMPTY_TREE_DIGEST}
+    source["consumption"] = source_boundary.source_consumption("git-line")
+    manifest["sources"] = [source]
+    held = dict(manifest["outputs"][0])
+    # ONE DECLARED RESULT, AND IT IS REQUIRED. `IMPLEMENTATION_OUTPUTS` is
+    # exactly `("proposal",)`. `findings` and `logs` are the REVIEW turn's
+    # outputs and this Job runs no review turn, so declaring them would be
+    # declaring the next Job's half of a shared workload.
+    manifest["outputs"] = [dict(held, name="proposal",
+                                type="git-change-proposal", path="proposal",
+                                required=True)]
+    # AND THE RESERVED RECEIPT DECLARATION the contextual worker answers.
+    if contextual:
+        manifest["outputs"].append({
+            "name": "provider-context-receipt", "type": "directory-result",
+            "path": "provider-context-receipt", "required": False,
+            "constraints": {"max_bytes": 16384, "max_entries": 1,
+                            "allowed_media_types": ["application/octet-stream"],
+                            "link_policy": "forbid", "validator_digest": None}})
+    manifest.pop("manifest_digest", None)
+    manifest["manifest_digest"] = digest(manifest)
+    return manifest
+
+
 def compose(*, instance, run_root, source_root, base, image_reference,
             image_digest, cli_build, manager_source, supervisor_path,
             vectors, participants, credential_sources, credential_profile,
@@ -335,35 +451,19 @@ def compose(*, instance, run_root, source_root, base, image_reference,
         derived.update(places)
     places = derived
 
-    # -- the three identities this deployment is accountable for ------------
-    runtime_profile = {
-        "schema": "baton.single-implementation-runtime-profile/1",
-        "name": "claude-context-implementation" if contextual else "claude-fresh-implementation",
-        "engine": "docker", "network": provider_network,
-        "image_reference": image_reference, "image_digest": image_digest,
-        "cli_build": cli_build, "model": "opus",
-        "runtime_uid": os.getuid() if runtime_uid is None else runtime_uid,
-        "scratch": {"tmp_bytes": 64 * 1024 * 1024,
-                    "shm_bytes": 16 * 1024 * 1024},
-        "workspace_min_bytes": source_boundary.MIN_WORKSPACE_BYTES + 1,
-        "note": "one bounded managed implementation; W239528"}
-    policy = {
-        "schema": "baton.single-implementation-execution-policy/1",
-        "provider_turn_seconds": bounds["turn_seconds"],
-        "verification_command_seconds": resolved_verification,
-        "automatic_retry": False,
-        "implementer_invocations": bounds["implementer_invocations"],
-        "note": "the caps the admission gate enforces; W239528"}
-    adapter = {
-        "schema": "baton.single-implementation-adapter/1",
-        "adapter_name": "docker-single-worker",
-        "engine": "docker", "network": provider_network,
-        "entrypoint": ["python3", "/opt/baton/dogfood_entry.py"],
-        "argv_policy": dict(context.ARGV_POLICY),
-        "environment_policy": dict(context.ENVIRONMENT_POLICY)}
-    profile_digest = digest(runtime_profile)
-    policy_digest = digest(policy)
-    adapter_digest = digest(adapter)
+    identities = deployment_identities(
+        image_reference=image_reference, image_digest=image_digest,
+        cli_build=cli_build, provider_network=provider_network,
+        runtime_uid=runtime_uid, turn_seconds=bounds["turn_seconds"],
+        verification_seconds=resolved_verification,
+        implementer_invocations=bounds["implementer_invocations"],
+        contextual=contextual)
+    runtime_profile, policy, adapter = (identities["runtime_profile"],
+                                        identities["policy"],
+                                        identities["adapter"])
+    profile_digest, policy_digest, adapter_digest = (
+        identities["profile_digest"], identities["policy_digest"],
+        identities["adapter_digest"])
 
     # -- the frozen task the workload reads at /input/task.json -------------
     task = {"schema": "baton.dogfood-task/2",
@@ -375,51 +475,12 @@ def compose(*, instance, run_root, source_root, base, image_reference,
             "verification": ["python3", "harness.py"] if contextual else verification}
     task_bytes = json.dumps(task, sort_keys=True).encode("utf-8")
 
-    # -- the input manifest, from the published vector ----------------------
-    with open(vectors, "r", encoding="utf-8") as handle:
-        corpus = json.loads(handle.read())
-    manifest = dict(next(
-        one["document"] for one in corpus["valid"]
-        if one["document"].get("schema") == "baton.worker-manifest/input"))
-    manifest["work_ref"] = {"authority_uuid": instance["authority_uuid"],
-                            "work_id": participants["work_id"]}
-    manifest["policy_digest"] = policy_digest
-    manifest["runtime_profile_digest"] = profile_digest
-    manifest["worker_image_digest"] = image_digest
-    manifest["human_contract"] = {
-        "artifact_id": run_id + "-task",
-        "media_type": "application/json",
-        "bytes": len(task_bytes),
-        "content_digest": digest_of_bytes(task_bytes),
-        "locator": "artifact://contracts/" + run_id + "-task"}
-    source = dict(manifest["sources"][0])
-    source["destination"] = single_worker.SOURCE_DESTINATION
-    # THE EMPTY MOUNTPOINT'S MANIFEST, NOT THE SOURCE'S. `/4` nominates and
-    # mounts; it does not walk, copy or hash the nominated tree, so the frozen
-    # manifest declares the empty directory the read-only bind lands on.
-    source["content_manifest"] = {"entries": [], "entry_count": 0,
-                                  "total_bytes": 0,
-                                  "tree_digest": single_worker.EMPTY_TREE_DIGEST}
-    source["consumption"] = source_boundary.source_consumption("git-line")
-    manifest["sources"] = [source]
-    held = dict(manifest["outputs"][0])
-    # ONE DECLARED RESULT, AND IT IS REQUIRED. `IMPLEMENTATION_OUTPUTS` is
-    # exactly `("proposal",)`. `findings` and `logs` are the REVIEW turn's
-    # outputs and this Job runs no review turn, so declaring them would be
-    # declaring the next Job's half of a shared workload.
-    manifest["outputs"] = [dict(held, name="proposal",
-                                type="git-change-proposal", path="proposal",
-                                required=True)]
-    # AND THE RESERVED RECEIPT DECLARATION the contextual worker answers.
-    if contextual:
-        manifest["outputs"].append({
-            "name": "provider-context-receipt", "type": "directory-result",
-            "path": "provider-context-receipt", "required": False,
-            "constraints": {"max_bytes": 16384, "max_entries": 1,
-                            "allowed_media_types": ["application/octet-stream"],
-                            "link_policy": "forbid", "validator_digest": None}})
-    manifest.pop("manifest_digest", None)
-    manifest["manifest_digest"] = digest(manifest)
+    manifest = input_manifest(
+        vectors, authority_uuid=instance["authority_uuid"],
+        work_id=participants["work_id"], policy_digest=policy_digest,
+        profile_digest=profile_digest, image_digest=image_digest,
+        task_bytes=task_bytes, artifact_id=run_id + "-task",
+        contextual=contextual)
 
     # -- the candidate context profile, `/2` --------------------------------
     context_profile = {

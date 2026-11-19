@@ -639,3 +639,25 @@ This confirms priority, not a build/install/credential/live-run/cutover authoriz
 ## 2026-11-19T00:59:19+00:00 — useful coding payload direction: labels first
 
 Owner selects starting with labels, distinguishing plain-value labels from key–value tags. After W383217, revalidate existing W29401 CLI exposure against the installed native host as the useful coding payload; reuse accepted W29400 authority behavior. Tags and W29408 TUI remain outside this first slice. This replaces documentation-only payload planning as the current direction, but exact payload/readiness and operational selection must precede execution. Existing Work identities, one authority per Work, focused tests, independent review and human acceptance remain required. Do not interrupt W383217 or silently unpark/transfer W29401.
+
+## 2026-11-19T01:27:09+00:00 — finite controls closed; labels readiness checkpoint next
+
+Canonical readback confirms W383217 closed satisfying, no handler; W383215 likewise closed. W321608 is now queued/unclaimed, no open blockers. Accepted finite-control checkpoint f34e1576. Read HANDOFF-LABELS-READINESS-20261119.md for the bounded read-only revalidation of useful labels payload and exact artifact/operational readiness. This supersedes waiting on W383217 as current next action. No live execution, build/install, Work transfer or payload implementation selected by this checkpoint.
+
+## 2026-11-19T01-39-09Z — owner reconfirms fast routine kickoff; readiness packet needs separation
+
+Owner confirms labels must be implemented/reviewed inside native v12 and that a well-defined Job should start quickly, without major per-Job prep; coding/thinking may take time in the container. This reaffirms DESIGN OBS-0/OBS-0a: install once, routine input-only kickoff within 60s including all preparation through attributable substantive activity. Read review-2026-11-19T01-39-09Z.md. M385172 is preparation, not readiness acceptance: separate reusable setup from ordinary launch, identify concrete existing startup-owner gaps, resolve artifact evidence, and return one actionable consolidated packet. No labels coding or profile naming change selected; no build/install/live authority.
+
+## 2026-11-19T01-45-32Z — readiness r2 reviewed; mechanical kickoff boundary preserved
+
+Read review-2026-11-19T01-45-32Z.md. Owner separates design/research, mechanical kickoff and container task work; per-run launch engineering remains inside kickoff timing. r2 setup direction accepted, not operational commands: proposed worker just/host-venv verifier is unproved against Dockerfile, whole-path timing excludes some preparation, and stop/create/start is an idle-first-run limitation rather than reusable parallel admission acceptance. Complete exact packet under existing scope; no new broad design effort or execution authority.
+
+## Owner correction — 2026-11-19: stop bespoke labels launch preparation
+
+Slawomir stopped K and reaffirmed: we already have a Job/description; kickoff must be trivial and reuse existing tools. This explicitly supersedes the instruction in coordinator review-2026-11-19T01-57-50Z.md and M385177 to materialize setup-native-labels helpers. Do not author mint_inputs.py, copy/re-pin capacity.py, or continue task-specific installation packet engineering. K remains stopped pending a new bounded instruction. Previous packet/review findings are retained as evidence, not execution authority.
+
+This applies existing DESIGN OBS-0/OBS-0a, not a new specification: ordinary kickoff is input-only through existing supported tools. One-time installation belongs to reusable installation tooling; it must not embed this particular labels Job as a workaround. The coordinator must identify the shortest supported installed create/start path and any concrete missing input capability. A missing capability is a product gap to report precisely, not a reason to fabricate another launch helper. No build, installation, live execution, product implementation or claim is selected by this correction. Labels remain the intended useful native v12 coding payload with independent review.
+
+## Owner selection — reusable kickoff assignment, 2026-11-19
+
+Owner agrees to make the existing v12 launch path usable: update/install once via reusable product tooling, then launch the already-defined labels Job through ordinary inputs and commands. Necessary bounded product fixes are selected; bespoke helpers remain withdrawn. See HANDOFF-REUSABLE-KICKOFF-20261119.md for scope, acceptance, operational boundaries and owner-held assignment activation. This supersedes the stopped planning state as the selected next scope, but execution still requires successful canonical assignment. DESIGN OBS-0/OBS-0a already specify the outcome; no spec amendment.

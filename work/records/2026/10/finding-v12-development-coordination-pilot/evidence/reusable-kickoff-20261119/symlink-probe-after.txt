@@ -1,0 +1,6 @@
+{
+ "reviewer_probe_rerun": true,
+ "existing_symlink_preserved": true,
+ "followed_symlink_and_created_target": false,
+ "outcome": "refused: /var/tmp/v12-w71917-v57cqnyt/new-worker.json already exists (as a file, a directory or a s"
+}

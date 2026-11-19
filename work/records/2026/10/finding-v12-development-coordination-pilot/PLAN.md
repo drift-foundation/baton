@@ -1,3 +1,39 @@
+## Current — r4 source candidate accepted; human checkpoint next
+
+Read review-2026-11-19T04-48-39Z.md. Exact candidate 5d04fb8509bb8730c30b0777bd890c32cada525a5b809729e79b57dc41d0e7ad accepted for source checkpoint. K holds edits. Next: selective human commit, then bounded artifact verification. Installation/live kickoff, timing and Work closure are not accepted yet; r3 group timing failure remains recorded. This supersedes the r3 correction milestone.
+
+## Current — r3 review: one provisioning retry correction
+
+Read review-2026-11-19T04-22-49Z.md. Prior source-preparation and manifest-resource blockers resolved at source level. Correct repeat bypass of failed repository/base proof; preserve per-Job verification and fresh-output fixes. Then checkpoint and bounded artifact verification. No operational execution released.
+
+## Current — r2 review: finish actual reusable setup path
+
+Read review-2026-11-19T03-36-07Z.md. Exclusive fresh-output defect resolved. Remaining: prepare real worker source repositories through supported tooling (test currently creates directories itself), and make the manifest template an installed product resource rather than a dossier dependency. Per-Job verification remains unchanged progress. No operational launch release.
+
+## Current — reusable kickoff candidate needs correction
+
+Read review-2026-11-19T02-52-40Z.md. Per-Job verification is useful partial progress; complete the supported reusable configuration/install path and enforce compose-worker fresh-output semantics. W321608 remains owner-held. No operational launch release. This supersedes awaiting-first-candidate state.
+
+## Current — owner-selected reusable kickoff, awaiting assignment activation
+
+Read HANDOFF-REUSABLE-KICKOFF-20261119.md. K implements only concrete blockers to existing-tool, input-only kickoff after the owner-held claim succeeds and shared ownership is checked. Labels remains native execution payload; no bespoke setup helpers. This supersedes the stopped planning disposition below, not the withdrawal of M385177. Builds/install/live operations are not yet released.
+
+## Current — owner stopped bespoke packet preparation, 2026-11-19
+
+K is stopped. The helper-materialization instruction below and M385177 are superseded by the owner correction in FINDING. Reuse existing tools for trivial input-only kickoff of the already-defined labels Job. Coordinator identifies the supported command path and exact concrete product gaps, if any; no new task-specific scripts, copied composers or packet iterations. No execution is released.
+
+## 2026-11-19T01-57-50Z — current: materialize and correct the operational packet
+
+M385176 is not executable yet; read review-2026-11-19T01-57-50Z.md. K prepares actual dossier helpers and corrects artifact paths, fresh-path checks, bootstrap/create identity sequencing and required packaged-test accounting. This supersedes the earlier readiness-packet milestone, without authorizing build/install/live execution or labels implementation. No additional owner decision is needed for this preparation continuation.
+
+## 2026-11-19T01-39-09Z — current: revise readiness packet for quick routine kickoff
+
+Read review-2026-11-19T01-39-09Z.md. Native labels implementation/review remains the target. Revalidate concrete installed command and artifact path; distinguish true one-time setup from input-only routine startup under OBS-0/OBS-0a (whole-path 60s). No repeated bespoke per-Job packets or fresh installation disguised as routine. Return smallest actionable packet and only substantive owner selections; no product/live execution yet. This supersedes unqualified acceptance of the ten-step checkpoint.
+
+## 2026-11-19T01:27:09+00:00 — current: read-only labels-run readiness checkpoint
+
+Both finite-control children closed satisfying; accepted source f34e1576. W321608 queued/unclaimed and unblocked. K reads HANDOFF-LABELS-READINESS-20261119.md and returns a concrete bounded checkpoint; coordinator reviews before assignment/operational release. No more control implementation requested.
+
 ## 2026-11-19T00:59:19+00:00 — first useful coding payload direction
 
 Finish W383217 first. During joined readiness, revalidate W29401's existing labels CLI scope against the current native host, reusing W29400. Labels are plain values; tags are key–value metadata and excluded from this first slice, as is W29408 TUI. This supersedes documentation-only payload planning; select the exact native payload and operational commands after readiness review. No Work transition or live execution is implied.

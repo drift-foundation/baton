@@ -48,6 +48,7 @@ import json
 import os
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 from baton_v12.contracts import ContractRefusal
@@ -483,6 +484,44 @@ class TheConnectedCreation(ConnectedCreationCase):
         self.assertEqual(held["servable"],
                          {"implementation": ["impl-a"], "review": ["review-a"]})
 
+    def test_a_created_job_carries_the_verification_it_named(self):
+        """W321608: through the real command and the real install, two
+        defined Jobs on one installed task -- one naming its own verification,
+        one not -- each receive their intended instructions and verification;
+        nothing of the installation was written per Job."""
+        self.installed()
+        before = Path(self.owned["configuration"]).read_bytes() \
+            if "configuration" in self.owned else None
+        self.answered()
+        argv = self.argv(task="cli-verified", statement="The verified task.")
+        argv += ["--verification", "python3", "--verification=-c",
+                 "--verification", "raise SystemExit(3)"]
+        said = io.StringIO()
+        self.assertEqual(job_manager.main(argv, stream=said), 0,
+                         said.getvalue())
+        answer = json.loads(said.getvalue())
+        store, creation = self.rows()
+        verified = json.loads(creation.job_task_of(store, "job-cli-verified"))
+        plain = json.loads(creation.job_task_of(store, "job-cli-first"))
+        self.assertEqual(verified["verification"],
+                         ["python3", "-c", "raise SystemExit(3)"])
+        self.assertEqual(plain["verification"],
+                         ["python3", "-c", "raise SystemExit(0)"])
+        self.assertIn("The verified task.", verified["instructions"])
+        self.assertNotEqual(verified["instructions"], plain["instructions"])
+        self.assertEqual(answer["job_id"], "job-cli-verified")
+        self.assertEqual(sorted(self.bindings()),
+                         ["job-a", "job-cli-first", "job-cli-verified"])
+        # THE SAME COMMAND AGAIN CONVERGES; another verification is refused.
+        said = io.StringIO()
+        self.assertEqual(job_manager.main(argv, stream=said), 0)
+        self.assertEqual(json.loads(said.getvalue())["job_id"],
+                         "job-cli-verified")
+        changed = argv[:-1] + ["raise SystemExit(4)"]
+        with self.assertRaises(ContractRefusal):
+            job_manager.main(changed, stream=io.StringIO())
+        del before
+
     def test_two_ordinary_creations_bind_two_jobs(self):
         self.installed()
         self.answered()
@@ -495,6 +534,174 @@ class TheConnectedCreation(ConnectedCreationCase):
         first = json.loads(creation.job_task_of(store, "job-cli-first"))
         second = json.loads(creation.job_task_of(store, "job-cli-second"))
         self.assertNotEqual(first["instructions"], second["instructions"])
+
+
+class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+    """W321608: the complete supported path from reusable product
+    configuration to a reusable instance, then two ordinary Jobs.
+
+    Instance-only install with its repositories prepared (no worker, no Job,
+    the source commit named once) -> two workers composed by `pool
+    compose-worker` from this build's own documents plus ordinary operator
+    configuration -> the one-operand repeat bootstrap that configures them
+    AND clones their sources from the instance's own target -> two `manager
+    create` invocations with distinct instructions and verification. No
+    dossier document, no hand-sealed manifest, no per-Job installation, and
+    no fixture effect on the filesystem: the only stand-in is the `git`
+    process boundary, whose every call is asserted. CREATION is what this
+    proves; the Jobs are not run here.
+    """
+
+    BASE = "a" * 40
+    SOURCE = "/srv/the-owners-source"
+
+    def git(self, issued):
+        def runner(argv, **named):
+            issued.append(list(argv))
+            if argv[1] == "clone":
+                place = Path(argv[-1])
+                (place / "objects" / "info").mkdir(parents=True, exist_ok=True)
+                (place / "refs").mkdir(parents=True, exist_ok=True)
+                (place / "HEAD").write_text("ref: refs/heads/main\n")
+                return SimpleNamespace(returncode=0, stdout="", stderr="")
+            if "rev-parse" in argv and "--verify" not in argv:
+                return SimpleNamespace(returncode=0, stdout=argv[2],
+                                       stderr="")
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+        return runner
+
+    def installed_with_repositories(self, issued):
+        document = self.document(workers=[], jobs=[],
+                                 line_declared_base=self.BASE,
+                                 canonical_target_id=self.BASE)
+        document.pop("state_root", None)
+        inputs = os.path.join(self.root, "operator-inputs.json")
+        Path(inputs).write_text(json.dumps(document))
+        said = {"command": "baton-v12-stack", "frozen": True,
+                "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                "schema_assets": {"agent-session-1.0": 10,
+                                  "worker-control-1.0": 20},
+                "native_rpds": str(Path(self.stand_in_runtime())
+                                   / "_internal" / "lib.so")}
+        out = io.StringIO()
+        with mock.patch.object(
+                bootstrap, "_identity_of",
+                lambda command, runtime=None, distro=None: said):
+            code = bootstrap.main(
+                ["--inputs", inputs, "--destination", self.state,
+                 "--distro", self.stand_in_runtime(),
+                 "--repository-source", self.SOURCE],
+                stream=out, runner=self.git(issued))
+        self.assertEqual(code, 0, out.getvalue())
+        self.owned = instance_identity(self.state)
+        with ControlStore.open(self.owned["control_store"],
+                               incarnation="manager-1",
+                               clock=lambda: "2026-09-02T00:00:00.000Z"):
+            pass
+
+    def test_two_defined_jobs_run_on_one_product_configured_instance(self):
+        from tools import pool
+
+        issued = []
+        self.installed_with_repositories(issued)
+        before = self.configuration()
+        self.assertEqual(before["workers"], [])
+        self.assertEqual([one[-1] for one in issued if one[1] == "clone"],
+                         [os.path.join(self.state, "repo", "target.git"),
+                          os.path.join(self.state, "repo", "workspace")])
+        # THE INSTALLED TASK DOCUMENT is ordinary configuration: one file the
+        # operator places inside the instance.
+        task_place = os.path.join(self.state, "state", "task",
+                                  "installed-task.json")
+        os.makedirs(os.path.dirname(task_place), exist_ok=True)
+        held = json.loads(Path(self.config["task_document"]).read_bytes())
+        held["task_id"] = "installed-task"
+        Path(task_place).write_bytes(json.dumps(held, sort_keys=True).encode())
+        workers = []
+        for worker_id, role, participant in (
+                ("impl-a", "implementation", "baton.impl-a"),
+                ("review-a", "review", "baton.reviewer")):
+            answer = pool.composed(
+                before, worker_id=worker_id, role=role,
+                participant=participant,
+                image_reference="baton-v12-worker:test",
+                image_digest=self.config["image_digest"],
+                cli_build="2.1.247", network=self.config["network"],
+                credential_sources=os.path.join(self.root,
+                                                "credential-sources.json"),
+                credentials=["claude=operator-file:w202663-development"],
+                workspace_group=self.config["workspace_group"],
+                task_document=task_place)
+            workers.append(answer["worker"])
+        for worker in workers:
+            self.assertFalse(os.path.exists(
+                worker["deployment"]["nominated_source"]))
+        # THE ONE-OPERAND REPEAT: the instance document, its state_root, the
+        # derived selections it already holds, and the two composed workers.
+        # It clones each worker's source from the instance's own target.
+        carried = {name: before[name]
+                   for name in ("integration_target", "integration_workspace")
+                   if before.get(name)}
+        document = self.document(workers=workers, jobs=[],
+                                 line_declared_base=self.BASE,
+                                 canonical_target_id=self.BASE, **carried)
+        updated = os.path.join(self.root, "updated-inputs.json")
+        Path(updated).write_text(json.dumps(document))
+        mark = len(issued)
+        said = io.StringIO()
+        self.assertEqual(bootstrap.main(
+            ["--inputs", updated, "--repository-source", self.SOURCE],
+            stream=said, runner=self.git(issued)), 0, said.getvalue())
+        target = os.path.join(self.state, "repo", "target.git")
+        self.assertEqual(
+            [one for one in issued[mark:] if one[1] == "clone"],
+            [["git", "clone", "--no-local", target,
+              os.path.join(self.state, "repo", "source-impl-a")],
+             ["git", "clone", "--no-local", target,
+              os.path.join(self.state, "repo", "source-review-a")]])
+        self.assertIn(["git", "-C", target, "cat-file", "-e",
+                       self.BASE + "^{commit}"], issued[mark:])
+        for worker in workers:
+            self.assertTrue(os.path.isdir(
+                worker["deployment"]["nominated_source"]))
+        after = self.configuration()
+        self.assertEqual([one["worker_id"] for one in after["workers"]],
+                         ["impl-a", "review-a"])
+        self.assertEqual(after["workers"][0]["deployment"]["profile_name"],
+                         "claude-fresh-implementation")
+        # TWO ORDINARY JOBS, input-only, each with its own instructions and
+        # its own verification; the installation is not written per Job.
+        configured = json.dumps(self.configuration()["workers"],
+                                sort_keys=True)
+        first = self.argv(task="labels-one", statement="The first slice.")
+        first += ["--verification", "python3", "--verification=-c",
+                  "--verification", "raise SystemExit(1)"]
+        second = self.argv(task="labels-two", statement="The second slice.")
+        second += ["--verification", "python3", "--verification=-c",
+                   "--verification", "raise SystemExit(2)"]
+        for argv in (first, second):
+            said = io.StringIO()
+            self.assertEqual(job_manager.main(argv, stream=said), 0,
+                             said.getvalue())
+        store, creation = self.rows()
+        one = json.loads(creation.job_task_of(store, "job-labels-one"))
+        two = json.loads(creation.job_task_of(store, "job-labels-two"))
+        self.assertIn("The first slice.", one["instructions"])
+        self.assertIn("The second slice.", two["instructions"])
+        self.assertEqual(one["verification"],
+                         ["python3", "-c", "raise SystemExit(1)"])
+        self.assertEqual(two["verification"],
+                         ["python3", "-c", "raise SystemExit(2)"])
+        self.assertEqual(sorted(self.bindings()),
+                         ["job-labels-one", "job-labels-two"])
+        bound = self.bindings()["job-labels-one"]
+        self.assertEqual(bound["line_declared_base"], self.BASE)
+        self.assertEqual(bound["source_worker_id"], "impl-a")
+        self.assertEqual(json.dumps(self.configuration()["workers"],
+                                    sort_keys=True), configured)
+        self.assertEqual(
+            {one["job_id"] for one in self.install_document()["jobs"]},
+            {"job-labels-one", "job-labels-two"})
 
 
 class ThePackagedResourcesResolve(ConnectedCreationCase):

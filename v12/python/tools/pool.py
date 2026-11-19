@@ -378,10 +378,276 @@ def admit(place, worker, *, stream=sys.stdout, opener=None, store=None):
             "principal": entry["deployment"]["principal"]}
 
 
+# -- W321608: composing a worker document for THIS instance -------------------
+#
+# WHAT THIS IS FOR. A worker's `deployment` is the `/4` single-worker launch
+# document, and it carries an `input_manifest` digest-sealed over the Authority
+# and Work it serves, a `human_contract` naming the installed task bytes, and
+# the paths the instance derives. Every installation to date composed one with
+# a dossier script that copied a reviewed deployment and resealed it by hand,
+# which OBS-0a names as a product gap: provisioning belongs to installation
+# tooling, not to per-deployment scripts.
+#
+# WHERE THE FACTS COME FROM, and this is the whole design. The runtime profile,
+# the execution policy and the adapter identity are THIS BUILD'S documents --
+# `next_run_bindings.deployment_identities`, the same ones the standard
+# next-run packet composes -- and the input manifest is the INSTALLED template
+# (`contracts.frozen.input_manifest_template`, the published conformance
+# vector's document shipped beside the schema assets) bound here through
+# `next_run_bindings.input_manifest`; nothing is read from a dossier. What an
+# operator names is ordinary configuration: the image, the CLI build, the
+# network, the credential registry and slot mapping, the workspace group, the
+# task document, and the worker's identity and role. Nothing is inherited from
+# another instance's protocol documents.
+
+VERB_COMPOSE = "compose-worker"
+_SHA256 = "sha256:"
+# Which route an answered candidate's assignment passes to, per role: the
+# implementation's result goes to review; the review's verdict goes on to
+# integration. `tests/tools/test_bootstrap.ValidFixture` and the standard
+# next-run packet agree on these two values.
+REVIEW_ROUTES = {"implementation": "rview", "review": "integration",
+                 "integration": "owner"}
+
+
+def _credential_profile(mappings):
+    """`slot=provider:reference` operands, as the deployment's mapping."""
+    profile = {}
+    for one in mappings or ():
+        if type(one) is not str or "=" not in one or ":" not in one.split("=", 1)[1]:
+            raise PoolRefusal("a credential mapping is spelled "
+                              "slot=provider:reference; this is " + repr(one)
+                              + ". Nothing was changed.")
+        slot, rest = one.split("=", 1)
+        provider, reference = rest.split(":", 1)
+        if not slot or not provider or not reference:
+            raise PoolRefusal("a credential mapping names a slot, a provider "
+                              "and a reference; this is " + repr(one)
+                              + ". Nothing was changed.")
+        if slot in profile:
+            raise PoolRefusal("credential slot " + repr(slot) + " is mapped "
+                              "twice. Nothing was changed.")
+        profile[slot] = {"provider": provider, "reference": reference}
+    if not profile:
+        raise PoolRefusal("a worker names at least one credential slot "
+                          "mapping (slot=provider:reference). Nothing was "
+                          "changed.")
+    return profile
+
+
+def _task_artifact(place):
+    """The installed task bytes this worker is sealed over, read once."""
+    try:
+        raw = Path(place).read_bytes()
+    except (FileNotFoundError, OSError) as failure:
+        raise PoolRefusal("the task document " + str(place) + " could not be "
+                          "read (" + type(failure).__name__ + "); a worker is "
+                          "sealed over task bytes that exist. Nothing was "
+                          "changed.")
+    if len(raw) > single_worker.MAX_TASK_BYTES:
+        raise PoolRefusal("the task document " + str(place) + " is wider "
+                          "than " + str(single_worker.MAX_TASK_BYTES)
+                          + " bytes, which the worker refuses. Nothing was "
+                          "changed.")
+    try:
+        held = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        raise PoolRefusal("the task document " + str(place) + " is not one "
+                          "UTF-8 JSON document. Nothing was changed.")
+    if type(held) is not dict or type(held.get("task_id")) is not str \
+            or not held["task_id"]:
+        raise PoolRefusal("the task document " + str(place) + " names no "
+                          "task_id; the worker's human-contract artifact is "
+                          "named after it. Nothing was changed.")
+    return raw, held["task_id"]
+
+
+def composed(held, *, worker_id, role, participant, image_reference,
+             image_digest, cli_build, network, credential_sources,
+             credentials, workspace_group, task_document, work_id=None,
+             runtime_uid=None):
+    """One worker document for the instance `held` describes. READS ONLY.
+
+    Every member the instance binds is derived from the instance; every
+    deployment fact is this build's own (`next_run_bindings`); what the
+    operator named is ordinary configuration. The manifest is resealed by
+    §12's rule and proved by the accepted structure check before anything is
+    returned. The derived paths are the ones `bootstrap` derives for a worker
+    named at install, so one document serves both the repeated bootstrap that
+    clones its source and `add-worker` once that source exists.
+    """
+    from baton_v12.contracts.manifest import check_manifest_structure
+    from baton_v12.job_manager import execution_limits
+    from tools import instance, next_run_bindings
+
+    for name in ("authority_store", "authority_uuid", "state_root",
+                 "retention_policy_digest", "retention_disposition"):
+        if not held.get(name):
+            raise PoolRefusal("this is not an instance's deployment "
+                              "configuration: it names no " + name
+                              + ". Nothing was changed.")
+    bootstrap._safe_name(worker_id)
+    if role not in REVIEW_ROUTES or role not in bootstrap.ROLES:
+        raise PoolRefusal("this deployment serves " + ", ".join(bootstrap.ROLES)
+                          + " and this worker names the role " + repr(role)
+                          + ". Nothing was changed.")
+    for name, value in (("participant", participant),
+                        ("image_reference", image_reference),
+                        ("cli_build", cli_build), ("network", network)):
+        if type(value) is not str or not value:
+            raise PoolRefusal("a worker names one " + name + ". Nothing was "
+                              "changed.")
+    if type(image_digest) is not str or not image_digest.startswith(_SHA256) \
+            or len(image_digest) != len(_SHA256) + 64:
+        raise PoolRefusal("an image digest is sha256: followed by 64 hex "
+                          "characters; this is " + repr(image_digest)
+                          + ". Nothing was changed.")
+    if type(workspace_group) is not int or workspace_group <= 0:
+        raise PoolRefusal("the workspace group is one positive group id; this "
+                          "is " + repr(workspace_group) + ". Nothing was "
+                          "changed.")
+    for name, place in (("credential registry", credential_sources),
+                        ("task document", task_document)):
+        if type(place) is not str or not os.path.isabs(place):
+            raise PoolRefusal("the " + name + " is named by an absolute path; "
+                              "this is " + repr(place) + ". Nothing was "
+                              "changed.")
+    destination = Path(held["state_root"]).parent
+    places = instance.layout(destination)
+    if places["authority_store"] != held["authority_store"]:
+        raise PoolRefusal(
+            "this configuration's state_root " + str(held["state_root"])
+            + " does not sit in the destination whose Authority store is "
+            + str(held["authority_store"]) + ", so the instance's paths "
+            "cannot be derived. Nothing was changed.")
+    profile = _credential_profile(credentials)
+    work = work_id or held.get("job_work_id") or (held["authority_uuid"][:8]
+                                                 + "-W1")
+    raw, task_id = _task_artifact(task_document)
+    limits = execution_limits.resolved(None)["boundaries"]
+    try:
+        identities = next_run_bindings.deployment_identities(
+            image_reference=image_reference, image_digest=image_digest,
+            cli_build=cli_build, provider_network=network,
+            runtime_uid=runtime_uid,
+            turn_seconds=limits["provider_turn"]["seconds"],
+            verification_seconds=limits["ordinary_verification"]["seconds"],
+            implementer_invocations=1, contextual=False)
+        manifest = next_run_bindings.input_manifest(
+            None, authority_uuid=held["authority_uuid"], work_id=work,
+            policy_digest=identities["policy_digest"],
+            profile_digest=identities["profile_digest"],
+            image_digest=image_digest, task_bytes=raw, artifact_id=task_id,
+            contextual=False)
+        manifest = check_manifest_structure(manifest, "inputManifest",
+                                            what="the composed input manifest")
+    except (next_run_bindings.BindingRefusal, Exception) as failure:  # noqa: BLE001
+        raise PoolRefusal("the worker could not be composed from this build's "
+                          "documents: " + str(failure) + ". Nothing was "
+                          "changed.")
+    deployment = {
+        "schema": single_worker.CONFIG_SCHEMA,
+        "profile_name": identities["runtime_profile"]["name"],
+        "profile_digest": identities["profile_digest"],
+        "policy_digest": identities["policy_digest"],
+        "adapter_name": identities["adapter"]["adapter_name"],
+        "adapter_digest": identities["adapter_digest"],
+        "engine": "docker", "image_digest": image_digest, "network": network,
+        # ONE WORKSPACE ROOT PER INSTANCE: the creation derivation guards the
+        # instance as one root and refuses workers naming two, so every worker
+        # of an instance shares `state/workspaces`, as the accepted
+        # deployments and the standard next-run packet do.
+        "workspace_storage": os.path.join(places["state"], "workspaces"),
+        "workspace_group": workspace_group,
+        "launch_home": os.path.join(places["state"], "launch"),
+        "credential_home": os.path.join(places["state"], "credentials"),
+        "credential_sources": credential_sources,
+        "credential_slots": sorted(profile),
+        "credential_profile": profile,
+        "nominated_source": os.path.join(places["repository"],
+                                         "source-" + worker_id),
+        "workspace_capacity": {
+            "max_bytes":
+                identities["runtime_profile"]["workspace_min_bytes"]},
+        "input_manifest": manifest,
+        "task_document": str(task_document),
+        "launch_contract": "v12-assignment-1",
+        "review_route": REVIEW_ROUTES[role],
+        "retention_policy_digest": held["retention_policy_digest"],
+        "retention_disposition": held["retention_disposition"]}
+    worker = held_worker({"worker_id": worker_id, "role": role,
+                          "participant": participant,
+                          "deployment": deployment})
+    return {"worker": worker, "work_id": work,
+            "manifest_digest": manifest["manifest_digest"],
+            "human_contract": manifest["human_contract"],
+            "identities": {"profile_digest": identities["profile_digest"],
+                           "policy_digest": identities["policy_digest"],
+                           "adapter_digest": identities["adapter_digest"]}}
+
+
+def _written_fresh(target, body):
+    """ONE NEW FILE, created exclusively at the filesystem operation.
+
+    Review 2026-11-19T02-52-40Z: an existence check followed by a write
+    followed a dangling symlink and wrote elsewhere. `O_CREAT|O_EXCL|
+    O_NOFOLLOW` makes the kernel the judge: any existing entry -- a file, a
+    directory, a symlink whether or not it resolves, or one that appeared
+    between this call and a concurrent one -- is refused, and nothing that
+    was there is touched.
+    """
+    target = Path(target)
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        descriptor = os.open(str(target),
+                             os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                             | os.O_NOFOLLOW, 0o644)
+    except FileExistsError:
+        raise PoolRefusal(str(target) + " already exists (as a file, a "
+                          "directory or a symbolic link, resolving or not); "
+                          "this verb writes a fresh worker document and never "
+                          "replaces or follows one. Nothing was changed.")
+    except OSError as failure:
+        raise PoolRefusal(str(target) + " could not be created ("
+                          + type(failure).__name__ + "). Nothing was changed.")
+    with os.fdopen(descriptor, "w", encoding="utf-8") as writing:
+        writing.write(body)
+    return str(target)
+
+
+def compose(place, *, into, stream=sys.stdout, admit_into_pool=False,
+            **selection):
+    """Compose, write ONE new file, and only then -- if asked -- admit."""
+    held = read_configuration(place)
+    answer = composed(held, **selection)
+    body = json.dumps(answer["worker"], indent=1, sort_keys=True) + "\n"
+    written = _written_fresh(into, body)
+    worker = answer["worker"]
+    print("worker    %-14s %s" % (worker["worker_id"], worker["role"]),
+          file=stream)
+    print("work      %s" % answer["work_id"], file=stream)
+    print("image     %s" % worker["deployment"]["image_digest"], file=stream)
+    print("profile   %s %s" % (worker["deployment"]["profile_name"],
+                               worker["deployment"]["profile_digest"]),
+          file=stream)
+    print("task      %s (%s)" % (worker["deployment"]["task_document"],
+                                 answer["human_contract"]["artifact_id"]),
+          file=stream)
+    print("manifest  %s" % answer["manifest_digest"], file=stream)
+    print("written   %s" % written, file=stream)
+    print("no Job was prepared, nothing was submitted, no Work was created or "
+          "touched, and the instance's configuration was not changed",
+          file=stream)
+    if admit_into_pool:
+        answer["admitted"] = admit(place, worker, stream=stream)
+    return dict(answer, written=written)
+
+
 def main(argv=None, *, stream=sys.stdout):
     parser = argparse.ArgumentParser(
         prog="pool",
-        description="Admit one worker into an installed instance's pool.")
+        description="Compose a worker document for an installed instance, "
+                    "or admit one into its pool.")
     verbs = parser.add_subparsers(dest="verb", required=True)
     adding = verbs.add_parser(
         VERB, help="admit one worker document into an instance's deployment "
@@ -392,8 +658,62 @@ def main(argv=None, *, stream=sys.stdout):
     adding.add_argument("--worker", required=True,
                         help="the one worker document to admit, naming "
                              + ", ".join(bootstrap._WORKER))
+    composing = verbs.add_parser(
+        VERB_COMPOSE,
+        help="compose one worker document for an installed instance from "
+             "this build's own runtime profile, policy, adapter and manifest "
+             "vector plus ordinary operator configuration; writes one fresh "
+             "file and changes nothing")
+    composing.add_argument("--deployment", required=True,
+                           help="the instance's deployment.json")
+    composing.add_argument("--worker-id", required=True)
+    composing.add_argument("--role", required=True, choices=bootstrap.ROLES)
+    composing.add_argument("--participant", required=True)
+    composing.add_argument("--image-reference", required=True,
+                           help="the worker image as named to the engine, "
+                                "e.g. baton-v12-worker:f34e1576")
+    composing.add_argument("--image-digest", required=True,
+                           help="its immutable digest, sha256:…")
+    composing.add_argument("--cli-build", required=True,
+                           help="the provider CLI build the image carries, "
+                                "as the recipe pins it")
+    composing.add_argument("--network", required=True,
+                           help="the approved OCI network name")
+    composing.add_argument("--credential-sources", required=True,
+                           help="absolute path of the private credential "
+                                "registry")
+    composing.add_argument("--credential", action="append", required=True,
+                           metavar="SLOT=PROVIDER:REFERENCE",
+                           help="one credential slot mapping, repeatable")
+    composing.add_argument("--workspace-group", required=True, type=int,
+                           help="the provisioned workspace group id")
+    composing.add_argument("--task-document", required=True,
+                           help="absolute path of the installed task document "
+                                "this worker is sealed over")
+    composing.add_argument("--work-id", default=None,
+                           help="the Work this worker serves; omitted, the "
+                                "instance's own Work")
+    composing.add_argument("--into", required=True,
+                           help="the fresh file to write the worker document "
+                                "to; an existing entry is refused")
+    composing.add_argument("--admit", action="store_true",
+                           help="also admit it into the instance's pool "
+                                "(needs the nominated source to exist)")
     taken = parser.parse_args(argv)
     try:
+        if taken.verb == VERB_COMPOSE:
+            compose(taken.deployment, into=taken.into, stream=stream,
+                    admit_into_pool=taken.admit, worker_id=taken.worker_id,
+                    role=taken.role, participant=taken.participant,
+                    image_reference=taken.image_reference,
+                    image_digest=taken.image_digest,
+                    cli_build=taken.cli_build, network=taken.network,
+                    credential_sources=taken.credential_sources,
+                    credentials=taken.credential,
+                    workspace_group=taken.workspace_group,
+                    task_document=taken.task_document,
+                    work_id=taken.work_id)
+            return 0
         admit(taken.deployment, read_worker(taken.worker), stream=stream)
         return 0
     except PoolRefusal as refusal:

@@ -1388,6 +1388,38 @@ class TheReplayIsTheCallersIntent(CreationCase):
                          {"input_digest": INPUT, "policy_digest": POLICY})
 
 
+class TheRequestedVerificationIsTheJobsOwn(CreationCase):
+    """W321608 (reusable kickoff): a creation request MAY name the command the
+    Job is verified by. It reaches the deployment's composition as part of
+    the selection, it is inside the caller's intent, and a malformed one
+    refuses before any effect."""
+
+    OWN = ["python3", "-m", "unittest", "tests.job_manager.test_creation"]
+
+    def test_it_reaches_the_selection_and_is_part_of_the_intent(self):
+        held = self.created(request=request(verification=list(self.OWN)))
+        self.assertEqual(self.derivation.selections[-1]["verification"],
+                         self.OWN)
+        self.assertEqual(self.created(request=request(
+            verification=list(self.OWN))), held)
+        plain = self.created(request=request(task={
+            "task_id": "plain-task", "statement": STATEMENT}))
+        self.assertNotIn("verification", self.derivation.selections[-1])
+        digests = {row["job_id"]: row["request_digest"] for row in self.rows()}
+        self.assertNotEqual(digests[held["job_id"]], digests[plain["job_id"]])
+        # THE SAME TASK WITH ANOTHER VERIFICATION IS ANOTHER INTENT.
+        with self.assertRaises(ContractRefusal):
+            self.created(request=request(verification=["python3", "-V"]))
+
+    def test_a_malformed_verification_refuses_before_any_effect(self):
+        for bad in ([], "python3 -V", [""], ["python3", 3], None):
+            with self.subTest(verification=bad):
+                self.refused(request=request(verification=bad))
+        self.refused(request=request(verification=["w"] * 65))
+        self.assertEqual(self.rows(), [])
+        self.assertEqual(self.derivation.calls, 0)
+
+
 class TheCommandRequestsTheOperation(unittest.TestCase):
     """The CLI verb, and what it is NOT allowed to carry.
 
@@ -1461,6 +1493,15 @@ class TheCommandRequestsTheOperation(unittest.TestCase):
         self.assertEqual(both["request"]["overrides"]["execution_limits"],
                          {"provider_turn_seconds": 5400,
                           "verification_command_seconds": 1200})
+
+    def test_a_verification_is_one_word_per_operand_and_absent_otherwise(self):
+        """W321608: `--verification` carries one argument word per operand, in
+        order, with the `=` form for a word that starts with a dash."""
+        self.assertNotIn("verification", self.taken()["request"])
+        held = self.taken("--verification", "python3", "--verification=-c",
+                          "--verification", "raise SystemExit(0)")["request"]
+        self.assertEqual(held["verification"],
+                         ["python3", "-c", "raise SystemExit(0)"])
 
     def test_repeating_an_operand_accumulates_a_list(self):
         held = self.taken("--acceptance", "a second criterion",

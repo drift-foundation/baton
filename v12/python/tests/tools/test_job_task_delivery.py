@@ -251,6 +251,78 @@ class TwoJobsOnOneWorkerGetTheirOwnBytes(DeliveryCase):
                          "one Job is one task whoever serves the stage")
 
 
+class EachJobCarriesItsOwnVerification(DeliveryCase):
+    """W321608 (reusable kickoff): a defined Job names the focused command it
+    is verified by as ordinary input; one that names none keeps the
+    deployment's installed argv. Both from ONE installed task document, with
+    the manifest naming each Job's own bytes."""
+
+    OWN = ["python3", "-m", "unittest", "tests.tools.test_job_task_delivery"]
+
+    def test_a_job_naming_a_verification_gets_it_and_the_other_keeps_the_installed(self):
+        self.worker_serving("implementation", {})
+        installed = self.held(self.configured_as(0, "implementation")[0])[
+            "task_bytes"]
+        own = job_task.per_job_delivery(
+            installed, self.installed_manifest,
+            dict(self.selection(FIRST, "Close the first finding."),
+                 verification=list(self.OWN)))
+        plain = job_task.per_job_delivery(
+            installed, self.installed_manifest,
+            self.selection(SECOND, "Close the second finding."))
+        held = json.loads(installed.decode("utf-8"))
+        first = json.loads(own["task_document"])
+        second = json.loads(plain["task_document"])
+        self.assertEqual(first["verification"], self.OWN)
+        self.assertEqual(second["verification"], held["verification"])
+        self.assertNotEqual(first["verification"], second["verification"])
+        # EVERY OTHER MEMBER TRAVELS AS THE DEPLOYMENT WROTE IT.
+        for name in held:
+            if name not in ("task_id", "instructions", "verification"):
+                self.assertEqual(first[name], held[name], name)
+        for document, raw in ((own, job_task.delivered_bytes(
+                                   own["task_document"])),
+                              (plain, job_task.delivered_bytes(
+                                   plain["task_document"]))):
+            contract = document["input_manifest"]["human_contract"]
+            self.assertEqual(contract["bytes"], len(raw))
+            self.assertEqual(contract["content_digest"], digest_of_bytes(raw))
+        # AND THE VERIFICATION IS INSIDE THE JOB'S INPUT IDENTITY: the same
+        # statement with and without one are two different inputs.
+        same = job_task.per_job_delivery(
+            installed, self.installed_manifest,
+            self.selection(FIRST, "Close the first finding."))
+        self.assertNotEqual(job_input_identity(own["input_manifest"]),
+                            job_input_identity(same["input_manifest"]))
+
+    def test_a_malformed_verification_refuses_before_anything_is_composed(self):
+        self.worker_serving("implementation", {})
+        installed = self.held(self.configured_as(0, "implementation")[0])[
+            "task_bytes"]
+        for bad in ([], ["python3", ""], "python3 -m unittest", [1, 2]):
+            with self.subTest(verification=bad):
+                with self.assertRaises(ContractRefusal):
+                    job_task.per_job_delivery(
+                        installed, self.installed_manifest,
+                        dict(self.selection(FIRST, "A task."),
+                             verification=bad))
+        with self.assertRaises(ContractRefusal) as caught:
+            job_task.per_job_delivery(
+                installed, self.installed_manifest,
+                dict(self.selection(FIRST, "A task."), verifier=["x"]))
+        self.assertIn("verifier", caught.exception.message)
+
+    def test_an_installed_task_without_a_verification_cannot_take_one(self):
+        held = json.loads(b'{"task_id": "t", "instructions": "i"}')
+        with self.assertRaises(ContractRefusal) as caught:
+            job_task.compose_task(json.dumps(held).encode(), task_id="j",
+                                  instructions="do", verification=["x"])
+        self.assertIn("no verification", caught.exception.message)
+        self.assertEqual(json.loads(job_task.compose_task(
+            json.dumps(held).encode(), task_id="j", instructions="do")),
+            {"task_id": "j", "instructions": "do"})
+
+
 class RestartProvesWhatWasPublished(DeliveryCase):
     """The resumed attempt reads the bytes the first one wrote, or refuses."""
 

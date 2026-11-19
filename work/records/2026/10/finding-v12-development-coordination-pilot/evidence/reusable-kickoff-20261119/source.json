@@ -1,0 +1,47 @@
+{
+  "base": "f34e1576e051feabf4b1d1664eeb9cca9897c38c",
+  "method": "sha256 over the sorted '<path> sha256:<digest>\\n' lines of every changed v12 path (git status --porcelain -- v12)",
+  "paths": [
+    {
+      "path": "v12/python/src/baton_v12/job_manager/creation.py",
+      "sha256": "a9aa278be615ab3ee5726eeb6dcd1952ffe942eff19b29309a57626012aa994e"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_creation.py",
+      "sha256": "c432ea651be95c2421d3abbe33b9eacab368a61162d4a4cb4382e4604bf9f29a"
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "sha256": "069847adda4dd3e599ce89642c5bea553d47f401e8bf1bbc38ccda9a1e094115"
+    },
+    {
+      "path": "v12/python/tests/tools/test_creation_ports.py",
+      "sha256": "a6f3fb152bc92219590059da851bf4e574f2d1d65b22675671ede7ccb71a4d5b"
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_task_delivery.py",
+      "sha256": "fb2d6e226841b85c72d4422ace7f3ab1a7bd628a077cdc6698be65c9e5c1b861"
+    },
+    {
+      "path": "v12/python/tests/tools/test_pool.py",
+      "sha256": "42af64eec60667d40b36d7767e6220681c7655d59265993cdb41bb084b456f5b"
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "8869bb08822fe435f11f2985470e71cf6af8a0cffd729fc9ac54e0597e4a17c1"
+    },
+    {
+      "path": "v12/python/tools/job_task.py",
+      "sha256": "277ca9cb9582cdb7d6385d9a7aea4a4bdb483e1578c3ce94f2006f5c9c1543ae"
+    },
+    {
+      "path": "v12/python/tools/pool.py",
+      "sha256": "56ae71b0811726e65e45c247a585864cce1250877f6db681e4a844e481f1c89a"
+    },
+    {
+      "path": "v12/python/tools/stack_command.py",
+      "sha256": "d7f735769bedaf2e64092f17729c172786cb19d970ca1b6f6dc990bba4ddd83e"
+    }
+  ],
+  "candidate": "sha256:2b10b1844097b9d6773e8aa62d64cc13c8749a76b16f0559d750b8922c329866"
+}

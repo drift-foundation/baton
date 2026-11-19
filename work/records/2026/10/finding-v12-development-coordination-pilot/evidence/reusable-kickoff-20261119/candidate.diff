@@ -1,0 +1,898 @@
+diff --git a/v12/python/src/baton_v12/job_manager/creation.py b/v12/python/src/baton_v12/job_manager/creation.py
+index f99bd0de..4d05d602 100644
+--- a/v12/python/src/baton_v12/job_manager/creation.py
++++ b/v12/python/src/baton_v12/job_manager/creation.py
+@@ -366,7 +366,7 @@ def _asked(request):
+         request, "an ordinary Job creation request",
+         required=("schema", "task", "source_selection", "scope",
+                   "acceptance"),
+-        optional=("template", "overrides", "control"))
++        optional=("template", "overrides", "control", "verification"))
+     if taken["schema"] != templates.REQUEST_SCHEMA:
+         _refuse(f"an ordinary Job creation request is "
+                 f"{name_value(templates.REQUEST_SCHEMA)}, the resolver's own "
+@@ -428,9 +428,16 @@ def _asked(request):
+     submission_id = boundaries.identity(
+         task["submission_id"] if "submission_id" in task
+         else submission_id_for(job_id), "a submission id")
++    # W321608 (reusable kickoff): THE VERIFICATION A DEFINED JOB RUNS IS THE
++    # REQUEST'S WHEN IT STATES ONE. OBS-0 makes ordinary kickoff input-only;
++    # a coding Job whose focused tests could only be named by re-installing
++    # the deployment's task document would need an installation per Job.
++    # Absent, the deployment's installed argv travels exactly as before.
++    verification = (_verification(taken["verification"])
++                    if "verification" in taken else None)
+     return {"request": taken, "task": task, "job_id": job_id,
+             "submission_id": submission_id, "acceptance": acceptance,
+-            "scope": scope,
++            "scope": scope, "verification": verification,
+             # THE IMMUTABLE CALLER INTENT, as one digest over the OWNED
+             # request. Owned rather than as-given, so two spellings of one
+             # intent -- a different member order, a pretty-printed document --
+@@ -439,6 +446,31 @@ def _asked(request):
+             "request_digest": digest(taken)}
+ 
+ 
++# A verification argv a request may carry: one command, as the worker runs
++# it -- an argument vector, never a shell line. Bounded where it is accepted,
++# like the statement and the criteria.
++MAX_VERIFICATION_WORDS = 64
++MAX_VERIFICATION_WORD = 16384
++
++
++def _verification(value):
++    if type(value) is not list or not value \
++            or not all(type(one) is str and one for one in value):
++        _refuse(f"a creation request's verification is a non-empty list of "
++                f"argument words, the command the worker runs over the "
++                f"candidate; this is {name_value(value)}")
++    if len(value) > MAX_VERIFICATION_WORDS:
++        _refuse(f"a creation request's verification names at most "
++                f"{MAX_VERIFICATION_WORDS} argument words; this one names "
++                f"{len(value)}", category="integrity", code="limit")
++    for one in value:
++        if len(one) > MAX_VERIFICATION_WORD:
++            _refuse(f"a verification argument word is at most "
++                    f"{MAX_VERIFICATION_WORD} characters; one here is "
++                    f"{len(one)}", category="integrity", code="limit")
++    return list(value)
++
++
+ def _resolved(asked, derivation, held=None):
+     """The resolution, from the caller's request and the deployment's facts.
+ 
+@@ -469,14 +501,22 @@ def _resolved(asked, derivation, held=None):
+     # THE WORK IS NOT IN THE SELECTION. It is the deployment's own answer, so
+     # the port adds it -- which is what keeps this ONE reading of the
+     # configuration rather than two.
+-    derived = _derived(derivation, selection={
++    selection = {
+         "job_id": job_id, "statement": task["statement"],
+         "acceptance": list(asked["acceptance"]),
+         "scope": {"work": list(asked["scope"]["work"]),
+                   "tests": list(asked["scope"]["tests"])},
+-        "template_version": version}) if held is None else held
++        "template_version": version}
++    if asked.get("verification") is not None:
++        selection["verification"] = list(asked["verification"])
++    derived = (_derived(derivation, selection=selection) if held is None
++               else held)
+     request = dict(asked["request"])
+     del request["source_selection"]
++    # THE VERIFICATION IS THE TASK'S, NOT THE RESOLUTION'S: it reached the
++    # worker through the composed task bytes above and is inside the Job's
++    # input identity; the resolver's request contract does not carry it.
++    request.pop("verification", None)
+     request["task"] = {"job_id": boundaries.identity(job_id, "a Job id"),
+                        "work_id": derived["work_id"],
+                        "statement": task["statement"]}
+diff --git a/v12/python/tests/job_manager/test_creation.py b/v12/python/tests/job_manager/test_creation.py
+index 21eb929b..12b35b60 100644
+--- a/v12/python/tests/job_manager/test_creation.py
++++ b/v12/python/tests/job_manager/test_creation.py
+@@ -1388,6 +1388,38 @@ class TheReplayIsTheCallersIntent(CreationCase):
+                          {"input_digest": INPUT, "policy_digest": POLICY})
+ 
+ 
++class TheRequestedVerificationIsTheJobsOwn(CreationCase):
++    """W321608 (reusable kickoff): a creation request MAY name the command the
++    Job is verified by. It reaches the deployment's composition as part of
++    the selection, it is inside the caller's intent, and a malformed one
++    refuses before any effect."""
++
++    OWN = ["python3", "-m", "unittest", "tests.job_manager.test_creation"]
++
++    def test_it_reaches_the_selection_and_is_part_of_the_intent(self):
++        held = self.created(request=request(verification=list(self.OWN)))
++        self.assertEqual(self.derivation.selections[-1]["verification"],
++                         self.OWN)
++        self.assertEqual(self.created(request=request(
++            verification=list(self.OWN))), held)
++        plain = self.created(request=request(task={
++            "task_id": "plain-task", "statement": STATEMENT}))
++        self.assertNotIn("verification", self.derivation.selections[-1])
++        digests = {row["job_id"]: row["request_digest"] for row in self.rows()}
++        self.assertNotEqual(digests[held["job_id"]], digests[plain["job_id"]])
++        # THE SAME TASK WITH ANOTHER VERIFICATION IS ANOTHER INTENT.
++        with self.assertRaises(ContractRefusal):
++            self.created(request=request(verification=["python3", "-V"]))
++
++    def test_a_malformed_verification_refuses_before_any_effect(self):
++        for bad in ([], "python3 -V", [""], ["python3", 3], None):
++            with self.subTest(verification=bad):
++                self.refused(request=request(verification=bad))
++        self.refused(request=request(verification=["w"] * 65))
++        self.assertEqual(self.rows(), [])
++        self.assertEqual(self.derivation.calls, 0)
++
++
+ class TheCommandRequestsTheOperation(unittest.TestCase):
+     """The CLI verb, and what it is NOT allowed to carry.
+ 
+@@ -1462,6 +1494,15 @@ class TheCommandRequestsTheOperation(unittest.TestCase):
+                          {"provider_turn_seconds": 5400,
+                           "verification_command_seconds": 1200})
+ 
++    def test_a_verification_is_one_word_per_operand_and_absent_otherwise(self):
++        """W321608: `--verification` carries one argument word per operand, in
++        order, with the `=` form for a word that starts with a dash."""
++        self.assertNotIn("verification", self.taken()["request"])
++        held = self.taken("--verification", "python3", "--verification=-c",
++                          "--verification", "raise SystemExit(0)")["request"]
++        self.assertEqual(held["verification"],
++                         ["python3", "-c", "raise SystemExit(0)"])
++
+     def test_repeating_an_operand_accumulates_a_list(self):
+         held = self.taken("--acceptance", "a second criterion",
+                           "--work-scope", "v12/python/tools/job_manager.py",
+diff --git a/v12/python/tests/tools/test_connected_creation.py b/v12/python/tests/tools/test_connected_creation.py
+index 46160432..d53106d0 100644
+--- a/v12/python/tests/tools/test_connected_creation.py
++++ b/v12/python/tests/tools/test_connected_creation.py
+@@ -483,6 +483,44 @@ class TheConnectedCreation(ConnectedCreationCase):
+         self.assertEqual(held["servable"],
+                          {"implementation": ["impl-a"], "review": ["review-a"]})
+ 
++    def test_a_created_job_carries_the_verification_it_named(self):
++        """W321608: through the real command and the real install, two
++        defined Jobs on one installed task -- one naming its own verification,
++        one not -- each receive their intended instructions and verification;
++        nothing of the installation was written per Job."""
++        self.installed()
++        before = Path(self.owned["configuration"]).read_bytes() \
++            if "configuration" in self.owned else None
++        self.answered()
++        argv = self.argv(task="cli-verified", statement="The verified task.")
++        argv += ["--verification", "python3", "--verification=-c",
++                 "--verification", "raise SystemExit(3)"]
++        said = io.StringIO()
++        self.assertEqual(job_manager.main(argv, stream=said), 0,
++                         said.getvalue())
++        answer = json.loads(said.getvalue())
++        store, creation = self.rows()
++        verified = json.loads(creation.job_task_of(store, "job-cli-verified"))
++        plain = json.loads(creation.job_task_of(store, "job-cli-first"))
++        self.assertEqual(verified["verification"],
++                         ["python3", "-c", "raise SystemExit(3)"])
++        self.assertEqual(plain["verification"],
++                         ["python3", "-c", "raise SystemExit(0)"])
++        self.assertIn("The verified task.", verified["instructions"])
++        self.assertNotEqual(verified["instructions"], plain["instructions"])
++        self.assertEqual(answer["job_id"], "job-cli-verified")
++        self.assertEqual(sorted(self.bindings()),
++                         ["job-a", "job-cli-first", "job-cli-verified"])
++        # THE SAME COMMAND AGAIN CONVERGES; another verification is refused.
++        said = io.StringIO()
++        self.assertEqual(job_manager.main(argv, stream=said), 0)
++        self.assertEqual(json.loads(said.getvalue())["job_id"],
++                         "job-cli-verified")
++        changed = argv[:-1] + ["raise SystemExit(4)"]
++        with self.assertRaises(ContractRefusal):
++            job_manager.main(changed, stream=io.StringIO())
++        del before
++
+     def test_two_ordinary_creations_bind_two_jobs(self):
+         self.installed()
+         self.answered()
+diff --git a/v12/python/tests/tools/test_creation_ports.py b/v12/python/tests/tools/test_creation_ports.py
+index 83f9d9c4..a9115d66 100644
+--- a/v12/python/tests/tools/test_creation_ports.py
++++ b/v12/python/tests/tools/test_creation_ports.py
+@@ -617,6 +617,26 @@ class TwoDistinctTasksOnOnePool(DerivationCase):
+         self.assertNotEqual(first["input_digest"], installed["input_digest"])
+         self.assertNotEqual(second["input_digest"], installed["input_digest"])
+ 
++    def test_a_job_naming_its_own_verification_is_derived_with_it(self):
++        """W321608: the request's verification reaches the composed task and
++        its identity; a Job naming none is derived with the installed argv."""
++        own = ["python3", "-m", "unittest", "tests.tools.test_creation_ports"]
++        verified = self.derived_for(dict(
++            self.selection("job-one", "A verified task."), verification=own))
++        plain = self.derived_for(self.selection("job-two", "A plain task."))
++        same = self.derived_for(self.selection("job-one", "A verified task."))
++        installed = json.loads(self.derivation().held()["workers"][0]
++                               ["deployment"]["task_bytes"].decode("utf-8"))
++        self.assertEqual(json.loads(verified["task_document"])["verification"],
++                         own)
++        self.assertEqual(json.loads(plain["task_document"])["verification"],
++                         installed["verification"])
++        self.assertEqual(json.loads(same["task_document"])["verification"],
++                         installed["verification"])
++        self.assertNotEqual(verified["input_digest"], same["input_digest"])
++        self.assertEqual(verified["input_digest"], job_input_identity(
++            verified["input_manifest"], what="a created Job's own input"))
++
+     def test_both_stages_of_each_job_are_servable_with_its_own_task(self):
+         """THE SCHEDULER'S OWN RULE, asked with the per-Job manifest.
+ 
+diff --git a/v12/python/tests/tools/test_job_task_delivery.py b/v12/python/tests/tools/test_job_task_delivery.py
+index c8a07753..5b6f9c8b 100644
+--- a/v12/python/tests/tools/test_job_task_delivery.py
++++ b/v12/python/tests/tools/test_job_task_delivery.py
+@@ -251,6 +251,78 @@ class TwoJobsOnOneWorkerGetTheirOwnBytes(DeliveryCase):
+                          "one Job is one task whoever serves the stage")
+ 
+ 
++class EachJobCarriesItsOwnVerification(DeliveryCase):
++    """W321608 (reusable kickoff): a defined Job names the focused command it
++    is verified by as ordinary input; one that names none keeps the
++    deployment's installed argv. Both from ONE installed task document, with
++    the manifest naming each Job's own bytes."""
++
++    OWN = ["python3", "-m", "unittest", "tests.tools.test_job_task_delivery"]
++
++    def test_a_job_naming_a_verification_gets_it_and_the_other_keeps_the_installed(self):
++        self.worker_serving("implementation", {})
++        installed = self.held(self.configured_as(0, "implementation")[0])[
++            "task_bytes"]
++        own = job_task.per_job_delivery(
++            installed, self.installed_manifest,
++            dict(self.selection(FIRST, "Close the first finding."),
++                 verification=list(self.OWN)))
++        plain = job_task.per_job_delivery(
++            installed, self.installed_manifest,
++            self.selection(SECOND, "Close the second finding."))
++        held = json.loads(installed.decode("utf-8"))
++        first = json.loads(own["task_document"])
++        second = json.loads(plain["task_document"])
++        self.assertEqual(first["verification"], self.OWN)
++        self.assertEqual(second["verification"], held["verification"])
++        self.assertNotEqual(first["verification"], second["verification"])
++        # EVERY OTHER MEMBER TRAVELS AS THE DEPLOYMENT WROTE IT.
++        for name in held:
++            if name not in ("task_id", "instructions", "verification"):
++                self.assertEqual(first[name], held[name], name)
++        for document, raw in ((own, job_task.delivered_bytes(
++                                   own["task_document"])),
++                              (plain, job_task.delivered_bytes(
++                                   plain["task_document"]))):
++            contract = document["input_manifest"]["human_contract"]
++            self.assertEqual(contract["bytes"], len(raw))
++            self.assertEqual(contract["content_digest"], digest_of_bytes(raw))
++        # AND THE VERIFICATION IS INSIDE THE JOB'S INPUT IDENTITY: the same
++        # statement with and without one are two different inputs.
++        same = job_task.per_job_delivery(
++            installed, self.installed_manifest,
++            self.selection(FIRST, "Close the first finding."))
++        self.assertNotEqual(job_input_identity(own["input_manifest"]),
++                            job_input_identity(same["input_manifest"]))
++
++    def test_a_malformed_verification_refuses_before_anything_is_composed(self):
++        self.worker_serving("implementation", {})
++        installed = self.held(self.configured_as(0, "implementation")[0])[
++            "task_bytes"]
++        for bad in ([], ["python3", ""], "python3 -m unittest", [1, 2]):
++            with self.subTest(verification=bad):
++                with self.assertRaises(ContractRefusal):
++                    job_task.per_job_delivery(
++                        installed, self.installed_manifest,
++                        dict(self.selection(FIRST, "A task."),
++                             verification=bad))
++        with self.assertRaises(ContractRefusal) as caught:
++            job_task.per_job_delivery(
++                installed, self.installed_manifest,
++                dict(self.selection(FIRST, "A task."), verifier=["x"]))
++        self.assertIn("verifier", caught.exception.message)
++
++    def test_an_installed_task_without_a_verification_cannot_take_one(self):
++        held = json.loads(b'{"task_id": "t", "instructions": "i"}')
++        with self.assertRaises(ContractRefusal) as caught:
++            job_task.compose_task(json.dumps(held).encode(), task_id="j",
++                                  instructions="do", verification=["x"])
++        self.assertIn("no verification", caught.exception.message)
++        self.assertEqual(json.loads(job_task.compose_task(
++            json.dumps(held).encode(), task_id="j", instructions="do")),
++            {"task_id": "j", "instructions": "do"})
++
++
+ class RestartProvesWhatWasPublished(DeliveryCase):
+     """The resumed attempt reads the bytes the first one wrote, or refuses."""
+ 
+diff --git a/v12/python/tests/tools/test_pool.py b/v12/python/tests/tools/test_pool.py
+index 77d0575f..5f89cdef 100644
+--- a/v12/python/tests/tools/test_pool.py
++++ b/v12/python/tests/tools/test_pool.py
+@@ -532,6 +532,169 @@ class TheCommandLine(PoolCase):
+                           "--worker", "/dev/null"])
+ 
+ 
++class ComposingAWorkerForThisInstance(PoolCase):
++    """W321608 (reusable kickoff): a worker document for an installed
++    instance is composed by the product from a reviewed one -- the instance's
++    Authority, Work, image, task artifact, identity and derived paths bound
++    here, every deployment fact inherited, the manifest resealed -- so no
++    installation needs a dossier script to provision its execution capacity."""
++
++    IMAGE = "sha256:" + "c" * 64
++
++    def task_file(self, task_id="labels-cli", name="labels-task.json"):
++        from tools import single_worker
++
++        held = json.loads(Path(self.config["task_document"]).read_bytes())
++        held["task_id"] = task_id
++        held["instructions"] = "deliver the " + task_id + " slice"
++        place = os.path.join(self.root, name)
++        Path(place).write_bytes(json.dumps(held, sort_keys=True).encode())
++        del single_worker
++        return place
++
++    def composing(self, **changes):
++        selection = dict(worker_id="impl-c", role="implementation",
++                         participant="baton.impl-c", image_digest=self.IMAGE,
++                         task_document=self.task_file())
++        selection.update(changes)
++        return pool.composed(self.held, self.candidate(), **selection)
++
++    def test_the_instance_bound_members_are_derived_and_the_rest_inherited(self):
++        from baton_v12.contracts import digest_of_bytes
++        from baton_v12.contracts.manifest import check_manifest_structure
++
++        like = self.candidate()
++        answer = pool.composed(self.held, like, worker_id="impl-c",
++                               role="implementation",
++                               participant="baton.impl-c",
++                               image_digest=self.IMAGE,
++                               task_document=self.task_file(),
++                               now="2026-11-19T02:30:00.000Z")
++        worker = answer["worker"]
++        deployment = worker["deployment"]
++        manifest = deployment["input_manifest"]
++        destination = str(Path(self.held["state_root"]).parent)
++        self.assertEqual(worker["worker_id"], "impl-c")
++        self.assertEqual(worker["participant"], "baton.impl-c")
++        self.assertEqual(deployment["image_digest"], self.IMAGE)
++        self.assertEqual(manifest["worker_image_digest"], self.IMAGE)
++        self.assertEqual(manifest["work_ref"],
++                         {"authority_uuid": self.held["authority_uuid"],
++                          "work_id": answer["work_id"]})
++        self.assertEqual(answer["work_id"], self.held["authority_uuid"][:8]
++                         + "-W1")
++        raw = Path(deployment["task_document"]).read_bytes()
++        self.assertEqual(manifest["human_contract"],
++                         {"artifact_id": "labels-cli",
++                          "media_type": "application/json",
++                          "bytes": len(raw),
++                          "content_digest": digest_of_bytes(raw),
++                          "locator": "artifact://contracts/labels-cli"})
++        self.assertEqual(manifest["manifest_id"], "input-manifest-impl-c")
++        self.assertEqual(manifest["created_at"], "2026-11-19T02:30:00.000Z")
++        # RESEALED AND PROVED BY THE OWNER OF THE RULE.
++        check_manifest_structure(manifest, "inputManifest")
++        self.assertNotEqual(manifest["manifest_digest"],
++                            like["deployment"]["input_manifest"]
++                            ["manifest_digest"])
++        # THE DERIVED PATHS ARE THE INSTANCE'S, exactly as bootstrap derives.
++        self.assertEqual(deployment["workspace_storage"],
++                         os.path.join(destination, "workers", "impl-c",
++                                      "storage"))
++        self.assertEqual(deployment["nominated_source"],
++                         os.path.join(destination, "repo", "source-impl-c"))
++        self.assertEqual(deployment["launch_home"],
++                         os.path.join(destination, "state", "launch"))
++        self.assertEqual(deployment["credential_home"],
++                         os.path.join(destination, "state", "credentials"))
++        # EVERY DEPLOYMENT FACT IS THE REVIEWED DOCUMENT'S.
++        for name in ("policy_digest", "profile_name", "profile_digest",
++                     "adapter_name", "adapter_digest", "engine", "network",
++                     "credential_sources", "credential_slots",
++                     "credential_profile", "workspace_group",
++                     "workspace_capacity", "launch_contract", "review_route",
++                     "retention_policy_digest", "retention_disposition"):
++            self.assertEqual(deployment[name], like["deployment"][name], name)
++        for name in like["deployment"]["input_manifest"]:
++            if name not in pool._MANIFEST_BOUND:
++                self.assertEqual(manifest[name],
++                                 like["deployment"]["input_manifest"][name],
++                                 name)
++        # NOTHING OF THE OTHER INSTANCE TRAVELS.
++        for name in ("authority_uuid", "authority_store", "principal",
++                     "launch_role"):
++            self.assertNotIn(name, deployment)
++
++    def test_two_defined_tasks_compose_two_workers_without_an_installation(self):
++        first = self.composing(task_document=self.task_file("task-one", "a.json"))
++        second = self.composing(worker_id="impl-d", participant="baton.impl-d",
++                                task_document=self.task_file("task-two",
++                                                             "b.json"))
++        self.assertNotEqual(first["manifest_digest"], second["manifest_digest"])
++        self.assertEqual(first["human_contract"]["artifact_id"], "task-one")
++        self.assertEqual(second["human_contract"]["artifact_id"], "task-two")
++        self.unchanged()
++
++    def test_a_composed_worker_is_admitted_once_its_source_exists(self):
++        answer = self.composing()
++        worker = answer["worker"]
++        os.makedirs(worker["deployment"]["nominated_source"])
++        admitted = self.admitting(worker)
++        self.assertEqual(admitted["worker"]["deployment"]["image_digest"],
++                         self.IMAGE)
++        normalized = stage_execution.held_configuration(self.written())
++        self.assertIn("impl-c",
++                      [one["worker_id"] for one in normalized["workers"]])
++        self.assertEqual(admitted["worker"]["deployment"]["authority_uuid"],
++                         self.held["authority_uuid"])
++
++    def test_what_it_refuses_and_that_nothing_is_written(self):
++        with self.assertRaises(pool.PoolRefusal) as caught:
++            self.composing(image_digest="sha256:short")
++        self.assertIn("64 hex", str(caught.exception))
++        with self.assertRaises(pool.PoolRefusal) as caught:
++            self.composing(task_document=os.path.join(self.root, "absent.json"))
++        self.assertIn("could not be read", str(caught.exception))
++        with self.assertRaises(pool.PoolRefusal) as caught:
++            self.composing(task_document="relative/task.json")
++        self.assertIn("absolute", str(caught.exception))
++        with self.assertRaises(pool.PoolRefusal) as caught:
++            pool.composed(self.held, {"deployment": {"schema": "other/1"}},
++                          worker_id="impl-c", role="implementation",
++                          participant="baton.impl-c", image_digest=self.IMAGE,
++                          task_document=self.task_file())
++        self.assertIn("another version", str(caught.exception))
++        with self.assertRaises(pool.PoolRefusal):
++            self.composing(role="integrator")
++        with self.assertRaises(pool.PoolRefusal):
++            self.composing(worker_id="../escape")
++        self.unchanged()
++
++    def test_the_command_line_writes_one_fresh_file_and_refuses_a_second(self):
++        like = os.path.join(self.root, "like.json")
++        Path(like).write_text(json.dumps(self.candidate()))
++        into = os.path.join(self.root, "composed", "impl-c.json")
++        argv = [pool.VERB_COMPOSE, "--deployment", self.place, "--like", like,
++                "--worker-id", "impl-c", "--role", "implementation",
++                "--participant", "baton.impl-c", "--image-digest", self.IMAGE,
++                "--task-document", self.task_file(), "--into", into]
++        said = io.StringIO()
++        self.assertEqual(pool.main(argv, stream=said), 0, said.getvalue())
++        written = json.loads(Path(into).read_text())
++        self.assertEqual(written["worker_id"], "impl-c")
++        self.assertEqual(written["deployment"]["image_digest"], self.IMAGE)
++        self.assertIn("the instance's configuration was not changed",
++                      said.getvalue())
++        self.unchanged()
++        said = io.StringIO()
++        self.assertEqual(pool.main(argv, stream=said), 2)
++        self.assertIn("already exists", said.getvalue())
++        # AND IT IS REACHABLE FROM THE INSTALLED COMMAND.
++        from tools import stack_command
++
++        self.assertIn("pool", stack_command.COMMANDS)
++
++
+ def _work_or_none(authority, work_id):
+     try:
+         return authority.project_work(work_id)
+diff --git a/v12/python/tools/job_manager.py b/v12/python/tools/job_manager.py
+index 40ac394b..cb82a831 100644
+--- a/v12/python/tools/job_manager.py
++++ b/v12/python/tools/job_manager.py
+@@ -908,6 +908,12 @@ def _creation_request(taken):
+     # finite control, exactly as before.
+     if taken.control_profile is not None:
+         request["control"] = {"profile": taken.control_profile}
++    # W321608: THE FOCUSED VERIFICATION A DEFINED JOB NAMES, one argument
++    # word per operand, exactly as the worker will run it over the candidate;
++    # absent, the deployment's installed verification travels as before.
++    verification = getattr(taken, "verification", None)
++    if verification:
++        request["verification"] = list(verification)
+     return request
+ 
+ 
+@@ -1404,6 +1410,13 @@ def main(argv, *, clock=None, stream=None):
+                           help="this Job's verification-command ceiling in "
+                                "seconds, a permitted override reaching all "
+                                "three verification boundaries")
++    creating.add_argument("--verification", action="append", default=None,
++                          metavar="WORD",
++                          help="one argument word of the command this Job is "
++                               "verified by, repeatable in order (write a "
++                               "word that starts with a dash as "
++                               "--verification=-m); omitted, the deployment's "
++                               "installed verification runs")
+     creating.add_argument("--control-profile", default=None,
+                           help="the finite control profile this Job is "
+                                "admitted under (LIM-5), for example "
+diff --git a/v12/python/tools/job_task.py b/v12/python/tools/job_task.py
+index 9c67bd39..6c732cd4 100644
+--- a/v12/python/tools/job_task.py
++++ b/v12/python/tools/job_task.py
+@@ -59,13 +59,18 @@ from baton_v12.contracts.errors import name_value
+ from baton_v12.contracts.manifest import check_manifest_structure
+ 
+ __all__ = ["CONTRACT_MEDIA_TYPE", "MAX_INSTRUCTIONS", "SELECTION_MEMBERS",
++           "SELECTION_OPTIONAL", "OPTIONAL_SUBSTITUTED",
+            "CALLER_SELECTION", "SUBSTITUTED", "compose_task",
+            "delivered_bytes",
+            "instructions_for", "manifest_for", "per_job_delivery"]
+ 
+-# The two members a caller's request owns. CLOSED, and deliberately short: a
+-# third would be this composer deciding something the deployment configured.
++# The members a caller's request owns. CLOSED, and deliberately short. The
++# first two are every created Job's; `verification` is substituted ONLY when
++# the request states one (W321608 reusable kickoff: a defined coding Job
++# names the focused command it is verified by, as ordinary input, and a Job
++# that states none runs the deployment's installed argv exactly as before).
+ SUBSTITUTED = ("task_id", "instructions")
++OPTIONAL_SUBSTITUTED = ("verification",)
+ 
+ # What the manifest's human-contract artifact must already say it is.
+ # `single_worker._task_bytes` refuses anything else for this profile, so a
+@@ -93,6 +98,8 @@ def _refuse(message, *, category="integrity", code="schema"):
+ # exist before anything is resolved.
+ SELECTION_MEMBERS = ("job_id", "work_id", "statement", "acceptance", "scope",
+                      "template_version")
++# And the one a selection MAY carry: the request's own verification argv.
++SELECTION_OPTIONAL = ("verification",)
+ # And the ones the CALLER supplies: `work_id` is the deployment's own answer
+ # and `creation_ports` adds it, so a creation never has to read the
+ # configuration twice to compose one task.
+@@ -126,7 +133,7 @@ def instructions_for(selection):
+         _refuse(f"a task selection names {', '.join(SELECTION_MEMBERS)}; this "
+                 f"one is missing {', '.join(missing)}")
+     extra = sorted(one for one in selection
+-                   if one not in SELECTION_MEMBERS)
++                   if one not in SELECTION_MEMBERS + SELECTION_OPTIONAL)
+     if extra:
+         _refuse(f"a task selection also carries {', '.join(extra)}, which "
+                 f"this composition does not render; an unrendered member is "
+@@ -196,8 +203,9 @@ def instructions_for(selection):
+     return rendered
+ 
+ 
+-def compose_task(installed, *, task_id, instructions):
+-    """The installed task document with exactly two members substituted.
++def compose_task(installed, *, task_id, instructions, verification=None):
++    """The installed task document with exactly two members substituted --
++    three when the request states its own verification argv.
+ 
+     `installed` is the bytes `single_worker._task_bytes` read and held. What
+     comes back is TEXT, and `delivered_bytes` below is the one place it becomes
+@@ -247,6 +255,17 @@ def compose_task(installed, *, task_id, instructions):
+             _refuse(f"a composed task's {name} is bounded non-empty text; "
+                     f"this is {name_value(value)}")
+     held = dict(held, task_id=task_id, instructions=instructions)
++    if verification is not None:
++        if "verification" not in held:
++            _refuse("the installed task document carries no verification, "
++                    "so a request's own cannot take its place; the member a "
++                    "request substitutes is one the deployment wrote",
++                    category="refused", code="precondition")
++        if type(verification) is not list or not verification \
++                or not all(type(one) is str and one for one in verification):
++            _refuse(f"a composed task's verification is a non-empty list of "
++                    f"argument words; this is {name_value(verification)}")
++        held["verification"] = list(verification)
+     return json.dumps(held, sort_keys=True, ensure_ascii=False,
+                       separators=(",", ":"))
+ 
+@@ -321,6 +340,7 @@ def per_job_delivery(installed_task, installed_manifest, selection):
+     # dereference-before-validate shape R4 corrected one Work over.
+     instructions = instructions_for(selection)
+     task = compose_task(installed_task, task_id=selection["job_id"],
+-                        instructions=instructions)
++                        instructions=instructions,
++                        verification=selection.get("verification"))
+     return {"task_document": task,
+             "input_manifest": manifest_for(installed_manifest, task)}
+diff --git a/v12/python/tools/pool.py b/v12/python/tools/pool.py
+index ffcfb1cf..11606e35 100644
+--- a/v12/python/tools/pool.py
++++ b/v12/python/tools/pool.py
+@@ -378,10 +378,219 @@ def admit(place, worker, *, stream=sys.stdout, opener=None, store=None):
+             "principal": entry["deployment"]["principal"]}
+ 
+ 
++# -- W321608: composing a worker document for THIS instance -------------------
++#
++# WHAT THIS IS FOR. A worker's `deployment` is the `/4` single-worker launch
++# document, and it carries an `input_manifest` digest-sealed over the Authority
++# and Work it serves, a `human_contract` naming the installed task bytes, and
++# the paths the instance derives. Nothing in the product composed one: every
++# installation to date was composed by a dossier script that copied a reviewed
++# deployment and resealed it by hand, which OBS-0a names as a product gap --
++# provisioning belongs to installation tooling, not to per-deployment scripts.
++#
++# WHAT IT DOES NOT DECIDE. The policy digests, the runtime profile, the adapter,
++# the engine and network, the credential selection, the workspace group and
++# capacity, the launch contract and the review route are DEPLOYMENT FACTS, and
++# they are taken from a reviewed worker document (`--like`) rather than invented
++# here. What is composed is only what is bound to THIS instance and THIS worker:
++# the Authority, the Work, the image, the task artifact, the identity and the
++# derived paths -- exactly the members the accepted composition substituted.
++
++VERB_COMPOSE = "compose-worker"
++# The members a reviewed document carries that are the OTHER instance's.
++_IDENTITY_BOUND = ("authority_uuid", "authority_store", "participant",
++                   "principal", "launch_role", "input_manifest",
++                   "task_document", "launch_home", "credential_home",
++                   "workspace_storage", "nominated_source")
++_MANIFEST_BOUND = ("work_ref", "worker_image_digest", "human_contract",
++                   "manifest_id", "created_at", "manifest_digest")
++_SHA256 = "sha256:"
++
++
++def _like_deployment(like):
++    """The reviewed deployment to inherit from: a worker entry or a bare one."""
++    if type(like) is not dict:
++        raise PoolRefusal("the document to compose like is one JSON object, "
++                          "not " + type(like).__name__ + ". Nothing was "
++                          "changed.")
++    deployment = like.get("deployment") if "deployment" in like else like
++    if type(deployment) is not dict:
++        raise PoolRefusal("the document to compose like names no deployment "
++                          "object. Nothing was changed.")
++    if deployment.get("schema") != single_worker.CONFIG_SCHEMA:
++        raise PoolRefusal(
++            "the document to compose like is "
++            + repr(deployment.get("schema")) + " and this verb composes "
++            + single_worker.CONFIG_SCHEMA + "; another version is not "
++            "reinterpreted. Nothing was changed.")
++    manifest = deployment.get("input_manifest")
++    if type(manifest) is not dict:
++        raise PoolRefusal("the document to compose like carries no input "
++                          "manifest to inherit the deployment's policy, "
++                          "profile, sources and outputs from. Nothing was "
++                          "changed.")
++    return deployment
++
++
++def _task_artifact(place):
++    """The installed task bytes this worker is sealed over, read once."""
++    try:
++        raw = Path(place).read_bytes()
++    except (FileNotFoundError, OSError) as failure:
++        raise PoolRefusal("the task document " + str(place) + " could not be "
++                          "read (" + type(failure).__name__ + "); a worker is "
++                          "sealed over task bytes that exist. Nothing was "
++                          "changed.")
++    if len(raw) > single_worker.MAX_TASK_BYTES:
++        raise PoolRefusal("the task document " + str(place) + " is wider "
++                          "than " + str(single_worker.MAX_TASK_BYTES)
++                          + " bytes, which the worker refuses. Nothing was "
++                          "changed.")
++    try:
++        held = json.loads(raw.decode("utf-8"))
++    except (UnicodeDecodeError, ValueError):
++        raise PoolRefusal("the task document " + str(place) + " is not one "
++                          "UTF-8 JSON document. Nothing was changed.")
++    if type(held) is not dict or type(held.get("task_id")) is not str \
++            or not held["task_id"]:
++        raise PoolRefusal("the task document " + str(place) + " names no "
++                          "task_id; the worker's human-contract artifact is "
++                          "named after it. Nothing was changed.")
++    from baton_v12.contracts import digest_of_bytes
++    return {"artifact_id": held["task_id"],
++            "media_type": "application/json", "bytes": len(raw),
++            "content_digest": digest_of_bytes(raw),
++            "locator": "artifact://contracts/" + held["task_id"]}
++
++
++def composed(held, like, *, worker_id, role, participant, image_digest,
++             task_document, work_id=None, now=None):
++    """One worker document for the instance `held` describes. READS ONLY.
++
++    Every member the instance binds is derived from the instance; every
++    deployment fact is inherited from `like`; the manifest is resealed by
++    §12's rule and proved by the accepted structure check before anything
++    is returned. The derived paths are the ones `bootstrap` would derive for
++    a worker named at install, so one document serves both the repeated
++    bootstrap that clones its source and `add-worker` once that source
++    exists.
++    """
++    from datetime import datetime, timezone
++
++    from baton_v12.contracts import digest
++    from baton_v12.contracts.manifest import check_manifest_structure
++    from tools import instance
++
++    for name in ("authority_store", "authority_uuid", "state_root"):
++        if not held.get(name):
++            raise PoolRefusal("this is not an instance's deployment "
++                              "configuration: it names no " + name
++                              + ". Nothing was changed.")
++    bootstrap._safe_name(worker_id)
++    if role not in bootstrap.ROLES:
++        raise PoolRefusal("this deployment serves " + ", ".join(bootstrap.ROLES)
++                          + " and this worker names the role " + repr(role)
++                          + ". Nothing was changed.")
++    if type(participant) is not str or not participant:
++        raise PoolRefusal("a worker names one participant. Nothing was "
++                          "changed.")
++    if type(image_digest) is not str or not image_digest.startswith(_SHA256) \
++            or len(image_digest) != len(_SHA256) + 64:
++        raise PoolRefusal("an image digest is sha256: followed by 64 hex "
++                          "characters; this is " + repr(image_digest)
++                          + ". Nothing was changed.")
++    destination = Path(held["state_root"]).parent
++    places = instance.layout(destination)
++    if places["authority_store"] != held["authority_store"]:
++        raise PoolRefusal(
++            "this configuration's state_root " + str(held["state_root"])
++            + " does not sit in the destination whose Authority store is "
++            + str(held["authority_store"]) + ", so the instance's paths "
++            "cannot be derived. Nothing was changed.")
++    base = _like_deployment(like)
++    work = work_id or held.get("job_work_id") or (held["authority_uuid"][:8]
++                                                 + "-W1")
++    task = Path(task_document)
++    if not task.is_absolute():
++        raise PoolRefusal("the task document is named by an absolute path; "
++                          "this is " + str(task) + ". Nothing was changed.")
++    artifact = _task_artifact(task)
++    manifest = {name: value for name, value in base["input_manifest"].items()
++                if name not in _MANIFEST_BOUND}
++    manifest["work_ref"] = {"authority_uuid": held["authority_uuid"],
++                            "work_id": work}
++    manifest["worker_image_digest"] = image_digest
++    manifest["human_contract"] = artifact
++    manifest["manifest_id"] = "input-manifest-" + worker_id
++    manifest["created_at"] = (now or datetime.now(timezone.utc).strftime(
++        "%Y-%m-%dT%H:%M:%S.000Z"))
++    manifest["manifest_digest"] = digest(manifest)
++    try:
++        manifest = check_manifest_structure(manifest, "inputManifest",
++                                            what="the composed input manifest")
++    except Exception as failure:                              # noqa: BLE001
++        raise PoolRefusal("the composed input manifest is not one the worker "
++                          "accepts: " + str(failure) + ". Nothing was changed.")
++    deployment = {name: value for name, value in base.items()
++                  if name not in _IDENTITY_BOUND}
++    deployment.update({
++        "image_digest": image_digest,
++        "input_manifest": manifest,
++        "task_document": str(task),
++        "launch_home": os.path.join(places["state"], "launch"),
++        "credential_home": os.path.join(places["state"], "credentials"),
++        "workspace_storage": os.path.join(places["destination"], "workers",
++                                          worker_id, "storage"),
++        "nominated_source": os.path.join(places["repository"],
++                                         "source-" + worker_id)})
++    worker = held_worker({"worker_id": worker_id, "role": role,
++                          "participant": participant,
++                          "deployment": deployment})
++    return {"worker": worker, "work_id": work,
++            "manifest_digest": manifest["manifest_digest"],
++            "human_contract": artifact,
++            "inherited_from": {"schema": base["schema"],
++                               "policy_digest": base.get("policy_digest"),
++                               "profile_digest": base.get("profile_digest"),
++                               "adapter_digest": base.get("adapter_digest")}}
++
++
++def compose(place, like, *, into, stream=sys.stdout, admit_into_pool=False,
++            **selection):
++    """Compose, write ONE new file, and only then -- if asked -- admit."""
++    held = read_configuration(place)
++    answer = composed(held, like, **selection)
++    target = Path(into)
++    if target.exists():
++        raise PoolRefusal(str(target) + " already exists; this verb writes a "
++                          "fresh worker document and never replaces one. "
++                          "Nothing was changed.")
++    target.parent.mkdir(parents=True, exist_ok=True)
++    body = json.dumps(answer["worker"], indent=1, sort_keys=True) + "\n"
++    target.write_text(body)
++    worker = answer["worker"]
++    print("worker    %-14s %s" % (worker["worker_id"], worker["role"]),
++          file=stream)
++    print("work      %s" % answer["work_id"], file=stream)
++    print("image     %s" % worker["deployment"]["image_digest"], file=stream)
++    print("task      %s (%s)" % (worker["deployment"]["task_document"],
++                                 answer["human_contract"]["artifact_id"]),
++          file=stream)
++    print("manifest  %s" % answer["manifest_digest"], file=stream)
++    print("written   %s" % target, file=stream)
++    print("no Job was prepared, nothing was submitted, no Work was created or "
++          "touched, and the instance's configuration was not changed",
++          file=stream)
++    if admit_into_pool:
++        answer["admitted"] = admit(place, worker, stream=stream)
++    return dict(answer, written=str(target))
++
++
+ def main(argv=None, *, stream=sys.stdout):
+     parser = argparse.ArgumentParser(
+         prog="pool",
+-        description="Admit one worker into an installed instance's pool.")
++        description="Compose a worker document for an installed instance, "
++                    "or admit one into its pool.")
+     verbs = parser.add_subparsers(dest="verb", required=True)
+     adding = verbs.add_parser(
+         VERB, help="admit one worker document into an instance's deployment "
+@@ -392,8 +601,47 @@ def main(argv=None, *, stream=sys.stdout):
+     adding.add_argument("--worker", required=True,
+                         help="the one worker document to admit, naming "
+                              + ", ".join(bootstrap._WORKER))
++    composing = verbs.add_parser(
++        VERB_COMPOSE,
++        help="compose one worker document for an installed instance from a "
++             "reviewed worker document: the instance's Authority, Work, "
++             "image, task artifact, identity and derived paths are composed "
++             "here, every deployment fact is inherited, and the input "
++             "manifest is resealed")
++    composing.add_argument("--deployment", required=True,
++                           help="the instance's deployment.json")
++    composing.add_argument("--like", required=True,
++                           help="a reviewed worker document (or its "
++                                "deployment) whose deployment facts this "
++                                "worker inherits")
++    composing.add_argument("--worker-id", required=True)
++    composing.add_argument("--role", required=True, choices=bootstrap.ROLES)
++    composing.add_argument("--participant", required=True)
++    composing.add_argument("--image-digest", required=True,
++                           help="the immutable worker image digest, sha256:…")
++    composing.add_argument("--task-document", required=True,
++                           help="absolute path of the installed task document "
++                                "this worker is sealed over")
++    composing.add_argument("--work-id", default=None,
++                           help="the Work this worker serves; omitted, the "
++                                "instance's own Work")
++    composing.add_argument("--into", required=True,
++                           help="the fresh file to write the worker document "
++                                "to; an existing path is refused")
++    composing.add_argument("--admit", action="store_true",
++                           help="also admit it into the instance's pool "
++                                "(needs the nominated source to exist)")
+     taken = parser.parse_args(argv)
+     try:
++        if taken.verb == VERB_COMPOSE:
++            compose(taken.deployment, read_worker(taken.like),
++                    into=taken.into, stream=stream,
++                    admit_into_pool=taken.admit, worker_id=taken.worker_id,
++                    role=taken.role, participant=taken.participant,
++                    image_digest=taken.image_digest,
++                    task_document=taken.task_document,
++                    work_id=taken.work_id)
++            return 0
+         admit(taken.deployment, read_worker(taken.worker), stream=stream)
+         return 0
+     except PoolRefusal as refusal:
+diff --git a/v12/python/tools/stack_command.py b/v12/python/tools/stack_command.py
+index b6757875..09d90285 100644
+--- a/v12/python/tools/stack_command.py
++++ b/v12/python/tools/stack_command.py
+@@ -240,6 +240,12 @@ def _identity(operands):
+     return 0
+ 
+ 
++def _pool(operands):
++    """W202663 / W321608: compose and admit workers of an installed instance."""
++    from tools import pool
++    return pool.main(operands)
++
++
+ COMMANDS = {
+     "bootstrap": _bootstrap,
+     "start": _stack("start"), "stop": _stack("stop"),
+@@ -262,6 +268,10 @@ COMMANDS = {
+     # durable transition through a participant-bound session.
+     "disposition": _disposition,
+     "identity": _identity,
++    # W321608: THE POOL VERBS -- composing a worker document for THIS
++    # instance and admitting one -- are installation tooling (OBS-0a), so an
++    # operator holding the bundle reaches them without a checkout.
++    "pool": _pool,
+     # W333486: READ-ONLY, and a pure projection over one status document.
+     "attempt-diagnostics": _attempt_diagnostics,
+ }

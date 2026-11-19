@@ -908,6 +908,12 @@ def _creation_request(taken):
     # finite control, exactly as before.
     if taken.control_profile is not None:
         request["control"] = {"profile": taken.control_profile}
+    # W321608: THE FOCUSED VERIFICATION A DEFINED JOB NAMES, one argument
+    # word per operand, exactly as the worker will run it over the candidate;
+    # absent, the deployment's installed verification travels as before.
+    verification = getattr(taken, "verification", None)
+    if verification:
+        request["verification"] = list(verification)
     return request
 
 
@@ -1404,6 +1410,13 @@ def main(argv, *, clock=None, stream=None):
                           help="this Job's verification-command ceiling in "
                                "seconds, a permitted override reaching all "
                                "three verification boundaries")
+    creating.add_argument("--verification", action="append", default=None,
+                          metavar="WORD",
+                          help="one argument word of the command this Job is "
+                               "verified by, repeatable in order (write a "
+                               "word that starts with a dash as "
+                               "--verification=-m); omitted, the deployment's "
+                               "installed verification runs")
     creating.add_argument("--control-profile", default=None,
                           help="the finite control profile this Job is "
                                "admitted under (LIM-5), for example "

@@ -91,7 +91,17 @@ _PROFILE = ("profile_kind", "profile_version", "integrator_participant",
 OPTIONAL = ("integration_target", "integration_target_reference",
             "integration_workspace", "integration_observer",
             "integration_instructions", "integration_preparation",
-            "result_judgment_workers")
+            "result_judgment_workers",
+            # W321608: THE INSTANCE'S OWN SOURCE SELECTION, named once. A
+            # reusable instance is installed with no Job, and the first
+            # ordinary `manager create` on it binds that Job to the base and
+            # target the instance's repositories were cloned at -- which
+            # `creation_ports.NewJobBinding._entry` reads from this document
+            # when no bound Job carries them. Without these two members a
+            # never-bound instance could not create its first Job at all.
+            # Ordinary configuration (which revision), not protocol data.
+            "line_declared_base", "canonical_target_id")
+INSTANCE_SOURCE = ("line_declared_base", "canonical_target_id")
 
 # WHAT AN INPUT MAY STILL NAME AND THE EMITTED CONFIGURATION NEVER CARRIES.
 # `jobs` is accepted and validated in full when it is supplied -- every rule
@@ -443,6 +453,20 @@ def held(document):
             "behaves differently from what they asked for. The supported "
             "optional selections are "
             + ", ".join(OPTIONAL + DISPOSITION) + ".")
+    named = [name for name in INSTANCE_SOURCE
+             if document.get(name) not in (None, "")]
+    if named and len(named) != len(INSTANCE_SOURCE):
+        raise BootstrapRefusal(
+            "this deployment cannot be prepared: an instance names its "
+            "source selection as both " + " and ".join(INSTANCE_SOURCE)
+            + " or neither; this document names only " + ", ".join(named)
+            + ". Nothing was changed.")
+    for name in named:
+        if type(document[name]) is not str:
+            raise BootstrapRefusal(
+                "this deployment cannot be prepared: " + name + " is one "
+                "revision identifier, not " + type(document[name]).__name__
+                + ". Nothing was changed.")
     absent = _missing(document)
     if absent:
         raise BootstrapRefusal(
@@ -633,7 +657,12 @@ def configuration(document, principals=None):
              "line_declared_base": job["line_declared_base"],
              "canonical_target_id": job["canonical_target_id"],
              "source_worker_id": job["source_worker_id"]} for job in jobs]
-    for name in OPTIONAL:
+    # W321608: THE INSTANCE'S SOURCE SELECTION STAYS IN THE INSTALL DOCUMENT.
+    # The emitted `/2` configuration carries a base only inside its Job
+    # bindings; a never-bound instance's base is read from `install-inputs
+    # .json` by the creation port when the first Job is bound, so it is
+    # accepted above and deliberately not written into the configuration.
+    for name in (one for one in OPTIONAL if one not in INSTANCE_SOURCE):
         # PRESENT, not merely non-null. REVIEW 2026-09-16T11-14-19Z [G2]: this
         # read `is not None`, so an explicitly supplied `null` was dropped and
         # the consumer defaulted it -- turning an INVALID request into a
@@ -1628,6 +1657,86 @@ def _cloning(document, places, planned, source, runner, stream, made):
     return {"source": str(source), "prepared": made, "proved": held}
 
 
+def prepare_worker_sources(document, places, *, runner=None,
+                           stream=sys.stdout, wait=120.0, source=None):
+    """Clone the nominated sources a REPEAT names and does not yet have, and
+    PROVE every one it names -- present or just cloned -- before anything is
+    published.
+
+    W321608: the one-operand repeat is how an installed instance is
+    reconfigured (STACK.md), and it is where a reusable instance's workers
+    arrive -- composed by `pool compose-worker` after the identity exists. A
+    repeat that only recomposed the configuration left each new worker's
+    nominated source absent, so the next start refused it. Every missing
+    worker source is cloned from the instance's OWN target, exactly as the
+    install clones them (`_cloning`), under the same lock.
+
+    EXISTING PATHS ARE NOT PROOF (review 2026-11-19T04-22-49Z). A clone that
+    landed and a proof that then failed leaves a directory behind; a repeat
+    that took the directory's existence for success would publish a
+    deployment whose declared base nobody proved. So the agreement check and
+    the read-only proofs -- each repository identifies itself, borrows no
+    objects, is one repository, and the target holds the instance's declared
+    base -- run on EVERY repeat over EVERY named source, whether or not this
+    call cloned anything; a failed proof refuses the repeat again, and nothing
+    that exists is deleted or replaced to make it pass. A repeat with every
+    source present and proved clones nothing and is still a repeat that was
+    verified. With `--no-repositories` nothing is cloned; what is absent is
+    said out loud and the manager's own nomination check refuses the start.
+    """
+    planned = repository_plan(document, places)
+    target = planned[0][1]
+    sources = planned[2:]
+    if not sources:
+        return None
+    missing = [one for one in sources if not os.path.lexists(one[1])]
+    if source in (None, "", {}):
+        if missing:
+            print("repositories  not prepared: no source checkout was named, "
+                  "and these worker sources are absent: "
+                  + ", ".join(one[1] for one in missing), file=stream)
+    elif type(source) is not str:
+        raise BootstrapRefusal(
+            "the repository source is " + repr(source) + "; it names the "
+            "checkout every one of this deployment's own repositories is "
+            "cloned from")
+    if missing and source not in (None, "", {}) and not os.path.isdir(target):
+        raise BootstrapRefusal(
+            "this instance has no target repository at " + target + ", so a "
+            "worker source cannot be cloned from it; the first installation "
+            "prepares the target (install without --no-repositories).")
+    present = [one for one in sources if one not in missing]
+    if not present and (not missing or source in (None, "", {})):
+        return None
+    # NOT `custody`: that is the destination-install guard ("already a
+    # runtime here"), and a repeat is by definition into an instance that
+    # holds one. The repeat's own guard is the lock, the agreement check and
+    # the proofs below.
+    with serialized(places, wait):
+        repositories_agree(document, places)
+        made = []
+        if source not in (None, "", {}):
+            for name, place, _mirror in missing:
+                if os.path.lexists(place):
+                    raise BootstrapRefusal(
+                        "there is already something at " + place + ", which "
+                        "this deployment's " + name + " repository would be. "
+                        "Nothing here replaces one.")
+                _ran(runner, [REPOSITORY_COMMAND, "clone", "--no-local",
+                              target, place],
+                     "preparing this deployment's " + name + " repository")
+                made.append({"role": name, "path": place})
+        proved = [planned[0]] + present + ([one for one in missing]
+                                          if made else [])
+        held = repositories_proved(document, places, proved, runner=runner)
+    print("repositories  " + str(len(made)) + " worker source(s) prepared "
+          "from the instance's own target, " + str(len(proved) - 1)
+          + " proved: " + ", ".join(one[0] for one in proved[1:]),
+          file=stream)
+    return {"source": None if source in (None, "", {}) else str(source),
+            "prepared": made, "proved": held}
+
+
 def repositories_proved(document, places, planned, *, runner=None):
     """Every read-only check the operator packet spells out, applied here.
 
@@ -1676,6 +1785,9 @@ def repositories_proved(document, places, planned, *, runner=None):
     target = planned[0][1]
     bases = {job.get("line_declared_base") for job in document.get("jobs") or []
              if type(job) is dict}
+    # W321608: AND THE INSTANCE'S OWN DECLARED BASE, named once for a reusable
+    # instance that binds no Job yet; the target must hold it too.
+    bases.add(document.get("line_declared_base"))
     for base in sorted(one for one in bases if isinstance(one, str) and one):
         _ran(runner, [REPOSITORY_COMMAND, "-C", target, "cat-file", "-e",
                       base + "^{commit}"],
@@ -3486,6 +3598,18 @@ def main(argv=None, *, stream=sys.stdout, runner=None):
             # is refused there, before an Authority is composed.
             prepared_repositories = prepare_repositories(
                 document, places, stream=stream, runner=runner, source=source)
+        if not taken.destination:
+            # W321608: A REPEAT PROVISIONS WHAT IT NAMES. The workers a
+            # reconfiguration adds need their nominated sources cloned from
+            # the instance's own target before anything serves them.
+            from tools import instance
+
+            source = (None if taken.no_repositories
+                      else repository_source(taken.repository_source))
+            prepare_worker_sources(document,
+                                   instance.layout(document["state_root"]),
+                                   stream=stream, runner=runner,
+                                   source=source)
         prepared = prepare(document, stream=stream,
                            installing=bool(taken.destination))
         if taken.destination:
@@ -3495,6 +3619,19 @@ def main(argv=None, *, stream=sys.stdout, runner=None):
             install(taken.destination, taken.distro,
                     dict(document, authority_uuid=prepared["authority_uuid"]),
                     stream=stream, admitted=admitted)
+        else:
+            # W321608: THE REPEAT KEEPS THE DOCUMENT IT CONSUMED, as the
+            # destination install does. `creation_ports` binds a Job from
+            # `install-inputs.json` -- its workers, its declared base, its
+            # Jobs -- and appends to it; a repeat that reconfigured the
+            # deployment while that file still described the previous one
+            # left the next ordinary creation reading a deployment that no
+            # longer existed ("names 0 implementation workers"). Published
+            # atomically, after everything was proved and composed.
+            kept = Path(prepared["places"]["install_inputs"])
+            _publish(kept, document)
+            print("install       " + str(kept) + " (kept in step with the "
+                  "configuration)", file=stream)
         return 0
     except BootstrapRefusal as refusal:
         print("refused: " + str(refusal), file=stream)

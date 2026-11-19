@@ -59,13 +59,18 @@ from baton_v12.contracts.errors import name_value
 from baton_v12.contracts.manifest import check_manifest_structure
 
 __all__ = ["CONTRACT_MEDIA_TYPE", "MAX_INSTRUCTIONS", "SELECTION_MEMBERS",
+           "SELECTION_OPTIONAL", "OPTIONAL_SUBSTITUTED",
            "CALLER_SELECTION", "SUBSTITUTED", "compose_task",
            "delivered_bytes",
            "instructions_for", "manifest_for", "per_job_delivery"]
 
-# The two members a caller's request owns. CLOSED, and deliberately short: a
-# third would be this composer deciding something the deployment configured.
+# The members a caller's request owns. CLOSED, and deliberately short. The
+# first two are every created Job's; `verification` is substituted ONLY when
+# the request states one (W321608 reusable kickoff: a defined coding Job
+# names the focused command it is verified by, as ordinary input, and a Job
+# that states none runs the deployment's installed argv exactly as before).
 SUBSTITUTED = ("task_id", "instructions")
+OPTIONAL_SUBSTITUTED = ("verification",)
 
 # What the manifest's human-contract artifact must already say it is.
 # `single_worker._task_bytes` refuses anything else for this profile, so a
@@ -93,6 +98,8 @@ def _refuse(message, *, category="integrity", code="schema"):
 # exist before anything is resolved.
 SELECTION_MEMBERS = ("job_id", "work_id", "statement", "acceptance", "scope",
                      "template_version")
+# And the one a selection MAY carry: the request's own verification argv.
+SELECTION_OPTIONAL = ("verification",)
 # And the ones the CALLER supplies: `work_id` is the deployment's own answer
 # and `creation_ports` adds it, so a creation never has to read the
 # configuration twice to compose one task.
@@ -126,7 +133,7 @@ def instructions_for(selection):
         _refuse(f"a task selection names {', '.join(SELECTION_MEMBERS)}; this "
                 f"one is missing {', '.join(missing)}")
     extra = sorted(one for one in selection
-                   if one not in SELECTION_MEMBERS)
+                   if one not in SELECTION_MEMBERS + SELECTION_OPTIONAL)
     if extra:
         _refuse(f"a task selection also carries {', '.join(extra)}, which "
                 f"this composition does not render; an unrendered member is "
@@ -196,8 +203,9 @@ def instructions_for(selection):
     return rendered
 
 
-def compose_task(installed, *, task_id, instructions):
-    """The installed task document with exactly two members substituted.
+def compose_task(installed, *, task_id, instructions, verification=None):
+    """The installed task document with exactly two members substituted --
+    three when the request states its own verification argv.
 
     `installed` is the bytes `single_worker._task_bytes` read and held. What
     comes back is TEXT, and `delivered_bytes` below is the one place it becomes
@@ -247,6 +255,17 @@ def compose_task(installed, *, task_id, instructions):
             _refuse(f"a composed task's {name} is bounded non-empty text; "
                     f"this is {name_value(value)}")
     held = dict(held, task_id=task_id, instructions=instructions)
+    if verification is not None:
+        if "verification" not in held:
+            _refuse("the installed task document carries no verification, "
+                    "so a request's own cannot take its place; the member a "
+                    "request substitutes is one the deployment wrote",
+                    category="refused", code="precondition")
+        if type(verification) is not list or not verification \
+                or not all(type(one) is str and one for one in verification):
+            _refuse(f"a composed task's verification is a non-empty list of "
+                    f"argument words; this is {name_value(verification)}")
+        held["verification"] = list(verification)
     return json.dumps(held, sort_keys=True, ensure_ascii=False,
                       separators=(",", ":"))
 
@@ -321,6 +340,7 @@ def per_job_delivery(installed_task, installed_manifest, selection):
     # dereference-before-validate shape R4 corrected one Work over.
     instructions = instructions_for(selection)
     task = compose_task(installed_task, task_id=selection["job_id"],
-                        instructions=instructions)
+                        instructions=instructions,
+                        verification=selection.get("verification"))
     return {"task_document": task,
             "input_manifest": manifest_for(installed_manifest, task)}

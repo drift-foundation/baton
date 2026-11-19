@@ -366,7 +366,7 @@ def _asked(request):
         request, "an ordinary Job creation request",
         required=("schema", "task", "source_selection", "scope",
                   "acceptance"),
-        optional=("template", "overrides", "control"))
+        optional=("template", "overrides", "control", "verification"))
     if taken["schema"] != templates.REQUEST_SCHEMA:
         _refuse(f"an ordinary Job creation request is "
                 f"{name_value(templates.REQUEST_SCHEMA)}, the resolver's own "
@@ -428,15 +428,47 @@ def _asked(request):
     submission_id = boundaries.identity(
         task["submission_id"] if "submission_id" in task
         else submission_id_for(job_id), "a submission id")
+    # W321608 (reusable kickoff): THE VERIFICATION A DEFINED JOB RUNS IS THE
+    # REQUEST'S WHEN IT STATES ONE. OBS-0 makes ordinary kickoff input-only;
+    # a coding Job whose focused tests could only be named by re-installing
+    # the deployment's task document would need an installation per Job.
+    # Absent, the deployment's installed argv travels exactly as before.
+    verification = (_verification(taken["verification"])
+                    if "verification" in taken else None)
     return {"request": taken, "task": task, "job_id": job_id,
             "submission_id": submission_id, "acceptance": acceptance,
-            "scope": scope,
+            "scope": scope, "verification": verification,
             # THE IMMUTABLE CALLER INTENT, as one digest over the OWNED
             # request. Owned rather than as-given, so two spellings of one
             # intent -- a different member order, a pretty-printed document --
             # are one creation, which is `documents.owned_submission`'s own
             # reason for returning a normalized document.
             "request_digest": digest(taken)}
+
+
+# A verification argv a request may carry: one command, as the worker runs
+# it -- an argument vector, never a shell line. Bounded where it is accepted,
+# like the statement and the criteria.
+MAX_VERIFICATION_WORDS = 64
+MAX_VERIFICATION_WORD = 16384
+
+
+def _verification(value):
+    if type(value) is not list or not value \
+            or not all(type(one) is str and one for one in value):
+        _refuse(f"a creation request's verification is a non-empty list of "
+                f"argument words, the command the worker runs over the "
+                f"candidate; this is {name_value(value)}")
+    if len(value) > MAX_VERIFICATION_WORDS:
+        _refuse(f"a creation request's verification names at most "
+                f"{MAX_VERIFICATION_WORDS} argument words; this one names "
+                f"{len(value)}", category="integrity", code="limit")
+    for one in value:
+        if len(one) > MAX_VERIFICATION_WORD:
+            _refuse(f"a verification argument word is at most "
+                    f"{MAX_VERIFICATION_WORD} characters; one here is "
+                    f"{len(one)}", category="integrity", code="limit")
+    return list(value)
 
 
 def _resolved(asked, derivation, held=None):
@@ -469,14 +501,22 @@ def _resolved(asked, derivation, held=None):
     # THE WORK IS NOT IN THE SELECTION. It is the deployment's own answer, so
     # the port adds it -- which is what keeps this ONE reading of the
     # configuration rather than two.
-    derived = _derived(derivation, selection={
+    selection = {
         "job_id": job_id, "statement": task["statement"],
         "acceptance": list(asked["acceptance"]),
         "scope": {"work": list(asked["scope"]["work"]),
                   "tests": list(asked["scope"]["tests"])},
-        "template_version": version}) if held is None else held
+        "template_version": version}
+    if asked.get("verification") is not None:
+        selection["verification"] = list(asked["verification"])
+    derived = (_derived(derivation, selection=selection) if held is None
+               else held)
     request = dict(asked["request"])
     del request["source_selection"]
+    # THE VERIFICATION IS THE TASK'S, NOT THE RESOLUTION'S: it reached the
+    # worker through the composed task bytes above and is inside the Job's
+    # input identity; the resolver's request contract does not carry it.
+    request.pop("verification", None)
     request["task"] = {"job_id": boundaries.identity(job_id, "a Job id"),
                        "work_id": derived["work_id"],
                        "statement": task["statement"]}

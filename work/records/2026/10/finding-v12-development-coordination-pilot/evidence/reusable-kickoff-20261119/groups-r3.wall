@@ -1,0 +1,5 @@
+job_manager exit 0 wall 16.291532443
+[accounting] passed 1599 + optional skipped 0 = 1599 of collected 1599 -> OK
+tools-pure exit 1 wall 150.910726192
+=== FAILURE: tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned ===
+[accounting] passed 3387 + optional skipped 0 = 3387 of collected 3388 -> FAILED

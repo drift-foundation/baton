@@ -1,0 +1,47 @@
+test_a_failed_base_proof_refuses_every_identical_retry (tests.tools.test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames.test_a_failed_base_proof_refuses_every_identical_retry)
+Review 2026-11-19T04-22-49Z P1: the first repeat clones and then ... ok
+test_an_existing_source_that_is_not_a_repository_is_refused_and_kept (tests.tools.test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames.test_an_existing_source_that_is_not_a_repository_is_refused_and_kept)
+An interrupted clone, or anything else, at a named source: the ... ok
+test_an_instance_installed_without_a_target_cannot_clone_from_it (tests.tools.test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames.test_an_instance_installed_without_a_target_cannot_clone_from_it) ... ok
+test_missing_worker_sources_are_cloned_from_the_target_and_proved (tests.tools.test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames.test_missing_worker_sources_are_cloned_from_the_target_and_proved) ... ok
+test_without_a_source_checkout_the_absence_is_said_and_refused (tests.tools.test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames.test_without_a_source_checkout_the_absence_is_said_and_refused) ... ok
+test_two_defined_jobs_run_on_one_product_configured_instance (tests.tools.test_connected_creation.TheReusableInstanceServesDefinedJobs.test_two_defined_jobs_run_on_one_product_configured_instance) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa established from line_declared_base
+configuration /var/tmp/v12-w71917-0x_s1b5d/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-labels-one": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"], "workers_by_role": {"implementation": ["impl-a"], "integration": [], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-0x_s1b5d/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-0x_s1b5d/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-0x_s1b5d/bootstrap-deployment/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/v12-w71917-0x_s1b5d/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-labels-one": "impl-a", "job-labels-two": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"], "workers_by_role": {"implementation": ["impl-a"], "integration": [], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-0x_s1b5d/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-0x_s1b5d/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-0x_s1b5d/bootstrap-deployment/deployment.json"
+ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.273s
+
+OK

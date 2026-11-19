@@ -25,6 +25,7 @@ import shutil
 import sys
 import tempfile
 import time
+import types
 import unittest
 from unittest import mock
 
@@ -201,6 +202,305 @@ class ValidFixture(Helpers, _stage_case.ServingCase if _stage_case else unittest
 
 
 # -- what is refused before a deployment is ever built -------------------------
+
+
+class AnInstanceMayNameItsSourceWithoutAJob(ValidFixture):
+    """W321608: a reusable instance installed with no Job names the base and
+    target its repositories are cloned at, once, so its first ordinary
+    creation has something to bind to. Both or neither; a lone one refuses."""
+
+    def test_both_members_are_accepted_and_kept_in_the_install_document(self):
+        document = self.document(workers=[], jobs=[],
+                                 line_declared_base="b" * 40,
+                                 canonical_target_id="b" * 40)
+        inputs = os.path.join(self.root, "updated-inputs.json")
+        Path(inputs).write_text(json.dumps(document))
+        said = io.StringIO()
+        self.assertEqual(bootstrap.main(["--inputs", inputs], stream=said),
+                         0, said.getvalue())
+        # THE ONE-OPERAND REPEAT KEEPS THE DOCUMENT IT CONSUMED beside the
+        # configuration, which is what the first ordinary creation binds from.
+        kept = json.loads(Path(self.state, "install-inputs.json").read_text())
+        self.assertEqual(kept["line_declared_base"], "b" * 40)
+        self.assertEqual(kept["canonical_target_id"], "b" * 40)
+        self.assertEqual(kept["workers"], [])
+        self.assertNotIn("line_declared_base",
+                         json.loads(Path(self.state,
+                                         "deployment.json").read_text()))
+
+    def test_one_without_the_other_refuses_before_any_effect(self):
+        for members in ({"line_declared_base": "b" * 40},
+                        {"canonical_target_id": "b" * 40},
+                        {"line_declared_base": 7,
+                         "canonical_target_id": "b" * 40}):
+            with self.subTest(members=members):
+                with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
+                    bootstrap.held(self.document(workers=[], jobs=[],
+                                                 **members))
+                self.assertIn("Nothing was changed", str(caught.exception))
+
+
+class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
+    """W321608: the one-operand repeat clones each NEW worker's nominated
+    source from the instance's own target and proves it, under the same lock
+    and through the same `git` boundary the install uses; an existing source
+    is left alone; without a source checkout the absence is said and the
+    manager's own nomination check refuses the start."""
+
+    SOURCE = "/srv/the-owners-source"
+
+    def git(self, issued):
+        def runner(argv, **named):
+            issued.append(list(argv))
+            if argv[1] == "clone":
+                place = Path(argv[-1])
+                (place / "objects" / "info").mkdir(parents=True, exist_ok=True)
+                (place / "refs").mkdir(parents=True, exist_ok=True)
+                (place / "HEAD").write_text("ref: refs/heads/main\n")
+                return types.SimpleNamespace(returncode=0, stdout="", stderr="")
+            if "rev-parse" in argv and "--verify" not in argv:
+                return types.SimpleNamespace(returncode=0, stdout=argv[2],
+                                             stderr="")
+            return types.SimpleNamespace(returncode=0, stdout="", stderr="")
+        return runner
+
+    def fresh_instance(self, issued, *, repositories=True):
+        """An instance-only install with its repositories prepared."""
+        destination = os.path.join(self.root, "instance")
+        distro = os.path.join(self.root, "built")
+        os.makedirs(os.path.join(distro, "_internal", "rpds"))
+        Path(distro, "baton-v12-stack").write_text("the launcher")
+        Path(distro, "_internal", "rpds", "rpds.so").write_text("native")
+        said = {"command": "baton-v12-stack", "frozen": True,
+                "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                "schema_assets": {"agent-session-1.0": 10,
+                                  "worker-control-1.0": 20},
+                "native_rpds": os.path.join(distro, "_internal", "rpds",
+                                            "rpds.so")}
+        document = self.document(workers=[], jobs=[],
+                                 line_declared_base="b" * 40,
+                                 canonical_target_id="b" * 40)
+        document.pop("state_root")
+        inputs = os.path.join(self.root, "inputs.json")
+        Path(inputs).write_text(json.dumps(document))
+        out = io.StringIO()
+        argv = ["--inputs", inputs, "--destination", destination,
+                "--distro", distro]
+        argv += ["--repository-source", self.SOURCE] if repositories \
+            else ["--no-repositories"]
+        with mock.patch.object(bootstrap, "_identity_of",
+                               lambda command, runtime=None, distro=None: said):
+            code = bootstrap.main(argv, stream=out,
+                                  runner=self.git(issued))
+        self.assertEqual(code, 0, out.getvalue())
+        return destination
+
+    def composed_for(self, destination, worker_id, role, participant):
+        from tools import instance as instances
+        from tools import pool
+
+        configured = json.loads(
+            Path(instances.layout(destination)["deployment"]).read_bytes())
+        task = os.path.join(self.root, "task-" + worker_id + ".json")
+        held = json.loads(Path(self.config["task_document"]).read_bytes())
+        held["task_id"] = "installed-task"
+        Path(task).write_bytes(json.dumps(held, sort_keys=True).encode())
+        return pool.composed(
+            configured, worker_id=worker_id, role=role,
+            participant=participant, image_reference="baton-v12-worker:test",
+            image_digest=self.config["image_digest"], cli_build="2.1.247",
+            network=self.config["network"],
+            credential_sources=os.path.join(self.root,
+                                            "credential-sources.json"),
+            credentials=["claude=operator-file:w202663-development"],
+            workspace_group=self.config["workspace_group"],
+            task_document=task)["worker"]
+
+    def repeated(self, destination, issued, workers, *extra):
+        from tools import instance as instances
+
+        places = instances.layout(destination)
+        configured = json.loads(Path(places["deployment"]).read_bytes())
+        carried = {name: configured[name]
+                   for name in ("integration_target", "integration_workspace")
+                   if configured.get(name)}
+        document = self.document(workers=workers, jobs=[],
+                                 line_declared_base="b" * 40,
+                                 canonical_target_id="b" * 40,
+                                 state_root=destination, **carried)
+        updated = os.path.join(self.root, "updated-%d.json" % len(issued))
+        Path(updated).write_text(json.dumps(document))
+        out = io.StringIO()
+        code = bootstrap.main(["--inputs", updated, *extra], stream=out,
+                              runner=self.git(issued))
+        return code, out.getvalue(), places
+
+    def test_missing_worker_sources_are_cloned_from_the_target_and_proved(self):
+        issued = []
+        destination = self.fresh_instance(issued)
+        installs = [one for one in issued if one[1] == "clone"]
+        self.assertEqual(len(installs), 2, installs)       # target, workspace
+        # THE WORKERS ARE COMPOSED FOR THIS INSTANCE by the product verb that
+        # exists for it -- sealed to the instance's own Authority, naming the
+        # paths a repeat does not re-derive -- and the repeat clones the
+        # named sources that are absent.
+        workers = [self.composed_for(destination, "impl-a", "implementation",
+                                     "baton.impl-a"),
+                   self.composed_for(destination, "review-a", "review",
+                                     "baton.reviewer")]
+        before = len(issued)
+        code, said, places = self.repeated(destination, issued, workers,
+                                           "--repository-source", self.SOURCE)
+        self.assertEqual(code, 0, said)
+        clones = [one for one in issued[before:] if one[1] == "clone"]
+        target = os.path.join(places["repository"], "target.git")
+        self.assertEqual(clones, [
+            ["git", "clone", "--no-local", target,
+             os.path.join(places["repository"], "source-impl-a")],
+            ["git", "clone", "--no-local", target,
+             os.path.join(places["repository"], "source-review-a")]])
+        # PROVED, INCLUDING THE INSTANCE'S DECLARED BASE IN THE TARGET.
+        self.assertIn(["git", "-C", target, "cat-file", "-e",
+                       "b" * 40 + "^{commit}"], issued[before:])
+        self.assertIn("2 worker source(s) prepared", said)
+        for name in ("source-impl-a", "source-review-a"):
+            self.assertTrue(os.path.isdir(
+                os.path.join(places["repository"], name)))
+        configured = json.loads(Path(places["deployment"]).read_bytes())
+        self.assertEqual([one["worker_id"] for one in configured["workers"]],
+                         ["impl-a", "review-a"])
+        # THE SAME REPEAT AGAIN CLONES NOTHING, CHANGES NOTHING -- AND STILL
+        # PROVES EVERY SOURCE AND THE BASE (existing paths are not proof).
+        again = len(issued)
+        code, said, _ = self.repeated(destination, issued, workers,
+                                      "--repository-source", self.SOURCE)
+        self.assertEqual(code, 0, said)
+        self.assertEqual([one for one in issued[again:] if one[1] == "clone"],
+                         [])
+        proofs = [one for one in issued[again:] if "rev-parse" in one]
+        self.assertEqual(sorted(one[2] for one in proofs), sorted([
+            target, os.path.join(places["repository"], "source-impl-a"),
+            os.path.join(places["repository"], "source-review-a")]))
+        self.assertIn(["git", "-C", target, "cat-file", "-e",
+                       "b" * 40 + "^{commit}"], issued[again:])
+        self.assertIn("2 proved", said)
+        self.assertEqual(json.loads(Path(places["deployment"]).read_bytes()),
+                         configured)
+
+    def refusing_base(self, issued):
+        """The install's `git`, except that the declared base is never a
+        commit in the target -- the persistent failure the review probed."""
+        run = ARepeatProvisionsTheWorkerSourcesItNames.git(self, issued)
+
+        def execute(argv, **named):
+            if "cat-file" in argv:
+                issued.append(list(argv))
+                return types.SimpleNamespace(returncode=1, stdout="",
+                                             stderr="declared base missing")
+            return run(argv, **named)
+        return execute
+
+    def test_a_failed_base_proof_refuses_every_identical_retry(self):
+        """Review 2026-11-19T04-22-49Z P1: the first repeat clones and then
+        fails the base proof; the directories it left are NOT proof, so the
+        identical retry proves again, refuses again, publishes nothing, and
+        deletes nothing."""
+        issued = []
+        destination = self.fresh_instance(issued)
+        workers = [self.composed_for(destination, "impl-a", "implementation",
+                                     "baton.impl-a"),
+                   self.composed_for(destination, "review-a", "review",
+                                     "baton.reviewer")]
+        from tools import instance as instances
+
+        places = instances.layout(destination)
+        before = Path(places["deployment"]).read_bytes()
+        kept = Path(destination, "install-inputs.json").read_bytes()
+        with mock.patch.object(self, "git", self.refusing_base):
+            first, said, _ = self.repeated(destination, issued, workers,
+                                           "--repository-source", self.SOURCE)
+            self.assertEqual(first, 2, said)
+            self.assertIn("declared base", said)
+            left = [os.path.join(places["repository"], "source-impl-a"),
+                    os.path.join(places["repository"], "source-review-a")]
+            for place in left:
+                self.assertTrue(os.path.isdir(place))
+            mark = len(issued)
+            second, again, _ = self.repeated(destination, issued, workers,
+                                             "--repository-source",
+                                             self.SOURCE)
+        self.assertEqual(second, 2, again)
+        self.assertIn("declared base", again)
+        retried = issued[mark:]
+        self.assertEqual([one for one in retried if one[1] == "clone"], [])
+        self.assertIn(["git", "-C", os.path.join(places["repository"],
+                                                 "target.git"),
+                       "cat-file", "-e", "b" * 40 + "^{commit}"], retried)
+        self.assertTrue(any("rev-parse" in one for one in retried))
+        # NOTHING PUBLISHED, NOTHING DELETED.
+        self.assertEqual(Path(places["deployment"]).read_bytes(), before)
+        self.assertEqual(Path(destination, "install-inputs.json").read_bytes(),
+                         kept)
+        for place in left:
+            self.assertTrue(os.path.isdir(place))
+
+    def test_an_existing_source_that_is_not_a_repository_is_refused_and_kept(self):
+        """An interrupted clone, or anything else, at a named source: the
+        repeat does not accept it because it exists, does not clone over it,
+        and does not remove it."""
+        issued = []
+        destination = self.fresh_instance(issued)
+        worker = self.composed_for(destination, "impl-a", "implementation",
+                                   "baton.impl-a")
+        from tools import instance as instances
+
+        places = instances.layout(destination)
+        broken = Path(places["repository"], "source-impl-a")
+        broken.mkdir(parents=True)
+        (broken / "partial").write_text("an interrupted clone's leftovers")
+        run = self.git(issued)
+
+        def execute(argv, **named):
+            if "rev-parse" in argv and argv[2] == str(broken):
+                issued.append(list(argv))
+                return types.SimpleNamespace(returncode=128, stdout="",
+                                             stderr="not a git repository")
+            return run(argv, **named)
+        with mock.patch.object(self, "git", lambda calls: execute):
+            code, said, _ = self.repeated(destination, issued, [worker],
+                                          "--repository-source", self.SOURCE)
+        self.assertEqual(code, 2, said)
+        self.assertEqual([one for one in issued if one[1] == "clone"
+                          and one[-1] == str(broken)], [])
+        self.assertTrue((broken / "partial").is_file())
+        self.assertEqual((broken / "partial").read_text(),
+                         "an interrupted clone's leftovers")
+        configured = json.loads(Path(places["deployment"]).read_bytes())
+        self.assertEqual(configured["workers"], [])
+
+    def test_without_a_source_checkout_the_absence_is_said_and_refused(self):
+        issued = []
+        destination = self.fresh_instance(issued)
+        worker = self.composed_for(destination, "impl-a", "implementation",
+                                   "baton.impl-a")
+        code, said, places = self.repeated(destination, issued, [worker],
+                                           "--no-repositories")
+        self.assertEqual(code, 2, said)
+        self.assertIn("not prepared", said)
+        self.assertIn("source-impl-a", said)
+        self.assertFalse(os.path.exists(
+            os.path.join(places["repository"], "source-impl-a")))
+
+    def test_an_instance_installed_without_a_target_cannot_clone_from_it(self):
+        issued = []
+        destination = self.fresh_instance(issued, repositories=False)
+        worker = self.composed_for(destination, "impl-a", "implementation",
+                                   "baton.impl-a")
+        code, said, _ = self.repeated(destination, issued, [worker],
+                                      "--repository-source", self.SOURCE)
+        self.assertEqual(code, 2, said)
+        self.assertIn("no target repository", said)
+        self.assertEqual([one for one in issued if one[1] == "clone"], [])
 
 
 class TheInstanceGeneratesItsOwnIdentity(Fixture):

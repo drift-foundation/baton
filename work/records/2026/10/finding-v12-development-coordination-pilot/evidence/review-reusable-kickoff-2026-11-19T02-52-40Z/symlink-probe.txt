@@ -1,0 +1,1 @@
+Prepared interpreter; tests.tools.test_pool.ComposingAWorkerForThisInstance fixture; pool.compose into an existing symlink whose target does not exist. Result: existing_symlink_preserved=true, followed_symlink_and_created_target=true, returned_success=true. Fixture teardown and cleanups completed. No live state touched.

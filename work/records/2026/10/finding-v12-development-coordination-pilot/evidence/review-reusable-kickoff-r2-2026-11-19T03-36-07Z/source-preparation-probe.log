@@ -1,0 +1,19 @@
+F
+======================================================================
+FAIL: test_two_defined_jobs_run_on_one_product_configured_instance (tests.tools.test_connected_creation.TheReusableInstanceServesDefinedJobs.test_two_defined_jobs_run_on_one_product_configured_instance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_connected_creation.py", line 594, in test_two_defined_jobs_run_on_one_product_configured_instance
+    self.assertEqual(bootstrap.main(["--inputs", updated], stream=said),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     0, said.getvalue())
+                     ^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : authority 0000000a...    reused from this root's record
+refused: the deployment this document describes is not one the manager would accept, so nothing was prepared: the nominated source '/var/tmp/v12-w71917-0nnd3pzl/bootstrap-deployment/repo/sour… is not a directory this manager can see (FileNotFoundError). Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.035s
+
+FAILED (failures=1)
+Fixture-only source mkdirs suppressed: 2

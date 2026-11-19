@@ -1,0 +1,4 @@
+job_manager exit 0 wall 15.580986613
+[accounting] passed 1599 + optional skipped 0 = 1599 of collected 1599 -> OK
+tools-pure exit 0 wall 151.078796877
+[accounting] passed 3384 + optional skipped 0 = 3384 of collected 3384 -> OK

@@ -617,6 +617,26 @@ class TwoDistinctTasksOnOnePool(DerivationCase):
         self.assertNotEqual(first["input_digest"], installed["input_digest"])
         self.assertNotEqual(second["input_digest"], installed["input_digest"])
 
+    def test_a_job_naming_its_own_verification_is_derived_with_it(self):
+        """W321608: the request's verification reaches the composed task and
+        its identity; a Job naming none is derived with the installed argv."""
+        own = ["python3", "-m", "unittest", "tests.tools.test_creation_ports"]
+        verified = self.derived_for(dict(
+            self.selection("job-one", "A verified task."), verification=own))
+        plain = self.derived_for(self.selection("job-two", "A plain task."))
+        same = self.derived_for(self.selection("job-one", "A verified task."))
+        installed = json.loads(self.derivation().held()["workers"][0]
+                               ["deployment"]["task_bytes"].decode("utf-8"))
+        self.assertEqual(json.loads(verified["task_document"])["verification"],
+                         own)
+        self.assertEqual(json.loads(plain["task_document"])["verification"],
+                         installed["verification"])
+        self.assertEqual(json.loads(same["task_document"])["verification"],
+                         installed["verification"])
+        self.assertNotEqual(verified["input_digest"], same["input_digest"])
+        self.assertEqual(verified["input_digest"], job_input_identity(
+            verified["input_manifest"], what="a created Job's own input"))
+
     def test_both_stages_of_each_job_are_servable_with_its_own_task(self):
         """THE SCHEDULER'S OWN RULE, asked with the per-Job manifest.
 

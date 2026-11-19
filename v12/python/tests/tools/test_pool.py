@@ -26,6 +26,7 @@ import os
 from pathlib import Path
 import sys
 import unittest
+from unittest import mock
 
 _DISTRIBUTION = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_DISTRIBUTION))
@@ -530,6 +531,265 @@ class TheCommandLine(PoolCase):
         with self.assertRaises(SystemExit):
             self.parsing(["remove-worker", "--deployment", self.place,
                           "--worker", "/dev/null"])
+
+
+class ComposingAWorkerForThisInstance(PoolCase):
+    """W321608 (reusable kickoff): a worker document for an installed
+    instance is composed by the product from THIS BUILD'S OWN documents --
+    the runtime profile, policy and adapter `next_run_bindings` composes and
+    the published manifest vector -- plus ordinary operator configuration
+    (image, CLI build, network, credential registry and mapping, workspace
+    group, task document). Nothing is inherited from another instance's
+    protocol documents, and no installation needs a dossier script."""
+
+    IMAGE = "sha256:" + "c" * 64
+
+    def task_file(self, task_id="labels-cli", name="labels-task.json"):
+        held = json.loads(Path(self.config["task_document"]).read_bytes())
+        held["task_id"] = task_id
+        held["instructions"] = "deliver the " + task_id + " slice"
+        place = os.path.join(self.root, name)
+        Path(place).write_bytes(json.dumps(held, sort_keys=True).encode())
+        return place
+
+    def selection(self, **changes):
+        held = dict(worker_id="impl-c", role="implementation",
+                    participant="baton.impl-c",
+                    image_reference="baton-v12-worker:test",
+                    image_digest=self.IMAGE, cli_build="2.1.247",
+                    network=self.config["network"],
+                    credential_sources=os.path.join(self.root, "credential-sources.json"),
+                    credentials=["claude=operator-file:w202663-development"],
+                    workspace_group=self.config["workspace_group"],
+                    task_document=self.task_file())
+        held.update(changes)
+        return held
+
+    def composing(self, **changes):
+        return pool.composed(self.held, **self.selection(**changes))
+
+    def test_the_facts_are_this_builds_own_and_the_instance_binds_the_rest(self):
+        from baton_v12.contracts import digest_of_bytes
+        from baton_v12.contracts.manifest import check_manifest_structure
+        from baton_v12.job_manager import execution_limits
+        from tools import next_run_bindings
+
+        answer = self.composing()
+        worker = answer["worker"]
+        deployment = worker["deployment"]
+        manifest = deployment["input_manifest"]
+        destination = str(Path(self.held["state_root"]).parent)
+        limits = execution_limits.resolved(None)["boundaries"]
+        expected = next_run_bindings.deployment_identities(
+            image_reference="baton-v12-worker:test", image_digest=self.IMAGE,
+            cli_build="2.1.247", network=None, provider_network=self.config["network"],
+            runtime_uid=None, turn_seconds=limits["provider_turn"]["seconds"],
+            verification_seconds=limits["ordinary_verification"]["seconds"],
+            implementer_invocations=1, contextual=False) \
+            if False else next_run_bindings.deployment_identities(
+            image_reference="baton-v12-worker:test", image_digest=self.IMAGE,
+            cli_build="2.1.247", provider_network=self.config["network"],
+            runtime_uid=None, turn_seconds=limits["provider_turn"]["seconds"],
+            verification_seconds=limits["ordinary_verification"]["seconds"],
+            implementer_invocations=1, contextual=False)
+        # THE THREE IDENTITIES ARE THE PRODUCT'S, computed the way the standard
+        # next-run packet computes them.
+        self.assertEqual(deployment["profile_digest"], expected["profile_digest"])
+        self.assertEqual(deployment["policy_digest"], expected["policy_digest"])
+        self.assertEqual(deployment["adapter_digest"], expected["adapter_digest"])
+        self.assertEqual(deployment["profile_name"], "claude-fresh-implementation")
+        self.assertEqual(deployment["adapter_name"], "docker-single-worker")
+        self.assertEqual(manifest["runtime_profile_digest"],
+                         expected["profile_digest"])
+        self.assertEqual(manifest["policy_digest"], expected["policy_digest"])
+        # THE INSTANCE BINDS THE REST.
+        self.assertEqual(deployment["image_digest"], self.IMAGE)
+        self.assertEqual(manifest["worker_image_digest"], self.IMAGE)
+        self.assertEqual(manifest["work_ref"],
+                         {"authority_uuid": self.held["authority_uuid"],
+                          "work_id": self.held["authority_uuid"][:8] + "-W1"})
+        raw = Path(deployment["task_document"]).read_bytes()
+        self.assertEqual(manifest["human_contract"],
+                         {"artifact_id": "labels-cli",
+                          "media_type": "application/json",
+                          "bytes": len(raw),
+                          "content_digest": digest_of_bytes(raw),
+                          "locator": "artifact://contracts/labels-cli"})
+        check_manifest_structure(manifest, "inputManifest")
+        self.assertEqual(manifest["outputs"][0]["name"], "proposal")
+        self.assertEqual(deployment["credential_profile"],
+                         {"claude": {"provider": "operator-file",
+                                     "reference": "w202663-development"}})
+        self.assertEqual(deployment["credential_slots"], ["claude"])
+        self.assertEqual(deployment["workspace_group"],
+                         self.config["workspace_group"])
+        self.assertEqual(deployment["review_route"], "rview")
+        self.assertEqual(deployment["retention_policy_digest"],
+                         self.held["retention_policy_digest"])
+        self.assertEqual(deployment["workspace_storage"],
+                         os.path.join(destination, "state", "workspaces"))
+        self.assertEqual(deployment["nominated_source"],
+                         os.path.join(destination, "repo", "source-impl-c"))
+        self.assertEqual(deployment["launch_home"],
+                         os.path.join(destination, "state", "launch"))
+        for name in ("authority_uuid", "authority_store", "principal",
+                     "launch_role"):
+            self.assertNotIn(name, deployment)
+        review = self.composing(worker_id="review-c", role="review",
+                                participant="baton.reviewer-c")
+        self.assertEqual(review["worker"]["deployment"]["review_route"],
+                         "integration")
+
+    def test_the_manifest_template_is_an_installed_resource_not_a_dossier(self):
+        """Review 2026-11-19T03-36-07Z: the template is shipped beside the
+        schema assets and read from the package, equal byte-for-byte in
+        content to the published conformance vector's valid document; the
+        composer reaches no checkout and no dossier, from any directory."""
+        from baton_v12.contracts import frozen
+        from tests.manager import input_roots
+
+        corpus = json.loads(input_roots.VECTORS.read_text())
+        published = next(one["document"] for one in corpus["valid"]
+                         if one["document"].get("schema")
+                         == "baton.worker-manifest/input")
+        self.assertEqual(frozen.input_manifest_template(), published)
+        self.assertTrue(str(frozen._SCHEMA_DIRECTORY).endswith(
+            os.path.join("baton_v12", "contracts", "schema")))
+        self.assertFalse(hasattr(pool, "VECTORS"))
+        elsewhere = os.path.join(self.root, "elsewhere")
+        os.makedirs(elsewhere)
+        before = os.getcwd()
+        os.chdir(elsewhere)
+        try:
+            answer = self.composing()
+        finally:
+            os.chdir(before)
+        manifest = answer["worker"]["deployment"]["input_manifest"]
+        for name in ("credential_policy_digest", "mount_policy_digest",
+                     "record_binding", "extensions", "version"):
+            if name in published:
+                self.assertEqual(manifest[name], published[name], name)
+
+    def test_two_defined_tasks_compose_two_workers_without_an_installation(self):
+        first = self.composing(task_document=self.task_file("task-one", "a.json"))
+        second = self.composing(worker_id="impl-d", participant="baton.impl-d",
+                                task_document=self.task_file("task-two",
+                                                             "b.json"))
+        self.assertNotEqual(first["manifest_digest"], second["manifest_digest"])
+        self.assertEqual(first["identities"], second["identities"])
+        self.unchanged()
+
+    def test_a_composed_worker_is_admitted_once_its_source_exists(self):
+        answer = self.composing()
+        worker = answer["worker"]
+        os.makedirs(worker["deployment"]["nominated_source"])
+        admitted = self.admitting(worker)
+        normalized = stage_execution.held_configuration(self.written())
+        self.assertIn("impl-c",
+                      [one["worker_id"] for one in normalized["workers"]])
+        self.assertEqual(admitted["worker"]["deployment"]["authority_uuid"],
+                         self.held["authority_uuid"])
+
+    def test_what_it_refuses_and_that_nothing_is_written(self):
+        for changes, said in (
+                ({"image_digest": "sha256:short"}, "64 hex"),
+                ({"task_document": os.path.join(self.root, "absent.json")},
+                 "could not be read"),
+                ({"task_document": "relative/task.json"}, "absolute"),
+                ({"credentials": ["claude"]}, "slot=provider:reference"),
+                ({"credentials": []}, "at least one credential"),
+                ({"workspace_group": 0}, "positive group id"),
+                ({"worker_id": "../escape"}, None)):
+            with self.subTest(changes=changes):
+                with self.assertRaises(Exception) as caught:
+                    self.composing(**changes)
+                if said is not None:
+                    self.assertIn(said, str(caught.exception))
+        self.unchanged()
+
+    def fresh(self, into, **changes):
+        said = io.StringIO()
+        try:
+            answer = pool.compose(self.place, into=into, stream=said,
+                                  **self.selection(**changes))
+        except pool.PoolRefusal as refusal:
+            return None, str(refusal)
+        return answer, said.getvalue()
+
+    def test_an_existing_entry_is_never_replaced_or_followed(self):
+        """Review 2026-11-19T02-52-40Z: a dangling symlink at --into was
+        followed and reported success. Any existing entry refuses and keeps
+        its bytes; a symlink is never followed, resolving or not."""
+        occupied = Path(self.root) / "occupied.json"
+        occupied.write_text("the operator's own bytes")
+        answer, said = self.fresh(str(occupied))
+        self.assertIsNone(answer)
+        self.assertIn("already exists", said)
+        self.assertEqual(occupied.read_text(), "the operator's own bytes")
+        dangling = Path(self.root) / "dangling.json"
+        elsewhere = Path(self.root) / "elsewhere.json"
+        dangling.symlink_to(elsewhere)
+        answer, said = self.fresh(str(dangling))
+        self.assertIsNone(answer)
+        self.assertIn("already exists", said)
+        self.assertTrue(dangling.is_symlink())
+        self.assertFalse(elsewhere.exists())
+        resolving = Path(self.root) / "resolving.json"
+        resolving.symlink_to(occupied)
+        answer, said = self.fresh(str(resolving))
+        self.assertIsNone(answer)
+        self.assertEqual(occupied.read_text(), "the operator's own bytes")
+        directory = Path(self.root) / "a-directory.json"
+        directory.mkdir()
+        answer, said = self.fresh(str(directory))
+        self.assertIsNone(answer)
+        self.assertTrue(directory.is_dir())
+        self.unchanged()
+
+    def test_a_concurrently_occupied_path_refuses_at_the_write(self):
+        """The check and the write are one exclusive operation: a file that
+        appears after composition and before the write is refused, and its
+        bytes stand."""
+        target = Path(self.root) / "raced.json"
+        real = pool._written_fresh
+
+        def racing(place, body):
+            Path(place).write_text("arrived first")
+            return real(place, body)
+
+        with mock.patch.object(pool, "_written_fresh", racing):
+            answer, said = self.fresh(str(target))
+        self.assertIsNone(answer)
+        self.assertIn("already exists", said)
+        self.assertEqual(target.read_text(), "arrived first")
+
+    def test_the_command_line_writes_one_fresh_file_and_refuses_a_second(self):
+        into = os.path.join(self.root, "composed", "impl-c.json")
+        argv = [pool.VERB_COMPOSE, "--deployment", self.place,
+                "--worker-id", "impl-c", "--role", "implementation",
+                "--participant", "baton.impl-c",
+                "--image-reference", "baton-v12-worker:test",
+                "--image-digest", self.IMAGE, "--cli-build", "2.1.247",
+                "--network", self.config["network"],
+                "--credential-sources", os.path.join(self.root, "credential-sources.json"),
+                "--credential", "claude=operator-file:w202663-development",
+                "--workspace-group", str(self.config["workspace_group"]),
+                "--task-document", self.task_file(), "--into", into]
+        said = io.StringIO()
+        self.assertEqual(pool.main(argv, stream=said), 0, said.getvalue())
+        written = json.loads(Path(into).read_text())
+        self.assertEqual(written["worker_id"], "impl-c")
+        self.assertEqual(written["deployment"]["profile_name"],
+                         "claude-fresh-implementation")
+        self.assertIn("the instance's configuration was not changed",
+                      said.getvalue())
+        self.unchanged()
+        said = io.StringIO()
+        self.assertEqual(pool.main(argv, stream=said), 2)
+        self.assertIn("already exists", said.getvalue())
+        from tools import stack_command
+
+        self.assertIn("pool", stack_command.COMMANDS)
 
 
 def _work_or_none(authority, work_id):

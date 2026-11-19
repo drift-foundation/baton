@@ -46,6 +46,20 @@ def schema_bytes(name):
     return (_SCHEMA_DIRECTORY / name).read_bytes()
 
 
+# W321608: THE INPUT MANIFEST TEMPLATE, an installed resource. The published
+# conformance vector's one valid `baton.worker-manifest/input` document, from
+# which every deployment's input manifest is composed (`next_run_bindings.
+# input_manifest`): a worker composed by the installed command must not have
+# to find a dossier evidence file to do it. `tests/tools/test_pool` holds this
+# byte-for-byte to that vector, so the two cannot drift apart silently.
+INPUT_MANIFEST_TEMPLATE_BYTES = schema_bytes("input-manifest-template.json")
+
+
+def input_manifest_template():
+    """A fresh copy of the template document, for a composer to bind."""
+    return json.loads(INPUT_MANIFEST_TEMPLATE_BYTES.decode("utf-8"))
+
+
 WORKER_CONTROL_BYTES = schema_bytes("worker-control-1.0.schema.json")
 WORKER_CONTROL = json.loads(WORKER_CONTROL_BYTES.decode("utf-8"))
 
