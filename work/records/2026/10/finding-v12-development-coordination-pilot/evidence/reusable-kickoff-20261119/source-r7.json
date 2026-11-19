@@ -1,0 +1,24 @@
+{
+  "base": "e670e624334c7f924111300b33bd0e94b08011c0",
+  "method": "sha256 over the sorted '<path> sha256:<digest>\\n' lines of every changed v12 path (git status --porcelain -- v12)",
+  "paths": [
+    {
+      "path": "v12/python/tests/tools/test_bootstrap.py",
+      "sha256": "3bf66e461b6c64ef381b9d7709fcb9f05e8e7f12cdc5ff8769722208d0c014ab"
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "sha256": "1609d42909fb57b85c84d17bc4e9abb656a19cfa136a234e931ab47bc92d4f8c"
+    },
+    {
+      "path": "v12/python/tools/bootstrap.py",
+      "sha256": "eb344a43c575c5018ffb831eb9dbd112b7b7262c297f28deace662d65fa8c2bd"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "3e80356640c06c805558ef1fb67608eabd2488e8a2c198bf6e0381d04be4bf87"
+    }
+  ],
+  "candidate": "sha256:599b7ffd44a9885948fc34deafbc73683e4dceb6977f8fec2f5c8cfe0a612c6d",
+  "supersedes": "sha256:0984e0702f88b91382de087c57336dc5e2e55754477002d7e442937be0f43e10"
+}

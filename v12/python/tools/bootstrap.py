@@ -3621,14 +3621,45 @@ def main(argv=None, *, stream=sys.stdout, runner=None):
             # the instance's own target before anything serves them.
             from tools import instance
 
+            places = instance.layout(document["state_root"])
+            # AND THE ROOTS THOSE WORKERS START IN (review 2026-11-19T05-23-
+            # 45Z). `prepare_prerequisites` ran only in the destination
+            # install, which an instance-only installation reaches with no
+            # worker and therefore no root to prepare; the repeat that added
+            # the workers published a configuration whose `state/workspaces`,
+            # `state/launch` and `state/credentials` did not exist, and the
+            # first start refused. The SAME machinery runs here, before
+            # anything is published: existing usable roots are only read,
+            # missing ones are made through pinned ancestry, and an unsafe
+            # one refuses with the attempt's effects reported and retained.
+            prerequisites = {}
+            try:
+                prepare_prerequisites(document, places, made=prerequisites,
+                                      stream=stream)
+            except BootstrapRefusal:
+                _Unwind().run([(place, prerequisites[place],
+                                "prepared prerequisite root")
+                               for place in unwound_order(prerequisites)]
+                              ).report(stream)
+                raise
             source = (None if taken.no_repositories
                       else repository_source(taken.repository_source))
-            prepare_worker_sources(document,
-                                   instance.layout(document["state_root"]),
-                                   stream=stream, runner=runner,
-                                   source=source)
+            prepare_worker_sources(document, places, stream=stream,
+                                   runner=runner, source=source)
         prepared = prepare(document, stream=stream,
                            installing=bool(taken.destination))
+        if not taken.destination:
+            # READY, READ-ONLY: what the repeat just configured must be a
+            # deployment whose every root a manager can see; a report with a
+            # line in it is a refusal, not a warning.
+            said = prerequisite_report(document)
+            if said:
+                raise BootstrapRefusal(
+                    "the repeated configuration names roots a manager could "
+                    "not start in:\n" + "\n".join(
+                        "  " + name + " for " + who + " at " + place + " "
+                        + why for who, name, place, why in said)
+                    + "\nNothing here repairs a root it did not make.")
         if taken.destination:
             # THE IDENTITY `prepare` RESOLVED, not one the input named: the
             # input names none, and the selector installed at the destination

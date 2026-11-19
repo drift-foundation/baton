@@ -201,3 +201,45 @@ K, 2026-11-19, same assignment. Base is now the owner checkpoint `387f29693bfc6b
 The 12 failures are the frozen bundle refusing itself: its BUILT `bootstrap` still carries the old two-asset admission while its `identity` reports three (`did not bring exactly … ['agent-session-1.0', 'worker-control-1.0']; it reports {…three…}`). Only a rebuild from this corrected source can change that; it is the owner's packaging gate (`just test-packaging`) the review names. `test_packaging.WhatTheBundleSaysItIs.test_the_frozen_schema_assets_travelled` passes against that bundle with the corrected gate. No Docker, live provider, full suite, group rerun or Git mutation; the recorded `JoinedFlow` timing failure stands.
 
 Expected after the rebuild: `just test-packaging` runs 24 required cases against the rebuilt bundle with 0 failures; if it does not, the first refusal text is the next finding.
+
+---
+
+# r6 — prerequisite roots on the worker-adding repeat (review 2026-11-19T05-23-45Z)
+
+K, 2026-11-19, same assignment. Base `e670e624334c7f924111300b33bd0e94b08011c0`. Delta candidate `sha256:0984e0702f88b91382de087c57336dc5e2e55754477002d7e442937be0f43e10` over 3 paths (`source-r6.json`, `CANDIDATE-SHA256-r6.txt`, `candidate-r6.diff`, 182 lines): `tools/bootstrap.py` and two test modules. No change to the retained instance, image, repositories or payload.
+
+## The gap and the correction
+
+`prepare_prerequisites` (W375516's accepted machinery: pinned ancestry, observed creation, existing usable roots only read, unsafe ones refused, effects ledgered) ran only in the destination install, which an instance-only installation reaches with no worker and so no root to prepare; the repeat that added the workers published a configuration whose `state/workspaces`, `state/launch` and `state/credentials` did not exist. Now the one-operand branch of `bootstrap.main` runs the SAME `prepare_prerequisites` over the repeat's document (instance layout) BEFORE sources are provisioned and before anything is published; on refusal the attempt's ledger is reported through the existing `_Unwind` (retained, never removed) and the refusal propagates, so nothing is published. After `prepare`, the read-only `prerequisite_report` must be empty or the repeat refuses naming the root and why. No manual directory creation anywhere; no new helper.
+
+Tests (`test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames`): `test_adding_workers_prepares_the_roots_they_start_in` (instance-only install → add two composed workers → all three roots exist as private `0700` directories, `prerequisite_report` empty, the manager's own `workspaces.check_workspace_storage` accepts the store; an identical repeat keeps every root's identity and an operator's file inside it); `test_an_unsafe_root_refuses_the_repeat_and_publishes_nothing` (a symlink at the launch root: refused, not followed, not replaced, configuration byte-identical, no source cloned); `test_a_file_at_a_configured_root_is_refused_and_kept`. The end-to-end connected proof now also asserts the roots exist and the manager's workspace check accepts them after the repeat.
+
+| what | result | wall | log |
+|---|---|---|---|
+| repeat class, connected end-to-end, startup-prerequisites module | 70 OK | 0.6 s | (scratch r6.log) |
+| bootstrap, connected creation, startup prerequisites, instance, pool, stack | 522 OK, 0 skipped | 47 s | `focused-r6.log` |
+
+No group reruns, image rebuild, live execution or Git; the recorded `JoinedFlow` timing failure stands. Supported update path for the retained instance `native-labels-1` (prepared, not executed; for review first): rebuild the host bundle from this source (`just build`), verify it (`just test-packaging` gate), then one more one-operand repeat with the SAME `config/native-workers-e670e624.json` document through the corrected bundle — it reads the existing sources (no clone, proofs only), prepares the three absent roots, and refuses rather than touching anything that exists; no fresh install, no deletion.
+
+---
+
+# r7 — a configured pool with no bound Job starts idle (review 2026-11-19T05-33-40Z)
+
+K, 2026-11-19, same assignment. Base `e670e624`. Candidate `sha256:599b7ffd44a9885948fc34deafbc73683e4dceb6977f8fec2f5c8cfe0a612c6d` over 4 paths (`source-r7.json`, `CANDIDATE-SHA256-r7.txt`, `candidate-r7.diff`, 369 lines): this round adds `tools/stage_execution.py` and the end-to-end proof; the r6 prerequisite correction (bootstrap + its tests) is carried in the same candidate and was accepted at seq 385201.
+
+## The gap and the correction
+
+`stage_execution.operations_from` minted and authorized the receipt sessions eagerly in `_bound_scope(...)`, which is `None` when no Work is bound; `_sessions` then demanded `verify`/`review`/`approve`/`integrate` capabilities in `None` and refused the correctly configured idle instance (`baton.verifier-native holds no verify capability in None`). Separately, each ordinary worker's composition (`single_worker.worker_operations`) proves the Work its manifest names, and for a pool configured before its first Job that Work does not exist yet (bootstrap creates it when the first Job binds).
+
+Now IDLE means "no bound Work", whether the deployment configures no capacity (the accepted zero-capacity instance) or configures workers awaiting their first Job. When idle: no receipt session is minted or authorized (no placeholder Work, no global grant), no pool is activated and no worker composition is built (the workers' preflights — engine, image, network, workspace group, control store — still run), the pooled attachment is empty with an empty principal map (the configured workers' principals are still proved by `_resolved`), and the existing durable-work guard refuses by name if the stores hold work the pool binds nothing for (zero-capacity wording for the empty case; "configures workers but binds no Job, and this instance holds work nobody is bound to serve" for the capacity case). When a Job is bound: everything is as before — the binding is read at composition, the Work exists, the sessions are minted and authorized in the bound Work's own scope BEFORE anything is dispatched or published, and a missing grant refuses by name.
+
+## Proof (real composition/startup path, deterministic seams, no live model)
+
+`tests/tools/test_connected_creation.TheReusableInstanceServesDefinedJobs` now continues past the repeat: (1) `stage_execution.operations_from` over the published configuration (configured implementation + review workers, zero bound Jobs) composes, `sessions is None`, one real `manager.sweep` performs no act, `status` reports `jobs: []`, and the engine stand-in recorded no call; (2) after the two real `manager create` invocations, the same composition mints every receipt session (verification, review, approval, integrator) in the bound Work's scope and `status` shows the two queued Jobs, still with no engine call; (3) with the configured verification participant replaced by a real participant that holds no `verify` grant, composition refuses naming `verify` and that participant before any dispatch or publication. Creation and composition are what this proves; no Job is run and no provider is reached.
+
+| what | result | wall | log |
+|---|---|---|---|
+| the end-to-end proof | 1 OK | 0.1 s | (scratch r7.log) |
+| stage_execution, connected creation, bootstrap, stack, next-run (2), single_worker | 1070 OK, 0 skipped | 379 s | `focused-r7.log` |
+
+Supported runtime-update path for `native-labels-1` (prepared, not executed; for review first): rebuild the host bundle from this source, pass `just test-packaging`, then the instance's supported runtime update (install the corrected bundle for the retained instance per the owner's existing update tooling; no hand replacement of installed files or digests), then `just start`/`status` — expected: manager and publisher up, snapshot with `jobs: []`, no dispatch. No Job, no provider start.

@@ -1,3 +1,19 @@
+## Current — r7 accepted for immediate human checkpoint
+
+Read review-2026-11-19T05-53-13Z.md. Four source/test paths accepted; nine independent focused tests pass. Checkpoint before further operations. K holds edits. After checkpoint rebuild/package gate; resolve unsupported runtime-update assumption separately. No in-place copy, fresh replacement or updater implementation selected.
+
+## Current — idle manager refuses receipt grants in scope None
+
+Read review-2026-11-19T05-33-40Z.md. Prerequisite repeat succeeded, but real empty configured manager start fails. Correct idle-vs-bound authorization composition; test real startup plus bound-Work grant refusal. Preserve retained instance; no global grants or placeholder Job.
+
+## Current — r6 accepted and rebuilt; owner repeat next
+
+Read review-2026-11-19T05-30-34Z.md. Independent 70 tests and rebuilt 24/24 packaging gate pass. Use corrected checkout bundle for repeat on retained native-labels-1; no reinstall/image rebuild. Record actual prerequisite readiness before starting the empty manager. Source checkpoint still due; K holds edits.
+
+## Current — worker capacity configured; prerequisite correction before start
+
+Read review-2026-11-19T05-23-45Z.md. Both source repositories prepared; zero Jobs. Missing shared workspace/launch/credential roots block startup. K corrects existing repeat provisioner using product machinery; no operator mkdir workaround, live execution or instance replacement.
+
 ## Current — rebuilt packaging gate passes; checkpoint eight-file delta
 
 Read review-2026-11-19T05-09-37Z.md. K asset-inventory correction plus one coordinator-authored packaging assertion: 24/24 required packaged tests pass against rebuilt bundle. Combined manifest work/records/2026/10/finding-v12-development-coordination-pilot/evidence/packaging-r5-accepted-2026-11-19T05-09-37Z/source.json. Human checkpoint next; K holds edits. No live labels or timing acceptance yet.

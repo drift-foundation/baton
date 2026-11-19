@@ -1,0 +1,369 @@
+diff --git a/v12/python/tests/tools/test_bootstrap.py b/v12/python/tests/tools/test_bootstrap.py
+index 1efa6fbb..28173481 100644
+--- a/v12/python/tests/tools/test_bootstrap.py
++++ b/v12/python/tests/tools/test_bootstrap.py
+@@ -479,6 +479,100 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
+         configured = json.loads(Path(places["deployment"]).read_bytes())
+         self.assertEqual(configured["workers"], [])
+ 
++    def roots_of(self, workers):
++        return sorted({worker["deployment"][name] for worker in workers
++                       for name in bootstrap.PREREQUISITE_ROOTS})
++
++    def test_adding_workers_prepares_the_roots_they_start_in(self):
++        """Review 2026-11-19T05-23-45Z: after an instance-only install and
++        the worker-adding repeat, every configured workspace, launch and
++        credential root exists, private, and the manager's own workspace
++        check accepts it; a second identical repeat changes nothing."""
++        import stat
++
++        from baton_v12.worker_manager import workspaces
++
++        issued = []
++        destination = self.fresh_instance(issued)
++        workers = [self.composed_for(destination, "impl-a", "implementation",
++                                     "baton.impl-a"),
++                   self.composed_for(destination, "review-a", "review",
++                                     "baton.reviewer")]
++        roots = self.roots_of(workers)
++        for place in roots:
++            self.assertFalse(os.path.lexists(place), place)
++        code, said, _ = self.repeated(destination, issued, workers,
++                                      "--repository-source", self.SOURCE)
++        self.assertEqual(code, 0, said)
++        for place in roots:
++            held = os.lstat(place)
++            self.assertTrue(stat.S_ISDIR(held.st_mode), place)
++            self.assertEqual(stat.S_IMODE(held.st_mode),
++                             bootstrap.PREREQUISITE_MODE, place)
++            self.assertIn("prerequisite", said)
++        document = self.document(workers=workers, jobs=[])
++        self.assertEqual(bootstrap.prerequisite_report(document), [])
++        storage = workers[0]["deployment"]["workspace_storage"]
++        workspaces.check_workspace_storage(storage, physical=False)
++        # IDEMPOTENT: the same repeat reads the roots and makes nothing.
++        before = {place: os.lstat(place) for place in roots}
++        marker = os.path.join(storage, "kept-by-the-operator")
++        Path(marker).write_text("existing entries are preserved")
++        code, again, _ = self.repeated(destination, issued, workers,
++                                       "--repository-source", self.SOURCE)
++        self.assertEqual(code, 0, again)
++        for place in roots:
++            self.assertEqual((before[place].st_dev, before[place].st_ino),
++                             (os.lstat(place).st_dev, os.lstat(place).st_ino))
++        self.assertEqual(Path(marker).read_text(),
++                         "existing entries are preserved")
++
++    def test_an_unsafe_root_refuses_the_repeat_and_publishes_nothing(self):
++        """A link at a configured root is not followed and not replaced;
++        the repeat refuses, the configuration is unchanged, and whatever the
++        attempt made is reported rather than removed."""
++        from tools import instance as instances
++
++        issued = []
++        destination = self.fresh_instance(issued)
++        workers = [self.composed_for(destination, "impl-a", "implementation",
++                                     "baton.impl-a"),
++                   self.composed_for(destination, "review-a", "review",
++                                     "baton.reviewer")]
++        places = instances.layout(destination)
++        before = Path(places["deployment"]).read_bytes()
++        launch = workers[0]["deployment"]["launch_home"]
++        os.makedirs(os.path.dirname(launch), exist_ok=True)
++        elsewhere = os.path.join(self.root, "elsewhere-launch")
++        os.makedirs(elsewhere)
++        os.symlink(elsewhere, launch)
++        code, said, _ = self.repeated(destination, issued, workers,
++                                      "--repository-source", self.SOURCE)
++        self.assertEqual(code, 2, said)
++        self.assertIn("refused", said)
++        self.assertTrue(os.path.islink(launch))
++        self.assertEqual(os.readlink(launch), elsewhere)
++        self.assertEqual(Path(places["deployment"]).read_bytes(), before)
++        self.assertEqual([one for one in issued if one[1] == "clone"
++                          and "source-" in one[-1]], [])
++        configured = json.loads(Path(places["deployment"]).read_bytes())
++        self.assertEqual(configured["workers"], [])
++
++    def test_a_file_at_a_configured_root_is_refused_and_kept(self):
++        issued = []
++        destination = self.fresh_instance(issued)
++        worker = self.composed_for(destination, "impl-a", "implementation",
++                                   "baton.impl-a")
++        credentials = worker["deployment"]["credential_home"]
++        os.makedirs(os.path.dirname(credentials), exist_ok=True)
++        Path(credentials).write_text("not a directory")
++        code, said, places = self.repeated(destination, issued, [worker],
++                                           "--repository-source", self.SOURCE)
++        self.assertEqual(code, 2, said)
++        self.assertEqual(Path(credentials).read_text(), "not a directory")
++        self.assertEqual(json.loads(Path(places["deployment"]).read_bytes())
++                         ["workers"], [])
++
+     def test_without_a_source_checkout_the_absence_is_said_and_refused(self):
+         issued = []
+         destination = self.fresh_instance(issued)
+diff --git a/v12/python/tests/tools/test_connected_creation.py b/v12/python/tests/tools/test_connected_creation.py
+index 17ebf919..9ad94abe 100644
+--- a/v12/python/tests/tools/test_connected_creation.py
++++ b/v12/python/tests/tools/test_connected_creation.py
+@@ -672,6 +672,55 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+                          ["impl-a", "review-a"])
+         self.assertEqual(after["workers"][0]["deployment"]["profile_name"],
+                          "claude-fresh-implementation")
++        # AND THE ROOTS A MANAGER STARTS IN EXIST (review 2026-11-19T05-23-45Z):
++        # the manager's own workspace check accepts the configured store.
++        from baton_v12.worker_manager import workspaces
++
++        self.assertEqual(bootstrap.prerequisite_report(document), [])
++        for worker in after["workers"]:
++            for name in bootstrap.PREREQUISITE_ROOTS:
++                self.assertTrue(os.path.isdir(worker["deployment"][name]),
++                                name)
++        workspaces.check_workspace_storage(
++            after["workers"][0]["deployment"]["workspace_storage"],
++            physical=False)
++        # THE REAL MANAGER COMPOSITION STARTS IDLE OVER THIS INSTANCE (review
++        # 2026-11-19T05-33-40Z): configured capacity, zero bound Jobs, no
++        # receipt session minted, honest zeros from a real sweep and status,
++        # and not one engine call.
++        from baton_v12.job_manager import JobStore, status, sweep
++        from baton_v12.worker_manager import ControlStore
++        from tests.job_manager import fixtures
++        from tests.tools.test_single_worker import Engine
++        from tools import stage_execution
++
++        def composed_now():
++            engine = Engine()
++            job_store = JobStore.open(self.owned["job_store"],
++                                      authority_uuid=self.owned["authority_uuid"],
++                                      incarnation="idle-proof",
++                                      clock=lambda: fixtures.NOW)
++            self.addCleanup(job_store.close)
++            control = ControlStore.open(self.owned["control_store"],
++                                        incarnation="idle-proof",
++                                        clock=lambda: fixtures.NOW)
++            self.addCleanup(control.close)
++            composed = stage_execution.operations_from(
++                self.configuration(), job_store, control, engine_run=engine,
++                credential_provider=lambda provider, reference: b"secret",
++                clock=lambda: fixtures.NOW, checkout=self.checkout)
++            self.addCleanup(composed.close)
++            return job_store, composed, engine
++
++        job_store, idle, engine = composed_now()
++        self.assertIsNone(idle.sessions)
++        report = sweep(job_store, idle, now=fixtures.NOW)
++        self.assertEqual(report.get("acts", []), [])
++        self.assertEqual(status(job_store, idle,
++                                observed_at=fixtures.NOW)["jobs"], [])
++        self.assertEqual(engine.vectors, [])
++        idle.close()
++        job_store.close()
+         # TWO ORDINARY JOBS, input-only, each with its own instructions and
+         # its own verification; the installation is not written per Job.
+         configured = json.dumps(self.configuration()["workers"],
+@@ -705,6 +754,43 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
+         self.assertEqual(
+             {one["job_id"] for one in self.install_document()["jobs"]},
+             {"job-labels-one", "job-labels-two"})
++        # AND THE BOUND WORK IS AUTHORIZED BEFORE ANYTHING IS SERVED: the
++        # same composition over the configuration that now binds the two Jobs
++        # mints the receipt sessions in the bound Work's own scope (the
++        # grants the creation made), and status shows the two queued Jobs.
++        job_store, bound, engine = composed_now()
++        self.assertIsNotNone(bound.sessions)
++        for name in stage_execution.RECEIPT_SESSIONS:
++            self.assertIn(name, bound.sessions, name)
++        shown = status(job_store, bound, observed_at=fixtures.NOW)
++        self.assertEqual(sorted(one["job_id"] for one in shown["jobs"]),
++                         ["job-labels-one", "job-labels-two"])
++        self.assertEqual(engine.vectors, [])
++        bound.close()
++        job_store.close()
++        # A BOUND WORK WHOSE RECEIPT ACTOR HOLDS NO GRANT REFUSES AT
++        # COMPOSITION, before any dispatch or publication: the implementation
++        # participant is a real participant and holds no verify capability.
++        configured = self.configuration()
++        configured["receipt_participants"]["verification"] = "baton.impl-a"
++        job_store = JobStore.open(self.owned["job_store"],
++                                  authority_uuid=self.owned["authority_uuid"],
++                                  incarnation="grant-proof",
++                                  clock=lambda: fixtures.NOW)
++        self.addCleanup(job_store.close)
++        control = ControlStore.open(self.owned["control_store"],
++                                    incarnation="grant-proof",
++                                    clock=lambda: fixtures.NOW)
++        self.addCleanup(control.close)
++        engine = Engine()
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.operations_from(
++                configured, job_store, control, engine_run=engine,
++                credential_provider=lambda provider, reference: b"secret",
++                clock=lambda: fixtures.NOW, checkout=self.checkout)
++        self.assertIn("verify", caught.exception.message)
++        self.assertIn("baton.impl-a", caught.exception.message)
++        self.assertEqual(engine.vectors, [])
+ 
+ 
+ class ThePackagedResourcesResolve(ConnectedCreationCase):
+diff --git a/v12/python/tools/bootstrap.py b/v12/python/tools/bootstrap.py
+index 048a1920..9aa71fd4 100644
+--- a/v12/python/tools/bootstrap.py
++++ b/v12/python/tools/bootstrap.py
+@@ -3621,14 +3621,45 @@ def main(argv=None, *, stream=sys.stdout, runner=None):
+             # the instance's own target before anything serves them.
+             from tools import instance
+ 
++            places = instance.layout(document["state_root"])
++            # AND THE ROOTS THOSE WORKERS START IN (review 2026-11-19T05-23-
++            # 45Z). `prepare_prerequisites` ran only in the destination
++            # install, which an instance-only installation reaches with no
++            # worker and therefore no root to prepare; the repeat that added
++            # the workers published a configuration whose `state/workspaces`,
++            # `state/launch` and `state/credentials` did not exist, and the
++            # first start refused. The SAME machinery runs here, before
++            # anything is published: existing usable roots are only read,
++            # missing ones are made through pinned ancestry, and an unsafe
++            # one refuses with the attempt's effects reported and retained.
++            prerequisites = {}
++            try:
++                prepare_prerequisites(document, places, made=prerequisites,
++                                      stream=stream)
++            except BootstrapRefusal:
++                _Unwind().run([(place, prerequisites[place],
++                                "prepared prerequisite root")
++                               for place in unwound_order(prerequisites)]
++                              ).report(stream)
++                raise
+             source = (None if taken.no_repositories
+                       else repository_source(taken.repository_source))
+-            prepare_worker_sources(document,
+-                                   instance.layout(document["state_root"]),
+-                                   stream=stream, runner=runner,
+-                                   source=source)
++            prepare_worker_sources(document, places, stream=stream,
++                                   runner=runner, source=source)
+         prepared = prepare(document, stream=stream,
+                            installing=bool(taken.destination))
++        if not taken.destination:
++            # READY, READ-ONLY: what the repeat just configured must be a
++            # deployment whose every root a manager can see; a report with a
++            # line in it is a refusal, not a warning.
++            said = prerequisite_report(document)
++            if said:
++                raise BootstrapRefusal(
++                    "the repeated configuration names roots a manager could "
++                    "not start in:\n" + "\n".join(
++                        "  " + name + " for " + who + " at " + place + " "
++                        + why for who, name, place, why in said)
++                    + "\nNothing here repairs a root it did not make.")
+         if taken.destination:
+             # THE IDENTITY `prepare` RESOLVED, not one the input named: the
+             # input names none, and the selector installed at the destination
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index cbebc83c..ad40e4da 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -6643,8 +6643,23 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+         # THE SESSIONS ARE MINTED AND AUTHORIZED BEFORE ANY STORE THEY ACT
+         # OVER IS TOUCHED, because a deployment missing a grant discovers it
+         # with somebody's candidate already frozen and unacceptable.
+-        composed.sessions = _minted(composed.authority, given,
+-                                    _bound_scope(composed.authority, given))
++        scope = _bound_scope(composed.authority, given)
++        # IDLE IS "NO BOUND WORK", whether this deployment configures no
++        # capacity at all or configures workers awaiting their first Job
++        # (review 2026-11-19T05-33-40Z). A reusable instance is installed
++        # with no Job and then configured with workers; nothing is bound, so
++        # there is no Work scope, no receipt session to mint or authorize,
++        # and -- because a worker's own manifest names the Work it will serve
++        # and that Work is created when its first Job binds -- no worker
++        # composition to build yet. Minting deployment-scoped sessions would
++        # be inventing the grant `_bound_scope` refuses to invent; demanding
++        # them in `None` refused the correctly configured idle instance at its
++        # first start. The moment a Job is bound the binding is read here, the
++        # Work exists, and the receipts are minted and authorized in its own
++        # scope before anything is dispatched or published, exactly as before.
++        idle = scope is None
++        composed.sessions = None if idle else _minted(composed.authority,
++                                                      given, scope)
+         # NO CAPACITY MEANS NO POOL TO PREDICT OR ACTIVATE. A pool document
+         # is a list of workers, and `scheduler.own_pool` refuses an empty one
+         # for the good reason that a pool nobody serves from is not a pool.
+@@ -6653,14 +6668,23 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+         # exactly what the STORE still requires, which for a fresh instance is
+         # nothing and for a store holding live work is a refusal.
+         empty = _serves_nothing(given)
+-        if empty:
++        if idle:
+             # AT ADMISSION, and before the first durable act below. An instance
+             # that cannot serve what is already here must say so rather than
+-            # start and report nothing.
++            # start and report nothing -- whether it has no capacity or has
++            # capacity it binds no Job for.
+             found = unconfigured_work(job_store, control_store)
+-            if found:
++            if found and empty:
+                 _refuse_unconfigured(found, "at startup")
+-        pool = None if empty else _pool_generation(job_store, given, resolved)
++            if found:
++                _refuse(f"this deployment configures workers but binds no Job, "
++                        f"and this instance holds work nobody is bound to "
++                        f"serve, so it refuses at startup rather than "
++                        f"reporting an idle pool: {'; '.join(found)}. Nothing "
++                        f"was expired, abandoned, repaired or executed -- "
++                        f"bind the Jobs this work belongs to.",
++                        category="refused", code="precondition")
++        pool = None if idle else _pool_generation(job_store, given, resolved)
+         # -- and everything below this line does ----------------------------
+         #
+         # `worker_preflight` is the half of a worker deployment the engine,
+@@ -6728,7 +6752,11 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+         composed.publication = deployment.publication
+         composed.integration_profile = deployment.integration_profile
+         composed.integrator = Integration(deployment, ports)
+-        for one, provider in zip(given["workers"], providers):
++        # NO WORKER COMPOSITION WHILE NOTHING IS BOUND: each ordinary worker's
++        # preflight ran above (engine, image, network, workspace group, control
++        # store), and its composition -- which proves the Work its manifest
++        # names -- is built once a Job binds that Work.
++        for one, provider in zip(given["workers"], [] if idle else providers):
+             if one["role"] == "integration":
+                 # W130216: THE INTEGRATION ROLE IS COMPOSED PER BOUND JOB.
+                 # One worker, one actor and one capacity; the Work and the
+@@ -6782,10 +6810,10 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+                     # shared handle would take the other two down with it.
+                     dispose=lambda: None)
+             composed.workers.append(dict(one, operations=operations))
+-        generation = (None if empty else
++        generation = (None if idle else
+                       scheduler.activate_pool(job_store, pool,
+                                               resolved)["generation"])
+-        if not empty and generation != given["pool_generation"]:
++        if not idle and generation != given["pool_generation"]:
+             # THE ACCEPTED OPERATION'S OWN ANSWER, KEPT. `_pool_generation`
+             # above predicts this from the same durable state and refuses
+             # before the activation; this compares what actually happened, so
+@@ -6797,13 +6825,17 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+                     f"refuses rather than serving under a generation nobody "
+                     f"configured", category="refused",
+                     code="operation-collision")
+-        if empty:
++        if idle:
+             composed.no_capacity_stores = (job_store, control_store)
+         composed.pooled = PooledManagerOperations(
+             job_store,
+-            {} if empty else _attached_workers(job_store, generation,
+-                                               composed.workers),
+-            resolved_principals=resolved,
++            {} if idle else _attached_workers(job_store, generation,
++                                              composed.workers),
++            # NOTHING ATTACHED, NOTHING RESOLVED FOR IT: the scheduler holds
++            # the principal map to exactly the attached pairs' participants,
++            # which for an idle pool is nobody. The configured workers' own
++            # principals were still proved above by `_resolved`.
++            resolved_principals={} if idle else resolved,
+             independence=_job_eligibility(composed))
+         return composed
+     except BaseException:

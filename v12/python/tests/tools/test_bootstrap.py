@@ -479,6 +479,100 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
         configured = json.loads(Path(places["deployment"]).read_bytes())
         self.assertEqual(configured["workers"], [])
 
+    def roots_of(self, workers):
+        return sorted({worker["deployment"][name] for worker in workers
+                       for name in bootstrap.PREREQUISITE_ROOTS})
+
+    def test_adding_workers_prepares_the_roots_they_start_in(self):
+        """Review 2026-11-19T05-23-45Z: after an instance-only install and
+        the worker-adding repeat, every configured workspace, launch and
+        credential root exists, private, and the manager's own workspace
+        check accepts it; a second identical repeat changes nothing."""
+        import stat
+
+        from baton_v12.worker_manager import workspaces
+
+        issued = []
+        destination = self.fresh_instance(issued)
+        workers = [self.composed_for(destination, "impl-a", "implementation",
+                                     "baton.impl-a"),
+                   self.composed_for(destination, "review-a", "review",
+                                     "baton.reviewer")]
+        roots = self.roots_of(workers)
+        for place in roots:
+            self.assertFalse(os.path.lexists(place), place)
+        code, said, _ = self.repeated(destination, issued, workers,
+                                      "--repository-source", self.SOURCE)
+        self.assertEqual(code, 0, said)
+        for place in roots:
+            held = os.lstat(place)
+            self.assertTrue(stat.S_ISDIR(held.st_mode), place)
+            self.assertEqual(stat.S_IMODE(held.st_mode),
+                             bootstrap.PREREQUISITE_MODE, place)
+            self.assertIn("prerequisite", said)
+        document = self.document(workers=workers, jobs=[])
+        self.assertEqual(bootstrap.prerequisite_report(document), [])
+        storage = workers[0]["deployment"]["workspace_storage"]
+        workspaces.check_workspace_storage(storage, physical=False)
+        # IDEMPOTENT: the same repeat reads the roots and makes nothing.
+        before = {place: os.lstat(place) for place in roots}
+        marker = os.path.join(storage, "kept-by-the-operator")
+        Path(marker).write_text("existing entries are preserved")
+        code, again, _ = self.repeated(destination, issued, workers,
+                                       "--repository-source", self.SOURCE)
+        self.assertEqual(code, 0, again)
+        for place in roots:
+            self.assertEqual((before[place].st_dev, before[place].st_ino),
+                             (os.lstat(place).st_dev, os.lstat(place).st_ino))
+        self.assertEqual(Path(marker).read_text(),
+                         "existing entries are preserved")
+
+    def test_an_unsafe_root_refuses_the_repeat_and_publishes_nothing(self):
+        """A link at a configured root is not followed and not replaced;
+        the repeat refuses, the configuration is unchanged, and whatever the
+        attempt made is reported rather than removed."""
+        from tools import instance as instances
+
+        issued = []
+        destination = self.fresh_instance(issued)
+        workers = [self.composed_for(destination, "impl-a", "implementation",
+                                     "baton.impl-a"),
+                   self.composed_for(destination, "review-a", "review",
+                                     "baton.reviewer")]
+        places = instances.layout(destination)
+        before = Path(places["deployment"]).read_bytes()
+        launch = workers[0]["deployment"]["launch_home"]
+        os.makedirs(os.path.dirname(launch), exist_ok=True)
+        elsewhere = os.path.join(self.root, "elsewhere-launch")
+        os.makedirs(elsewhere)
+        os.symlink(elsewhere, launch)
+        code, said, _ = self.repeated(destination, issued, workers,
+                                      "--repository-source", self.SOURCE)
+        self.assertEqual(code, 2, said)
+        self.assertIn("refused", said)
+        self.assertTrue(os.path.islink(launch))
+        self.assertEqual(os.readlink(launch), elsewhere)
+        self.assertEqual(Path(places["deployment"]).read_bytes(), before)
+        self.assertEqual([one for one in issued if one[1] == "clone"
+                          and "source-" in one[-1]], [])
+        configured = json.loads(Path(places["deployment"]).read_bytes())
+        self.assertEqual(configured["workers"], [])
+
+    def test_a_file_at_a_configured_root_is_refused_and_kept(self):
+        issued = []
+        destination = self.fresh_instance(issued)
+        worker = self.composed_for(destination, "impl-a", "implementation",
+                                   "baton.impl-a")
+        credentials = worker["deployment"]["credential_home"]
+        os.makedirs(os.path.dirname(credentials), exist_ok=True)
+        Path(credentials).write_text("not a directory")
+        code, said, places = self.repeated(destination, issued, [worker],
+                                           "--repository-source", self.SOURCE)
+        self.assertEqual(code, 2, said)
+        self.assertEqual(Path(credentials).read_text(), "not a directory")
+        self.assertEqual(json.loads(Path(places["deployment"]).read_bytes())
+                         ["workers"], [])
+
     def test_without_a_source_checkout_the_absence_is_said_and_refused(self):
         issued = []
         destination = self.fresh_instance(issued)

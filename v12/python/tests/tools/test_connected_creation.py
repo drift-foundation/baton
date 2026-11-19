@@ -672,6 +672,55 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
                          ["impl-a", "review-a"])
         self.assertEqual(after["workers"][0]["deployment"]["profile_name"],
                          "claude-fresh-implementation")
+        # AND THE ROOTS A MANAGER STARTS IN EXIST (review 2026-11-19T05-23-45Z):
+        # the manager's own workspace check accepts the configured store.
+        from baton_v12.worker_manager import workspaces
+
+        self.assertEqual(bootstrap.prerequisite_report(document), [])
+        for worker in after["workers"]:
+            for name in bootstrap.PREREQUISITE_ROOTS:
+                self.assertTrue(os.path.isdir(worker["deployment"][name]),
+                                name)
+        workspaces.check_workspace_storage(
+            after["workers"][0]["deployment"]["workspace_storage"],
+            physical=False)
+        # THE REAL MANAGER COMPOSITION STARTS IDLE OVER THIS INSTANCE (review
+        # 2026-11-19T05-33-40Z): configured capacity, zero bound Jobs, no
+        # receipt session minted, honest zeros from a real sweep and status,
+        # and not one engine call.
+        from baton_v12.job_manager import JobStore, status, sweep
+        from baton_v12.worker_manager import ControlStore
+        from tests.job_manager import fixtures
+        from tests.tools.test_single_worker import Engine
+        from tools import stage_execution
+
+        def composed_now():
+            engine = Engine()
+            job_store = JobStore.open(self.owned["job_store"],
+                                      authority_uuid=self.owned["authority_uuid"],
+                                      incarnation="idle-proof",
+                                      clock=lambda: fixtures.NOW)
+            self.addCleanup(job_store.close)
+            control = ControlStore.open(self.owned["control_store"],
+                                        incarnation="idle-proof",
+                                        clock=lambda: fixtures.NOW)
+            self.addCleanup(control.close)
+            composed = stage_execution.operations_from(
+                self.configuration(), job_store, control, engine_run=engine,
+                credential_provider=lambda provider, reference: b"secret",
+                clock=lambda: fixtures.NOW, checkout=self.checkout)
+            self.addCleanup(composed.close)
+            return job_store, composed, engine
+
+        job_store, idle, engine = composed_now()
+        self.assertIsNone(idle.sessions)
+        report = sweep(job_store, idle, now=fixtures.NOW)
+        self.assertEqual(report.get("acts", []), [])
+        self.assertEqual(status(job_store, idle,
+                                observed_at=fixtures.NOW)["jobs"], [])
+        self.assertEqual(engine.vectors, [])
+        idle.close()
+        job_store.close()
         # TWO ORDINARY JOBS, input-only, each with its own instructions and
         # its own verification; the installation is not written per Job.
         configured = json.dumps(self.configuration()["workers"],
@@ -705,6 +754,43 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         self.assertEqual(
             {one["job_id"] for one in self.install_document()["jobs"]},
             {"job-labels-one", "job-labels-two"})
+        # AND THE BOUND WORK IS AUTHORIZED BEFORE ANYTHING IS SERVED: the
+        # same composition over the configuration that now binds the two Jobs
+        # mints the receipt sessions in the bound Work's own scope (the
+        # grants the creation made), and status shows the two queued Jobs.
+        job_store, bound, engine = composed_now()
+        self.assertIsNotNone(bound.sessions)
+        for name in stage_execution.RECEIPT_SESSIONS:
+            self.assertIn(name, bound.sessions, name)
+        shown = status(job_store, bound, observed_at=fixtures.NOW)
+        self.assertEqual(sorted(one["job_id"] for one in shown["jobs"]),
+                         ["job-labels-one", "job-labels-two"])
+        self.assertEqual(engine.vectors, [])
+        bound.close()
+        job_store.close()
+        # A BOUND WORK WHOSE RECEIPT ACTOR HOLDS NO GRANT REFUSES AT
+        # COMPOSITION, before any dispatch or publication: the implementation
+        # participant is a real participant and holds no verify capability.
+        configured = self.configuration()
+        configured["receipt_participants"]["verification"] = "baton.impl-a"
+        job_store = JobStore.open(self.owned["job_store"],
+                                  authority_uuid=self.owned["authority_uuid"],
+                                  incarnation="grant-proof",
+                                  clock=lambda: fixtures.NOW)
+        self.addCleanup(job_store.close)
+        control = ControlStore.open(self.owned["control_store"],
+                                    incarnation="grant-proof",
+                                    clock=lambda: fixtures.NOW)
+        self.addCleanup(control.close)
+        engine = Engine()
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                configured, job_store, control, engine_run=engine,
+                credential_provider=lambda provider, reference: b"secret",
+                clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.assertIn("verify", caught.exception.message)
+        self.assertIn("baton.impl-a", caught.exception.message)
+        self.assertEqual(engine.vectors, [])
 
 
 class ThePackagedResourcesResolve(ConnectedCreationCase):

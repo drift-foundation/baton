@@ -6643,8 +6643,23 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
         # THE SESSIONS ARE MINTED AND AUTHORIZED BEFORE ANY STORE THEY ACT
         # OVER IS TOUCHED, because a deployment missing a grant discovers it
         # with somebody's candidate already frozen and unacceptable.
-        composed.sessions = _minted(composed.authority, given,
-                                    _bound_scope(composed.authority, given))
+        scope = _bound_scope(composed.authority, given)
+        # IDLE IS "NO BOUND WORK", whether this deployment configures no
+        # capacity at all or configures workers awaiting their first Job
+        # (review 2026-11-19T05-33-40Z). A reusable instance is installed
+        # with no Job and then configured with workers; nothing is bound, so
+        # there is no Work scope, no receipt session to mint or authorize,
+        # and -- because a worker's own manifest names the Work it will serve
+        # and that Work is created when its first Job binds -- no worker
+        # composition to build yet. Minting deployment-scoped sessions would
+        # be inventing the grant `_bound_scope` refuses to invent; demanding
+        # them in `None` refused the correctly configured idle instance at its
+        # first start. The moment a Job is bound the binding is read here, the
+        # Work exists, and the receipts are minted and authorized in its own
+        # scope before anything is dispatched or published, exactly as before.
+        idle = scope is None
+        composed.sessions = None if idle else _minted(composed.authority,
+                                                      given, scope)
         # NO CAPACITY MEANS NO POOL TO PREDICT OR ACTIVATE. A pool document
         # is a list of workers, and `scheduler.own_pool` refuses an empty one
         # for the good reason that a pool nobody serves from is not a pool.
@@ -6653,14 +6668,23 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
         # exactly what the STORE still requires, which for a fresh instance is
         # nothing and for a store holding live work is a refusal.
         empty = _serves_nothing(given)
-        if empty:
+        if idle:
             # AT ADMISSION, and before the first durable act below. An instance
             # that cannot serve what is already here must say so rather than
-            # start and report nothing.
+            # start and report nothing -- whether it has no capacity or has
+            # capacity it binds no Job for.
             found = unconfigured_work(job_store, control_store)
-            if found:
+            if found and empty:
                 _refuse_unconfigured(found, "at startup")
-        pool = None if empty else _pool_generation(job_store, given, resolved)
+            if found:
+                _refuse(f"this deployment configures workers but binds no Job, "
+                        f"and this instance holds work nobody is bound to "
+                        f"serve, so it refuses at startup rather than "
+                        f"reporting an idle pool: {'; '.join(found)}. Nothing "
+                        f"was expired, abandoned, repaired or executed -- "
+                        f"bind the Jobs this work belongs to.",
+                        category="refused", code="precondition")
+        pool = None if idle else _pool_generation(job_store, given, resolved)
         # -- and everything below this line does ----------------------------
         #
         # `worker_preflight` is the half of a worker deployment the engine,
@@ -6728,7 +6752,11 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
         composed.publication = deployment.publication
         composed.integration_profile = deployment.integration_profile
         composed.integrator = Integration(deployment, ports)
-        for one, provider in zip(given["workers"], providers):
+        # NO WORKER COMPOSITION WHILE NOTHING IS BOUND: each ordinary worker's
+        # preflight ran above (engine, image, network, workspace group, control
+        # store), and its composition -- which proves the Work its manifest
+        # names -- is built once a Job binds that Work.
+        for one, provider in zip(given["workers"], [] if idle else providers):
             if one["role"] == "integration":
                 # W130216: THE INTEGRATION ROLE IS COMPOSED PER BOUND JOB.
                 # One worker, one actor and one capacity; the Work and the
@@ -6782,10 +6810,10 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                     # shared handle would take the other two down with it.
                     dispose=lambda: None)
             composed.workers.append(dict(one, operations=operations))
-        generation = (None if empty else
+        generation = (None if idle else
                       scheduler.activate_pool(job_store, pool,
                                               resolved)["generation"])
-        if not empty and generation != given["pool_generation"]:
+        if not idle and generation != given["pool_generation"]:
             # THE ACCEPTED OPERATION'S OWN ANSWER, KEPT. `_pool_generation`
             # above predicts this from the same durable state and refuses
             # before the activation; this compares what actually happened, so
@@ -6797,13 +6825,17 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                     f"refuses rather than serving under a generation nobody "
                     f"configured", category="refused",
                     code="operation-collision")
-        if empty:
+        if idle:
             composed.no_capacity_stores = (job_store, control_store)
         composed.pooled = PooledManagerOperations(
             job_store,
-            {} if empty else _attached_workers(job_store, generation,
-                                               composed.workers),
-            resolved_principals=resolved,
+            {} if idle else _attached_workers(job_store, generation,
+                                              composed.workers),
+            # NOTHING ATTACHED, NOTHING RESOLVED FOR IT: the scheduler holds
+            # the principal map to exactly the attached pairs' participants,
+            # which for an idle pool is nobody. The configured workers' own
+            # principals were still proved above by `_resolved`.
+            resolved_principals={} if idle else resolved,
             independence=_job_eligibility(composed))
         return composed
     except BaseException:
