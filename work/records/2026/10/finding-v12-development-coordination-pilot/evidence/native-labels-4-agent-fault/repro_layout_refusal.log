@@ -1,0 +1,6 @@
+test_the_marker_image_refuses_before_the_provider (__main__.NewImageWithoutLayoutSelection.test_the_marker_image_refuses_before_the_provider) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK

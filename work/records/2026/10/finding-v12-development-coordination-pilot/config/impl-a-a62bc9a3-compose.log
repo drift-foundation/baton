@@ -1,0 +1,8 @@
+worker    impl-a         implementation
+work      37e86581-W1
+image     sha256:f2b86df0422a508bcf6603866fbf31b27828fd36b1dc3d88d9318f0225ffb380
+profile   claude-fresh-implementation sha256:b4de49c04093514dd33159967dbff1fcda6b6d8d6e6e7093ffc9de21bc865049
+task      /home/sl/baton-instances/native-labels-4/state/task/installed-task.json (native-development-default)
+manifest  sha256:557ed37dbf6dbfd0641e45415b660064e6977ef3e33648020fd854598452341f
+written   work/records/2026/10/finding-v12-development-coordination-pilot/config/impl-a-a62bc9a3.json
+no Job was prepared, nothing was submitted, no Work was created or touched, and the instance's configuration was not changed

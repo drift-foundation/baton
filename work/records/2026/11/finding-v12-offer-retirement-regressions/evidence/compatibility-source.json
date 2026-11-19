@@ -1,0 +1,18 @@
+{
+  "head": "70c12fd642439961ead260211875a1bb348e2641",
+  "candidate_paths": {
+    "v12/python/src/baton_v12/job_manager/scheduler.py": "520ba1e2c1d44ca327feece0cde8a014a882852746a40ea7fd5ecac834691556",
+    "v12/python/tests/job_manager/test_scheduling.py": "55e39377f1acecf1f562983f338f163891f51e43b078d3ba6629ac43335da046",
+    "v12/python/tests/tools/test_dogfood_operator.py": "7c5e7f50ea05b1d49a66f7a14e5020e07c2627d582509206939e4cddc980b343",
+    "v12/python/tests/tools/test_job_task_delivery.py": "51ab8d09b821cbbb753e483e452b98c34a6c3255f315e9ddb94141bb7678bf5d",
+    "v12/python/tests/tools/test_retry_task_lineage.py": "d36667d353f50558908cce4f9da12aeeb37b7fcb89745e8e80345198cacdd818",
+    "v12/python/tests/tools/test_parallel_runner.py": "70008af50f91448e4a6e202d849dd561480be695bbc9ece227107adb4db38171"
+  },
+  "k_paths": {
+    "v12/python/tools/pool.py": "45d0f72d342c594cea081d8fb0dedce8d63698cf6d9e9c21270b4c54214df4ba",
+    "v12/python/tests/tools/test_pool.py": "616ec16577b27d97aff013b4a2eb6ecf580f3334303dd4581ffcf009faa88564",
+    "v12/python/tests/tools/test_bootstrap.py": "7c67bcf48786523a3e3e9a00b374ca90c3fa604279f7bd2e2aa5a55c58068516",
+    "v12/python/tests/tools/test_single_worker.py": "5f21d8d67f73663c95adcc73eac5fceffeb50dbacf3edcc3d7e548327478decf",
+    "v12/python/tests/tools/test_connected_creation.py": "cfa1ea0d7974ac94eebb858a76514bf8ffe8a2e85336d40799a369ddbd174e5f"
+  }
+}

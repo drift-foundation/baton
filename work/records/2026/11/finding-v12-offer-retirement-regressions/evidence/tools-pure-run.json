@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "tools/parallel_test.py",
+    "--group",
+    "tools-pure",
+    "--account",
+    "--keep-going",
+    "--jobs",
+    "8",
+    "--summary",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-offer-retirement-regressions/evidence/tools-pure-ledger.json"
+  ],
+  "cwd": "v12/python",
+  "timeout_seconds": 900,
+  "kill_grace_seconds": 10,
+  "exit_code": 0,
+  "wall_seconds": 211.6117782430083,
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "TMPDIR": "/var/tmp",
+    "BATON_V12_DISK_ROOT": "/var/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

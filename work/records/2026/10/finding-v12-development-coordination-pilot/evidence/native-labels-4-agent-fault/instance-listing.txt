@@ -1,0 +1,53 @@
+# host listing taken 2026-11-19T15:43:27Z, read-only (names, sizes, mtimes; no credential content)
+2026-11-19T08:26:04.697139-0700 4096 sl:sl 775 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/credential-state
+2026-11-19T08:26:04.697139-0700 4096 sl:sl 775 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/credentials
+2026-11-19T08:26:04.698113-0700 4096 sl:sl 775 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/custody
+2026-11-19T08:26:04.698129-0700 4096 sl:sl 775 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/scratch
+2026-11-19T08:26:04.698175-0700 4096 sl:baton-workspace 2770 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/workspace
+2026-11-19T08:26:04.698175-0700 4096 sl:baton-workspace 2770 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/workspace/result-attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3
+2026-11-19T08:26:04.698175-0700 4096 sl:sl 555 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3
+2026-11-19T08:26:09.080059-0700 4096 sl:sl 555 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/inputs/source
+2026-11-19T08:26:09.082059-0700 3640 sl:sl 444 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/inputs/task.json
+2026-11-19T08:26:09.085059-0700 1103 sl:sl 444 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/inputs/assignment.json
+2026-11-19T08:26:09.085059-0700 2631 sl:sl 444 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/inputs/input.json
+2026-11-19T08:26:09.086059-0700 4096 sl:sl 555 /home/sl/baton-instances/native-labels-4/state/workspaces/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/inputs
+2026-11-19T08:26:09.091059-0700 1501 sl:sl 444 /home/sl/baton-instances/native-labels-4/state/launch/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/launch.json
+2026-11-19T08:26:09.092478-0700 4096 sl:sl 555 /home/sl/baton-instances/native-labels-4/state/launch/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3
+2026-11-19T08:26:09.092478-0700 4096 sl:sl 700 /home/sl/baton-instances/native-labels-4/state/launch
+2026-11-19T08:26:09.092519-0700 4096 sl:baton-workspace 2770 /home/sl/baton-instances/native-labels-4/state/launch/logs/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3
+2026-11-19T08:26:09.092519-0700 4096 sl:baton-workspace 2770 /home/sl/baton-instances/native-labels-4/state/launch/logs/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/native
+2026-11-19T08:26:09.092519-0700 4096 sl:sl 700 /home/sl/baton-instances/native-labels-4/state/launch/logs
+2026-11-19T08:26:09.401053-0700 490 sl:sl 444 /home/sl/baton-instances/native-labels-4/state/launch/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/command/sequence-8de764bca105b61097a24d204fdf1f1e.json
+2026-11-19T08:26:09.402053-0700 4096 sl:sl 755 /home/sl/baton-instances/native-labels-4/state/launch/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/command
+2026-11-19T08:26:09.420053-0700 367 sl:baton-workspace 440 /home/sl/baton-instances/native-labels-4/state/launch/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/events/receipt.json
+2026-11-19T08:26:09.421053-0700 465 sl:baton-workspace 440 /home/sl/baton-instances/native-labels-4/state/launch/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/events/state-describe.json
+2026-11-19T08:26:09.474052-0700 456 sl:baton-workspace 440 /home/sl/baton-instances/native-labels-4/state/launch/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/events/state-work.json
+2026-11-19T08:26:09.475052-0700 456 sl:baton-workspace 440 /home/sl/baton-instances/native-labels-4/state/launch/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/events/terminal.json
+2026-11-19T08:26:09.476052-0700 4096 sl:baton-workspace 2770 /home/sl/baton-instances/native-labels-4/state/launch/attempt-532f13716faaaf244a67b212792e51dd80d4e163f781fea460e610b8da5b58c3/events
+
+# implementation line .git entries
+total 5508
+drwxrwxr-x+  7 sl sl                 4096 2026-11-19 08:36:08.252140312 -0700 .
+drwxrwsr-x+ 16 sl baton-workspace    4096 2026-11-19 08:26:06.552105543 -0700 ..
+-rw-rw-r--  1 sl sl                   41 2026-11-19 08:26:08.738550606 -0700 HEAD
+-rw-rw-r--  1 sl sl                  280 2026-11-19 08:26:06.468872786 -0700 config
+-rw-rw-r--  1 sl sl                   73 2026-11-19 08:26:04.700878425 -0700 description
+drwxrwxr-x  2 sl sl                 4096 2026-11-19 08:26:04.700878425 -0700 hooks
+-rw-rw-r--  1 sl sl              5594023 2026-11-19 08:26:08.733065798 -0700 index
+drwxrwxr-x  2 sl sl                 4096 2026-11-19 08:26:04.700878425 -0700 info
+drwxrwxr-x  3 sl sl                 4096 2026-11-19 08:26:06.468816151 -0700 logs
+drwxrwxr-x  4 sl sl                 4096 2026-11-19 08:26:04.701231841 -0700 objects
+-rw-rw-r--  1 sl sl                  212 2026-11-19 08:26:06.468107074 -0700 packed-refs
+drwxrwxr-x  5 sl sl                 4096 2026-11-19 08:26:06.468107074 -0700 refs
+2026-11-19 08:26:09.425178304 -0700 /home/sl/baton-instances/native-labels-4/state/workspaces/.baton-review-lines/line-3aaa109c6a3b2c349b0c9d21a74d7c4ea70e90c577d57beac57916671d610919/checkout/.git/info/exclude
+
+# credential slot (name/size/mode only)
+total 12
+drwx------+ 2 sl sl              4096 2026-11-19 08:26:09.092519375 -0700 .
+drwxrwxr-x+ 3 sl sl              4096 2026-11-19 08:26:09.092519375 -0700 ..
+-rw-r----- 1 sl baton-workspace  700 2026-11-19 08:26:09.092519375 -0700 claude
+
+# processes
+   2059       1  1-20:23:24 /usr/bin/containerd-shim-runc-v2 -namespace moby -id df429ebe3c74675a4a4cefe400981e5dbdebba435e7e2a8e6d5d613d8e84dd57 -address /run/containerd/containerd.sock
+1912709       1       17:28 /home/sl/baton-instances/native-labels-4/distro/baton-v12-stack manager --store /home/sl/baton-instances/native-labels-4/db/jobs.sqlite3 --incarnation v12-stack-1912708-1795101959365332887 --authority-uuid 37e86581710d4af7b26f0c36f0db66b0 serve --control /home/sl/baton-instances/native-labels-4/db/control.sqlite3 --operations tools.stage_execution:factory
+1912710       1       17:28 /home/sl/baton-instances/native-labels-4/distro/baton-v12-stack publish --root /home/sl/baton-instances/native-labels-4/state

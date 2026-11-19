@@ -1,0 +1,25 @@
+................E.E......
+======================================================================
+ERROR: test_the_served_job_gets_its_own_bytes_and_the_second_waits (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop.test_the_served_job_gets_its_own_bytes_and_the_second_waits)
+WHAT ONE BOOTSTRAP LOOP CAN ACTUALLY SERVE, measured.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_task_delivery.py", line 1665, in test_the_served_job_gets_its_own_bytes_and_the_second_waits
+    [claim] = [row for row in second_stage["receipts"] if row["act"] == "claim"]
+    ^^^^^^^
+ValueError: not enough values to unpack (expected 1, got 0)
+
+======================================================================
+ERROR: test_the_retry_is_offered_and_its_claim_is_retired_on_wrong_route (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_retry_is_offered_and_its_claim_is_retired_on_wrong_route)
+WHAT THE ONE-PRODUCER POOL DOES, read out of the loop's reports.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_retry_task_lineage.py", line 383, in test_the_retry_is_offered_and_its_claim_is_retired_on_wrong_route
+    [claim] = [row for row in stage["receipts"] if row["act"] == "claim"]
+    ^^^^^^^
+ValueError: not enough values to unpack (expected 1, got 0)
+
+----------------------------------------------------------------------
+Ran 25 tests in 5.662s
+
+FAILED (errors=2)

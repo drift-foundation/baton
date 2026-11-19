@@ -1,0 +1,85 @@
+FFFE.F.
+======================================================================
+ERROR: test_the_first_sweep_after_the_advance_observes_exact_history (tests.tools.test_stage_execution.TheRestartOverAnAdvancedPoolPreservesSettledHistory.test_the_first_sweep_after_the_advance_observes_exact_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 11863, in test_the_first_sweep_after_the_advance_observes_exact_history
+    tick(job, restarted, now=fixtures.NOW)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 169, in sweep
+    settled = settle(attempt, now=now) is not None or settled
+              ~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 943, in settle_offer
+    worker = self._worker(stage)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 819, in _worker
+    return self.workers[(allocation["generation"],
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         allocation["worker_id"])]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: (1, 'implementation-worker')
+
+======================================================================
+FAIL: test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_dogfood_operator.py", line 5655, in test_the_factory_runs_after_activation_and_before_runtime_start
+    self.assertEqual(order, ["activate", "materialize", "start"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the credential was materialized outside the window "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "assignment activation and runtime creation define")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['activate'] != ['activate', 'materialize', 'start']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'materialize'
+
+- ['activate']
++ ['activate', 'materialize', 'start'] : the credential was materialized outside the window assignment activation and runtime creation define
+
+======================================================================
+FAIL: test_the_served_job_gets_its_own_bytes_and_the_second_waits (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop.test_the_served_job_gets_its_own_bytes_and_the_second_waits)
+WHAT ONE BOOTSTRAP LOOP CAN ACTUALLY SERVE, measured.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_task_delivery.py", line 1664, in test_the_served_job_gets_its_own_bytes_and_the_second_waits
+    self.assertEqual(second_stage["state"], "offered")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'offered'
+- exceptional
++ offered
+
+
+======================================================================
+FAIL: test_the_retry_is_offered_and_its_claim_waits_on_the_works_route (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_retry_is_offered_and_its_claim_waits_on_the_works_route)
+WHAT THE ONE-PRODUCER POOL DOES, read out of the loop's reports.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_retry_task_lineage.py", line 376, in test_the_retry_is_offered_and_its_claim_waits_on_the_works_route
+    self.assertEqual(self.stages(held["jobs"], held["composed"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                 fresh)["implementation"], "offered")
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'offered'
+- exceptional
++ offered
+
+
+======================================================================
+FAIL: test_every_record_path_in_the_tree_is_declared_or_synthetic (tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead.test_every_record_path_in_the_tree_is_declared_or_synthetic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_parallel_runner.py", line 1393, in test_every_record_path_in_the_tree_is_declared_or_synthetic
+    self.assertEqual(undeclared, {}, "declare these in CONSUMED_INPUTS, or list them as synthetic with a reason")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'work/records/2026/08/finding-v12-work-ta[149 chars]py']} != {}
++ {}
+- {'work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli': ['tests/tools/test_bootstrap.py',
+-                                                                                              'tests/tools/test_connected_creation.py',
+-                                                                                              'tests/tools/test_pool.py']} : declare these in CONSUMED_INPUTS, or list them as synthetic with a reason
+
+----------------------------------------------------------------------
+Ran 7 tests in 4.323s
+
+FAILED (failures=4, errors=1)

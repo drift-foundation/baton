@@ -1,3 +1,19 @@
+## Current — joined source accepted; checkpoint/build next
+
+Supersedes prior Current sections. K layout and W385251 correction accepted together; tools-pure3420/3420. Owner checkpoint then clean-source packaging gate before next deployment. Both implementers hold edits.
+
+## Current — layout accepted; W385251 compatibility correction pending
+
+Supersedes previous Current sections. See review-2026-11-19T17-17-10Z.md. K holds five accepted layout paths; codexpc W385251 handles recovery regressions and consumed-input declaration. Source checkpoint may be selective; no combined build/live attempt until correction review. Status UX committed70c12fd6; W385227 owner closure remains pending.
+
+## Current — K layout pairing correction; codexpc recovery independent
+
+Supersedes previous Current sections. Labels attempt faulted before provider; preserve native-labels-4. K implements bounded pool/single-worker layout pairing and delivery, with focused deterministic proof to provider boundary. No next live attempt before independent acceptance. See FINDING latest ruling and evidence/native-labels-4-agent-fault/DIAGNOSIS.md. W385222 owns its listed cancellation files; stage_execution.py overlap must be coordinated. No new child binding/edge is asserted; this slice stays in existing owner-held W321608.
+
+## Current — preserve old instance; proceed with isolated labels kickoff
+
+Supersedes earlier Current sections below. M385220 diagnosis reviewed. Owner stop native-labels-3 and retain it with cancellation UNRESOLVED; confirm supervisors stopped. Then install a62bc9a3 native-labels-4. R9 packaging24/24 accepted. Open required recovery defect: accepted-but-unclaimed offer retirement/lapse and in-tick adoption interplay (evidence/native-labels-3-unresolved-cancellation/DIAGNOSIS.md). Keep under W321608; not a completed cancellation, not waived, not required before this isolated happy-path attempt. K holds edits; no r10 implementation released.
+
 ## Current — r9 accepted for human checkpoint
 
 Supersedes prior Current sections below. See review-2026-11-19T13-55-44Z.md. Four-path candidate bc3fc378 accepted; independent132 tests pass. Owner commit then rebuilt packaging gate. K holds edits. Cancel/retain unservable native-labels-3 using supported interface before replacement; no live changes by coordinator. Create while stopped, then start installed instance.

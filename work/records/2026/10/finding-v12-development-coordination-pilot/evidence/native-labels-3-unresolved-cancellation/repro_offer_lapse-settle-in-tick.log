@@ -1,0 +1,196 @@
+test_a_route_refused_offer_never_lapses_while_serving_and_settles_on_restart (__main__.OfferedStageUnderDeadlineFence.test_a_route_refused_offer_never_lapses_while_serving_and_settles_on_restart) ... FAIL
+
+======================================================================
+FAIL: test_a_route_refused_offer_never_lapses_while_serving_and_settles_on_restart (__main__.OfferedStageUnderDeadlineFence.test_a_route_refused_offer_never_lapses_while_serving_and_settles_on_restart)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/../../work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-3-unresolved-cancellation/repro_offer_lapse.py", line 235, in test_a_route_refused_offer_never_lapses_while_serving_and_settles_on_restart
+    self.assertEqual(report["observed"], 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.074s
+
+FAILED (failures=1)
+--- status before the fence (implementation deferral)
+[
+ {
+  "act": "claim",
+  "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+  "category": "refused",
+  "code": "precondition",
+  "episode": 1,
+  "incarnation": "jobs-1",
+  "message": "the authority refused this claim: route 'baton.impl' does not resolve to 'baton.claude-native'",
+  "observed": "2026-09-02T00:10:00.000Z",
+  "operation_id": "offer.settle:offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+  "outstanding": true,
+  "since": "2026-09-02T00:00:05.000Z",
+  "why_retained": null
+ }
+]
+--- sweep report at the stage deadline
+{
+ "acts": [],
+ "expired": [
+  {
+   "deadline_at": "2026-09-02T01:20:00.000Z",
+   "job_id": "job-a",
+   "outcome": "fenced",
+   "stage_id": "job-a/implementation",
+   "trigger": "stage-deadline"
+  }
+ ]
+}
+--- cancellation report while serving, 21655 s after the fence
+{
+ "elapsed_seconds": 21655,
+ "job_id": "job-a",
+ "observed_at": "2026-09-02T01:20:05.000Z",
+ "operation_id": "job.expire:job-a",
+ "reason": "stage-deadline reached at 2026-09-02T01:20:00.000Z (stage job-a/implementation)",
+ "requested_at": "2026-09-02T01:20:00.000Z",
+ "shutdown": "unresolved",
+ "shutdown_bound_seconds": 120,
+ "targets": [
+  {
+   "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+   "cessation": null,
+   "cleanup": null,
+   "episode": 1,
+   "orders": [],
+   "runtime": null,
+   "stage_id": "job-a/implementation",
+   "state": "awaiting-offer-lapse"
+  },
+  {
+   "attempt_id": "attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7",
+   "cessation": null,
+   "cleanup": null,
+   "episode": 1,
+   "orders": [],
+   "runtime": null,
+   "stage_id": "job-a/review",
+   "state": "retired-before-admission"
+  }
+ ],
+ "trigger": "stage-deadline",
+ "trigger_at": "2026-09-02T01:20:00.000Z"
+}
+--- reconcile report on restart
+{
+ "acts": [],
+ "observed": 1,
+ "recovered": {
+  "abandoned": [],
+  "recoverable": [
+   {
+    "claim_operation_id": "claim:0fece39492525aad4f76340051ac1d4b0d4eea089952faea63fc365ca30da337",
+    "offer_id": "offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+    "settle_by": "2026-09-02T00:01:01.000Z"
+   }
+  ]
+ },
+ "replaced": [],
+ "started": []
+}
+--- offer states after the restart
+{
+ "offer-e78478c4": "accepted"
+}
+--- implementation episodes after the restart
+[
+ [
+  1,
+  null,
+  null
+ ]
+]
+--- cancellation report after the restart
+{
+ "elapsed_seconds": 22010,
+ "job_id": "job-a",
+ "observed_at": "2026-09-02T01:20:05.000Z",
+ "operation_id": "job.expire:job-a",
+ "reason": "stage-deadline reached at 2026-09-02T01:20:00.000Z (stage job-a/implementation)",
+ "requested_at": "2026-09-02T01:20:00.000Z",
+ "shutdown": "unresolved",
+ "shutdown_bound_seconds": 120,
+ "targets": [
+  {
+   "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+   "cessation": null,
+   "cleanup": null,
+   "episode": 1,
+   "orders": [],
+   "runtime": null,
+   "stage_id": "job-a/implementation",
+   "state": "awaiting-offer-lapse"
+  },
+  {
+   "attempt_id": "attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7",
+   "cessation": null,
+   "cleanup": null,
+   "episode": 1,
+   "orders": [],
+   "runtime": null,
+   "stage_id": "job-a/review",
+   "state": "retired-before-admission"
+  }
+ ],
+ "trigger": "stage-deadline",
+ "trigger_at": "2026-09-02T01:20:00.000Z"
+}
+--- stage states after the restart
+{
+ "job-a/implementation": "offered",
+ "job-a/review": "blocked"
+}
+--- settle_claim with refusal evidence
+{
+ "offer_id": "offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+ "reason": "the authority refused this claim: route 'baton.impl' does not resolve to 'baton.claude-native'",
+ "state": "claim-refused"
+}
+--- sweep report after the retirement
+{
+ "acts": [
+  {
+   "act": "claim",
+   "episode": 1,
+   "operation_id": "offer.settle:offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+   "outcome": "adopted",
+   "stage_id": "job-a/implementation"
+  }
+ ],
+ "cancelled": [
+  {
+   "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+   "detail": {
+    "category": "refused",
+    "code": "capability",
+    "message": "this deployment composes no fence-unstarted capability"
+   },
+   "effect": "fence-unstarted",
+   "episode": 1,
+   "outcome": "refused",
+   "stage_id": "job-a/implementation"
+  }
+ ],
+ "observed": 0,
+ "replaced": [],
+ "started": [
+  {
+   "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+   "detail": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "the Job was expired at 2026-09-02T01:20:00.000Z (stage-deadline reached at 2026-09-02T01:20:00.000Z (stage job-a/implementation)); a runtime start is not admitted after the fence"
+   },
+   "episode": 1,
+   "outcome": "deferred",
+   "stage_id": "job-a/implementation"
+  }
+ ]
+}

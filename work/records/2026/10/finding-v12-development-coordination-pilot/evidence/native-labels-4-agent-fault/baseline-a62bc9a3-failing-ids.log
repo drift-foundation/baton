@@ -1,0 +1,39 @@
+test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start) ... ok
+test_the_served_job_gets_its_own_bytes_and_the_second_waits (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop.test_the_served_job_gets_its_own_bytes_and_the_second_waits)
+WHAT ONE BOOTSTRAP LOOP CAN ACTUALLY SERVE, measured. ... ok
+test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting. ... ok
+test_a_generic_candidate_is_identified_without_a_head (tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView.test_a_generic_candidate_is_identified_without_a_head)
+"Nothing asks for a head it cannot have. ... ok
+test_the_evidence_is_bound_to_the_retained_output_it_verified (tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView.test_the_evidence_is_bound_to_the_retained_output_it_verified) ... ok
+test_the_gate_passes_in_the_operators_view (tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView.test_the_gate_passes_in_the_operators_view) ... ok
+test_the_gate_passes_with_a_hostile_ambient_import_path (tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView.test_the_gate_passes_with_a_hostile_ambient_import_path)
+The derived path REPLACES the ambient one rather than extending ... ok
+test_the_measured_members_are_measured_and_not_copied (tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView.test_the_measured_members_are_measured_and_not_copied)
+Evidence that restated the declaration would agree with the task by ... ok
+test_the_sealed_inputs_are_byte_unchanged_afterwards (tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView.test_the_sealed_inputs_are_byte_unchanged_afterwards) ... ok
+test_the_view_is_removed_and_the_retained_output_is_not (tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView.test_the_view_is_removed_and_the_retained_output_is_not) ... ok
+test_every_record_path_in_the_tree_is_declared_or_synthetic (tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead.test_every_record_path_in_the_tree_is_declared_or_synthetic) ... FAIL
+test_the_retry_is_offered_and_its_claim_waits_on_the_works_route (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_retry_is_offered_and_its_claim_waits_on_the_works_route)
+WHAT THE ONE-PRODUCER POOL DOES, read out of the loop's reports. ... ok
+test_the_accepted_candidate_seeds_job_b_on_the_same_stores (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_accepted_candidate_seeds_job_b_on_the_same_stores) ... ok
+test_the_successor_materializes_publishes_and_completes (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_successor_materializes_publishes_and_completes) ... ok
+test_the_first_sweep_after_the_advance_observes_exact_history (tests.tools.test_stage_execution.TheRestartOverAnAdvancedPoolPreservesSettledHistory.test_the_first_sweep_after_the_advance_observes_exact_history) ... ok
+
+======================================================================
+FAIL: test_every_record_path_in_the_tree_is_declared_or_synthetic (tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead.test_every_record_path_in_the_tree_is_declared_or_synthetic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baseline-a62bc9a3/v12/python/tests/tools/test_parallel_runner.py", line 1393, in test_every_record_path_in_the_tree_is_declared_or_synthetic
+    self.assertEqual(undeclared, {}, "declare these in CONSUMED_INPUTS, or list them as synthetic with a reason")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'work/records/2026/08/finding-v12-work-ta[149 chars]py']} != {}
++ {}
+- {'work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli': ['tests/tools/test_bootstrap.py',
+-                                                                                              'tests/tools/test_connected_creation.py',
+-                                                                                              'tests/tools/test_pool.py']} : declare these in CONSUMED_INPUTS, or list them as synthetic with a reason
+
+----------------------------------------------------------------------
+Ran 15 tests in 22.864s
+
+FAILED (failures=1)

@@ -1,0 +1,220 @@
+--- a/v12/python/src/baton_v12/job_manager/scheduler.py
++++ b/v12/python/src/baton_v12/job_manager/scheduler.py
+@@ -816,8 +816,12 @@
+         allocation = allocation_of(self.store, stage["attempt_id"])
+         if allocation is None:
+             _refuse(self._unallocated(stage))
+-        return self.workers[(allocation["generation"],
+-                             allocation["worker_id"])]
++        worker = self.workers.get((allocation["generation"], allocation["worker_id"]))
++        if worker is None:
++            _refuse(f"stage {name_value(stage['stage_id'])} names worker "
++                    f"{name_value(allocation['worker_id'])} in generation "
++                    f"{allocation['generation']}, which this attachment does not hold")
++        return worker
+ 
+     def canonical_operation(self, act, offer_id):
+         return self._any().canonical_operation(act, offer_id)
+@@ -940,6 +944,11 @@
+         return answer
+ 
+     def settle_offer(self, stage, *, now):
++        # Released capacity is settled history, even when its episode remains
++        # visible. Never act through a successor worker to reconcile that past.
++        allocation = self._allocation(stage)
++        if allocation is not None and allocation["allocation_state"] == "released":
++            return None
+         worker = self._worker(stage)
+         settle = getattr(worker, "settle_offer", None)
+         if settle is not None:
+--- a/v12/python/tests/job_manager/test_scheduling.py
++++ b/v12/python/tests/job_manager/test_scheduling.py
+@@ -1542,6 +1542,11 @@
+         def __init__(self, participant):
+             self.port = SimpleNamespace(participant=participant)
+             self.observed = []
++            self.settled = []
++
++        def settle_offer(self, stage, *, now):
++            self.settled.append((stage["attempt_id"], now))
++            return {"state": "accepted"}
+ 
+         def observe(self, stage):
+             self.observed.append(stage["attempt_id"])
+@@ -1571,6 +1576,40 @@
+         pooled = PooledManagerOperations(
+             self.jobs, stubs, resolved_principals=principals(second))
+         return attempt, pooled
++
++    def test_settlement_skips_released_history_without_calling_any_worker(self):
++        attempt, pooled = self._advanced_pool()
++        before = allocation_of(self.jobs, attempt["attempt_id"])
++        self.assertIsNone(pooled.settle_offer(attempt, now=NOW))
++        self.assertTrue(all(stub.settled == [] for stub in pooled.workers.values()))
++        self.assertEqual(allocation_of(self.jobs, attempt["attempt_id"]), before)
++
++    def test_settlement_keeps_live_prior_generation_routing(self):
++        document = pool()
++        self.activate(document)
++        attempt = self.attempts([job("one", stages=[stage("implementation", "work:one")])])[0]
++        old = reserve(self.jobs, attempt)
++        second = pool("fallback")
++        self.activate(second)
++        stubs = {(generation, row["worker_id"]): self._ReadingStub(row["participant"])
++                 for generation in (1, 2) for row in pool_workers(self.jobs, generation)
++                 if generation == 2 or row["worker_id"] == old["worker_id"]}
++        pooled = PooledManagerOperations(self.jobs, stubs, resolved_principals=principals(second))
++        self.assertEqual(pooled.settle_offer(attempt, now=NOW), {"state": "accepted"})
++        self.assertEqual(stubs[(1, old["worker_id"])].settled, [(attempt["attempt_id"], NOW)])
++        self.assertTrue(all(stub.settled == [] for key, stub in stubs.items() if key != (1, old["worker_id"])))
++        self.assertEqual(allocation_of(self.jobs, attempt["attempt_id"]), old)
++
++    def test_settlement_missing_live_binding_refuses_without_successor_effects(self):
++        from unittest import mock
++        attempt, pooled = self._advanced_pool()
++        original = allocation_of(self.jobs, attempt["attempt_id"])
++        for state in ("reserved", "recovery-required"):
++            with self.subTest(state=state), mock.patch.object(scheduler, "allocation_of", return_value=dict(original, allocation_state=state)):
++                with self.assertRaises(ContractRefusal) as caught:
++                    pooled.settle_offer(attempt, now=NOW)
++                self.assertIn("which this attachment does not hold", caught.exception.message)
++        self.assertTrue(all(stub.settled == [] for stub in pooled.workers.values()))
+ 
+     def test_observe_answers_over_settled_history_instead_of_raising(self):
+         attempt, pooled = self._advanced_pool()
+--- a/v12/python/tests/tools/test_dogfood_operator.py
++++ b/v12/python/tests/tools/test_dogfood_operator.py
+@@ -5618,13 +5618,16 @@
+             return bundle
+ 
+         with ExitStack() as patches:
++            # Grants and the opened store must share this fixture's clock;
++            # wall time would expire the accepted offer before submission.
++            patches.enter_context(mock.patch.object(dogfood_operator, "_now", return_value=_given["now"]))
+             patches.enter_context(mock.patch.object(
+                 credentials.CredentialHome, "materialize", materialize))
+             patches.enter_context(mock.patch.object(
+                 worker_manager, "activate_assignment", activate))
+             patches.enter_context(mock.patch.object(
+                 worker_manager, "request_runtime_start", start))
+-            with self.assertRaises(ContractRefusal):
++            with self.assertRaises(ContractRefusal) as caught:
+                 dogfood_operator.main(
+                     # W52821: THE OPERAND THE COMMAND DECLARES. This drove
+                     # `--credential-file`, which the registry replaced, so the
+@@ -5636,6 +5639,9 @@
+                     ["--grants", grants_path, "--evidence", evidence_path,
+                      user_credentials.OPERAND, self.credential_registry()],
+                     capabilities=capabilities)
++
++        self.assertEqual((caught.exception.category, caught.exception.code), ("unavailable", "transport"))
++        self.assertEqual(caught.exception.message, "this case stops before the engine")
+ 
+         # THE DELIVERY THIS CASE REALLY MADE IS REALLY ENDED, and through its
+         # OWNING HOME rather than by deleting a directory.
+--- a/v12/python/tests/tools/test_job_task_delivery.py
++++ b/v12/python/tests/tools/test_job_task_delivery.py
+@@ -1609,8 +1609,8 @@
+           first ending passes the Work on to its `review_route` -- which is
+           the ending's own reported act -- so the second stage is OFFERED and
+           its claim never completes. Measured here over eight further ticks
+-          after a real ending, and over thirty in a probe: `offered`, no
+-          recorded attempt, no roots, no second launch.
++          after a real ending. W385222 now retires that positive route
++          refusal: exceptional, no recorded attempt, no roots, no second launch.
+ 
+         WHAT IS PROVED. One shared worker object, the real serving loop, a
+         requested task delivered to the attempt it belongs to, a real
+@@ -1655,17 +1655,25 @@
+         self.assertEqual(self.stage_named(job, operations, "job-a")["state"],
+                          "completed")
+ 
+-        # AND THE SECOND IS STILL QUEUED, for the reason in the docstring --
+-        # not because anything delivered it the wrong bytes.
++        # The second positive route refusal retires its offer; it never
++        # receives the first Job's task or starts a runtime.
+         for _ in range(8):
+             reconcile(job, operations, now=fixtures.NOW)
+             sweep(job, operations, now=fixtures.NOW)
+         second_stage = self.stage_named(job, operations, "job-b")
+-        self.assertEqual(second_stage["state"], "offered")
++        self.assertEqual(second_stage["state"], "exceptional")
++        from baton_v12.job_manager import receipts_of
++        [ended] = second_stage["episodes"]
++        self.assertEqual(ended["ended_state"], "claim-refused")
++        claim = receipts_of(job, second_stage["stage_id"], ended["episode"])["claim"]
++        self.assertEqual(claim["state"], "refused")
++        result = json.loads(claim["detail"])["result"]
++        self.assertEqual(result["state"], "claim-refused")
++        self.assertIn("does not resolve to", result["reason"])
+         self.assertIsNone(
+-            attempts.recorded_input_of(control, second_stage["attempt_id"]))
++            attempts.recorded_input_of(control, ended["attempt_id"]))
+         self.assertFalse(os.path.exists(os.path.join(
+-            self.storage, second_stage["attempt_id"])))
++            self.storage, ended["attempt_id"])))
+         # THE FIRST JOB'S ROOT IS UNTOUCHED BY ANY OF IT.
+         with open(os.path.join(roots["inputs"],
+                                single_worker.TASK_DOCUMENT), "rb") as reading:
+--- a/v12/python/tests/tools/test_parallel_runner.py
++++ b/v12/python/tests/tools/test_parallel_runner.py
+@@ -1340,6 +1340,9 @@
+ # temporary repository, fake registry entries. Each is exact. A new literal
+ # lands here only with a reason, or in CONSUMED_INPUTS when the run reads it.
+ SYNTHETIC_RECORD_PATHS = {
++    # test_pool.record_in, test_bootstrap.composed_for and test_connected_creation
++    # write FINDING.md/PLAN.md themselves in disposable checkouts, not from this tree.
++    "work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli",
+     # the runner's supervisor-locator grammar, a pattern rather than a path
+     r"work/records/[0-9]{4}/(?:0[1-9]|1[0-2])/(?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.py",
+     # a reference each dossier case creates inside its own temporary repository
+--- a/v12/python/tests/tools/test_retry_task_lineage.py
++++ b/v12/python/tests/tools/test_retry_task_lineage.py
+@@ -344,11 +344,11 @@
+             stage, {"job_id": fresh, "input_digest": rows[fresh],
+                     "policy_digest": worker.given["policy_digest"]}))
+ 
+-    def test_the_retry_is_offered_and_its_claim_waits_on_the_works_route(self):
++    def test_the_retry_is_offered_and_its_claim_is_retired_on_wrong_route(self):
+         """WHAT THE ONE-PRODUCER POOL DOES, read out of the loop's reports.
+ 
+         The prior attempt's own `unable` ending settles its assignment, so
+-        the retry IS offered -- and its claim is then deferred, because that
++        the retry IS offered -- and its claim is then retired, because that
+         ending also passed the Work to its `review_route`: "the authority
+         refused this claim: route 'rview' does not resolve to
+         'baton.claude'". The Work is somebody else's to hand back, which is
+@@ -362,8 +362,8 @@
+         W365075 LEFT THIS CASE WHERE IT WAS. The release returns the line to
+         `idle` and the ending's own discharge clears the quiescence gate -- so
+         the offer this case asserts is now reached through an ungated Work
+-        rather than in spite of one -- and the route is what still defers the
+-        claim, which is the same observation over the same reports.
++        rather than in spite of one. W385222 now permanently retires the
++        positive route refusal, preserving the handoff and no-runtime proofs.
+         """
+         held = self.failing_pool()
+         fresh = self.retried(held)["job_id"]
+@@ -374,11 +374,20 @@
+             said.append(sweep(held["jobs"], held["composed"],
+                               now=fixtures.NOW))
+         self.assertEqual(self.stages(held["jobs"], held["composed"],
+-                                     fresh)["implementation"], "offered")
++                                     fresh)["implementation"], "exceptional")
+         acts = [one for report in said for one in report["acts"]
+                 if one["stage_id"].startswith(fresh)]
+         self.assertTrue(acts)
+-        self.assertIn("does not resolve to", json.dumps(acts, default=str))
++        self.assertEqual([one["outcome"] for one in acts if one["act"] == "claim"], ["refused"])
++        stage = self.stage_of(held["jobs"], held["composed"], fresh)
++        from baton_v12.job_manager import receipts_of
++        [ended] = stage["episodes"]
++        self.assertEqual(ended["ended_state"], "claim-refused")
++        claim = receipts_of(held["jobs"], stage["stage_id"], ended["episode"])["claim"]
++        self.assertEqual(claim["state"], "refused")
++        result = json.loads(claim["detail"])["result"]
++        self.assertEqual(result["state"], "claim-refused")
++        self.assertIn("does not resolve to", result["reason"])
+         # AND THIS IS ALSO WHERE `_fence_operation` IS PROVED. That reader
+         # answers the authority operation id the ending's handoff is fenced
+         # by, and before W365075 it knew only the checkpoint and the verdict.

@@ -1,0 +1,58 @@
+{
+  "base_commit": "70c12fd642439961ead260211875a1bb348e2641",
+  "claim": "E385254",
+  "files": [
+    {
+      "base_sha256": "1421d1850845334b1b6ccca087cafa57bf9e2a399c47da3bd67d207df9514ae4",
+      "candidate_sha256": "520ba1e2c1d44ca327feece0cde8a014a882852746a40ea7fd5ecac834691556",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/scheduler.py",
+      "snapshot": "work/records/2026/11/finding-v12-offer-retirement-regressions/candidate/files/v12/python/src/baton_v12/job_manager/scheduler.py"
+    },
+    {
+      "base_sha256": "47f0043e3185394a9b07e00ff827bf1c2064dfeab7714f41328aeb5badf2d842",
+      "candidate_sha256": "55e39377f1acecf1f562983f338f163891f51e43b078d3ba6629ac43335da046",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_scheduling.py",
+      "snapshot": "work/records/2026/11/finding-v12-offer-retirement-regressions/candidate/files/v12/python/tests/job_manager/test_scheduling.py"
+    },
+    {
+      "base_sha256": "87841158c2aa36a60be9acc7b71f3e9434ffd363939a9227c24519d969cb145b",
+      "candidate_sha256": "7c5e7f50ea05b1d49a66f7a14e5020e07c2627d582509206939e4cddc980b343",
+      "mode": "0o644",
+      "path": "v12/python/tests/tools/test_dogfood_operator.py",
+      "snapshot": "work/records/2026/11/finding-v12-offer-retirement-regressions/candidate/files/v12/python/tests/tools/test_dogfood_operator.py"
+    },
+    {
+      "base_sha256": "fb2d6e226841b85c72d4422ace7f3ab1a7bd628a077cdc6698be65c9e5c1b861",
+      "candidate_sha256": "51ab8d09b821cbbb753e483e452b98c34a6c3255f315e9ddb94141bb7678bf5d",
+      "mode": "0o644",
+      "path": "v12/python/tests/tools/test_job_task_delivery.py",
+      "snapshot": "work/records/2026/11/finding-v12-offer-retirement-regressions/candidate/files/v12/python/tests/tools/test_job_task_delivery.py"
+    },
+    {
+      "base_sha256": "f5970a5a7168529066de3ba50959746b4e99c2dfd723d9722bcfa952128bf784",
+      "candidate_sha256": "70008af50f91448e4a6e202d849dd561480be695bbc9ece227107adb4db38171",
+      "mode": "0o664",
+      "path": "v12/python/tests/tools/test_parallel_runner.py",
+      "snapshot": "work/records/2026/11/finding-v12-offer-retirement-regressions/candidate/files/v12/python/tests/tools/test_parallel_runner.py"
+    },
+    {
+      "base_sha256": "e2111ff30edeb3e89be8d60a626b8f32041d8c5b974e5aa5e70b2daa767b6850",
+      "candidate_sha256": "d36667d353f50558908cce4f9da12aeeb37b7fcb89745e8e80345198cacdd818",
+      "mode": "0o644",
+      "path": "v12/python/tests/tools/test_retry_task_lineage.py",
+      "snapshot": "work/records/2026/11/finding-v12-offer-retirement-regressions/candidate/files/v12/python/tests/tools/test_retry_task_lineage.py"
+    }
+  ],
+  "participant": "baton.codxpc",
+  "patch_sha256": "21564236fda2495b56a2e9f7327d7e5753c872cafe0db463ae41ab5d6e31847c",
+  "preserved_k_paths": {
+    "v12/python/tests/tools/test_bootstrap.py": "7c67bcf48786523a3e3e9a00b374ca90c3fa604279f7bd2e2aa5a55c58068516",
+    "v12/python/tests/tools/test_connected_creation.py": "cfa1ea0d7974ac94eebb858a76514bf8ffe8a2e85336d40799a369ddbd174e5f",
+    "v12/python/tests/tools/test_pool.py": "616ec16577b27d97aff013b4a2eb6ecf580f3334303dd4581ffcf009faa88564",
+    "v12/python/tests/tools/test_single_worker.py": "5f21d8d67f73663c95adcc73eac5fceffeb50dbacf3edcc3d7e548327478decf",
+    "v12/python/tools/pool.py": "45d0f72d342c594cea081d8fb0dedce8d63698cf6d9e9c21270b4c54214df4ba"
+  },
+  "work": "W385251"
+}

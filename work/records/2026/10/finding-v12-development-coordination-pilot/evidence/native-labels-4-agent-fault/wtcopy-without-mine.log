@@ -1,0 +1,324 @@
+FF.independent verification python3 -m unittest tests.tools.test_user_credentials tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque exited 1; its output follows and is NOT recorded anywhere durable:
+...................................................................................................F..
+======================================================================
+FAIL: test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/dogfood-view-01qqsrmf/candidate/v12/python/tests/tools/test_dogfood_operator.py", line 5655, in test_the_factory_runs_after_activation_and_before_runtime_start
+    self.assertEqual(order, ["activate", "materialize", "start"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the credential was materialized outside the window "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "assignment activation and runtime creation define")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['activate'] != ['activate', 'materialize', 'start']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'materialize'
+
+- ['activate']
++ ['activate', 'materialize', 'start'] : the credential was materialized outside the window assignment activation and runtime creation define
+
+----------------------------------------------------------------------
+Ran 102 tests in 0.229s
+
+FAILED (failures=1)
+
+.independent verification python3 -m unittest tests.tools.test_user_credentials tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque exited 1; its output follows and is NOT recorded anywhere durable:
+...................................................................................................F..
+======================================================================
+FAIL: test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/dogfood-view-ed04blyp/candidate/v12/python/tests/tools/test_dogfood_operator.py", line 5655, in test_the_factory_runs_after_activation_and_before_runtime_start
+    self.assertEqual(order, ["activate", "materialize", "start"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the credential was materialized outside the window "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "assignment activation and runtime creation define")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['activate'] != ['activate', 'materialize', 'start']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'materialize'
+
+- ['activate']
++ ['activate', 'materialize', 'start'] : the credential was materialized outside the window assignment activation and runtime creation define
+
+----------------------------------------------------------------------
+Ran 102 tests in 0.231s
+
+FAILED (failures=1)
+
+.independent verification python3 -m unittest tests.tools.test_user_credentials tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque exited 1; its output follows and is NOT recorded anywhere durable:
+...................................................................................................F..
+======================================================================
+FAIL: test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/dogfood-view-k5hercen/candidate/v12/python/tests/tools/test_dogfood_operator.py", line 5655, in test_the_factory_runs_after_activation_and_before_runtime_start
+    self.assertEqual(order, ["activate", "materialize", "start"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the credential was materialized outside the window "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "assignment activation and runtime creation define")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['activate'] != ['activate', 'materialize', 'start']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'materialize'
+
+- ['activate']
++ ['activate', 'materialize', 'start'] : the credential was materialized outside the window assignment activation and runtime creation define
+
+----------------------------------------------------------------------
+Ran 102 tests in 0.227s
+
+FAILED (failures=1)
+
+Findependent verification python3 -m unittest tests.tools.test_user_credentials tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque exited 1; its output follows and is NOT recorded anywhere durable:
+...................................................................................................F..
+======================================================================
+FAIL: test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/dogfood-view-4hucfpwh/candidate/v12/python/tests/tools/test_dogfood_operator.py", line 5655, in test_the_factory_runs_after_activation_and_before_runtime_start
+    self.assertEqual(order, ["activate", "materialize", "start"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the credential was materialized outside the window "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "assignment activation and runtime creation define")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['activate'] != ['activate', 'materialize', 'start']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'materialize'
+
+- ['activate']
++ ['activate', 'materialize', 'start'] : the credential was materialized outside the window assignment activation and runtime creation define
+
+----------------------------------------------------------------------
+Ran 102 tests in 0.228s
+
+FAILED (failures=1)
+
+Findependent verification python3 -m unittest tests.tools.test_user_credentials tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque exited 1; its output follows and is NOT recorded anywhere durable:
+...................................................................................................F..
+======================================================================
+FAIL: test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/dogfood-view-mipn2p9d/candidate/v12/python/tests/tools/test_dogfood_operator.py", line 5655, in test_the_factory_runs_after_activation_and_before_runtime_start
+    self.assertEqual(order, ["activate", "materialize", "start"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the credential was materialized outside the window "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "assignment activation and runtime creation define")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['activate'] != ['activate', 'materialize', 'start']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'materialize'
+
+- ['activate']
++ ['activate', 'materialize', 'start'] : the credential was materialized outside the window assignment activation and runtime creation define
+
+----------------------------------------------------------------------
+Ran 102 tests in 0.230s
+
+FAILED (failures=1)
+
+.independent verification python3 -m unittest tests.tools.test_user_credentials tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque exited 1; its output follows and is NOT recorded anywhere durable:
+...................................................................................................F..
+======================================================================
+FAIL: test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/dogfood-view-t9jaqicr/candidate/v12/python/tests/tools/test_dogfood_operator.py", line 5655, in test_the_factory_runs_after_activation_and_before_runtime_start
+    self.assertEqual(order, ["activate", "materialize", "start"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the credential was materialized outside the window "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "assignment activation and runtime creation define")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['activate'] != ['activate', 'materialize', 'start']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'materialize'
+
+- ['activate']
++ ['activate', 'materialize', 'start'] : the credential was materialized outside the window assignment activation and runtime creation define
+
+----------------------------------------------------------------------
+Ran 102 tests in 0.227s
+
+FAILED (failures=1)
+
+.independent verification python3 -m unittest tests.tools.test_user_credentials tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque exited 1; its output follows and is NOT recorded anywhere durable:
+...................................................................................................F..
+======================================================================
+FAIL: test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/v12-w321776-op-viekt0nz/views/dogfood-view-zy_s35gj/candidate/v12/python/tests/tools/test_dogfood_operator.py", line 5655, in test_the_factory_runs_after_activation_and_before_runtime_start
+    self.assertEqual(order, ["activate", "materialize", "start"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the credential was materialized outside the window "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "assignment activation and runtime creation define")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['activate'] != ['activate', 'materialize', 'start']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'materialize'
+
+- ['activate']
++ ['activate', 'materialize', 'start'] : the credential was materialized outside the window assignment activation and runtime creation define
+
+----------------------------------------------------------------------
+Ran 102 tests in 0.283s
+
+FAILED (failures=1)
+
+.FEEE
+======================================================================
+ERROR: test_the_accepted_candidate_seeds_job_b_on_the_same_stores (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_accepted_candidate_seeds_job_b_on_the_same_stores)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_stage_execution.py", line 12348, in test_the_accepted_candidate_seeds_job_b_on_the_same_stores
+    self.drive_job(job2, composed2, "job-b", "implementation", "waiting")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_stage_execution.py", line 9607, in drive_job
+    tick(job, composed, now=fixtures.NOW)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/wt-copy/v12/python/src/baton_v12/job_manager/manager.py", line 169, in sweep
+    settled = settle(attempt, now=now) is not None or settled
+              ~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/wt-copy/v12/python/src/baton_v12/job_manager/scheduler.py", line 943, in settle_offer
+    worker = self._worker(stage)
+  File "/var/tmp/wt-copy/v12/python/src/baton_v12/job_manager/scheduler.py", line 819, in _worker
+    return self.workers[(allocation["generation"],
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         allocation["worker_id"])]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: (1, 'implementation-worker')
+
+======================================================================
+ERROR: test_the_successor_materializes_publishes_and_completes (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_successor_materializes_publishes_and_completes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_stage_execution.py", line 12051, in test_the_successor_materializes_publishes_and_completes
+    self.drive_job(job2, composed2, "job-b", "implementation", "waiting")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_stage_execution.py", line 9607, in drive_job
+    tick(job, composed, now=fixtures.NOW)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/wt-copy/v12/python/src/baton_v12/job_manager/manager.py", line 169, in sweep
+    settled = settle(attempt, now=now) is not None or settled
+              ~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/wt-copy/v12/python/src/baton_v12/job_manager/scheduler.py", line 943, in settle_offer
+    worker = self._worker(stage)
+  File "/var/tmp/wt-copy/v12/python/src/baton_v12/job_manager/scheduler.py", line 819, in _worker
+    return self.workers[(allocation["generation"],
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         allocation["worker_id"])]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: (1, 'implementation-worker')
+
+======================================================================
+ERROR: test_the_first_sweep_after_the_advance_observes_exact_history (tests.tools.test_stage_execution.TheRestartOverAnAdvancedPoolPreservesSettledHistory.test_the_first_sweep_after_the_advance_observes_exact_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_stage_execution.py", line 11863, in test_the_first_sweep_after_the_advance_observes_exact_history
+    tick(job, restarted, now=fixtures.NOW)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/wt-copy/v12/python/src/baton_v12/job_manager/manager.py", line 169, in sweep
+    settled = settle(attempt, now=now) is not None or settled
+              ~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/wt-copy/v12/python/src/baton_v12/job_manager/scheduler.py", line 943, in settle_offer
+    worker = self._worker(stage)
+  File "/var/tmp/wt-copy/v12/python/src/baton_v12/job_manager/scheduler.py", line 819, in _worker
+    return self.workers[(allocation["generation"],
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         allocation["worker_id"])]
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: (1, 'implementation-worker')
+
+======================================================================
+FAIL: test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_dogfood_operator.py", line 5655, in test_the_factory_runs_after_activation_and_before_runtime_start
+    self.assertEqual(order, ["activate", "materialize", "start"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the credential was materialized outside the window "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "assignment activation and runtime creation define")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['activate'] != ['activate', 'materialize', 'start']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'materialize'
+
+- ['activate']
++ ['activate', 'materialize', 'start'] : the credential was materialized outside the window assignment activation and runtime creation define
+
+======================================================================
+FAIL: test_the_served_job_gets_its_own_bytes_and_the_second_waits (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop.test_the_served_job_gets_its_own_bytes_and_the_second_waits)
+WHAT ONE BOOTSTRAP LOOP CAN ACTUALLY SERVE, measured.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_job_task_delivery.py", line 1664, in test_the_served_job_gets_its_own_bytes_and_the_second_waits
+    self.assertEqual(second_stage["state"], "offered")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'offered'
+- exceptional
++ offered
+
+
+======================================================================
+FAIL: test_the_gate_passes_in_the_operators_view (tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView.test_the_gate_passes_in_the_operators_view)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_operator_verification_view.py", line 194, in test_the_gate_passes_in_the_operators_view
+    self.assertEqual(answered["verification_status"], 0, answered)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'changed_paths': ['v12/python/src/baton_v12/__init__.py'], 'verification_argv': ['python3', '-m', 'unittest', 'tests.tools.test_user_credentials', 'tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires', 'tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential', 'tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start', 'tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer', 'tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque'], 'verification_status': 1, 'members_present': ['candidate', 'change.patch', 'result.json', 'verification.txt'], 'operator_evidence': {'schema': 'baton.dogfood-operator-evidence/1', 'task_id': 'w321776-paired-gate', 'task_digest': 'sha256:f07001aa88fa05659f6f2e28d9016845226223e0e140b219dd95de420caf7f6f', 'candidate_profile': 'generic', 'candidate_base': None, 'candidate_entry': None, 'result_head': None, 'result_digest': 'sha256:39da9129d16efcd1c84e39f618b88c6beec6062423559362f735b8169c0720dc', 'transport': None, 'candidate_changed': [{'path': 'v12/python/src/baton_v12/__init__.py', 'content_digest': 'sha256:88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0'}], 'candidate_removed': [], 'inputs': [{'name': 'worker-control-api-manifest-vectors', 'content_digest': 'sha256:fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903'}], 'context': {'schema': 'baton.dogfood-context/1', 'outcome': 'ready', 'stage': None, 'cause': None, 'detail': None}, 'command': 'failed', 'exit_status': 1}}
+
+======================================================================
+FAIL: test_the_gate_passes_with_a_hostile_ambient_import_path (tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView.test_the_gate_passes_with_a_hostile_ambient_import_path)
+The derived path REPLACES the ambient one rather than extending
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_operator_verification_view.py", line 288, in test_the_gate_passes_with_a_hostile_ambient_import_path
+    self.assertEqual(answered["verification_status"], 0, answered)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'changed_paths': ['v12/python/src/baton_v12/__init__.py'], 'verification_argv': ['python3', '-m', 'unittest', 'tests.tools.test_user_credentials', 'tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires', 'tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential', 'tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start', 'tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer', 'tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque'], 'verification_status': 1, 'members_present': ['candidate', 'change.patch', 'result.json', 'verification.txt'], 'operator_evidence': {'schema': 'baton.dogfood-operator-evidence/1', 'task_id': 'w321776-paired-gate', 'task_digest': 'sha256:f07001aa88fa05659f6f2e28d9016845226223e0e140b219dd95de420caf7f6f', 'candidate_profile': 'generic', 'candidate_base': None, 'candidate_entry': None, 'result_head': None, 'result_digest': 'sha256:39da9129d16efcd1c84e39f618b88c6beec6062423559362f735b8169c0720dc', 'transport': None, 'candidate_changed': [{'path': 'v12/python/src/baton_v12/__init__.py', 'content_digest': 'sha256:88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0'}], 'candidate_removed': [], 'inputs': [{'name': 'worker-control-api-manifest-vectors', 'content_digest': 'sha256:fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903'}], 'context': {'schema': 'baton.dogfood-context/1', 'outcome': 'ready', 'stage': None, 'cause': None, 'detail': None}, 'command': 'failed', 'exit_status': 1}}
+
+======================================================================
+FAIL: test_the_retry_is_offered_and_its_claim_waits_on_the_works_route (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_retry_is_offered_and_its_claim_waits_on_the_works_route)
+WHAT THE ONE-PRODUCER POOL DOES, read out of the loop's reports.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/wt-copy/v12/python/tests/tools/test_retry_task_lineage.py", line 376, in test_the_retry_is_offered_and_its_claim_waits_on_the_works_route
+    self.assertEqual(self.stages(held["jobs"], held["composed"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                 fresh)["implementation"], "offered")
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'offered'
+- exceptional
++ offered
+
+
+----------------------------------------------------------------------
+Ran 14 tests in 17.673s
+
+FAILED (failures=5, errors=3)

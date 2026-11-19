@@ -1,0 +1,294 @@
+test_a_fresh_stage_reserves_on_the_fresh_worker (tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation.test_a_fresh_stage_reserves_on_the_fresh_worker) ... ok
+test_a_successor_sharing_the_reserved_principal_cannot_reserve (tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation.test_a_successor_sharing_the_reserved_principal_cannot_reserve) ... ok
+test_the_reserved_worker_stays_required_from_its_own_generation (tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation.test_the_reserved_worker_stays_required_from_its_own_generation) ... ok
+test_the_widened_pool_is_a_new_generation_and_the_row_is_untouched (tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation.test_the_widened_pool_is_a_new_generation_and_the_row_is_untouched) ... ok
+test_capacity_miss_does_not_hide_an_unrelated_review_slot (tests.job_manager.test_scheduling.Capacity.test_capacity_miss_does_not_hide_an_unrelated_review_slot) ... ok
+test_one_stage_episode_wins_a_two_connection_reservation_race (tests.job_manager.test_scheduling.Capacity.test_one_stage_episode_wins_a_two_connection_reservation_race) ... ok
+test_participant_aliases_contribute_one_effective_capacity (tests.job_manager.test_scheduling.Capacity.test_participant_aliases_contribute_one_effective_capacity) ... ok
+test_two_implementation_and_two_review_capacities_are_live_together (tests.job_manager.test_scheduling.Capacity.test_two_implementation_and_two_review_capacities_are_live_together) ... ok
+test_a_completed_integration_returns_its_exact_allocation (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_completed_integration_returns_its_exact_allocation) ... ok
+test_a_completed_state_with_no_account_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_completed_state_with_no_account_keeps_its_capacity) ... ok
+test_a_completion_naming_another_runtime_releases_nothing (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_completion_naming_another_runtime_releases_nothing)
+The completion reports the runtime it proved excluded; an account ... ok
+test_a_held_integration_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_held_integration_keeps_its_capacity)
+A held integration is the operator's to look at, and its worker is ... ok
+test_a_pending_integration_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_pending_integration_keeps_its_capacity) ... ok
+test_a_projected_state_that_is_not_completed_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_projected_state_that_is_not_completed_keeps_its_capacity)
+Projection puts durable refusal, preparation and start failure ahead ... ok
+test_an_answered_integration_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_an_answered_integration_keeps_its_capacity)
+An integrated entry nobody has handed off is not a completion. ... ok
+test_an_ordinary_completed_stage_still_waits_for_its_cleanup (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_an_ordinary_completed_stage_still_waits_for_its_cleanup)
+`completed` is NOT added to the release endings. An implementation ... ok
+test_an_uncertain_runtime_without_completion_still_quarantines (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_an_uncertain_runtime_without_completion_still_quarantines)
+The existing guard is untouched for everything that is not a proved ... ok
+test_an_unstarted_integration_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_an_unstarted_integration_keeps_its_capacity) ... ok
+test_another_attempts_completion_releases_nothing_here (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_another_attempts_completion_releases_nothing_here) ... ok
+test_another_episodes_completion_releases_nothing_here (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_another_episodes_completion_releases_nothing_here)
+A new episode's completion must never settle an older allocation ... ok
+test_another_participants_completion_releases_nothing_here (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_another_participants_completion_releases_nothing_here) ... ok
+test_repeated_reconciliation_settles_it_once (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_repeated_reconciliation_settles_it_once) ... ok
+test_the_freed_worker_is_reservable_again (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_the_freed_worker_is_reservable_again)
+The whole point of returning it: the same worker serves the next ... ok
+test_the_release_claims_nothing_about_cleanup (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_the_release_claims_nothing_about_cleanup)
+LOGICAL CAPACITY, and the reason says so. A `cleanup-complete` here ... ok
+test_claim_adopts_the_exact_reserved_principal (tests.job_manager.test_scheduling.ClaimBinding.test_claim_adopts_the_exact_reserved_principal) ... ok
+test_claim_principal_mismatch_quarantines_the_allocation (tests.job_manager.test_scheduling.ClaimBinding.test_claim_principal_mismatch_quarantines_the_allocation) ... ok
+test_four_distinct_principals_hold_four_live_claims (tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether.test_four_distinct_principals_hold_four_live_claims) ... ok
+test_one_worker_failing_to_claim_settles_only_its_own_slot (tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether.test_one_worker_failing_to_claim_settles_only_its_own_slot)
+Failure isolation AND the settlement the scheduler owes for it. ... ok
+test_two_participants_on_one_principal_collapse_at_the_seam (tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether.test_two_participants_on_one_principal_collapse_at_the_seam)
+The alias collapse driven through the scheduler, in the shape that ... ok
+test_adoption_refuses_an_offer_signed_by_another_participant (tests.job_manager.test_scheduling.PoolComposition.test_adoption_refuses_an_offer_signed_by_another_participant) ... ok
+test_live_allocation_keeps_its_generation_after_pool_change (tests.job_manager.test_scheduling.PoolComposition.test_live_allocation_keeps_its_generation_after_pool_change) ... ok
+test_sweep_reserves_before_issuing_each_offer (tests.job_manager.test_scheduling.PoolComposition.test_sweep_reserves_before_issuing_each_offer) ... ok
+test_a_new_variant_is_a_new_generation (tests.job_manager.test_scheduling.PoolDocuments.test_a_new_variant_is_a_new_generation) ... ok
+test_activation_persists_the_complete_normalized_generation (tests.job_manager.test_scheduling.PoolDocuments.test_activation_persists_the_complete_normalized_generation) ... ok
+test_cross_lane_eligibility_is_refused (tests.job_manager.test_scheduling.PoolDocuments.test_cross_lane_eligibility_is_refused) ... ok
+test_reattachment_revalidates_principals_and_does_not_rewrite (tests.job_manager.test_scheduling.PoolDocuments.test_reattachment_revalidates_principals_and_does_not_rewrite) ... ok
+test_schema_three_migrates_atomically_to_empty_scheduler_relations (tests.job_manager.test_scheduling.PoolDocuments.test_schema_three_migrates_atomically_to_empty_scheduler_relations) ... ok
+test_affinity_is_soft_and_fallback_does_not_rewrite_it (tests.job_manager.test_scheduling.SelectionAndSettlement.test_affinity_is_soft_and_fallback_does_not_rewrite_it) ... ok
+test_an_abandoned_offer_releases_only_its_allocation (tests.job_manager.test_scheduling.SelectionAndSettlement.test_an_abandoned_offer_releases_only_its_allocation) ... ok
+test_completed_cleanup_releases_capacity (tests.job_manager.test_scheduling.SelectionAndSettlement.test_completed_cleanup_releases_capacity) ... ok
+test_every_no_assignment_ending_releases_capacity (tests.job_manager.test_scheduling.SelectionAndSettlement.test_every_no_assignment_ending_releases_capacity) ... ok
+test_external_opinion_exclusions_compare_all_three_identities (tests.job_manager.test_scheduling.SelectionAndSettlement.test_external_opinion_exclusions_compare_all_three_identities) ... ok
+test_no_static_eligible_worker_is_exceptional_not_forever_deferred (tests.job_manager.test_scheduling.SelectionAndSettlement.test_no_static_eligible_worker_is_exceptional_not_forever_deferred) ... ok
+test_review_excludes_the_producers_canonical_principal (tests.job_manager.test_scheduling.SelectionAndSettlement.test_review_excludes_the_producers_canonical_principal) ... ok
+test_status_exposes_all_three_scheduler_identities (tests.job_manager.test_scheduling.SelectionAndSettlement.test_status_exposes_all_three_scheduler_identities) ... ok
+test_uncertain_runtime_quarantines_one_allocation (tests.job_manager.test_scheduling.SelectionAndSettlement.test_uncertain_runtime_quarantines_one_allocation) ... ok
+test_a_changed_check_constraint_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_changed_check_constraint_refuses_and_changes_nothing)
+The other rule a pragma cannot see. ... ok
+test_a_changed_column_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_changed_column_refuses_and_changes_nothing) ... ok
+test_a_missing_index_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_missing_index_refuses_and_changes_nothing)
+The reviewer's exact reproduction. ... ok
+test_a_missing_table_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_missing_table_refuses_and_changes_nothing) ... ok
+test_a_reversed_index_predicate_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_reversed_index_predicate_refuses_and_changes_nothing)
+W71877's second correction review: the SAFETY RULE is the predicate. ... ok
+test_a_whole_schema_three_store_migrates (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_whole_schema_three_store_migrates)
+The positive case, so the refusals below are about the spoiling. ... ok
+test_an_extra_object_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_an_extra_object_refuses_and_changes_nothing) ... ok
+test_the_two_legitimate_spellings_of_one_schema_both_migrate (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_the_two_legitimate_spellings_of_one_schema_both_migrate)
+The comparison is about CONTENT, and this is what protects that. ... ok
+test_two_concurrent_migrations_leave_one_store (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_two_concurrent_migrations_leave_one_store)
+Both openers see schema 3; the lock decides and the loser adopts. ... ok
+test_a_live_allocation_on_an_unattached_key_refuses_by_name (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_a_live_allocation_on_an_unattached_key_refuses_by_name)
+The defence-in-depth branch, with an INJECTED answer: the public ... ok
+test_history_is_answered_by_the_same_worker_in_its_newest_generation (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_history_is_answered_by_the_same_worker_in_its_newest_generation)
+Review209188 [R1]: observation adopts worker-specific context, so ... ok
+test_observe_answers_over_settled_history_instead_of_raising (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_observe_answers_over_settled_history_instead_of_raising) ... ok
+test_settlement_keeps_live_prior_generation_routing (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_settlement_keeps_live_prior_generation_routing) ... ok
+test_settlement_missing_live_binding_refuses_without_successor_effects (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_settlement_missing_live_binding_refuses_without_successor_effects) ... ok
+test_settlement_skips_released_history_without_calling_any_worker (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_settlement_skips_released_history_without_calling_any_worker) ... ok
+test_the_live_allocation_path_is_unchanged (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_the_live_allocation_path_is_unchanged)
+A reserved allocation in the ATTACHED set is still routed to its ... ok
+test_a_durable_refusal_after_the_offer_exists_retains_capacity (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_durable_refusal_after_the_offer_exists_retains_capacity)
+The gap: ANY durable refusal released the allocation. ... ok
+test_a_live_prior_pair_attaches_the_same_named_worker (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_live_prior_pair_attaches_the_same_named_worker)
+D9 (claim219702), measured installed: attachment REQUIRES live ... ok
+test_a_live_prior_worker_no_longer_composed_refuses_by_name (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_live_prior_worker_no_longer_composed_refuses_by_name)
+The fail-closed half of D9: a live allocation whose worker this ... ok
+test_a_second_release_with_another_reason_refuses (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_second_release_with_another_reason_refuses) ... ok
+test_a_stage_with_no_allocation_reaches_no_worker (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_stage_with_no_allocation_reaches_no_worker)
+The gap: `_worker` fell back to whichever worker sorted first. ... ok
+test_an_unadmitted_stage_is_still_observable (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_an_unadmitted_stage_is_still_observable)
+The other half, and the reason `_worker` and `_reader` differ. ... ok
+test_attachment_refuses_a_live_old_generation_that_now_resolves_elsewhere (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_attachment_refuses_a_live_old_generation_that_now_resolves_elsewhere)
+The gap: only the generation whose document was handed to ... ok
+test_returning_to_a_historical_variant_is_a_new_generation (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_returning_to_a_historical_variant_is_a_new_generation) ... ok
+test_the_active_generation_survives_a_reopen (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_the_active_generation_survives_a_reopen) ... ok
+test_the_two_settlement_orderings_end_differently (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_the_two_settlement_orderings_end_differently)
+Recovery-then-release settles; release-then-recovery refuses. ... ok
+test_deadline_fence_settles_through_selected_pool_and_releases_capacity (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_deadline_fence_settles_through_selected_pool_and_releases_capacity) ... ok
+test_external_authority_calls_never_hold_job_or_control_transaction (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_external_authority_calls_never_hold_job_or_control_transaction) ... ok
+test_fenced_accepted_offer_waits_for_settlement_then_completes_and_replays (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_fenced_accepted_offer_waits_for_settlement_then_completes_and_replays) ... ok
+test_lost_committed_claim_is_adopted_under_fence_not_retired_or_launched (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_lost_committed_claim_is_adopted_under_fence_not_retired_or_launched) ... ok
+test_pool_settlement_preserves_canonical_principal_guard (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_pool_settlement_preserves_canonical_principal_guard) ... ok
+test_positive_refusal_reconciles_a_claim_that_won_before_retirement (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_positive_refusal_reconciles_a_claim_that_won_before_retirement) ... ok
+test_positive_route_refusal_retires_once_and_never_becomes_a_claim (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_positive_route_refusal_retires_once_and_never_becomes_a_claim) ... ok
+test_settlement_unavailable_retains_offer_and_cancellation_then_retries (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_settlement_unavailable_retains_offer_and_cancellation_then_retries) ... ok
+test_terminal_settlement_with_dropped_event_cannot_be_adopted_as_success (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_terminal_settlement_with_dropped_event_cannot_be_adopted_as_success) ... ok
+test_transport_failure_does_not_retire_and_later_settlement_adopts_commit (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_transport_failure_does_not_retire_and_later_settlement_adopts_commit) ... ok
+test_unknown_claim_answer_keeps_identity_open_before_deadline (tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement.test_unknown_claim_answer_keeps_identity_open_before_deadline) ... ok
+test_a_decision_naming_another_attempt_or_work_is_refused (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_a_decision_naming_another_attempt_or_work_is_refused) ... ok
+test_a_decision_without_the_bearer_is_refused (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_a_decision_without_the_bearer_is_refused) ... ok
+test_a_decline_cannot_be_replayed_into_an_acceptance (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_a_decline_cannot_be_replayed_into_an_acceptance) ... ok
+test_a_wrong_acceptance_retry_is_refused_rather_than_replayed (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_a_wrong_acceptance_retry_is_refused_rather_than_replayed)
+Replay is for the EXACT decision; everything else is a new one. ... ok
+test_acceptance_fields_are_all_frozen_or_all_absent_in_the_schema (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_acceptance_fields_are_all_frozen_or_all_absent_in_the_schema) ... ok
+test_acceptance_freezes_the_intent_and_the_claim_identity (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_acceptance_freezes_the_intent_and_the_claim_identity) ... ok
+test_an_exact_acceptance_retry_replays_the_committed_acceptance (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_an_exact_acceptance_retry_replays_the_committed_acceptance)
+The verifier is spent by the acceptance it PAID FOR. ... ok
+test_the_acceptance_deadline_fields_are_part_of_the_invariant (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_the_acceptance_deadline_fields_are_part_of_the_invariant) ... ok
+test_the_bearer_is_single_use_across_every_outcome (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_the_bearer_is_single_use_across_every_outcome) ... ok
+test_the_injected_claim_signature_result_is_durable_text (tests.manager.test_offers.AcceptanceBindsAndConsumes.test_the_injected_claim_signature_result_is_durable_text) ... ok
+test_the_observation_clock_is_not_an_operand_of_the_intent (tests.manager.test_offers.ConcurrentExactRetriesShareOneOperationIdentity.test_the_observation_clock_is_not_an_operand_of_the_intent)
+The property the case above depends on, pinned as an operand set. ... ok
+test_two_exact_acceptances_at_different_instants_agree (tests.manager.test_offers.ConcurrentExactRetriesShareOneOperationIdentity.test_two_exact_acceptances_at_different_instants_agree) ... ok
+test_a_late_decision_settles_the_row_and_still_refuses (tests.manager.test_offers.ExpiryIsASettlement.test_a_late_decision_settles_the_row_and_still_refuses)
+The frozen host threw and left the row `issued`. ... ok
+test_an_offer_nobody_answered_is_expired_by_the_managers_clock (tests.manager.test_offers.ExpiryIsASettlement.test_an_offer_nobody_answered_is_expired_by_the_managers_clock) ... ok
+test_expiry_frees_the_work_for_another_offer (tests.manager.test_offers.ExpiryIsASettlement.test_expiry_frees_the_work_for_another_offer) ... ok
+test_expiry_never_destroys_an_accepted_authorization (tests.manager.test_offers.ExpiryIsASettlement.test_expiry_never_destroys_an_accepted_authorization)
+The frozen host's [P1]: a terminal transition that CASed from any ... ok
+test_a_claim_answer_must_name_the_offers_authority (tests.manager.test_offers.TheClaimAndItsSettlement.test_a_claim_answer_must_name_the_offers_authority) ... ok
+test_a_claim_needs_an_accepted_offer (tests.manager.test_offers.TheClaimAndItsSettlement.test_a_claim_needs_an_accepted_offer) ... ok
+test_a_commit_the_manager_never_saw_is_recorded_late (tests.manager.test_offers.TheClaimAndItsSettlement.test_a_commit_the_manager_never_saw_is_recorded_late) ... ok
+test_a_committed_settlement_answer_requires_its_result (tests.manager.test_offers.TheClaimAndItsSettlement.test_a_committed_settlement_answer_requires_its_result) ... ok
+test_a_late_committed_claim_must_name_the_offers_authority (tests.manager.test_offers.TheClaimAndItsSettlement.test_a_late_committed_claim_must_name_the_offers_authority) ... ok
+test_a_retirement_owns_the_reason_and_disposition_it_adopts (tests.manager.test_offers.TheClaimAndItsSettlement.test_a_retirement_owns_the_reason_and_disposition_it_adopts) ... ok
+test_an_adopted_offer_deadline_is_owned_before_it_is_compared (tests.manager.test_offers.TheClaimAndItsSettlement.test_an_adopted_offer_deadline_is_owned_before_it_is_compared) ... ok
+test_an_existing_retirement_is_adopted_rather_than_reinvented (tests.manager.test_offers.TheClaimAndItsSettlement.test_an_existing_retirement_is_adopted_rather_than_reinvented) ... ok
+test_at_the_deadline_retirement_is_permitted (tests.manager.test_offers.TheClaimAndItsSettlement.test_at_the_deadline_retirement_is_permitted) ... ok
+test_before_the_deadline_a_lost_result_may_only_be_observed (tests.manager.test_offers.TheClaimAndItsSettlement.test_before_the_deadline_a_lost_result_may_only_be_observed)
+NO ADAPTER WRITE WHILE THE OUTCOME IS AMBIGUOUS. ... ok
+test_positive_evidence_permits_immediate_retirement (tests.manager.test_offers.TheClaimAndItsSettlement.test_positive_evidence_permits_immediate_retirement) ... ok
+test_the_claim_records_what_the_authority_returned (tests.manager.test_offers.TheClaimAndItsSettlement.test_the_claim_records_what_the_authority_returned) ... ok
+test_the_frozen_signature_is_what_settles (tests.manager.test_offers.TheClaimAndItsSettlement.test_the_frozen_signature_is_what_settles) ... ok
+test_the_injected_claim_answer_is_owned_before_recording (tests.manager.test_offers.TheClaimAndItsSettlement.test_the_injected_claim_answer_is_owned_before_recording) ... ok
+test_the_injected_claim_answer_owns_its_assignment_identity (tests.manager.test_offers.TheClaimAndItsSettlement.test_the_injected_claim_answer_owns_its_assignment_identity) ... ok
+test_the_injected_settlement_answer_is_owned_before_branching (tests.manager.test_offers.TheClaimAndItsSettlement.test_the_injected_settlement_answer_is_owned_before_branching) ... ok
+test_a_foreign_session_cannot_accept_another_participants_offer (tests.manager.test_offers.TheDecisionIsTheBoundParticipantsAlone.test_a_foreign_session_cannot_accept_another_participants_offer)
+Possession is not the whole proof. Even a session holding the exact ... ok
+test_a_foreign_session_cannot_decline_another_participants_offer (tests.manager.test_offers.TheDecisionIsTheBoundParticipantsAlone.test_a_foreign_session_cannot_decline_another_participants_offer) ... ok
+test_a_foreign_session_cannot_replay_a_committed_decision (tests.manager.test_offers.TheDecisionIsTheBoundParticipantsAlone.test_a_foreign_session_cannot_replay_a_committed_decision)
+BEFORE THE REPLAY, not merely before the settlement. ... ok
+test_the_participant_is_compared_before_the_binding_it_names (tests.manager.test_offers.TheDecisionIsTheBoundParticipantsAlone.test_the_participant_is_compared_before_the_binding_it_names)
+Who is asking is settled first. A foreign session that also names ... ok
+test_a_bearer_free_decline_terminates_and_consumes_the_verifier (tests.manager.test_offers.TheDeclineCarriesNoBearer.test_a_bearer_free_decline_terminates_and_consumes_the_verifier) ... ok
+test_a_decline_carrying_any_bearer_value_is_refused_unchanged (tests.manager.test_offers.TheDeclineCarriesNoBearer.test_a_decline_carrying_any_bearer_value_is_refused_unchanged)
+Including the empty string, which is a carried value like any other. ... ok
+test_a_decline_of_an_offer_another_act_settled_rewrites_nothing (tests.manager.test_offers.TheDeclineCarriesNoBearer.test_a_decline_of_an_offer_another_act_settled_rewrites_nothing)
+The concurrent case, driven through the states a second manager can ... ok
+test_a_decline_that_changes_its_reason_is_an_operation_collision (tests.manager.test_offers.TheDeclineCarriesNoBearer.test_a_decline_that_changes_its_reason_is_an_operation_collision)
+§4.2: reusing a recorded identity with different operands changes ... ok
+test_a_differently_bound_decline_terminates_nothing (tests.manager.test_offers.TheDeclineCarriesNoBearer.test_a_differently_bound_decline_terminates_nothing)
+A decline proves the IDENTITY of the offer it is ending, so a ... ok
+test_a_late_decline_settles_the_row_as_expired_and_still_refuses (tests.manager.test_offers.TheDeclineCarriesNoBearer.test_a_late_decline_settles_the_row_as_expired_and_still_refuses)
+Expiry is a settlement on this path too: the decline arrives after ... ok
+test_an_exact_committed_decline_replays_its_committed_result (tests.manager.test_offers.TheDeclineCarriesNoBearer.test_an_exact_committed_decline_replays_its_committed_result) ... ok
+test_a_session_missing_what_the_manager_uses_is_refused (tests.manager.test_offers.TheInjectedCapabilityIsTyped.test_a_session_missing_what_the_manager_uses_is_refused) ... ok
+test_a_session_that_names_no_participant_is_refused (tests.manager.test_offers.TheInjectedCapabilityIsTyped.test_a_session_that_names_no_participant_is_refused) ... ok
+test_every_session_operation_the_port_names_is_callable (tests.manager.test_offers.TheInjectedCapabilityIsTyped.test_every_session_operation_the_port_names_is_callable) ... ok
+test_the_bound_participant_is_owned_when_the_port_receives_it (tests.manager.test_offers.TheInjectedCapabilityIsTyped.test_the_bound_participant_is_owned_when_the_port_receives_it) ... ok
+test_the_port_supplies_no_participant_to_the_claim (tests.manager.test_offers.TheInjectedCapabilityIsTyped.test_the_port_supplies_no_participant_to_the_claim) ... ok
+test_the_signature_derivation_is_injected_not_optional (tests.manager.test_offers.TheInjectedCapabilityIsTyped.test_the_signature_derivation_is_injected_not_optional) ... ok
+test_a_boolean_ttl_is_not_a_duration (tests.manager.test_offers.TheOfferRecordsTheVerifierAndReturnsTheBearer.test_a_boolean_ttl_is_not_a_duration) ... ok
+test_a_concurrent_exact_issuer_is_told_it_lost (tests.manager.test_offers.TheOfferRecordsTheVerifierAndReturnsTheBearer.test_a_concurrent_exact_issuer_is_told_it_lost)
+The COMMIT MARKER, witnessed where it can actually be reached. ... ok
+test_every_durable_operand_rides_the_signature (tests.manager.test_offers.TheOfferRecordsTheVerifierAndReturnsTheBearer.test_every_durable_operand_rides_the_signature) ... ok
+test_one_live_offer_per_work (tests.manager.test_offers.TheOfferRecordsTheVerifierAndReturnsTheBearer.test_one_live_offer_per_work) ... ok
+test_the_authority_is_part_of_the_offer_identity (tests.manager.test_offers.TheOfferRecordsTheVerifierAndReturnsTheBearer.test_the_authority_is_part_of_the_offer_identity) ... ok
+test_the_bearer_is_returned_and_never_stored (tests.manager.test_offers.TheOfferRecordsTheVerifierAndReturnsTheBearer.test_the_bearer_is_returned_and_never_stored) ... ok
+test_an_offer_naming_another_participant_is_refused (tests.manager.test_offers.TheParticipantIsTheBinding.test_an_offer_naming_another_participant_is_refused) ... ok
+test_the_offer_records_the_binding (tests.manager.test_offers.TheParticipantIsTheBinding.test_the_offer_records_the_binding) ... ok
+test_an_accepted_offer_is_recoverable_across_incarnations (tests.manager.test_offers.TheRestartRulesAreAsymmetric.test_an_accepted_offer_is_recoverable_across_incarnations) ... ok
+test_an_issued_offer_from_another_incarnation_is_abandoned (tests.manager.test_offers.TheRestartRulesAreAsymmetric.test_an_issued_offer_from_another_incarnation_is_abandoned) ... ok
+test_this_incarnations_own_issued_offer_is_left_alone (tests.manager.test_offers.TheRestartRulesAreAsymmetric.test_this_incarnations_own_issued_offer_is_left_alone) ... ok
+test_a_nonpositive_ttl_is_refused_before_entropy (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_a_nonpositive_ttl_is_refused_before_entropy) ... ok
+test_a_positive_ttl_must_fit_deadline_arithmetic_before_reads (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_a_positive_ttl_must_fit_deadline_arithmetic_before_reads) ... ok
+test_a_profile_digest_the_store_does_not_certify_is_refused (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_a_profile_digest_the_store_does_not_certify_is_refused) ... ok
+test_an_exact_replay_refuses_without_minting_anything (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_an_exact_replay_refuses_without_minting_anything)
+The bearer existed only in the process that minted it. ... ok
+test_capacity_is_checked_before_a_bearer_is_minted (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_capacity_is_checked_before_a_bearer_is_minted) ... ok
+test_certification_is_unavoidable (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_certification_is_unavoidable)
+A check a caller can skip by not mentioning it is not a boundary. ... ok
+test_cut_c_text_is_encodable_before_any_sql_read (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_cut_c_text_is_encodable_before_any_sql_read) ... ok
+test_every_public_offer_lookup_proves_text_before_sql (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_every_public_offer_lookup_proves_text_before_sql) ... ok
+test_profile_certification_owns_key_text_before_composing_sql (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_profile_certification_owns_key_text_before_composing_sql) ... ok
+test_the_deadline_source_must_be_representable_before_reads (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_the_deadline_source_must_be_representable_before_reads) ... ok
+test_the_injected_work_projection_is_a_closed_document (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_the_injected_work_projection_is_a_closed_document) ... ok
+test_the_injected_work_projection_is_owned_before_use (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_the_injected_work_projection_is_owned_before_use) ... ok
+test_the_injected_work_projection_owns_the_members_it_persists (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_the_injected_work_projection_owns_the_members_it_persists) ... ok
+test_the_mint_capability_is_typed_before_authority_reads (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_the_mint_capability_is_typed_before_authority_reads) ... ok
+test_the_work_must_be_open_queued_unclaimed_and_ungated (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_the_work_must_be_open_queued_unclaimed_and_ungated) ... ok
+test_time_comparison_refuses_a_calendar_impossible_instant (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_time_comparison_refuses_a_calendar_impossible_instant) ... ok
+test_time_comparison_refuses_text_outside_the_instant_grammar (tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent.test_time_comparison_refuses_text_outside_the_instant_grammar) ... ok
+test_a_post_create_failure_leaves_no_duplicate_and_no_container (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_post_create_failure_leaves_no_duplicate_and_no_container)
+THE RACE THIS ORDERING EXISTS FOR, with the failure INJECTED. ... ok
+test_a_reached_deadline_takes_the_same_cleanup_crossing (tests.manager.test_negative_race_endings.DockerNegativeEndings.test_a_reached_deadline_takes_the_same_cleanup_crossing)
+THE FIFTH NAMED ENDING, and the last one this Work was waiting on. ... Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/lib/python3.13/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    ~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/main.py", line 104, in __init__
+    self.runTests()
+    ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/main.py", line 270, in runTests
+    self.result = testRunner.run(self.test)
+                  ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/runner.py", line 240, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 707, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 651, in run
+    self._callTestMethod(testMethod)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 606, in _callTestMethod
+    if method() is not None:
+       ~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_negative_race_endings.py", line 356, in test_a_reached_deadline_takes_the_same_cleanup_crossing
+    settled = advance_deadline(self.store, self.port,
+                               RecordingAgent(self.trace), adapter,
+                               attempt_id=self.attempt,
+                               retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/deadlines.py", line 386, in advance_deadline
+    fence = _cancel_for_deadline(store, port, agent, adapter, row, pin, reached_id, reason)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/deadlines.py", line 323, in _cancel_for_deadline
+    cancelled = attempts.request_cancellation(store, port, cooperative_agent, cooperative_runtime,
+        attempt_id=row["runtime_attempt_id"], reason=reason)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 3251, in request_cancellation
+    quiescence=_order_quiescence(store, agent, adapter, attempt_id,
+               ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                 expected, manager_operation_id))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 3705, in _order_quiescence
+    raise failure_cause.carry_degradation(failure, reported)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 3670, in _order_quiescence
+    runtime_settlement = adapter.stop({
+        "runtime_id": runtime_id, "operation_id": operation_id})
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/deadlines.py", line 321, in <lambda>
+    cooperative_runtime = SimpleNamespace(stop=lambda command: cooperative("adapter.stop", adapter.stop, command))
+                                                               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/deadlines.py", line 315, in cooperative
+    return performing(command)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/oci.py", line 3508, in stop
+    return self._stopped(request, "a stop request")
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/oci.py", line 3536, in _stopped
+    ordered = self.run(stop_vector(self.engine, runtime_id=runtime_id))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/oci.py", line 452, in __call__
+    answer = self._run(argv)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_lifecycle_composition.py", line 278, in spawn
+    finished = subprocess.run(argv, capture_output=True, timeout=600)
+  File "/usr/lib/python3.13/subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 2128, in _communicate
+    ready = selector.select(timeout)
+  File "/usr/lib/python3.13/selectors.py", line 398, in select
+    fd_event_list = self._selector.poll(timeout)
+KeyboardInterrupt

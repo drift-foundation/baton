@@ -1,0 +1,136 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "agent": null,
+    "available_transitions": [
+      "prioritize",
+      "reroute"
+    ],
+    "binding": {
+      "actor": "baton.prompt",
+      "created_ts": "2026-11-19T17:16:45Z",
+      "git_provenance": null,
+      "path": "work/records/2026/11/finding-v12-offer-retirement-regressions",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 385251
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.prompt",
+        "created_ts": "2026-11-19T17:16:45Z",
+        "git_provenance": null,
+        "path": "work/records/2026/11/finding-v12-offer-retirement-regressions",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 385251
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W385251",
+        "title": "Correct offer retirement integration regressions before next native kickoff"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "confirmed-defect",
+    "duplicate_of": null,
+    "episode_seq": 385258,
+    "first_open_blocker": null,
+    "follow_up_of": "2b077949-W385222",
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-11-19T18:05:59Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W385251",
+    "last_change_seq": 385258,
+    "last_changed_at": "2026-11-19T18:05:59.582Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": {
+        "handler": null,
+        "id": "2b077949-W385222",
+        "outcome": "satisfying",
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "title": "Retire accepted unclaimed offers and settle fenced Job cancellation"
+      },
+      "follow_ups": [],
+      "id": "2b077949-W385251",
+      "parent": null
+    },
+    "local_id": "W385251",
+    "message_count": 4,
+    "my_pending_obligations": 0,
+    "new": 4,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W385251",
+      "overlap": 0,
+      "own": 4,
+      "snapshot_seq": 385258,
+      "subtree_total": 4
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "external-report",
+    "outcome": null,
+    "phase": "queued",
+    "pickup": "pending",
+    "priority": "high",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": null,
+    "ready": true,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": {
+      "endpoint": "baton.decide",
+      "handlers": [
+        "slaw"
+      ],
+      "role": "approv",
+      "route": "approv"
+    },
+    "status": "open",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 385251,
+        "id": "2b077949-T385251",
+        "last_seq": 385257,
+        "new": 4,
+        "subject": "Correct offer retirement integration regressions before next native kickoff"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "Correct offer retirement integration regressions before next native kickoff",
+    "trials": []
+  },
+  "snapshot_seq": 385258
+}
