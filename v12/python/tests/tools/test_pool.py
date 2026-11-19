@@ -33,6 +33,7 @@ sys.path.insert(0, str(_DISTRIBUTION))
 sys.path.insert(1, str(_DISTRIBUTION / "src"))
 from tools import bootstrap
 from tools import pool
+from tools import single_worker
 from tools import stage_execution
 
 try:
@@ -533,7 +534,7 @@ class TheCommandLine(PoolCase):
                           "--worker", "/dev/null"])
 
 
-class ComposingAWorkerForThisInstance(PoolCase):
+class ComposingCase(PoolCase):
     """W321608 (reusable kickoff): a worker document for an installed
     instance is composed by the product from THIS BUILD'S OWN documents --
     the runtime profile, policy and adapter `next_run_bindings` composes and
@@ -574,12 +575,20 @@ class ComposingAWorkerForThisInstance(PoolCase):
                     workspace_group=self.config["workspace_group"],
                     task_document=self.task_file(),
                     record_path=self.RECORD, checkout=self.checkout,
-                    now="2026-11-19T06:30:00.000Z")
+                    now="2026-11-19T06:30:00.000Z",
+                    # THE TOPOLOGY IS SAID OUT LOUD (M385234). These cases are
+                    # about everything else the verb composes, so they select
+                    # legacy explicitly; the selecting cases are their own class.
+                    legacy_layout=True)
         held.update(changes)
         return held
 
     def composing(self, **changes):
         return pool.composed(self.held, **self.selection(**changes))
+
+
+class ComposingAWorkerForThisInstance(ComposingCase):
+    """Everything the verb binds and derives, for an explicitly legacy worker."""
 
     def test_the_facts_are_this_builds_own_and_the_instance_binds_the_rest(self):
         from baton_v12.contracts import digest_of_bytes
@@ -860,7 +869,7 @@ class ComposingAWorkerForThisInstance(PoolCase):
                 "--workspace-group", str(self.config["workspace_group"]),
                 "--task-document", self.task_file(),
                 "--record", self.RECORD, "--checkout", self.checkout,
-                "--into", into]
+                "--into", into, "--legacy-verifier-layout"]
         said = io.StringIO()
         self.assertEqual(pool.main(argv, stream=said), 0, said.getvalue())
         written = json.loads(Path(into).read_text())
@@ -876,6 +885,258 @@ class ComposingAWorkerForThisInstance(PoolCase):
         from tools import stack_command
 
         self.assertIn("pool", stack_command.COMMANDS)
+
+
+class ComposingAWorkerThatSelectsTheVerifierLayout(ComposingCase):
+    """W321608 native-labels-4 (T321608 M385233, M385234): the worker image
+    built from e670e624 carries W325695's verifier-layout marker, and this verb
+    wrote `/4` unconditionally -- so no `/run/baton/verifier-layout.json` was
+    delivered and the adapter refused before the provider, reported as an
+    anonymous `agent` fault after the Work had been admitted and claimed.
+
+    THE CHAIN THESE CASES PROVE, deterministically and offline: the verb emits
+    the supported `/6` deployment for a selected marker and refuses a missing
+    or mismatched selection with a sentence an operator can act on; the
+    instance admits that worker and the manager's validator still accepts it;
+    the serving start's per-worker preflight (`stage_execution` calls
+    `single_worker.worker_preflight` for every configured worker) materializes
+    the layout selection under the manager's own launch home before any
+    runtime exists; and the worker's own reader accepts exactly that document
+    beside the shipped marker, and refuses before the provider without it.
+
+    WHAT IS NOT PROVED HERE: that any particular image was built with that
+    marker. The verb does not inspect images -- the marker is an operand read
+    from the build's own recipe input by the operator who selected the image
+    (`source_boundary.compose_verifier_layout`) -- so a marker image selected
+    as legacy still refuses inside the worker; what changed is that the choice
+    is now recorded in the deployment rather than defaulted.
+    """
+
+    def marker(self, **changed):
+        from baton_v12.worker_manager import source_boundary
+        held = source_boundary.image_layout_marker()
+        held.update(changed)
+        return held
+
+    def selecting(self, **changes):
+        return self.composing(legacy_layout=False, verifier_layout=self.marker(),
+                              **changes)
+
+    def refusing(self, **changes):
+        with self.assertRaises(pool.PoolRefusal) as caught:
+            self.composing(**changes)
+        self.unchanged()
+        return str(caught.exception)
+
+    def test_no_selection_is_refused_before_anything_is_written(self):
+        said = self.refusing(legacy_layout=False)
+        for wanted in ("--verifier-layout", "--legacy-verifier-layout",
+                       "before the provider", "Nothing was changed"):
+            self.assertIn(wanted, said)
+        into = os.path.join(self.root, "composed", "unselected.json")
+        with self.assertRaises(pool.PoolRefusal):
+            with open(os.devnull, "w") as quiet:
+                pool.compose(self.place, into=into, stream=quiet,
+                             **self.selection(legacy_layout=False))
+        self.assertFalse(os.path.lexists(into))
+        self.unchanged()
+
+    def test_both_selections_refuse(self):
+        self.assertIn("not both", self.refusing(legacy_layout=True,
+                                                verifier_layout=self.marker()))
+
+    def test_the_marker_selects_the_supported_layout_deployment(self):
+        from baton_v12.worker_manager import source_boundary
+
+        answer = self.selecting()
+        deployment = answer["worker"]["deployment"]
+        self.assertEqual(deployment["schema"], single_worker.LAYOUT_CONFIG_SCHEMA)
+        self.assertEqual(deployment["verifier_layout"],
+                         source_boundary.image_layout_marker())
+        self.assertIsNone(deployment["provider_context"])
+        self.assertEqual(answer["layout"],
+                         {"selection": "trusted",
+                          "layout_digest": source_boundary.layout_digest()})
+        # `/6` IS `/4` PLUS THE TWO MEMBERS, and nothing else moves.
+        legacy = self.composing()["worker"]["deployment"]
+        self.assertEqual(legacy["schema"], single_worker.CONFIG_SCHEMA)
+        self.assertEqual(
+            {name: value for name, value in deployment.items()
+             if name not in ("schema", "verifier_layout", "provider_context")},
+            {name: value for name, value in legacy.items() if name != "schema"})
+
+    def test_the_legacy_selection_is_the_unchanged_legacy_document(self):
+        answer = self.composing()
+        deployment = answer["worker"]["deployment"]
+        self.assertEqual(deployment["schema"], single_worker.CONFIG_SCHEMA)
+        self.assertNotIn("verifier_layout", deployment)
+        self.assertNotIn("provider_context", deployment)
+        self.assertEqual(answer["layout"],
+                         {"selection": "legacy", "layout_digest": None})
+
+    def test_a_marker_from_another_topology_or_shape_refuses(self):
+        from baton_v12.worker_manager import source_boundary
+
+        mine = source_boundary.layout_digest()
+        partial = self.marker()
+        del partial["mode"]
+        for marker, wanted in (
+                (self.marker(layout_digest="0" * 64),
+                 ("declares verifier topology", "this build composes", mine)),
+                (self.marker(schema="baton.v12.verifier-layout-marker/2"),
+                 ("this build reads", source_boundary.MARKER_SCHEMA)),
+                (partial, ("missing mode",)),
+                (self.marker(image="sha256:" + "f" * 64), ("unexpected image",)),
+                (self.marker(roots={}), ("names roots", "layout_digest")),
+                ("marker", ("marker document",)),
+                (None, ("--verifier-layout",))):
+            with self.subTest(marker=marker):
+                said = self.refusing(legacy_layout=False, verifier_layout=marker)
+                for one in wanted:
+                    self.assertIn(one, said)
+
+    def test_the_command_line_selects_either_topology(self):
+        from baton_v12.worker_manager import source_boundary
+
+        self.record_in(self.checkout)
+        marker = os.path.join(self.root, "verifier-layout-marker.json")
+        Path(marker).write_text(json.dumps(self.marker()))
+        argv = [pool.VERB_COMPOSE, "--deployment", self.place,
+                "--worker-id", "impl-c", "--role", "implementation",
+                "--participant", "baton.impl-c",
+                "--image-reference", "baton-v12-worker:test",
+                "--image-digest", self.IMAGE, "--cli-build", "2.1.247",
+                "--network", self.config["network"],
+                "--credential-sources", os.path.join(self.root, "credential-sources.json"),
+                "--credential", "claude=operator-file:w202663-development",
+                "--workspace-group", str(self.config["workspace_group"]),
+                "--task-document", self.task_file(),
+                "--record", self.RECORD, "--checkout", self.checkout]
+        trusted = os.path.join(self.root, "composed", "trusted.json")
+        said = io.StringIO()
+        self.assertEqual(pool.main(argv + ["--into", trusted, "--verifier-layout", marker],
+                                   stream=said), 0, said.getvalue())
+        written = json.loads(Path(trusted).read_text())
+        self.assertEqual(written["deployment"]["schema"],
+                         single_worker.LAYOUT_CONFIG_SCHEMA)
+        self.assertEqual(written["deployment"]["verifier_layout"],
+                         source_boundary.image_layout_marker())
+        self.assertIn("layout    trusted " + source_boundary.layout_digest(),
+                      said.getvalue())
+        legacy = os.path.join(self.root, "composed", "legacy.json")
+        said = io.StringIO()
+        self.assertEqual(pool.main(argv + ["--into", legacy, "--legacy-verifier-layout"],
+                                   stream=said), 0, said.getvalue())
+        self.assertEqual(json.loads(Path(legacy).read_text())["deployment"]["schema"],
+                         single_worker.CONFIG_SCHEMA)
+        self.assertIn("layout    legacy (explicitly selected", said.getvalue())
+        unselected = os.path.join(self.root, "composed", "unselected.json")
+        said = io.StringIO()
+        self.assertEqual(pool.main(argv + ["--into", unselected], stream=said), 2)
+        self.assertIn("--legacy-verifier-layout", said.getvalue())
+        self.assertFalse(os.path.lexists(unselected))
+        with self.assertRaises(SystemExit):
+            with contextlib.redirect_stderr(io.StringIO()):
+                pool.main(argv + ["--into", unselected, "--verifier-layout",
+                                  marker, "--legacy-verifier-layout"],
+                          stream=io.StringIO())
+        self.unchanged()
+
+    def admitted_selecting_worker(self):
+        worker = self.selecting()["worker"]
+        os.makedirs(worker["deployment"]["nominated_source"])
+        self.admitting(worker)
+        normalized = stage_execution.held_configuration(self.written(),
+                                                        checkout=self.checkout)
+        return next(one for one in normalized["workers"]
+                    if one["worker_id"] == "impl-c")
+
+    def test_the_selecting_worker_is_admitted_and_the_manager_accepts_it(self):
+        from baton_v12.worker_manager import source_boundary
+
+        found = self.admitted_selecting_worker()
+        self.assertEqual(found["deployment"]["schema"],
+                         single_worker.LAYOUT_CONFIG_SCHEMA)
+        self.assertEqual(found["deployment"]["verifier_layout"],
+                         source_boundary.image_layout_marker())
+        self.assertEqual(found["deployment"]["launch_role"], "implementation")
+
+    def delivered(self, label):
+        """The serving start's own per-worker preflight, for the admitted
+        selecting worker: what `stage_execution.operations_from` runs for every
+        configured worker before any runtime exists."""
+        from .test_single_worker import Engine
+        from tests.job_manager import fixtures
+
+        found = self.admitted_selecting_worker()
+        # The install creates the instance's state roots; this instance was
+        # only prepared, so the roots the preflight holds are made here.
+        for name in ("workspace_storage", "launch_home", "credential_home"):
+            os.makedirs(found["deployment"][name], exist_ok=True)
+        engine = Engine()
+        _job, control = self.stores(label)
+        single_worker.worker_preflight(
+            found["deployment"], control,
+            credential_provider=lambda provider, reference: self.secret,
+            engine_run=engine)
+        place = os.path.join(found["deployment"]["launch_home"],
+                             "verifier-layout", "verifier-layout.json")
+        self.assertEqual(engine.starts, [])
+        return found, control, place
+
+    def test_the_serving_preflight_delivers_the_selection_before_any_runtime(self):
+        from baton_v12.worker_manager import source_boundary, workspaces
+
+        found, control, place = self.delivered("w321608-layout-preflight")
+        self.assertTrue(os.path.isfile(place), place)
+        document = json.loads(Path(place).read_bytes())
+        self.assertEqual(document["schema"], source_boundary.LAYOUT_SCHEMA)
+        self.assertEqual(document["layout_digest"], source_boundary.layout_digest())
+        self.assertEqual(document["image_digest"], self.IMAGE)
+        self.assertEqual(document["profile_digest"],
+                         found["deployment"]["profile_digest"])
+        identity = workspaces.identity_for(
+            single_worker.configured_workspace_group(control))
+        self.assertEqual((document["uid"], document["gid"]),
+                         (identity.uid, identity.gid))
+        self.assertFalse(os.access(place, os.W_OK))
+
+    def adapter(self):
+        """The worker's own reader, imported the way its image lays modules
+        out: the adapter beside the shared contract modules, both top-level."""
+        here = Path(__file__).resolve()
+        added = [str(here.parents[3] / "worker"),
+                 str(here.parents[2] / "src" / "baton_v12")]
+        for one in reversed(added):
+            sys.path.insert(0, one)
+        try:
+            import claude_agent
+        finally:
+            for one in added:
+                sys.path.remove(one)
+        return claude_agent
+
+    def test_the_worker_reads_the_delivered_selection_and_refuses_without_it(self):
+        from baton_v12.worker_manager import source_boundary
+
+        _found, _control, place = self.delivered("w321608-layout-worker")
+        claude_agent = self.adapter()
+        shipped = json.loads(
+            (Path(__file__).resolve().parents[3] / "worker"
+             / "verifier-layout-marker.json").read_bytes())
+        # THE MARKER THE OPERATOR NAMES IS THE ONE THE RECIPE SHIPS.
+        self.assertEqual(shipped, source_boundary.image_layout_marker())
+        agent = claude_agent.ClaudeAgent.__new__(claude_agent.ClaudeAgent)
+        agent._seen = {}
+        read = agent._selected_layout(place=place, marker=shipped)
+        self.assertEqual(read, json.loads(Path(place).read_bytes()))
+        self.assertEqual(read["roots"], claude_agent.ClaudeAgent.LAYOUT_ROOTS)
+        absent = os.path.join(self.root, "never-delivered.json")
+        with self.assertRaises(claude_agent.TaskRefusal) as caught:
+            agent._selected_layout(place=absent, marker=shipped)
+        self.assertIn("no trusted layout selection was delivered",
+                      str(caught.exception))
+        self.assertIn("refuses before the provider", str(caught.exception))
 
 
 def _work_or_none(authority, work_id):

@@ -1542,6 +1542,11 @@ class TheReaderSurvivesARetiredGenerationsSettledAllocation(PoolCase):
         def __init__(self, participant):
             self.port = SimpleNamespace(participant=participant)
             self.observed = []
+            self.settled = []
+
+        def settle_offer(self, stage, *, now):
+            self.settled.append((stage["attempt_id"], now))
+            return {"state": "accepted"}
 
         def observe(self, stage):
             self.observed.append(stage["attempt_id"])
@@ -1571,6 +1576,40 @@ class TheReaderSurvivesARetiredGenerationsSettledAllocation(PoolCase):
         pooled = PooledManagerOperations(
             self.jobs, stubs, resolved_principals=principals(second))
         return attempt, pooled
+
+    def test_settlement_skips_released_history_without_calling_any_worker(self):
+        attempt, pooled = self._advanced_pool()
+        before = allocation_of(self.jobs, attempt["attempt_id"])
+        self.assertIsNone(pooled.settle_offer(attempt, now=NOW))
+        self.assertTrue(all(stub.settled == [] for stub in pooled.workers.values()))
+        self.assertEqual(allocation_of(self.jobs, attempt["attempt_id"]), before)
+
+    def test_settlement_keeps_live_prior_generation_routing(self):
+        document = pool()
+        self.activate(document)
+        attempt = self.attempts([job("one", stages=[stage("implementation", "work:one")])])[0]
+        old = reserve(self.jobs, attempt)
+        second = pool("fallback")
+        self.activate(second)
+        stubs = {(generation, row["worker_id"]): self._ReadingStub(row["participant"])
+                 for generation in (1, 2) for row in pool_workers(self.jobs, generation)
+                 if generation == 2 or row["worker_id"] == old["worker_id"]}
+        pooled = PooledManagerOperations(self.jobs, stubs, resolved_principals=principals(second))
+        self.assertEqual(pooled.settle_offer(attempt, now=NOW), {"state": "accepted"})
+        self.assertEqual(stubs[(1, old["worker_id"])].settled, [(attempt["attempt_id"], NOW)])
+        self.assertTrue(all(stub.settled == [] for key, stub in stubs.items() if key != (1, old["worker_id"])))
+        self.assertEqual(allocation_of(self.jobs, attempt["attempt_id"]), old)
+
+    def test_settlement_missing_live_binding_refuses_without_successor_effects(self):
+        from unittest import mock
+        attempt, pooled = self._advanced_pool()
+        original = allocation_of(self.jobs, attempt["attempt_id"])
+        for state in ("reserved", "recovery-required"):
+            with self.subTest(state=state), mock.patch.object(scheduler, "allocation_of", return_value=dict(original, allocation_state=state)):
+                with self.assertRaises(ContractRefusal) as caught:
+                    pooled.settle_offer(attempt, now=NOW)
+                self.assertIn("which this attachment does not hold", caught.exception.message)
+        self.assertTrue(all(stub.settled == [] for stub in pooled.workers.values()))
 
     def test_observe_answers_over_settled_history_instead_of_raising(self):
         attempt, pooled = self._advanced_pool()

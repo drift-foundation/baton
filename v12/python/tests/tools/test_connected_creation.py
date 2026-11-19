@@ -611,6 +611,7 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
 
     def test_two_defined_jobs_run_on_one_product_configured_instance(self):
         from tools import pool
+        from baton_v12.worker_manager import source_boundary
 
         issued = []
         self.installed_with_repositories(issued)
@@ -648,7 +649,10 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
                 credentials=["claude=operator-file:w202663-development"],
                 workspace_group=self.config["workspace_group"],
                 task_document=task_place, record_path=record_path,
-                checkout=self.checkout)
+                checkout=self.checkout,
+                # M385234: the native path selects the image's marker; the
+                # verb writes nothing without an explicit selection.
+                verifier_layout=source_boundary.image_layout_marker())
             manifest = answer["worker"]["deployment"]["input_manifest"]
             # PROVENANCE IS THIS INSTANCE'S (review 2026-11-19T06-06-42Z).
             self.assertEqual(manifest["record_binding"]["path"], record_path)

@@ -402,6 +402,10 @@ def admit(place, worker, *, stream=sys.stdout, opener=None, store=None):
 
 VERB_COMPOSE = "compose-worker"
 _SHA256 = "sha256:"
+# The marker is a handful of members; the manager's own layout document
+# ceiling bounds the read, so an operand wider than any marker is refused as
+# not one before it is parsed.
+_MAX_MARKER_BYTES = 64 * 1024
 # Which route an answered candidate's assignment passes to, per role: the
 # implementation's result goes to review; the review's verdict goes on to
 # integration. `tests/tools/test_bootstrap.ValidFixture` and the standard
@@ -518,10 +522,93 @@ def _no_specimen(manifest):
                           "provenance. Nothing was changed.")
 
 
+def _layout_selection(marker, legacy):
+    """Which verifier topology the worker's deployment declares, SAID OUT LOUD.
+
+    W321608 native-labels-4 (T321608 M385233): the first launch of a worker
+    image carrying W325695's verifier-layout marker ran under the `/4`
+    deployment this verb used to write unconditionally. No layout document was
+    delivered, so the adapter took its "new image, missing selection" case and
+    refused before the provider -- reported through the worker's anonymous
+    `agent` fault, after the Work had been admitted and claimed. The silent
+    legacy default is that fault, so there is no default: the operator names
+    the marker the selected image was built with, or selects legacy explicitly.
+
+    WHAT AN IMAGE DECLARES IS NOT DISCOVERED HERE. `source_boundary.
+    compose_verifier_layout` says why: the marker is an operand, read from the
+    image's own build record by the party that owns image identity, and
+    inferring it would make the refusal a guess. The recipe copies
+    `worker/verifier-layout-marker.json` to `/opt/baton`; that document, from
+    the checkout the image was built from, is what `--verifier-layout` names.
+    This verb holds it to the existing contract -- the closed marker shape and
+    THIS build's own composed topology -- so a marker from another topology
+    refuses here, where nothing has been configured, rather than at the
+    manager's preflight or inside a container.
+    """
+    from baton_v12.worker_manager import source_boundary
+
+    if legacy and marker is not None:
+        raise PoolRefusal("a worker selects ONE verifier topology: name the "
+                          "marker its image declares, or select legacy "
+                          "explicitly, not both. Nothing was changed.")
+    if marker is None:
+        if legacy:
+            return None
+        raise PoolRefusal(
+            "this worker selects no verifier topology. Name --verifier-layout "
+            "MARKER (the worker/verifier-layout-marker.json the selected "
+            "image's recipe copied to /opt/baton, from the checkout it was "
+            "built from) for an image that declares the trusted verifier "
+            "layout, or --legacy-verifier-layout for an image built before "
+            "the marker existed. A marker image started under a legacy "
+            "deployment refuses inside the worker, before the provider, as "
+            "an anonymous agent fault after the Work was admitted and "
+            "claimed; this choice exists so that pairing is decided here "
+            "instead. Nothing was changed.")
+    if type(marker) is not dict:
+        raise PoolRefusal("a verifier-layout selection is the marker "
+                          "document the image declares; this is "
+                          + type(marker).__name__ + ". Nothing was changed.")
+    members = source_boundary.MARKER_MEMBERS
+    missing = sorted(name for name in members if name not in marker)
+    extra = sorted(name for name in marker if name not in members)
+    if missing or extra:
+        raise PoolRefusal(
+            "a verifier-layout marker is exactly " + ", ".join(members)
+            + ("; missing " + ", ".join(missing) if missing else "")
+            + ("; unexpected " + ", ".join(extra) if extra else "")
+            + ". Nothing was changed.")
+    if marker["schema"] != source_boundary.MARKER_SCHEMA:
+        raise PoolRefusal("a verifier-layout marker says it is "
+                          + repr(marker["schema"]) + " and this build reads "
+                          + repr(source_boundary.MARKER_SCHEMA)
+                          + ". Nothing was changed.")
+    expected = source_boundary.image_layout_marker()
+    if marker["layout_digest"] != expected["layout_digest"]:
+        raise PoolRefusal(
+            "the selected image declares verifier topology "
+            + repr(marker["layout_digest"]) + " and this build composes "
+            + repr(expected["layout_digest"]) + "; the image's fixed root "
+            "scaffolding and this manager's mounts were selected from "
+            "different topologies, so the pair refuses here, before an "
+            "instance is configured, rather than at the manager's preflight "
+            "or inside the worker. Nothing was changed.")
+    for name in ("roots", "filesystem", "options", "mode"):
+        if marker[name] != expected[name]:
+            raise PoolRefusal(
+                "the selected image's verifier-layout marker names " + name
+                + " " + repr(marker[name]) + ", which is not the topology "
+                "its layout_digest names (" + repr(expected[name]) + "); a "
+                "marker that disagrees with itself is not one to configure "
+                "an instance from. Nothing was changed.")
+    return {name: marker[name] for name in members}
+
+
 def composed(held, *, worker_id, role, participant, image_reference,
              image_digest, cli_build, network, credential_sources,
              credentials, workspace_group, task_document, record_path,
-             checkout=None, work_id=None, runtime_uid=None, now=None):
+             checkout=None, work_id=None, runtime_uid=None, now=None,
+             verifier_layout=None, legacy_layout=False):
     """One worker document for the instance `held` describes. READS ONLY.
 
     Every member the instance binds is derived from the instance; every
@@ -568,6 +655,7 @@ def composed(held, *, worker_id, role, participant, image_reference,
             raise PoolRefusal("the " + name + " is named by an absolute path; "
                               "this is " + repr(place) + ". Nothing was "
                               "changed.")
+    layout = _layout_selection(verifier_layout, legacy_layout)
     destination = Path(held["state_root"]).parent
     places = instance.layout(destination)
     if places["authority_store"] != held["authority_store"]:
@@ -617,7 +705,8 @@ def composed(held, *, worker_id, role, participant, image_reference,
                           "documents: " + str(failure) + ". Nothing was "
                           "changed.")
     deployment = {
-        "schema": single_worker.CONFIG_SCHEMA,
+        "schema": (single_worker.CONFIG_SCHEMA if layout is None
+                   else single_worker.LAYOUT_CONFIG_SCHEMA),
         "profile_name": identities["runtime_profile"]["name"],
         "profile_digest": identities["profile_digest"],
         "policy_digest": identities["policy_digest"],
@@ -646,12 +735,24 @@ def composed(held, *, worker_id, role, participant, image_reference,
         "review_route": REVIEW_ROUTES[role],
         "retention_policy_digest": held["retention_policy_digest"],
         "retention_disposition": held["retention_disposition"]}
+    if layout is not None:
+        # THE `/6` DOCUMENT IS `/4` PLUS THE TWO MEMBERS `single_worker._held`
+        # reads for that generation: the selection itself, and a context
+        # member that is null because this composer selects no provider
+        # context. Nothing else moves, so a legacy and a selecting worker of
+        # one instance differ in exactly what they declare.
+        deployment["provider_context"] = None
+        deployment["verifier_layout"] = layout
     worker = held_worker({"worker_id": worker_id, "role": role,
                           "participant": participant,
                           "deployment": deployment})
     return {"worker": worker, "work_id": work,
             "manifest_digest": manifest["manifest_digest"],
             "human_contract": manifest["human_contract"],
+            "layout": ({"selection": "legacy", "layout_digest": None}
+                       if layout is None else
+                       {"selection": "trusted",
+                        "layout_digest": layout["layout_digest"]}),
             "identities": {"profile_digest": identities["profile_digest"],
                            "policy_digest": identities["policy_digest"],
                            "adapter_digest": identities["adapter_digest"]}}
@@ -698,6 +799,11 @@ def compose(place, *, into, stream=sys.stdout, admit_into_pool=False,
           file=stream)
     print("work      %s" % answer["work_id"], file=stream)
     print("image     %s" % worker["deployment"]["image_digest"], file=stream)
+    print("layout    %s" % (
+        "trusted " + answer["layout"]["layout_digest"]
+        if answer["layout"]["selection"] == "trusted"
+        else "legacy (explicitly selected: the image declares no "
+             "verifier-layout marker)"), file=stream)
     print("profile   %s %s" % (worker["deployment"]["profile_name"],
                                worker["deployment"]["profile_digest"]),
           file=stream)
@@ -776,6 +882,21 @@ def main(argv=None, *, stream=sys.stdout):
     composing.add_argument("--into", required=True,
                            help="the fresh file to write the worker document "
                                 "to; an existing entry is refused")
+    topology = composing.add_mutually_exclusive_group()
+    topology.add_argument("--verifier-layout", metavar="MARKER", default=None,
+                          help="the worker/verifier-layout-marker.json the "
+                               "selected image's recipe copied to /opt/baton, "
+                               "from the checkout the image was built from; "
+                               "the deployment then selects the trusted "
+                               "verifier layout (W325695). One of this and "
+                               "--legacy-verifier-layout is required: an "
+                               "image that declares a marker refuses before "
+                               "the provider when no selection is delivered")
+    topology.add_argument("--legacy-verifier-layout", action="store_true",
+                          help="the selected image was built before the "
+                               "marker existed and declares no verifier "
+                               "topology; the deployment stays explicitly "
+                               "legacy")
     composing.add_argument("--admit", action="store_true",
                            help="also admit it into the instance's pool "
                                 "(needs the nominated source to exist)")
@@ -793,7 +914,12 @@ def main(argv=None, *, stream=sys.stdout):
                     workspace_group=taken.workspace_group,
                     task_document=taken.task_document,
                     record_path=taken.record, checkout=taken.checkout,
-                    work_id=taken.work_id)
+                    work_id=taken.work_id,
+                    verifier_layout=(
+                        None if taken.verifier_layout is None else
+                        _read(taken.verifier_layout, _MAX_MARKER_BYTES,
+                              "the selected image's verifier-layout marker")),
+                    legacy_layout=taken.legacy_verifier_layout)
             return 0
         admit(taken.deployment, read_worker(taken.worker), stream=stream)
         return 0

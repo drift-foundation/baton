@@ -1609,8 +1609,8 @@ class TwoRequestedJobsThroughOneServingLoop(SingleWorkerCase):
           first ending passes the Work on to its `review_route` -- which is
           the ending's own reported act -- so the second stage is OFFERED and
           its claim never completes. Measured here over eight further ticks
-          after a real ending, and over thirty in a probe: `offered`, no
-          recorded attempt, no roots, no second launch.
+          after a real ending. W385222 now retires that positive route
+          refusal: exceptional, no recorded attempt, no roots, no second launch.
 
         WHAT IS PROVED. One shared worker object, the real serving loop, a
         requested task delivered to the attempt it belongs to, a real
@@ -1655,17 +1655,25 @@ class TwoRequestedJobsThroughOneServingLoop(SingleWorkerCase):
         self.assertEqual(self.stage_named(job, operations, "job-a")["state"],
                          "completed")
 
-        # AND THE SECOND IS STILL QUEUED, for the reason in the docstring --
-        # not because anything delivered it the wrong bytes.
+        # The second positive route refusal retires its offer; it never
+        # receives the first Job's task or starts a runtime.
         for _ in range(8):
             reconcile(job, operations, now=fixtures.NOW)
             sweep(job, operations, now=fixtures.NOW)
         second_stage = self.stage_named(job, operations, "job-b")
-        self.assertEqual(second_stage["state"], "offered")
+        self.assertEqual(second_stage["state"], "exceptional")
+        from baton_v12.job_manager import receipts_of
+        [ended] = second_stage["episodes"]
+        self.assertEqual(ended["ended_state"], "claim-refused")
+        claim = receipts_of(job, second_stage["stage_id"], ended["episode"])["claim"]
+        self.assertEqual(claim["state"], "refused")
+        result = json.loads(claim["detail"])["result"]
+        self.assertEqual(result["state"], "claim-refused")
+        self.assertIn("does not resolve to", result["reason"])
         self.assertIsNone(
-            attempts.recorded_input_of(control, second_stage["attempt_id"]))
+            attempts.recorded_input_of(control, ended["attempt_id"]))
         self.assertFalse(os.path.exists(os.path.join(
-            self.storage, second_stage["attempt_id"])))
+            self.storage, ended["attempt_id"])))
         # THE FIRST JOB'S ROOT IS UNTOUCHED BY ANY OF IT.
         with open(os.path.join(roots["inputs"],
                                single_worker.TASK_DOCUMENT), "rb") as reading:

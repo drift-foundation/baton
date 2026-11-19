@@ -1340,6 +1340,9 @@ def record_paths(source):
 # temporary repository, fake registry entries. Each is exact. A new literal
 # lands here only with a reason, or in CONSUMED_INPUTS when the run reads it.
 SYNTHETIC_RECORD_PATHS = {
+    # test_pool.record_in, test_bootstrap.composed_for and test_connected_creation
+    # write FINDING.md/PLAN.md themselves in disposable checkouts, not from this tree.
+    "work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli",
     # the runner's supervisor-locator grammar, a pattern rather than a path
     r"work/records/[0-9]{4}/(?:0[1-9]|1[0-2])/(?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.py",
     # a reference each dossier case creates inside its own temporary repository

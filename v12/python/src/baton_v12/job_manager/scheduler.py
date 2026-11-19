@@ -816,8 +816,12 @@ class PooledManagerOperations:
         allocation = allocation_of(self.store, stage["attempt_id"])
         if allocation is None:
             _refuse(self._unallocated(stage))
-        return self.workers[(allocation["generation"],
-                             allocation["worker_id"])]
+        worker = self.workers.get((allocation["generation"], allocation["worker_id"]))
+        if worker is None:
+            _refuse(f"stage {name_value(stage['stage_id'])} names worker "
+                    f"{name_value(allocation['worker_id'])} in generation "
+                    f"{allocation['generation']}, which this attachment does not hold")
+        return worker
 
     def canonical_operation(self, act, offer_id):
         return self._any().canonical_operation(act, offer_id)
@@ -940,6 +944,11 @@ class PooledManagerOperations:
         return answer
 
     def settle_offer(self, stage, *, now):
+        # Released capacity is settled history, even when its episode remains
+        # visible. Never act through a successor worker to reconcile that past.
+        allocation = self._allocation(stage)
+        if allocation is not None and allocation["allocation_state"] == "released":
+            return None
         worker = self._worker(stage)
         settle = getattr(worker, "settle_offer", None)
         if settle is not None:

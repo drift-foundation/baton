@@ -344,11 +344,11 @@ class TheRetriedJobIsServedItsOwnTask(RetryLineageCase):
             stage, {"job_id": fresh, "input_digest": rows[fresh],
                     "policy_digest": worker.given["policy_digest"]}))
 
-    def test_the_retry_is_offered_and_its_claim_waits_on_the_works_route(self):
+    def test_the_retry_is_offered_and_its_claim_is_retired_on_wrong_route(self):
         """WHAT THE ONE-PRODUCER POOL DOES, read out of the loop's reports.
 
         The prior attempt's own `unable` ending settles its assignment, so
-        the retry IS offered -- and its claim is then deferred, because that
+        the retry IS offered -- and its claim is then retired, because that
         ending also passed the Work to its `review_route`: "the authority
         refused this claim: route 'rview' does not resolve to
         'baton.claude'". The Work is somebody else's to hand back, which is
@@ -362,8 +362,8 @@ class TheRetriedJobIsServedItsOwnTask(RetryLineageCase):
         W365075 LEFT THIS CASE WHERE IT WAS. The release returns the line to
         `idle` and the ending's own discharge clears the quiescence gate -- so
         the offer this case asserts is now reached through an ungated Work
-        rather than in spite of one -- and the route is what still defers the
-        claim, which is the same observation over the same reports.
+        rather than in spite of one. W385222 now permanently retires the
+        positive route refusal, preserving the handoff and no-runtime proofs.
         """
         held = self.failing_pool()
         fresh = self.retried(held)["job_id"]
@@ -374,11 +374,20 @@ class TheRetriedJobIsServedItsOwnTask(RetryLineageCase):
             said.append(sweep(held["jobs"], held["composed"],
                               now=fixtures.NOW))
         self.assertEqual(self.stages(held["jobs"], held["composed"],
-                                     fresh)["implementation"], "offered")
+                                     fresh)["implementation"], "exceptional")
         acts = [one for report in said for one in report["acts"]
                 if one["stage_id"].startswith(fresh)]
         self.assertTrue(acts)
-        self.assertIn("does not resolve to", json.dumps(acts, default=str))
+        self.assertEqual([one["outcome"] for one in acts if one["act"] == "claim"], ["refused"])
+        stage = self.stage_of(held["jobs"], held["composed"], fresh)
+        from baton_v12.job_manager import receipts_of
+        [ended] = stage["episodes"]
+        self.assertEqual(ended["ended_state"], "claim-refused")
+        claim = receipts_of(held["jobs"], stage["stage_id"], ended["episode"])["claim"]
+        self.assertEqual(claim["state"], "refused")
+        result = json.loads(claim["detail"])["result"]
+        self.assertEqual(result["state"], "claim-refused")
+        self.assertIn("does not resolve to", result["reason"])
         # AND THIS IS ALSO WHERE `_fence_operation` IS PROVED. That reader
         # answers the authority operation id the ending's handoff is fenced
         # by, and before W365075 it knew only the checkpoint and the verdict.

@@ -5618,13 +5618,16 @@ class TheArcMaterializesBetweenActivationAndRuntimeCreation(
             return bundle
 
         with ExitStack() as patches:
+            # Grants and the opened store must share this fixture's clock;
+            # wall time would expire the accepted offer before submission.
+            patches.enter_context(mock.patch.object(dogfood_operator, "_now", return_value=_given["now"]))
             patches.enter_context(mock.patch.object(
                 credentials.CredentialHome, "materialize", materialize))
             patches.enter_context(mock.patch.object(
                 worker_manager, "activate_assignment", activate))
             patches.enter_context(mock.patch.object(
                 worker_manager, "request_runtime_start", start))
-            with self.assertRaises(ContractRefusal):
+            with self.assertRaises(ContractRefusal) as caught:
                 dogfood_operator.main(
                     # W52821: THE OPERAND THE COMMAND DECLARES. This drove
                     # `--credential-file`, which the registry replaced, so the
@@ -5636,6 +5639,9 @@ class TheArcMaterializesBetweenActivationAndRuntimeCreation(
                     ["--grants", grants_path, "--evidence", evidence_path,
                      user_credentials.OPERAND, self.credential_registry()],
                     capabilities=capabilities)
+
+        self.assertEqual((caught.exception.category, caught.exception.code), ("unavailable", "transport"))
+        self.assertEqual(caught.exception.message, "this case stops before the engine")
 
         # THE DELIVERY THIS CASE REALLY MADE IS REALLY ENDED, and through its
         # OWNING HOME rather than by deleting a directory.

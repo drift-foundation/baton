@@ -7611,3 +7611,66 @@ class TheDeploymentCanStopWhatItStarted(SingleWorkerCase):
         self.addCleanup(operations.close)
         with self.assertRaises(ContractRefusal):
             operations.cancel_attempt(attempt_id="", reason="overall bound")
+
+
+class TheLayoutSelectionReachesTheRuntimeVector(SingleWorkerCase):
+    """W321608 native-labels-4 (T321608 M385233, M385234): the composition the
+    stage-execution pool launches through -- `_SingleWorker._adapter`, which
+    binds `layout_delivery(given, group)` -- ACTUALLY delivers a `/6`
+    deployment's selection into the runtime vector, and a `/4` deployment
+    delivers none. The topology suite proves `oci.run_vector` in isolation;
+    these drive the whole single-worker pipeline to a commanded container
+    through the fake engine and read the vector it was handed.
+    """
+
+    def selecting(self):
+        self.config = dict(self.config,
+                           schema=single_worker.LAYOUT_CONFIG_SCHEMA,
+                           provider_context=None,
+                           verifier_layout=source_boundary.image_layout_marker())
+
+    def launched(self, label):
+        engine = Engine()
+        job, control = self.stores(label)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        self.commanded(job, operations)
+        return engine, control
+
+    def test_a_selecting_deployment_binds_the_delivered_selection_read_only(self):
+        from baton_v12.worker_manager import workspaces
+
+        self.selecting()
+        engine, control = self.launched("w321608-layout-vector")
+        place = os.path.join(self.config["launch_home"], "verifier-layout",
+                             "verifier-layout.json")
+        mounted = [(one["Source"], one["Destination"], one["RW"])
+                   for one in engine.mounts]
+        self.assertIn((place, source_boundary.LAYOUT_TARGET, False), mounted)
+        document = json.loads(pathlib.Path(place).read_bytes())
+        self.assertEqual(document["image_digest"], self.config["image_digest"])
+        identity = workspaces.identity_for(
+            single_worker.configured_workspace_group(control))
+        created = engine.starts[0]
+        self.assertEqual(created[created.index("--user") + 1],
+                         f"{identity.uid}:{identity.gid}")
+        self.assertEqual((document["uid"], document["gid"]),
+                         (identity.uid, identity.gid))
+        # AND THE FOUR PRIVATE ROOTS ARE MOUNTED FOR IT, in place of the
+        # legacy shared scratch the worker's legacy path would use.
+        for _name, target, _size in source_boundary.VERIFIER_ROOTS:
+            self.assertTrue(any(one.startswith(target + ":") for one in created),
+                            target)
+
+    def test_a_legacy_deployment_delivers_no_selection(self):
+        engine, _control = self.launched("w321608-legacy-vector")
+        self.assertNotIn(source_boundary.LAYOUT_TARGET,
+                         [one["Destination"] for one in engine.mounts])
+        created = engine.starts[0]
+        for _name, target, _size in source_boundary.VERIFIER_ROOTS:
+            self.assertFalse(any(one.startswith(target + ":") for one in created),
+                             target)
+        self.assertFalse(os.path.lexists(
+            os.path.join(self.config["launch_home"], "verifier-layout")))
+

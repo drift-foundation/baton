@@ -314,6 +314,7 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
         held = json.loads(Path(self.config["task_document"]).read_bytes())
         held["task_id"] = "installed-task"
         Path(task).write_bytes(json.dumps(held, sort_keys=True).encode())
+        from baton_v12.worker_manager import source_boundary
         return pool.composed(
             configured, worker_id=worker_id, role=role,
             participant=participant, image_reference="baton-v12-worker:test",
@@ -324,7 +325,10 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
             credentials=["claude=operator-file:w202663-development"],
             workspace_group=self.config["workspace_group"],
             task_document=task, record_path=self.RECORD,
-            checkout=self.checkout)["worker"]
+            checkout=self.checkout,
+            # M385234: the repeat carries the SELECTING deployment, which is
+            # the one the native pilot's images need.
+            verifier_layout=source_boundary.image_layout_marker())["worker"]
 
     def repeated(self, destination, issued, workers, *extra):
         from tools import instance as instances
@@ -379,6 +383,16 @@ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
         configured = json.loads(Path(places["deployment"]).read_bytes())
         self.assertEqual([one["worker_id"] for one in configured["workers"]],
                          ["impl-a", "review-a"])
+        # THE SELECTION SURVIVES THE REPEAT, for both roles, as the manager's
+        # own generation: the configured deployment is the layout-selecting
+        # `/6` the composer wrote, with the marker intact.
+        from baton_v12.worker_manager import source_boundary
+        from tools import single_worker
+        for one in configured["workers"]:
+            self.assertEqual(one["deployment"]["schema"],
+                             single_worker.LAYOUT_CONFIG_SCHEMA, one["worker_id"])
+            self.assertEqual(one["deployment"]["verifier_layout"],
+                             source_boundary.image_layout_marker())
         # THE SAME REPEAT AGAIN CLONES NOTHING, CHANGES NOTHING -- AND STILL
         # PROVES EVERY SOURCE AND THE BASE (existing paths are not proof).
         again = len(issued)
