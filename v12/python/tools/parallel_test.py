@@ -419,6 +419,10 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     "tests.manager.test_runtime_deadline_engine_budget",
     "tests.manager.test_runtime_deadlines",
     "tests.tools.test_execution_limits",
+    # W385263: pure shared observations and case-owned TemporaryDirectory
+    # snapshots; no engine, provider, network or shared process/resource.
+    # The tests.tools package assigns this module to tools-pure.
+    "tests.tools.test_job_observation",
     "tests.tools.test_job_viewer",
     "tests.tools.test_live_ab",
     "tests.tools.test_managed_integration",

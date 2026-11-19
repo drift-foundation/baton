@@ -1,0 +1,6 @@
+start 2026-11-19T21:19:33Z
+interpreter /home/sl/.local/state/baton-v12-venv/bin/python (Python 3.13.7)
+cwd /home/sl/src/baton/work/scratch/w383217/labels5-host-verification/export
+BATON_V12_STACK_TEST_ROOT=/home/sl/src/baton/work/scratch/w383217/labels5-host-verification/roots BATON_V12_DISK_ROOT=/home/sl/src/baton/work/scratch/w383217/labels5-host-verification/roots
+/dev/nvme0n1p2 ext4 959218776 332980752 577438692  37% /
+exit 0 elapsed 4 s end 2026-11-19T21:19:37Z

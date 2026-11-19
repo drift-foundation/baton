@@ -1,0 +1,764 @@
+diff --git a/v12/python/JOB-VIEWER.md b/v12/python/JOB-VIEWER.md
+index 1c043485..09373c16 100644
+--- a/v12/python/JOB-VIEWER.md
++++ b/v12/python/JOB-VIEWER.md
+@@ -99,9 +99,9 @@ as if it were the *Job's*.
+ **Staleness is about the observation, not about the read.** A snapshot carries
+ two clocks: when this program received the bytes, and when the manager actually
+ looked. Re-reading an unchanged document does not make it fresher, and the view
+-goes `!! STALE` once the *observation* reaches `max(2 s, 2 x --interval)`. The
+-configured interval is carried into the rendering, so `--interval 5` really
+-does mean a ten-second window.
++goes `!! STALE` once the *observation* reaches 15 seconds. The shared status/monitor threshold is inclusive and independent of
++refresh
++interval. File publication age is checked as well as source observation age.
+ 
+ **Activity is the manager's observation, and its instant is the manager's
+ receipt time.** W61599 owns the trusted provider-safe source; this view reads
+@@ -111,9 +111,8 @@ reader of its own.
+ Three renderings and no fourth:
+ 
+ - nothing observed — no runtime, no activity member, or a recorded attempt with
+-  no count — is **`unknown`**. A zero is never shown as a count: the producer
+-  publishes only a positive total, and `0` would read as *observed, and empty*,
+-  which is a claim nobody here holds.
++  no count — is **`unknown`**. A known zero is displayed as `0 B`. Counts
++  must name the stage current attempt; a foreign attempt is unknown.
+ - a **live** stage shows the count, and `observed Ns ago` beneath it.
+ - a **terminal** stage — `completed`, `changes-requested`, `exceptional` —
+   shows the count, and `last at <instant>` beneath it, **never a relative age**.
+@@ -152,7 +151,7 @@ does not edit the provider.
+ 
+ **It does not hide its own age.** A snapshot is exactly as fresh as the moment
+ it was observed, and the view shows both the manager's `observed_at` and how
+-long ago this program read it. At `max(2 s, 2 x interval)` it says `!! STALE`; a failed
++long ago this program read it. At 15 seconds it says `!! STALE`; a failed
+ read says `!! DISCONNECTED` and keeps the last good reading *under* the warning
+ rather than replacing it with an empty screen. `canonical: false` is reported
+ as "the manager was NOT read", because that is the difference between "nothing
+@@ -165,7 +164,7 @@ is running" and "nobody looked".
+ | snapshot input | 4 MiB | **refuses** rather than truncating — a dropped tail would silently omit Jobs, which is the failure this viewer exists to fix |
+ | locator read | 64 KiB | bounded, on explicit detail only, and **visibly** truncated; there is no idle log tail |
+ | poll | 1 s default, finite and > 0 | the loop sleeps between reads; a failed read does not become a hot retry, and a zero or non-finite interval is refused rather than spun on |
+-| stale | `max(2 s, 2 x interval)` | derived from the configured interval rather than frozen, and applied **inclusively** so a 2 s-old observation is already flagged |
++| stale | 15 seconds | shared with status, independent of polling, applied **inclusively** at 15 seconds |
+ 
+ These bound what this program holds and shows. They are not protocol limits and
+ change nothing about the manager's own input rules.
+@@ -216,3 +215,10 @@ Rich telemetry (W39649) and labels (W29408) are separate v13 work. Managed
+ execution evidence is W161230. If an observation this viewer needs does not
+ exist, that is a finding for the provider's existing owner — not a reason to
+ grow a second backend here.
++
++Status and monitor share `tools/job_observation.py` for outcomes, gates, failures,
++reported operations, attempt-bound native-byte activity and freshness. Operation
++state is reported evidence, not a current provider tool; exchange attempt binding
++is explicitly unverified where the snapshot cannot establish it. No reader adds
++collectors or interprets raw logs. JSON schemas and service-health checks remain
++unchanged (W385263).
+diff --git a/v12/python/tests/tools/test_job_viewer.py b/v12/python/tests/tools/test_job_viewer.py
+index bdd35e55..269d3a41 100644
+--- a/v12/python/tests/tools/test_job_viewer.py
++++ b/v12/python/tests/tools/test_job_viewer.py
+@@ -302,47 +302,18 @@ class StaleBytesAreNeverReportedFresh(ViewerCase):
+         snapshot = read_snapshot(document, received_at=self.now)
+         self.assertTrue(snapshot.stale(self.now, wall_now=self.now))
+ 
+-    def test_the_configured_threshold_reaches_the_rendering(self):
+-        """REVIEW claim168169 [P2]. The viewer computed a threshold from the
+-        interval and then rendered with the 1 s default, so at `--interval 5`
+-        a three-second-old observation was called STALE against a documented
+-        ten-second window. A threshold that never reaches the renderer is a
+-        threshold nobody applies -- and calling stale_after(5) directly, as my
+-        previous case did, cannot catch a missing connection."""
+-        document = self.document()
+-        wall = [_epoch(document["observed_at"]) + 3]
+-        stream = io.StringIO()
+-        viewer = JobViewer(lambda: document, clock=lambda: self.now,
+-                           wall=lambda: wall[0], interval=5.0,
+-                           sleeper=lambda _: None)
+-        viewer.run(ticks=1, stream=stream)
+-        self.assertNotIn("STALE", stream.getvalue())
+-        # AND THE SAME OBSERVATION AT THE 1 s DEFAULT *IS* STALE, so the
+-        # interval is doing the work rather than the age alone.
+-        other = io.StringIO()
+-        JobViewer(lambda: document, clock=lambda: self.now,
+-                  wall=lambda: wall[0], interval=1.0,
+-                  sleeper=lambda _: None).run(ticks=1, stream=other)
+-        self.assertIn("!! STALE", other.getvalue())
+-
+-    def test_the_default_two_second_boundary_is_inclusive(self):
+-        """The selected behaviour is a changed or outdated observation visible
+-        WITHIN 2 s. A strict `>` first flagged an exact integer-tick
+-        observation one whole tick late, at 3 s."""
++    def test_refresh_interval_does_not_change_freshness(self):
+         document = self.document()
+         started = _epoch(document["observed_at"])
+-        snapshot = read_snapshot(document, received_at=self.now)
+-        self.assertFalse(snapshot.stale(self.now, wall_now=started + 1.9))
+-        self.assertTrue(snapshot.stale(self.now, wall_now=started + 2.0))
+-
+-    def test_the_threshold_follows_the_configured_interval(self):
+-        """The fixed 3 s constant ignored `--interval` entirely, so the
+-        selected 2 s behaviour was not what the loop actually did."""
+-        self.assertEqual(job_viewer.stale_after(1.0), 2.0)
+-        self.assertEqual(job_viewer.stale_after(5.0), 10.0)
+-        self.assertEqual(job_viewer.stale_after(0.1),
+-                         job_viewer.STALE_FLOOR_SECONDS)
+-
++        for interval in (0.1, 1.0, 5.0, 30.0):
++            for age in (14.9, 15.0):
++                with self.subTest(interval=interval, age=age):
++                    stream = io.StringIO()
++                    JobViewer(lambda: document, clock=lambda: self.now,
++                              wall=lambda: started + age, interval=interval,
++                              sleeper=lambda _: None).run(ticks=1, stream=stream)
++                    self.assertEqual("!! STALE" in stream.getvalue(), age >= 15)
++                    self.assertEqual(job_viewer.stale_after(interval), 15.0)
+ 
+ class AMalformedRefreshDoesNotEndTheView(ViewerCase):
+     """REVIEW claim168071 [P2]. The read was inside the handler and the PARSE
+@@ -612,12 +583,11 @@ class TheDrillDownIsWiredAndUsesLocatorSemantics(ViewerCase):
+         self.assertEqual(job_viewer.main(argv + ["--interval", "5"],
+                                          stream=wide), 0)
+         self.assertNotIn("STALE", wide.getvalue())
+-        # AND AT THE 1 s DEFAULT THE SAME OBSERVATION *IS* STALE, so the
+-        # interval is doing the work rather than the age alone.
++        # The same observation has the same age at the default interval.
+         narrow = io.StringIO()
+         self.assertEqual(job_viewer.main(argv + ["--interval", "1"],
+                                          stream=narrow), 0)
+-        self.assertIn("!! STALE", narrow.getvalue())
++        self.assertNotIn("STALE", narrow.getvalue())
+ 
+     def test_the_command_drills_down_through_identities(self):
+         import io
+@@ -799,7 +769,8 @@ class TheViewerPerformsNoAct(ViewerCase):
+             elif isinstance(node, ast.ImportFrom) and node.module:
+                 names.add(node.module)
+         self.assertEqual(names, {"argparse", "datetime", "json", "os", "stat",
+-                                 "sys", "time", "baton_v12.job_manager"})
++                                 "sys", "time", "baton_v12.job_manager", "tools",
++                                 "tools.job_observation"})
+         # THE IDENTIFIERS, NOT THE PROSE. A text search here is satisfied --
+         # or defeated -- by the very paragraph that promises the absence: the
+         # module docstring says "no submit, claim, cancel, serve", so grepping
+@@ -1191,6 +1162,7 @@ class TheTrustedActivityCountIsShownAndNeverEmbellished(ViewerCase):
+         document = self.document()
+         stage = document["jobs"][0]["stages"][0]
+         stage["state"] = state
++        stage["attempt_id"] = "attempt-1"
+         stage["runtime"] = {
+             "runtime_id": "runtime-7f3a", "execution_runtime": "oci",
+             "assignment": {"work_ref": "0000000a-W1",
+@@ -1231,14 +1203,10 @@ class TheTrustedActivityCountIsShownAndNeverEmbellished(ViewerCase):
+                 self.assertIn("activity unknown", listed)
+                 self.assertRegex(detail, r"activity\s+unknown")
+ 
+-    def test_a_zero_is_unknown_and_never_rendered_as_a_count(self):
+-        """THE PRODUCER CANNOT EMIT ONE -- it publishes only a positive total --
+-        so this pins the VIEW'S own honesty if a zero ever arrives. `0` would
+-        read as "observed, and empty", which is a claim nobody here holds."""
++    def test_a_known_zero_is_not_an_unknown_count(self):
+         listed, detail = self.shown(self.observed(count=0))
+-        self.assertIn("activity unknown", listed)
+-        self.assertRegex(detail, r"activity\s+unknown")
+-        self.assertNotRegex(detail, r"activity\s+0")
++        self.assertIn("activity 0 B", listed)
++        self.assertRegex(detail, r"activity\s+0 B")
+ 
+     # -- a live stage -------------------------------------------------------
+ 
+@@ -1368,6 +1336,7 @@ class TheDefaultWidthKeepsEveryFactItCarries(ViewerCase):
+         document = self.document()
+         stage = document["jobs"][0]["stages"][0]
+         stage["state"] = state
++        stage["attempt_id"] = "attempt-1"
+         stage["runtime"] = {
+             "runtime_id": "runtime-7f3a", "execution_runtime": "oci",
+             "assignment": None,
+@@ -1412,7 +1381,7 @@ class TheDefaultWidthKeepsEveryFactItCarries(ViewerCase):
+         """`unknown` has no timing to carry, so it costs no line. A view that
+         grew a blank row per stage would have made the list worse for the
+         ordinary case in order to serve the rare one."""
+-        document, _id, _instant = self.observed("running", count=0)
++        document, _id, _instant = self.observed("running", count=None)
+         listed = render_list(read_snapshot(document, received_at=self.now),
+                              now=self.now)
+         self.assertEqual([one for one in listed
+@@ -1449,6 +1418,7 @@ class AnInvalidCountIsUnknownAndNeverAnException(ViewerCase):
+         document = self.document()
+         stage = document["jobs"][0]["stages"][0]
+         stage["state"] = "running"
++        stage["attempt_id"] = "attempt-1"
+         stage["runtime"] = {"runtime_id": "r", "execution_runtime": "oci",
+                             "assignment": None,
+                             "activity": {"attempt_id": "attempt-1",
+@@ -1481,7 +1451,7 @@ class AnInvalidCountIsUnknownAndNeverAnException(ViewerCase):
+                       mine(render_list(viewer.snapshot, now=self.now)))
+ 
+     def test_every_out_of_domain_count_is_unknown(self):
+-        for count in (0, -1, True, False, 1.5, "1024", None, [1],
++        for count in (-1, True, False, 1.5, "1024", None, [1],
+                       job_viewer.MAX_ACTIVITY_BYTES + 1, 10 ** 400):
+             with self.subTest(count=count):
+                 snapshot = read_snapshot(self.carrying(count),
+diff --git a/v12/python/tools/job_viewer.py b/v12/python/tools/job_viewer.py
+index e114251d..0067beaa 100644
+--- a/v12/python/tools/job_viewer.py
++++ b/v12/python/tools/job_viewer.py
+@@ -23,8 +23,8 @@ WHAT IT IS NOT, and each of these is a decision rather than an omission:
+   polling returned -- and each of those reports the VIEWER'S behaviour as if it
+   were the JOB'S. W61599's trusted activity source now exists and this view
+   reads it out of the snapshot; where the manager has observed nothing, activity
+-  is still `unknown`, an empty stream is not progress, and a zero is never
+-  shown as a count. The instant is the MANAGER'S RECEIPT TIME, so a relative
++  is still `unknown`, an empty stream is not progress, and a known zero remains
++  an observed empty count. The instant is the MANAGER'S RECEIPT TIME, so a relative
+   age is shown only while the stage is live and a terminal stage shows the
+   instant marked `last`.
+ 
+@@ -42,6 +42,8 @@ import sys
+ import time
+ 
+ from baton_v12.job_manager import documents
++from tools import job_observation
++from tools.job_observation import _elapsed, _instant, _duration, _activity, _stage_line, _reason, _live_episode, _allocated, MAX_ACTIVITY_BYTES, MAX_INSTANT_TEXT, ALLOCATION_FIELDS
+ 
+ __all__ = ["MAX_SNAPSHOT_BYTES", "MAX_LOCATOR_BYTES", "POLL_SECONDS",
+            "STALE_FLOOR_SECONDS", "stale_after", "UNKNOWN", "ViewerRefusal",
+@@ -56,23 +58,12 @@ MAX_LOCATOR_BYTES = 64 * 1024
+ 
+ POLL_SECONDS = 1.0
+ 
+-# WHEN AN OBSERVATION STOPS BEING BELIEVABLE AS "NOW".
+-#
+-# REVIEW claim168071 [P1]: this was a fixed 3 s measured from the LOCAL READ,
+-# and every refresh reset it -- so re-reading one unchanged status file forever
+-# reported "read 0s ago" with no warning. An old document looked fresh
+-# indefinitely under the documented polling loop, which is the precise failure
+-# this viewer exists to prevent.
+-#
+-# So the threshold is derived from the CONFIGURED interval rather than frozen,
+-# and it is applied to the MANAGER'S observation time. `2 x interval` at the
+-# 1 s default is the selected 2 s behaviour; the floor keeps a very small
+-# interval from flapping the view into permanent alarm.
+-STALE_FLOOR_SECONDS = 2.0
++# Owner M385273: UI poll frequency does not change source freshness.
++STALE_FLOOR_SECONDS = job_observation.STALE_SECONDS
+ 
+ 
+ def stale_after(interval=POLL_SECONDS):
+-    return max(STALE_FLOOR_SECONDS, 2.0 * interval)
++    return job_observation.STALE_SECONDS
+ 
+ UNKNOWN = "unknown"
+ 
+@@ -105,11 +96,12 @@ class Snapshot:
+     stale bytes get reported as fresh.
+     """
+ 
+-    def __init__(self, document, *, received_at, connected=True, failure=None):
++    def __init__(self, document, *, received_at, connected=True, failure=None, published_at=None):
+         self.document = document
+         self.received_at = received_at
+         self.connected = connected
+         self.failure = failure
++        self.published_at = published_at
+ 
+     @property
+     def observed_at(self):
+@@ -131,35 +123,19 @@ class Snapshot:
+         """How long since THE MANAGER looked. Unknown when unparseable --
+         and unknown is treated as stale, because a view that cannot tell how
+         old its facts are must not present them as current."""
+-        held = self.observed_at
+-        if not held or wall_now is None:
+-            return None
+-        try:
+-            return max(0.0, wall_now - _instant(held))
+-        except ValueError:
+-            return None
++        age = job_observation.observation_age(self.observed_at, wall_now)
++        return None if age is None else max(0.0, age)
+ 
+     def stale(self, now, after=None, wall_now=None):
+-        """Stale when EITHER clock says so.
+-
+-        The observation age is what catches an unchanging source; the local
+-        read age is what catches a loop that stopped refreshing. Either alone
+-        leaves a real way for old facts to look current.
+-        """
+-        after = stale_after() if after is None else after
+-        # THE COMPARISON IS `>=`, NOT `>`. The selected behaviour is that a
+-        # changed or outdated observation is visible WITHIN the window, and a
+-        # strict `>` first flagged an exact integer-tick observation one whole
+-        # tick late -- at 3 s for a 2 s threshold.
+-        if not self.connected:
+-            return True
+-        local = self.age_seconds(now)
+-        if local is None or local >= after:
++        # `after` is retained for callers, but the owner-selected policy is fixed.
++        if not self.connected or job_observation.stale_ages(self.age_seconds(now)):
+             return True
+         if wall_now is None:
+             return False
+-        observed = self.observation_age(wall_now)
+-        return observed is None or observed >= after
++        ages = [job_observation.observation_age(self.observed_at, wall_now)]
++        if self.published_at is not None:
++            ages.append(wall_now - self.published_at)
++        return job_observation.stale_ages(*ages)
+ 
+     def jobs(self):
+         return list((self.document or {}).get("jobs") or [])
+@@ -203,7 +179,7 @@ def read_snapshot(source, *, received_at):
+         _refuse("this view reads " + documents.STATUS_SCHEMA + " and this is "
+                 + repr(schema))
+     _shaped(held)
+-    return Snapshot(held, received_at=received_at)
++    return Snapshot(held, received_at=received_at, published_at=getattr(source, "published_at", None))
+ 
+ 
+ def _shaped(held):
+@@ -253,242 +229,6 @@ def _shaped(held):
+     return held
+ 
+ 
+-def _elapsed(started, ended, observed_at):
+-    """Elapsed time FROM KNOWN SOURCE TIMES ONLY.
+-
+-    The wall clock is not a source time. A stage whose start nobody recorded
+-    has an unknown elapsed, and saying `unknown` is the correct answer -- the
+-    alternative is measuring how long THIS PROGRAM has been looking and
+-    printing it as how long the JOB has been running.
+-    """
+-    finish = ended or observed_at
+-    if not started or not finish:
+-        return None
+-    try:
+-        return max(0.0, _instant(finish) - _instant(started))
+-    except ValueError:
+-        return None
+-
+-
+-def _instant(value):
+-    """One recorded instant, parsed strictly."""
+-    if type(value) is not str:
+-        raise ValueError("not an instant")
+-    text = value[:-1] + "+00:00" if value.endswith("Z") else value
+-    return datetime.datetime.fromisoformat(text).timestamp()
+-
+-
+-def _duration(seconds):
+-    if seconds is None:
+-        return UNKNOWN
+-    seconds = int(seconds)
+-    if seconds < 60:
+-        return str(seconds) + "s"
+-    if seconds < 3600:
+-        return str(seconds // 60) + "m" + str(seconds % 60).zfill(2) + "s"
+-    return str(seconds // 3600) + "h" + str((seconds % 3600) // 60).zfill(2) + "m"
+-
+-
+-# HOW A BYTE COUNT IS SPELLED. Whole units only: an operator reading this is
+-# asking "is it moving", and a third decimal place answers a question nobody
+-# asked while making two figures harder to compare at a glance.
+-_ACTIVITY_UNITS = (("GiB", 1 << 30), ("MiB", 1 << 20), ("KiB", 1 << 10))
+-
+-
+-# THE DOMAIN AN ACTIVITY COUNT MAY BE IN, and it is the producer's own.
+-#
+-# REVIEW 2026-09-15T14-42-20Z [R2]: this had no ceiling, and a status document
+-# carrying `bytes_observed: 10**400` -- valid JSON, far inside the 4 MiB input
+-# bound -- reached a float division and raised `OverflowError`. That escaped
+-# `refresh`'s last-good-snapshot handler and `main`, which catches only
+-# `ViewerRefusal`, so the ordinary command could die on a document the previous
+-# constant-`unknown` rendering displayed without complaint.
+-#
+-# THE BOUND IS CHECKED BEFORE ANY CONVERSION, because the conversion is what
+-# fails. A count outside it is `unknown` -- this view refuses to render a number
+-# it cannot hold, exactly as it refuses every other value it cannot account for.
+-# The trusted producer's own parser already excludes such a value, so this is
+-# about malformed CONSUMER input rather than an emission anybody has seen.
+-MAX_ACTIVITY_BYTES = 2 ** 53 - 1
+-
+-# How much of a recorded instant may reach a line. The document is the
+-# manager's, but a malformed one must not decide this program's line width.
+-MAX_INSTANT_TEXT = 32
+-
+-
+-def _bytes_seen(count):
+-    for unit, size in _ACTIVITY_UNITS:
+-        if count >= size:
+-            return "{:.2f} {}".format(count / size, unit)
+-    return str(count) + " B"
+-
+-
+-def _activity(stage, state, observed_at):
+-    """W61599's count, rendered with the ONE distinction that matters.
+-
+-    THE INSTANT IS THE MANAGER'S RECEIPT TIME, NOT THE PROVIDER'S. Owner ruling
+-    M174788 is explicit that an update admitted while the operation was live may
+-    ARRIVE AFTER COMPLETION, so the instant says when this manager recorded an
+-    observation and never that the provider is still working.
+-
+-    SO A RELATIVE AGE IS ONLY HONEST WHILE THE STAGE IS LIVE. "4s ago" beside
+-    `completed` invites an operator to read a finished attempt as a running one,
+-    and it gets WORSE with time: the apparent freshness improves as the clock
+-    moves while nothing is running. A terminal stage therefore shows the
+-    absolute instant and the word `last`, which cannot be misread as now.
+-
+-    AND ABSENCE IS NOT ZERO. `attempt_activity_of` keeps two absences apart --
+-    an id naming no attempt, and a recorded attempt nobody has observed -- and
+-    its own rule is that a zero there "would read as observed, and empty". The
+-    producer never publishes one; if a zero ever arrives here it is rendered
+-    `unknown` rather than `0`, because this view does not have the evidence that
+-    would make `0` true.
+-
+-    NOTHING BRANCHES ON THIS. It is a diagnostic under approver ruling M61707:
+-    a count is not proof of useful work, a quiet model call leaves it unchanged,
+-    and no refresh, refusal, ordering or selection in this program reads it.
+-    """
+-    runtime = stage.get("runtime") if type(stage.get("runtime")) is dict else {}
+-    held = runtime.get("activity") if type(runtime.get("activity")) is dict \
+-        else {}
+-    count = held.get("bytes_observed")
+-    if type(count) is not int or type(count) is bool \
+-            or not 0 < count <= MAX_ACTIVITY_BYTES:
+-        return UNKNOWN, None
+-    seen = _bytes_seen(count)
+-    instant = held.get("observed_at")
+-    if state in TERMINAL_STATES:
+-        # HISTORICAL, AND SAID SO. No age, because there is nothing for an age
+-        # to be measured against that an operator should read as liveness.
+-        return seen, "last at " + (instant[:MAX_INSTANT_TEXT]
+-                                   if type(instant) is str else UNKNOWN)
+-    age = _elapsed(instant, None, observed_at)
+-    return seen, ("observed " + _duration(age) + " ago" if age is not None
+-                  else "observed at " + UNKNOWN)
+-
+-
+-def _live_episode(stage):
+-    """The CURRENT episode, or None. A stage between an ending and its
+-    replacement genuinely has none, and naming the ended one would report a
+-    finished attempt as the live one."""
+-    live = stage.get("episode")
+-    if live is None:
+-        return None
+-    for one in stage.get("episodes") or []:
+-        if one.get("episode") == live:
+-            return one
+-    return None
+-
+-
+-def _stage_line(stage, observed_at):
+-    episode = _live_episode(stage)
+-    started = (episode or {}).get("opened_at")
+-    ended = (episode or {}).get("ended_at")
+-    state = stage.get("state") or UNKNOWN
+-    held = {
+-        "stage_id": stage.get("stage_id") or UNKNOWN,
+-        "kind": stage.get("kind") or UNKNOWN,
+-        "state": state,
+-        # THE EXACT IDENTITIES WHEN THEY ARE KNOWN, and `unknown` when they are
+-        # not. An operator chasing a stuck Job needs the attempt id to give to
+-        # anybody else, and a blank space is not an answer.
+-        "work_id": stage.get("work_id") or UNKNOWN,
+-        "attempt_id": stage.get("attempt_id") or UNKNOWN,
+-        "offer_id": stage.get("offer_id") or UNKNOWN,
+-        "episode": stage.get("episode") if stage.get("episode") is not None
+-                   else UNKNOWN,
+-        "elapsed": _duration(_elapsed(started, ended, observed_at)),
+-        "started_at": started or UNKNOWN,
+-        # ACTIVITY COMES FROM THE SNAPSHOT AND FROM NOWHERE ELSE. W61599's
+-        # producer puts it on the attempt, `delegation` observes it and
+-        # `projection` publishes it at `runtime.activity`; this reads that and
+-        # never infers liveness from an empty stream or from the fact that
+-        # polling returned. See `_activity`.
+-        "activity": _activity(stage, state, observed_at)[0],
+-        # R1, review 2026-09-15T14-42-20Z: THE TIMING IS ITS OWN LINE.
+-        #
+-        # The count and the instant together are wider than the ordinary
+-        # 100-column list, and the whole-line cut took the end of the timestamp
+-        # AND the entire stage id with it -- on ordinary valid counts, in the
+-        # renderer the plain CLI uses, which offers no width operand. An
+-        # operator chasing a stuck Job needs that identity to give to somebody
+-        # else, so the fixed-width columns keep it and the variable-width fact
+-        # moves to a continuation line, exactly as `reason` already does.
+-        "activity_when": _activity(stage, state, observed_at)[1],
+-        "reason": _reason(stage, state),
+-        "corrections": stage.get("corrections", 0),
+-    }
+-    # REVIEW claim168071 [P2]: `projection.status` supplies these and the view
+-    # ignored them, so a document carrying a known worker and assignment
+-    # rendered neither. An operator asking "which worker is this on" was being
+-    # shown an absence the document did not report.
+-    runtime = stage.get("runtime") if type(stage.get("runtime")) is dict else {}
+-    assignment = (runtime.get("assignment")
+-                  if type(runtime.get("assignment")) is dict else {})
+-    held.update({
+-        "runtime_id": runtime.get("runtime_id") or UNKNOWN,
+-        "execution_runtime": runtime.get("execution_runtime") or UNKNOWN,
+-        "assignment_work": assignment.get("work_ref") or UNKNOWN,
+-        "assignment_participant": assignment.get("participant") or UNKNOWN,
+-        "assignment_generation": (assignment.get("generation")
+-                                  if assignment.get("generation") is not None
+-                                  else UNKNOWN),
+-    })
+-    held.update(_allocated(stage.get("allocation")))
+-    return held
+-
+-
+-# THE SCHEDULER'S OWN COLUMNS. Review claim168169 [P2]: `_allocation` looked
+-# for `allocation_id`/`name`/`root`/`capacity_id`, none of which the scheduler
+-# publishes -- so a really reserved worker displayed `unknown`, and my fixture
+-# invented an `allocation_id` and therefore passed while missing the actual
+-# shape. These names are `stage_allocations`' own.
+-#
+-# AND THE WORKER IS NOT THE ASSIGNMENT. A stage can be reserved on a worker
+-# before any runtime exists, so the scheduler's reservation and the runtime's
+-# fixed assignment are different facts at different times and are shown
+-# separately rather than folded into one line.
+-ALLOCATION_FIELDS = (("allocation_assignment", "assignment_id"),
+-                     ("allocation_worker", "worker_id"),
+-                     ("allocation_participant", "participant"),
+-                     ("allocation_lane", "lane"),
+-                     ("allocation_generation", "generation"),
+-                     ("allocation_state", "allocation_state"),
+-                     ("allocation_selection", "selection_outcome"))
+-
+-
+-def _allocated(held):
+-    taken = {}
+-    for label, member in ALLOCATION_FIELDS:
+-        value = held.get(member) if type(held) is dict else None
+-        taken[label] = UNKNOWN if value is None or value == "" else str(value)
+-    return taken
+-
+-
+-def _reason(stage, state):
+-    """WHY this stage is where it is, when the document says so."""
+-    if state in OPERATOR_ACTION_STATES:
+-        return "operator action: changes requested"
+-    # THE GATE'S OWN MEMBERS. The first form printed the raw document, which
+-    # put `{'stage_id': ..., 'open': False}` on an operator's screen -- a view
+-    # that shows its internals is a view somebody has to decode.
+-    closed = [one for one in (stage.get("gates") or [])
+-              if isinstance(one, dict) and not one.get("open")]
+-    if closed:
+-        named = ", ".join(
+-            str(one.get("stage_id") or UNKNOWN)
+-            + " (" + str(one.get("state") or UNKNOWN) + ")"
+-            for one in closed[:3])
+-        more = "" if len(closed) <= 3 else (" and " + str(len(closed) - 3)
+-                                            + " more")
+-        return "held: waiting on " + named + more
+-    if state == "exceptional":
+-        return "failed: stage ended exceptionally"
+-    if state in HELD_STATES:
+-        return "held: no attempt in progress"
+-    return ""
+-
+-
+ def render_list(snapshot, *, now, width=100, wall_now=None,
+                 stale_seconds=None):
+     """The list view: every Job, and how old this reading is."""
+@@ -509,7 +249,7 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
+         lines.append("")
+         lines.append("JOB " + str(job.get("job_id") or UNKNOWN)
+                      + "   submission " + str(job.get("submission_id")
+-                                              or UNKNOWN))
++                                              or UNKNOWN) + "   " + job_observation.job_outcome(job))
+         for stage in stages:
+             one = _stage_line(stage, observed_at)
+             lines.append(
+@@ -522,18 +262,15 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
+             # carry.
+             if one["activity_when"]:
+                 lines.append("      activity " + one["activity_when"])
++            lines.append("      attempt " + str(one["attempt_id"]))
++            lines.append("      operation " + one["operation"])
+             if one["reason"]:
+                 lines.append("      " + one["reason"])
+     return lines
+ 
+ 
+ def _banner(snapshot, now, wall_now=None, stale_seconds=None):
+-    """REVIEW claim168169 [P2]: the viewer computed a threshold from the
+-    configured interval and then rendered with the 1 s default, so at
+-    `--interval 5` a three-second-old observation was called STALE against a
+-    documented ten-second window. A threshold that never reaches the renderer
+-    is a threshold nobody applies."""
+-    """THE VIEW'S OWN HONESTY LINE, first and unmissable."""
++    """The shared fifteen-second policy applies to every rendering."""
+     if not snapshot.connected:
+         return ("!! DISCONNECTED -- this view has not been refreshed"
+                 + (" (" + str(snapshot.failure) + ")" if snapshot.failure
+@@ -584,7 +321,7 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
+                 + (", ".join(repr(one.get("job_id"))
+                              for one in snapshot.jobs()) or "nothing"))
+     lines = ["",
+-             "JOB " + str(job.get("job_id")),
++             "JOB " + str(job.get("job_id")) + "   " + job_observation.job_outcome(job),
+              "  submission   " + str(job.get("submission_id") or UNKNOWN),
+              "  input        " + str(job.get("input_digest") or UNKNOWN),
+              "  policy       " + str(job.get("policy_digest") or UNKNOWN),
+@@ -598,6 +335,7 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
+                              ("episode", one["episode"]),
+                              ("offer", one["offer_id"]),
+                              ("attempt", one["attempt_id"]),
++                             ("operation", one["operation"]),
+                              ("runtime", one["runtime_id"]),
+                              ("engine", one["execution_runtime"]),
+                              ("assigned to", one["assignment_participant"]),
+@@ -818,7 +556,8 @@ class JobViewer:
+             self.snapshot = Snapshot(self.snapshot.document,
+                                      received_at=self.snapshot.received_at,
+                                      connected=False,
+-                                     failure=_named(failure))
++                                     failure=_named(failure),
++                                     published_at=self.snapshot.published_at)
+             return self.snapshot
+         self.snapshot = taken
+         return self.snapshot
+@@ -849,9 +588,14 @@ def _source_from(place):
+     verb list at `read` and means no store handle, no factory and no second
+     reader exists here at all.
+     """
++    class PublishedBytes(bytes):
++        pass
++
+     def read():
+         with open(place, "rb") as handle:
+-            return handle.read(MAX_SNAPSHOT_BYTES + 1)
++            source = PublishedBytes(handle.read(MAX_SNAPSHOT_BYTES + 1))
++            source.published_at = os.fstat(handle.fileno()).st_mtime
++            return source
+     return read
+ 
+ 
+diff --git a/v12/python/tools/parallel_test.py b/v12/python/tools/parallel_test.py
+index bdf5dc0b..032e1af8 100644
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -419,6 +419,10 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
+     "tests.manager.test_runtime_deadline_engine_budget",
+     "tests.manager.test_runtime_deadlines",
+     "tests.tools.test_execution_limits",
++    # W385263: pure shared observations and case-owned TemporaryDirectory
++    # snapshots; no engine, provider, network or shared process/resource.
++    # The tests.tools package assigns this module to tools-pure.
++    "tests.tools.test_job_observation",
+     "tests.tools.test_job_viewer",
+     "tests.tools.test_live_ab",
+     "tests.tools.test_managed_integration",
+diff --git a/v12/python/tools/stack.py b/v12/python/tools/stack.py
+index ca074382..3db15b16 100644
+--- a/v12/python/tools/stack.py
++++ b/v12/python/tools/stack.py
+@@ -60,6 +60,8 @@ import subprocess
+ import sys
+ import time
+ 
++from tools import job_observation
++
+ SCHEMA = "baton.v12.stack/1"
+ ROOT_ENV = "BATON_V12_STACK_ROOT"
+ CONFIG_ENV = "BATON_V12_STAGE_EXECUTION_CONFIG"
+@@ -1038,8 +1040,9 @@ def snapshot(root, now):
+     """
+     place = snapshot_path(root)
+     try:
+-        raw = place.read_bytes()
+-        published = now - place.stat().st_mtime
++        with place.open("rb") as handle:
++            raw = handle.read()
++            published = now - os.fstat(handle.fileno()).st_mtime
+     except FileNotFoundError:
+         return {"state": "absent"}
+     except OSError as failure:
+@@ -1056,9 +1059,8 @@ def snapshot(root, now):
+         return {"state": "unreadable", "path": str(place),
+                 "published_age_seconds": round(published, 3),
+                 "detail": problem}
+-    observed = now - _instant(document["observed_at"])
+-    oldest = max(observed, published)
+-    return {"state": "stale" if oldest > PUBLISH_SECONDS * 3 else "fresh",
++    observed = job_observation.observation_age(document["observed_at"], now)
++    return {"state": "stale" if job_observation.stale_ages(observed, published) else "fresh",
+             "path": str(place), "document": document,
+             "canonical": bool(document.get("canonical")),
+             "observed_age_seconds": round(observed, 3),
+@@ -1133,39 +1135,11 @@ def _jobs(answer):
+ 
+ 
+ # Keep the standard-library-only launcher aligned with the published vocabulary.
+-_STATUS_STAGE_STATES = ("blocked", "queued", "offered", "claimed", "starting",
+-                        "waiting", "running", "reviewing", "integrating", "answering",
+-                        "changes-requested", "completed", "exceptional")
+-_STATUS_ADAPTER_CODES = ("declaration-set-invalid", "declaration-name-unsupported",
+-                         "role-output-missing", "other-role-output-required")
+-_STATUS_FAULT_CODES = ("agent", "answer", "entitlement", "exchange", "input",
+-                       "launch", "output", "protocol", "replay", "session")
+-
+-
+-def _status_text(value):
+-    # Identifiers remain one line even in a damaged publication.
+-    return json.dumps(value if type(value) is str and value else "unknown",
+-                      ensure_ascii=True)[1:-1]
+-
+-
+-def _job_outcome(job):
+-    states = [stage.get("state") for stage in (job.get("stages") or [])]
+-    if "exceptional" in states:
+-        return "FAILED"
+-    if type(job.get("cancellation")) is dict:
+-        return "CANCELLATION REQUESTED"
+-    if not states or any(state not in _STATUS_STAGE_STATES for state in states):
+-        return "UNKNOWN"
+-    if "changes-requested" in states:
+-        return "CHANGES REQUESTED"
+-    if all(state == "completed" for state in states):
+-        return "COMPLETED"
+-    if any(state in ("offered", "claimed", "starting", "waiting", "running",
+-                     "reviewing", "integrating", "answering") for state in states):
+-        return "IN PROGRESS"
+-    if "queued" in states:
+-        return "QUEUED"
+-    return "BLOCKED"
++_STATUS_STAGE_STATES = job_observation._STATUS_STAGE_STATES
++_STATUS_FAULT_CODES = job_observation._STATUS_FAULT_CODES
++_STATUS_ADAPTER_CODES = job_observation._STATUS_ADAPTER_CODES
++_status_text = job_observation._status_text
++_job_outcome = job_observation.job_outcome
+ 
+ 
+ def _print_job_outcomes(published, stream):
+@@ -1182,20 +1156,12 @@ def _print_job_outcomes(published, stream):
+         for stage in job.get("stages") or []:
+             state = stage.get("state")
+             state = state if state in _STATUS_STAGE_STATES else "unknown"
+-            detail = ""
+-            exchange = stage.get("exchange")
+-            terminal = exchange.get("terminal") if type(exchange) is dict else None
+-            if state == "exceptional":
+-                fault = terminal.get("fault_code") if type(terminal) is dict and terminal.get("ending") == "faulted" else None
+-                detail = "; " + fault + " fault; cause unknown" if fault in _STATUS_FAULT_CODES else "; cause unknown"
+-                adapter = terminal.get("adapter_failure") if type(terminal) is dict else None
+-                if fault == "agent" and type(adapter) is dict and adapter.get("component") == "role-adapter" and adapter.get("code") in _STATUS_ADAPTER_CODES:
+-                    detail = "; agent fault; " + adapter["code"]
+-            gates = stage.get("gates")
+-            closed = [gate for gate in gates if type(gate) is dict and gate.get("open") is False] if type(gates) is list else []
+-            if state == "blocked":
+-                detail = "; waiting on " + ", ".join(_status_text(gate.get("stage_id")) + " (" + _status_text(gate.get("state")) + ")" for gate in closed) if closed else "; blocker unknown"
+-            print("  " + _status_text(stage.get("stage_id") or stage.get("kind")) + ": " + state + detail, file=stream)
++            one = job_observation.stage_view(stage, published["document"].get("observed_at"))
++            reason = one["reason"]
++            detail = reason.removeprefix("failed: stage ended exceptionally; ").removeprefix("held: ")
++            print("  " + _status_text(stage.get("stage_id") or stage.get("kind")) + ": " + state + ("; " + detail if detail else ""), file=stream)
++            print("    attempt " + _status_text(one["attempt_id"]) + "; operation " + one["operation"], file=stream)
++            print("    activity " + one["activity"] + ("; " + one["activity_when"] if one["activity_when"] else ""), file=stream)
+         cancellation = job.get("cancellation")
+         if type(cancellation) is dict:
+             print("  Cancellation: " + _status_text(cancellation.get("trigger")) + "; shutdown " + _status_text(cancellation.get("shutdown")), file=stream)

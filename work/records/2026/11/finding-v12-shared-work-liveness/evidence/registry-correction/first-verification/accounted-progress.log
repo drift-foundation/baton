@@ -1,0 +1,4 @@
+[collect] start 1/1 tests.tools.test_job_observation
+[collect] done  1/1 tests.tools.test_job_observation rc=0 in 0.16s
+[parallel] start 1/1 tests.tools.test_job_observation.SharedObservation
+[parallel] done  1/1 tests.tools.test_job_observation.SharedObservation rc=0 in 0.20s

@@ -1,0 +1,13 @@
+$ env PYTHONPATH=v12/python/src:v12/python python3 -m unittest -v tests.tools.test_work_command tests.job_manager.test_creation tests.tools.test_connected_creation tests.authority.test_work_labels tests.authority.test_work_label_exposure
+exit: 1
+
+The command's own stdout and stderr are deliberately not
+reproduced here. It is code from the candidate tree this turn's
+provider edited, and it runs with the attempt's credential mount
+readable -- so its output is exactly the content this proposal
+must not carry, and nothing here can tell one of its bytes from
+another without reading the bearer.
+
+Rerun the command yourself, from the collected candidate tree,
+outside the worker. The acceptance already says that rerun and
+not this file is what an operator trusts.

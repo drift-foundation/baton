@@ -1,0 +1,34 @@
+{
+  "claim": "E385270",
+  "assignment": [
+    "M385267",
+    "M385268"
+  ],
+  "recorded_at": "2026-11-19T18:36:35.614949+00:00",
+  "head": "bcb5e5416f0accfe0551c7a8aa7d71305e66a0e4",
+  "files": {
+    "v12/worker/Dockerfile.claude": "a5ef0783770ba44f206a68c71c9570685294f62bde338b69722aada0326f18d0",
+    "v12/worker/claude_agent.py": "941b5f9c2ea617229667e3f764bb12bb4c19b8096b18cdbff6d2952019d35e75",
+    "v12/worker/baton_worker.py": "9596a1292da3f55fba118e4aecff5af3e5ddf545c7d47c0167e9455abf0cdd4e",
+    "v12/python/tools/worker_visibility.py": "2f05d2bea5c8ad2d2b9e591072b63b9d0048abdd1faaecad6f3048e1b3d2bb04",
+    "v12/python/tools/job_viewer.py": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+    "v12/python/tools/stack.py": "dccd50551e51c13842b42227c677939fe770da5306a32ffe7a0f8f8453329422",
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "a565dbf97919976427f3d0a01f1c32363a5b2ff5be2ec2ba4dabde38705cf824",
+    "v12/python/src/baton_v12/attempt_log_format.py": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+    "v12/spike/ping-pong/Dockerfile.codex": "9f60bc496fc9f1d95f6b08b8447d6f171f0cd86b4bf81d8acaf97aa48eb7f30a",
+    "v12/spike/ping-pong/trial.mjs": "ef5af45c66922bc0a9030771e55ce5b4cecfc8adbad5be00c56bc3c9feaaae34"
+  },
+  "source_diff": [],
+  "original_proposal_sha256": "7f0778ed692ded0068d9062b42451ce248df73a46c9df075a76283f992589118",
+  "addendum_sha256": "ab8fe3cab579129f381f9ed4a2d0b3ef565e520e32942a9225fa3b6a773406ce",
+  "tests": 0,
+  "experiments": 0,
+  "provider_invocations": 0,
+  "official_references": [
+    "https://code.claude.com/docs/en/cli-reference",
+    "https://code.claude.com/docs/en/headless#stream-responses",
+    "https://developers.openai.com/codex/noninteractive",
+    "https://learn.chatgpt.com/docs/non-interactive-mode"
+  ],
+  "limits": "Current docs are not pinned binary evidence. No live logs or provider processes inspected."
+}

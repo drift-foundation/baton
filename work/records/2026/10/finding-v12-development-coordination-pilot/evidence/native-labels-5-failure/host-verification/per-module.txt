@@ -1,0 +1,10 @@
+tests.tools.test_work_command: Ran 45 tests in 0.141s
+OK
+tests.job_manager.test_creation: Ran 92 tests in 0.259s
+OK
+tests.tools.test_connected_creation: Ran 30 tests in 2.548s
+OK
+tests.authority.test_work_labels: Ran 52 tests in 0.088s
+OK
+tests.authority.test_work_label_exposure: Ran 27 tests in 0.034s
+OK

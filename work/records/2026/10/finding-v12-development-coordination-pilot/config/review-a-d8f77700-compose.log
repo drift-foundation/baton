@@ -1,0 +1,9 @@
+worker    review-a       review
+work      8148af5e-W1
+image     sha256:f2b86df0422a508bcf6603866fbf31b27828fd36b1dc3d88d9318f0225ffb380
+layout    trusted 1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472
+profile   claude-fresh-implementation sha256:b4de49c04093514dd33159967dbff1fcda6b6d8d6e6e7093ffc9de21bc865049
+task      /home/sl/baton-instances/native-labels-5/state/task/installed-task.json (native-development-default)
+manifest  sha256:3c8bf3bf049475f3cb42622861194050acc6abaa7fa15e88783397fc3a792646
+written   work/records/2026/10/finding-v12-development-coordination-pilot/config/review-a-d8f77700.json
+no Job was prepared, nothing was submitted, no Work was created or touched, and the instance's configuration was not changed

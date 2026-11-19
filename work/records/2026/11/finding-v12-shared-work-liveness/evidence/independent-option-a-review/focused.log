@@ -1,0 +1,438 @@
+test_activity_zero_missing_foreign_and_old_in_fresh_snapshot (tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot) ... ok
+test_publication_and_observation_ages_share_exact_boundary (tests.tools.test_job_observation.SharedObservation.test_publication_and_observation_ages_share_exact_boundary) ... ok
+test_schema_and_visibility_contract_remain_unchanged (tests.tools.test_job_observation.SharedObservation.test_schema_and_visibility_contract_remain_unchanged) ... ok
+test_shared_model_has_no_io_dependencies (tests.tools.test_job_observation.SharedObservation.test_shared_model_has_no_io_dependencies) ... ok
+test_shared_outcomes_gates_and_typed_failure (tests.tools.test_job_observation.SharedObservation.test_shared_outcomes_gates_and_typed_failure) ... ok
+test_terminal_activity_keeps_original_absolute_time (tests.tools.test_job_observation.SharedObservation.test_terminal_activity_keeps_original_absolute_time) ... ok
+test_unrecognized_operations_are_not_relayed (tests.tools.test_job_observation.SharedObservation.test_unrecognized_operations_are_not_relayed) ... ok
+test_a_connected_snapshot_without_the_job_still_refuses (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_connected_snapshot_without_the_job_still_refuses)
+A view that answered "not read yet" for a Job that genuinely is not ... ok
+test_a_json_list_is_refused_rather_than_crashing (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_json_list_is_refused_rather_than_crashing)
+`held.get` on a list raises AttributeError, which escapes as a ... ok
+test_a_nested_malformed_document_never_replaces_the_good_one (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_nested_malformed_document_never_replaces_the_good_one)
+REVIEW claim168169 [P2]. `{"schema": ..., "jobs": [null]}` carried ... ok
+test_a_truncated_document_disconnects_and_keeps_the_last_view (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_truncated_document_disconnects_and_keeps_the_last_view) ... ok
+test_an_oversize_document_disconnects_rather_than_exiting (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_an_oversize_document_disconnects_rather_than_exiting) ... ok
+test_detail_on_a_first_unreadable_snapshot_does_not_exit (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_detail_on_a_first_unreadable_snapshot_does_not_exit)
+"I have not managed to look" and "I looked and it is not there" ... ok
+test_the_loop_retries_after_a_bad_document (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_the_loop_retries_after_a_bad_document) ... ok
+test_an_enormous_integer_renders_unknown_through_a_real_json_read (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_an_enormous_integer_renders_unknown_through_a_real_json_read)
+THROUGH THE REAL PATH: JSON text, `read_snapshot`, then both ... ok
+test_every_out_of_domain_count_is_unknown (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_every_out_of_domain_count_is_unknown) ... ok
+test_the_largest_valid_producer_count_still_renders (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_the_largest_valid_producer_count_still_renders)
+THE BOUND IS A BOUND, not a refusal of every large number. The ... ok
+test_the_ordinary_refresh_and_render_survive_it (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_the_ordinary_refresh_and_render_survive_it)
+`refresh` installs the snapshot and rendering happens outside its ... ok
+test_the_viewer_ceiling_is_the_producers_own (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_the_viewer_ceiling_is_the_producers_own)
+Two copies of one number, held together. The worker manager's parser ... ok
+test_a_known_start_produces_a_real_elapsed (tests.tools.test_job_viewer.NothingIsInvented.test_a_known_start_produces_a_real_elapsed)
+And the reversal of the case above: when the source time IS there, ... ok
+test_an_unobserved_attempt_reports_activity_unknown (tests.tools.test_job_viewer.NothingIsInvented.test_an_unobserved_attempt_reports_activity_unknown)
+W61599's source exists now, and absence is still `unknown`. ... ok
+test_an_unread_manager_says_nobody_looked (tests.tools.test_job_viewer.NothingIsInvented.test_an_unread_manager_says_nobody_looked)
+`canonical: false` is the difference between "nothing is running" ... ok
+test_elapsed_comes_from_source_times_and_not_the_wall_clock (tests.tools.test_job_viewer.NothingIsInvented.test_elapsed_comes_from_source_times_and_not_the_wall_clock)
+A stage whose start nobody recorded has an UNKNOWN elapsed. The ... ok
+test_an_advancing_observation_stays_fresh (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_an_advancing_observation_stays_fresh)
+And the reversal: when the manager IS advancing, the view does not ... ok
+test_an_observation_that_was_already_old_is_stale_on_first_read (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_an_observation_that_was_already_old_is_stale_on_first_read)
+A view that only watched its own reads would call a two-hour-old ... ok
+test_an_unreadable_observation_time_is_treated_as_stale (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_an_unreadable_observation_time_is_treated_as_stale)
+A view that cannot tell how old its facts are must not present them ... ok
+test_refresh_interval_does_not_change_freshness (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_refresh_interval_does_not_change_freshness) ... ok
+test_rereading_an_unchanged_document_goes_stale (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_rereading_an_unchanged_document_goes_stale)
+The source is not advancing. Reading it again is not news. ... ok
+test_a_foreign_schema_refuses (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_foreign_schema_refuses) ... ok
+test_a_locator_read_is_bounded_and_visibly_truncated (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_locator_read_is_bounded_and_visibly_truncated) ... ok
+test_a_stage_with_no_frozen_output_says_unavailable (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_stage_with_no_frozen_output_says_unavailable) ... ok
+test_an_artifact_without_a_locator_is_unavailable_not_guessed (tests.tools.test_job_viewer.TheBoundsAreHonest.test_an_artifact_without_a_locator_is_unavailable_not_guessed) ... ok
+test_an_oversize_snapshot_refuses_rather_than_omitting_jobs (tests.tools.test_job_viewer.TheBoundsAreHonest.test_an_oversize_snapshot_refuses_rather_than_omitting_jobs)
+A view that dropped the tail would silently omit Jobs -- and a Job ... ok
+test_read_locator_takes_no_path_operand (tests.tools.test_job_viewer.TheBoundsAreHonest.test_read_locator_takes_no_path_operand)
+A HELPER-SHAPE CHECK, and nothing more. Review claim168257: this is ... ok
+test_a_canonical_read_does_not_carry_the_nobody_looked_warning (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_a_canonical_read_does_not_carry_the_nobody_looked_warning) ... ok
+test_a_held_stage_says_what_it_is_waiting_on (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_a_held_stage_says_what_it_is_waiting_on) ... ok
+test_a_model_free_completed_stage_renders_through_the_real_reader (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_a_model_free_completed_stage_renders_through_the_real_reader)
+The completion path this viewer has to be able to show, taken from ... ok
+test_the_canonical_read_performs_no_act (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_the_canonical_read_performs_no_act)
+The operations surface records every act it is asked for, so an ... ok
+test_two_jobs_stay_isolated_through_the_canonical_reader (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_two_jobs_stay_isolated_through_the_canonical_reader) ... ok
+test_a_detail_request_for_an_absent_job_refuses_with_status_two (tests.tools.test_job_viewer.TheCommandIsOrdinary.test_a_detail_request_for_an_absent_job_refuses_with_status_two) ... ok
+test_it_reads_a_status_document_an_operator_already_has (tests.tools.test_job_viewer.TheCommandIsOrdinary.test_it_reads_a_status_document_an_operator_already_has) ... ok
+test_a_live_stage_keeps_its_identity_too (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_live_stage_keeps_its_identity_too) ... ok
+test_a_malformed_instant_cannot_widen_the_line (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_malformed_instant_cannot_widen_the_line)
+The document is the manager's, but a malformed one does not get to ... ok
+test_a_quiet_stage_gains_no_continuation_line (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_quiet_stage_gains_no_continuation_line)
+`unknown` has no timing to carry, so it costs no line. A view that ... ok
+test_every_terminal_state_keeps_count_instant_and_identity_at_width (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_every_terminal_state_keeps_count_instant_and_identity_at_width) ... ok
+test_a_file_uri_locator_is_read_as_a_locator (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_a_file_uri_locator_is_read_as_a_locator)
+`integration_bundle` already treats `file:///...` as a locator; the ... ok
+test_a_locator_that_is_not_a_regular_file_refuses (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_a_locator_that_is_not_a_regular_file_refuses)
+A fifo would block this program forever and a symlink would let the ... ok
+test_a_relative_reference_is_never_resolved_against_the_cwd (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_a_relative_reference_is_never_resolved_against_the_cwd)
+Where this program happens to be running is not part of the ... ok
+test_an_absolute_path_locator_also_reads (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_an_absolute_path_locator_also_reads) ... ok
+test_an_unpublished_artifact_or_stage_refuses (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_an_unpublished_artifact_or_stage_refuses) ... ok
+test_drilling_down_without_identities_refuses (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_drilling_down_without_identities_refuses) ... ok
+test_the_artifact_is_selected_out_of_the_snapshot_by_identity (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_artifact_is_selected_out_of_the_snapshot_by_identity) ... ok
+test_the_command_drills_down_through_identities (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_command_drills_down_through_identities) ... ok
+test_the_drill_down_banner_uses_the_configured_threshold (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_drill_down_banner_uses_the_configured_threshold)
+REVIEW claim168257 [P2]. `_drilled` called `_banner` without the ... ok
+test_a_spinning_or_nonfinite_interval_refuses (tests.tools.test_job_viewer.TheIntervalIsFiniteAndPositive.test_a_spinning_or_nonfinite_interval_refuses) ... ok
+test_the_command_refuses_one_too (tests.tools.test_job_viewer.TheIntervalIsFiniteAndPositive.test_the_command_refuses_one_too) ... ok
+test_a_reservation_without_a_runtime_still_shows_its_worker (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_a_reservation_without_a_runtime_still_shows_its_worker)
+An assignment before a runtime exists is exactly the case an ... ok
+test_an_absent_runtime_and_reservation_say_unknown (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_an_absent_runtime_and_reservation_say_unknown) ... ok
+test_an_exact_identifier_is_never_clipped_in_detail (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_an_exact_identifier_is_never_clipped_in_detail)
+A 100-column clamp cut identifiers in half -- precisely the view an ... ok
+test_the_real_scheduler_reservation_is_displayed (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_the_real_scheduler_reservation_is_displayed)
+The reservation exists BEFORE any runtime does, so its worker and ... ok
+test_the_runtime_fixed_assignment_fields_are_rendered (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_the_runtime_fixed_assignment_fields_are_rendered)
+These are the runtime's OWN assignment, retained beside the ... ok
+test_an_owner_locator_whose_file_is_gone_is_unavailable_not_invented (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_an_owner_locator_whose_file_is_gone_is_unavailable_not_invented)
+The owner recorded where it put the artifact; if that is no longer ... ok
+test_an_owner_produced_artifact_is_selected_and_read (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_an_owner_produced_artifact_is_selected_and_read) ... ok
+test_the_owners_artifact_is_shown_in_the_detail_view (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_the_owners_artifact_is_shown_in_the_detail_view) ... ok
+test_a_foreign_job_still_refuses_against_the_real_reader (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader) ... ok
+test_the_view_renders_the_real_model_free_completion (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion) ... ok
+test_a_known_zero_is_not_an_unknown_count (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_known_zero_is_not_an_unknown_count) ... ok
+test_a_live_stage_and_a_terminal_one_disagree_on_purpose (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_live_stage_and_a_terminal_one_disagree_on_purpose)
+The same count and the same instant, rendered two ways. This is the ... ok
+test_a_live_stage_shows_the_count_and_a_relative_age (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_live_stage_shows_the_count_and_a_relative_age) ... ok
+test_a_missing_instant_is_unknown_rather_than_now (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_missing_instant_is_unknown_rather_than_now)
+A count with no instant is not a fresh one. Neither rendering may ... ok
+test_a_terminal_stage_shows_the_instant_and_never_an_age (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_terminal_stage_shows_the_instant_and_never_an_age)
+THE CASE THAT WOULD HAVE CAUGHT THE DEFECT. `4s ago` beside ... ok
+test_activity_changes_no_view_decision (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_activity_changes_no_view_decision)
+IT IS A DIAGNOSTIC AND NOTHING BRANCHES ON IT. Approver ruling ... ok
+test_every_shape_of_absence_reports_unknown (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_every_shape_of_absence_reports_unknown)
+THREE DIFFERENT ABSENCES, ONE HONEST ANSWER. No runtime at all, a ... ok
+test_rendering_activity_opens_no_store_and_performs_no_act (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_rendering_activity_opens_no_store_and_performs_no_act)
+The viewer gains NO second read path. Rendering the count touches ... ok
+test_snapshot_staleness_and_activity_age_are_separate_clocks (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_snapshot_staleness_and_activity_age_are_separate_clocks)
+A FRESH SNAPSHOT CAN CARRY AN OLD ACTIVITY INSTANT, and that is a ... ok
+test_the_count_is_read_from_the_snapshot_and_not_invented (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_the_count_is_read_from_the_snapshot_and_not_invented)
+Two different counts render differently. A view that ignored the ... ok
+test_a_failed_read_disconnects_and_keeps_saying_so (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_failed_read_disconnects_and_keeps_saying_so)
+The last good reading is kept because it was true once -- as long ... ok
+test_a_fresh_reading_shows_when_it_was_observed (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_fresh_reading_shows_when_it_was_observed) ... ok
+test_a_reconnect_clears_the_warning (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_reconnect_clears_the_warning) ... ok
+test_an_unrefreshed_view_becomes_conspicuously_stale (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_an_unrefreshed_view_becomes_conspicuously_stale) ... ok
+test_a_foreign_identity_refuses_instead_of_rendering_empty (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_a_foreign_identity_refuses_instead_of_rendering_empty)
+An empty detail view for a Job that is not here reads exactly like ... ok
+test_the_exact_identities_are_shown_not_summarised (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_the_exact_identities_are_shown_not_summarised)
+An operator chasing a stuck Job has to be able to hand somebody ... ok
+test_two_independent_jobs_are_both_visible_and_distinct (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_two_independent_jobs_are_both_visible_and_distinct)
+The whole reason this Work exists: V12 runs Jobs in parallel and an ... ok
+test_a_changed_observation_is_visible_on_the_next_tick (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_a_changed_observation_is_visible_on_the_next_tick)
+THE REFRESH LATENCY, TESTED LOGICALLY RATHER THAN BY WAITING. ... ok
+test_refreshing_only_reads (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_refreshing_only_reads) ... /home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:746: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_loop_sleeps_between_reads_and_does_not_spin (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_loop_sleeps_between_reads_and_does_not_spin) ... /home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:820: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=4, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_module_constructs_no_serving_factory (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_module_constructs_no_serving_factory)
+Read the imports rather than the paragraph promising the absence. ... ok
+test_the_store_is_unchanged_by_being_viewed (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_store_is_unchanged_by_being_viewed)
+The disposable owner state is established before and compared ... /home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:755: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_second_start_cannot_enter_while_the_first_holds_admission (tests.tools.test_stack.Admission.test_a_second_start_cannot_enter_while_the_first_holds_admission) ... ok
+test_a_spawn_that_cannot_be_recorded_leaves_no_orphan (tests.tools.test_stack.Admission.test_a_spawn_that_cannot_be_recorded_leaves_no_orphan)
+R1's last clause. A process admitted but never recorded is owned by ... ok
+test_a_stop_cannot_interleave_with_a_start (tests.tools.test_stack.Admission.test_a_stop_cannot_interleave_with_a_start)
+A stop that ran mid-start would clear a record for a process the ... ok
+test_admission_is_released_even_when_its_holder_is_killed (tests.tools.test_stack.Admission.test_admission_is_released_even_when_its_holder_is_killed)
+An flock rather than a lock FILE, and this is the difference: a ... ok
+test_a_repeated_start_waits_bounded_and_then_refuses (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_a_repeated_start_waits_bounded_and_then_refuses) ... ok
+test_an_acknowledged_manager_is_never_asked_to_initialize_again (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_an_acknowledged_manager_is_never_asked_to_initialize_again) ... ok
+test_an_existing_manager_that_acknowledges_late_is_waited_for (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_an_existing_manager_that_acknowledges_late_is_waited_for)
+The legitimate race: a previous start was interrupted while its ... ok
+test_both_live_but_unacknowledged_is_not_ready (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_both_live_but_unacknowledged_is_not_ready) ... ok
+test_replacing_only_the_publisher_still_needs_the_managers_evidence (tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo.test_replacing_only_the_publisher_still_needs_the_managers_evidence) ... ok
+test_no_executable_token_reaches_the_older_stack_or_version_control (tests.tools.test_stack.Boundary.test_no_executable_token_reaches_the_older_stack_or_version_control) ... ok
+test_no_store_is_defaulted_into_the_checkout (tests.tools.test_stack.Boundary.test_no_store_is_defaulted_into_the_checkout) ... ok
+test_the_manager_is_started_with_serve_and_never_submit (tests.tools.test_stack.Boundary.test_the_manager_is_started_with_serve_and_never_submit)
+The argv is where a command would actually be issued, so it is ... ok
+test_a_configured_stack_resolves (tests.tools.test_stack.Configuration.test_a_configured_stack_resolves) ... ok
+test_a_missing_configuration_file_refuses_rather_than_idling (tests.tools.test_stack.Configuration.test_a_missing_configuration_file_refuses_rather_than_idling)
+The FINDING's rule: do not conceal a missing worker configuration ... ok
+test_a_relative_store_refuses (tests.tools.test_stack.Configuration.test_a_relative_store_refuses) ... ok
+test_every_missing_operand_is_named_at_once (tests.tools.test_stack.Configuration.test_every_missing_operand_is_named_at_once) ... ok
+test_the_state_root_is_outside_the_checkout_by_default (tests.tools.test_stack.Configuration.test_the_state_root_is_outside_the_checkout_by_default) ... ok
+test_a_publisher_record_failure_takes_the_manager_back_too (tests.tools.test_stack.EveryFailedAdmissionUnwinds.test_a_publisher_record_failure_takes_the_manager_back_too) ... ok
+test_a_publisher_spawn_failure_takes_the_manager_back (tests.tools.test_stack.EveryFailedAdmissionUnwinds.test_a_publisher_spawn_failure_takes_the_manager_back) ... ok
+test_cleanup_after_an_ordinary_failure_still_keeps_unknown_ownership (tests.tools.test_stack.EveryFailedAdmissionUnwinds.test_cleanup_after_an_ordinary_failure_still_keeps_unknown_ownership)
+C1 and C2 meet here: interruption cleanup must not erase what it ... ok
+test_a_record_write_failure_still_rolls_the_process_back (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_a_record_write_failure_still_rolls_the_process_back)
+The real `_spawn`, and the one write it makes, made to fail. ... ok
+test_nothing_is_written_to_a_record_after_a_start_succeeds (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_nothing_is_written_to_a_record_after_a_start_succeeds)
+The `serving_acknowledged` cache is gone: the manager's own log is ... ok
+test_one_process_that_cannot_be_unwound_does_not_hide_the_others (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_one_process_that_cannot_be_unwound_does_not_hide_the_others)
+D1's last clause. Taking the manager back raises outright, and the ... ok
+test_start_adds_no_record_write_of_its_own_after_a_spawn (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_start_adds_no_record_write_of_its_own_after_a_spawn) ... ok
+test_the_spawned_identity_is_published_in_one_write (tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback.test_the_spawned_identity_is_published_in_one_write)
+Against the REAL `_spawn`, because a substitute cannot be asked how ... ok
+test_a_dead_process_is_not_alive (tests.tools.test_stack.Identity.test_a_dead_process_is_not_alive) ... ok
+test_a_live_process_is_matched_by_pid_and_start_time (tests.tools.test_stack.Identity.test_a_live_process_is_matched_by_pid_and_start_time) ... ok
+test_a_malformed_record_is_unreadable_not_absent (tests.tools.test_stack.Identity.test_a_malformed_record_is_unreadable_not_absent) ... ok
+test_a_reused_pid_is_not_our_process (tests.tools.test_stack.Identity.test_a_reused_pid_is_not_our_process)
+THE CASE A PID FILE ALONE GETS WRONG. The recorded start time no ... ok
+test_absent_unreadable_and_empty_are_not_conflated (tests.tools.test_stack.JobOutcomesFirst.test_absent_unreadable_and_empty_are_not_conflated) ... ok
+test_active_queued_completed_and_changes_requested_jobs_keep_distinct_outcomes (tests.tools.test_stack.JobOutcomesFirst.test_active_queued_completed_and_changes_requested_jobs_keep_distinct_outcomes) ... ok
+test_cancellation_does_not_turn_unresolved_shutdown_into_completion (tests.tools.test_stack.JobOutcomesFirst.test_cancellation_does_not_turn_unresolved_shutdown_into_completion) ... ok
+test_failed_job_and_its_blocked_review_lead_healthy_services (tests.tools.test_stack.JobOutcomesFirst.test_failed_job_and_its_blocked_review_lead_healthy_services) ... ok
+test_launcher_vocabulary_matches_its_producers (tests.tools.test_stack.JobOutcomesFirst.test_launcher_vocabulary_matches_its_producers) ... ok
+test_missing_reason_output_and_gate_evidence_stay_unknown (tests.tools.test_stack.JobOutcomesFirst.test_missing_reason_output_and_gate_evidence_stay_unknown) ... ok
+test_one_snapshot_supplies_jobs_and_runtime_without_writes (tests.tools.test_stack.JobOutcomesFirst.test_one_snapshot_supplies_jobs_and_runtime_without_writes) ... ok
+test_optional_malformed_details_and_missing_stages_do_not_crash (tests.tools.test_stack.JobOutcomesFirst.test_optional_malformed_details_and_missing_stages_do_not_crash) ... ok
+test_published_identities_cannot_inject_terminal_lines (tests.tools.test_stack.JobOutcomesFirst.test_published_identities_cannot_inject_terminal_lines) ... ok
+test_stale_and_noncanonical_qualifications_precede_the_reported_outcome (tests.tools.test_stack.JobOutcomesFirst.test_stale_and_noncanonical_qualifications_precede_the_reported_outcome) ... ok
+test_typed_adapter_failure_is_shown_without_worker_prose (tests.tools.test_stack.JobOutcomesFirst.test_typed_adapter_failure_is_shown_without_worker_prose) ... ok
+test_a_process_that_will_not_die_fails_the_stop (tests.tools.test_stack.Lifecycle.test_a_process_that_will_not_die_fails_the_stop)
+R4: this used to print the truth and return 0 anyway, so a caller ... ok
+test_a_repeated_start_does_not_duplicate_the_manager (tests.tools.test_stack.Lifecycle.test_a_repeated_start_does_not_duplicate_the_manager) ... ok
+test_a_repeated_stop_is_not_an_error (tests.tools.test_stack.Lifecycle.test_a_repeated_stop_is_not_an_error) ... ok
+test_a_stale_record_is_cleared_and_replaced_not_signalled (tests.tools.test_stack.Lifecycle.test_a_stale_record_is_cleared_and_replaced_not_signalled) ... ok
+test_first_start_runs_both_owned_processes (tests.tools.test_stack.Lifecycle.test_first_start_runs_both_owned_processes) ... ok
+test_restart_preserves_the_configured_stores (tests.tools.test_stack.Lifecycle.test_restart_preserves_the_configured_stores) ... ok
+test_start_refuses_an_unconfigured_stack_and_starts_nothing (tests.tools.test_stack.Lifecycle.test_start_refuses_an_unconfigured_stack_and_starts_nothing) ... ok
+test_stop_ends_only_the_owned_processes (tests.tools.test_stack.Lifecycle.test_stop_ends_only_the_owned_processes) ... ok
+test_stop_never_signals_a_reused_pid (tests.tools.test_stack.Lifecycle.test_stop_never_signals_a_reused_pid)
+The record claims a pid that is now somebody else's. ... ok
+test_a_document_that_never_says_when_it_looked_is_unreadable (tests.tools.test_stack.MalformedSnapshots.test_a_document_that_never_says_when_it_looked_is_unreadable) ... ok
+test_a_freshly_written_but_stalely_observed_document_is_unknown (tests.tools.test_stack.MalformedSnapshots.test_a_freshly_written_but_stalely_observed_document_is_unknown) ... ok
+test_a_non_canonical_snapshot_cannot_say_what_is_not_executing (tests.tools.test_stack.MalformedSnapshots.test_a_non_canonical_snapshot_cannot_say_what_is_not_executing)
+It does not describe every Job, so it cannot support the one claim ... ok
+test_a_stop_over_a_malformed_snapshot_does_not_crash_after_signalling (tests.tools.test_stack.MalformedSnapshots.test_a_stop_over_a_malformed_snapshot_does_not_crash_after_signalling)
+The failure mode that matters: the crash happened AFTER the ... ok
+test_an_absent_nested_member_is_absence_rather_than_malformation (tests.tools.test_stack.MalformedSnapshots.test_an_absent_nested_member_is_absence_rather_than_malformation)
+`null` where a list would go is "there are none", which is the same ... ok
+test_every_nested_shape_is_refused_before_it_is_walked (tests.tools.test_stack.MalformedSnapshots.test_every_nested_shape_is_refused_before_it_is_walked) ... ok
+test_a_failed_status_leaves_the_previous_snapshot_in_place (tests.tools.test_stack.Publication.test_a_failed_status_leaves_the_previous_snapshot_in_place) ... status refused (returncode 1):
+boom
+ok
+test_the_publisher_observes_read_only (tests.tools.test_stack.Publication.test_the_publisher_observes_read_only)
+It reads with the OBSERVING factory, never the serving one. ... ok
+test_the_publisher_refreshes_until_it_is_asked_to_stop (tests.tools.test_stack.Publication.test_the_publisher_refreshes_until_it_is_asked_to_stop) ... ok
+test_the_snapshot_is_published_atomically (tests.tools.test_stack.Publication.test_the_snapshot_is_published_atomically)
+A viewer must never read a half-written document, so publication is ... ok
+test_a_previous_runs_snapshot_is_not_this_starts_acknowledgement (tests.tools.test_stack.Readiness.test_a_previous_runs_snapshot_is_not_this_starts_acknowledgement) ... ok
+test_an_empty_or_absent_operator_path_adds_no_empty_entry (tests.tools.test_stack.Readiness.test_an_empty_or_absent_operator_path_adds_no_empty_entry) ... ok
+test_an_unwind_that_cannot_take_a_process_back_retains_its_record (tests.tools.test_stack.Readiness.test_an_unwind_that_cannot_take_a_process_back_retains_its_record)
+TRUTHFUL OWNERSHIP DURING CLEANUP: a record is cleared only for a ... ok
+test_every_recipe_that_runs_a_child_names_the_runtime_prerequisite (tests.tools.test_stack.Readiness.test_every_recipe_that_runs_a_child_names_the_runtime_prerequisite) ... ok
+test_start_fails_when_nothing_is_ever_published (tests.tools.test_stack.Readiness.test_start_fails_when_nothing_is_ever_published)
+Both processes alive is not acknowledgement. Only a snapshot is: ... ok
+test_start_fails_with_the_childs_own_reason_when_it_exits_at_once (tests.tools.test_stack.Readiness.test_start_fails_with_the_childs_own_reason_when_it_exits_at_once) ... ok
+test_the_child_environment_carries_this_distributions_package_path (tests.tools.test_stack.Readiness.test_the_child_environment_carries_this_distributions_package_path) ... ok
+test_the_documented_child_can_actually_import_its_package (tests.tools.test_stack.Readiness.test_the_documented_child_can_actually_import_its_package)
+The EXACT failure the review reproduced: `python3 -m ... ok
+test_the_monitors_child_can_import_the_same_package (tests.tools.test_stack.Readiness.test_the_monitors_child_can_import_the_same_package)
+`monitor` was broken for the identical reason: `job_viewer` imports ... ok
+test_a_stale_snapshot_is_unknown_rather_than_its_own_contents (tests.tools.test_stack.RuntimeBoundary.test_a_stale_snapshot_is_unknown_rather_than_its_own_contents)
+A stale document describes a world the manager has moved on from. ... ok
+test_a_torn_snapshot_is_unknown_rather_than_zero (tests.tools.test_stack.RuntimeBoundary.test_a_torn_snapshot_is_unknown_rather_than_zero) ... ok
+test_no_snapshot_is_unknown_rather_than_nothing_running (tests.tools.test_stack.RuntimeBoundary.test_no_snapshot_is_unknown_rather_than_nothing_running) ... ok
+test_open_episodes_and_recorded_runtimes_are_counted (tests.tools.test_stack.RuntimeBoundary.test_open_episodes_and_recorded_runtimes_are_counted) ... ok
+test_status_carries_the_same_boundary (tests.tools.test_stack.RuntimeBoundary.test_status_carries_the_same_boundary) ... ok
+test_stop_reports_what_it_did_not_resolve (tests.tools.test_stack.RuntimeBoundary.test_stop_reports_what_it_did_not_resolve) ... ok
+test_stop_without_a_snapshot_says_unknown_rather_than_none (tests.tools.test_stack.RuntimeBoundary.test_stop_without_a_snapshot_says_unknown_rather_than_none) ... ok
+test_a_manager_already_running_is_not_this_starts_to_acknowledge (tests.tools.test_stack.ServingAcknowledgement.test_a_manager_already_running_is_not_this_starts_to_acknowledge)
+A second start that only replaces the publisher must not demand an ... ok
+test_a_manager_that_never_acknowledges_fails_the_start (tests.tools.test_stack.ServingAcknowledgement.test_a_manager_that_never_acknowledges_fails_the_start)
+The reviewer's counterexample: the publisher publishes perfectly ... ok
+test_a_previous_runs_acknowledgement_does_not_answer_for_this_start (tests.tools.test_stack.ServingAcknowledgement.test_a_previous_runs_acknowledgement_does_not_answer_for_this_start)
+Stale acknowledgement across restart. The line is in the log; it was ... ok
+test_an_acknowledgement_naming_another_incarnation_is_not_this_ones (tests.tools.test_stack.ServingAcknowledgement.test_an_acknowledgement_naming_another_incarnation_is_not_this_ones) ... ok
+test_an_acknowledgement_written_before_this_start_does_not_count (tests.tools.test_stack.ServingAcknowledgement.test_an_acknowledgement_written_before_this_start_does_not_count)
+BOTH HALVES ARE LOAD-BEARING, and a reversal probe is how I found ... ok
+test_every_manager_start_is_given_a_fresh_incarnation (tests.tools.test_stack.ServingAcknowledgement.test_every_manager_start_is_given_a_fresh_incarnation) ... ok
+test_status_reports_a_running_manager_that_has_not_acknowledged (tests.tools.test_stack.ServingAcknowledgement.test_status_reports_a_running_manager_that_has_not_acknowledged) ... ok
+test_the_observer_composes_no_deployment (tests.tools.test_stack.ServingAcknowledgement.test_the_observer_composes_no_deployment)
+The static distinction the whole finding rests on, asserted against ... ok
+test_the_publisher_argv_parses (tests.tools.test_stack.SpawnedArgv.test_the_publisher_argv_parses) ... ok
+test_the_reversed_operand_order_is_refused_by_the_parser (tests.tools.test_stack.SpawnedArgv.test_the_reversed_operand_order_is_refused_by_the_parser) ... usage: stack [-h] [--instance INSTANCE] [--root ROOT]
+             {start,stop,status,publish,repository,monitor} ...
+stack: error: unrecognized arguments: --root /home/sl/src/baton/work/scratch/w385263-review/v12-stack-lnj5j6e0/state
+ok
+test_a_document_of_another_schema_is_unreadable_not_empty (tests.tools.test_stack.Status.test_a_document_of_another_schema_is_unreadable_not_empty) ... ok
+test_a_freshly_written_document_can_still_be_stalely_observed (tests.tools.test_stack.Status.test_a_freshly_written_document_can_still_be_stalely_observed)
+C4. `observed_at` is the MANAGER'S reading of the store; the file's ... ok
+test_absence_running_and_stale_are_distinguished (tests.tools.test_stack.Status.test_absence_running_and_stale_are_distinguished) ... ok
+test_an_empty_configured_stack_is_a_valid_idle_state (tests.tools.test_stack.Status.test_an_empty_configured_stack_is_a_valid_idle_state) ... ok
+test_no_snapshot_is_not_an_empty_pipeline (tests.tools.test_stack.Status.test_no_snapshot_is_not_an_empty_pipeline)
+`absent` is nobody looked; `unreadable` is we looked and could not ... ok
+test_snapshot_freshness_and_absence_are_distinguished (tests.tools.test_stack.Status.test_snapshot_freshness_and_absence_are_distinguished) ... ok
+test_status_reports_an_unconfigured_stack_rather_than_idling (tests.tools.test_stack.Status.test_status_reports_an_unconfigured_stack_rather_than_idling) ... ok
+test_the_pinned_status_schema_is_the_one_the_manager_writes (tests.tools.test_stack.Status.test_the_pinned_status_schema_is_the_one_the_manager_writes)
+The constant is copied so this launcher stays standard-library-only; ... ok
+test_a_subcommand_this_command_does_not_serve_is_refused (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_a_subcommand_this_command_does_not_serve_is_refused) ... ok
+test_every_child_the_supervisor_starts_is_a_real_subcommand (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_every_child_the_supervisor_starts_is_a_real_subcommand) ... ok
+test_from_source_the_child_is_this_interpreter_and_the_module (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_from_source_the_child_is_this_interpreter_and_the_module) ... ok
+test_frozen_the_child_is_the_command_itself (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_frozen_the_child_is_the_command_itself) ... ok
+test_a_root_inside_the_checkout_is_named (tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_inside_the_checkout_is_named) ... ok
+test_a_root_that_cannot_be_written_is_named_rather_than_passed_over (tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_that_cannot_be_written_is_named_rather_than_passed_over) ... ok
+test_an_unset_or_blank_selection_still_falls_back (tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_an_unset_or_blank_selection_still_falls_back) ... ok
+test_a_refusal_is_said_in_the_command_s_own_voice (tests.tools.test_stack.TheInstalledMonitor.test_a_refusal_is_said_in_the_command_s_own_voice) ... ok
+test_a_stack_that_has_published_nothing_is_said_so_rather_than_watched (tests.tools.test_stack.TheInstalledMonitor.test_a_stack_that_has_published_nothing_is_said_so_rather_than_watched) ... ok
+test_it_watches_THIS_root_s_own_snapshot (tests.tools.test_stack.TheInstalledMonitor.test_it_watches_THIS_root_s_own_snapshot) ... ok
+test_the_bundled_command_puts_a_verb_s_options_AFTER_the_verb (tests.tools.test_stack.TheInstalledMonitor.test_the_bundled_command_puts_a_verb_s_options_AFTER_the_verb)
+`--instance` is the command's; `--interval` is the monitor's, and ... ok
+test_the_interval_reaches_the_viewer (tests.tools.test_stack.TheInstalledMonitor.test_the_interval_reaches_the_viewer) ... ok
+test_the_older_verbs_are_dispatched_exactly_as_before (tests.tools.test_stack.TheInstalledMonitor.test_the_older_verbs_are_dispatched_exactly_as_before) ... ok
+test_the_verb_reaches_it_through_main (tests.tools.test_stack.TheInstalledMonitor.test_the_verb_reaches_it_through_main) ... ok
+test_a_denied_process_read_also_stops_a_start (tests.tools.test_stack.UnknownOwnership.test_a_denied_process_read_also_stops_a_start) ... ok
+test_a_denied_process_read_is_unknown_rather_than_absent (tests.tools.test_stack.UnknownOwnership.test_a_denied_process_read_is_unknown_rather_than_absent) ... ok
+test_a_record_whose_identity_cannot_be_read_is_unknown (tests.tools.test_stack.UnknownOwnership.test_a_record_whose_identity_cannot_be_read_is_unknown) ... ok
+test_a_terminated_but_unreaped_process_is_gone (tests.tools.test_stack.UnknownOwnership.test_a_terminated_but_unreaped_process_is_gone)
+A zombie keeps its /proc entry AND its original start time, so an ... ok
+test_an_unreadable_record_is_unknown_rather_than_gone (tests.tools.test_stack.UnknownOwnership.test_an_unreadable_record_is_unknown_rather_than_gone) ... ok
+test_every_positive_absence_is_still_gone (tests.tools.test_stack.UnknownOwnership.test_every_positive_absence_is_still_gone)
+The distinction only matters if `gone` is still reachable. ... ok
+test_start_refuses_to_replace_an_owner_it_cannot_establish (tests.tools.test_stack.UnknownOwnership.test_start_refuses_to_replace_an_owner_it_cannot_establish) ... ok
+test_stop_retains_an_unknown_record_and_reports_failure (tests.tools.test_stack.UnknownOwnership.test_stop_retains_an_unknown_record_and_reports_failure) ... ok
+test_the_proc_read_itself_tells_denial_from_absence (tests.tools.test_stack.UnknownOwnership.test_the_proc_read_itself_tells_denial_from_absence)
+The mapping under the substitution the case below makes: a `/proc` ... ok
+test_a_deployment_that_does_not_compose_fails_the_start (tests.tools.test_stack.ValidIdleComposition.test_a_deployment_that_does_not_compose_fails_the_start)
+The counterexample to the case above, over the SAME machinery: a ... ok
+test_the_real_children_compose_an_empty_configured_stack (tests.tools.test_stack.ValidIdleComposition.test_the_real_children_compose_an_empty_configured_stack) ... ok
+test_a_failed_start_does_not_take_back_what_it_can_no_longer_see (tests.tools.test_stack.VisibilityLostDuringCleanup.test_a_failed_start_does_not_take_back_what_it_can_no_longer_see) ... ok
+test_a_positively_gone_process_is_still_cleared_and_announced (tests.tools.test_stack.VisibilityLostDuringCleanup.test_a_positively_gone_process_is_still_cleared_and_announced)
+The distinction only matters if the ordinary path still works. ... ok
+test_stop_does_not_announce_a_process_it_can_no_longer_see (tests.tools.test_stack.VisibilityLostDuringCleanup.test_stop_does_not_announce_a_process_it_can_no_longer_see) ... ok
+test_a_WORK_TREE_is_read_through_its_own_marker (tests.tools.test_stack.WhatTheRepositoryIS.test_a_WORK_TREE_is_read_through_its_own_marker) ... ok
+test_a_deployment_document_it_cannot_read_is_refused (tests.tools.test_stack.WhatTheRepositoryIS.test_a_deployment_document_it_cannot_read_is_refused) ... ok
+test_a_directory_that_is_not_a_repository_is_said_so (tests.tools.test_stack.WhatTheRepositoryIS.test_a_directory_that_is_not_a_repository_is_said_so) ... ok
+test_a_target_OUTSIDE_the_instance_is_said_so_rather_than_refused (tests.tools.test_stack.WhatTheRepositoryIS.test_a_target_OUTSIDE_the_instance_is_said_so_rather_than_refused)
+The target is the owner's repository. It is normal for it to be ... ok
+test_a_workspace_inside_the_instance_is_reported_as_inside (tests.tools.test_stack.WhatTheRepositoryIS.test_a_workspace_inside_the_instance_is_reported_as_inside) ... ok
+test_a_workspace_that_IS_a_repository_says_nothing_of_the_kind (tests.tools.test_stack.WhatTheRepositoryIS.test_a_workspace_that_IS_a_repository_says_nothing_of_the_kind) ... ok
+test_a_workspace_that_is_not_a_repository_says_what_that_costs (tests.tools.test_stack.WhatTheRepositoryIS.test_a_workspace_that_is_not_a_repository_says_what_that_costs)
+`reconciliation._prove_isolation` resolves the workspace's own ... ok
+test_an_absent_target_is_named_as_absent (tests.tools.test_stack.WhatTheRepositoryIS.test_an_absent_target_is_named_as_absent) ... ok
+test_an_empty_workspace_is_said_to_be_empty (tests.tools.test_stack.WhatTheRepositoryIS.test_an_empty_workspace_is_said_to_be_empty) ... ok
+test_nothing_it_reports_is_a_command_it_ran (tests.tools.test_stack.WhatTheRepositoryIS.test_nothing_it_reports_is_a_command_it_ran)
+The whole point: this Work performs no version-control mutation, ... ok
+test_the_declared_bases_are_reported_from_the_bindings (tests.tools.test_stack.WhatTheRepositoryIS.test_the_declared_bases_are_reported_from_the_bindings) ... ok
+test_the_verb_needs_an_instance (tests.tools.test_stack.WhatTheRepositoryIS.test_the_verb_needs_an_instance) ... ok
+test_a_malformed_allocation_is_unknown_and_says_which (tests.tools.test_worker_visibility.AnAssignedStageShowsItsWorker.test_a_malformed_allocation_is_unknown_and_says_which) ... ok
+test_a_real_reservation_is_reported_with_its_worker_identity (tests.tools.test_worker_visibility.AnAssignedStageShowsItsWorker.test_a_real_reservation_is_reported_with_its_worker_identity) ... ok
+test_a_reservation_exists_before_any_runtime_does (tests.tools.test_worker_visibility.AnAssignedStageShowsItsWorker.test_a_reservation_exists_before_any_runtime_does)
+Reserved, not yet started: the question an operator asks first. ... ok
+test_an_unallocated_stage_is_not_an_unknown_one (tests.tools.test_worker_visibility.AnAssignedStageShowsItsWorker.test_an_unallocated_stage_is_not_an_unknown_one)
+The distinction the brief names: nobody reserved a worker, which is ... ok
+test_the_reserved_workers_configured_profile_is_not_a_runtime_fact (tests.tools.test_worker_visibility.AnAssignedStageShowsItsWorker.test_the_reserved_workers_configured_profile_is_not_a_runtime_fact) ... ok
+test_every_known_fact_resolves_to_the_path_it_claims (tests.tools.test_worker_visibility.EveryCurrentStageGetsARow.test_every_known_fact_resolves_to_the_path_it_claims)
+The provenance is walked back into the source document. ... ok
+test_every_stage_including_an_unassigned_one_is_reported (tests.tools.test_worker_visibility.EveryCurrentStageGetsARow.test_every_stage_including_an_unassigned_one_is_reported) ... ok
+test_the_exact_identities_are_reported_rather_than_summarised (tests.tools.test_worker_visibility.EveryCurrentStageGetsARow.test_the_exact_identities_are_reported_rather_than_summarised) ... ok
+test_the_job_identities_travel_with_the_row (tests.tools.test_worker_visibility.EveryCurrentStageGetsARow.test_the_job_identities_travel_with_the_row) ... ok
+test_the_schema_is_this_views_own_and_names_the_one_it_read (tests.tools.test_worker_visibility.EveryCurrentStageGetsARow.test_the_schema_is_this_views_own_and_names_the_one_it_read) ... ok
+test_a_local_read_time_is_named_separately_and_alters_nothing (tests.tools.test_worker_visibility.FreshnessIsNotDecidedHere.test_a_local_read_time_is_named_separately_and_alters_nothing) ... ok
+test_a_local_read_time_that_is_not_an_instant_refuses (tests.tools.test_worker_visibility.FreshnessIsNotDecidedHere.test_a_local_read_time_that_is_not_an_instant_refuses) ... ok
+test_an_old_observation_cannot_become_fresh_by_being_read_again (tests.tools.test_worker_visibility.FreshnessIsNotDecidedHere.test_an_old_observation_cannot_become_fresh_by_being_read_again)
+The viewer's claim168071 defect, in this surface's terms: the same ... ok
+test_freshness_is_unknown_with_the_selected_reason (tests.tools.test_worker_visibility.FreshnessIsNotDecidedHere.test_freshness_is_unknown_with_the_selected_reason) ... ok
+test_a_stage_between_episodes_reports_no_attempt_and_no_facts (tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt.test_a_stage_between_episodes_reports_no_attempt_and_no_facts)
+`_observed_state`'s honest gap: an ended episode with no ... ok
+test_an_ended_record_under_the_current_number_is_not_read (tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt.test_an_ended_record_under_the_current_number_is_not_read)
+A document that contradicts itself answers unknown rather than ... ok
+test_the_episode_instant_comes_from_the_live_record_only (tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt.test_the_episode_instant_comes_from_the_live_record_only)
+No history fallback: the ended episode's `opened_at` is in the same ... ok
+test_the_new_episode_is_the_one_reported (tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt.test_the_new_episode_is_the_one_reported) ... ok
+test_the_new_episodes_own_observation_is_the_one_reported (tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt.test_the_new_episodes_own_observation_is_the_one_reported)
+What the grafts below have to displace. ... ok
+test_the_old_episodes_activity_is_refused_on_the_new_one (tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt.test_the_old_episodes_activity_is_refused_on_the_new_one) ... ok
+test_the_old_episodes_allocation_is_refused_on_the_new_one (tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt.test_the_old_episodes_allocation_is_refused_on_the_new_one) ... ok
+test_a_malformed_activity_document_is_unknown_not_a_count (tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse.test_a_malformed_activity_document_is_unknown_not_a_count) ... ok
+test_a_malformed_count_is_unknown_and_never_evidence (tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse.test_a_malformed_count_is_unknown_and_never_evidence) ... ok
+test_a_real_observation_carries_the_count_and_its_own_instant (tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse.test_a_real_observation_carries_the_count_and_its_own_instant) ... ok
+test_a_recorded_attempt_nobody_observed_is_not_a_zero (tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse.test_a_recorded_attempt_nobody_observed_is_not_a_zero)
+The producer's own `{bytes_observed: null, observed_at: null}`. ... ok
+test_a_runtime_without_activity_reports_nothing_observed (tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse.test_a_runtime_without_activity_reports_nothing_observed) ... ok
+test_an_observed_zero_is_a_known_zero (tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse.test_an_observed_zero_is_a_known_zero)
+Written through the real producer, which accepts a zero total and ... ok
+test_the_count_is_bytes_and_is_not_offered_as_progress (tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse.test_the_count_is_bytes_and_is_not_offered_as_progress) ... ok
+test_the_two_absences_and_the_zero_are_three_different_answers (tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse.test_the_two_absences_and_the_zero_are_three_different_answers)
+Side by side in one document, so none of them can pass because ... ok
+test_an_oversize_file_refuses_rather_than_reading_a_subset (tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON.test_an_oversize_file_refuses_rather_than_reading_a_subset) ... ok
+test_an_unreadable_file_refuses_in_JSON_with_status_two (tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON.test_an_unreadable_file_refuses_in_JSON_with_status_two) ... ok
+test_an_unsupported_version_refuses_in_JSON_with_status_two (tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON.test_an_unsupported_version_refuses_in_JSON_with_status_two) ... ok
+test_it_reads_a_status_document_an_operator_already_has (tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON.test_it_reads_a_status_document_an_operator_already_has) ... ok
+test_the_command_answers_the_same_facts_the_function_does (tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON.test_the_command_answers_the_same_facts_the_function_does) ... ok
+test_the_module_is_callable_as_a_module (tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON.test_the_module_is_callable_as_a_module)
+`python3 -m tools.worker_visibility` is the named interface. ... ok
+test_a_job_whose_stages_are_unreadable_publishes_no_row_at_all (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_a_job_whose_stages_are_unreadable_publishes_no_row_at_all)
+NOT EVEN THE READABLE JOBS, which is the decision worth stating. ... ok
+test_a_list_or_a_scalar_is_not_a_status_document (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_a_list_or_a_scalar_is_not_a_status_document) ... ok
+test_a_malformed_envelope_refuses_rather_than_reporting_rows (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_a_malformed_envelope_refuses_rather_than_reporting_rows)
+Including the two near-instants REVIEW 2026-10-18T17-37-19Z found ... ok
+test_a_malformed_nested_structure_refuses (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_a_malformed_nested_structure_refuses)
+The viewer's claim168169 shape: a document with the right schema ... ok
+test_a_near_instant_is_not_a_known_source_time (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_a_near_instant_is_not_a_known_source_time)
+And the fact it would have timed keeps its own value. ... ok
+test_an_oversize_document_refuses_rather_than_truncating (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_an_oversize_document_refuses_rather_than_truncating) ... ok
+test_an_unsupported_schema_refuses (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_an_unsupported_schema_refuses) ... ok
+test_the_input_bound_is_the_existing_viewers_own (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_the_input_bound_is_the_existing_viewers_own) ... ok
+test_the_instant_grammar_is_the_producers_own (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_the_instant_grammar_is_the_producers_own)
+ACCEPTED EXACTLY WHEN THE PRODUCER'S BOUNDARY ACCEPTS. ... ok
+test_the_refusal_does_not_echo_the_rejected_input (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_the_refusal_does_not_echo_the_rejected_input)
+A message assembled out of an untrusted document lets that document ... ok
+test_the_schema_this_view_reads_is_the_producers_own_constant (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_the_schema_this_view_reads_is_the_producers_own_constant) ... ok
+test_a_read_exchange_reports_its_state_and_the_receipts_instant (tests.tools.test_worker_visibility.TheExchangeIsReportedAsItWasAnswered.test_a_read_exchange_reports_its_state_and_the_receipts_instant) ... ok
+test_an_exchange_with_no_command_yet_is_not_a_malformed_one (tests.tools.test_worker_visibility.TheExchangeIsReportedAsItWasAnswered.test_an_exchange_with_no_command_yet_is_not_a_malformed_one) ... ok
+test_an_unread_exchange_is_nobody_looked_rather_than_idle (tests.tools.test_worker_visibility.TheExchangeIsReportedAsItWasAnswered.test_an_unread_exchange_is_nobody_looked_rather_than_idle) ... ok
+test_worker_authored_entry_names_are_never_forwarded (tests.tools.test_worker_visibility.TheExchangeIsReportedAsItWasAnswered.test_worker_authored_entry_names_are_never_forwarded)
+`foreign` is bytes a container chose. Reporting them here would ... ok
+test_an_unobserved_recorded_attempt_answers_nulls_not_zero (tests.tools.test_worker_visibility.TheProducerShapeIsWhatThisViewWasBuiltAgainst.test_an_unobserved_recorded_attempt_answers_nulls_not_zero)
+The producer's own distinction, which this view has to carry. ... ok
+test_the_runtime_carries_no_attempt_id_and_the_activity_does (tests.tools.test_worker_visibility.TheProducerShapeIsWhatThisViewWasBuiltAgainst.test_the_runtime_carries_no_attempt_id_and_the_activity_does)
+The one asymmetry every association check in this view turns on. ... ok
+test_the_worker_managers_own_runtime_reader_names_five_members (tests.tools.test_worker_visibility.TheProducerShapeIsWhatThisViewWasBuiltAgainst.test_the_worker_managers_own_runtime_reader_names_five_members)
+What `projection` narrows: the producer's reader carries the attempt ... ok
+test_a_malformed_runtime_is_unknown_rather_than_half_read (tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed.test_a_malformed_runtime_is_unknown_rather_than_half_read) ... ok
+test_a_missing_runtime_is_an_absence_with_a_reason (tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed.test_a_missing_runtime_is_an_absence_with_a_reason) ... ok
+test_a_quiet_runtime_is_never_called_healthy_or_offline (tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed.test_a_quiet_runtime_is_never_called_healthy_or_offline)
+The whole family of defect this view is bounded against: a word ... ok
+test_a_reported_runtime_forwards_the_identity_and_the_axis_word (tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed.test_a_reported_runtime_forwards_the_identity_and_the_axis_word) ... ok
+test_the_fixed_assignment_is_reported_member_by_member (tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed.test_the_fixed_assignment_is_reported_member_by_member) ... ok
+test_the_runtime_association_is_declared_unverifiable_not_claimed (tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed.test_the_runtime_association_is_declared_unverifiable_not_claimed) ... ok
+test_an_overlong_text_member_is_unknown_rather_than_republished (tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface.test_an_overlong_text_member_is_unknown_rather_than_republished) ... ok
+test_no_locator_inside_the_document_is_followed (tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface.test_no_locator_inside_the_document_is_followed)
+A visibility view that opened what a locator names would be reading ... ok
+test_nothing_outside_the_allowlists_reaches_the_view (tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface.test_nothing_outside_the_allowlists_reaches_the_view)
+The planted material, by VALUE and by MEMBER NAME. ... ok
+test_the_allowlisted_members_still_come_through (tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface.test_the_allowlisted_members_still_come_through)
+A filter that dropped everything would pass the case above. ... ok
+test_the_source_document_is_not_mutated_by_being_viewed (tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface.test_the_source_document_is_not_mutated_by_being_viewed) ... ok
+test_contact_and_context_are_unsupported_with_the_reason (tests.tools.test_worker_visibility.TheSnapshotsOwnInstantIsOnlyEverTheQueryTime.test_contact_and_context_are_unsupported_with_the_reason) ... ok
+test_no_fact_borrows_the_query_time_as_its_own (tests.tools.test_worker_visibility.TheSnapshotsOwnInstantIsOnlyEverTheQueryTime.test_no_fact_borrows_the_query_time_as_its_own)
+The defect this guards: a view with one timestamp to hand reporting ... ok
+test_no_per_field_observation_time_is_invented (tests.tools.test_worker_visibility.TheSnapshotsOwnInstantIsOnlyEverTheQueryTime.test_no_per_field_observation_time_is_invented)
+Only the members the contract gives an instant to have one. ... ok
+test_the_query_time_is_named_as_such_and_not_as_contact (tests.tools.test_worker_visibility.TheSnapshotsOwnInstantIsOnlyEverTheQueryTime.test_the_query_time_is_named_as_such_and_not_as_contact) ... ok
+test_an_admitted_stage_reports_its_offer_and_attempt (tests.tools.test_worker_visibility.TheSweptPipelineIsReportedToo.test_an_admitted_stage_reports_its_offer_and_attempt) ... ok
+test_a_canonical_read_says_so (tests.tools.test_worker_visibility.TheUnreadManagerIsNotAQuietDeployment.test_a_canonical_read_says_so) ... ok
+test_a_projection_with_no_control_store_says_nobody_looked (tests.tools.test_worker_visibility.TheUnreadManagerIsNotAQuietDeployment.test_a_projection_with_no_control_store_says_nobody_looked) ... ok
+test_an_empty_store_reports_no_rows_rather_than_a_quiet_one (tests.tools.test_worker_visibility.TheUnreadManagerIsNotAQuietDeployment.test_an_empty_store_reports_no_rows_rather_than_a_quiet_one) ... ok
+test_job_status_six_is_unchanged_by_this_work (tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll.test_job_status_six_is_unchanged_by_this_work)
+The contract this view reads is the producer's and stays theirs. ... ok
+test_projecting_opens_no_store_and_performs_no_act (tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll.test_projecting_opens_no_store_and_performs_no_act) ... ok
+test_the_command_opens_no_store_and_performs_no_act (tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll.test_the_command_opens_no_store_and_performs_no_act) ... ok
+test_the_module_imports_no_store_engine_or_subprocess (tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll.test_the_module_imports_no_store_engine_or_subprocess)
+Read the imports rather than the paragraph promising the absence. ... ok
+test_the_module_names_no_act_and_no_reader_of_its_own (tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll.test_the_module_names_no_act_and_no_reader_of_its_own)
+The identifiers, not the prose: this module's docstring promises ... ok
+test_the_stores_are_unchanged_by_being_viewed (tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll.test_the_stores_are_unchanged_by_being_viewed)
+The disposable owner state is established before and compared ... ok
+
+----------------------------------------------------------------------
+Ran 299 tests in 34.082s
+
+OK
+/usr/lib/python3.13/subprocess.py:1140: ResourceWarning: subprocess 2165191 is still running

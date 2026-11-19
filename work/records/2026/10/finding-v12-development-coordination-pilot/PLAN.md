@@ -172,3 +172,23 @@ OwnerE370247 selects actual operational execution using accepted binding29375db1
 Selected: retained archive, mint/compose and ONE fresh installation with source clone/scoped credential delivery, ONE template-job-guide-42bed8bb Job, default policies, distinct implementation/review and report-and-hold. Native automatic corrections have NO total/round ceiling, with3600/900 seconds per invocation. Continue observation while work remains. Preserve logs/results and prove cessation before supervisor stop. No automatic integration/deletion/discretionary fresh retry/second Job/cutover.
 
 Reviewer allocates and gates parent on W370268, then independent execution/result review returns owner. v12 owns documentation assignments/results; child v11 Work owns operator evidence, not duplicate delivery. Closed preparation remains immutable. No competing operator or product edit. After useful documentation assessment, prepare/select2 independent coding outcomes; no later payload allocated now. Keep v11 authority/direct-development policy/human Git ownership and separate reuse obligation.
+
+
+## 2026-11-19 — immediate continuation: K diagnoses labels-4 exceptional result
+
+K owns read-only failure investigation and retained proposal assessment per evidence/native-labels-5-failure/ASSIGNMENT-K.md. Await cause and bounded recovery/correction recommendation before another run or implementation change. Existing historical milestones do not authorize retry.
+
+
+## Current continuation — retained labels candidate verification
+
+K to perform bounded offline verification and recovery-instruction correction per review-2026-11-19T21-17-15Z.md. Preserve candidate/custody; no redo model run or product changes selected. Independent code/native acceptance remains outstanding.
+
+
+## 2026-11-19 — inner execution policy clarified
+
+Owner image/access restriction model is pinned in FINDING and DESIGN RUN-4. Current Claude CLI bypass is already selected; preserve it in future adapter work. No new image/runtime operation selected.
+
+
+## Current continuation — W385292 retained labels candidate review
+
+Codexpc reviews exact04648e1b through W385292. K diagnosis complete; hold product edits. No new live rerun selected. After review, assess candidate integration/packaged gate separately from native end-to-end pilot acceptance.

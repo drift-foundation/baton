@@ -1,0 +1,9 @@
+{
+  "tests": 299,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "seconds": 34.20972258099937,
+  "successful": true,
+  "scope": "deterministic shared model, viewer, stack lifecycle and unchanged worker visibility"
+}

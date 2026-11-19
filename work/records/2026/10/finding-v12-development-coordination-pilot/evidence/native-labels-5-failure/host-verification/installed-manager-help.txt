@@ -1,0 +1,29 @@
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+
+Submit Jobs to the v12 Job manager, read its status, or run its control loop.
+Instance-addressed commands: settlement-preview, settle-stopped, settlement-
+status, cancel-job, cancel-status (invoke the command first, then --help).
+
+positional arguments:
+  {submit,fresh-attempt,create,status,serve}
+    submit              record one versioned multi-Job submission
+    fresh-attempt       admit a fresh attempt at a Job whose execution failed
+    create              create one ordinary Job from a versioned template
+    status              print the read-only status projection
+    serve               run the persistent control loop
+
+options:
+  -h, --help            show this help message and exit
+  --store STORE         the Job store's path; there is no default, and one
+                        inside the checkout is what the external state root
+                        exists to prevent
+  --incarnation INCARNATION
+                        this process's incarnation, which is what restart
+                        recovery distinguishes managers by
+  --authority-uuid AUTHORITY_UUID
+                        the 32-lowercase-hex Authority this Job store belongs
+                        to; it namespaces every episode identity the store
+                        derives, is persisted on first open, and a later open
+                        naming another one refuses without changing the store

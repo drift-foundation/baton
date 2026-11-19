@@ -60,6 +60,8 @@ import subprocess
 import sys
 import time
 
+from tools import job_observation
+
 SCHEMA = "baton.v12.stack/1"
 ROOT_ENV = "BATON_V12_STACK_ROOT"
 CONFIG_ENV = "BATON_V12_STAGE_EXECUTION_CONFIG"
@@ -1038,8 +1040,9 @@ def snapshot(root, now):
     """
     place = snapshot_path(root)
     try:
-        raw = place.read_bytes()
-        published = now - place.stat().st_mtime
+        with place.open("rb") as handle:
+            raw = handle.read()
+            published = now - os.fstat(handle.fileno()).st_mtime
     except FileNotFoundError:
         return {"state": "absent"}
     except OSError as failure:
@@ -1056,9 +1059,8 @@ def snapshot(root, now):
         return {"state": "unreadable", "path": str(place),
                 "published_age_seconds": round(published, 3),
                 "detail": problem}
-    observed = now - _instant(document["observed_at"])
-    oldest = max(observed, published)
-    return {"state": "stale" if oldest > PUBLISH_SECONDS * 3 else "fresh",
+    observed = job_observation.observation_age(document["observed_at"], now)
+    return {"state": "stale" if job_observation.stale_ages(observed, published) else "fresh",
             "path": str(place), "document": document,
             "canonical": bool(document.get("canonical")),
             "observed_age_seconds": round(observed, 3),
@@ -1133,39 +1135,11 @@ def _jobs(answer):
 
 
 # Keep the standard-library-only launcher aligned with the published vocabulary.
-_STATUS_STAGE_STATES = ("blocked", "queued", "offered", "claimed", "starting",
-                        "waiting", "running", "reviewing", "integrating", "answering",
-                        "changes-requested", "completed", "exceptional")
-_STATUS_ADAPTER_CODES = ("declaration-set-invalid", "declaration-name-unsupported",
-                         "role-output-missing", "other-role-output-required")
-_STATUS_FAULT_CODES = ("agent", "answer", "entitlement", "exchange", "input",
-                       "launch", "output", "protocol", "replay", "session")
-
-
-def _status_text(value):
-    # Identifiers remain one line even in a damaged publication.
-    return json.dumps(value if type(value) is str and value else "unknown",
-                      ensure_ascii=True)[1:-1]
-
-
-def _job_outcome(job):
-    states = [stage.get("state") for stage in (job.get("stages") or [])]
-    if "exceptional" in states:
-        return "FAILED"
-    if type(job.get("cancellation")) is dict:
-        return "CANCELLATION REQUESTED"
-    if not states or any(state not in _STATUS_STAGE_STATES for state in states):
-        return "UNKNOWN"
-    if "changes-requested" in states:
-        return "CHANGES REQUESTED"
-    if all(state == "completed" for state in states):
-        return "COMPLETED"
-    if any(state in ("offered", "claimed", "starting", "waiting", "running",
-                     "reviewing", "integrating", "answering") for state in states):
-        return "IN PROGRESS"
-    if "queued" in states:
-        return "QUEUED"
-    return "BLOCKED"
+_STATUS_STAGE_STATES = job_observation._STATUS_STAGE_STATES
+_STATUS_FAULT_CODES = job_observation._STATUS_FAULT_CODES
+_STATUS_ADAPTER_CODES = job_observation._STATUS_ADAPTER_CODES
+_status_text = job_observation._status_text
+_job_outcome = job_observation.job_outcome
 
 
 def _print_job_outcomes(published, stream):
@@ -1182,20 +1156,12 @@ def _print_job_outcomes(published, stream):
         for stage in job.get("stages") or []:
             state = stage.get("state")
             state = state if state in _STATUS_STAGE_STATES else "unknown"
-            detail = ""
-            exchange = stage.get("exchange")
-            terminal = exchange.get("terminal") if type(exchange) is dict else None
-            if state == "exceptional":
-                fault = terminal.get("fault_code") if type(terminal) is dict and terminal.get("ending") == "faulted" else None
-                detail = "; " + fault + " fault; cause unknown" if fault in _STATUS_FAULT_CODES else "; cause unknown"
-                adapter = terminal.get("adapter_failure") if type(terminal) is dict else None
-                if fault == "agent" and type(adapter) is dict and adapter.get("component") == "role-adapter" and adapter.get("code") in _STATUS_ADAPTER_CODES:
-                    detail = "; agent fault; " + adapter["code"]
-            gates = stage.get("gates")
-            closed = [gate for gate in gates if type(gate) is dict and gate.get("open") is False] if type(gates) is list else []
-            if state == "blocked":
-                detail = "; waiting on " + ", ".join(_status_text(gate.get("stage_id")) + " (" + _status_text(gate.get("state")) + ")" for gate in closed) if closed else "; blocker unknown"
-            print("  " + _status_text(stage.get("stage_id") or stage.get("kind")) + ": " + state + detail, file=stream)
+            one = job_observation.stage_view(stage, published["document"].get("observed_at"))
+            reason = one["reason"]
+            detail = reason.removeprefix("failed: stage ended exceptionally; ").removeprefix("held: ")
+            print("  " + _status_text(stage.get("stage_id") or stage.get("kind")) + ": " + state + ("; " + detail if detail else ""), file=stream)
+            print("    attempt " + _status_text(one["attempt_id"]) + "; operation " + one["operation"], file=stream)
+            print("    activity " + one["activity"] + ("; " + one["activity_when"] if one["activity_when"] else ""), file=stream)
         cancellation = job.get("cancellation")
         if type(cancellation) is dict:
             print("  Cancellation: " + _status_text(cancellation.get("trigger")) + "; shutdown " + _status_text(cancellation.get("shutdown")), file=stream)

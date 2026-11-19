@@ -1,0 +1,2368 @@
+diff --git a/v12/STACK.md b/v12/STACK.md
+index 4f701108..42722eda 100644
+--- a/v12/STACK.md
++++ b/v12/STACK.md
+@@ -993,6 +993,97 @@ quotes the tail of the relevant log in its own refusal; the file is the rest of
+ the evidence. The publisher also writes the reason a `status` read was refused
+ to its log, which is where a deployment that does not compose becomes visible.
+ 
++## `work` — the Work labels of this deployment's Authority
++
++A **Work label** is one plain cross-cutting value carried by a Work: an opaque
++lower-case key, not a `name=value` tag, inheriting nowhere, and read by nothing
++in the scheduler. The bundled `work` subcommand is the supported surface over
++it (W29401, over W29400's authority behaviour). Every verb takes
++`--authority-store` and `--authority-uuid`; the two reads open the store
++read-only, so asking a serving deployment what it carries takes no write lock
++on it.
++
++```sh
++S=/srv/baton-v12/distro/baton-v12-stack
++UUID=$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["authority_uuid"])' \
++       /srv/baton-v12/authority-identity.json)
++A="--authority-store /srv/baton-v12/db/authority.sqlite3 --authority-uuid $UUID"
++
++# add or remove labels. --label is repeatable; --operation-id makes the
++# request replayable, and reusing it for a different request is refused.
++"$S" work label-work   $A --participant baton.slaw --work 19b4f145-W1 \
++                          --operation-id labels-1 --label v12 --label release-foo
++"$S" work unlabel-work $A --participant baton.slaw --work 19b4f145-W1 \
++                          --operation-id labels-2 --label release-foo
++
++# read one Work's live set and the journal that produced it
++"$S" work labels $A --work 19b4f145-W1
++
++# which Work carries all of one set and none of another
++"$S" work list $A --label v12
++"$S" work list $A --label v12 --without-label archived
++```
++
++**What the operands mean, and what they refuse.**
++
++- `--label` is **one label per operand, repeatable**. It is 1–64 characters,
++  starts with an ASCII letter or digit and continues with ASCII letters,
++  digits, dots, underscores or hyphens; it is normalized to lower case, so
++  `--label Release-Foo` and `--label release-foo` are one key. A `key=value`
++  tag, a comma-joined list and every other OR-like spelling are **refused**:
++  a label is one opaque key and nothing here takes one apart. Two operands
++  that are one key after normalization are refused too — a caller who wrote
++  two things meant two things.
++- On `list`, repeated `--label` is **all-of** and repeated `--without-label`
++  is **none-of**, and the two compose. Repeated operands never mean OR. An
++  empty filter is every Work. Requiring and excluding one label is refused.
++- `--participant` and **no `--actor`**: the session is minted for that
++  participant and the authority takes the decision's principal from the
++  binding. The act needs the `manage-work-labels` capability **in the Work's
++  own scope**; holding the Work, handling its route or being its claimant
++  authorizes nothing.
++- `--operation-id` is the operator's one handle on the whole request. An exact
++  retry replays and prints the same bytes; the same identity with a different
++  verb, Work, participant or label set is refused, and nothing is done.
++  Repeated labels are separate authority acts under identities derived from
++  that one.
++- A label a Work already carries (or a removal of one it does not) **succeeds**
++  and reports `changed: false`. That is agreement, not a conflict, and it
++  writes no event.
++- Labels are permitted **whatever the Work's phase, and after it is closed**:
++  a label change is archive metadata and reopens, reschedules and
++  re-authorizes nothing.
++
++**Not these labels.** v11's `baton label` / `baton unlabel` bind a *thread* to
++a Work — a relation between two records — which is why the verbs here are
++spelled `label-work` and `unlabel-work`. The Worker Manager's own `labels` are
++OCI runtime labels, the container execution identity a runtime is discovered
++and fenced by. Neither is reachable from this subcommand.
++
++### `manager create --label` — a Work's create-time labels
++
++`manager create` takes the same repeatable `--label`, and it applies **only
++when that creation makes the Work**, in the act that makes it — so a reader
++never sees the Work for an instant without the labels it was created with.
++
++```sh
++"$S" manager --store … --incarnation … --authority-uuid $UUID create … \
++     --label v12 --label w29401
++```
++
++The labels are part of the caller's intent, so an exact retry replays the
++creation and a second request under the same Job identity naming other labels
++is refused as the different creation it is.
++
++If the deployment's derived Work **already exists**, a creation that states
++labels it does not carry is **refused by name**, and the refusal says to use
++`work label-work` instead: that Work is shared by every Job bound to it, and
++relabelling it from a creation would change its metadata with no
++`manage-work-labels` decision and no attributable actor. A Work that already
++carries exactly the requested labels is reused as usual — it is already in the
++asked-for state. A creation that states no `--label` behaves exactly as it did
++before this option existed.
++
+ ## Boundaries
+ 
+ This launcher does not migrate a backlog, does not copy v11 Work, and is not a
+diff --git a/v12/python/src/baton_v12/job_manager/creation.py b/v12/python/src/baton_v12/job_manager/creation.py
+index 4d05d602..d91fa743 100644
+--- a/v12/python/src/baton_v12/job_manager/creation.py
++++ b/v12/python/src/baton_v12/job_manager/creation.py
+@@ -231,9 +231,16 @@ def create_template_job(store, operations, *, request, derivation,
+         # twice and compared them, which is how R2's replay came to depend on
+         # a fact the caller never stated.
+         derived, resolution = _resolved(asked, derivation)
++        # W29401: THE LABELS TRAVEL WITH THE DERIVED MEMBERS and deliberately
++        # NOT with the three in `operands` above: `_intent_of` is what the
++        # replay signature is taken over, and the labels are already inside
++        # `request_digest`. Adding a fourth member there would change the
++        # signature of every creation, labelled or not, for a fact the digest
++        # already carries.
+         held = dict(operands,
+                     work_id=resolution["task"]["work_id"],
+                     template_version=resolution["template"]["version"],
++                    labels=asked["labels"],
+                     resolution_digest=templates.resolution_digest(resolution))
+         return _owned(store, resolution=resolution, operands=held,
+                       derived=derived, authorization=authorization,
+@@ -366,7 +373,8 @@ def _asked(request):
+         request, "an ordinary Job creation request",
+         required=("schema", "task", "source_selection", "scope",
+                   "acceptance"),
+-        optional=("template", "overrides", "control", "verification"))
++        optional=("template", "overrides", "control", "verification",
++                  "labels"))
+     if taken["schema"] != templates.REQUEST_SCHEMA:
+         _refuse(f"an ordinary Job creation request is "
+                 f"{name_value(templates.REQUEST_SCHEMA)}, the resolver's own "
+@@ -435,9 +443,28 @@ def _asked(request):
+     # Absent, the deployment's installed argv travels exactly as before.
+     verification = (_verification(taken["verification"])
+                     if "verification" in taken else None)
++    # W29401: THE WORK LABELS THIS CREATION STATES, NORMALIZED INTO THE
++    # REQUEST BEFORE IT IS DIGESTED.
++    #
++    # Normalized here rather than at the Authority alone, for the reason this
++    # digest is taken over the OWNED request at all: `--label Release-Foo` and
++    # `--label release-foo` are one key and therefore one caller intent, and a
++    # digest over the as-given spellings would make them two creations under
++    # one Job identity -- a collision about nothing. The authority's own
++    # helper decides it, so there is no second grammar here: it lowers,
++    # validates the opaque-key alphabet, refuses two operands that are one key
++    # after normalization, and sorts.
++    #
++    # ABSENT IS NOT THE SAME AS EMPTY. A request without the member says
++    # nothing about labels, which is what every creation before this option
++    # meant; the member is rewritten only when it is there.
++    labels = None
++    if "labels" in taken:
++        labels = _labels(taken["labels"])
++        taken["labels"] = list(labels)
+     return {"request": taken, "task": task, "job_id": job_id,
+             "submission_id": submission_id, "acceptance": acceptance,
+-            "scope": scope, "verification": verification,
++            "scope": scope, "verification": verification, "labels": labels,
+             # THE IMMUTABLE CALLER INTENT, as one digest over the OWNED
+             # request. Owned rather than as-given, so two spellings of one
+             # intent -- a different member order, a pretty-printed document --
+@@ -471,6 +498,53 @@ def _verification(value):
+     return list(value)
+ 
+ 
++def _labels(value):
++    """A creation request's Work labels, as the AUTHORITY's canonical set.
++
++    W29401. THE GRAMMAR, THE NORMALIZATION AND THE DUPLICATE REFUSAL ARE
++    W29400's AND ARE NOT RESTATED HERE. `canonical_label_set` is the accepted
++    helper every other door to a Work label goes through, including
++    `Authority.create_work` a few cuts downstream -- so a request validated
++    here and a Work created from it cannot come to two different conclusions
++    about the same operands. It lowers, validates the opaque-key alphabet,
++    refuses two operands that are one key after normalization, sorts, and
++    refuses a member that is not text at all.
++
++    AND ITS SENTENCE IS CARRIED, not paraphrased. That helper refuses with
++    the authority's own `Refusal`, which is another owner's typed refusal
++    about an operand THIS caller wrote -- so the sentence travels verbatim
++    into this operation's own refusal vocabulary. One boundary, one refusal
++    type: every other member of a creation request refuses as a
++    `ContractRefusal`, and a caller catching one kind for the acceptance list
++    and another for the labels would be two boundaries for one request.
++
++    THE ONE THING THIS OWNS is the count, and it owns it HERE rather than
++    leaving it to the write transaction. `canonical_label_set` deliberately
++    does not bound the cardinality, because how many labels a Work would then
++    hold is a fact about the Work; `Authority.create_work` does bound it --
++    but it is reached in cut B, with the Job identity already reserved. A
++    request naming more labels than any Work can hold is a correctable
++    mistake about the REQUEST, so it refuses before any effect, which is this
++    operation's own ordering discipline.
++
++    IMPORTED LOCALLY. This module is the Job manager's and the authority is a
++    separate owner; `templates`, `documents` and `submission` all stay free of
++    it, and the one thing crossing the boundary is a validator, by call.
++    """
++    from ..authority.errors import Refusal
++    from ..authority.labels import MAX_LABELS, canonical_label_set
++
++    try:
++        wanted = canonical_label_set(value,
++                                     what="a creation request's labels")
++    except Refusal as refusal:
++        _refuse(str(refusal))
++    if len(wanted) > MAX_LABELS:
++        _refuse(f"a Work holds at most {MAX_LABELS} labels and this creation "
++                f"names {len(wanted)}", category="integrity", code="limit")
++    return wanted
++
++
+ def _resolved(asked, derivation, held=None):
+     """The resolution, from the caller's request and the deployment's facts.
+ 
+@@ -517,6 +591,12 @@ def _resolved(asked, derivation, held=None):
+     # worker through the composed task bytes above and is inside the Job's
+     # input identity; the resolver's request contract does not carry it.
+     request.pop("verification", None)
++    # AND THE LABELS ARE THE WORK'S, NOT THE RESOLUTION'S. W29401: a Work
++    # label is cross-cutting metadata on the Work this Job runs under, and
++    # nothing in a submission, a stage, a profile or a selector reads one.
++    # Leaving it in would hand the resolver a member its own request contract
++    # does not have -- and the contract is closed, so it would refuse.
++    request.pop("labels", None)
+     request["task"] = {"job_id": boundaries.identity(job_id, "a Job id"),
+                        "work_id": derived["work_id"],
+                        "statement": task["statement"]}
+@@ -671,14 +751,43 @@ def _authorized(authorization, operands):
+     Job runs under that Work or no installed worker can serve it -- which the
+     selector is asked about a few lines later. What this does is prove the
+     Authority really holds it, through the Authority's own API.
++
++    W29401: AND ITS CREATE-TIME LABELS, WHEN THIS CREATION MAKES IT.
++
++    A request's labels are applied by the one act that creates the Work, in
++    the same transaction, so a reader never sees that Work for an instant
++    without the labels it was created with -- which is the property
++    `Authority.create_work` owns and the reason the labels travel to it rather
++    than being added afterwards.
++
++    AND A WORK THIS CREATION DID NOT MAKE IS NEVER MUTATED HERE. The
++    deployment's derived Work is shared by every Job bound to it, so a second
++    creation that silently added labels would be changing the metadata of Work
++    somebody else stood up -- with no `manage-work-labels` decision, no
++    attributable actor and no label event anybody authorized. So it refuses
++    and names the verb that does it properly.
++
++    THE ONE EXCEPTION IS NOT AN EXCEPTION: a Work that ALREADY CARRIES every
++    requested label is already in the asked-for state, so there is nothing to
++    mutate and nothing to refuse. That is the authority's own convergent
++    reading of a label request, and it is what lets an INCOMPLETE creation --
++    one that minted the Work and its labels and then refused at the binding --
++    be fixed and run again, which `_incomplete` promises and a flat refusal
++    here would have taken away.
+     """
+     work_id = operands["work_id"]
++    wanted = operands.get("labels") or ()
+     held = authorization.work_of(work_id)
+     if held is None:
+         created = authorization.create_work(
+-            work_id, operation_id=f"{CREATE_KIND}.work:{work_id}")
++            work_id, operation_id=f"{CREATE_KIND}.work:{work_id}",
++            labels=wanted)
+         return {"work_id": work_id, "state": "created",
+-                "projection": created}
++                # WHAT WAS ASKED FOR, under its own name. The labels the Work
++                # actually CARRIES are `projection.labels`, and one member
++                # meaning both would be unreadable on the reuse branch below,
++                # where a request may name a subset of them.
++                "requested_labels": list(wanted), "projection": created}
+     state = held.get("state") if type(held) is dict else None
+     if state is not None and state != "open":
+         raise _incomplete(
+@@ -686,7 +795,21 @@ def _authorized(authorization, operands):
+             f"ordinary Job is created under an OPEN Work; a closed Work "
+             f"cannot take a claim, so nothing would ever run this Job",
+             reserved=operands["job_id"])
+-    return {"work_id": work_id, "state": "reused", "projection": held}
++    carried = held.get("labels") if type(held) is dict else None
++    absent = [one for one in wanted if one not in (carried or ())]
++    if absent:
++        raise _incomplete(
++            f"this creation asks for Work labels {sample_of(absent)} and "
++            f"reuses the existing Work {name_value(work_id)}, which carries "
++            f"{sample_of(sorted(carried or ())) or 'none'}; create-time "
++            f"labels are applied by the act that MAKES a Work, and a "
++            f"creation does not relabel Work it did not make. Add them as "
++            f"their own authorized act -- `baton-v12-stack work label-work "
++            f"--work {work_id} --label <value>` -- or repeat this creation "
++            f"without --label",
++            reserved=operands["job_id"])
++    return {"work_id": work_id, "state": "reused",
++            "requested_labels": list(wanted), "projection": held}
+ 
+ 
+ def _bound(binding, operands, *, resolution):
+diff --git a/v12/python/tests/authority/test_work_label_exposure.py b/v12/python/tests/authority/test_work_label_exposure.py
+index 9ba846bf..4d0281d6 100644
+--- a/v12/python/tests/authority/test_work_label_exposure.py
++++ b/v12/python/tests/authority/test_work_label_exposure.py
+@@ -24,15 +24,37 @@ What is left for this file is the one acceptance bullet whose CLI form has no
+ host but whose UNDERLYING property does, and which nothing else asserts: that a
+ Work label and an OCI runtime label cannot be confused for one another. The
+ dossier's remaining CLI-shaped scope is parked rather than invented here.
++
++THAT PREMISE IS NOW HALF FALSE, which is why this file grew rather than being
++rewritten. W29401's first CLI slice gives the deployed bundle a `work`
++subcommand (`tools/work_command.py`, proved as argv in
++`tests/tools/test_work_command.py`) and `manager create --label`. The
++revalidation above stays exactly as it was recorded: it is the history of why
++the parked remainder was parked, and the two classes it produced are
++unchanged.
++
++WHAT THE NEW CLASSES ADD is the half the 2026-08-29 revalidation could not
++reach, and it is a different surface rather than a second opinion. Those two
++classes drive `Authority._core`, which is where a transaction is proved and is
++not a surface anything outside this package may use. A command can reach only
++the two PUBLIC faces -- the trusted-bootstrap `Authority` and the minted
++participant-bound `Session` -- so the exposure a CLI actually depends on is
++asserted there: the public creation face with its required operation identity,
++the two session transitions and their enumerated table, the inventory
++predicate's placement on the operator face, and a read-only handle that
++answers every read while performing nothing. If a case below can do it,
++`tools/work_command.py` can do it; if it cannot, no command can.
+ """
+ 
+ import os
+ import tempfile
+ import unittest
+ 
++from baton_v12.authority import V12
+ from baton_v12.authority.api import Authority
+ from baton_v12.authority.errors import Refusal
+-from baton_v12.authority.labels import canonical_label
++from baton_v12.authority.labels import MAX_LABELS, canonical_label
++from baton_v12.authority.session import SESSION_READS, SESSION_TRANSITIONS
+ from baton_v12.worker_manager.oci import LABEL_PREFIX
+ 
+ UUID = "43c55d4b" + "0" * 24
+@@ -185,5 +207,315 @@ class TheLibrarySurfaceAlreadyCarriesTheApprovedContract(unittest.TestCase):
+         self.assertIn("cannot both carry and not carry", str(caught.exception))
+ 
+ 
++# -- W29401 slice 1: the same contract, through the PUBLIC faces only --------
++#
++# Nothing below touches `_core`. `V12` is the assignment contract a deployment
++# creates its Work under, named so these cases create Work the way
++# `creation_ports.WorkAuthorization` does.
++
++SLAW = "baton.slaw"
++OTHER = "43c55d4b-W2"
++THIRD = "43c55d4b-W3"
++PLATFORM = "scope:platform"
++
++
++class PublicFaceCase(unittest.TestCase):
++    """One disposable authority, reached only through its two public faces."""
++
++    def setUp(self):
++        root = tempfile.TemporaryDirectory(prefix="v12-w29401-public-")
++        self.addCleanup(root.cleanup)
++        self.path = os.path.join(root.name, "authority.sqlite3")
++        self.authority = Authority.create(self.path, authority_uuid=UUID,
++                                          clock=lambda: NOW)
++        self.addCleanup(self.authority.dispose)
++        self._operations = 0
++
++    def op(self):
++        self._operations += 1
++        return f"op-{self._operations}"
++
++    def work(self, work_id=WORK, *, labels=(), scope=None, operation_id=None):
++        self.authority.create_work(
++            work_id, ROUTE, contract=V12, labels=labels, scope=scope,
++            operation_id=operation_id or ("create-" + work_id))
++        self.authority.add_route_handler(ROUTE, WHO)
++        return work_id
++
++    def allow(self, participant=SLAW, scope=None):
++        self.authority.grant_capability(participant, "manage-work-labels",
++                                        scope=scope)
++        return self.authority.session(participant)
++
++
++class ThePublicCreationFaceCarriesLabels(PublicFaceCase):
++    """`Authority.create_work(labels=..., operation_id=...)`.
++
++    The zero/one/repeated and normalization readings are
++    `TheLibrarySurfaceAlreadyCarriesTheApprovedContract`'s and are not
++    repeated. What is new is the face: this one REQUIRES an operation
++    identity, which is what makes a creation and its create-time labels
++    replayable and gives every initial label event an act to be attributed
++    to -- and a CLI has nothing else to call.
++    """
++
++    def test_the_public_face_applies_and_sorts_the_labels_it_is_given(self):
++        self.work(WORK, labels=["Release-Foo", "V12", "hot"])
++        self.assertEqual(self.authority.labels_of(WORK),
++                         ["hot", "release-foo", "v12"])
++        self.assertEqual(self.authority.project_work(WORK)["labels"],
++                         ["hot", "release-foo", "v12"])
++
++    def test_two_operands_that_are_one_key_refuse_and_create_nothing(self):
++        with self.assertRaises(Refusal) as caught:
++            self.work(WORK, labels=["v12", "V12"])
++        self.assertIn("one label after normalization", str(caught.exception))
++        with self.assertRaises(Refusal):
++            self.authority.project_work(WORK)
++
++    def test_a_malformed_create_time_label_refuses_and_creates_nothing(self):
++        for bad in ("team=core", "v12,hot", "has space", "-leading", 7):
++            with self.subTest(bad=bad):
++                with self.assertRaises(Refusal):
++                    self.work(WORK, labels=[bad])
++                with self.assertRaises(Refusal):
++                    self.authority.project_work(WORK)
++
++    def test_the_cardinality_bound_is_the_works_and_is_checked_at_creation(self):
++        full = [f"label-{index:02d}" for index in range(MAX_LABELS)]
++        with self.assertRaises(Refusal) as caught:
++            self.work(WORK, labels=full + ["one-too-many"])
++        self.assertIn("at most", str(caught.exception))
++        with self.assertRaises(Refusal):
++            self.authority.project_work(WORK)
++        # ...AND EXACTLY THE BOUND IS ACCEPTED, so that is the limit rather
++        # than an off-by-one.
++        self.work(WORK, labels=full)
++        self.assertEqual(len(self.authority.labels_of(WORK)), MAX_LABELS)
++
++    def test_an_exact_creation_retry_replays_and_adds_no_second_event(self):
++        first = self.authority.create_work(
++            WORK, ROUTE, contract=V12, operation_id="create-once",
++            labels=["v12"])
++        again = self.authority.create_work(
++            WORK, ROUTE, contract=V12, operation_id="create-once",
++            labels=["v12"])
++        self.assertEqual(again, first)
++        self.assertEqual(len(self.authority.work_label_events(WORK)), 1)
++
++    def test_a_creation_retried_with_other_labels_collides(self):
++        self.authority.create_work(WORK, ROUTE, contract=V12,
++                                   operation_id="create-once", labels=["v12"])
++        with self.assertRaises(Refusal) as caught:
++            self.authority.create_work(WORK, ROUTE, contract=V12,
++                                       operation_id="create-once",
++                                       labels=["v12", "hot"])
++        self.assertIn("reused for different operands", str(caught.exception))
++        self.assertEqual(self.authority.labels_of(WORK), ["v12"])
++
++    def test_a_create_time_label_is_attributed_to_the_creation_act(self):
++        """Not to a `manage-work-labels` grant, because there was not one."""
++        self.work(WORK, labels=["v12"], operation_id="create-attributed")
++        event, = self.authority.work_label_events(WORK)
++        self.assertEqual(event["act"], "work-create")
++        self.assertEqual(event["act_id"], "create-attributed")
++        self.assertIsNone(event["decision"])
++        self.assertEqual(event["creation"]["kind"], "trusted-bootstrap")
++
++
++class TheRuntimeFaceOwnsTheMutations(PublicFaceCase):
++    """The two transitions, reached only through a minted session."""
++
++    def test_the_enumerated_table_names_the_two_work_label_transitions(self):
++        self.assertIn("label_work", SESSION_TRANSITIONS)
++        self.assertIn("unlabel_work", SESSION_TRANSITIONS)
++
++    def test_no_transition_is_spelled_like_v11s_thread_relation(self):
++        """v11's `baton label` BINDS A THREAD TO A WORK.
++
++        A v12 Work label is one opaque value carried BY a Work, and the two
++        hosts run side by side. So the shorter spellings are deliberately
++        ABSENT here rather than meaning a second thing -- which is the
++        dispatch property `WorkLabelsAndRuntimeLabelsAreDifferentVOCABULARIES`
++        states for the OCI vocabulary, in the direction a session faces.
++        """
++        for absent in ("label", "unlabel", "tag", "untag"):
++            with self.subTest(absent=absent):
++                self.assertNotIn(absent, SESSION_TRANSITIONS)
++                self.assertNotIn(absent, SESSION_READS)
++
++    def test_the_session_reads_one_works_labels_and_not_the_inventory(self):
++        """`works_with_labels` answers about the whole deployment, and the
++        runtime face reads facts rather than inventories."""
++        self.assertIn("labels_of", SESSION_READS)
++        self.assertIn("work_label_events", SESSION_READS)
++        self.assertNotIn("works_with_labels", SESSION_READS)
++        self.assertFalse(hasattr(self.authority.session(SLAW),
++                                 "works_with_labels"))
++
++    def test_a_session_may_not_name_the_actor_it_acts_as(self):
++        self.work()
++        session = self.allow()
++        for forbidden in ("actor", "participant"):
++            with self.subTest(forbidden=forbidden):
++                with self.assertRaises(Refusal) as caught:
++                    session.label_work({"work_id": WORK, "label": "v12",
++                                        "operation_id": self.op(),
++                                        forbidden: WHO})
++                self.assertIn("takes its identity from the session",
++                              str(caught.exception))
++        self.assertEqual(self.authority.labels_of(WORK), [])
++
++    def test_an_authorized_addition_and_removal_are_attributed_acts(self):
++        self.work(WORK, labels=["v12"])
++        session = self.allow()
++        added = session.label_work({"work_id": WORK, "label": "Release-Foo",
++                                    "operation_id": self.op()})
++        self.assertTrue(added["changed"])
++        self.assertEqual(added["label"], "release-foo")
++        self.assertEqual(added["decision"]["role"], "manage-work-labels")
++        self.assertEqual(added["decision"]["principal"],
++                         self.authority.principal_of(SLAW))
++        removed = session.unlabel_work({"work_id": WORK, "label": "v12",
++                                        "operation_id": self.op()})
++        self.assertTrue(removed["changed"])
++        self.assertEqual(self.authority.labels_of(WORK), ["release-foo"])
++
++    def test_a_participant_without_the_grant_changes_nothing(self):
++        self.work(WORK, labels=["v12"])
++        # THE ROUTE HANDLER AND THE CLAIMANT ARE NAMED NEGATIVES: holding the
++        # Work is not holding the metadata capability.
++        handler = self.authority.session(WHO)
++        handler.claim({"work_id": WORK, "operation_id": self.op()})
++        for one in (handler, self.authority.session("baton.nobody")):
++            with self.subTest(participant=one.participant):
++                with self.assertRaises(Refusal) as caught:
++                    one.label_work({"work_id": WORK, "label": "hot",
++                                    "operation_id": self.op()})
++                self.assertIn("manage-work-labels", str(caught.exception))
++                with self.assertRaises(Refusal):
++                    one.unlabel_work({"work_id": WORK, "label": "v12",
++                                      "operation_id": self.op()})
++        self.assertEqual(self.authority.labels_of(WORK), ["v12"])
++        self.assertEqual(len(self.authority.work_label_events(WORK)), 1)
++
++    def test_the_decision_is_resolved_in_the_works_own_scope(self):
++        self.work(WORK, scope=PLATFORM)
++        self.allow()
++        with self.assertRaises(Refusal):
++            self.authority.session(SLAW).label_work(
++                {"work_id": WORK, "label": "v12",
++                 "operation_id": self.op()})
++        self.assertEqual(self.authority.labels_of(WORK), [])
++        session = self.allow(scope=PLATFORM)
++        answer = session.label_work({"work_id": WORK, "label": "v12",
++                                     "operation_id": self.op()})
++        self.assertEqual(answer["decision"]["effective_scope"], PLATFORM)
++
++    def test_an_exact_retry_replays_the_committed_act(self):
++        self.work()
++        session = self.allow()
++        operation = self.op()
++        first = session.label_work({"work_id": WORK, "label": "v12",
++                                    "operation_id": operation})
++        again = session.label_work({"work_id": WORK, "label": "v12",
++                                    "operation_id": operation})
++        self.assertEqual(again, first)
++        self.assertEqual(len(self.authority.work_label_events(WORK)), 1)
++
++    def test_the_same_identity_for_another_label_collides(self):
++        self.work()
++        session = self.allow()
++        operation = self.op()
++        session.label_work({"work_id": WORK, "label": "v12",
++                            "operation_id": operation})
++        with self.assertRaises(Refusal) as caught:
++            session.label_work({"work_id": WORK, "label": "hot",
++                                "operation_id": operation})
++        self.assertIn("reused for different operands", str(caught.exception))
++        self.assertEqual(self.authority.labels_of(WORK), ["v12"])
++
++    def test_a_convergent_request_succeeds_and_reports_changed_false(self):
++        self.work(WORK, labels=["v12"])
++        session = self.allow()
++        held = session.label_work({"work_id": WORK, "label": "v12",
++                                   "operation_id": self.op()})
++        self.assertFalse(held["changed"])
++        self.assertEqual(held["labels"], ["v12"])
++        absent = session.unlabel_work({"work_id": WORK,
++                                       "label": "never-there",
++                                       "operation_id": self.op()})
++        self.assertFalse(absent["changed"])
++        # NO EVENT FOR EITHER: a journal that recorded nothing happening could
++        # no longer say what did.
++        self.assertEqual(len(self.authority.work_label_events(WORK)), 1)
++
++
++class LabelsOutliveTheWorkTheyDescribe(PublicFaceCase):
++    """Audited label maintenance after terminal closure, through a session."""
++
++    def closed(self):
++        self.work(WORK, labels=["v12"])
++        self.authority.grant_capability(WHO, "close")
++        self.authority.session(WHO).close(
++            {"work_id": WORK, "operation_id": self.op(),
++             "outcome": "satisfying", "rationale": "done"})
++        self.assertEqual(self.authority.project_work(WORK)["status"], "closed")
++
++    def test_a_closed_work_is_still_labelled_and_unlabelled(self):
++        self.closed()
++        session = self.allow()
++        session.label_work({"work_id": WORK, "label": "archived",
++                            "operation_id": self.op()})
++        session.unlabel_work({"work_id": WORK, "label": "v12",
++                              "operation_id": self.op()})
++        self.assertEqual(self.authority.labels_of(WORK), ["archived"])
++        projection = self.authority.project_work(WORK)
++        # AND THE CLOSURE IS UNTOUCHED: archive metadata reopens nothing.
++        self.assertEqual(projection["status"], "closed")
++        self.assertIsNone(projection["phase"])
++        self.assertEqual(projection["outcome"], "satisfying")
++
++    def test_the_post_closure_change_is_audited_like_any_other(self):
++        self.closed()
++        self.allow().label_work({"work_id": WORK, "label": "archived",
++                                 "operation_id": "after-closure"})
++        event = self.authority.work_label_events(WORK)[-1]
++        self.assertEqual((event["act"], event["act_id"], event["action"]),
++                         ("work-label", "after-closure", "added"))
++        self.assertEqual(event["decision"]["role"], "manage-work-labels")
++
++
++class AReadOnlyHandleAnswersEveryLabelRead(PublicFaceCase):
++    """W29401's `work labels` and `work list` take this handle, so it has to
++    answer -- and a mutation through it must not."""
++
++    def test_the_three_reads_answer_and_a_mutation_refuses(self):
++        self.work(WORK, labels=["v12", "release-foo"])
++        self.authority.create_work(OTHER, ROUTE, contract=V12,
++                                   operation_id="create-" + OTHER,
++                                   labels=["v12"])
++        self.authority.create_work(THIRD, ROUTE, contract=V12,
++                                   operation_id="create-" + THIRD)
++        self.authority.grant_capability(SLAW, "manage-work-labels")
++        with Authority.open_readonly(
++                self.path, expected_authority_uuid=UUID) as reader:
++            self.assertEqual(reader.labels_of(WORK), ["release-foo", "v12"])
++            self.assertEqual(
++                [one["label"] for one in reader.work_label_events(WORK)],
++                ["release-foo", "v12"])
++            self.assertEqual(reader.works_with_labels(all_of=["v12"]),
++                             sorted([WORK, OTHER]))
++            self.assertEqual(reader.works_with_labels(none_of=["v12"]),
++                             [THIRD])
++            with self.assertRaises(Refusal) as caught:
++                reader.session(SLAW).label_work(
++                    {"work_id": WORK, "label": "hot",
++                     "operation_id": self.op()})
++            self.assertIn("opened for reading", str(caught.exception))
++        self.assertEqual(self.authority.labels_of(WORK),
++                         ["release-foo", "v12"])
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/v12/python/tests/job_manager/test_creation.py b/v12/python/tests/job_manager/test_creation.py
+index 12b35b60..0d9d4d92 100644
+--- a/v12/python/tests/job_manager/test_creation.py
++++ b/v12/python/tests/job_manager/test_creation.py
+@@ -114,12 +114,18 @@ class FakeDerivation:
+ 
+ 
+ class FakeAuthorization:
+-    """One Work, and a record of whether anything was created."""
++    """One Work, and a record of whether anything was created.
+ 
+-    def __init__(self, state="open", known=True, identity=None):
++    W29401: `labels` is what the EXISTING Work carries -- the member the real
++    `project_work` projects -- and `created` records the labels each creation
++    was asked for, because the operand reaching the port is the point.
++    """
++
++    def __init__(self, state="open", known=True, identity=None, labels=()):
+         self.state = state
+         self.known = known
+         self.created = []
++        self.labels = list(labels)
+         self._identity = identity
+ 
+     def instance(self):
+@@ -128,12 +134,15 @@ class FakeAuthorization:
+     def work_of(self, work_id):
+         if not self.known:
+             return None
+-        return {"work_id": work_id, "state": self.state, "phase": "queued"}
++        return {"work_id": work_id, "state": self.state, "phase": "queued",
++                "labels": list(self.labels)}
+ 
+-    def create_work(self, work_id, *, operation_id):
+-        self.created.append((work_id, operation_id))
++    def create_work(self, work_id, *, operation_id, labels=()):
++        self.created.append((work_id, operation_id, tuple(labels)))
+         self.known = True
+-        return {"work_id": work_id, "state": "open", "phase": "queued"}
++        self.labels = sorted(labels)
++        return {"work_id": work_id, "state": "open", "phase": "queued",
++                "labels": list(self.labels)}
+ 
+ 
+ class FakeBinding:
+@@ -392,8 +401,9 @@ class TheCreation(CreationCase):
+         self.authorization.known = False
+         held = self.created(authorization=self.authorization)
+         self.assertEqual(held["work"]["state"], "created")
+-        self.assertEqual(self.authorization.created,
+-                         [(WORK_A, f"{creation.CREATE_KIND}.work:{WORK_A}")])
++        self.assertEqual(
++            self.authorization.created,
++            [(WORK_A, f"{creation.CREATE_KIND}.work:{WORK_A}", ())])
+ 
+     def test_the_binding_is_published_through_its_owner(self):
+         held = self.created()
+@@ -843,6 +853,16 @@ class WhatItRefusesBeforeAnyEffect(CreationCase):
+         which re-reports a `ContractRefusal` as the incomplete act it is.
+         A catch-all anywhere on this path would turn this module's own
+         defects into "your request is invalid".
++
++        W29401 ADDS ONE MORE NAME AND NOT A CATEGORY. `_labels` validates a
++        request's Work labels through the AUTHORITY's own
++        `canonical_label_set`, which refuses with `authority.errors.Refusal`
++        -- another owner's typed refusal about an operand THIS caller wrote.
++        Re-reporting it as this module's `ContractRefusal` keeps one refusal
++        vocabulary at this boundary, which is what every other member of a
++        creation request already gets. It masks no programmer fault, because
++        that helper raises `Refusal` for a malformed operand and for nothing
++        else, and the catch-all prohibition below is unchanged.
+         """
+         import ast
+         import pathlib as _pathlib
+@@ -858,7 +878,9 @@ class WhatItRefusesBeforeAnyEffect(CreationCase):
+                                       f"{node.name} holds a bare except")
+                 named = (piece.type.attr if type(piece.type) is ast.Attribute
+                          else getattr(piece.type, "id", None))
+-                self.assertIn(named, ("ContractRefusal", "IntegrityError"),
++                self.assertIn(named,
++                              ("ContractRefusal", "IntegrityError",
++                               "Refusal"),
+                               f"{node.name} catches {named}")
+ 
+     def test_owners_answering_for_two_instances_refuse(self):
+@@ -1420,6 +1442,182 @@ class TheRequestedVerificationIsTheJobsOwn(CreationCase):
+         self.assertEqual(self.derivation.calls, 0)
+ 
+ 
++class CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork(CreationCase):
++    """W29401: `manager create --label`, at the operation.
++
++    THE WHOLE RULE IN ONE SENTENCE: the labels a request states are applied by
++    the act that CREATES the Work, and a creation that reuses an existing Work
++    never relabels it. A shared derived Work is exactly what every Job of a
++    deployment runs under, so a second creation that quietly added metadata to
++    it would be mutating somebody else's Work with no `manage-work-labels`
++    decision, no attributable actor and no event anybody authorized.
++    """
++
++    def recorded_digest(self, job_id=JOB):
++        """The digest of the caller intent this store RESERVED.
++
++        The reservation keeps the request's DIGEST and the three-member
++        intent, not the request document -- so the labels are proved through
++        the digest, which is exactly the thing a replay and a collision are
++        decided by.
++        """
++        held, = [one for one in self.rows() if one["job_id"] == job_id]
++        return held["request_digest"]
++
++    def digest_of(self, **named):
++        """The digest a request with these members would carry."""
++        return digest(dict(request(**named)))
++
++    def test_a_creation_that_states_no_labels_creates_the_work_unlabelled(self):
++        """WHICH IS THE BEHAVIOUR OF EVERY CREATION BEFORE THIS OPTION, and
++        the member is absent rather than empty."""
++        self.authorization.known = False
++        held = self.created()
++        self.assertEqual(self.recorded_digest(), self.digest_of())
++        self.assertEqual(self.authorization.created,
++                         [(WORK_A, f"{creation.CREATE_KIND}.work:{WORK_A}",
++                           ())])
++        self.assertEqual(held["work"]["requested_labels"], [])
++
++    def test_one_and_repeated_labels_reach_the_creating_act(self):
++        self.authorization.known = False
++        held = self.created(request=request(labels=["v12"]))
++        self.assertEqual(self.authorization.created[-1][2], ("v12",))
++        self.assertEqual(held["work"]["requested_labels"], ["v12"])
++        self.authorization = FakeAuthorization(known=False)
++        several = self.created(
++            authorization=self.authorization,
++            request=request(labels=["v12", "release-foo", "hot"],
++                            task={"task_id": "several",
++                                  "statement": STATEMENT}))
++        # SORTED AND NORMALIZED BY THE AUTHORITY'S OWN HELPER, so the operand
++        # order the operator wrote is not a fact the Work records.
++        self.assertEqual(self.authorization.created[-1][2],
++                         ("hot", "release-foo", "v12"))
++        self.assertEqual(several["work"]["requested_labels"],
++                         ["hot", "release-foo", "v12"])
++
++    def test_the_labels_are_normalized_into_the_requests_own_digest(self):
++        """So two spellings of one key are ONE creation and not a collision
++        about nothing."""
++        self.authorization.known = False
++        held = self.created(request=request(labels=["Release-Foo", "V12"]))
++        # THE DIGEST IS THE NORMALIZED REQUEST'S, not the as-written one.
++        self.assertEqual(self.recorded_digest(),
++                         self.digest_of(labels=["release-foo", "v12"]))
++        self.assertNotEqual(self.recorded_digest(),
++                            self.digest_of(labels=["Release-Foo", "V12"]))
++        self.assertEqual(self.authorization.created[-1][2],
++                         ("release-foo", "v12"))
++        # THE SAME INTENT, SPELLED ANOTHER WAY, REPLAYS.
++        self.assertEqual(
++            self.created(request=request(labels=["v12", "RELEASE-FOO"])),
++            held)
++
++    def test_two_operands_that_are_one_key_refuse_before_any_effect(self):
++        self.authorization.known = False
++        caught = self.refused(request=request(labels=["v12", "V12"]))
++        self.assertIn("one label after normalization", caught.message)
++        self.assertEqual(self.rows(), [])
++        self.assertEqual(self.authorization.created, [])
++        self.assertEqual(self.derivation.calls, 0)
++
++    def test_a_malformed_or_oversized_label_set_refuses_before_any_effect(self):
++        from baton_v12.authority.labels import MAX_LABELS
++
++        for bad in ("team=core", ["v12,hot"], ["has space"], [""], [7],
++                    "v12", None,
++                    [f"label-{index:02d}" for index in range(MAX_LABELS + 1)]):
++            with self.subTest(labels=bad):
++                self.refused(request=request(labels=bad))
++        self.assertEqual(self.rows(), [])
++        self.assertEqual(self.authorization.created, [])
++        self.assertEqual(self.derivation.calls, 0)
++
++    def test_the_labels_are_part_of_the_callers_intent(self):
++        """A second request under one Job identity naming other labels is a
++        DIFFERENT creation, and refuses rather than taking over the first."""
++        self.authorization.known = False
++        self.created(request=request(labels=["v12"]))
++        caught = self.refused(request=request(labels=["v12", "hot"]))
++        self.assertIn("already the creation of a DIFFERENT request",
++                      caught.message)
++        caught = self.refused(request=request())
++        self.assertIn("already the creation of a DIFFERENT request",
++                      caught.message)
++        # AND THE RECORDED CREATION IS UNTOUCHED.
++        self.assertEqual(self.recorded_digest(),
++                         self.digest_of(labels=["v12"]))
++
++    def test_an_exact_retry_replays_the_recorded_creation(self):
++        self.authorization.known = False
++        held = self.created(request=request(labels=["hot", "v12"]))
++        again = self.created(request=request(labels=["v12", "hot"]))
++        self.assertEqual(again, held)
++        # ONE CREATING ACT, not two: the replay answers before the deployment
++        # is asked anything at all.
++        self.assertEqual(len(self.authorization.created), 1)
++
++    def test_a_creation_that_reuses_a_work_refuses_to_relabel_it(self):
++        self.authorization = FakeAuthorization(labels=["v12"])
++        caught = self.refused(authorization=self.authorization,
++                              request=request(labels=["hot"]))
++        self.assertIn("reuses the existing Work", caught.message)
++        self.assertIn("work label-work", caught.message)
++        self.assertEqual(self.authorization.created, [])
++        # NOTHING WAS MUTATED, and the refusal says the identity is reserved
++        # rather than pretending the creation never started.
++        self.assertEqual(self.authorization.labels, ["v12"])
++        self.assertIn("is RESERVED", caught.message)
++        self.assertEqual(self.rows()[0]["state"], "intended")
++
++    def test_an_unlabelled_creation_still_reuses_an_existing_work(self):
++        """THE PRESERVED BEHAVIOUR. A request that says nothing about labels
++        reuses the Work exactly as it always did, whatever that Work carries.
++        """
++        self.authorization = FakeAuthorization(labels=["v12"])
++        held = self.created(authorization=self.authorization)
++        self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(held["work"]["requested_labels"], [])
++        self.assertEqual(self.authorization.labels, ["v12"])
++
++    def test_a_work_already_carrying_the_asked_for_labels_is_reused(self):
++        """WHICH IS WHAT LETS AN INCOMPLETE CREATION BE RUN AGAIN.
++
++        A creation that minted the Work with its labels and then refused at
++        the binding leaves exactly this state. The Work is already in the
++        asked-for state, so there is nothing to mutate and nothing to refuse,
++        and the one way forward `_incomplete` names -- fix what is named and
++        run the same request again -- stays open.
++        """
++        self.authorization = FakeAuthorization(labels=["hot", "v12"])
++        held = self.created(authorization=self.authorization,
++                            request=request(labels=["v12"]))
++        self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(self.authorization.created, [])
++        self.assertEqual(self.authorization.labels, ["hot", "v12"])
++
++    def test_a_closed_work_still_refuses_on_its_own_terms(self):
++        """The order of the two refusals matters: a Job under a closed Work is
++        refused for being unrunnable, not for the labels it asked for."""
++        self.authorization = FakeAuthorization(state="closed")
++        caught = self.refused(authorization=self.authorization,
++                              request=request(labels=["v12"]))
++        self.assertIn("ordinary Job is created under an OPEN Work",
++                      caught.message)
++
++    def test_the_resolver_is_never_handed_the_labels_member(self):
++        """A Work label is metadata on the Work; nothing in a submission, a
++        stage, a profile or the selector reads one, and the resolver's request
++        contract is closed."""
++        self.authorization.known = False
++        self.created(request=request(labels=["v12"]))
++        resolution = resolution_of(self.jobs, JOB)
++        self.assertNotIn("labels", resolution)
++        self.assertNotIn("labels", self.derivation.selections[-1])
++        self.assertNotIn("labels", submission_of(self.jobs, f"sub-{JOB}"))
++
++
+ class TheCommandRequestsTheOperation(unittest.TestCase):
+     """The CLI verb, and what it is NOT allowed to carry.
+ 
+@@ -1503,6 +1701,18 @@ class TheCommandRequestsTheOperation(unittest.TestCase):
+         self.assertEqual(held["verification"],
+                          ["python3", "-c", "raise SystemExit(0)"])
+ 
++    def test_a_label_is_absent_unless_stated_and_repeatable_when_it_is(self):
++        """W29401: `--label` is additive and states a Work fact.
++
++        An absent member is "this creation says nothing about labels", which
++        is what every creation before this option meant; the operands travel
++        verbatim and the OPERATION normalizes them, so the one grammar is the
++        authority's.
++        """
++        self.assertNotIn("labels", self.taken()["request"])
++        held = self.taken("--label", "V12", "--label", "release-foo")
++        self.assertEqual(held["request"]["labels"], ["V12", "release-foo"])
++
+     def test_repeating_an_operand_accumulates_a_list(self):
+         held = self.taken("--acceptance", "a second criterion",
+                           "--work-scope", "v12/python/tools/job_manager.py",
+diff --git a/v12/python/tests/tools/test_connected_creation.py b/v12/python/tests/tools/test_connected_creation.py
+index dec13bef..178cb454 100644
+--- a/v12/python/tests/tools/test_connected_creation.py
++++ b/v12/python/tests/tools/test_connected_creation.py
+@@ -1119,5 +1119,181 @@ class TheRefusalsAreTruthful(ConnectedCreationCase):
+         self.assertFalse(os.path.exists(elsewhere))
+ 
+ 
++class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
++    """W29401: `manager create --label`, against a really installed instance.
++
++    THE TWO DIRECTIONS THIS INSTALL MAKES REAL. The ordinary fixture's
++    bootstrap already created this deployment's Work (for `job-a`), so an
++    ordinary creation REUSES it -- which is the case that must refuse rather
++    than relabel somebody else's Work. An install that names no Job has no
++    Work yet, so the creation MAKES it, and that is where create-time labels
++    are applied.
++
++    AND THE TWO COMMANDS COMPOSE. The labels a reused Work is missing are
++    added by `baton-v12-stack work label-work` against this instance's own
++    Authority store -- the real command, the real deployment -- after which
++    the same creation converges. That is the workflow the refusal's own
++    sentence tells an operator to use.
++    """
++
++    def labelled(self, *labels, **named):
++        """One creation that also states Work labels, as argv."""
++        argv = self.argv(**named)
++        for one in labels:
++            argv += ["--label", one]
++        return argv
++
++    def made(self, argv):
++        """One creation this command performs, as its parsed answer.
++
++        ITS OWN ENTRY RATHER THAN THE BASE HELPER'S, because `created`
++        composes the argument list from keywords and `--label` is repeatable:
++        a keyword cannot carry two of them.
++        """
++        said = io.StringIO()
++        code = job_manager.main(argv, stream=said)
++        self.assertEqual(code, 0, said.getvalue())
++        return json.loads(said.getvalue())
++
++    def stopped(self, argv):
++        """One creation this command refuses, as the typed refusal it is.
++
++        A `ContractRefusal` reaches the caller rather than becoming an exit
++        code, which is this CLI's shape for every command -- see `refused` on
++        the base case.
++        """
++        with self.assertRaises(ContractRefusal) as caught:
++            job_manager.main(argv, stream=io.StringIO())
++        return caught.exception
++
++    def authority(self, *, writable=False):
++        """This instance's OWN Authority, read the way a verb reads it."""
++        from baton_v12.authority import Authority
++
++        opener = Authority.open if writable else Authority.open_readonly
++        held = opener(self.owned["authority_store"],
++                      expected_authority_uuid=self.owned["authority_uuid"])
++        self.addCleanup(held.dispose)
++        return held
++
++    def work_verb(self, *operands):
++        """The installed `work` subcommand, over this instance's own
++        Authority: the real command against the real deployment."""
++        from tools import work_command
++
++        said = io.StringIO()
++        with mock.patch("sys.stdout", said):
++            code = work_command.main(
++                list(operands) + ["--authority-store",
++                                  self.owned["authority_store"],
++                                  "--authority-uuid",
++                                  self.owned["authority_uuid"]])
++        return code, said.getvalue()
++
++    def test_an_unlabelled_creation_is_exactly_what_it_was(self):
++        """THE PRESERVED PATH, and the additive member in the answer."""
++        self.installed()
++        held = self.made(self.argv())
++        self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(held["work"]["requested_labels"], [])
++        self.assertEqual(self.authority().labels_of(self.work), [])
++        self.assertEqual(self.authority().work_label_events(self.work), [])
++        code, said = self.work_verb("labels", "--work", self.work)
++        self.assertEqual(code, 0, said)
++        self.assertEqual(json.loads(said)["labels"], [])
++
++    def test_a_creation_that_makes_the_work_applies_its_labels(self):
++        """An install that names no Job has no Work, so this creation makes
++        it -- and it is created carrying the normalized labels, in the act
++        that made it.
++
++        THIS FIXTURE'S CREATION THEN STOPS AT ITS BINDING, because an install
++        with no Job emits no `job_bindings` for `prepare` to publish into.
++        That is a property of a Job-less install and not of this option: what
++        it demonstrates is the thing `_incomplete` promises, since the Work
++        and its labels are what the creation had already published.
++        """
++        self.installed(jobs=[], line_declared_base="a" * 40,
++                       canonical_target_id="target-1")
++        refusal = self.stopped(self.labelled("Release-Foo", "V12"))
++        self.assertIn("is RESERVED", str(refusal))
++        authority = self.authority()
++        self.assertEqual(authority.labels_of(self.work),
++                         ["release-foo", "v12"])
++        # ONE INSTANT AND ONE ACT: every label event is the creation's own.
++        self.assertEqual(
++            [(one["label"], one["act"]) for one
++             in authority.work_label_events(self.work)],
++            [("release-foo", "work-create"), ("v12", "work-create")])
++        self.assertEqual(authority.works_with_labels(all_of=["v12"]),
++                         [self.work])
++        # AND THE SAME REQUEST AGAIN REACHES THE SAME PLACE rather than
++        # refusing about labels the Work already carries.
++        again = self.stopped(self.labelled("Release-Foo", "V12"))
++        self.assertIn("is RESERVED", str(again))
++        self.assertNotIn("work label-work", str(again))
++        self.assertEqual(authority.labels_of(self.work),
++                         ["release-foo", "v12"])
++
++    def test_a_creation_that_reuses_a_work_refuses_to_relabel_it(self):
++        self.installed()
++        refusal = self.stopped(self.labelled("v12"))
++        self.assertIn("reuses the existing Work", str(refusal))
++        self.assertIn("work label-work", str(refusal))
++        # NOTHING WAS MUTATED ON THE SHARED WORK, and no Job was submitted.
++        authority = self.authority()
++        self.assertEqual(authority.labels_of(self.work), [])
++        self.assertEqual(authority.work_label_events(self.work), [])
++        self.assertNotIn("job-cli-first", self.bindings())
++        self.assertEqual(self.submitted("job-cli-first"), [])
++
++    def test_the_work_verb_is_how_a_reused_works_labels_are_added(self):
++        """The refusal's own guidance, carried out through the real command."""
++        self.installed()
++        self.stopped(self.labelled("v12"))
++        self.authority(writable=True).grant_capability(
++            "baton.slaw", "manage-work-labels")
++        code, said = self.work_verb(
++            "label-work", "--participant", "baton.slaw",
++            "--work", self.work, "--operation-id", "labels-1",
++            "--label", "V12")
++        self.assertEqual(code, 0, said)
++        answer = json.loads(said)
++        self.assertEqual(answer["changed"], ["v12"])
++        self.assertEqual(answer["acts"][0]["decision"]["role"],
++                         "manage-work-labels")
++        # AND NOW THE SAME CREATION CONVERGES: the Work is already in the
++        # asked-for state, so there is nothing to mutate and nothing to
++        # refuse.
++        held = self.made(self.labelled("v12"))
++        self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(held["work"]["requested_labels"], ["v12"])
++        self.assertIn("job-cli-first", self.bindings())
++        code, said = self.work_verb("list", "--label", "v12")
++        self.assertEqual(json.loads(said)["work"], [self.work])
++
++    def test_two_operands_that_are_one_key_refuse_before_any_effect(self):
++        self.installed()
++        refusal = self.stopped(self.labelled("v12", "V12"))
++        self.assertIn("one label after normalization", str(refusal))
++        self.assertEqual(self.authority().labels_of(self.work), [])
++        self.assertNotIn("job-cli-first", self.bindings())
++        self.assertEqual(
++            [one["job_id"] for one in self.install_document()["jobs"]],
++            ["job-a"])
++
++    def test_a_malformed_label_refuses_before_any_effect(self):
++        self.installed()
++        for bad in ("team=core", "v12,hot", "has space", "a" * 65):
++            with self.subTest(bad=bad):
++                refusal = self.stopped(self.labelled(bad))
++                self.assertIn("a Work label is 1 to 64 characters",
++                              str(refusal))
++        self.assertNotIn("job-cli-first", self.bindings())
++        self.assertEqual(
++            [one["job_id"] for one in self.install_document()["jobs"]],
++            ["job-a"])
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/v12/python/tests/tools/test_work_command.py b/v12/python/tests/tools/test_work_command.py
+new file mode 100644
+index 00000000..a6919925
+--- /dev/null
++++ b/v12/python/tests/tools/test_work_command.py
+@@ -0,0 +1,714 @@
++"""W29401 — the bundled `work` command: the Work-label CLI, driven as argv.
++
++Every case here enters `tools.work_command.main` with an operator's own
++argument list and reads the JSON it prints, because that is the whole claim of
++this Work: W29400's label behaviour was accepted and UNREACHABLE, so what has
++to be proved is the reachability -- the verbs, the operand spellings, the
++refusals an operator actually sees, and the exit codes.
++
++WHAT IS REAL. A real `Authority` store in a temporary directory, real grants,
++real sessions minted inside the command, real replay through the real operation
++journal. Nothing is mocked except where a case is specifically about which
++OPENER a verb uses.
++
++WHAT THIS SUITE DOES NOT RE-PROVE. The grammar, the cardinality, the
++scope-resolved decision and the one-snapshot predicate are W29400's and are
++proved against the model in `tests/authority/test_work_labels.py` and, through
++the two public faces a command can reach, in
++`tests/authority/test_work_label_exposure.py`. What is asserted here is that
++the command REACHES them and adds no second opinion:
++where a refusal is quoted it is quoted to prove the operator is told the
++authority's own sentence rather than a paraphrase this file invented.
++"""
++
++import io
++import json
++import os
++import tempfile
++import unittest
++from contextlib import redirect_stderr, redirect_stdout
++from unittest import mock
++
++from baton_v12.authority import Authority, V12
++from baton_v12.authority.labels import MAX_LABELS, MAX_LABEL_LENGTH
++
++from tools import stack_command, work_command
++
++UUID = "0123456789abcdef0123456789abcdef"
++WORK = "0123abcd-W1"
++OTHER = "0123abcd-W2"
++THIRD = "0123abcd-W3"
++CLAUDE = "baton.claude"
++SLAW = "baton.slaw"
++ROUTE = "impl"
++NOW = "2026-11-19T12:00:00.000Z"
++PLATFORM = "scope:platform"
++
++# Every subcommand the installed command served BEFORE this Work, written out
++# so the one thing this change does to that table -- add `work` -- is a
++# comparison rather than a claim.
++BEFORE = {"bootstrap", "start", "stop", "status", "publish", "monitor",
++          "repository", "manager", "view", "logs", "record", "disposition",
++          "identity", "pool", "attempt-diagnostics"}
++
++
++class WorkCommandCase(unittest.TestCase):
++    """One disposable Authority, and the command entered as argv."""
++
++    def setUp(self):
++        self._root = tempfile.TemporaryDirectory(prefix="v12-w29401-cli-")
++        self.addCleanup(self._root.cleanup)
++        self.store = os.path.join(self._root.name, "authority.sqlite3")
++        authority = Authority.create(self.store, authority_uuid=UUID,
++                                     clock=lambda: NOW)
++        self.addCleanup(authority.dispose)
++        self.authority = authority
++        self._operations = 0
++
++    def op(self):
++        self._operations += 1
++        return f"op-{self._operations}"
++
++    def work(self, work_id=WORK, *, labels=(), scope=None):
++        self.authority.create_work(work_id, ROUTE, contract=V12,
++                                   operation_id="create-" + work_id,
++                                   labels=labels, scope=scope)
++        self.authority.add_route_handler(ROUTE, CLAUDE)
++        return work_id
++
++    def allow(self, participant=SLAW, scope=None):
++        self.authority.grant_capability(participant, "manage-work-labels",
++                                        scope=scope)
++        return participant
++
++    def closed(self, work_id=WORK):
++        self.authority.grant_capability(CLAUDE, "close")
++        self.authority.session(CLAUDE).close(
++            {"work_id": work_id, "operation_id": "close-" + work_id,
++             "outcome": "satisfying", "rationale": "done"})
++        return work_id
++
++    # -- entering the command ------------------------------------------------
++
++    def run_command(self, verb, *operands, participant=None, work=None,
++                    operation_id=None, labels=(), without=()):
++        """`work <verb> ...` as an operator writes it, with its output.
++
++        Returns `(code, stdout, stderr)`. The store selection is always
++        supplied because every verb takes it; everything else is the case's.
++        """
++        argv = [verb, "--authority-store", self.store,
++                "--authority-uuid", UUID]
++        if participant is not None:
++            argv += ["--participant", participant]
++        if work is not None:
++            argv += ["--work", work]
++        if operation_id is not None:
++            argv += ["--operation-id", operation_id]
++        for one in labels:
++            argv += ["--label", one]
++        for one in without:
++            argv += ["--without-label", one]
++        argv += list(operands)
++        out, err = io.StringIO(), io.StringIO()
++        with redirect_stdout(out), redirect_stderr(err):
++            code = work_command.main(argv)
++        return code, out.getvalue(), err.getvalue()
++
++    def answered(self, verb, **named):
++        """One invocation that succeeded, as its parsed answer."""
++        code, said, err = self.run_command(verb, **named)
++        self.assertEqual(code, 0, said + err)
++        return json.loads(said)
++
++    def refused(self, verb, **named):
++        """One invocation this command refuses, as its `refused:` sentence."""
++        code, said, err = self.run_command(verb, **named)
++        self.assertEqual(code, 2, said + err)
++        self.assertTrue(err.startswith("refused: "), err)
++        return err
++
++    def live(self, work_id=WORK):
++        return self.authority.labels_of(work_id)
++
++    def events(self, work_id=WORK):
++        return self.authority.work_label_events(work_id)
++
++
++class TheCommandIsBundledAndItsVocabularyIsItsOwn(WorkCommandCase):
++    """W29401's whole premise: the verbs exist, at the deployed command, and
++    they are not somebody else's label verbs."""
++
++    def test_the_installed_command_serves_work(self):
++        self.assertIn("work", stack_command.COMMANDS)
++        with mock.patch.object(work_command, "main",
++                               lambda operands: ("reached", operands)):
++            self.assertEqual(stack_command.COMMANDS["work"](["labels"]),
++                             ("reached", ["labels"]))
++
++    def test_the_existing_subcommands_are_untouched_and_work_is_additive(self):
++        """The change to this table is ONE new name and nothing else."""
++        self.assertEqual(set(stack_command.COMMANDS) - {"work"}, BEFORE)
++
++    def test_the_four_verbs_are_the_whole_surface(self):
++        self.assertEqual(sorted(work_command.VERBS),
++                         ["label-work", "labels", "list", "unlabel-work"])
++
++    def test_v11s_thread_verbs_are_not_reachable_here(self):
++        """v11's `baton label` BINDS A THREAD TO A WORK; this command's
++        `label-work` adds an opaque value TO a Work.
++
++        The two hosts run side by side, so the short spellings are absent
++        rather than meaning a second thing: an operator who writes `work
++        label` is told what this command serves instead of silently reaching
++        the wrong semantics.
++        """
++        for absent in ("label", "unlabel", "tag", "untag", "bind"):
++            with self.subTest(absent=absent):
++                self.assertNotIn(absent, work_command.VERBS)
++                out, err = io.StringIO(), io.StringIO()
++                with redirect_stdout(out), redirect_stderr(err):
++                    with self.assertRaises(SystemExit) as caught:
++                        work_command.main([absent, "--authority-store",
++                                           self.store, "--authority-uuid",
++                                           UUID])
++                self.assertEqual(caught.exception.code, 2)
++                self.assertIn("invalid choice", err.getvalue())
++
++    def test_dispatch_is_by_command_name_and_never_by_how_a_label_is_spelled(self):
++        """A label that LOOKS like another vocabulary is still just a value.
++
++        `0123abcd-w9` is shaped like a Work identity, `baton.claude` like a
++        participant and `t123` like a v11 thread name -- and every one of them
++        is accepted here as an ordinary opaque key that changes nothing but
++        the label set. The command reads no label to decide what it does,
++        which is why there is no branch here to point at: the proof is that
++        all three behave identically and the Work's own facts do not move.
++        """
++        self.work()
++        self.allow()
++        answer = self.answered(
++            "label-work", participant=SLAW, work=WORK,
++            operation_id=self.op(),
++            labels=["0123abcd-w9", "baton.claude", "t123"])
++        self.assertEqual(answer["changed"],
++                         ["0123abcd-w9", "baton.claude", "t123"])
++        projection = self.authority.project_work(WORK)
++        self.assertIsNone(projection["handler"])
++        self.assertEqual(projection["status"], "open")
++        self.assertEqual(projection["phase"], "queued")
++
++    def test_the_command_reaches_no_oci_or_runtime_label_vocabulary(self):
++        """The Worker Manager's `labels` are OCI execution identity.
++
++        Asserted from the SOURCE rather than remembered: this module imports
++        neither the worker manager nor the stage execution adapters, so there
++        is nothing in it that could reach a container label at all.
++        """
++        import ast
++        import pathlib
++
++        source = pathlib.Path(work_command.__file__).read_text(
++            encoding="utf-8")
++        imported = set()
++        for node in ast.walk(ast.parse(source)):
++            if type(node) is ast.Import:
++                imported.update(one.name for one in node.names)
++            elif type(node) is ast.ImportFrom and node.module:
++                imported.add(node.module)
++        self.assertEqual(
++            sorted(one for one in imported if one.startswith("baton_v12")),
++            ["baton_v12.authority", "baton_v12.authority.errors",
++             "baton_v12.authority.labels"])
++        for forbidden in ("worker_manager", "integration", "stage_execution",
++                          "docker", "oci"):
++            with self.subTest(forbidden=forbidden):
++                self.assertFalse(
++                    [one for one in imported if forbidden in one], imported)
++
++
++class TheGrammarAndCardinalityAreTheAuthoritys(WorkCommandCase):
++    def setUp(self):
++        super().setUp()
++        self.work()
++        self.allow()
++
++    def test_a_key_value_tag_is_refused_as_a_key_this_grammar_lacks(self):
++        said = self.refused("label-work", participant=SLAW, work=WORK,
++                            operation_id=self.op(), labels=["team=core"])
++        self.assertIn("'team=core'", said)
++        self.assertIn("a Work label is 1 to 64 characters", said)
++        self.assertEqual(self.live(), [])
++
++    def test_an_or_like_operand_is_refused_rather_than_split(self):
++        """A comma-joined or space-joined list is not one key, and this
++        command has no splitter that could make it two."""
++        for spelling in ("v12,hot", "v12 hot", "v12|hot", "v12+hot"):
++            with self.subTest(spelling=spelling):
++                self.refused("label-work", participant=SLAW, work=WORK,
++                             operation_id=self.op(), labels=[spelling])
++        self.assertEqual(self.live(), [])
++
++    def test_the_grammar_boundaries_reach_the_operator_unaltered(self):
++        for bad in ("", ".leading", "_leading", "has/slash", "caf\u00e9",
++                    "a" * (MAX_LABEL_LENGTH + 1)):
++            with self.subTest(bad=bad):
++                self.refused("label-work", participant=SLAW, work=WORK,
++                             operation_id=self.op(), labels=[bad])
++        for good in ("a", "0", "a.b_c-d", "a" * MAX_LABEL_LENGTH):
++            with self.subTest(good=good):
++                answer = self.answered("label-work", participant=SLAW,
++                                       work=WORK, operation_id=self.op(),
++                                       labels=[good])
++                self.assertEqual(answer["changed"], [good])
++
++    def test_a_label_that_starts_with_a_dash_is_written_as_one_operand(self):
++        """`--label=-leading` is how argparse takes a value that looks like an
++        option, which is the same rule `--verification=-m` already documents.
++
++        Written that way the operand REACHES the grammar and is refused by
++        it -- a label starting with a hyphen is not a key -- rather than being
++        read as an unknown option, which is a different answer to a different
++        question.
++        """
++        out, err = io.StringIO(), io.StringIO()
++        with redirect_stdout(out), redirect_stderr(err):
++            code = work_command.main(
++                ["label-work", "--authority-store", self.store,
++                 "--authority-uuid", UUID, "--participant", SLAW,
++                 "--work", WORK, "--operation-id", "op-dash",
++                 "--label=-leading"])
++        self.assertEqual(code, 2)
++        self.assertIn("'-leading'", err.getvalue())
++        self.assertIn("starts with an ASCII letter or digit", err.getvalue())
++        self.assertEqual(self.live(), [])
++
++    def test_repeated_label_operands_normalize_into_one_sorted_set(self):
++        answer = self.answered("label-work", participant=SLAW, work=WORK,
++                               operation_id=self.op(),
++                               labels=["Release-Foo", "V12", "hot"])
++        self.assertEqual([one["label"] for one in answer["acts"]],
++                         ["hot", "release-foo", "v12"])
++        self.assertEqual(answer["labels"], ["hot", "release-foo", "v12"])
++
++    def test_the_act_identities_are_derived_from_the_labels_not_their_order(self):
++        """So the same request written in another order is the same acts."""
++        first = self.answered("label-work", participant=SLAW, work=WORK,
++                              operation_id="op-order", labels=["b", "a"])
++        self.assertEqual([one["operation_id"] for one in first["acts"]],
++                         ["op-order:label-work:a", "op-order:label-work:b"])
++        again = self.answered("label-work", participant=SLAW, work=WORK,
++                              operation_id="op-order", labels=["a", "b"])
++        self.assertEqual(again, first)
++
++    def test_two_operands_that_are_one_key_refuse_and_change_nothing(self):
++        said = self.refused("label-work", participant=SLAW, work=WORK,
++                            operation_id=self.op(), labels=["v12", "V12"])
++        self.assertIn("one label after normalization", said)
++        self.assertEqual(self.live(), [])
++        self.assertEqual(self.events(), [])
++
++    def test_a_request_beyond_the_cardinality_refuses_at_the_boundary(self):
++        full = [f"label-{index:02d}" for index in range(MAX_LABELS)]
++        self.answered("label-work", participant=SLAW, work=WORK,
++                      operation_id="op-full", labels=full)
++        self.assertEqual(len(self.live()), MAX_LABELS)
++        said = self.refused("label-work", participant=SLAW, work=WORK,
++                            operation_id=self.op(), labels=["one-too-many"])
++        self.assertIn("maximum", said)
++        self.assertEqual(len(self.live()), MAX_LABELS)
++        # ...AND A LABEL THE WORK ALREADY HOLDS IS STILL ACCEPTED, because a
++        # no-op is not charged against the bound.
++        answer = self.answered("label-work", participant=SLAW, work=WORK,
++                               operation_id=self.op(), labels=[full[0]])
++        self.assertEqual(answer["changed"], [])
++
++    def test_an_operation_id_too_long_to_derive_from_refuses_first(self):
++        """Named with its bound, before the store is touched at all."""
++        said = self.refused("label-work", participant=SLAW, work=WORK,
++                            operation_id="o" * 150, labels=["v12"])
++        self.assertIn("at most 160 characters", said)
++        self.assertEqual(self.live(), [])
++
++
++class MutationsAreAuthorizedOrTheyDoNotHappen(WorkCommandCase):
++    def test_a_granted_participant_labels_and_unlabels(self):
++        self.work(WORK, labels=["v12"])
++        self.allow()
++        added = self.answered("label-work", participant=SLAW, work=WORK,
++                              operation_id=self.op(), labels=["hot"])
++        self.assertEqual(added["actor"], SLAW)
++        self.assertEqual(added["acts"][0]["decision"]["role"],
++                         "manage-work-labels")
++        self.assertEqual(added["labels"], ["hot", "v12"])
++        removed = self.answered("unlabel-work", participant=SLAW, work=WORK,
++                                operation_id=self.op(), labels=["v12"])
++        self.assertEqual(removed["acts"][0]["action"], "removed")
++        self.assertEqual(removed["labels"], ["hot"])
++        self.assertEqual(self.live(), ["hot"])
++
++    def test_the_actor_comes_from_the_participant_and_there_is_no_actor_operand(self):
++        """`--actor` does not exist here, and that absence is the point."""
++        self.work()
++        self.allow()
++        out, err = io.StringIO(), io.StringIO()
++        with redirect_stdout(out), redirect_stderr(err):
++            with self.assertRaises(SystemExit):
++                work_command.main(
++                    ["label-work", "--authority-store", self.store,
++                     "--authority-uuid", UUID, "--participant", SLAW,
++                     "--actor", CLAUDE, "--work", WORK,
++                     "--operation-id", "op-actor", "--label", "v12"])
++        self.assertIn("unrecognized arguments", err.getvalue())
++        self.assertEqual(self.live(), [])
++
++    def test_a_participant_without_the_grant_is_refused_and_nothing_moves(self):
++        self.work(WORK, labels=["v12"])
++        for who in (CLAUDE, "baton.nobody"):
++            with self.subTest(participant=who):
++                said = self.refused("label-work", participant=who, work=WORK,
++                                    operation_id=self.op(), labels=["hot"])
++                self.assertIn("manage-work-labels", said)
++                self.assertIn("does not hold", said)
++                self.refused("unlabel-work", participant=who, work=WORK,
++                             operation_id=self.op(), labels=["v12"])
++        self.assertEqual(self.live(), ["v12"])
++        self.assertEqual(len(self.events()), 1)
++
++    def test_authorization_is_resolved_in_the_works_own_scope(self):
++        """A deployment-wide grant does not authorize a scoped Work, and the
++        scoped grant does."""
++        self.work(WORK, scope=PLATFORM)
++        self.allow()
++        said = self.refused("label-work", participant=SLAW, work=WORK,
++                            operation_id=self.op(), labels=["v12"])
++        self.assertIn("manage-work-labels", said)
++        self.assertEqual(self.live(), [])
++        self.allow(scope=PLATFORM)
++        answer = self.answered("label-work", participant=SLAW, work=WORK,
++                               operation_id=self.op(), labels=["v12"])
++        self.assertEqual(answer["acts"][0]["decision"]["effective_scope"],
++                         PLATFORM)
++
++    def test_a_repeated_request_stops_at_the_first_unauthorized_label(self):
++        """A revocation between two acts of one request leaves the first
++        committed and the second refused, which is the honest answer: each
++        label is its own authorized act and nothing here batches a decision.
++        """
++        self.work()
++        self.allow()
++        session = self.authority.session(SLAW)
++        original = type(session).label_work
++
++        def revoking(one, *documents):
++            answer = original(one, *documents)
++            self.authority.revoke_capability(SLAW, "manage-work-labels")
++            return answer
++
++        with mock.patch.object(type(session), "label_work", revoking):
++            said = self.refused("label-work", participant=SLAW, work=WORK,
++                                operation_id="op-revoked",
++                                labels=["aaa", "zzz"])
++        self.assertIn("manage-work-labels", said)
++        self.assertEqual(self.live(), ["aaa"])
++
++    def test_a_work_this_authority_does_not_hold_refuses(self):
++        self.allow()
++        said = self.refused("label-work", participant=SLAW,
++                            work="0123abcd-W99", operation_id=self.op(),
++                            labels=["v12"])
++        self.assertIn("0123abcd-W99", said)
++
++
++class TerminalWorkStaysLabellable(WorkCommandCase):
++    def test_a_closed_work_is_labelled_and_unlabelled_through_the_command(self):
++        self.work(WORK, labels=["v12"])
++        self.closed()
++        self.allow()
++        answer = self.answered("label-work", participant=SLAW, work=WORK,
++                               operation_id="op-archive", labels=["archived"])
++        self.assertEqual(answer["changed"], ["archived"])
++        self.answered("unlabel-work", participant=SLAW, work=WORK,
++                      operation_id="op-retire", labels=["v12"])
++        self.assertEqual(self.live(), ["archived"])
++        projection = self.authority.project_work(WORK)
++        # THE CLOSURE IS UNTOUCHED. Archive metadata reopens nothing.
++        self.assertEqual(projection["status"], "closed")
++        self.assertIsNone(projection["phase"])
++        self.assertEqual(projection["outcome"], "satisfying")
++
++    def test_the_post_closure_change_is_audited_and_readable(self):
++        self.work(WORK, labels=["v12"])
++        self.closed()
++        self.allow()
++        self.answered("label-work", participant=SLAW, work=WORK,
++                      operation_id="op-archive", labels=["archived"])
++        read = self.answered("labels", work=WORK)
++        last = read["events"][-1]
++        self.assertEqual((last["label"], last["action"], last["act"]),
++                         ("archived", "added", "work-label"))
++        self.assertEqual(last["act_id"], "op-archive:label-work:archived")
++        self.assertEqual(last["decision"]["role"], "manage-work-labels")
++
++
++class ReplayConvergenceAndCollision(WorkCommandCase):
++    def setUp(self):
++        super().setUp()
++        self.work()
++        self.allow()
++
++    def test_an_exact_retry_prints_byte_identical_output(self):
++        first = self.run_command("label-work", participant=SLAW, work=WORK,
++                                 operation_id="op-exact",
++                                 labels=["v12", "hot"])
++        again = self.run_command("label-work", participant=SLAW, work=WORK,
++                                 operation_id="op-exact",
++                                 labels=["v12", "hot"])
++        self.assertEqual(again, first)
++        self.assertEqual(json.loads(first[1])["changed"], ["hot", "v12"])
++        # AND THE JOURNAL GAINED NOTHING: a replay is not a second act.
++        self.assertEqual(len(self.events()), 2)
++
++    def test_a_retry_replays_even_after_the_grant_is_revoked(self):
++        """Replay answers the committed act, not whether it could happen
++        now."""
++        first = self.run_command("label-work", participant=SLAW, work=WORK,
++                                 operation_id="op-exact", labels=["v12"])
++        self.authority.revoke_capability(SLAW, "manage-work-labels")
++        self.assertEqual(
++            self.run_command("label-work", participant=SLAW, work=WORK,
++                             operation_id="op-exact", labels=["v12"]),
++            first)
++
++    def test_a_convergent_request_succeeds_as_changed_false(self):
++        self.answered("label-work", participant=SLAW, work=WORK,
++                      operation_id=self.op(), labels=["v12"])
++        answer = self.answered("label-work", participant=SLAW, work=WORK,
++                               operation_id=self.op(), labels=["v12"])
++        self.assertEqual(answer["changed"], [])
++        self.assertFalse(answer["acts"][0]["changed"])
++        self.assertEqual(answer["labels"], ["v12"])
++        absent = self.answered("unlabel-work", participant=SLAW, work=WORK,
++                               operation_id=self.op(),
++                               labels=["never-there"])
++        self.assertEqual(absent["changed"], [])
++        self.assertEqual(absent["labels"], ["v12"])
++        # ONE EVENT FOR THE ONE THING THAT HAPPENED.
++        self.assertEqual(len(self.events()), 1)
++
++    def test_the_same_identity_for_a_different_label_set_collides(self):
++        self.answered("label-work", participant=SLAW, work=WORK,
++                      operation_id="op-reused", labels=["v12"])
++        code, said, err = self.run_command(
++            "label-work", participant=SLAW, work=WORK,
++            operation_id="op-reused", labels=["v12", "hot"])
++        self.assertEqual(code, 2)
++        self.assertIn("is not the one operation 'op-reused' already carries",
++                      err)
++        # THE ANSWER SHOWS BOTH REQUESTS AND SAYS NOTHING WAS DONE.
++        shown = json.loads(said)
++        self.assertEqual(shown["performed"], "nothing")
++        self.assertFalse(shown["replayed"])
++        self.assertEqual(shown["already_carries"]["request"]["labels"],
++                         ["v12"])
++        self.assertEqual(shown["this_request"]["labels"], ["hot", "v12"])
++        self.assertEqual(self.live(), ["v12"])
++
++    def test_the_same_identity_for_the_other_verb_collides(self):
++        """`label-work` and `unlabel-work` under one identity are two
++        different requests, and the verb is in the bound request."""
++        self.answered("label-work", participant=SLAW, work=WORK,
++                      operation_id="op-reused", labels=["v12"])
++        said = self.refused("unlabel-work", participant=SLAW, work=WORK,
++                            operation_id="op-reused", labels=["v12"])
++        self.assertIn("already carries", said)
++        self.assertEqual(self.live(), ["v12"])
++
++    def test_the_same_identity_for_another_work_collides(self):
++        self.work(OTHER)
++        self.answered("label-work", participant=SLAW, work=WORK,
++                      operation_id="op-reused", labels=["v12"])
++        self.refused("label-work", participant=SLAW, work=OTHER,
++                     operation_id="op-reused", labels=["v12"])
++        self.assertEqual(self.live(OTHER), [])
++
++    def test_the_same_identity_for_another_participant_collides(self):
++        self.allow(CLAUDE)
++        self.answered("label-work", participant=SLAW, work=WORK,
++                      operation_id="op-reused", labels=["v12"])
++        self.refused("label-work", participant=CLAUDE, work=WORK,
++                     operation_id="op-reused", labels=["hot"])
++        self.assertEqual(self.live(), ["v12"])
++
++
++class TheReadVerbs(WorkCommandCase):
++    def setUp(self):
++        super().setUp()
++        self.work(WORK, labels=["V12", "release-foo"])
++        self.work(OTHER, labels=["v12"])
++        self.work(THIRD)
++
++    def test_labels_reads_the_sorted_live_set_and_its_events(self):
++        answer = self.answered("labels", work=WORK)
++        self.assertEqual(answer["work_id"], WORK)
++        self.assertEqual(answer["authority_uuid"], UUID)
++        self.assertEqual(answer["labels"], ["release-foo", "v12"])
++        self.assertEqual([(one["label"], one["action"], one["act"])
++                          for one in answer["events"]],
++                         [("release-foo", "added", "work-create"),
++                          ("v12", "added", "work-create")])
++        # A CREATE-TIME ADDITION NAMES ITS CREATION, not a grant.
++        self.assertIsNone(answer["events"][0]["decision"])
++        self.assertEqual(answer["events"][0]["creation"]["kind"],
++                         "trusted-bootstrap")
++
++    def test_an_unlabelled_work_reads_an_empty_set_and_an_empty_history(self):
++        """The behaviour of a Work nobody labelled, PRESERVED: absence is an
++        answer, not a missing member and not a refusal."""
++        answer = self.answered("labels", work=THIRD)
++        self.assertEqual(answer["labels"], [])
++        self.assertEqual(answer["events"], [])
++
++    def test_an_unfiltered_list_is_every_work(self):
++        answer = self.answered("list")
++        self.assertEqual(answer["work"], sorted([WORK, OTHER, THIRD]))
++        self.assertEqual(answer["matched"], 3)
++        self.assertEqual(answer["filter"], {"all_of": [], "none_of": []})
++
++    def test_repeated_label_operands_are_all_of_and_never_or(self):
++        self.assertEqual(self.answered("list", labels=["v12"])["work"],
++                         sorted([WORK, OTHER]))
++        # BOTH, not either: an OR would answer two Work here and does not.
++        answer = self.answered("list", labels=["v12", "release-foo"])
++        self.assertEqual(answer["work"], [WORK])
++        self.assertEqual(answer["matched"], 1)
++
++    def test_repeated_without_label_operands_are_none_of(self):
++        self.assertEqual(self.answered("list", without=["v12"])["work"],
++                         [THIRD])
++        self.assertEqual(
++            self.answered("list", without=["v12", "release-foo"])["work"],
++            [THIRD])
++
++    def test_the_positive_and_negative_halves_compose(self):
++        answer = self.answered("list", labels=["v12"], without=["release-foo"])
++        self.assertEqual(answer["work"], [OTHER])
++        self.assertEqual(answer["filter"],
++                         {"all_of": ["v12"], "none_of": ["release-foo"]})
++        self.assertEqual(
++            self.answered("list", labels=["v12", "release-foo"],
++                          without=["archived"])["work"],
++            [WORK])
++
++    def test_a_filter_requiring_and_excluding_one_label_refuses(self):
++        said = self.refused("list", labels=["v12"], without=["V12"])
++        self.assertIn("cannot both carry and not carry", said)
++
++    def test_a_filter_operand_is_matched_exactly_and_never_as_a_substring(self):
++        for near in ("v1", "12", "release", "foo"):
++            with self.subTest(near=near):
++                self.assertEqual(self.answered("list", labels=[near])["work"],
++                                 [])
++        # ...and another spelling of a real key DOES match.
++        self.assertEqual(self.answered("list", labels=["V12"])["work"],
++                         sorted([WORK, OTHER]))
++
++    def test_a_malformed_filter_operand_refuses_rather_than_matching_nothing(self):
++        for bad in ("team=core", "v12,hot", "v12 hot"):
++            with self.subTest(bad=bad):
++                self.refused("list", labels=[bad])
++                self.refused("list", without=[bad])
++
++    def test_every_answer_is_deterministic_json(self):
++        """Key-sorted and stable, so two invocations are comparable rather
++        than merely both correct."""
++        for verb, named in (("labels", {"work": WORK}),
++                            ("list", {"labels": ["v12"],
++                                      "without": ["archived"]})):
++            with self.subTest(verb=verb):
++                first = self.run_command(verb, **named)
++                self.assertEqual(self.run_command(verb, **named), first)
++                body = first[1]
++                self.assertEqual(
++                    body, json.dumps(json.loads(body), indent=2,
++                                     sort_keys=True) + "\n")
++
++    def test_the_read_verbs_never_open_the_store_writably(self):
++        """So asking a serving deployment what it carries takes no write lock.
++
++        `Authority.open` is made to fail: the two read verbs still answer, and
++        a mutation -- which legitimately needs it -- does not.
++        """
++        def refuse_open(*arguments, **named):
++            raise AssertionError("a read verb opened the store writably")
++
++        with mock.patch.object(Authority, "open", refuse_open):
++            self.assertEqual(self.answered("labels", work=WORK)["labels"],
++                             ["release-foo", "v12"])
++            self.assertEqual(self.answered("list", labels=["v12"])["work"],
++                             sorted([WORK, OTHER]))
++            self.allow()
++            with self.assertRaises(AssertionError):
++                self.run_command("label-work", participant=SLAW, work=WORK,
++                                 operation_id=self.op(), labels=["hot"])
++
++    def test_the_read_verbs_take_no_participant_and_no_operation_identity(self):
++        """They write nothing, so there is no act to attribute or replay."""
++        for verb in ("labels", "list"):
++            with self.subTest(verb=verb):
++                out, err = io.StringIO(), io.StringIO()
++                with redirect_stdout(out), redirect_stderr(err):
++                    with self.assertRaises(SystemExit):
++                        work_command.main(
++                            [verb, "--authority-store", self.store,
++                             "--authority-uuid", UUID, "--work", WORK,
++                             "--participant", SLAW])
++                self.assertIn("unrecognized arguments", err.getvalue())
++
++
++class TheStoreSelectionIsCompared(WorkCommandCase):
++    """The two operands every verb takes, and what they refuse."""
++
++    def test_a_wrong_authority_identity_refuses_and_reads_nothing(self):
++        """`--authority-uuid` is a compare-and-swap on identity, not a label:
++        a deployment that already knows which authority it reads supplies it,
++        and being wrong is a refusal rather than a different answer."""
++        self.work(WORK, labels=["v12"])
++        out, err = io.StringIO(), io.StringIO()
++        with redirect_stdout(out), redirect_stderr(err):
++            code = work_command.main(
++                ["labels", "--authority-store", self.store,
++                 "--authority-uuid", "f" * 32, "--work", WORK])
++        self.assertEqual(code, 2)
++        self.assertIn("refused: ", err.getvalue())
++        self.assertEqual(out.getvalue(), "")
++
++    def test_an_absent_store_is_refused_as_a_readable_sentence(self):
++        out, err = io.StringIO(), io.StringIO()
++        with redirect_stdout(out), redirect_stderr(err):
++            code = work_command.main(
++                ["list", "--authority-store",
++                 os.path.join(self._root.name, "nothing.sqlite3"),
++                 "--authority-uuid", UUID])
++        self.assertEqual(code, 2)
++        self.assertIn("refused: ", err.getvalue())
++
++    def test_every_verb_requires_the_store_and_its_identity(self):
++        for verb, rest in (("labels", ["--work", WORK]),
++                           ("list", []),
++                           ("label-work", ["--participant", SLAW, "--work",
++                                           WORK, "--operation-id", "op-1",
++                                           "--label", "v12"]),
++                           ("unlabel-work", ["--participant", SLAW, "--work",
++                                             WORK, "--operation-id", "op-1",
++                                             "--label", "v12"])):
++            with self.subTest(verb=verb):
++                out, err = io.StringIO(), io.StringIO()
++                with redirect_stdout(out), redirect_stderr(err):
++                    with self.assertRaises(SystemExit):
++                        work_command.main([verb] + rest)
++                self.assertIn("--authority-store", err.getvalue())
++
++
++if __name__ == "__main__":                                  # pragma: no cover
++    unittest.main()
+diff --git a/v12/python/tools/fresh_attempt_ports.py b/v12/python/tools/fresh_attempt_ports.py
+index ef5b9a98..5ff65757 100644
+--- a/v12/python/tools/fresh_attempt_ports.py
++++ b/v12/python/tools/fresh_attempt_ports.py
+@@ -368,7 +368,17 @@ class WorkAuthorization:
+                 return None
+             raise
+ 
+-    def create_work(self, work_id, *, operation_id):
++    def create_work(self, work_id, *, operation_id, labels=()):
++        """W29401: and the create-time Work labels the caller asked for.
++
++        DEFAULTED TO NONE, so every existing caller -- `fresh_attempt`'s own
++        authorization among them -- creates exactly the Work it created
++        before. The labels travel to `Authority.create_work`, which validates
++        the grammar, enforces the cardinality against what the Work would then
++        hold and writes the row and its label events in ONE transaction at one
++        instant. Nothing is normalized, deduplicated or bounded here: a second
++        opinion about a label is a second grammar.
++        """
+         if self._producers and not any(
+                 self._authority.handles_route(self._route, one)
+                 for one in self._producers):
+@@ -387,7 +397,8 @@ class WorkAuthorization:
+         # generation ... this is none" -- so the first Job never dispatches.
+         self._authority.create_work(work_id, self._route,
+                                     operation_id=operation_id,
+-                                    contract=ASSIGNMENT_CONTRACT)
++                                    contract=ASSIGNMENT_CONTRACT,
++                                    labels=tuple(labels))
+         return self._authority.project_work(work_id)
+ 
+     @classmethod
+diff --git a/v12/python/tools/job_manager.py b/v12/python/tools/job_manager.py
+index 32657795..9e2a4235 100644
+--- a/v12/python/tools/job_manager.py
++++ b/v12/python/tools/job_manager.py
+@@ -916,6 +916,15 @@ def _creation_request(taken):
+     verification = getattr(taken, "verification", None)
+     if verification:
+         request["verification"] = list(verification)
++    # W29401: THE WORK LABELS THIS CREATION STATES, present ONLY when the
++    # operator stated one -- the `verification` rule above, for the same
++    # reason. An absent member and an empty one are different intents: absent
++    # is "this creation says nothing about labels", which is what every
++    # creation before this option meant and still means, and an empty list
++    # would be a caller asking for a set.
++    labels = getattr(taken, "label", None)
++    if labels:
++        request["labels"] = list(labels)
+     return request
+ 
+ 
+@@ -1460,6 +1469,18 @@ def main(argv, *, clock=None, stream=None):
+                                "word that starts with a dash as "
+                                "--verification=-m); omitted, the deployment's "
+                                "installed verification runs")
++    creating.add_argument("--label", action="append", default=None,
++                          metavar="LABEL",
++                          help="one plain Work label, repeatable, applied "
++                               "ONLY when this creation makes the Work "
++                               "(W29401/W29400). A label is one opaque "
++                               "lower-case value and never a name=value tag; "
++                               "if the deployment's derived Work already "
++                               "exists and does not carry these, the "
++                               "creation refuses by name rather than "
++                               "mutating it -- use `baton-v12-stack work "
++                               "label-work` for that, which is an "
++                               "attributable authorized act of its own")
+     creating.add_argument("--control-profile", default=None,
+                           help="the finite control profile this Job is "
+                                "admitted under (LIM-5), for example "
+diff --git a/v12/python/tools/parallel_test.py b/v12/python/tools/parallel_test.py
+index bdf5dc0b..75550fd1 100644
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -116,10 +116,13 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
+                     # case owns a disposable authority under its own temporary
+                     # directory and shares no file with anything else.
+                     "tests.authority.test_work_labels",
+-                    # W29401's exposure revalidation. PARALLEL: a disposable
+-                    # authority per case and no engine, image or container --
+-                    # and deliberately small, because v12 has no CLI or
+-                    # protocol host for the rest of that cut to land in.
++                    # W29401's exposure: the 2026-08-29 revalidation (Work
++                    # labels are not OCI runtime labels) plus, for slice 1,
++                    # W29400's label API through the two PUBLIC faces a
++                    # command can actually reach. PARALLEL: a disposable
++                    # authority per case and no engine, image or container.
++                    # The command over it is `tests.tools.test_work_command`,
++                    # below.
+                     "tests.authority.test_work_label_exposure",
+                     "tests.authority.test_store",
+                     "tests.manager.test_attempts",
+@@ -501,6 +504,10 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
+     "tests.tools.test_startup_prerequisites",
+     "tests.tools.test_stopped_settlement_command",
+     "tests.tools.test_stopped_settlement_joined",
++    # W29401: the bundled `work` verbs, entered as argv over a disposable
++    # Authority in this case's own temporary directory. PARALLEL: no engine,
++    # no image, no network, no instance and no file shared with anything.
++    "tests.tools.test_work_command",
+     "tests.tools.test_worker_visibility",
+     # W384870 review R2: the content-bound source identity `test-all` records.
+     # Pure: a disposable git repository per case, no engine, no network.
+diff --git a/v12/python/tools/stack_command.py b/v12/python/tools/stack_command.py
+index eedcefae..cb82b3af 100644
+--- a/v12/python/tools/stack_command.py
++++ b/v12/python/tools/stack_command.py
+@@ -183,6 +183,25 @@ def _disposition(operands):
+     return disposition_command.main(operands)
+ 
+ 
++def _work(operands):
++    """W29401: this deployment's Work LABELS -- plain cross-cutting values.
++
++    PART OF THE INSTALLED COMMAND for the reason `record` and `disposition`
++    are: W29400's label API has been accepted authority behaviour, and this
++    table exposed none of it -- so "which Work here carries this label", and
++    every mutation of one, was reachable only by writing Python against the
++    package. W29401 was parked because v12 had no CLI; this is the Work-label
++    part of that remainder.
++
++    AND IT IS ITS OWN VOCABULARY. `work label-work` is not v11's `baton
++    label`, which binds a THREAD to a Work, and not the Worker Manager's OCI
++    runtime labels, which are container execution identity. The spelling of
++    the verb is what keeps the three apart at this table.
++    """
++    from tools import work_command
++    return work_command.main(operands)
++
++
+ def _identity(operands):
+     """What this build IS, so an instance can record it rather than assume it.
+ 
+@@ -268,6 +287,10 @@ COMMANDS = {
+     # read`, and the three acts open the authority writably and perform every
+     # durable transition through a participant-bound session.
+     "disposition": _disposition,
++    # W29401: THE WORK-LABEL SURFACE. `labels` and `list` are read-only like
++    # `record read` and take a read-only authority handle; the two mutations
++    # perform every durable act through a participant-bound session.
++    "work": _work,
+     "identity": _identity,
+     # W321608: THE POOL VERBS -- composing a worker document for THIS
+     # instance and admitting one -- are installation tooling (OBS-0a), so an
+diff --git a/v12/python/tools/work_command.py b/v12/python/tools/work_command.py
+new file mode 100644
+index 00000000..8ae3f373
+--- /dev/null
++++ b/v12/python/tools/work_command.py
+@@ -0,0 +1,365 @@
++"""The supported Work-label surface: label and unlabel one Work, read one
++Work's live set and its journal, and list the Work a label filter selects.
++
++W29401 CLI exposure, slice 1, over W29400's accepted authority label API.
++
++WHAT WAS MISSING. `Authority.create_work(labels=...)`, `Session.label_work`,
++`Session.unlabel_work`, `Authority.labels_of`, `Authority.work_label_events`
++and `Authority.works_with_labels` have all been accepted behaviour since
++W29400, and `stack_command.COMMANDS` exposed none of them. So every one of
++them was reachable only by somebody willing to write Python against the
++package -- which is the same gap `record` and `disposition` were registered to
++close one Work-level verb at a time, and the reason W29401 was parked as "v12
++has no CLI".
++
++THIS IS A WRAPPER AND IT OWNS NO LABEL SEMANTICS. The grammar, the
++cardinality, the convergent `changed:false`, the scope-resolved
++`manage-work-labels` decision, the replay and the all-of/none-of predicate are
++the authority's, reached through its own public faces. There is no normalizing
++helper here, no second grammar, no cached set and no label the command can
++write without a participant-bound session deciding it may.
++
++WHY THE VERBS ARE SPELLED `label-work` AND `unlabel-work`. v11's `baton label`
++and `baton unlabel` BIND A THREAD TO A WORK -- a relation between two records,
++with an `--work` operand and a thread of its own. A v12 Work label is one
++opaque value carried BY a Work. Reusing `label` here would have given one word
++two meanings across the two hosts an operator runs side by side, so the Work
++noun is in the verb and the dispatch is by COMMAND NAME and never by how an
++operand is spelled: nothing in this file reads a label to decide which code
++path it takes.
++
++AND THE WORKER MANAGER'S `labels` ARE NOT THESE. Those are OCI runtime labels
++-- execution identity a container is discovered and fenced by
++(`worker_manager/documents.py`, `runtime.labels`) -- and the authority port
++that consumes a Work projection names `labels` among the members it
++deliberately does NOT read. Neither vocabulary is reachable from this command:
++it imports neither module.
++
++WHAT IT WILL NOT DO. It creates no Work -- `manager create --label` is where a
++Work's create-time labels are stated, because that is the one act that makes
++one. It reads no repository file, opens no Job or control store, and starts
++nothing. The read verbs take the read-only authority handle, so asking a
++serving deployment what it carries takes no write lock on it.
++"""
++import argparse
++import json
++import sys
++
++__all__ = ["main"]
++
++# The command operation identity's bound, and the one place this file states
++# it. The frozen opaque grammar is 160 characters; a derived identity longer
++# than that is refused HERE, naming the bound, rather than arriving at the
++# journal as a malformed key.
++MAX_OPERATION_ID = 160
++
++
++def _say(value):
++    """One answer, key-sorted and indented: the same input renders the same
++    bytes twice, which is what makes this output comparable rather than merely
++    readable."""
++    print(json.dumps(value, indent=2, sort_keys=True))
++
++
++def _refused(message):
++    print("refused: " + message, file=sys.stderr)
++    return 2
++
++
++def _authority(taken, *, writable):
++    """Open the named authority; read-only unless this verb writes.
++
++    `labels` and `list` only read, and a read verb that opened the store
++    writably would take a write lock on a deployment somebody is serving
++    from -- the rule `tools/dossier_command.py` and
++    `tools/disposition_command.py` already follow, for the same reason.
++    """
++    from baton_v12.authority import Authority
++
++    if writable:
++        return Authority.open(taken.authority_store,
++                              expected_authority_uuid=taken.authority_uuid)
++    return Authority.open_readonly(
++        taken.authority_store, expected_authority_uuid=taken.authority_uuid)
++
++
++def _canonical(values):
++    """The `--label` operands, as the authority's own canonical set.
++
++    THE AUTHORITY'S HELPER AND NOT A SECOND GRAMMAR. `canonical_label_set`
++    lowers, validates the opaque-key alphabet, refuses two operands that
++    normalize to one key, and sorts -- so `--label Release-Foo` and `--label
++    release-foo` are one key, `--label a=b` and `--label a,b` are refused as
++    keys this grammar does not have, and the acts below run in one determined
++    order whatever order the operator wrote them in.
++    """
++    from baton_v12.authority.labels import canonical_label_set
++
++    return canonical_label_set(list(values), what="the --label operand set")
++
++
++def _derived(operation_id, suffix):
++    """One authority act's operation identity, DERIVED from the command's.
++
++    `label-work --label a --label b` is TWO authority acts: the accepted
++    transition adds one label, which is what makes each addition separately
++    replayable and separately attributable. The operator holds one handle on
++    the whole request and each act needs its own, so each is derived -- which
++    means an exact retry derives exactly the same ones and the authority
++    replays each committed act.
++
++    DERIVED FROM THE LABEL, not from its position in the argument list, so the
++    identity an act gets does not depend on the order the operator typed the
++    operands in.
++    """
++    from baton_v12.authority.errors import Refusal
++
++    held = operation_id + ":" + suffix
++    if len(held) > MAX_OPERATION_ID:
++        raise Refusal(
++            f"this command derives the operation identity {held!r} for its "
++            f"{suffix} act, and a durable identity is at most "
++            f"{MAX_OPERATION_ID} characters; supply a shorter --operation-id")
++    return held
++
++
++def _request(taken, verb, wanted):
++    """The canonical request this invocation IS, as one comparable document.
++
++    WHAT GOES IN IT: every operand that decides what is being asked -- the
++    verb, the actor, the Work and the complete canonical label set. Not the
++    store path, which is WHERE the authority is, and not the derived act
++    identities, which are computed from the members already here.
++    """
++    return {"verb": verb, "participant": taken.participant,
++            "work": taken.work, "labels": list(wanted)}
++
++
++def _bind(authority, taken, request):
++    """THE ONE ARBITER of whether this invocation is the same act as before.
++
++    A mutation under one `--operation-id` carries operands no single
++    transition takes: a label SET, where each act's own signature is one
++    label. So two different requests could otherwise share an identity and
++    each act would replay or commit on its own -- `label-work --label a` and
++    then `label-work --label a --label b` under one identity would quietly
++    perform half a new request.
++
++    So the complete canonical request is journalled under the command's own
++    operation identity by `Authority.bind_request`, and the AUTHORITY decides:
++    an exact retry replays the binding, and a request that differs in any
++    member collides as "reused for different operands" BEFORE this command
++    performs anything at all. This is `tools/disposition_command.py`'s
++    mechanism, used here for the same reason it exists.
++    """
++    from baton_v12.authority.errors import Refusal
++
++    try:
++        return authority.bind_request(taken.work, request,
++                                      operation_id=taken.operation_id)
++    except Refusal as refusal:
++        # AND THE ANSWER SHOWS WHAT THE IDENTITY ALREADY MEANS. A collision is
++        # the one refusal an operator cannot diagnose from their own command
++        # line: they have to see the request this identity already carries to
++        # know whether to correct the call or to use a new identity.
++        held = None
++        try:
++            held = authority.operation_result(taken.operation_id)
++        except Refusal:
++            pass
++        _say({"work_id": taken.work, "verb": request["verb"],
++              "operation_id": taken.operation_id, "replayed": False,
++              "already_carries": held, "this_request": request,
++              "performed": "nothing"})
++        raise Refusal(
++            f"this {request['verb']} request is not the one operation "
++            f"{taken.operation_id!r} already carries: {refusal}. The answer "
++            f"above shows both; a retry under one identity is the same "
++            f"request or it is refused, and nothing was done") from None
++
++
++# -- the verbs ---------------------------------------------------------------
++
++def _mutate(taken, *, adding):
++    """Add or remove the named labels on one Work, as attributable acts.
++
++    THE ACTOR IS THE BINDING. The session is minted for `--participant` and
++    the authority takes the decision's principal from that binding, so there
++    is no `--actor` here and that absence is the point -- a caller that could
++    name the actor would be choosing an identity the authority then treated as
++    authorized.
++
++    PERMITTED WHATEVER THE WORK'S PHASE, AND AFTER CLOSURE, because the
++    accepted contract says so and gives the reason: a label change is archive
++    metadata and reopens, reschedules and re-authorizes nothing. There is
++    deliberately no status check here; adding one would be this command
++    inventing a rule the authority settled the other way.
++    """
++    verb = "label-work" if adding else "unlabel-work"
++    # THE OPERANDS FIRST, before the store is opened at all: a malformed
++    # label, two operands that are one key, or an `--operation-id` too long to
++    # derive from are all facts about the REQUEST, and a correctable mistake
++    # must not reach the journal.
++    wanted = _canonical(taken.label)
++    acts = [(one, _derived(taken.operation_id, verb + ":" + one))
++            for one in wanted]
++    with _authority(taken, writable=True) as authority:
++        bound = _bind(authority, taken, _request(taken, verb, wanted))
++        session = authority.session(taken.participant)
++        performed = []
++        for label, operation_id in acts:
++            said = (session.label_work if adding else session.unlabel_work)(
++                {"work_id": taken.work, "label": label,
++                 "operation_id": operation_id})
++            # THE AUTHORITY'S OWN ANSWER, minus its intermediate set. `said`
++            # carries the live labels AS OF THAT ACT, and reporting a set
++            # observed between two acts beside the one observed after all of
++            # them would be two answers to "what does this Work carry".
++            performed.append({"label": said["label"], "action": said["action"],
++                              "changed": said["changed"],
++                              "operation_id": operation_id,
++                              "decision": said["decision"]})
++        _say({"authority_uuid": authority.authority_uuid,
++              "work_id": taken.work, "verb": verb, "actor": taken.participant,
++              "operation_id": taken.operation_id, "request": bound,
++              "acts": performed,
++              # WHICH LABELS ACTUALLY MOVED, as its own member. A convergent
++              # no-op succeeds, and an operator reading this needs to see that
++              # the Work is in the asked-for state WITHOUT being told a change
++              # happened that did not.
++              "changed": sorted(one["label"] for one in performed
++                                if one["changed"]),
++              "labels": authority.labels_of(taken.work)})
++    return 0
++
++
++def _labels(taken):
++    """One Work's live set and the journal that produced it. READ-ONLY.
++
++    BOTH, because either alone is half an answer: the set says what the Work
++    carries and the events say who added or removed what, under which
++    authorization, and when. A create-time addition is attributed to the
++    creation act rather than to a `manage-work-labels` grant, which is why
++    each event carries `decision` or `creation` and not both.
++    """
++    with _authority(taken, writable=False) as authority:
++        _say({"authority_uuid": authority.authority_uuid,
++              "work_id": taken.work,
++              "labels": authority.labels_of(taken.work),
++              "events": authority.work_label_events(taken.work)})
++    return 0
++
++
++def _list(taken):
++    """Every Work carrying ALL of one set and NONE of another. READ-ONLY.
++
++    REPEATED `--label` INTERSECTS and repeated `--without-label` excludes, and
++    the two compose. That is the accepted predicate's rule and deliberately
++    not an implicit OR: a disjunction would get its own named operand rather
++    than silently changing what a repeated filter has always meant. An empty
++    filter is every Work, which is what this verb answered before any label
++    existed and still answers.
++
++    THE OPERANDS GO TO `works_with_labels` AS GIVEN, so the normalization, the
++    duplicate refusal and the "cannot both carry and not carry" contradiction
++    are decided once, by the authority, with its own sentences.
++
++    AND NO LABEL SET IS JOINED ONTO THE ANSWER. The predicate decides both
++    halves from ONE read view; reading each matched Work's labels afterwards
++    would be a second instant reported as though it were part of the first.
++    `work labels --work <id>` answers that question about one Work, as itself.
++    """
++    with _authority(taken, writable=False) as authority:
++        matched = authority.works_with_labels(
++            all_of=list(taken.label or ()),
++            none_of=list(taken.without_label or ()))
++        _say({"authority_uuid": authority.authority_uuid,
++              "filter": {"all_of": list(taken.label or ()),
++                         "none_of": list(taken.without_label or ())},
++              "work": matched, "matched": len(matched)})
++    return 0
++
++
++VERBS = {"label-work": lambda taken: _mutate(taken, adding=True),
++         "unlabel-work": lambda taken: _mutate(taken, adding=False),
++         "labels": _labels,
++         "list": _list}
++
++
++def main(argv=None):
++    argv = list(sys.argv[1:] if argv is None else argv)
++    parser = argparse.ArgumentParser(
++        prog="baton-v12-stack work",
++        description="This deployment's Work labels: plain cross-cutting "
++                    "values carried by a Work. A label is one opaque key, "
++                    "never a name=value tag; these verbs are not v11's "
++                    "thread label/unlabel and not the Worker Manager's OCI "
++                    "runtime labels.")
++    verbs = parser.add_subparsers(dest="verb", required=True)
++
++    def store_operands(one):
++        one.add_argument("--authority-store", required=True)
++        one.add_argument("--authority-uuid", required=True)
++
++    def acting(one):
++        """The operands every durable act takes.
++
++        `--participant` AND NO `--actor`, as `disposition` takes them: the
++        session is minted for this participant and the authority resolves the
++        decision's principal from that binding, so there is nothing for a
++        caller to name. `--operation-id` makes the request replayable -- the
++        same identity with the same operands replays, and with different
++        operands it collides.
++        """
++        store_operands(one)
++        one.add_argument("--participant", required=True)
++        one.add_argument("--work", required=True)
++        one.add_argument("--operation-id", required=True)
++        one.add_argument(
++            "--label", required=True, action="append", metavar="LABEL",
++            help="one plain label value, repeatable. 1 to 64 characters, "
++                 "starting with an ASCII letter or digit and continuing with "
++                 "ASCII letters, digits, dots, underscores or hyphens; "
++                 "normalized to lower case. A key=value tag, a comma-joined "
++                 "list and any other OR-like spelling are refused, because a "
++                 "label is one opaque key and nothing here takes one apart")
++
++    labelling = verbs.add_parser(
++        "label-work", help="add labels to one Work")
++    acting(labelling)
++    unlabelling = verbs.add_parser(
++        "unlabel-work", help="remove labels from one Work")
++    acting(unlabelling)
++
++    reading = verbs.add_parser(
++        "labels", help="one Work's live labels and their mutation history")
++    store_operands(reading)
++    reading.add_argument("--work", required=True)
++
++    listing = verbs.add_parser(
++        "list", help="the Work a label filter selects")
++    store_operands(listing)
++    listing.add_argument("--label", action="append", default=None,
++                         metavar="LABEL",
++                         help="require this label; repeatable, and repeated "
++                              "operands are ALL-OF, never OR")
++    listing.add_argument("--without-label", action="append", default=None,
++                         metavar="LABEL",
++                         help="exclude this label; repeatable, and repeated "
++                              "operands are NONE-OF")
++
++    taken = parser.parse_args(argv)
++    from baton_v12.authority.errors import Refusal
++
++    try:
++        return VERBS[taken.verb](taken)
++    except Refusal as refusal:
++        # THE AUTHORITY'S OWN SENTENCE, not a traceback. Every refusal this
++        # command can reach is a contract answer an operator is meant to read.
++        return _refused(str(refusal))
++    except OSError as failure:
++        return _refused(f"{type(failure).__name__}: {failure}")
++
++
++if __name__ == "__main__":                                  # pragma: no cover
++    raise SystemExit(main())

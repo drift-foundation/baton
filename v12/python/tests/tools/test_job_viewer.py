@@ -302,47 +302,18 @@ class StaleBytesAreNeverReportedFresh(ViewerCase):
         snapshot = read_snapshot(document, received_at=self.now)
         self.assertTrue(snapshot.stale(self.now, wall_now=self.now))
 
-    def test_the_configured_threshold_reaches_the_rendering(self):
-        """REVIEW claim168169 [P2]. The viewer computed a threshold from the
-        interval and then rendered with the 1 s default, so at `--interval 5`
-        a three-second-old observation was called STALE against a documented
-        ten-second window. A threshold that never reaches the renderer is a
-        threshold nobody applies -- and calling stale_after(5) directly, as my
-        previous case did, cannot catch a missing connection."""
-        document = self.document()
-        wall = [_epoch(document["observed_at"]) + 3]
-        stream = io.StringIO()
-        viewer = JobViewer(lambda: document, clock=lambda: self.now,
-                           wall=lambda: wall[0], interval=5.0,
-                           sleeper=lambda _: None)
-        viewer.run(ticks=1, stream=stream)
-        self.assertNotIn("STALE", stream.getvalue())
-        # AND THE SAME OBSERVATION AT THE 1 s DEFAULT *IS* STALE, so the
-        # interval is doing the work rather than the age alone.
-        other = io.StringIO()
-        JobViewer(lambda: document, clock=lambda: self.now,
-                  wall=lambda: wall[0], interval=1.0,
-                  sleeper=lambda _: None).run(ticks=1, stream=other)
-        self.assertIn("!! STALE", other.getvalue())
-
-    def test_the_default_two_second_boundary_is_inclusive(self):
-        """The selected behaviour is a changed or outdated observation visible
-        WITHIN 2 s. A strict `>` first flagged an exact integer-tick
-        observation one whole tick late, at 3 s."""
+    def test_refresh_interval_does_not_change_freshness(self):
         document = self.document()
         started = _epoch(document["observed_at"])
-        snapshot = read_snapshot(document, received_at=self.now)
-        self.assertFalse(snapshot.stale(self.now, wall_now=started + 1.9))
-        self.assertTrue(snapshot.stale(self.now, wall_now=started + 2.0))
-
-    def test_the_threshold_follows_the_configured_interval(self):
-        """The fixed 3 s constant ignored `--interval` entirely, so the
-        selected 2 s behaviour was not what the loop actually did."""
-        self.assertEqual(job_viewer.stale_after(1.0), 2.0)
-        self.assertEqual(job_viewer.stale_after(5.0), 10.0)
-        self.assertEqual(job_viewer.stale_after(0.1),
-                         job_viewer.STALE_FLOOR_SECONDS)
-
+        for interval in (0.1, 1.0, 5.0, 30.0):
+            for age in (14.9, 15.0):
+                with self.subTest(interval=interval, age=age):
+                    stream = io.StringIO()
+                    JobViewer(lambda: document, clock=lambda: self.now,
+                              wall=lambda: started + age, interval=interval,
+                              sleeper=lambda _: None).run(ticks=1, stream=stream)
+                    self.assertEqual("!! STALE" in stream.getvalue(), age >= 15)
+                    self.assertEqual(job_viewer.stale_after(interval), 15.0)
 
 class AMalformedRefreshDoesNotEndTheView(ViewerCase):
     """REVIEW claim168071 [P2]. The read was inside the handler and the PARSE
@@ -612,12 +583,11 @@ class TheDrillDownIsWiredAndUsesLocatorSemantics(ViewerCase):
         self.assertEqual(job_viewer.main(argv + ["--interval", "5"],
                                          stream=wide), 0)
         self.assertNotIn("STALE", wide.getvalue())
-        # AND AT THE 1 s DEFAULT THE SAME OBSERVATION *IS* STALE, so the
-        # interval is doing the work rather than the age alone.
+        # The same observation has the same age at the default interval.
         narrow = io.StringIO()
         self.assertEqual(job_viewer.main(argv + ["--interval", "1"],
                                          stream=narrow), 0)
-        self.assertIn("!! STALE", narrow.getvalue())
+        self.assertNotIn("STALE", narrow.getvalue())
 
     def test_the_command_drills_down_through_identities(self):
         import io
@@ -799,7 +769,8 @@ class TheViewerPerformsNoAct(ViewerCase):
             elif isinstance(node, ast.ImportFrom) and node.module:
                 names.add(node.module)
         self.assertEqual(names, {"argparse", "datetime", "json", "os", "stat",
-                                 "sys", "time", "baton_v12.job_manager"})
+                                 "sys", "time", "baton_v12.job_manager", "tools",
+                                 "tools.job_observation"})
         # THE IDENTIFIERS, NOT THE PROSE. A text search here is satisfied --
         # or defeated -- by the very paragraph that promises the absence: the
         # module docstring says "no submit, claim, cancel, serve", so grepping
@@ -1191,6 +1162,7 @@ class TheTrustedActivityCountIsShownAndNeverEmbellished(ViewerCase):
         document = self.document()
         stage = document["jobs"][0]["stages"][0]
         stage["state"] = state
+        stage["attempt_id"] = "attempt-1"
         stage["runtime"] = {
             "runtime_id": "runtime-7f3a", "execution_runtime": "oci",
             "assignment": {"work_ref": "0000000a-W1",
@@ -1231,14 +1203,10 @@ class TheTrustedActivityCountIsShownAndNeverEmbellished(ViewerCase):
                 self.assertIn("activity unknown", listed)
                 self.assertRegex(detail, r"activity\s+unknown")
 
-    def test_a_zero_is_unknown_and_never_rendered_as_a_count(self):
-        """THE PRODUCER CANNOT EMIT ONE -- it publishes only a positive total --
-        so this pins the VIEW'S own honesty if a zero ever arrives. `0` would
-        read as "observed, and empty", which is a claim nobody here holds."""
+    def test_a_known_zero_is_not_an_unknown_count(self):
         listed, detail = self.shown(self.observed(count=0))
-        self.assertIn("activity unknown", listed)
-        self.assertRegex(detail, r"activity\s+unknown")
-        self.assertNotRegex(detail, r"activity\s+0")
+        self.assertIn("activity 0 B", listed)
+        self.assertRegex(detail, r"activity\s+0 B")
 
     # -- a live stage -------------------------------------------------------
 
@@ -1368,6 +1336,7 @@ class TheDefaultWidthKeepsEveryFactItCarries(ViewerCase):
         document = self.document()
         stage = document["jobs"][0]["stages"][0]
         stage["state"] = state
+        stage["attempt_id"] = "attempt-1"
         stage["runtime"] = {
             "runtime_id": "runtime-7f3a", "execution_runtime": "oci",
             "assignment": None,
@@ -1412,7 +1381,7 @@ class TheDefaultWidthKeepsEveryFactItCarries(ViewerCase):
         """`unknown` has no timing to carry, so it costs no line. A view that
         grew a blank row per stage would have made the list worse for the
         ordinary case in order to serve the rare one."""
-        document, _id, _instant = self.observed("running", count=0)
+        document, _id, _instant = self.observed("running", count=None)
         listed = render_list(read_snapshot(document, received_at=self.now),
                              now=self.now)
         self.assertEqual([one for one in listed
@@ -1449,6 +1418,7 @@ class AnInvalidCountIsUnknownAndNeverAnException(ViewerCase):
         document = self.document()
         stage = document["jobs"][0]["stages"][0]
         stage["state"] = "running"
+        stage["attempt_id"] = "attempt-1"
         stage["runtime"] = {"runtime_id": "r", "execution_runtime": "oci",
                             "assignment": None,
                             "activity": {"attempt_id": "attempt-1",
@@ -1481,7 +1451,7 @@ class AnInvalidCountIsUnknownAndNeverAnException(ViewerCase):
                       mine(render_list(viewer.snapshot, now=self.now)))
 
     def test_every_out_of_domain_count_is_unknown(self):
-        for count in (0, -1, True, False, 1.5, "1024", None, [1],
+        for count in (-1, True, False, 1.5, "1024", None, [1],
                       job_viewer.MAX_ACTIVITY_BYTES + 1, 10 ** 400):
             with self.subTest(count=count):
                 snapshot = read_snapshot(self.carrying(count),

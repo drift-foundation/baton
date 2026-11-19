@@ -1,0 +1,40 @@
+# verification.stderr.log excerpt (host-retained at /home/sl/baton-instances/native-labels-5/state/launch/logs/attempt-3c924bf0b4dabf9662d0724cc7ce36d300fb105ffe82155c0409c5b2d1481456/verification.stderr.log, 89679 bytes); the whole log is candidate-code output and stays on the host
+783:Ran 246 tests in 0.525s
+785:FAILED (failures=30)
+
+# distinct failure sentences:
+     30 AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /run/baton-verifier/home/.cache (it is not a directory this process can write), /run/baton-verifier/tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /output.
+
+# failing ids:
+      1 FAIL: test_two_ordinary_creations_bind_two_jobs (tests.tools.test_connected_creation.TheConnectedCreation.test_two_ordinary_creations_bind_two_jobs)
+      1 FAIL: test_two_operands_that_are_one_key_refuse_before_any_effect (tests.tools.test_connected_creation.CreateTimeWorkLabelsThroughTheRealCommand.test_two_operands_that_are_one_key_refuse_before_any_effect)
+      1 FAIL: test_two_defined_jobs_run_on_one_product_configured_instance (tests.tools.test_connected_creation.TheReusableInstanceServesDefinedJobs.test_two_defined_jobs_run_on_one_product_configured_instance)
+      1 FAIL: test_the_work_verb_is_how_a_reused_works_labels_are_added (tests.tools.test_connected_creation.CreateTimeWorkLabelsThroughTheRealCommand.test_the_work_verb_is_how_a_reused_works_labels_are_added)
+      1 FAIL: test_the_template_the_answer_names_is_the_one_this_build_carries (tests.tools.test_connected_creation.ThePackagedResourcesResolve.test_the_template_the_answer_names_is_the_one_this_build_carries)
+      1 FAIL: test_the_same_request_again_answers_the_same_job_once (tests.tools.test_connected_creation.TheSameIntentConverges.test_the_same_request_again_answers_the_same_job_once)
+      1 FAIL: test_the_installer_says_where_it_put_it (tests.tools.test_connected_creation.TheInstallKeepsTheDocumentItConsumed.test_the_installer_says_where_it_put_it)
+      1 FAIL: test_the_install_verified_the_runtime_it_recorded (tests.tools.test_connected_creation.ThePackagedResourcesResolve.test_the_install_verified_the_runtime_it_recorded)
+      1 FAIL: test_the_command_creates_binds_and_submits_one_job (tests.tools.test_connected_creation.TheConnectedCreation.test_the_command_creates_binds_and_submits_one_job)
+      1 FAIL: test_an_unsupported_source_selection_refuses (tests.tools.test_connected_creation.TheRefusalsAreTruthful.test_an_unsupported_source_selection_refuses)
+      1 FAIL: test_an_unlabelled_creation_is_exactly_what_it_was (tests.tools.test_connected_creation.CreateTimeWorkLabelsThroughTheRealCommand.test_an_unlabelled_creation_is_exactly_what_it_was)
+      1 FAIL: test_an_override_this_template_does_not_permit_refuses (tests.tools.test_connected_creation.TheRefusalsAreTruthful.test_an_override_this_template_does_not_permit_refuses)
+      1 FAIL: test_an_interruption_before_the_prepare_is_finished_by_a_rerun (tests.tools.test_connected_creation.AnInterruptedPublicationIsRecoverable.test_an_interruption_before_the_prepare_is_finished_by_a_rerun)
+      1 FAIL: test_an_interruption_after_the_binding_is_finished_by_a_rerun (tests.tools.test_connected_creation.AnInterruptedPublicationIsRecoverable.test_an_interruption_after_the_binding_is_finished_by_a_rerun)
+      1 FAIL: test_an_input_replaced_during_the_failure_is_left_alone (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_an_input_replaced_during_the_failure_is_left_alone)
+      1 FAIL: test_a_template_this_build_does_not_carry_refuses (tests.tools.test_connected_creation.TheRefusalsAreTruthful.test_a_template_this_build_does_not_carry_refuses)
+      1 FAIL: test_a_successful_install_owns_the_document_it_wrote (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_successful_install_owns_the_document_it_wrote)
+      1 FAIL: test_a_store_that_belongs_to_another_deployment_refuses (tests.tools.test_connected_creation.TheRefusalsAreTruthful.test_a_store_that_belongs_to_another_deployment_refuses)
+      1 FAIL: test_a_stale_tmp_link_cannot_be_followed_because_none_is_used (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_stale_tmp_link_cannot_be_followed_because_none_is_used)
+      1 FAIL: test_a_selector_failure_RETAINS_what_this_attempt_made (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_selector_failure_RETAINS_what_this_attempt_made)
+      1 FAIL: test_a_real_install_leaves_a_preparable_input_document (tests.tools.test_connected_creation.TheInstallKeepsTheDocumentItConsumed.test_a_real_install_leaves_a_preparable_input_document)
+      1 FAIL: test_a_malformed_label_refuses_before_any_effect (tests.tools.test_connected_creation.CreateTimeWorkLabelsThroughTheRealCommand.test_a_malformed_label_refuses_before_any_effect)
+      1 FAIL: test_a_link_at_the_temporary_name_is_refused_and_not_followed (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_link_at_the_temporary_name_is_refused_and_not_followed)
+      1 FAIL: test_a_link_at_the_input_name_is_refused_and_its_target_survives (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_link_at_the_input_name_is_refused_and_its_target_survives)
+      1 FAIL: test_a_foreign_regular_input_document_is_refused_untouched (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_foreign_regular_input_document_is_refused_untouched)
+      1 FAIL: test_a_dangling_link_at_the_input_name_is_refused (tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused.test_a_dangling_link_at_the_input_name_is_refused)
+      1 FAIL: test_a_creation_that_reuses_a_work_refuses_to_relabel_it (tests.tools.test_connected_creation.CreateTimeWorkLabelsThroughTheRealCommand.test_a_creation_that_reuses_a_work_refuses_to_relabel_it)
+      1 FAIL: test_a_creation_that_makes_the_work_applies_its_labels (tests.tools.test_connected_creation.CreateTimeWorkLabelsThroughTheRealCommand.test_a_creation_that_makes_the_work_applies_its_labels)
+      1 FAIL: test_a_created_job_carries_the_verification_it_named (tests.tools.test_connected_creation.TheConnectedCreation.test_a_created_job_carries_the_verification_it_named)
+      1 FAIL: test_a_changed_intent_under_the_same_job_refuses (tests.tools.test_connected_creation.TheSameIntentConverges.test_a_changed_intent_under_the_same_job_refuses)
+
+# lines ending ' ok': 215; failing modules: {'tests.tools.test_connected_creation': 30}

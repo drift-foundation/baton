@@ -1,0 +1,10 @@
+{
+  "complete": true,
+  "groups_complete": true,
+  "registered_modules": 188,
+  "discovered_modules": 188,
+  "module": "tests.tools.test_job_observation",
+  "classification": "parallel",
+  "group": "tools-pure",
+  "seconds": 0.004535685002338141
+}

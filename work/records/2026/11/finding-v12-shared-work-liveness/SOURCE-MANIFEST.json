@@ -1,0 +1,26 @@
+{
+  "work": "W385263",
+  "author": "baton.codxpc",
+  "recorded_at": "2026-11-19T18:29:25.259691+00:00",
+  "head": "bcb5e5416f0accfe0551c7a8aa7d71305e66a0e4",
+  "scope": "Read-only research; not an implementation candidate",
+  "files": {
+    "v12/DESIGN.md": "d9fa46a6aa10472a145d6a6a9aa08a7b8ec814fdb9f88f559ab41eb1952f5114",
+    "v12/python/JOB-VIEWER.md": "bd7cb49c79f421ed42671bc60b680f620065d7858de38e7a257c2a3084f43fde",
+    "v12/python/tools/stack.py": "dccd50551e51c13842b42227c677939fe770da5306a32ffe7a0f8f8453329422",
+    "v12/python/tools/job_viewer.py": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+    "v12/python/tools/worker_visibility.py": "2f05d2bea5c8ad2d2b9e591072b63b9d0048abdd1faaecad6f3048e1b3d2bb04",
+    "v12/python/tools/job_manager.py": "5116b6773f35c9f3831a4d25d7aa03731f7ab5edb84635a2b03e8426287958f2",
+    "v12/python/tools/stage_execution.py": "8f0d85f8f3553321f892976c674bb08658758602cbb0d1c4053267fb68da137b",
+    "v12/python/src/baton_v12/job_manager/projection.py": "ecdb5a715a2c73093b2197556e46ba63f39e5686e2e17d73d0e2584ca9af19a1",
+    "v12/python/src/baton_v12/job_manager/documents.py": "1dc4281be64251850277f8190b0f50849529666b99cc54d82d75e5547cb3a60b",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "c3f665482758c0f67fcb82f6dc377333e5bc5f6dd7c182c54aaedf10288ada72",
+    "v12/python/src/baton_v12/worker_manager/exchange.py": "8740745a89dc2dcbf5eff8afc63765b6f2a8b28855894a3fddd8ea7ac8a415bc",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "32b3fdbd67aea907c654f395b2b11061e8152880a59deb784226d805ff07492c",
+    "v12/worker/claude_agent.py": "941b5f9c2ea617229667e3f764bb12bb4c19b8096b18cdbff6d2952019d35e75",
+    "v12/worker/baton_worker.py": "9596a1292da3f55fba118e4aecff5af3e5ddf545c7d47c0167e9455abf0cdd4e"
+  },
+  "source_diff": [],
+  "tests_run": 0,
+  "experiments_run": 0
+}

@@ -755,3 +755,36 @@ W385251 independently accepted;99 reviewer tests pass and author3420/3420 tools-
 ## 2026-11-19 d8f77700 packaging acceptance
 
 Owner source checkpointd8f77700f06b6a8b68f5f3fc2aedbcc95169afc6 verified: all eleven accepted layout/corrective source and test paths match reviewed bytes. Rebuilt packaging24/24 passed in14.271s; evidence/checkpoint-d8f77700-packaging retains build/gate and bundle identity. Supporting dossiers were not part of this source-only commit and remain pending human evidence checkpoint. No instance update or live retry performed. K/codexpc hold edits. Existing installed runtime cannot acquire these fixes by source commit.
+
+## 2026-11-19 evidence checkpoint and settled prior execution
+
+Evidence checkpoint bcb5e541 verified with clean Git status before this entry. Native-labels-4 deadline cancellation now shutdown=complete: implementation ceased/runtime destroyed, review retired-before-admission; cleanup still reported pending, not asserted complete. Saved evidence/native-labels-4-execution/deadline-cancellation-complete.json. Prepared config/native-instance-d8f77700.json for absent native-labels-5, pinned to accepted source/build d8f77700 (later bcb5e541 changes evidence only). Next owner stop old supervisors and install corrected empty instance. No lifecycle changes by coordinator; selected image reused, next worker composition must explicitly select its verified verifier-layout marker.
+
+## 2026-11-19 native-labels-5 workers prepared
+
+Owner installed d8f77700; authority 8148af5e916148d091a9ac6ae0cc3f3c. Both workers composed through installed product with explicit verifier-layout selection, /6 schema, null context and verified selected-image recipe marker (identical to e670e624 source bytes). Actual dossier hashes verified. Prepared config/native-workers-d8f77700.json. No admission, Job creation or runtime start by coordinator.
+
+
+## 2026-11-19 — native-labels-5 exceptional result investigation
+
+Owner reports K available. Coordinator assigns bounded read-only diagnosis under the existing owner-held interactive arrangement. Canonical snapshot records retained proposal, destroyed runtime and retained cleanup, but no failure cause. No candidate acceptance or retry is selected. See evidence/native-labels-5-failure/ASSIGNMENT-K.md and canonical-status-assignment.json. Codexpc continues separate W385263 implementation.
+
+
+## 2026-11-19T21-17-15Z — labels candidate retained; recovery recommendation corrected
+
+Review review-2026-11-19T21-17-15Z.md corroborates the verification-root diagnosis and four proposal hashes. The proposed create-while-serving operation contradicts the existing instance guard; it is not approved. K to verify the retained candidate offline and correct the supported recovery instructions. No new live run selected.
+
+
+## 2026-11-19 — owner reaffirms unrestricted inner CLI execution
+
+Owner reaffirmation 2026-11-19: agents executing inside the selected Docker worker must run with provider CLI approval/sandbox bypass enabled; Docker remains the confinement boundary. This reaffirms DESIGN inner-task policy and W64268, not privileged Docker or broader host access. Claude uses --dangerously-skip-permissions (already selected by claude_agent.PROVIDER_ARGUMENTS and baton_worker invocation declaration). Codex uses --dangerously-bypass-approvals-and-sandbox (confirmed by installed CLI --help); this is a future production Codex adapter requirement, not a claim one is currently deployed. Do not substitute permit-only flags for activated bypass. The labels verification failure concerns a missing test-root environment operand, not agent approval restrictions. No runtime/image change needed for current Claude flag selection.
+
+
+## 2026-11-19 — owner selects image/access as the restriction mechanism
+
+Owner clarification 2026-11-19: Docker is the execution confinement boundary. Do not double-sandbox the agent or impose inner command/tool approval restrictions. The owner selects restrictions through the released worker image (available tools) and its configured Docker access. Activate each provider CLI bypass mode. This clarifies RUN-4; it does not expand existing container mounts, privileges, network access or assigned Work scope. Current Claude bypass already satisfies the CLI selection; future provider adapters must preserve this model.
+
+
+## 2026-11-19 — retained candidate verification consumed; independent review allocated
+
+M385291 correction withdraws create-on-running and records246 tests OK/no skips on retained04648e1b. Coordinator checked log/provenance. W385292 now owns independent host review, preserving existing implementation without new live run. Native end-to-end review remains unproved; no integration/acceptance asserted.

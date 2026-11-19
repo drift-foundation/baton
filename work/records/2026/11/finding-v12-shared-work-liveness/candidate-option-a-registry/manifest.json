@@ -1,0 +1,64 @@
+{
+  "work": "W385263",
+  "claim": "E385282",
+  "approval": "M385273",
+  "ownership": "M385283",
+  "base_commit": "bcb5e5416f0accfe0551c7a8aa7d71305e66a0e4",
+  "files": [
+    {
+      "path": "v12/python/tools/job_observation.py",
+      "sha256": "2fa916f25c04381c0ef54406d95b9d3e13d9521047ba50c8ed5b1a3db203c57d",
+      "base_sha256": null,
+      "new": true
+    },
+    {
+      "path": "v12/python/tools/job_viewer.py",
+      "sha256": "a55b476493efc2d2ace546e15d8464e722d0fe54569c347e2c7b294c7e2fbebc",
+      "base_sha256": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+      "new": false
+    },
+    {
+      "path": "v12/python/tools/stack.py",
+      "sha256": "3e213d1df9452dce103528ac0edb78964e12329977c17c57d9c0da5f44f57610",
+      "base_sha256": "dccd50551e51c13842b42227c677939fe770da5306a32ffe7a0f8f8453329422",
+      "new": false
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_observation.py",
+      "sha256": "1c8c635b340bac64c3ad59ea880349da94bf1e4a29d27983bfb5af628938caa8",
+      "base_sha256": null,
+      "new": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_viewer.py",
+      "sha256": "1e83ed502a076e3e9be54d914fb77a761665f57dde8c053730290fd7ee3d4b72",
+      "base_sha256": "a3feb92da0d16a98e35cb09ca6f7f8347834449a759f7f1dd73a447a7d105d5e",
+      "new": false
+    },
+    {
+      "path": "v12/python/JOB-VIEWER.md",
+      "sha256": "b4704b93d308207649a859ab51c7ea5d90fb89b303916cf109ec83da490a43e1",
+      "base_sha256": "bd7cb49c79f421ed42671bc60b680f620065d7858de38e7a257c2a3084f43fde",
+      "new": false
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "a808786507fb4d06e4b9d407f73f81b8e9e256794ef58e58f187f9cf17711042",
+      "base_sha256": "11363712cf2a94586ca62bda3113c91d1aaf89832d7061ee124b2538e197deb6",
+      "new": false
+    }
+  ],
+  "decision_files": [
+    "work/records/2026/11/finding-v12-shared-work-liveness/FINDING.md",
+    "work/records/2026/11/finding-v12-shared-work-liveness/CLI-OBSERVABILITY-ADDENDUM.md",
+    "v12/DESIGN.md"
+  ],
+  "normative_design_sha256": "18f6855f15c58f4969e61c27f9e0715a75699de6eb37fc0837da8a66f03ccc6c",
+  "note": "Six original candidate hashes unchanged. Registry delta only; no Git mutations.",
+  "correction_authority": "M385280",
+  "prior_candidate_manifest_sha256": "ffbc3191040403ca37b8d92cce2a85ca5ce5d08d00239a3be9e2d0e11b23e9f3",
+  "review": "work/records/2026/11/finding-v12-shared-work-liveness/review-2026-11-19T18-59-06Z.md",
+  "delta_paths": [
+    "v12/python/tools/parallel_test.py"
+  ]
+}

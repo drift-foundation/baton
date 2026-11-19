@@ -99,9 +99,9 @@ as if it were the *Job's*.
 **Staleness is about the observation, not about the read.** A snapshot carries
 two clocks: when this program received the bytes, and when the manager actually
 looked. Re-reading an unchanged document does not make it fresher, and the view
-goes `!! STALE` once the *observation* reaches `max(2 s, 2 x --interval)`. The
-configured interval is carried into the rendering, so `--interval 5` really
-does mean a ten-second window.
+goes `!! STALE` once the *observation* reaches 15 seconds. The shared status/monitor threshold is inclusive and independent of
+refresh
+interval. File publication age is checked as well as source observation age.
 
 **Activity is the manager's observation, and its instant is the manager's
 receipt time.** W61599 owns the trusted provider-safe source; this view reads
@@ -111,9 +111,8 @@ reader of its own.
 Three renderings and no fourth:
 
 - nothing observed — no runtime, no activity member, or a recorded attempt with
-  no count — is **`unknown`**. A zero is never shown as a count: the producer
-  publishes only a positive total, and `0` would read as *observed, and empty*,
-  which is a claim nobody here holds.
+  no count — is **`unknown`**. A known zero is displayed as `0 B`. Counts
+  must name the stage current attempt; a foreign attempt is unknown.
 - a **live** stage shows the count, and `observed Ns ago` beneath it.
 - a **terminal** stage — `completed`, `changes-requested`, `exceptional` —
   shows the count, and `last at <instant>` beneath it, **never a relative age**.
@@ -152,7 +151,7 @@ does not edit the provider.
 
 **It does not hide its own age.** A snapshot is exactly as fresh as the moment
 it was observed, and the view shows both the manager's `observed_at` and how
-long ago this program read it. At `max(2 s, 2 x interval)` it says `!! STALE`; a failed
+long ago this program read it. At 15 seconds it says `!! STALE`; a failed
 read says `!! DISCONNECTED` and keeps the last good reading *under* the warning
 rather than replacing it with an empty screen. `canonical: false` is reported
 as "the manager was NOT read", because that is the difference between "nothing
@@ -165,7 +164,7 @@ is running" and "nobody looked".
 | snapshot input | 4 MiB | **refuses** rather than truncating — a dropped tail would silently omit Jobs, which is the failure this viewer exists to fix |
 | locator read | 64 KiB | bounded, on explicit detail only, and **visibly** truncated; there is no idle log tail |
 | poll | 1 s default, finite and > 0 | the loop sleeps between reads; a failed read does not become a hot retry, and a zero or non-finite interval is refused rather than spun on |
-| stale | `max(2 s, 2 x interval)` | derived from the configured interval rather than frozen, and applied **inclusively** so a 2 s-old observation is already flagged |
+| stale | 15 seconds | shared with status, independent of polling, applied **inclusively** at 15 seconds |
 
 These bound what this program holds and shows. They are not protocol limits and
 change nothing about the manager's own input rules.
@@ -216,3 +215,10 @@ Rich telemetry (W39649) and labels (W29408) are separate v13 work. Managed
 execution evidence is W161230. If an observation this viewer needs does not
 exist, that is a finding for the provider's existing owner — not a reason to
 grow a second backend here.
+
+Status and monitor share `tools/job_observation.py` for outcomes, gates, failures,
+reported operations, attempt-bound native-byte activity and freshness. Operation
+state is reported evidence, not a current provider tool; exchange attempt binding
+is explicitly unverified where the snapshot cannot establish it. No reader adds
+collectors or interprets raw logs. JSON schemas and service-health checks remain
+unchanged (W385263).

@@ -1,0 +1,112 @@
+F.............F.........................FF.FFF........F............................../home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:749: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:822: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=4, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.F/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:758: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+======================================================================
+FAIL: test_activity_zero_missing_foreign_and_old_in_fresh_snapshot (tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_observation.py", line 60, in test_activity_zero_missing_foreign_and_old_in_fresh_snapshot
+    self.assertIn("activity " + expected, rendered)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'activity 0 B' not found in 'observed at 2026-11-19T18:00:00.000Z   (0s old, read 0s ago)\n\nJOB job-a   IN PROGRESS\n  submission   submission-a\n  input        unknown\n  policy       unknown\n  terminal     unknown\n\n  STAGE implementation  [running]\n    work         unknown\n    episode      unknown\n    offer        unknown\n    attempt      attempt-a\n    operation    work dispatched (reported; attempt association unverified)\n    runtime      unknown\n    engine       unknown\n    assigned to  unknown\n    assigned work unknown\n    assigned gen unknown\n    reserved worker unknown\n    reserved as  unknown\n    reservation  unknown\n    reservation state unknown\n    lane         unknown\n    pool generation unknown\n    selection    unknown\n    started      unknown\n    elapsed      unknown\n    activity     0 B observed 1m00s ago\n    corrections  0\n    results      unavailable (no frozen output in this snapshot)'
+
+======================================================================
+FAIL: test_every_out_of_domain_count_is_unknown (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_every_out_of_domain_count_is_unknown) (count=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 1461, in test_every_out_of_domain_count_is_unknown
+    self.assertIn("activity unknown",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+                  mine(render_list(snapshot, now=self.now)))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'activity unknown' not found in '  implementation   running          elapsed 0s       activity 0 B      job-a/implementation\n      activity observed 0s ago\n      attempt attempt-1; operation unknown'
+
+======================================================================
+FAIL: test_a_live_stage_keeps_its_identity_too (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_live_stage_keeps_its_identity_too)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 1378, in test_a_live_stage_keeps_its_identity_too
+    self.assertTrue(all(len(one) <= 100 for one in rows(listed)))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_a_malformed_instant_cannot_widen_the_line (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_malformed_instant_cannot_widen_the_line)
+The document is the manager's, but a malformed one does not get to
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 1400, in test_a_malformed_instant_cannot_widen_the_line
+    self.assertTrue(all(len(one) <= 100 for one in rows(listed)),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    max(rows(listed), key=len))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true :       attempt attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7; operation unknown
+
+======================================================================
+FAIL: test_every_terminal_state_keeps_count_instant_and_identity_at_width (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_every_terminal_state_keeps_count_instant_and_identity_at_width) (state='completed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 1361, in test_every_terminal_state_keeps_count_instant_and_identity_at_width
+    self.assertTrue(all(len(one) <= 100 for one in rows(listed)),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    max(rows(listed), key=len))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true :       attempt attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7; operation unknown
+
+======================================================================
+FAIL: test_every_terminal_state_keeps_count_instant_and_identity_at_width (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_every_terminal_state_keeps_count_instant_and_identity_at_width) (state='changes-requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 1361, in test_every_terminal_state_keeps_count_instant_and_identity_at_width
+    self.assertTrue(all(len(one) <= 100 for one in rows(listed)),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    max(rows(listed), key=len))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true :       attempt attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7; operation unknown
+
+======================================================================
+FAIL: test_every_terminal_state_keeps_count_instant_and_identity_at_width (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_every_terminal_state_keeps_count_instant_and_identity_at_width) (state='exceptional')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 1361, in test_every_terminal_state_keeps_count_instant_and_identity_at_width
+    self.assertTrue(all(len(one) <= 100 for one in rows(listed)),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    max(rows(listed), key=len))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true :       attempt attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7; operation unknown
+
+======================================================================
+FAIL: test_the_drill_down_banner_uses_the_configured_threshold (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_drill_down_banner_uses_the_configured_threshold)
+REVIEW claim168257 [P2]. `_drilled` called `_banner` without the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 593, in test_the_drill_down_banner_uses_the_configured_threshold
+    self.assertIn("!! STALE", narrow.getvalue())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '!! STALE' not found in 'observed at 2026-11-19T18:52:39.000Z   (3s old, read 0s ago)   [the manager was NOT read: absences here mean nobody looked]\nARTIFACT result   20 bytes   sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\nthe retained result\n\n'
+
+======================================================================
+FAIL: test_the_module_constructs_no_serving_factory (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_module_constructs_no_serving_factory)
+Read the imports rather than the paragraph promising the absence.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 774, in test_the_module_constructs_no_serving_factory
+    self.assertEqual(names, {"argparse", "datetime", "json", "os", "stat",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             "sys", "time", "baton_v12.job_manager"})
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the first set but not the second:
+'tools'
+'tools.job_observation'
+
+----------------------------------------------------------------------
+Ran 87 tests in 7.234s
+
+FAILED (failures=9)

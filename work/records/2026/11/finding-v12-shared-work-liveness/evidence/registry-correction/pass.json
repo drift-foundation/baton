@@ -1,0 +1,16 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "consumed_next": false,
+    "destination_phase": "queued",
+    "kind": "pass",
+    "operation": null,
+    "seq": 385286,
+    "to": "baton.decide",
+    "work": "2b077949-W385263"
+  },
+  "snapshot_seq": 385286
+}

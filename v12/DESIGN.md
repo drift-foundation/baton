@@ -530,7 +530,7 @@ a complete coding agent. Capabilities must be declared honestly.
 **RUN-4.** Inside the certified container the agent may use available shells,
 compilers, tests and destructive tools against its private writable area without
 per-command human approval. The container's confinement is the security boundary.
-Host approval policy is not copied into the inner task loop.
+Host approval policy is not copied into the inner task loop. The provider CLI MUST run with its inner approval and sandbox bypass activated; no additional agent sandbox or command/tool approval allowlist is imposed inside the container. The owner selects available tools through the released worker image and access through the Docker configuration. This does not expand container access or the assigned Work scope.
 
 **RUN-5.** On cancellation or loss of permission the runner stops dispatching and
 drains/terminates its descendants as supported. These are useful cooperative
@@ -1006,6 +1006,19 @@ merely to avoid SQLite-managed filesystem effects.
 Show reserved, starting, command-published, receipted, running, answering and
 retained-result states with observation time and freshness. A live container or
 claimed Work alone must not be rendered as proof the model is doing useful work.
+
+Owner clarification 2026-11-19 (W385263): the installed publisher's versioned
+JSON snapshot is the shared observation interface for status, monitor and the
+future TUI. Their shared read model owns interpretation and freshness; readers
+do not independently collect Job activity. The selected first increment reuses
+existing schemas and sources, keeps CLI execution and existing service-health
+checks, and adds no telemetry collector or TUI. Snapshot observations at least
+15 seconds old are stale, independent of UI refresh frequency. Reads do not
+refresh timestamps; publication time does not refresh old activity. Preserve
+attempt attribution, known zero versus unknown, and distinct snapshot/activity
+ages. This selects Option A, not the original full-envelope migration or later
+CLI event parsing/metrics proposals. Decision and bounds:
+[shared liveness approval](../work/records/2026/11/finding-v12-shared-work-liveness/FINDING.md).
 
 **OBS-3.** Failures have a bounded typed cause, exact attempt/operation, originating
 component, observed time and safe diagnostic locator. Missing authority, engine

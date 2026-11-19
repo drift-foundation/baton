@@ -1,0 +1,88 @@
+{
+  "collected": [
+    "tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot",
+    "tests.tools.test_job_observation.SharedObservation.test_publication_and_observation_ages_share_exact_boundary",
+    "tests.tools.test_job_observation.SharedObservation.test_schema_and_visibility_contract_remain_unchanged",
+    "tests.tools.test_job_observation.SharedObservation.test_shared_model_has_no_io_dependencies",
+    "tests.tools.test_job_observation.SharedObservation.test_shared_outcomes_gates_and_typed_failure",
+    "tests.tools.test_job_observation.SharedObservation.test_terminal_activity_keeps_original_absolute_time",
+    "tests.tools.test_job_observation.SharedObservation.test_unrecognized_operations_are_not_relayed"
+  ],
+  "executed": [
+    "tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot",
+    "tests.tools.test_job_observation.SharedObservation.test_publication_and_observation_ages_share_exact_boundary",
+    "tests.tools.test_job_observation.SharedObservation.test_schema_and_visibility_contract_remain_unchanged",
+    "tests.tools.test_job_observation.SharedObservation.test_shared_model_has_no_io_dependencies",
+    "tests.tools.test_job_observation.SharedObservation.test_shared_outcomes_gates_and_typed_failure",
+    "tests.tools.test_job_observation.SharedObservation.test_terminal_activity_keeps_original_absolute_time",
+    "tests.tools.test_job_observation.SharedObservation.test_unrecognized_operations_are_not_relayed"
+  ],
+  "passed": [
+    "tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot",
+    "tests.tools.test_job_observation.SharedObservation.test_publication_and_observation_ages_share_exact_boundary",
+    "tests.tools.test_job_observation.SharedObservation.test_schema_and_visibility_contract_remain_unchanged",
+    "tests.tools.test_job_observation.SharedObservation.test_shared_model_has_no_io_dependencies",
+    "tests.tools.test_job_observation.SharedObservation.test_shared_outcomes_gates_and_typed_failure",
+    "tests.tools.test_job_observation.SharedObservation.test_terminal_activity_keeps_original_absolute_time",
+    "tests.tools.test_job_observation.SharedObservation.test_unrecognized_operations_are_not_relayed"
+  ],
+  "optional_skipped": {},
+  "required_skipped": {},
+  "fixture_skipped": {},
+  "fixture_errors": {},
+  "failed": [],
+  "errors": [],
+  "stray_errors": [],
+  "expected_failures": [],
+  "unexpected_successes": [],
+  "duplicates": [],
+  "unaccounted": [],
+  "uncollected": [],
+  "ok": true,
+  "selected_modules": [
+    "tests.tools.test_job_observation"
+  ],
+  "reports": [
+    {
+      "ids": [
+        "tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot",
+        "tests.tools.test_job_observation.SharedObservation.test_publication_and_observation_ages_share_exact_boundary",
+        "tests.tools.test_job_observation.SharedObservation.test_schema_and_visibility_contract_remain_unchanged",
+        "tests.tools.test_job_observation.SharedObservation.test_shared_model_has_no_io_dependencies",
+        "tests.tools.test_job_observation.SharedObservation.test_shared_outcomes_gates_and_typed_failure",
+        "tests.tools.test_job_observation.SharedObservation.test_terminal_activity_keeps_original_absolute_time",
+        "tests.tools.test_job_observation.SharedObservation.test_unrecognized_operations_are_not_relayed"
+      ],
+      "loaded": [
+        "tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot",
+        "tests.tools.test_job_observation.SharedObservation.test_publication_and_observation_ages_share_exact_boundary",
+        "tests.tools.test_job_observation.SharedObservation.test_schema_and_visibility_contract_remain_unchanged",
+        "tests.tools.test_job_observation.SharedObservation.test_shared_model_has_no_io_dependencies",
+        "tests.tools.test_job_observation.SharedObservation.test_shared_outcomes_gates_and_typed_failure",
+        "tests.tools.test_job_observation.SharedObservation.test_terminal_activity_keeps_original_absolute_time",
+        "tests.tools.test_job_observation.SharedObservation.test_unrecognized_operations_are_not_relayed"
+      ],
+      "executed": [
+        "tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot",
+        "tests.tools.test_job_observation.SharedObservation.test_publication_and_observation_ages_share_exact_boundary",
+        "tests.tools.test_job_observation.SharedObservation.test_schema_and_visibility_contract_remain_unchanged",
+        "tests.tools.test_job_observation.SharedObservation.test_shared_model_has_no_io_dependencies",
+        "tests.tools.test_job_observation.SharedObservation.test_shared_outcomes_gates_and_typed_failure",
+        "tests.tools.test_job_observation.SharedObservation.test_terminal_activity_keeps_original_absolute_time",
+        "tests.tools.test_job_observation.SharedObservation.test_unrecognized_operations_are_not_relayed"
+      ],
+      "ran": 7,
+      "ok": true,
+      "failures": [],
+      "errors": [],
+      "skipped": [],
+      "expected_failures": [],
+      "unexpected_successes": [],
+      "label": "tests.tools.test_job_observation.SharedObservation",
+      "returncode": 0
+    }
+  ],
+  "cleanup_complete": true,
+  "pending_signal": null,
+  "seconds": 0.33302177902078256
+}

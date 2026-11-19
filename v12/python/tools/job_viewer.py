@@ -23,8 +23,8 @@ WHAT IT IS NOT, and each of these is a decision rather than an omission:
   polling returned -- and each of those reports the VIEWER'S behaviour as if it
   were the JOB'S. W61599's trusted activity source now exists and this view
   reads it out of the snapshot; where the manager has observed nothing, activity
-  is still `unknown`, an empty stream is not progress, and a zero is never
-  shown as a count. The instant is the MANAGER'S RECEIPT TIME, so a relative
+  is still `unknown`, an empty stream is not progress, and a known zero remains
+  an observed empty count. The instant is the MANAGER'S RECEIPT TIME, so a relative
   age is shown only while the stage is live and a terminal stage shows the
   instant marked `last`.
 
@@ -42,6 +42,8 @@ import sys
 import time
 
 from baton_v12.job_manager import documents
+from tools import job_observation
+from tools.job_observation import _elapsed, _instant, _duration, _activity, _stage_line, _reason, _live_episode, _allocated, MAX_ACTIVITY_BYTES, MAX_INSTANT_TEXT, ALLOCATION_FIELDS
 
 __all__ = ["MAX_SNAPSHOT_BYTES", "MAX_LOCATOR_BYTES", "POLL_SECONDS",
            "STALE_FLOOR_SECONDS", "stale_after", "UNKNOWN", "ViewerRefusal",
@@ -56,23 +58,12 @@ MAX_LOCATOR_BYTES = 64 * 1024
 
 POLL_SECONDS = 1.0
 
-# WHEN AN OBSERVATION STOPS BEING BELIEVABLE AS "NOW".
-#
-# REVIEW claim168071 [P1]: this was a fixed 3 s measured from the LOCAL READ,
-# and every refresh reset it -- so re-reading one unchanged status file forever
-# reported "read 0s ago" with no warning. An old document looked fresh
-# indefinitely under the documented polling loop, which is the precise failure
-# this viewer exists to prevent.
-#
-# So the threshold is derived from the CONFIGURED interval rather than frozen,
-# and it is applied to the MANAGER'S observation time. `2 x interval` at the
-# 1 s default is the selected 2 s behaviour; the floor keeps a very small
-# interval from flapping the view into permanent alarm.
-STALE_FLOOR_SECONDS = 2.0
+# Owner M385273: UI poll frequency does not change source freshness.
+STALE_FLOOR_SECONDS = job_observation.STALE_SECONDS
 
 
 def stale_after(interval=POLL_SECONDS):
-    return max(STALE_FLOOR_SECONDS, 2.0 * interval)
+    return job_observation.STALE_SECONDS
 
 UNKNOWN = "unknown"
 
@@ -105,11 +96,12 @@ class Snapshot:
     stale bytes get reported as fresh.
     """
 
-    def __init__(self, document, *, received_at, connected=True, failure=None):
+    def __init__(self, document, *, received_at, connected=True, failure=None, published_at=None):
         self.document = document
         self.received_at = received_at
         self.connected = connected
         self.failure = failure
+        self.published_at = published_at
 
     @property
     def observed_at(self):
@@ -131,35 +123,19 @@ class Snapshot:
         """How long since THE MANAGER looked. Unknown when unparseable --
         and unknown is treated as stale, because a view that cannot tell how
         old its facts are must not present them as current."""
-        held = self.observed_at
-        if not held or wall_now is None:
-            return None
-        try:
-            return max(0.0, wall_now - _instant(held))
-        except ValueError:
-            return None
+        age = job_observation.observation_age(self.observed_at, wall_now)
+        return None if age is None else max(0.0, age)
 
     def stale(self, now, after=None, wall_now=None):
-        """Stale when EITHER clock says so.
-
-        The observation age is what catches an unchanging source; the local
-        read age is what catches a loop that stopped refreshing. Either alone
-        leaves a real way for old facts to look current.
-        """
-        after = stale_after() if after is None else after
-        # THE COMPARISON IS `>=`, NOT `>`. The selected behaviour is that a
-        # changed or outdated observation is visible WITHIN the window, and a
-        # strict `>` first flagged an exact integer-tick observation one whole
-        # tick late -- at 3 s for a 2 s threshold.
-        if not self.connected:
-            return True
-        local = self.age_seconds(now)
-        if local is None or local >= after:
+        # `after` is retained for callers, but the owner-selected policy is fixed.
+        if not self.connected or job_observation.stale_ages(self.age_seconds(now)):
             return True
         if wall_now is None:
             return False
-        observed = self.observation_age(wall_now)
-        return observed is None or observed >= after
+        ages = [job_observation.observation_age(self.observed_at, wall_now)]
+        if self.published_at is not None:
+            ages.append(wall_now - self.published_at)
+        return job_observation.stale_ages(*ages)
 
     def jobs(self):
         return list((self.document or {}).get("jobs") or [])
@@ -203,7 +179,7 @@ def read_snapshot(source, *, received_at):
         _refuse("this view reads " + documents.STATUS_SCHEMA + " and this is "
                 + repr(schema))
     _shaped(held)
-    return Snapshot(held, received_at=received_at)
+    return Snapshot(held, received_at=received_at, published_at=getattr(source, "published_at", None))
 
 
 def _shaped(held):
@@ -253,242 +229,6 @@ def _shaped(held):
     return held
 
 
-def _elapsed(started, ended, observed_at):
-    """Elapsed time FROM KNOWN SOURCE TIMES ONLY.
-
-    The wall clock is not a source time. A stage whose start nobody recorded
-    has an unknown elapsed, and saying `unknown` is the correct answer -- the
-    alternative is measuring how long THIS PROGRAM has been looking and
-    printing it as how long the JOB has been running.
-    """
-    finish = ended or observed_at
-    if not started or not finish:
-        return None
-    try:
-        return max(0.0, _instant(finish) - _instant(started))
-    except ValueError:
-        return None
-
-
-def _instant(value):
-    """One recorded instant, parsed strictly."""
-    if type(value) is not str:
-        raise ValueError("not an instant")
-    text = value[:-1] + "+00:00" if value.endswith("Z") else value
-    return datetime.datetime.fromisoformat(text).timestamp()
-
-
-def _duration(seconds):
-    if seconds is None:
-        return UNKNOWN
-    seconds = int(seconds)
-    if seconds < 60:
-        return str(seconds) + "s"
-    if seconds < 3600:
-        return str(seconds // 60) + "m" + str(seconds % 60).zfill(2) + "s"
-    return str(seconds // 3600) + "h" + str((seconds % 3600) // 60).zfill(2) + "m"
-
-
-# HOW A BYTE COUNT IS SPELLED. Whole units only: an operator reading this is
-# asking "is it moving", and a third decimal place answers a question nobody
-# asked while making two figures harder to compare at a glance.
-_ACTIVITY_UNITS = (("GiB", 1 << 30), ("MiB", 1 << 20), ("KiB", 1 << 10))
-
-
-# THE DOMAIN AN ACTIVITY COUNT MAY BE IN, and it is the producer's own.
-#
-# REVIEW 2026-09-15T14-42-20Z [R2]: this had no ceiling, and a status document
-# carrying `bytes_observed: 10**400` -- valid JSON, far inside the 4 MiB input
-# bound -- reached a float division and raised `OverflowError`. That escaped
-# `refresh`'s last-good-snapshot handler and `main`, which catches only
-# `ViewerRefusal`, so the ordinary command could die on a document the previous
-# constant-`unknown` rendering displayed without complaint.
-#
-# THE BOUND IS CHECKED BEFORE ANY CONVERSION, because the conversion is what
-# fails. A count outside it is `unknown` -- this view refuses to render a number
-# it cannot hold, exactly as it refuses every other value it cannot account for.
-# The trusted producer's own parser already excludes such a value, so this is
-# about malformed CONSUMER input rather than an emission anybody has seen.
-MAX_ACTIVITY_BYTES = 2 ** 53 - 1
-
-# How much of a recorded instant may reach a line. The document is the
-# manager's, but a malformed one must not decide this program's line width.
-MAX_INSTANT_TEXT = 32
-
-
-def _bytes_seen(count):
-    for unit, size in _ACTIVITY_UNITS:
-        if count >= size:
-            return "{:.2f} {}".format(count / size, unit)
-    return str(count) + " B"
-
-
-def _activity(stage, state, observed_at):
-    """W61599's count, rendered with the ONE distinction that matters.
-
-    THE INSTANT IS THE MANAGER'S RECEIPT TIME, NOT THE PROVIDER'S. Owner ruling
-    M174788 is explicit that an update admitted while the operation was live may
-    ARRIVE AFTER COMPLETION, so the instant says when this manager recorded an
-    observation and never that the provider is still working.
-
-    SO A RELATIVE AGE IS ONLY HONEST WHILE THE STAGE IS LIVE. "4s ago" beside
-    `completed` invites an operator to read a finished attempt as a running one,
-    and it gets WORSE with time: the apparent freshness improves as the clock
-    moves while nothing is running. A terminal stage therefore shows the
-    absolute instant and the word `last`, which cannot be misread as now.
-
-    AND ABSENCE IS NOT ZERO. `attempt_activity_of` keeps two absences apart --
-    an id naming no attempt, and a recorded attempt nobody has observed -- and
-    its own rule is that a zero there "would read as observed, and empty". The
-    producer never publishes one; if a zero ever arrives here it is rendered
-    `unknown` rather than `0`, because this view does not have the evidence that
-    would make `0` true.
-
-    NOTHING BRANCHES ON THIS. It is a diagnostic under approver ruling M61707:
-    a count is not proof of useful work, a quiet model call leaves it unchanged,
-    and no refresh, refusal, ordering or selection in this program reads it.
-    """
-    runtime = stage.get("runtime") if type(stage.get("runtime")) is dict else {}
-    held = runtime.get("activity") if type(runtime.get("activity")) is dict \
-        else {}
-    count = held.get("bytes_observed")
-    if type(count) is not int or type(count) is bool \
-            or not 0 < count <= MAX_ACTIVITY_BYTES:
-        return UNKNOWN, None
-    seen = _bytes_seen(count)
-    instant = held.get("observed_at")
-    if state in TERMINAL_STATES:
-        # HISTORICAL, AND SAID SO. No age, because there is nothing for an age
-        # to be measured against that an operator should read as liveness.
-        return seen, "last at " + (instant[:MAX_INSTANT_TEXT]
-                                   if type(instant) is str else UNKNOWN)
-    age = _elapsed(instant, None, observed_at)
-    return seen, ("observed " + _duration(age) + " ago" if age is not None
-                  else "observed at " + UNKNOWN)
-
-
-def _live_episode(stage):
-    """The CURRENT episode, or None. A stage between an ending and its
-    replacement genuinely has none, and naming the ended one would report a
-    finished attempt as the live one."""
-    live = stage.get("episode")
-    if live is None:
-        return None
-    for one in stage.get("episodes") or []:
-        if one.get("episode") == live:
-            return one
-    return None
-
-
-def _stage_line(stage, observed_at):
-    episode = _live_episode(stage)
-    started = (episode or {}).get("opened_at")
-    ended = (episode or {}).get("ended_at")
-    state = stage.get("state") or UNKNOWN
-    held = {
-        "stage_id": stage.get("stage_id") or UNKNOWN,
-        "kind": stage.get("kind") or UNKNOWN,
-        "state": state,
-        # THE EXACT IDENTITIES WHEN THEY ARE KNOWN, and `unknown` when they are
-        # not. An operator chasing a stuck Job needs the attempt id to give to
-        # anybody else, and a blank space is not an answer.
-        "work_id": stage.get("work_id") or UNKNOWN,
-        "attempt_id": stage.get("attempt_id") or UNKNOWN,
-        "offer_id": stage.get("offer_id") or UNKNOWN,
-        "episode": stage.get("episode") if stage.get("episode") is not None
-                   else UNKNOWN,
-        "elapsed": _duration(_elapsed(started, ended, observed_at)),
-        "started_at": started or UNKNOWN,
-        # ACTIVITY COMES FROM THE SNAPSHOT AND FROM NOWHERE ELSE. W61599's
-        # producer puts it on the attempt, `delegation` observes it and
-        # `projection` publishes it at `runtime.activity`; this reads that and
-        # never infers liveness from an empty stream or from the fact that
-        # polling returned. See `_activity`.
-        "activity": _activity(stage, state, observed_at)[0],
-        # R1, review 2026-09-15T14-42-20Z: THE TIMING IS ITS OWN LINE.
-        #
-        # The count and the instant together are wider than the ordinary
-        # 100-column list, and the whole-line cut took the end of the timestamp
-        # AND the entire stage id with it -- on ordinary valid counts, in the
-        # renderer the plain CLI uses, which offers no width operand. An
-        # operator chasing a stuck Job needs that identity to give to somebody
-        # else, so the fixed-width columns keep it and the variable-width fact
-        # moves to a continuation line, exactly as `reason` already does.
-        "activity_when": _activity(stage, state, observed_at)[1],
-        "reason": _reason(stage, state),
-        "corrections": stage.get("corrections", 0),
-    }
-    # REVIEW claim168071 [P2]: `projection.status` supplies these and the view
-    # ignored them, so a document carrying a known worker and assignment
-    # rendered neither. An operator asking "which worker is this on" was being
-    # shown an absence the document did not report.
-    runtime = stage.get("runtime") if type(stage.get("runtime")) is dict else {}
-    assignment = (runtime.get("assignment")
-                  if type(runtime.get("assignment")) is dict else {})
-    held.update({
-        "runtime_id": runtime.get("runtime_id") or UNKNOWN,
-        "execution_runtime": runtime.get("execution_runtime") or UNKNOWN,
-        "assignment_work": assignment.get("work_ref") or UNKNOWN,
-        "assignment_participant": assignment.get("participant") or UNKNOWN,
-        "assignment_generation": (assignment.get("generation")
-                                  if assignment.get("generation") is not None
-                                  else UNKNOWN),
-    })
-    held.update(_allocated(stage.get("allocation")))
-    return held
-
-
-# THE SCHEDULER'S OWN COLUMNS. Review claim168169 [P2]: `_allocation` looked
-# for `allocation_id`/`name`/`root`/`capacity_id`, none of which the scheduler
-# publishes -- so a really reserved worker displayed `unknown`, and my fixture
-# invented an `allocation_id` and therefore passed while missing the actual
-# shape. These names are `stage_allocations`' own.
-#
-# AND THE WORKER IS NOT THE ASSIGNMENT. A stage can be reserved on a worker
-# before any runtime exists, so the scheduler's reservation and the runtime's
-# fixed assignment are different facts at different times and are shown
-# separately rather than folded into one line.
-ALLOCATION_FIELDS = (("allocation_assignment", "assignment_id"),
-                     ("allocation_worker", "worker_id"),
-                     ("allocation_participant", "participant"),
-                     ("allocation_lane", "lane"),
-                     ("allocation_generation", "generation"),
-                     ("allocation_state", "allocation_state"),
-                     ("allocation_selection", "selection_outcome"))
-
-
-def _allocated(held):
-    taken = {}
-    for label, member in ALLOCATION_FIELDS:
-        value = held.get(member) if type(held) is dict else None
-        taken[label] = UNKNOWN if value is None or value == "" else str(value)
-    return taken
-
-
-def _reason(stage, state):
-    """WHY this stage is where it is, when the document says so."""
-    if state in OPERATOR_ACTION_STATES:
-        return "operator action: changes requested"
-    # THE GATE'S OWN MEMBERS. The first form printed the raw document, which
-    # put `{'stage_id': ..., 'open': False}` on an operator's screen -- a view
-    # that shows its internals is a view somebody has to decode.
-    closed = [one for one in (stage.get("gates") or [])
-              if isinstance(one, dict) and not one.get("open")]
-    if closed:
-        named = ", ".join(
-            str(one.get("stage_id") or UNKNOWN)
-            + " (" + str(one.get("state") or UNKNOWN) + ")"
-            for one in closed[:3])
-        more = "" if len(closed) <= 3 else (" and " + str(len(closed) - 3)
-                                            + " more")
-        return "held: waiting on " + named + more
-    if state == "exceptional":
-        return "failed: stage ended exceptionally"
-    if state in HELD_STATES:
-        return "held: no attempt in progress"
-    return ""
-
-
 def render_list(snapshot, *, now, width=100, wall_now=None,
                 stale_seconds=None):
     """The list view: every Job, and how old this reading is."""
@@ -509,7 +249,7 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
         lines.append("")
         lines.append("JOB " + str(job.get("job_id") or UNKNOWN)
                      + "   submission " + str(job.get("submission_id")
-                                              or UNKNOWN))
+                                              or UNKNOWN) + "   " + job_observation.job_outcome(job))
         for stage in stages:
             one = _stage_line(stage, observed_at)
             lines.append(
@@ -522,18 +262,15 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
             # carry.
             if one["activity_when"]:
                 lines.append("      activity " + one["activity_when"])
+            lines.append("      attempt " + str(one["attempt_id"]))
+            lines.append("      operation " + one["operation"])
             if one["reason"]:
                 lines.append("      " + one["reason"])
     return lines
 
 
 def _banner(snapshot, now, wall_now=None, stale_seconds=None):
-    """REVIEW claim168169 [P2]: the viewer computed a threshold from the
-    configured interval and then rendered with the 1 s default, so at
-    `--interval 5` a three-second-old observation was called STALE against a
-    documented ten-second window. A threshold that never reaches the renderer
-    is a threshold nobody applies."""
-    """THE VIEW'S OWN HONESTY LINE, first and unmissable."""
+    """The shared fifteen-second policy applies to every rendering."""
     if not snapshot.connected:
         return ("!! DISCONNECTED -- this view has not been refreshed"
                 + (" (" + str(snapshot.failure) + ")" if snapshot.failure
@@ -584,7 +321,7 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
                 + (", ".join(repr(one.get("job_id"))
                              for one in snapshot.jobs()) or "nothing"))
     lines = ["",
-             "JOB " + str(job.get("job_id")),
+             "JOB " + str(job.get("job_id")) + "   " + job_observation.job_outcome(job),
              "  submission   " + str(job.get("submission_id") or UNKNOWN),
              "  input        " + str(job.get("input_digest") or UNKNOWN),
              "  policy       " + str(job.get("policy_digest") or UNKNOWN),
@@ -598,6 +335,7 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
                              ("episode", one["episode"]),
                              ("offer", one["offer_id"]),
                              ("attempt", one["attempt_id"]),
+                             ("operation", one["operation"]),
                              ("runtime", one["runtime_id"]),
                              ("engine", one["execution_runtime"]),
                              ("assigned to", one["assignment_participant"]),
@@ -818,7 +556,8 @@ class JobViewer:
             self.snapshot = Snapshot(self.snapshot.document,
                                      received_at=self.snapshot.received_at,
                                      connected=False,
-                                     failure=_named(failure))
+                                     failure=_named(failure),
+                                     published_at=self.snapshot.published_at)
             return self.snapshot
         self.snapshot = taken
         return self.snapshot
@@ -849,9 +588,14 @@ def _source_from(place):
     verb list at `read` and means no store handle, no factory and no second
     reader exists here at all.
     """
+    class PublishedBytes(bytes):
+        pass
+
     def read():
         with open(place, "rb") as handle:
-            return handle.read(MAX_SNAPSHOT_BYTES + 1)
+            source = PublishedBytes(handle.read(MAX_SNAPSHOT_BYTES + 1))
+            source.published_at = os.fstat(handle.fileno()).st_mtime
+            return source
     return read
 
 

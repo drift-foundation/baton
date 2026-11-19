@@ -1,0 +1,13 @@
+Jobs (fresh, canonical):
+Job w29401-labels-4: FAILED
+  w29401-labels-4/implementation: exceptional; cause unknown
+  w29401-labels-4/review: blocked; waiting on w29401-labels-4/implementation (exceptional)
+  Cancellation: job-deadline; shutdown complete
+Services:
+manager    running pid 2131939
+publisher  running pid 2131940
+snapshot   fresh (observed 3.4s ago, written 3.4s ago)
+jobs       1 observed (canonical=True)
+serving    acknowledged
+runtime   2 open episode(s), 1 with a recorded runtime, observed 3.4s ago
+          stopping a supervisor does not stop a runtime, and this is the last RECORDED answer rather than a fresh one
