@@ -38,7 +38,7 @@ from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from . import (cancellation, delegation, documents, ending, episodes, execution_limits,
-               scheduler, schema,
+               job_control, scheduler, schema,
                submission)
 
 __all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "materialized",
@@ -554,8 +554,19 @@ def materialized(store, stages=None):
                 # W383215: THE FENCES, IN THE SAME READ VIEW as the episodes
                 # they retire, so a stage is never derived beside a request
                 # another moment held.
-                "cancellations": cancellation.requests_of(store),
+                # W383217: THE FENCE IS EITHER RECORD -- the explicit
+                # request or the deadline expiry, whichever triggered first
+                # -- and every derivation below reads it as one thing.
+                "cancellations": cancellation.fences_of(store),
                 "cancellation_targets": cancellation.targets_of(store),
+                # W383217: AND EACH CONTROLLED JOB'S EVALUATION, from this
+                # same read view and this store's own clock: origins,
+                # deadlines, the trusted-clock timing and the first reached
+                # deadline. A pure read; the watermark is advanced only by
+                # the passes and guards that write.
+                "controls": {job["job_id"]: job_control.evaluate(
+                    store._connection, job["job_id"], store._now())
+                    for job in jobs},
                 "limits": {job["job_id"]: submission.execution_limits_of(
                     store, job["job_id"]) for job in jobs}}
 
@@ -674,6 +685,7 @@ def stage_states(store, operations, stages=None, snapshot=None):
                 owned["stage"]["job_id"]),
             cancellation_targets=snapshot["cancellation_targets"].get(
                 owned["stage"]["job_id"], []),
+            control=snapshot["controls"].get(owned["stage"]["job_id"]),
             observed=(delegation.observation_of(
                 operations, owned["attempt"], owned["job"])
                 if live is not None else delegation.unobserved()))
@@ -734,6 +746,14 @@ def owed_acts(store, operations, held=None):
     return owed
 
 
+def control_closed(evaluation, stage_id):
+    """Whether one Job's control evaluation closes admission OF THIS STAGE:
+    the Job deadline, this stage's own deadline, or uncertain timing."""
+    return (evaluation is not None
+            and (job_control.closing(evaluation, stage_id=stage_id) is not None
+                 or evaluation["timing"] == "uncertain"))
+
+
 def _owed(entry):
     if entry["episode"] is None:
         return None
@@ -741,6 +761,11 @@ def _owed(entry):
     # read-side guard; the write-side fences in `scheduler.reserve` and
     # `PooledManagerOperations.claim` decide a race this projection lost.
     if entry.get("cancellation") is not None:
+        return None
+    # W383217: A JOB PAST ITS FIRST DEADLINE, OR WHOSE TIMING IS UNCERTAIN,
+    # OWES NO ADMISSION AND NO CLAIM. Read-side; the write-side guard
+    # `job_control.refuse_closed` decides the race under the owners' locks.
+    if control_closed(entry.get("control"), entry["stage"]["stage_id"]):
         return None
     if entry["state"] == "queued":
         return "admit"
@@ -961,7 +986,13 @@ def status(store, operations, *, observed_at):
                 [held[row["stage_id"]]
                  for row in snapshot["stages_by_job"][job["job_id"]]],
                 observed_of=lambda entry: entry["observed"],
-                now=observed_at)))
+                now=observed_at),
+            # W383217: ADDITIVE, AND DERIVED from the same read view: the
+            # admitted profile, origins, deadlines, elapsed time, timing and
+            # the fence that closed the Job, if one did.
+            control=job_control.reported(
+                snapshot["controls"].get(job["job_id"]),
+                snapshot["cancellations"].get(job["job_id"]))))
     return documents.status(
         schema=documents.STATUS_SCHEMA, observed_at=observed_at,
         incarnation=store.incarnation,

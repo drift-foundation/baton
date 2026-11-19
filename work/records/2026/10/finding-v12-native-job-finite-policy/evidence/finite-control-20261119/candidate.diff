@@ -1,0 +1,3461 @@
+diff --git a/v12/QUICKSTART.md b/v12/QUICKSTART.md
+index f9712329..8cae1ac4 100644
+--- a/v12/QUICKSTART.md
++++ b/v12/QUICKSTART.md
+@@ -291,6 +291,38 @@ that is not serving leaves targets `pending`. Completed outcomes, verdicts and
+ outputs are untouched, and a cancelled Job admits no replacement episode,
+ correction round or fresh attempt.
+ 
++### Finite Job control: deadlines and the correction allowance
++
++A Job may be admitted under a versioned control profile (DESIGN LIM-5). The
++first one, `documentation/1`, permits one implementation and one independent
++review with zero correction rounds, 4800 seconds per stage from its execution
++admission (before preparation), 9960 seconds per Job from its accepted creation
++(queue time included), and the existing 3600/900-second provider and
++verification ceilings. Select it on the installed creation, or in a `/3`
++submission's `control` member:
++
++```sh
++"$DEST/distro/baton-v12-stack" manager create ... --control-profile documentation/1
++```
++
++The profile is journalled in the Job store inside the admission that created
++the Job and never moves. The serving manager derives the deadlines from the
++stores' own instants -- the Job's accepted-creation instant and the Worker
++Manager's journalled admission instant of each stage -- against a clock whose
++latest observation is persisted, so a restart or a clock rollback never resets
++known elapsed time: an untrusted clock holds new admission and is reported as
++`uncertain`. The first deadline reached is journalled as the Job's fence and
++carried out exactly as a cancellation: no further reservation, claim, launch,
++replacement, correction or fresh attempt, and the exact active runtime is
++ordered to cease through the same owners, with the 120-second bound measured
++from the deadline itself. A stage that finished within its allowance is never
++fenced by its deadline passing later, and a finished Job stays finished. A
++`changes-requested` verdict under a zero-round profile remains a verdict: the
++deployment reports `correction_declined` with policy `job-control` and the
++Job store refuses the round under its own lock. `status` and `cancel-status`
++report the profile, origins, deadlines, elapsed time, timing and fence under
++`control`.
++
+ ### Retained failed-execution settlement
+ 
+ The installed command accepts an explicit instance selector and the exact Job,
+diff --git a/v12/python/src/baton_v12/job_manager/__init__.py b/v12/python/src/baton_v12/job_manager/__init__.py
+index 853b37d8..b4233386 100644
+--- a/v12/python/src/baton_v12/job_manager/__init__.py
++++ b/v12/python/src/baton_v12/job_manager/__init__.py
+@@ -55,6 +55,9 @@ from .cancellation import (REQUEST_KIND as CANCEL_KIND,
+                            SHUTDOWN_BOUND_SECONDS, fence_of,
+                            report as cancellation_report,
+                            request as request_job_cancellation)
++from .job_control import (CONTROL_KIND, EXPIRY_KIND,
++                          PROFILES as CONTROL_PROFILES, control_of,
++                          report as control_report)
+ from .creation import (CREATE_KIND, DERIVATION_MEMBERS, INSTALLED_SOURCE,
+                        create_template_job, created_job_of,
+                        created_job_rows, resolution_of)
+@@ -127,4 +130,6 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
+            "reserve", "status", "submission_of", "submission_rows",
+            "submission_signature", "submit", "sweep",
+            "CANCEL_KIND", "SHUTDOWN_BOUND_SECONDS", "cancellation_report",
++           "CONTROL_KIND", "CONTROL_PROFILES", "EXPIRY_KIND", "control_of",
++           "control_report",
+            "fence_of", "request_job_cancellation"]
+diff --git a/v12/python/src/baton_v12/job_manager/cancellation.py b/v12/python/src/baton_v12/job_manager/cancellation.py
+index b32d8e79..0d3ed3da 100644
+--- a/v12/python/src/baton_v12/job_manager/cancellation.py
++++ b/v12/python/src/baton_v12/job_manager/cancellation.py
+@@ -34,13 +34,31 @@ from .store import job_signature
+ 
+ __all__ = ["REQUEST_KIND", "TARGET_KIND", "EFFECTS", "TARGET_STATES",
+            "SETTLED_STATES", "SHUTDOWN_STATES", "SHUTDOWN_BOUND_SECONDS",
++           "TRIGGERS", "REASON_KIND",
+            "request_operation_id", "target_operation_id", "request",
+-           "fence_of", "fenced", "refuse_fenced", "requests_of",
++           "reason_operation_id", "order_reason", "over",
++           "fence_of", "fenced", "fences_of", "refuse_fenced", "requests_of",
+            "targets_of", "record_target", "effect_for", "target_state",
+            "reported", "report", "observed_from"]
+ 
+ REQUEST_KIND = "job.cancel"
+ TARGET_KIND = "job.cancel.target"
++# W383217 (review 2026-11-19T00-20-37Z P2): THE ONE REASON THE STOP OWNERS
++# ARE GIVEN for a Job, journalled when the first order is placed. The
++# owners' stop operation is one per attempt and signed over its reason, so
++# a Job whose fence is rediscovered as an earlier deadline after an
++# operator's request was already carried out must keep ordering with the
++# wording it first used, or a retry collides on the owner's own journal.
++REASON_KIND = "job.cancel.reason"
++
++# W383217: WHAT CAN CLOSE A JOB. The operator's explicit request, or the
++# first stage/Job deadline reached under the Job's admitted control
++# (`job_control.expire`). Both are journalled fences this module reads; the
++# EARLIEST TRIGGER INSTANT is the Job's fence, decided from the records --
++# the request's committed instant, the expiry's deadline instant -- never
++# from which one a sweep happened to observe first. A tie goes to the
++# explicit request.
++TRIGGERS = ("operator", "stage-deadline", "job-deadline")
+ 
+ # THE TWO EFFECTS THE SWEEP CAN ORDER, each through one existing owner.
+ ORDER_CESSATION = "order-cessation"
+@@ -83,6 +101,10 @@ def request_operation_id(job_id):
+     return f"{REQUEST_KIND}:{job_id}"
+ 
+ 
++def reason_operation_id(job_id):
++    return REASON_KIND + ":" + job_id
++
++
+ def target_operation_id(authority_uuid, job_id, stage_id, episode, attempt_id,
+                         effect):
+     """One order per exact target and effect.
+@@ -139,17 +161,12 @@ def request(store, *, job_id, reason):
+         return documents.job_cancellation(
+             operation_id=operation_id, job_id=job_id, reason=reason,
+             requested_at=store._now(), incarnation=store.incarnation,
+-            observed=observed)
++            observed=observed, trigger="operator")
+ 
+     return store.transact(operation_id, REQUEST_KIND, signature, act)
+ 
+ 
+-def fenced(connection, job_id):
+-    """The committed cancellation of one Job, read on THIS connection, or None.
+-
+-    This is the read every admission owner makes inside its own write
+-    transaction. It is one row of this database and nothing else.
+-    """
++def _request_in(connection, job_id):
+     row = connection.execute(
+         "SELECT state, result FROM operations WHERE operation_id = ? AND "
+         "kind = ?", (request_operation_id(job_id), REQUEST_KIND)).fetchone()
+@@ -158,6 +175,31 @@ def fenced(connection, job_id):
+     return json.loads(row["result"])
+ 
+ 
++def _earliest(request, expiry):
++    """The Job's fence: the earliest trigger, the explicit request on a tie."""
++    if request is None:
++        return expiry
++    if expiry is None or request["requested_at"] <= expiry["requested_at"]:
++        return request
++    return expiry
++
++
++def fenced(connection, job_id):
++    """The fence of one Job, read on THIS connection, or None.
++
++    This is the read every admission owner makes inside its own write
++    transaction. It is two rows of this database and nothing else: the
++    explicit request and the deadline expiry (W383217), whichever triggered
++    first. The answer carries `trigger`, `reason` and `requested_at` -- the
++    LIM-5 trigger instant the shutdown bound runs from -- whichever record
++    it is.
++    """
++    from . import job_control
++
++    return _earliest(_request_in(connection, job_id),
++                     job_control.expiry_in(connection, job_id))
++
++
+ def fence_of(store, job_id):
+     boundaries.identity(job_id, "a Job id")
+     return fenced(store._connection, job_id)
+@@ -173,9 +215,13 @@ def refuse_fenced(connection, job_id, what):
+     """
+     held = fenced(connection, job_id)
+     if held is not None:
+-        _refuse(f"Job {name_value(job_id)} was cancelled at "
++        if held.get("trigger", "operator") == "operator":
++            _refuse(f"Job {name_value(job_id)} was cancelled at "
++                    f"{held['requested_at']} ({held['reason']}); {what} is "
++                    f"not admitted after an explicit cancellation")
++        _refuse(f"Job {name_value(job_id)} expired at "
+                 f"{held['requested_at']} ({held['reason']}); {what} is not "
+-                f"admitted after an explicit cancellation")
++                f"admitted after the deadline")
+     return None
+ 
+ 
+@@ -190,6 +236,16 @@ def requests_of(store):
+     return held
+ 
+ 
++def fences_of(store):
++    """Every Job's fence -- the earliest of its request and its expiry."""
++    from . import job_control
++
++    requests = requests_of(store)
++    expiries = job_control.expiries_of(store)
++    return {job_id: _earliest(requests.get(job_id), expiries.get(job_id))
++            for job_id in set(requests) | set(expiries)}
++
++
+ def targets_of(store, job_id=None):
+     """Every committed order record, by Job, oldest first."""
+     held = {}
+@@ -234,6 +290,31 @@ def record_target(store, *, job_id, stage_id, episode, attempt_id, effect,
+     return store.transact(operation_id, TARGET_KIND, signature, act)
+ 
+ 
++def order_reason(store, job_id, fence):
++    """The reason every stop order of this Job carries, journalled ONCE.
++
++    Signed over the Job alone, so the call that finds the record committed
++    replays it whatever record is the fence by then: the first order's
++    wording is the Job's wording. `fence` is the record in force when the
++    FIRST order is placed, and its `operation_id` is kept beside the reason
++    so a reader can follow which account the owners were told.
++    """
++    operation_id = reason_operation_id(job_id)
++    signature = job_signature(REASON_KIND, {"job_id": job_id})
++
++    def act(connection):
++        if fenced(connection, job_id) is None:
++            _refuse(f"no cancellation of Job {name_value(job_id)} is "
++                    f"committed; an order's reason follows a fence that "
++                    f"exists", category="integrity", code="schema")
++        return documents.job_cancellation_reason(
++            operation_id=operation_id, job_id=job_id,
++            reason=fence["reason"], fence_operation_id=fence["operation_id"],
++            recorded_at=store._now())
++
++    return store.transact(operation_id, REASON_KIND, signature, act)["reason"]
++
++
+ # -- what the sweep decides, per target, from the owners' live facts ---------
+ 
+ 
+@@ -283,6 +364,28 @@ def _never_started(axes):
+     return axes["runtime_id"] is None and axes["execution_runtime"] == "not-started"
+ 
+ 
++def over(entry):
++    """Whether this stage's WORK IS OVER by the owners' evidence alone.
++
++    W383217 (review 2026-11-19T00-20-37Z P1): the deadline of a stage that
++    is over closes nothing, and a Job whose every stage is over is never
++    fenced by a deadline that passes later. OVER IS NOT A LABEL. The
++    projection's `exceptional` covers an uncertain runtime, a durable
++    refusal beside an attached runtime and a failed start -- none of which
++    is cessation, and each of which the cancellation pass still has to order
++    or fence. So this reads what `effect_for` reads: a live attempt is over
++    when its runtime axes say ceased; a stage with no live episode is over
++    when its last episode ended in a way nothing replaces.
++    """
++    if entry["episode"] is None:
++        history = entry["history"]
++        if not history or history[-1]["ended_at"] is None:
++            return False
++        return history[-1]["ended_state"] not in documents.REPLACEABLE_ENDINGS
++    axes = (entry.get("observed") or {}).get("runtime")
++    return axes is not None and _ceased(axes)
++
++
+ def effect_for(state, observed, targets=()):
+     """Which effect one live target owes RIGHT NOW, or None.
+ 
+@@ -436,9 +539,12 @@ def reported(record, targets, entries, *, observed_of, now):
+         operation_id=record["operation_id"], job_id=record["job_id"],
+         reason=record["reason"], requested_at=record["requested_at"],
+         trigger_at=record["requested_at"],
++        trigger=record.get("trigger", "operator"),
+         shutdown_bound_seconds=SHUTDOWN_BOUND_SECONDS,
+         elapsed_seconds=elapsed, shutdown=shutdown,
+-        targets=reported_targets)
++        targets=reported_targets,
++        **({"observed_at": record["observed_at"]}
++           if "observed_at" in record else {}))
+ 
+ 
+ def observed_from(control, attempt_id):
+diff --git a/v12/python/src/baton_v12/job_manager/creation.py b/v12/python/src/baton_v12/job_manager/creation.py
+index dba49a4e..f99bd0de 100644
+--- a/v12/python/src/baton_v12/job_manager/creation.py
++++ b/v12/python/src/baton_v12/job_manager/creation.py
+@@ -366,7 +366,7 @@ def _asked(request):
+         request, "an ordinary Job creation request",
+         required=("schema", "task", "source_selection", "scope",
+                   "acceptance"),
+-        optional=("template", "overrides"))
++        optional=("template", "overrides", "control"))
+     if taken["schema"] != templates.REQUEST_SCHEMA:
+         _refuse(f"an ordinary Job creation request is "
+                 f"{name_value(templates.REQUEST_SCHEMA)}, the resolver's own "
+@@ -917,7 +917,10 @@ def _completed(store, operands, *, resolution, derivation, work, bound,
+         execution_limits=resolution["execution_limits"],
+         derivation=derivation, work=work, binding=bound,
+         stages=list(recorded["stages"]), servable=servable,
+-        recorded_at=recorded["recorded_at"])
++        recorded_at=recorded["recorded_at"],
++        # W383217: the control profile the request selected, visibly.
++        **({"control": dict(resolution["control"])}
++           if "control" in resolution else {}))
+ 
+     def act(connection):
+         changed = connection.execute(
+diff --git a/v12/python/src/baton_v12/job_manager/documents.py b/v12/python/src/baton_v12/job_manager/documents.py
+index 270d45dc..fe2fe1d8 100644
+--- a/v12/python/src/baton_v12/job_manager/documents.py
++++ b/v12/python/src/baton_v12/job_manager/documents.py
+@@ -65,7 +65,7 @@ stage is identified by its Job and its kind, which is why one Job carries at
+ most one stage of each kind and why a dependency names exactly that pair.
+ """
+ 
+-from . import execution_limits
++from . import execution_limits, job_control
+ from ..contracts import (ContractRefusal, canonical_text,
+                          check_relative_path, own)
+ from ..contracts.errors import name_value, sample_of
+@@ -100,10 +100,18 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
+ # nothing -- so it resolves to exactly the behaviour it had before this Work.
+ # Refusing /1 would have made a compatibility promise into a migration.
+ SUBMISSION_SCHEMA = "baton.v12.job-submission/2"
+-SUBMISSION_SCHEMAS = ("baton.v12.job-submission/1", SUBMISSION_SCHEMA)
++# W383217 / LIM-5 added /3: a Job may carry `control`, the versioned finite
++# control profile it is admitted under. /2 stays the ordinary document for a
++# Job that selects no profile and /1 for one that configures nothing; only a
++# Job that selects a profile needs /3, for the reason /2 exists: one intent,
++# one identity.
++SUBMISSION_CONTROL_SCHEMA = "baton.v12.job-submission/3"
++SUBMISSION_SCHEMAS = ("baton.v12.job-submission/1", SUBMISSION_SCHEMA,
++                      SUBMISSION_CONTROL_SCHEMA)
+ # Which submitted members each version admits. `execution_limits` is optional
+ # even in /2: a Job that configures nothing is the ordinary case.
+-SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
++SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA, SUBMISSION_CONTROL_SCHEMA)
++SUBMISSION_CONTROL_SCHEMAS = (SUBMISSION_CONTROL_SCHEMA,)
+ # W73629 moved this to /2. A stage now reports the EPISODES it has been through
+ # and its offer/attempt identities name the current one, so a reader written
+ # against /1 would see one stage's history as the stage itself. The version is
+@@ -132,7 +140,13 @@ SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
+ # AND IT IS A DIAGNOSTIC, NOT A STATE. Nothing in the projection branches on
+ # it and no stage state is derived from it; a diagnostic cause is not an
+ # acceptance and must not become a second route to `exceptional`.
+-STATUS_SCHEMA = "baton.v12.job-status/8"
++# W383217 / LIM-5: AND /9 ADDS THE ADDITIVE `control` MEMBER to every Job --
++# the admitted profile, the derived origins, deadlines and elapsed time, the
++# trusted-clock timing and the fence that closed it -- and `trigger` to the
++# cancellation report, which now also reports a deadline expiry. No stage
++# state changed; a /8 reader sees a Job whose deadlines it does not know are
++# enforced, which is why the version moved.
++STATUS_SCHEMA = "baton.v12.job-status/9"
+ 
+ # The three stages this milestone's vertical slice has. They are a CLOSED
+ # vocabulary rather than free text because the projection below maps each one
+@@ -291,6 +305,8 @@ JOB_MEMBERS = ("job_id", "input_digest", "policy_digest", "test_scope",
+ # W156162: and the one OPTIONAL member, admitted only by the version that names
+ # it. A /1 document carrying it is refused as the unknown member it is there.
+ JOB_LIMIT_MEMBER = "execution_limits"
++# W383217: and the second optional member, admitted only by /3.
++JOB_CONTROL_MEMBER = "control"
+ STAGE_MEMBERS = ("kind", "work_id", "profile_name", "profile_digest",
+                  "depends_on")
+ DEPENDENCY_MEMBERS = ("job_id", "kind")
+@@ -382,6 +398,8 @@ def _unique(values, what, where):
+ def _job(entry, schema=SUBMISSION_SCHEMA):
+     optional = ((JOB_LIMIT_MEMBER,) if schema in SUBMISSION_LIMITS_SCHEMAS
+                 else ())
++    optional += ((JOB_CONTROL_MEMBER,) if schema in SUBMISSION_CONTROL_SCHEMAS
++                 else ())
+     taken = boundaries.document(entry, "a submitted Job", required=JOB_MEMBERS,
+                                 optional=optional)
+     job_id = boundaries.identity(taken["job_id"], "a Job id")
+@@ -423,6 +441,21 @@ def _job(entry, schema=SUBMISSION_SCHEMA):
+                     f"is {name_value(None)}, which is neither")
+         held[JOB_LIMIT_MEMBER] = execution_limits.owned_execution_limits(
+             taken[JOB_LIMIT_MEMBER])
++    # W383217: THE CONTROL PROFILE, present only when the Job selected one,
++    # and AGREEING with the ceilings the Job resolves to. The agreement is
++    # proved again where the generation is stamped (`submission._job`); here
++    # it refuses at the document, which is where a template resolution
++    # learns it before anything is recorded.
++    if JOB_CONTROL_MEMBER in taken:
++        if taken[JOB_CONTROL_MEMBER] is None:
++            _refuse(f"a Job's {JOB_CONTROL_MEMBER} names a control profile, "
++                    f"omitted entirely when the Job selects none; this is "
++                    f"{name_value(None)}, which is neither")
++        held[JOB_CONTROL_MEMBER] = job_control.owned_control(
++            taken[JOB_CONTROL_MEMBER])
++        job_control.agreeing(held[JOB_CONTROL_MEMBER],
++                             execution_limits.resolved(
++                                 held.get(JOB_LIMIT_MEMBER)))
+     return held
+ 
+ 
+@@ -595,12 +628,13 @@ CONTRACTS = {
+     # depth 8, and a resolution carrying a normalized submission is already at
+     # that bound, so `resolution` as a member is an answer nothing could
+     # journal. `creation.resolution_of` is the provenance read.
++    # W383217: `control` is the profile the request selected, when it did.
+     "template-job.created": (("job_id", "work_id", "submission_id",
+                               "resolution_digest", "template", "task",
+                               "source", "scope", "acceptance", "overrides",
+                               "rules", "execution_limits", "derivation",
+                               "work", "binding", "stages", "servable",
+-                              "recorded_at"), ()),
++                              "recorded_at"), ("control",)),
+     "stage.act": (("stage_id", "job_id", "kind", "episode", "act",
+                    "operation_id", "offer_id", "attempt_id", "work_id"), ()),
+     "stage.receipt": (("stage_id", "episode", "act", "operation_id", "state",
+@@ -642,28 +676,58 @@ CONTRACTS = {
+     # W383215 / LIM-5 added the ADDITIVE `cancellation` member, which is why
+     # STATUS_SCHEMA is at /8: null for a Job nobody cancelled, and the
+     # `job.cancellation-report` document otherwise. No stage state changed.
++    # W383217 / LIM-5 added the ADDITIVE `control` member, which is why
++    # STATUS_SCHEMA is at /9: null for a Job admitted under no profile, and
++    # the `job.control-report` document otherwise.
+     "job.status": (("job_id", "submission_id", "input_digest",
+                     "policy_digest", "test_scope", "terminal_policy",
+-                    "execution_limits", "stages"), ("cancellation",)),
++                    "execution_limits", "stages"), ("cancellation",
++                                                    "control")),
++    # W383217: ONE JOB'S ADMITTED CONTROL, journalled inside its submission.
++    "job.control": (("operation_id", "job_id", "profile", "resolved",
++                     "admitted_at", "incarnation"), ()),
++    # W383217: THE FIRST DEADLINE REACHED, as a fence. `requested_at` IS the
++    # deadline instant (the LIM-5 trigger); `observed_at` is when a manager
++    # noticed, which is evidence of the gap and never the trigger.
++    "job.expiry": (("operation_id", "job_id", "trigger", "stage_id",
++                    "reason", "requested_at", "deadline_at", "observed_at",
++                    "incarnation"), ()),
++    "job.control-report": (("profile", "resolved", "timing", "observed_at",
++                            "watermark", "job", "stages", "corrections",
++                            "fence"), ()),
++    # One Job the sweep's control pass decided about this tick.
++    "job.control-notice": (("job_id", "outcome"),
++                           ("trigger", "stage_id", "deadline_at", "detail")),
+     # W383215: ONE JOB'S EXPLICIT CANCELLATION, as this store committed it.
+     # `requested_at` is the LIM-5 shutdown trigger and never moves; `observed`
+     # is what the request found at that instant, evidence rather than the
+     # target set the sweep acts on.
++    # W383217: `trigger` is `operator` on every new record, so the request
++    # and the expiry fence read as one shape; a record from before it is
++    # read as the operator's.
+     "job.cancellation": (("operation_id", "job_id", "reason", "requested_at",
+-                          "incarnation", "observed"), ()),
++                          "incarnation", "observed"), ("trigger",)),
+     # One ORDER the sweep placed for one exact target through an existing
+     # owner; `evidence` carries that owner's returned identities. It proves
+     # an order, never cessation.
+     "job.cancellation-target": (("operation_id", "job_id", "stage_id",
+                                  "episode", "attempt_id", "effect",
+                                  "recorded_at", "evidence"), ()),
++    # W383217 (review 2026-11-19T00-20-37Z P2): the ONE reason this store
++    # gave the stop owners for a Job, journalled with the first order and
++    # replayed for every later one, whichever fence record is in force.
++    "job.cancellation-reason": (("operation_id", "job_id", "reason",
++                                 "fence_operation_id", "recorded_at"), ()),
+     "job.cancellation-target-status": (("stage_id", "episode", "attempt_id",
+                                         "state", "runtime", "cleanup",
+                                         "cessation", "orders"), ()),
++    # W383217: `trigger` says WHICH fence this report follows -- the
++    # operator's request or a stage/Job deadline -- and `observed_at` carries
++    # an expiry's late observation beside the trigger it never replaces.
+     "job.cancellation-report": (("operation_id", "job_id", "reason",
+-                                 "requested_at", "trigger_at",
++                                 "requested_at", "trigger_at", "trigger",
+                                  "shutdown_bound_seconds", "elapsed_seconds",
+-                                 "shutdown", "targets"), ()),
++                                 "shutdown", "targets"), ("observed_at",)),
+     # One target the sweep's cancellation pass asked an owner about this tick.
+     "stage.cancellation": (("stage_id", "episode", "attempt_id", "effect",
+                             "outcome"), ("detail",)),
+@@ -696,8 +760,10 @@ CONTRACTS = {
+     # canonical assertion carries.
+     # W383215: `cancelled` names every target the cancellation pass acted on
+     # this tick, present only when it acted on one.
++    # W383217: `expired` names every Job the control pass decided about this
++    # tick (a journalled expiry, a replay, or a hold), present only then.
+     "sweep": (("observed_at", "recovered", "observed", "replaced", "acts",
+-               "started", "spoken", "refreshed"), ("cancelled",)),
++               "started", "spoken", "refreshed"), ("cancelled", "expired")),
+     # One live attempt's runtime refresh. `state` is what the reconciliation
+     # recorded, or null when this tick could not ask. `detail` carries only
+     # what this manager itself can name: a contained refusal's typed category
+@@ -817,6 +883,10 @@ def job_cancellation_target(**members):
+     return _emit("job.cancellation-target", members)
+ 
+ 
++def job_cancellation_reason(**members):
++    return _emit("job.cancellation-reason", members)
++
++
+ def job_cancellation_target_status(**members):
+     return _emit("job.cancellation-target-status", members)
+ 
+@@ -827,3 +897,21 @@ def job_cancellation_report(**members):
+ 
+ def stage_cancellation(**members):
+     return _emit("stage.cancellation", members)
++
++
++def job_control_record(**members):
++    """W383217: the admitted control of one Job. Named `_record` because
++    the owner module `job_control` is imported here under its own name."""
++    return _emit("job.control", members)
++
++
++def job_expiry(**members):
++    return _emit("job.expiry", members)
++
++
++def job_control_report(**members):
++    return _emit("job.control-report", members)
++
++
++def job_control_notice(**members):
++    return _emit("job.control-notice", members)
+diff --git a/v12/python/src/baton_v12/job_manager/episodes.py b/v12/python/src/baton_v12/job_manager/episodes.py
+index 1321e43e..92d12a92 100644
+--- a/v12/python/src/baton_v12/job_manager/episodes.py
++++ b/v12/python/src/baton_v12/job_manager/episodes.py
+@@ -255,11 +255,16 @@ def open_next(store, stage_id, ended):
+         owner = connection.execute(
+             "SELECT job_id FROM stages WHERE stage_id = ?",
+             (stage_id,)).fetchone()
+-        if owner is not None:
+-            cancellation.refuse_fenced(connection, owner["job_id"],
+-                                       f"opening a replacement episode of "
+-                                       f"stage {name_value(stage_id)}")
+         opened_at = store._now()
++        if owner is not None:
++            # W383217: AND NO REPLACEMENT AFTER THE DEADLINE OR UNDER
++            # UNCERTAIN TIMING, by the same guard, under the same lock.
++            from . import job_control
++            job_control.refuse_closed(connection, owner["job_id"],
++                                      f"opening a replacement episode of "
++                                      f"stage {name_value(stage_id)}",
++                                      now=opened_at, stage_id=stage_id)
++        del cancellation
+         connection.execute(
+             "INSERT INTO episodes (stage_id, episode, offer_id, attempt_id, "
+             "opened_at, incarnation) VALUES (?, ?, ?, ?, ?, ?)",
+@@ -638,9 +643,15 @@ def advance_correction(store, custody, *, job_id, line_id, checkpoint_id,
+     def act(connection):
+         # W383215: NO CORRECTION ROUND FOR A CANCELLED JOB, under the lock.
+         from . import cancellation
+-        cancellation.refuse_fenced(connection, job_id,
+-                                   "opening a correction round")
++        from . import job_control
+         now = store._now()
++        # W383217: NO ROUND AFTER THE DEADLINE OR UNDER UNCERTAIN TIMING, and
++        # NO ROUND BEYOND THE ADMITTED ALLOWANCE -- decided here, at the one
++        # transactional boundary that opens a round, so no caller can bypass
++        # it. Both refusals are ordinary: the verdict stands as recorded.
++        job_control.refuse_closed(connection, job_id,
++                                  "opening a correction round", now=now)
++        job_control.refuse_round(connection, job_id)
+         opened = {}
+         # EVERY GUARD FOR THE WHOLE PAIR, BEFORE THE FIRST ROW MOVES. Review
+         # [P0]: this used to guard and mutate one stage at a time, and the
+diff --git a/v12/python/src/baton_v12/job_manager/fresh_attempt.py b/v12/python/src/baton_v12/job_manager/fresh_attempt.py
+index a56fd3f6..d0642695 100644
+--- a/v12/python/src/baton_v12/job_manager/fresh_attempt.py
++++ b/v12/python/src/baton_v12/job_manager/fresh_attempt.py
+@@ -81,7 +81,8 @@ import sqlite3
+ from ..contracts import ContractRefusal
+ from ..contracts.errors import name_value, sample_of
+ from ..worker_manager import boundaries
+-from . import cancellation, documents, episodes, projection, submission
++from . import (cancellation, documents, episodes, job_control, projection,
++               submission)
+ from .store import job_signature
+ 
+ __all__ = ["ACQUIRE_KIND", "INTENT_KIND", "ADMIT_KIND", "admit",
+@@ -246,6 +247,14 @@ def admit(store, operations, *, prior_job_id, exclusion, authorization,
+     # is decided.
+     cancellation.refuse_fenced(store._connection, prior_job_id,
+                                "a fresh attempt at it")
++    # W383217: A FRESH ATTEMPT IS A NEW JOB WITH ITS OWN CONTROL AND ITS OWN
++    # ORIGINS, so the prior Job's DERIVED deadline does not refuse it -- a
++    # Job that failed before its deadline may be repeated after it. What
++    # refuses is a FENCE the prior Job holds (an explicit request or a
++    # journalled expiry, read above through the unified fence), and
++    # uncertain timing, which holds every new admission.
++    job_control.refuse_uncertain(store._connection, prior_job_id,
++                                 "a fresh attempt at it", now=store._now())
+     document = _composed(store, prior, job_id=job_id, work_id=work_id,
+                          submission_id=submission_id)
+ 
+@@ -766,6 +775,9 @@ def _reserved(store, operands, prior, document):
+         # W383215: THE FENCE, DECIDED UNDER THE SAME LOCK AS THE RESERVATION.
+         cancellation.refuse_fenced(connection, operands["prior_job_id"],
+                                    "a fresh attempt at it")
++        job_control.refuse_uncertain(connection, operands["prior_job_id"],
++                                     "a fresh attempt at it",
++                                     now=store._now())
+         # THE ORDINARY JOB TABLE IS CHECKED HERE TOO, inside the same lock.
+         # A fresh identity an ordinary submission already holds is not free,
+         # and finding that out at `submit` would be finding it out after the
+diff --git a/v12/python/src/baton_v12/job_manager/manager.py b/v12/python/src/baton_v12/job_manager/manager.py
+index bd451114..ce93d335 100644
+--- a/v12/python/src/baton_v12/job_manager/manager.py
++++ b/v12/python/src/baton_v12/job_manager/manager.py
+@@ -39,7 +39,7 @@ from ..contracts.errors import name_value
+ from ..worker_manager import boundaries
+ from ..worker_manager import events
+ from . import (cancellation, delegation, documents, ending, episodes,
+-               projection, scheduler, submission)
++               job_control, projection, scheduler, submission)
+ from .store import job_signature
+ 
+ __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
+@@ -147,6 +147,13 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
+     # BEFORE `stage_states`, NOT AFTER. What a stage owes and what a status
+     # says are both derived from that projection, so refreshing afterwards
+     # would report this tick's decisions from last tick's runtime truth.
++    # W383217: AND THE CONTROL PASS, BEFORE THE FIRST PROJECTION THIS TICK
++    # DERIVES ACTS FROM. A Job whose first deadline the trusted clock has
++    # reached is fenced here, so this same tick's admission, launch and
++    # cancellation passes read the fence; it is not the only guard -- every
++    # write-side owner decides the same question under its own lock -- it
++    # is the one that journals the trigger and orders the cessation.
++    expired = _control(store, operations, now)
+     refreshed = _refresh(store, operations)
+     held = projection.stage_states(store, operations)
+     scheduler.reconcile_allocations(store, held)
+@@ -220,6 +227,8 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
+                                   acts=acts, started=started, spoken=spoken,
+                                   refreshed=refreshed,
+                                   **({"cancelled": cancelled} if cancelled
++                                     else {}),
++                                  **({"expired": expired} if expired
+                                      else {}))
+ 
+ 
+@@ -483,13 +492,19 @@ def _launch(store, operations, held):
+         # launch is the Worker Manager's act and cannot run under this
+         # store's lock; a cancelled Job's claimed stage is reported deferred
+         # and the cancellation pass fences its assignment instead.
+-        if cancellation.fence_of(store, attempt["job_id"]) is not None:
++        # W383217: AND THE DEADLINE AND THE TRUSTED CLOCK, by the same
++        # question every write-side owner asks -- a stage claimed before the
++        # deadline starts no runtime after it, and an uncertain clock starts
++        # nothing new.
++        closed = job_control.closed_of(store, attempt["job_id"],
++                                       stage_id=stage_id)
++        if closed is not None:
+             started.append(documents.stage_launch(
+                 stage_id=stage_id, episode=attempt["episode"],
+                 attempt_id=attempt["attempt_id"], outcome="deferred",
+                 detail={"category": "refused", "code": "precondition",
+-                        "message": "the Job is cancelled; no runtime is "
+-                                   "started after the fence"}))
++                        "message": job_control.closed_message(
++                            closed, "a runtime start")}))
+             continue
+         job = submission.job_of(store, attempt["job_id"])
+         try:
+@@ -701,11 +716,87 @@ def _replace(store, operations):
+         # ordinary tick from asking a question whose answer is the fence.
+         if entry.get("cancellation") is not None:
+             continue
++        # W383217: NOR A JOB PAST ITS DEADLINE OR UNDER UNCERTAIN TIMING.
++        if projection.control_closed(entry.get("control"), stage_id):
++            continue
+         opened.append(episodes.open_next(store, stage_id,
+                                          entry["history"][-1]))
+     return opened
+ 
+ 
++def _control(store, operations, now):
++    """Journal the FIRST reached deadline of every controlled Job as its fence.
++
++    W383217 / LIM-5. Level-triggered on durable rows: the origins, the
++    profile and the trusted clock (the later of `now` and the persisted
++    watermark) decide; the record is signed over the derived deadline, so a
++    restart or a concurrent sweep replays it. A Job already expired is left
++    to the cancellation pass; so is one an operator cancelled AT OR BEFORE
++    its first reached deadline. An operator request LATER than a reached
++    deadline does not hide the deadline (review 2026-11-19T00-20-37Z P2):
++    the expiry is journalled beside it and, being the earlier trigger, is
++    the fence the bound runs from. A Job whose every stage is OVER by the
++    owners' evidence (`cancellation.over`) is NOT fenced: a deadline that
++    passes after useful work finished closes nothing and manufactures no
++    cancellation of it; a terminal label over an unceased or uncertain
++    runtime is not over (P1). Uncertain timing holds admission (the
++    projection and the guards do that) and is reported here; it undoes no
++    reached deadline.
++    """
++    acted = []
++    controls = job_control.controls_of(store)
++    if not controls:
++        return acted
++    job_control.observe(store, now)
++    held = projection.stage_states(store, operations)
++    over = {}
++    for entry in held.values():
++        over.setdefault(entry["stage"]["job_id"], {})[
++            entry["stage"]["stage_id"]] = cancellation.over(entry)
++    for job_id in sorted(controls):
++        fence = cancellation.fence_of(store, job_id)
++        if fence is not None and fence.get("trigger", "operator") != "operator":
++            continue
++        evaluation = job_control.evaluate(store._connection, job_id, now)
++        # A STAGE THAT IS ALREADY OVER NEVER REACHES ITS DEADLINE; the Job
++        # deadline counts while anything of the Job is not.
++        stages = over.get(job_id, {})
++        first = job_control.closing(
++            evaluation, any_stage=True,
++            finished=[stage_id for stage_id, done in stages.items() if done])
++        if first is None:
++            if fence is None and evaluation["timing"] == "uncertain":
++                acted.append(documents.job_control_notice(
++                    job_id=job_id, outcome="held",
++                    detail={"category": "uncertain", "code": "timing",
++                            "watermark": evaluation["watermark"],
++                            "observed_at": now}))
++            continue
++        if fence is not None and fence["requested_at"] <= first["deadline_at"]:
++            continue
++        if stages and all(stages.values()):
++            continue
++        try:
++            record = job_control.expire(
++                store, job_id=job_id, trigger=first["trigger"],
++                stage_id=first["stage_id"], deadline_at=first["deadline_at"],
++                observed_at=now)
++        except ContractRefusal as refusal:
++            acted.append(documents.job_control_notice(
++                job_id=job_id, outcome="refused", trigger=first["trigger"],
++                stage_id=first["stage_id"], deadline_at=first["deadline_at"],
++                detail={"category": refusal.category, "code": refusal.code,
++                        "message": refusal.message}))
++            continue
++        acted.append(documents.job_control_notice(
++            job_id=job_id,
++            outcome=("fenced" if record["observed_at"] == now
++                     else "replayed"),
++            trigger=record["trigger"], stage_id=record["stage_id"],
++            deadline_at=record["deadline_at"]))
++    return acted
++
++
+ def _cancel(store, operations, held):
+     """Carry every committed cancellation out through the EXISTING owners.
+ 
+@@ -726,6 +817,7 @@ def _cancel(store, operations, held):
+     acted = []
+     cancel = getattr(operations, "cancel_attempt", None)
+     fence = getattr(operations, "fence_unstarted_attempt", None)
++    reasons = {}
+     for stage_id in sorted(held):
+         entry = held[stage_id]
+         record = entry.get("cancellation")
+@@ -744,12 +836,20 @@ def _cancel(store, operations, held):
+                       "message": f"this deployment composes no {effect} "
+                                  f"capability"}
+         else:
++            # THE WORDING THE OWNERS WERE FIRST GIVEN FOR THIS JOB, journalled
++            # once and replayed: the fence may since have become an earlier
++            # deadline (review 2026-11-19T00-20-37Z P2), and the owner's stop
++            # operation is signed over its reason.
++            job_id = attempt["job_id"]
++            if job_id not in reasons:
++                reasons[job_id] = cancellation.order_reason(store, job_id,
++                                                            record)
+             try:
+                 if effect == cancellation.FENCE_UNSTARTED:
+-                    answer = act(attempt, reason=record["reason"])
++                    answer = act(attempt, reason=reasons[job_id])
+                 else:
+                     answer = act(attempt_id=attempt["attempt_id"],
+-                                 reason=record["reason"])
++                                 reason=reasons[job_id])
+             except ContractRefusal as refusal:
+                 outcome = "refused" if refusal.durable else "deferred"
+                 detail = {"category": refusal.category,
+diff --git a/v12/python/src/baton_v12/job_manager/projection.py b/v12/python/src/baton_v12/job_manager/projection.py
+index 87a43b72..2f82514f 100644
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -38,7 +38,7 @@ from ..contracts import ContractRefusal
+ from ..contracts.errors import name_value
+ from ..worker_manager import boundaries
+ from . import (cancellation, delegation, documents, ending, episodes, execution_limits,
+-               scheduler, schema,
++               job_control, scheduler, schema,
+                submission)
+ 
+ __all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "materialized",
+@@ -554,8 +554,19 @@ def materialized(store, stages=None):
+                 # W383215: THE FENCES, IN THE SAME READ VIEW as the episodes
+                 # they retire, so a stage is never derived beside a request
+                 # another moment held.
+-                "cancellations": cancellation.requests_of(store),
++                # W383217: THE FENCE IS EITHER RECORD -- the explicit
++                # request or the deadline expiry, whichever triggered first
++                # -- and every derivation below reads it as one thing.
++                "cancellations": cancellation.fences_of(store),
+                 "cancellation_targets": cancellation.targets_of(store),
++                # W383217: AND EACH CONTROLLED JOB'S EVALUATION, from this
++                # same read view and this store's own clock: origins,
++                # deadlines, the trusted-clock timing and the first reached
++                # deadline. A pure read; the watermark is advanced only by
++                # the passes and guards that write.
++                "controls": {job["job_id"]: job_control.evaluate(
++                    store._connection, job["job_id"], store._now())
++                    for job in jobs},
+                 "limits": {job["job_id"]: submission.execution_limits_of(
+                     store, job["job_id"]) for job in jobs}}
+ 
+@@ -674,6 +685,7 @@ def stage_states(store, operations, stages=None, snapshot=None):
+                 owned["stage"]["job_id"]),
+             cancellation_targets=snapshot["cancellation_targets"].get(
+                 owned["stage"]["job_id"], []),
++            control=snapshot["controls"].get(owned["stage"]["job_id"]),
+             observed=(delegation.observation_of(
+                 operations, owned["attempt"], owned["job"])
+                 if live is not None else delegation.unobserved()))
+@@ -734,6 +746,14 @@ def owed_acts(store, operations, held=None):
+     return owed
+ 
+ 
++def control_closed(evaluation, stage_id):
++    """Whether one Job's control evaluation closes admission OF THIS STAGE:
++    the Job deadline, this stage's own deadline, or uncertain timing."""
++    return (evaluation is not None
++            and (job_control.closing(evaluation, stage_id=stage_id) is not None
++                 or evaluation["timing"] == "uncertain"))
++
++
+ def _owed(entry):
+     if entry["episode"] is None:
+         return None
+@@ -742,6 +762,11 @@ def _owed(entry):
+     # `PooledManagerOperations.claim` decide a race this projection lost.
+     if entry.get("cancellation") is not None:
+         return None
++    # W383217: A JOB PAST ITS FIRST DEADLINE, OR WHOSE TIMING IS UNCERTAIN,
++    # OWES NO ADMISSION AND NO CLAIM. Read-side; the write-side guard
++    # `job_control.refuse_closed` decides the race under the owners' locks.
++    if control_closed(entry.get("control"), entry["stage"]["stage_id"]):
++        return None
+     if entry["state"] == "queued":
+         return "admit"
+     # `offered` is the only state a claim is owed from. A claimed, running or
+@@ -961,7 +986,13 @@ def status(store, operations, *, observed_at):
+                 [held[row["stage_id"]]
+                  for row in snapshot["stages_by_job"][job["job_id"]]],
+                 observed_of=lambda entry: entry["observed"],
+-                now=observed_at)))
++                now=observed_at),
++            # W383217: ADDITIVE, AND DERIVED from the same read view: the
++            # admitted profile, origins, deadlines, elapsed time, timing and
++            # the fence that closed the Job, if one did.
++            control=job_control.reported(
++                snapshot["controls"].get(job["job_id"]),
++                snapshot["cancellations"].get(job["job_id"]))))
+     return documents.status(
+         schema=documents.STATUS_SCHEMA, observed_at=observed_at,
+         incarnation=store.incarnation,
+diff --git a/v12/python/src/baton_v12/job_manager/scheduler.py b/v12/python/src/baton_v12/job_manager/scheduler.py
+index 93c3bd4d..580901af 100644
+--- a/v12/python/src/baton_v12/job_manager/scheduler.py
++++ b/v12/python/src/baton_v12/job_manager/scheduler.py
+@@ -12,7 +12,7 @@ from ..contracts import ContractRefusal, canonical_text, digest
+ from ..contracts.errors import name_value
+ from ..worker_manager import boundaries
+ from .store import job_signature
+-from . import cancellation
++from . import cancellation, job_control
+ 
+ __all__ = ["ALLOCATION_STATES", "INTEGRATION_COMPLETED", "LANES", "POOL_SCHEMA",
+            "SEPARATION_CLASSES", "PooledManagerOperations", "activate_pool",
+@@ -335,9 +335,13 @@ def reserve(store, stage, *, excluded=None):
+         # W383215: THE WRITE-SIDE ADMISSION FENCE. The reservation is the
+         # reserve-before-offer write, so a cancelled Job refused here issues
+         # no offer whatever a projection taken a moment earlier owed.
+-        cancellation.refuse_fenced(connection, stage["job_id"],
+-                                   f"reserving a worker for stage "
+-                                   f"{name_value(stage['stage_id'])}")
++        # W383217: AND THE CONTROL GUARD, under the same lock -- a reached
++        # deadline or uncertain timing admits no reservation either.
++        job_control.refuse_closed(connection, stage["job_id"],
++                                  f"reserving a worker for stage "
++                                  f"{name_value(stage['stage_id'])}",
++                                  now=store._now(),
++                                  stage_id=stage["stage_id"])
+         generation = connection.execute(
+             "SELECT generation FROM pool_generations ORDER BY generation DESC "
+             "LIMIT 1").fetchone()
+@@ -908,9 +912,11 @@ class PooledManagerOperations:
+         # Authority's act and cannot run under this store's lock, so the
+         # fence is read here, immediately before it; an admission that still
+         # wins the race is found by the next tick's cancellation pass.
+-        cancellation.refuse_fenced(self.store._connection, stage["job_id"],
+-                                   f"claiming stage "
+-                                   f"{name_value(stage['stage_id'])}")
++        job_control.refuse_closed(self.store._connection, stage["job_id"],
++                                  f"claiming stage "
++                                  f"{name_value(stage['stage_id'])}",
++                                  now=self.store._now(),
++                                  stage_id=stage["stage_id"])
+         allocation = self._allocation(stage)
+         if allocation is None:
+             _refuse(f"stage {name_value(stage['stage_id'])} has an offer but "
+diff --git a/v12/python/src/baton_v12/job_manager/store.py b/v12/python/src/baton_v12/job_manager/store.py
+index 7c980e66..f0256eba 100644
+--- a/v12/python/src/baton_v12/job_manager/store.py
++++ b/v12/python/src/baton_v12/job_manager/store.py
+@@ -1119,6 +1119,36 @@ class JobStore:
+             (operation_id, kind, signature, state, result, refusal,
+              self._now()))
+ 
++    def journal_within(self, connection, operation_id, kind, signature,
++                       result):
++        """Journal ONE committed record inside a caller's open transaction.
++
++        W383217. A Job's control is admitted by the SAME act that admits the
++        Job, so it is written on the submission's own connection rather than
++        through a second `transact` that could commit without it -- or after
++        it. The row is the ordinary journal row; `operation_record` and the
++        kind readers answer it exactly as they answer a `transact`'s.
++        """
++        boundaries.identity(operation_id, "an operation identity")
++        self._agreeing(kind, signature)
++        if not self.holds_transaction():
++            raise ContractRefusal(
++                "integrity", "schema",
++                f"a record journalled within an act needs the act's open "
++                f"transaction; {name_value(operation_id)} was asked outside "
++                f"one")
++        committed = own(result, what="an operation result")
++        row = {"operation_id": operation_id, "kind": kind,
++               "signature": signature, "state": "committed",
++               "result": _recorded(committed), "refusal": None}
++        check_no_durable_secret(row, what="a journalled job operation")
++        connection.execute(
++            "INSERT INTO operations (operation_id, kind, signature, state, "
++            "result, refusal, settled_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
++            (operation_id, kind, signature, "committed", row["result"], None,
++             self._now()))
++        return committed
++
+     def operation_record(self, operation_id):
+         """The journal row as a FRESH document, or absence."""
+         boundaries.identity(operation_id, "an operation identity")
+diff --git a/v12/python/src/baton_v12/job_manager/submission.py b/v12/python/src/baton_v12/job_manager/submission.py
+index 8226ae31..97ce1051 100644
+--- a/v12/python/src/baton_v12/job_manager/submission.py
++++ b/v12/python/src/baton_v12/job_manager/submission.py
+@@ -19,7 +19,7 @@ import json
+ from ..contracts import ContractRefusal
+ from ..contracts.errors import name_value, sample_of
+ from ..worker_manager import boundaries
+-from . import documents, episodes, execution_limits, schema
++from . import documents, episodes, execution_limits, job_control, schema
+ from .store import job_signature
+ 
+ __all__ = ["job_of", "job_rows", "jobs_of", "stage_rows", "stages_of",
+@@ -64,7 +64,7 @@ def submit(store, document):
+              store.incarnation, recorded_at))
+         stages = []
+         for ordinal, job in enumerate(owned["jobs"]):
+-            _job(connection, submission_id, ordinal, job)
++            _job(connection, store, submission_id, ordinal, job)
+             for position, stage in enumerate(job["stages"]):
+                 stages.append(_stage(connection, store, job["job_id"],
+                                      position, stage, recorded_at))
+@@ -214,7 +214,7 @@ def _unclaimed(connection, submission_id, owned, signature):
+             durable=True)
+ 
+ 
+-def _job(connection, submission_id, ordinal, job):
++def _job(connection, store, submission_id, ordinal, job):
+     # NO LOCAL CONSTRAINT HANDLER. `_unclaimed` decided the one conflict this
+     # table can have, inside the same lock, so an integrity error reaching
+     # here would be a defect in that decision rather than a caller's mistake
+@@ -242,6 +242,16 @@ def _job(connection, submission_id, ordinal, job):
+         (job["job_id"],
+          json.dumps(requested, sort_keys=True, ensure_ascii=False),
+          execution_limits.CURRENT_GENERATION))
++    # W383217: AND ITS CONTROL, IN THE SAME ACT. A Job that selected a
++    # profile is admitted with it or not at all; the record is journalled on
++    # this connection, agreeing with the ceilings the generation just stamped
++    # resolves to, and nothing admits the Job without it.
++    if documents.JOB_CONTROL_MEMBER in job:
++        job_control.record_within(
++            store, connection, job_id=job["job_id"],
++            control=job[documents.JOB_CONTROL_MEMBER],
++            limits=execution_limits.resolved(
++                requested, execution_limits.CURRENT_GENERATION))
+ 
+ 
+ def _stage(connection, store, job_id, ordinal, stage, recorded_at):
+diff --git a/v12/python/src/baton_v12/job_manager/templates.py b/v12/python/src/baton_v12/job_manager/templates.py
+index c537251b..265d5494 100644
+--- a/v12/python/src/baton_v12/job_manager/templates.py
++++ b/v12/python/src/baton_v12/job_manager/templates.py
+@@ -89,7 +89,7 @@ requests it, are W361912's.
+ 
+ from types import MappingProxyType
+ 
+-from . import (documents, execution_limits, fresh_attempt,
++from . import (documents, execution_limits, fresh_attempt, job_control,
+                review_driver, role_contract)
+ from ..contracts import ContractRefusal, check_relative_path, digest, own
+ from ..contracts.errors import name_value
+@@ -279,7 +279,11 @@ REQUEST_MEMBERS = ("schema", "task", "source", "scope", "acceptance")
+ # selection. Both are OPTIONAL rather than nullable, for the reason
+ # `documents._job` gives: an absent member and a present null are different
+ # intents, and only one of them is a document somebody wrote on purpose.
+-REQUEST_OPTIONAL = ("template", "overrides")
++# W383217: and `control`, the finite control profile the request selects. It
++# is not an OVERRIDE -- the frozen templates permit none such and are not
++# edited -- it is a selection the request makes visibly, recorded in the
++# resolution and carried into a /3 submission.
++REQUEST_OPTIONAL = ("template", "overrides", "control")
+ 
+ TASK_MEMBERS = ("job_id", "work_id", "statement")
+ # Derived from the Job id when omitted, exactly as `fresh_attempt.admit`
+@@ -326,6 +330,9 @@ CONFIGURATION_OPTIONAL = ("default_template",)
+ RESOLUTION_MEMBERS = ("schema", "template", "task", "source", "scope",
+                       "acceptance", "overrides", "stages", "rules",
+                       "execution_limits", "submission")
++# W383217: present exactly when the request selected a control profile.
++RESOLUTION_OPTIONAL = ("control",)
++CONTROL_SELECTION_MEMBERS = ("profile", "resolved")
+ 
+ 
+ # THE ONE SENTINEL THIS MODULE NEEDS, and why `None` cannot be it. An absent
+@@ -656,9 +663,13 @@ def resolve(request, *, configuration=None):
+     # silence would answer a resolution it did not ask for.
+     overrides = _overrides(taken["overrides"] if "overrides" in taken
+                            else _ABSENT, definition)
++    # W383217: THE CONTROL SELECTION, owned by its owner; a present null is
++    # refused there as "neither", like the override member one line up.
++    control = (job_control.owned_control(taken["control"])
++               if "control" in taken else None)
+     stages = _stages(definition, task, held["profiles"])
+     submission = _submission(definition, task, source, scope, stages,
+-                             overrides)
++                             overrides, control)
+     answer = {
+         "schema": RESOLUTION_SCHEMA,
+         "template": {"version": definition["version"], "origin": origin,
+@@ -708,6 +719,10 @@ def resolve(request, *, configuration=None):
+             execution_limits.CURRENT_GENERATION),
+         "submission": submission,
+     }
++    if control is not None:
++        answer["control"] = {"profile": control["profile"],
++                             "resolved": job_control.resolved(
++                                 control["profile"])}
+     # OWNED ON THE WAY OUT, as the thing it is: an exact built-in document a
+     # caller cannot reach back into and this module cannot leak a live
+     # reference out of. It also proves the whole answer is within the frozen
+@@ -994,7 +1009,8 @@ def _stages(definition, task, profiles):
+     return held
+ 
+ 
+-def _submission(definition, task, source, scope, stages, overrides):
++def _submission(definition, task, source, scope, stages, overrides,
++                control=None):
+     """The normalized submission, PROVED BY ITS REAL OWNER before it is
+     answered.
+ 
+@@ -1038,6 +1054,11 @@ def _submission(definition, task, source, scope, stages, overrides):
+         schema = documents.SUBMISSION_SCHEMA
+     else:
+         schema = documents.SUBMISSION_SCHEMAS[0]
++    # W383217: a selected control profile needs the version that names the
++    # member, for the same one-intent-one-identity reason.
++    if control is not None:
++        entry["control"] = dict(control)
++        schema = documents.SUBMISSION_CONTROL_SCHEMA
+     document = {"schema": schema, "submission_id": task["submission_id"],
+                 "jobs": [entry]}
+     owned = documents.owned_submission(document)
+@@ -1113,7 +1134,15 @@ def owned_resolution(resolution):
+     without consuming it.
+     """
+     taken = boundaries.document(resolution, "a job template resolution",
+-                                required=RESOLUTION_MEMBERS)
++                                required=RESOLUTION_MEMBERS,
++                                optional=RESOLUTION_OPTIONAL)
++    if "control" in taken:
++        selection = boundaries.document(taken["control"],
++                                        "a resolution's control selection",
++                                        required=CONTROL_SELECTION_MEMBERS)
++        job_control.owned_control({"profile": selection["profile"]})
++        boundaries.document(selection["resolved"],
++                            "a resolution's resolved control")
+     if taken["schema"] != RESOLUTION_SCHEMA:
+         _refuse(f"a job template resolution is "
+                 f"{name_value(RESOLUTION_SCHEMA)}; this is "
+@@ -1297,7 +1326,8 @@ def submission_for_admission(resolution, *, generation=None):
+     # ignored.
+     expected = _without_origin(again)
+     found = _without_origin(taken)
+-    differing = sorted(member for member in RESOLUTION_MEMBERS
++    differing = sorted(member for member
++                       in RESOLUTION_MEMBERS + RESOLUTION_OPTIONAL
+                        if expected.get(member) != found.get(member))
+     if differing:
+         _refuse(f"this build resolves this resolution's own request to a "
+@@ -1347,6 +1377,8 @@ def _request_of(resolution):
+     if resolution["overrides"]:
+         held["overrides"] = {name: dict(value) for name, value
+                              in resolution["overrides"].items()}
++    if "control" in resolution:
++        held["control"] = {"profile": resolution["control"]["profile"]}
+     return held
+ 
+ 
+diff --git a/v12/python/tests/job_manager/test_exchange.py b/v12/python/tests/job_manager/test_exchange.py
+index 09031dbf..d232b0ce 100644
+--- a/v12/python/tests/job_manager/test_exchange.py
++++ b/v12/python/tests/job_manager/test_exchange.py
+@@ -226,7 +226,7 @@ class AStartedContainerIsNotWorkInProgress(ExchangeCase):
+     def test_the_status_schema_says_the_vocabulary_moved(self):
+         self.assertEqual(status(self.jobs, self.acts,
+                                 observed_at=NOW)["schema"],
+-                         "baton.v12.job-status/8")
++                         "baton.v12.job-status/9")
+ 
+ 
+ class AReaderWithNoExchangeStillTellsTheTruth(ExchangeCase):
+diff --git a/v12/python/tests/job_manager/test_execution_limits.py b/v12/python/tests/job_manager/test_execution_limits.py
+index 3c7c5467..79a39b11 100644
+--- a/v12/python/tests/job_manager/test_execution_limits.py
++++ b/v12/python/tests/job_manager/test_execution_limits.py
+@@ -273,7 +273,7 @@ class TheStoreKeepsWhatTheJobAskedFor(JobManagerCase):
+         submit(store, limited(verification_command_seconds=120))
+         held = projection.status(store, self.operations(),
+                                  observed_at=NOW)
+-        self.assertEqual(held["schema"], "baton.v12.job-status/8")
++        self.assertEqual(held["schema"], "baton.v12.job-status/9")
+         [entry] = [one for one in held["jobs"] if one["job_id"] == "job-a"]
+         answer = entry["execution_limits"]
+         self.assertEqual(answer["requested"],
+diff --git a/v12/python/tests/job_manager/test_native_permission.py b/v12/python/tests/job_manager/test_native_permission.py
+index 75c0588e..66b247db 100644
+--- a/v12/python/tests/job_manager/test_native_permission.py
++++ b/v12/python/tests/job_manager/test_native_permission.py
+@@ -674,7 +674,7 @@ class TheOwnerFailureReachesTheReportThroughStatus(NativeComposedCase):
+         from tools import attempt_diagnostics
+ 
+         document = projected(held.job, held.composed, observed_at=observed_at)
+-        self.assertEqual(document['schema'], 'baton.v12.job-status/8')
++        self.assertEqual(document['schema'], 'baton.v12.job-status/9')
+         report = attempt_diagnostics.report(
+             _json.dumps(document).encode('utf-8'))
+         row = [one for one in report['rows']
+diff --git a/v12/python/tests/job_manager/test_tool.py b/v12/python/tests/job_manager/test_tool.py
+index aef2d18a..91ab319e 100644
+--- a/v12/python/tests/job_manager/test_tool.py
++++ b/v12/python/tests/job_manager/test_tool.py
+@@ -166,7 +166,7 @@ class Reading(ToolCase):
+                                "--authority-uuid", UUID,
+                                "--incarnation", "jobs-1", "status")
+         self.assertFalse(answer["canonical"])
+-        self.assertEqual(answer["schema"], "baton.v12.job-status/8")
++        self.assertEqual(answer["schema"], "baton.v12.job-status/9")
+         self.assertEqual([one["job_id"] for one in answer["jobs"]],
+                          ["job-a", "job-b"])
+ 
+@@ -226,7 +226,7 @@ class Reading(ToolCase):
+             "--control", self.control_path,
+             "--observe", "tests.job_manager.test_tool:observing")
+         self.assertTrue(answer["canonical"])
+-        self.assertEqual(answer["schema"], "baton.v12.job-status/8")
++        self.assertEqual(answer["schema"], "baton.v12.job-status/9")
+         self.assertEqual([one["job_id"] for one in answer["jobs"]],
+                          ["job-a", "job-b"])
+         # THE READER WAS ASKED FOR EVERY STAGE, which is what the projection
+@@ -568,7 +568,7 @@ class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
+         self.submitted()
+         without = self.status()
+         self.assertFalse(without["canonical"])
+-        self.assertEqual(without["schema"], "baton.v12.job-status/8")
++        self.assertEqual(without["schema"], "baton.v12.job-status/9")
+         self.assertEqual([one["job_id"] for one in without["jobs"]],
+                          ["job-a", "job-b"])
+         with_control = self.status("--control", self.control_path)
+diff --git a/v12/python/tests/tools/test_attempt_diagnostics.py b/v12/python/tests/tools/test_attempt_diagnostics.py
+index 3a53ed26..5cd74028 100644
+--- a/v12/python/tests/tools/test_attempt_diagnostics.py
++++ b/v12/python/tests/tools/test_attempt_diagnostics.py
+@@ -33,7 +33,7 @@ def document(**stage):
+                 diagnostic[axis] = {key: {"known": True, "value": value, "source": "fixture"} for key, value in diagnostic[axis].items()}
+         stage["attempt_diagnostics"] = diagnostic
+     held.update(stage)
+-    return {"schema": "baton.v12.job-status/8",
++    return {"schema": "baton.v12.job-status/9",
+             "jobs": [{"job_id": "job-1", "stages": [held]}]}
+ 
+ 
+diff --git a/v12/python/tests/tools/test_bootstrap.py b/v12/python/tests/tools/test_bootstrap.py
+index a40102b8..59aedf95 100644
+--- a/v12/python/tests/tools/test_bootstrap.py
++++ b/v12/python/tests/tools/test_bootstrap.py
+@@ -1389,7 +1389,7 @@ class TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE(unittest.TestCase):
+         self.assertIs(published.get("canonical"), True)
+         self.assertEqual(published.get("jobs"), [])
+         self.assertTrue(published.get("observed_at"))
+-        self.assertEqual(published.get("schema"), "baton.v12.job-status/8")
++        self.assertEqual(published.get("schema"), "baton.v12.job-status/9")
+         # AND IT IS THIS RUN'S: `start` refuses unless a snapshot was written
+         # DURING it, which is the gate the message above reports.
+         self.assertGreater(os.path.getmtime(place), self.started)
+diff --git a/v12/python/tests/tools/test_worker_visibility.py b/v12/python/tests/tools/test_worker_visibility.py
+index ea75788d..89416e58 100644
+--- a/v12/python/tests/tools/test_worker_visibility.py
++++ b/v12/python/tests/tools/test_worker_visibility.py
+@@ -364,7 +364,7 @@ class EveryCurrentStageGetsARow(VisibilityCase):
+         self.submitted()
+         held = visibility(self.document())
+         self.assertEqual(held["schema"], "baton.v12.worker-visibility/1")
+-        self.assertEqual(held["source_schema"], "baton.v12.job-status/8")
++        self.assertEqual(held["source_schema"], "baton.v12.job-status/9")
+ 
+     def test_every_known_fact_resolves_to_the_path_it_claims(self):
+         """The provenance is walked back into the source document.
+@@ -1036,7 +1036,7 @@ class TheDocumentIsValidatedBeforeAnythingIsReported(VisibilityCase):
+         document["schema"] = "baton.v12.job-status/99"
+         with self.assertRaises(VisibilityRefusal) as caught:
+             visibility(document)
+-        self.assertIn("baton.v12.job-status/8", str(caught.exception))
++        self.assertIn("baton.v12.job-status/9", str(caught.exception))
+ 
+     def test_the_refusal_does_not_echo_the_rejected_input(self):
+         """A message assembled out of an untrusted document lets that document
+@@ -1180,7 +1180,7 @@ class TheDocumentIsValidatedBeforeAnythingIsReported(VisibilityCase):
+ 
+         self.assertEqual(worker_visibility.SOURCE_SCHEMA,
+                          documents.STATUS_SCHEMA)
+-        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/8")
++        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/9")
+ 
+     def test_an_oversize_document_refuses_rather_than_truncating(self):
+         self.submitted()
+@@ -1249,7 +1249,7 @@ class TheCommandReadsAFileAndAnswersJSON(VisibilityCase):
+         document["schema"] = "baton.v12.job-status/99"
+         code, output = self.ran(["--snapshot", self.written(document)])
+         self.assertEqual(code, 2)
+-        self.assertIn("baton.v12.job-status/8", json.loads(output)["refused"])
++        self.assertIn("baton.v12.job-status/9", json.loads(output)["refused"])
+         self.assertNotIn("stages", json.loads(output))
+ 
+     def test_an_oversize_file_refuses_rather_than_reading_a_subset(self):
+@@ -1325,7 +1325,7 @@ class TheViewOpensNothingAndActsNotAtAll(VisibilityCase):
+         self.assertEqual(code, 0)
+         self.assertEqual(self.acts.calls, before)
+         self.assertEqual(json.loads(stream.getvalue())["source_schema"],
+-                         "baton.v12.job-status/8")
++                         "baton.v12.job-status/9")
+ 
+     def test_the_stores_are_unchanged_by_being_viewed(self):
+         """The disposable owner state is established before and compared
+@@ -1374,7 +1374,7 @@ class TheViewOpensNothingAndActsNotAtAll(VisibilityCase):
+         """The contract this view reads is the producer's and stays theirs."""
+         from baton_v12.job_manager import documents
+ 
+-        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/8")
++        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/9")
+         self.assertEqual(
+             documents.CONTRACTS["stage.status"][0],
+             ("stage_id", "job_id", "kind", "state", "work_id", "profile_name",
+diff --git a/v12/python/tools/job_cancellation.py b/v12/python/tools/job_cancellation.py
+index 2a4eb841..a154a2e0 100644
+--- a/v12/python/tools/job_cancellation.py
++++ b/v12/python/tools/job_cancellation.py
+@@ -22,11 +22,15 @@ from pathlib import Path
+ import sys
+ 
+ from baton_v12.contracts import ContractRefusal
+-from baton_v12.job_manager import JobStore, cancellation, submission
++from baton_v12.job_manager import (JobStore, cancellation, job_control,
++                                   submission)
+ from baton_v12.worker_manager import ControlStore, boundaries
+ from tools import instance
+ 
+-SCHEMA = "baton.v12.installed-cancellation/1"
++# W383217 moved this to /2: the answer carries `control`, the Job's admitted
++# finite control and derived deadlines, and the cancellation report names its
++# trigger (an operator request or a deadline expiry).
++SCHEMA = "baton.v12.installed-cancellation/2"
+ COMMANDS = ("cancel-job", "cancel-status")
+ 
+ 
+@@ -100,7 +104,8 @@ def execute(command, selector_path, *, job_id, reason=None, clock=None):
+                 "job_id": job_id,
+                 "request": (request if request is not None
+                             else cancellation.fence_of(jobs, job_id)),
+-                "cancellation": report}
++                "cancellation": report,
++                "control": job_control.report(jobs, job_id, now=clock())}
+ 
+ 
+ def main(argv, *, clock=None, stream=None):
+diff --git a/v12/python/tools/job_manager.py b/v12/python/tools/job_manager.py
+index 51789b91..40ac394b 100644
+--- a/v12/python/tools/job_manager.py
++++ b/v12/python/tools/job_manager.py
+@@ -903,6 +903,11 @@ def _creation_request(taken):
+     # submission identity -- which is the distinction `documents._job` keeps.
+     if limits:
+         request["overrides"] = {"execution_limits": limits}
++    # W383217: THE CONTROL PROFILE, stated by name and recorded as the
++    # request's own visible selection; absent, the Job is admitted under no
++    # finite control, exactly as before.
++    if taken.control_profile is not None:
++        request["control"] = {"profile": taken.control_profile}
+     return request
+ 
+ 
+@@ -1399,6 +1404,13 @@ def main(argv, *, clock=None, stream=None):
+                           help="this Job's verification-command ceiling in "
+                                "seconds, a permitted override reaching all "
+                                "three verification boundaries")
++    creating.add_argument("--control-profile", default=None,
++                          help="the finite control profile this Job is "
++                               "admitted under (LIM-5), for example "
++                               "documentation/1: persisted correction-round "
++                               "allowance and stage/Job wall deadlines, "
++                               "enforced by the serving manager; omitted "
++                               "admits the Job under no finite control")
+     creating.set_defaults(run=_create)
+ 
+     reading = commands.add_parser(
+diff --git a/v12/python/tools/parallel_test.py b/v12/python/tools/parallel_test.py
+index 60905a6c..d5b6a69e 100644
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -428,6 +428,9 @@ PARALLEL_MODULES = ("tests.tools.test_stack",
+     # W383215: the installed cancel commands over a disposable installed
+     # instance and a serving composition with the recording fake engine.
+     "tests.tools.test_job_cancellation_command",
++    # W383217: the installed finite control over the same serving composition
++    # and installed instance, with the recording fake engine.
++    "tests.tools.test_job_control_command",
+     "tests.tools.test_standalone_ab",
+     # W384870. The modules found registered nowhere by the 2026-10-29 baseline
+     # audit, each read before classification: none reaches a daemon (every
+@@ -443,6 +446,9 @@ PARALLEL_MODULES = ("tests.tools.test_stack",
+     # W383215: the Job-store cancellation owner and its fences. PARALLEL: real
+     # disposable stores per case, fake session and operations, no engine.
+     "tests.job_manager.test_job_cancellation",
++    # W383217: the Job-store control owner, its clocks and its guards.
++    # PARALLEL for the same reason.
++    "tests.job_manager.test_job_control",
+     "tests.job_manager.test_role_capability",
+     "tests.job_manager.test_role_contract",
+     "tests.job_manager.test_serving_renewal",
+diff --git a/v12/python/tools/stack.py b/v12/python/tools/stack.py
+index 323ecce6..2ff7f236 100644
+--- a/v12/python/tools/stack.py
++++ b/v12/python/tools/stack.py
+@@ -83,7 +83,7 @@ ABSENT, LIVE, GONE, UNKNOWN = "absent", "live", "gone", "unknown"
+ # `just status` still answers on an installation too broken to import the
+ # package -- which is exactly when an operator needs it. The copy cannot drift
+ # silently: `tests/tools/test_stack.py` holds it equal to the original.
+-STATUS_SCHEMA = "baton.v12.job-status/8"
++STATUS_SCHEMA = "baton.v12.job-status/9"
+ 
+ # What `job_manager serve` prints on stderr once its deployment has composed.
+ # REVIEW 2026-09-16T06-00-07Z [C3]: an observer's published snapshot is
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index 6323788e..cbebc83c 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -4633,6 +4633,32 @@ class StageDeployment:
+         # `routed` IS the deployment's own method, so the policy is its
+         # own attribute. Reaching through a `self.deployment` that does not
+         # exist here answered AttributeError for 38 product cases.
++        # W383217 / LIM-5: THE JOB'S OWN ADMITTED CONTROL IS ASKED FIRST. A
++        # Job admitted under a profile whose correction allowance is spent,
++        # or whose fence or deadline has closed it, is declined here in the
++        # same shape the deployment policy declines -- and the transactional
++        # owner (`advance_correction`) refuses it again under its own lock,
++        # so a caller that skips this surface gains nothing.
++        from baton_v12.job_manager import job_control
++        held = (job_control.control_of(self.jobs, stage["job_id"])
++                if stage.get("job_id") else None)
++        if held is not None:
++            closed = job_control.closed_of(self.jobs, stage["job_id"])
++            used = job_control.rounds_used_in(self.jobs._connection,
++                                              stage["job_id"])
++            allowance = held["resolved"]["correction_rounds"]
++            if closed is not None or used >= allowance:
++                return dict(answered, correction=None, correction_declined={
++                    "policy": "job-control", "job_id": stage["job_id"],
++                    "profile": held["profile"], "allowance": allowance,
++                    "used": used,
++                    "why": (job_control.closed_message(
++                                closed, "a correction round")
++                            if closed is not None else
++                            f"control profile {held['profile']} permits "
++                            f"{allowance} correction round(s) and {used} "
++                            f"were used; the changes-requested verdict "
++                            f"stands and no round is opened")})
+         policy = getattr(self, "correction_policy", "open")
+         if policy == DECLINE_CORRECTION:
+             return dict(answered, correction=None, correction_declined={
+diff --git a/v12/python/tools/worker_visibility.py b/v12/python/tools/worker_visibility.py
+index bf507a81..054c227b 100644
+--- a/v12/python/tools/worker_visibility.py
++++ b/v12/python/tools/worker_visibility.py
+@@ -1,7 +1,7 @@
+ """W324214 -- the minimum read-only worker visibility view.
+ 
+ WHAT IT IS. A bounded PROJECTION over one status document the Job Manager
+-already publishes (`baton.v12.job-status/8`): one row per current stage, with
++already publishes (`baton.v12.job-status/9`): one row per current stage, with
+ the worker, allocation, runtime, exchange and activity facts that document
+ actually carries, each labelled with WHERE IT CAME FROM and -- when the source
+ records one -- WHEN IT WAS OBSERVED. It answers "which worker is this stage
+@@ -62,7 +62,7 @@ operator's terminal view of the same document and owns the reading of it:
+ input, and this module calls it rather than growing a second reader. What is
+ new here is the JSON PROJECTION -- per-fact provenance, per-fact unknown
+ reasons and the explicit attempt-association checks -- published under its own
+-version, `baton.v12.worker-visibility/1`. `baton.v12.job-status/8` is
++version, `baton.v12.worker-visibility/1`. `baton.v12.job-status/9` is
+ unchanged by this Work.
+ 
+ ONE DELIBERATE DISAGREEMENT WITH THE VIEWER, stated out loud: the terminal
+diff --git a/v12/python/src/baton_v12/job_manager/job_control.py b/v12/python/src/baton_v12/job_manager/job_control.py
+new file mode 100644
+index 00000000..e7248440
+--- /dev/null
++++ b/v12/python/src/baton_v12/job_manager/job_control.py
+@@ -0,0 +1,599 @@
++"""W383217 / DESIGN LIM-5: the persisted finite control of one Job.
++
++WHAT THIS OWNS. One versioned CONTROL PROFILE per Job -- the admitted
++correction-round allowance and the stage/Job wall deadlines -- journalled in
++this store INSIDE the submission that admits the Job, so a Job and its
++control are one durable fact or none. The deadlines are DERIVED from durable
++origins this store already holds: the Job's own `submissions.recorded_at`
++(durable accepted creation, queue time included) and, per stage, the Worker
++Manager's OWN journalled instant of the stage's `admit` operation as this
++store carries it in the admit receipt's `detail.settled_at`. That instant is
++the execution admission before preparation; a delayed reply or a restart
++adoption records the same owner instant, and the earliest over all episodes
++of a stage is the origin, so a replacement or a correction never resets it.
++
++THE TRUSTED CLOCK MODEL. Immutable origins are not enough: a clock that
++reads origin+200 and then origin+100 is still "after the origin" and would
++lose a hundred known seconds. So this store persists a monotonic WATERMARK
++(`meta` key `control.watermark`): the latest instant any control evaluation
++of this store observed. Known elapsed time is measured from the LATER of the
++clock and the watermark; a clock earlier than the watermark is `uncertain`
++-- a rollback, or a restart on another clock basis -- which HOLDS new
++admission and is reported, while deadlines the watermark already reached stay
++reached and every fence and its reconciliation continue untouched.
++
++THE TRIGGER IS DETERMINISTIC. `deadline_at` is origin plus the profile's
++seconds, derived from durable rows, so every observer -- this incarnation,
++the next one, a concurrent sweep -- derives the same instant and the expiry
++record is signed over it. The record's observation instant is evidence of
++when a manager noticed, never a substitute for the trigger: the shutdown
++bound runs from the deadline, and a manager that was not serving reports the
++gap rather than continuous enforcement.
++
++WHAT IT DOES NOT OWN. Cessation, outputs, verdicts and settlement. A reached
++deadline is carried out through `cancellation`: the expiry record is one more
++fence the existing owners read, and the serving sweep orders exact-generation
++cessation through the owners that already prove whether anything ceased.
++"""
++
++import json
++from datetime import datetime, timezone
++
++from ..contracts import ContractRefusal
++from ..contracts.errors import name_value
++from ..worker_manager import boundaries
++from .store import job_signature
++
++__all__ = ["CONTROL_KIND", "EXPIRY_KIND", "PROFILES", "PROFILE_MEMBERS",
++           "TRIGGERS", "TIMING", "WATERMARK_KEY", "control_operation_id",
++           "expiry_operation_id", "owned_control", "resolved", "agreeing",
++           "record_within", "control_in", "control_of", "controls_of",
++           "expiry_in", "expiry_of", "expiries_of", "watermark_in",
++           "advance_watermark", "observe", "job_origin_in",
++           "stage_origin_in",
++           "evaluate", "closing", "closed_of", "refuse_closed",
++           "refuse_uncertain",
++           "closed_message", "rounds_used_in",
++           "refuse_round", "expire", "reported", "report"]
++
++CONTROL_KIND = "job.control"
++EXPIRY_KIND = "job.expire"
++WATERMARK_KEY = "control.watermark"
++TRIGGERS = ("stage-deadline", "job-deadline")
++TIMING = ("trusted", "uncertain")
++UNITS = "seconds"
++
++# THE FROZEN PROFILES, in the shape `execution_limits.GENERATIONS` keeps and
++# for the same reason: a profile a Job was admitted under is never edited; a
++# changed policy is a new entry. The first documentation profile is owner
++# E383183 / DESIGN LIM-5 exactly: one implementation and one independent
++# review with zero correction rounds, 4800 s per stage from execution
++# admission, 9960 s per Job from durable accepted creation, 3600 s per
++# provider invocation and 900 s per verification command.
++PROFILE_MEMBERS = ("correction_rounds", "stage_seconds", "job_seconds",
++                   "provider_turn_seconds", "verification_command_seconds")
++PROFILES = {
++    "documentation/1": {"correction_rounds": 0, "stage_seconds": 4800,
++                        "job_seconds": 9960, "provider_turn_seconds": 3600,
++                        "verification_command_seconds": 900},
++}
++CONTROL_MEMBERS = ("profile",)
++
++
++def _refuse(message, *, category="refused", code="precondition"):
++    raise ContractRefusal(category, code, message)
++
++
++def control_operation_id(job_id):
++    return f"{CONTROL_KIND}:{job_id}"
++
++
++def expiry_operation_id(job_id):
++    """ONE expiry per Job: the first deadline reached closes it, and a later
++    observer of the same durable deadline replays rather than collides."""
++    return f"{EXPIRY_KIND}:{job_id}"
++
++
++# -- the submitted member ----------------------------------------------------
++
++def owned_control(value):
++    """The one member a Job states: which frozen profile it is admitted under.
++
++    A profile this build does not carry is a STALE SELECTION and is refused
++    rather than guessed, exactly as an unknown compatibility generation is.
++    """
++    taken = boundaries.document(value, "a Job's control",
++                                required=CONTROL_MEMBERS)
++    profile = boundaries.text(taken["profile"], "a Job's control profile")
++    if profile not in PROFILES:
++        _refuse(f"a Job's control profile is one of "
++                f"{', '.join(sorted(PROFILES))}; this is "
++                f"{name_value(profile)}. A profile this build does not hold "
++                f"is a control it cannot enforce, and guessing one would "
++                f"admit the Job under a policy nobody selected",
++                category="integrity", code="schema")
++    return {"profile": profile}
++
++
++def resolved(profile):
++    """The frozen numbers of one profile, with their units, as a document."""
++    held = PROFILES[owned_control({"profile": profile})["profile"]]
++    return {"profile": profile, "units": UNITS,
++            **{member: held[member] for member in PROFILE_MEMBERS}}
++
++
++def agreeing(control, limits):
++    """The profile pins the per-invocation ceilings; a Job whose resolved
++    execution limits say otherwise is refused at submit rather than admitted
++    under two accounts of one ceiling. The profile enlarges nothing: these
++    are the existing runner defaults, restated by the owner's selection.
++    """
++    held = resolved(control["profile"])
++    bounds = limits["boundaries"]
++    pairs = (("provider_turn", "provider_turn_seconds"),
++             ("ordinary_verification", "verification_command_seconds"))
++    for boundary, member in pairs:
++        if bounds[boundary]["seconds"] != held[member]:
++            _refuse(f"control profile {name_value(held['profile'])} pins "
++                    f"{member} at {held[member]} {UNITS} and this Job "
++                    f"resolves {boundary} to {bounds[boundary]['seconds']}; "
++                    f"a Job is admitted under one account of its ceilings",
++                    category="integrity", code="schema")
++    return held
++
++
++# -- the persisted record, written inside the submission ----------------------
++
++def record_within(store, connection, *, job_id, control, limits):
++    """Journal the control INSIDE the caller's admission transaction.
++
++    The row is this store's operations journal, keyed per Job, so a store
++    holding the Job without its control cannot exist and no schema changes.
++    """
++    from . import documents
++
++    held = agreeing(control, limits)
++    operation_id = control_operation_id(job_id)
++    operands = {"job_id": job_id, "profile": held["profile"],
++                "resolved": {member: held[member]
++                             for member in PROFILE_MEMBERS}}
++    record = documents.job_control_record(
++        operation_id=operation_id, job_id=job_id, profile=held["profile"],
++        resolved=held, admitted_at=store._now(),
++        incarnation=store.incarnation)
++    return store.journal_within(connection, operation_id, CONTROL_KIND,
++                                job_signature(CONTROL_KIND, operands), record)
++
++
++def _committed(connection, operation_id, kind):
++    row = connection.execute(
++        "SELECT state, result FROM operations WHERE operation_id = ? AND "
++        "kind = ?", (operation_id, kind)).fetchone()
++    if row is None or row["state"] != "committed" or row["result"] is None:
++        return None
++    return json.loads(row["result"])
++
++
++def control_in(connection, job_id):
++    return _committed(connection, control_operation_id(job_id), CONTROL_KIND)
++
++
++def control_of(store, job_id):
++    boundaries.identity(job_id, "a Job id")
++    return control_in(store._connection, job_id)
++
++
++def _by_job(store, kind):
++    held = {}
++    for row in store._connection.execute(
++            "SELECT result FROM operations WHERE kind = ? AND state = "
++            "'committed' AND result IS NOT NULL", (kind,)):
++        record = json.loads(row["result"])
++        held[record["job_id"]] = record
++    return held
++
++
++def controls_of(store):
++    return _by_job(store, CONTROL_KIND)
++
++
++def expiry_in(connection, job_id):
++    return _committed(connection, expiry_operation_id(job_id), EXPIRY_KIND)
++
++
++def expiry_of(store, job_id):
++    boundaries.identity(job_id, "a Job id")
++    return expiry_in(store._connection, job_id)
++
++
++def expiries_of(store):
++    return _by_job(store, EXPIRY_KIND)
++
++
++# -- the trusted clock -------------------------------------------------------
++
++def _instant(value):
++    for grammar in ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ"):
++        try:
++            return datetime.strptime(value, grammar).replace(
++                tzinfo=timezone.utc)
++        except (TypeError, ValueError):
++            continue
++    return None
++
++
++def watermark_in(connection):
++    row = connection.execute("SELECT value FROM meta WHERE key = ?",
++                             (WATERMARK_KEY,)).fetchone()
++    return None if row is None else row["value"]
++
++
++def advance_watermark(connection, now):
++    """Record `now` as observed, never moving the watermark backwards."""
++    boundaries.instant(now, "a control evaluation instant")
++    held = watermark_in(connection)
++    if held is None:
++        connection.execute("INSERT INTO meta (key, value) VALUES (?, ?)",
++                           (WATERMARK_KEY, now))
++        return now
++    if now > held:
++        connection.execute("UPDATE meta SET value = ? WHERE key = ?",
++                           (now, WATERMARK_KEY))
++        return now
++    return held
++
++
++def observe(store, now):
++    """Advance the persisted watermark to `now` as this store's own write."""
++    return advance_watermark(store._connection, now)
++
++
++# -- the durable origins -----------------------------------------------------
++
++def job_origin_in(connection, job_id):
++    row = connection.execute(
++        "SELECT recorded_at FROM submissions WHERE submission_id = "
++        "(SELECT submission_id FROM jobs WHERE job_id = ?)",
++        (job_id,)).fetchone()
++    return None if row is None else row["recorded_at"]
++
++
++def stage_origin_in(connection, stage_id):
++    """The OWNER'S instant of the stage's first admission, or None.
++
++    Read from every admit receipt of the stage, performed or adopted alike:
++    `detail.settled_at` is the Worker Manager's journal stamp of the
++    `offer.issue` it committed, carried here verbatim. The local
++    `recorded_at` of the receipt is deliberately not read -- it is when this
++    store learned, which a delayed reply or a restart moves.
++    """
++    earliest = None
++    for row in connection.execute(
++            "SELECT detail FROM receipts WHERE stage_id = ? AND act = 'admit' "
++            "AND state IN ('performed', 'adopted')", (stage_id,)):
++        detail = json.loads(row["detail"])
++        settled = detail.get("settled_at")
++        if type(settled) is not str:
++            # A receipt without the owner's instant is UNCERTAIN, not absent:
++            # it says an admission happened and does not say when.
++            return "uncertain"
++        if earliest is None or settled < earliest:
++            earliest = settled
++    return earliest
++
++
++def _seconds_between(later, earlier):
++    one, two = _instant(later), _instant(earlier)
++    if one is None or two is None:
++        return None
++    return int((one - two).total_seconds())
++
++
++def _deadline(origin, seconds):
++    try:
++        return boundaries.deadline(origin, seconds, "a control deadline")
++    except ContractRefusal:
++        return None
++
++
++def evaluate(connection, job_id, now, *, stages=None):
++    """One Job's control evaluation at `now`, from durable rows only.
++
++    PURE: reads this database and writes nothing, so a status read and a
++    guard inside another owner's transaction get the same answer. `timing`
++    is `uncertain` when `now` is earlier than the watermark OR THAN ANY
++    DURABLE ORIGIN of this Job (review 2026-11-19T00-20-37Z P3: a first
++    sweep or a restart behind the submission's own instant is a rollback
++    this store can see without a watermark), when an origin cannot be
++    ordered, or when a receipt holds no owner instant. The clock the
++    deadlines and the elapsed times are decided against is the LATEST of
++    `now`, the watermark and the origins -- the latest instant this store
++    durably knows happened -- so a rollback never un-reaches a deadline and
++    never reports less elapsed time than the rows already prove.
++    """
++    control = control_in(connection, job_id)
++    if control is None:
++        return None
++    policy = control["resolved"]
++    watermark = watermark_in(connection)
++    job_origin = job_origin_in(connection, job_id)
++    stage_rows = stages if stages is not None else [
++        row["stage_id"] for row in connection.execute(
++            "SELECT stage_id FROM stages WHERE job_id = ? ORDER BY ordinal",
++            (job_id,))]
++    origins = {stage_id: stage_origin_in(connection, stage_id)
++               for stage_id in stage_rows}
++    evidence = [one for one in (watermark, job_origin, *origins.values())
++                if one is not None and one != "uncertain"
++                and _instant(one) is not None]
++    latest = max(evidence) if evidence else None
++    timing = "trusted"
++    if _instant(now) is None:
++        timing = "uncertain"
++        clock = latest
++    elif latest is not None and now < latest:
++        timing = "uncertain"
++        clock = latest
++    else:
++        clock = now
++    job_deadline = (_deadline(job_origin, policy["job_seconds"])
++                    if job_origin is not None else None)
++    if job_origin is None or job_deadline is None:
++        timing = "uncertain"
++    reached = []
++    job_view = {"origin": job_origin, "deadline_at": job_deadline,
++                "elapsed_seconds": (_seconds_between(clock, job_origin)
++                                    if clock is not None
++                                    and job_origin is not None else None),
++                "reached": (clock is not None and job_deadline is not None
++                            and clock >= job_deadline)}
++    if job_view["reached"]:
++        reached.append((job_deadline, 1, "", "job-deadline", None))
++    stage_views = []
++    for stage_id in stage_rows:
++        origin = origins[stage_id]
++        if origin == "uncertain":
++            timing = "uncertain"
++            origin = None
++        deadline = (_deadline(origin, policy["stage_seconds"])
++                    if origin is not None else None)
++        if origin is not None and deadline is None:
++            timing = "uncertain"
++        view = {"stage_id": stage_id, "origin": origin,
++                "deadline_at": deadline,
++                "elapsed_seconds": (_seconds_between(clock, origin)
++                                    if clock is not None and origin is not None
++                                    else None),
++                "reached": (clock is not None and deadline is not None
++                            and clock >= deadline)}
++        if view["reached"]:
++            reached.append((deadline, 0, stage_id, "stage-deadline",
++                            stage_id))
++        stage_views.append(view)
++    del reached
++    held = {"profile": control["profile"], "resolved": policy,
++            "timing": timing, "observed_at": now, "watermark": watermark,
++            "job": job_view, "stages": stage_views,
++            "corrections": {"allowance": policy["correction_rounds"],
++                            "used": rounds_used_in(connection, job_id)}}
++    # THE RAW FIRST DEADLINE over every stage, finished or not: a reader's
++    # convenience. Which deadline CLOSES the Job is `closing`'s question,
++    # and it depends on which stages are already over.
++    held["first"] = closing(held, any_stage=True)
++    return held
++
++
++def closing(evaluation, *, stage_id=None, any_stage=False, finished=()):
++    """The first reached deadline that closes ONE question, or None.
++
++    THE JOB DEADLINE ALWAYS COUNTS. A STAGE DEADLINE COUNTS FOR THE STAGE
++    IT BOUNDS: reserving, claiming, launching or replacing that stage after
++    it is refused, and the sweep fences the Job when it is reached while the
++    stage is still unfinished. A stage that finished within its allowance
++    never "reaches" it -- `finished` names those, from the projection that
++    can see their outputs -- so a deadline that passes after useful work
++    finished closes nothing and manufactures no cancellation of it. With
++    neither `stage_id` nor `any_stage` only the Job deadline is asked, which
++    is a correction round's question.
++
++    Deterministic: by instant, then a stage before the Job at the same
++    instant, then stage id, so every observer derives the same trigger.
++    """
++    if evaluation is None:
++        return None
++    reached = []
++    job = evaluation["job"]
++    if job["reached"]:
++        reached.append((job["deadline_at"], 1, "", "job-deadline", None))
++    for view in evaluation["stages"]:
++        if not view["reached"] or view["stage_id"] in finished:
++            continue
++        if not any_stage and view["stage_id"] != stage_id:
++            continue
++        reached.append((view["deadline_at"], 0, view["stage_id"],
++                        "stage-deadline", view["stage_id"]))
++    if not reached:
++        return None
++    deadline, _, _, trigger, which = sorted(reached)[0]
++    return {"trigger": trigger, "stage_id": which, "deadline_at": deadline}
++
++
++def closed_of(store, job_id, now=None, *, stage_id=None, any_stage=False):
++    """Why this Job admits nothing more for one question, or None. A read."""
++    from . import cancellation
++
++    now = store._now() if now is None else now
++    fence = cancellation.fenced(store._connection, job_id)
++    if fence is not None:
++        return {"cause": "fenced", "fence": fence}
++    held = evaluate(store._connection, job_id, now)
++    if held is None:
++        return None
++    first = closing(held, stage_id=stage_id, any_stage=any_stage)
++    if first is not None:
++        return {"cause": "deadline", "first": first}
++    if held["timing"] == "uncertain":
++        return {"cause": "uncertain", "watermark": held["watermark"]}
++    return None
++
++
++def closed_message(closed, what):
++    """One sentence saying why `what` is not admitted, from `closed_of`."""
++    if closed["cause"] == "fenced":
++        fence = closed["fence"]
++        return (f"the Job was {'cancelled' if fence.get('trigger', 'operator') == 'operator' else 'expired'} at "
++                f"{fence['requested_at']} ({fence['reason']}); {what} is not "
++                f"admitted after the fence")
++    if closed["cause"] == "deadline":
++        first = closed["first"]
++        return (f"the Job reached its {first['trigger']} at "
++                f"{first['deadline_at']}; {what} is not admitted after the "
++                f"deadline")
++    return (f"the Job's timing is uncertain (watermark "
++            f"{name_value(closed.get('watermark'))}); {what} is held")
++
++
++def refuse_closed(connection, job_id, what, *, now, stage_id=None,
++                  any_stage=False):
++    """Refuse `what` ORDINARILY inside the caller's own transaction when the
++    Job is fenced, when the Job deadline -- or the named stage's -- is
++    reached by the trusted clock, or when timing is uncertain. The watermark
++    is advanced on the same connection, so an act that COMMITS carries the
++    instant it was decided against; a refused act rolls back with its
++    transaction and leaves the sweep's own watermark standing.
++    """
++    from . import cancellation
++
++    cancellation.refuse_fenced(connection, job_id, what)
++    held = evaluate(connection, job_id, now)
++    if held is None:
++        return None
++    advance_watermark(connection, now)
++    first = closing(held, stage_id=stage_id, any_stage=any_stage)
++    if first is not None:
++        _refuse(f"Job {name_value(job_id)} reached its {first['trigger']} "
++                f"at {first['deadline_at']}"
++                + (f" (stage {name_value(first['stage_id'])})"
++                   if first["stage_id"] is not None else "")
++                + f"; {what} is not admitted after the deadline")
++    if held["timing"] == "uncertain":
++        _refuse(f"Job {name_value(job_id)}'s timing is uncertain (clock "
++                f"{name_value(now)}, watermark "
++                f"{name_value(held['watermark'])}); {what} is held until the "
++                f"clock is trusted again")
++    return held
++
++
++def refuse_uncertain(connection, job_id, what, *, now):
++    """Hold `what` ORDINARILY while this Job's timing is uncertain; a reached
++    deadline is NOT asked here. For the one boundary that admits a NEW Job
++    (a fresh attempt), whose own control starts afresh."""
++    held = evaluate(connection, job_id, now)
++    if held is None:
++        return None
++    advance_watermark(connection, now)
++    if held["timing"] == "uncertain":
++        _refuse(f"Job {name_value(job_id)}'s timing is uncertain (clock "
++                f"{name_value(now)}, watermark "
++                f"{name_value(held['watermark'])}); {what} is held until the "
++                f"clock is trusted again")
++    return held
++
++
++# -- the correction allowance ------------------------------------------------
++
++def rounds_used_in(connection, job_id):
++    """Rounds this Job already spent: committed correction OPERATIONS, one
++    per round -- never the two episode-ending rows one round writes."""
++    from .episodes import CORRECT_KIND
++
++    used = 0
++    for row in connection.execute(
++            "SELECT result FROM operations WHERE kind = ? AND state = "
++            "'committed' AND result IS NOT NULL", (CORRECT_KIND,)):
++        if json.loads(row["result"]).get("job_id") == job_id:
++            used += 1
++    return used
++
++
++def refuse_round(connection, job_id):
++    control = control_in(connection, job_id)
++    if control is None:
++        return None
++    allowance = control["resolved"]["correction_rounds"]
++    used = rounds_used_in(connection, job_id)
++    if used >= allowance:
++        _refuse(f"Job {name_value(job_id)} is admitted under control "
++                f"profile {name_value(control['profile'])}, which permits "
++                f"{allowance} correction round(s) and {used} were used; the "
++                f"changes-requested verdict stands and no round is opened")
++    return {"allowance": allowance, "used": used}
++
++
++# -- the expiry record -------------------------------------------------------
++
++def expire(store, *, job_id, trigger, stage_id, deadline_at, observed_at):
++    """Journal that this Job's FIRST deadline was reached: the fence.
++
++    Signed over the durable trigger, never over the observation, so a
++    restart or a concurrent sweep that derives the same deadline replays
++    this record. `requested_at` is the deadline instant -- LIM-5's trigger
++    the shutdown bound runs from -- and `observed_at` is when a manager
++    noticed, reported beside it.
++    """
++    from . import documents
++
++    if trigger not in TRIGGERS:
++        _refuse(f"an expiry trigger is one of {TRIGGERS}; this is "
++                f"{name_value(trigger)}", category="integrity", code="schema")
++    boundaries.instant(deadline_at, "a control deadline")
++    boundaries.instant(observed_at, "an expiry observation instant")
++    operands = {"job_id": job_id, "trigger": trigger, "stage_id": stage_id,
++                "deadline_at": deadline_at}
++    operation_id = expiry_operation_id(job_id)
++    signature = job_signature(EXPIRY_KIND, operands)
++    reason = (f"{trigger} reached at {deadline_at}"
++              + (f" (stage {stage_id})" if stage_id is not None else ""))
++
++    def act(connection):
++        if control_in(connection, job_id) is None:
++            _refuse(f"Job {name_value(job_id)} holds no control; a deadline "
++                    f"is reached under a profile", category="integrity",
++                    code="schema")
++        advance_watermark(connection, observed_at)
++        return documents.job_expiry(
++            operation_id=operation_id, job_id=job_id, trigger=trigger,
++            stage_id=stage_id, reason=reason, requested_at=deadline_at,
++            deadline_at=deadline_at, observed_at=observed_at,
++            incarnation=store.incarnation)
++
++    return store.transact(operation_id, EXPIRY_KIND, signature, act)
++
++
++# -- the report --------------------------------------------------------------
++
++def reported(evaluation, fence):
++    from . import documents
++
++    if evaluation is None:
++        return None
++    return documents.job_control_report(
++        profile=evaluation["profile"], resolved=evaluation["resolved"],
++        timing=evaluation["timing"], observed_at=evaluation["observed_at"],
++        watermark=evaluation["watermark"], job=evaluation["job"],
++        stages=evaluation["stages"], corrections=evaluation["corrections"],
++        fence=(None if fence is None else {
++            "trigger": fence.get("trigger", "operator"),
++            "requested_at": fence["requested_at"],
++            "operation_id": fence["operation_id"]}))
++
++
++def report(store, job_id, *, now):
++    """One Job's control report from a store handle; a read."""
++    from . import cancellation
++
++    boundaries.identity(job_id, "a Job id")
++    with store.read_snapshot():
++        evaluation = evaluate(store._connection, job_id, now)
++        fence = cancellation.fenced(store._connection, job_id)
++    return reported(evaluation, fence)
+diff --git a/v12/python/tests/job_manager/test_job_control.py b/v12/python/tests/job_manager/test_job_control.py
+new file mode 100644
+index 00000000..f5a09f1c
+--- /dev/null
++++ b/v12/python/tests/job_manager/test_job_control.py
+@@ -0,0 +1,1065 @@
++"""W383217 — the persisted finite control of a Job: profile, clocks, fences.
++
++DESIGN LIM-5. A Job admitted under a control profile carries its correction
++allowance and its stage/Job wall deadlines in this store's journal, inside
++the submission that admitted it. The deadlines are derived from durable
++origins -- the submission's accepted instant and the Worker Manager's own
++instant of each stage's admission -- against a trusted clock that persists
++its watermark, and the first one reached is journalled as the Job's fence,
++which the accepted cancellation owners carry out. These cases drive the Job
++store half against real disposable stores and the strict fake operations.
++"""
++
++import json
++import unittest
++from datetime import datetime, timedelta, timezone
++from types import SimpleNamespace
++from unittest import mock
++
++from baton_v12.contracts import ContractRefusal
++from baton_v12.job_manager import (JobStore, STATUS_SCHEMA, cancellation,
++                                   documents, episodes, fresh_attempt,
++                                   job_control, scheduler, status, submit,
++                                   sweep)
++from baton_v12.job_manager.episodes import end_episode, live_of, open_next
++from baton_v12.job_manager.projection import owed_acts
++
++from tests.job_manager import test_fresh_attempt as fresh
++from tests.job_manager import test_job_cancellation as cancelling
++from tests.job_manager import test_scheduling as scheduling
++
++if __package__:
++    from .fixtures import (NOW, UUID, JobManagerCase, job, signature_of,
++                           stage, submission)
++else:
++    from fixtures import (NOW, UUID, JobManagerCase, job, signature_of,
++                          stage, submission)
++
++PROFILE = "documentation/1"
++STAGE_SECONDS = 4800
++JOB_SECONDS = 9960
++REASON = "operator stops this Job before its deadline"
++
++
++def at(seconds):
++    """NOW plus `seconds`, in the store's frozen instant grammar."""
++    origin = datetime.strptime(NOW, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
++        tzinfo=timezone.utc)
++    moment = origin + timedelta(seconds=seconds)
++    return moment.strftime("%Y-%m-%dT%H:%M:%S.") + f"{moment.microsecond // 1000:03d}Z"
++
++
++def controlled(job_id="job-a", stages=None, profile=PROFILE, limits=None,
++               submission_id="sub-1"):
++    """A /3 submission of one Job admitted under `profile`."""
++    held = job(job_id, stages=stages if stages is not None
++               else [stage("implementation")])
++    held["control"] = {"profile": profile}
++    if limits is not None:
++        held["execution_limits"] = limits
++    document = submission(submission_id=submission_id, jobs=[held])
++    document["schema"] = documents.SUBMISSION_CONTROL_SCHEMA
++    return document
++
++
++class Controlling(cancelling.Cancelling):
++    """The cancellation fake, whose journal stamps the OWNER'S instant.
++
++    The real Worker Manager stamps `settled_at` on the `offer.issue` it
++    commits; this store reads that instant back out of its admit receipt as
++    the stage's origin. The fixture's constant `NOW` stamp hid the difference
++    between the owner's instant and the local receipt time, which is the
++    whole of review 2026-11-18T22-37-33Z's first correction.
++    """
++
++    def __init__(self, *arguments, **keywords):
++        super().__init__(*arguments, **keywords)
++        self.settled = NOW
++
++    def committed(self, act, offer_id, result=None, intent=None):
++        from baton_v12.job_manager import canonical_operation
++
++        operation_id = canonical_operation(act, offer_id)
++        self.journal[operation_id] = {
++            "operation_id": operation_id, "kind": f"offer.{act}",
++            "signature": signature_of(act, intent), "state": "committed",
++            "result": json.dumps(result if result is not None
++                                 else {"offer_id": offer_id}),
++            "refusal": None, "settled_at": self.settled}
++        return operation_id
++
++
++class ControlCase(JobManagerCase):
++
++    def setUp(self):
++        super().setUp()
++        self.jobs = self.store()
++        self.acts = Controlling()
++
++    def submit(self, document=None):
++        return submit(self.jobs, document if document is not None
++                      else controlled())
++
++    def tick(self, seconds=0):
++        """One sweep at NOW + seconds, with the store's clock there too."""
++        self.instants.append(at(seconds))
++        return sweep(self.jobs, self.acts, now=at(seconds))
++
++    def projected(self, job_id="job-a", seconds=None):
++        if seconds is not None:
++            self.instants.append(at(seconds))
++        document = status(self.jobs, self.acts, observed_at=self.clock())
++        self.assertEqual(document["schema"], STATUS_SCHEMA)
++        for entry in document["jobs"]:
++            if entry["job_id"] == job_id:
++                return entry
++        raise AssertionError(job_id)
++
++    def evaluation(self, job_id="job-a", seconds=None):
++        now = at(seconds) if seconds is not None else self.clock()
++        return job_control.evaluate(self.jobs._connection, job_id, now)
++
++    def operations(self, kind):
++        return self.jobs._connection.execute(
++            "SELECT count(*) FROM operations WHERE kind = ?",
++            (kind,)).fetchone()[0]
++
++    def running(self, stage_id="job-a/implementation", seconds=0):
++        self.acts.starts(stage_id, attaches=True)
++        for _ in range(4):
++            self.tick(seconds)
++        held = self.projected()["stages"][0]
++        self.assertIn(held["state"], ("starting", "waiting", "running"), held)
++        return held
++
++
++class TheSelection(unittest.TestCase):
++
++    def test_the_first_profile_is_exactly_the_owner_ruling(self):
++        held = job_control.resolved(PROFILE)
++        self.assertEqual(held, {"profile": PROFILE, "units": "seconds",
++                                "correction_rounds": 0,
++                                "stage_seconds": 4800, "job_seconds": 9960,
++                                "provider_turn_seconds": 3600,
++                                "verification_command_seconds": 900})
++
++    def test_a_profile_this_build_does_not_hold_is_a_stale_selection(self):
++        for value in ({"profile": "documentation/2"}, {"profile": ""},
++                      {"profile": None}, {}, {"profile": PROFILE, "x": 1},
++                      None, PROFILE):
++            with self.assertRaises(ContractRefusal, msg=value):
++                job_control.owned_control(value)
++
++    def test_only_a_version_three_submission_carries_a_control(self):
++        document = controlled()
++        self.assertEqual(documents.owned_submission(document)["jobs"][0]
++                         ["control"], {"profile": PROFILE})
++        for schema in documents.SUBMISSION_SCHEMAS[:2]:
++            older = controlled()
++            older["schema"] = schema
++            with self.assertRaises(ContractRefusal):
++                documents.owned_submission(older)
++        without = controlled()
++        del without["jobs"][0]["control"]
++        self.assertNotIn("control",
++                         documents.owned_submission(without)["jobs"][0])
++        null = controlled()
++        null["jobs"][0]["control"] = None
++        with self.assertRaises(ContractRefusal):
++            documents.owned_submission(null)
++
++    def test_a_job_whose_ceilings_disagree_with_the_profile_is_refused(self):
++        with self.assertRaises(ContractRefusal) as caught:
++            documents.owned_submission(controlled(
++                limits={"provider_turn_seconds": 7200}))
++        self.assertIn("pins provider_turn_seconds at 3600",
++                      caught.exception.message)
++        agreeing = documents.owned_submission(controlled(
++            limits={"provider_turn_seconds": 3600,
++                    "verification_command_seconds": 900}))
++        self.assertEqual(agreeing["jobs"][0]["control"], {"profile": PROFILE})
++
++
++class TheAdmission(ControlCase):
++
++    def test_the_control_is_journalled_inside_the_submission(self):
++        recorded = self.submit()
++        held = job_control.control_of(self.jobs, "job-a")
++        self.assertEqual(held["profile"], PROFILE)
++        self.assertEqual(held["resolved"]["stage_seconds"], STAGE_SECONDS)
++        self.assertEqual(held["resolved"]["job_seconds"], JOB_SECONDS)
++        self.assertEqual(held["admitted_at"], recorded["recorded_at"])
++        self.assertEqual(held["operation_id"], "job.control:job-a")
++        self.assertEqual(self.operations("job.control"), 1)
++        # THE SAME ACT: the journal row settled with the submission.
++        row = self.jobs.operation_record("job.control:job-a")
++        self.assertEqual(row["settled_at"], NOW)
++
++    def test_an_exact_replay_writes_nothing_and_a_changed_control_collides(self):
++        first = self.submit()
++        self.instants.append(at(10))
++        self.assertEqual(self.submit(), first)
++        self.assertEqual(self.operations("job.control"), 1)
++        changed = controlled()
++        del changed["jobs"][0]["control"]
++        with self.assertRaises(ContractRefusal) as caught:
++            self.submit(changed)
++        self.assertEqual(caught.exception.code, "operation-collision")
++        self.assertEqual(job_control.control_of(self.jobs, "job-a")
++                         ["profile"], PROFILE)
++
++    def test_the_control_survives_a_restart_and_a_job_without_one_is_null(self):
++        self.submit()
++        self.submit(submission(submission_id="sub-2", jobs=[
++            job("job-b", stages=[stage("implementation", "0000000a-W3")])]))
++        reopened = JobStore.open(self.job_path, authority_uuid=UUID,
++                                 incarnation="jobs-2", clock=self.clock)
++        self.addCleanup(reopened.close)
++        self.assertEqual(job_control.control_of(reopened, "job-a")["profile"],
++                         PROFILE)
++        self.assertIsNone(job_control.control_of(reopened, "job-b"))
++        self.assertIsNone(self.projected("job-b")["control"])
++        held = self.projected("job-a")["control"]
++        self.assertEqual(held["profile"], PROFILE)
++        self.assertEqual(held["timing"], "trusted")
++        self.assertIsNone(held["fence"])
++        self.assertEqual(held["corrections"], {"allowance": 0, "used": 0})
++
++    def test_the_resolution_a_submission_carries_cannot_disagree_at_submit(self):
++        document = controlled(limits={"provider_turn_seconds": 3600})
++        with mock.patch.object(job_control, "PROFILES", {
++                PROFILE: dict(job_control.PROFILES[PROFILE],
++                              provider_turn_seconds=1800)}):
++            with self.assertRaises(ContractRefusal):
++                self.submit(document)
++        self.assertEqual(self.operations("job.control"), 0)
++        self.assertIsNone(self.jobs.operation_record("job.control:job-a"))
++
++
++class TheClocks(ControlCase):
++
++    def test_the_job_clock_starts_at_accepted_creation_and_counts_queue_time(self):
++        self.submit()
++        held = self.evaluation(seconds=100)
++        self.assertEqual(held["job"]["origin"], NOW)
++        self.assertEqual(held["job"]["deadline_at"], at(JOB_SECONDS))
++        self.assertEqual(held["job"]["elapsed_seconds"], 100)
++        self.assertFalse(held["job"]["reached"])
++        # NOT ADMITTED YET: no stage origin, no stage deadline.
++        self.assertEqual(held["stages"], [{"stage_id": "job-a/implementation",
++                                          "origin": None, "deadline_at": None,
++                                          "elapsed_seconds": None,
++                                          "reached": False}])
++        self.assertIsNone(held["first"])
++
++    def test_the_stage_clock_starts_at_the_owners_admission_instant(self):
++        """The owner stamped the offer at +100; this store learned of it
++        at +500. The origin is the owner's."""
++        self.submit()
++        self.acts.settled = at(100)
++        self.tick(500)
++        receipt = self.projected()["stages"][0]["receipts"][0]
++        self.assertEqual(receipt["act"], "admit")
++        self.assertEqual(receipt["recorded_at"], at(500))
++        self.assertEqual(receipt["detail"]["settled_at"], at(100))
++        held = self.evaluation(seconds=500)
++        self.assertEqual(held["stages"][0]["origin"], at(100))
++        self.assertEqual(held["stages"][0]["deadline_at"],
++                         at(100 + STAGE_SECONDS))
++        self.assertEqual(held["stages"][0]["elapsed_seconds"], 400)
++
++    def test_a_delayed_adoption_keeps_the_owners_instant(self):
++        """The owner committed the offer at +100 and the reply was lost; a
++        later incarnation adopts it at +900 and the origin does not move."""
++        self.submit()
++        attempt = self.attempting(self.jobs)
++        self.acts.settled = at(100)
++        from baton_v12.job_manager import stage_intent
++        from baton_v12.job_manager import job_of
++        self.acts.committed("admit", attempt["offer_id"],
++                            intent=stage_intent(attempt,
++                                                job_of(self.jobs, "job-a")))
++        report = self.tick(900)
++        self.assertEqual([(one["act"], one["outcome"])
++                          for one in report["acts"]][0],
++                         ("admit", "adopted"))
++        held = self.evaluation(seconds=900)
++        self.assertEqual(held["stages"][0]["origin"], at(100))
++        self.assertEqual(held["stages"][0]["elapsed_seconds"], 800)
++
++    def test_a_replacement_episode_never_resets_the_stage_origin(self):
++        self.submit()
++        self.acts.settled = at(100)
++        self.tick(100)
++        live = live_of(self.jobs, "job-a/implementation")
++        end_episode(self.jobs, live, "abandoned-after-restart", 1)
++        self.acts.settled = at(3000)
++        report = self.tick(3000)
++        self.assertEqual(len(report["replaced"]), 1)
++        self.assertEqual(live_of(self.jobs, "job-a/implementation")
++                         ["episode"], 2)
++        held = self.evaluation(seconds=3000)
++        self.assertEqual(held["stages"][0]["origin"], at(100))
++        self.assertEqual(held["stages"][0]["deadline_at"],
++                         at(100 + STAGE_SECONDS))
++
++    def test_the_first_deadline_is_the_stage_or_the_job_by_the_instants(self):
++        self.submit()
++        self.acts.settled = at(100)
++        self.tick(100)
++        held = self.evaluation(seconds=100 + STAGE_SECONDS)
++        self.assertEqual(held["first"], {"trigger": "stage-deadline",
++                                         "stage_id": "job-a/implementation",
++                                         "deadline_at":
++                                             at(100 + STAGE_SECONDS)})
++        self.assertFalse(held["job"]["reached"])
++        # A STAGE ADMITTED LATE: its deadline falls after the Job's.
++        self.setUp()
++        self.submit()
++        self.acts.settled = at(6000)
++        self.tick(6000)
++        held = self.evaluation(seconds=JOB_SECONDS)
++        self.assertEqual(held["first"], {"trigger": "job-deadline",
++                                         "stage_id": None,
++                                         "deadline_at": at(JOB_SECONDS)})
++        self.assertTrue(held["stages"][0]["deadline_at"] > at(JOB_SECONDS))
++
++    def test_a_receipt_without_the_owners_instant_is_uncertain(self):
++        self.submit()
++        self.tick(0)
++        self.jobs._connection.execute(
++            "UPDATE receipts SET detail = ? WHERE act = 'admit'",
++            (json.dumps({"canonical_state": "committed", "result": None,
++                         "refusal": None}),))
++        held = self.evaluation(seconds=10)
++        self.assertEqual(held["timing"], "uncertain")
++        self.assertIsNone(held["stages"][0]["origin"])
++
++
++class TheTrustedClock(ControlCase):
++
++    def test_the_watermark_persists_and_a_rollback_holds_admission(self):
++        self.submit()
++        self.assertIsNone(job_control.watermark_in(self.jobs._connection))
++        self.tick(200)
++        self.assertEqual(job_control.watermark_in(self.jobs._connection),
++                         at(200))
++        # THE REVIEWER'S EXAMPLE: origin+200 observed, then origin+100.
++        held = self.evaluation(seconds=100)
++        self.assertEqual(held["timing"], "uncertain")
++        self.assertEqual(held["job"]["elapsed_seconds"], 200)
++        self.assertEqual(held["watermark"], at(200))
++        report = self.tick(100)
++        self.assertEqual(report["expired"],
++                         [{"job_id": "job-a", "outcome": "held",
++                           "detail": {"category": "uncertain",
++                                      "code": "timing",
++                                      "watermark": at(200),
++                                      "observed_at": at(100)}}])
++        self.assertEqual(job_control.watermark_in(self.jobs._connection),
++                         at(200))
++        self.assertEqual(self.projected()["control"]["timing"], "uncertain")
++        # Nothing new was admitted: the stage was offered at +200 and the
++        # claim is not owed while the clock is untrusted.
++        self.acts.canonical_state(self.attempting(self.jobs)["offer_id"],
++                                  self.attempting(self.jobs)["attempt_id"],
++                                  "claimed")
++        self.assertEqual(owed_acts(self.jobs, self.acts), [])
++        # TRUSTED AGAIN once the clock passes the watermark.
++        held = self.evaluation(seconds=300)
++        self.assertEqual(held["timing"], "trusted")
++        self.assertEqual(held["job"]["elapsed_seconds"], 300)
++        self.instants.append(at(300))
++        self.assertEqual([one["act"] for one in
++                          owed_acts(self.jobs, self.acts)], ["claim"])
++
++    def test_a_restart_on_an_earlier_clock_is_uncertain_until_it_catches_up(self):
++        self.submit()
++        self.tick(500)
++        reopened = JobStore.open(self.job_path, authority_uuid=UUID,
++                                 incarnation="jobs-2",
++                                 clock=lambda: at(50))
++        self.addCleanup(reopened.close)
++        held = job_control.evaluate(reopened._connection, "job-a", at(50))
++        self.assertEqual(held["timing"], "uncertain")
++        self.assertEqual(held["job"]["elapsed_seconds"], 500)
++        held = job_control.evaluate(reopened._connection, "job-a", at(600))
++        self.assertEqual(held["timing"], "trusted")
++        self.assertEqual(held["job"]["elapsed_seconds"], 600)
++
++    def test_a_rollback_never_unreaches_a_deadline_or_lifts_the_fence(self):
++        self.submit()
++        self.tick(JOB_SECONDS)
++        fence = cancellation.fence_of(self.jobs, "job-a")
++        self.assertEqual(fence["trigger"], "job-deadline")
++        held = self.evaluation(seconds=10)
++        self.assertEqual(held["timing"], "uncertain")
++        self.assertTrue(held["job"]["reached"])
++        self.assertEqual(held["first"]["trigger"], "job-deadline")
++        self.tick(10)
++        self.assertEqual(cancellation.fence_of(self.jobs, "job-a"), fence)
++        self.assertEqual(self.operations("job.expire"), 1)
++        self.assertEqual(owed_acts(self.jobs, self.acts), [])
++
++    def test_the_guards_advance_the_watermark_under_their_own_lock(self):
++        self.submit()
++        attempt = self.attempting(self.jobs)
++        scheduler.activate_pool(self.jobs, scheduling.pool(),
++                                scheduling.principals(scheduling.pool()))
++        self.instants.append(at(700))
++        scheduler.reserve(self.jobs, attempt)
++        self.assertEqual(job_control.watermark_in(self.jobs._connection),
++                         at(700))
++
++
++class TheExpiryFence(ControlCase):
++
++    def test_a_running_stage_past_its_deadline_is_fenced_and_ordered_to_cease(self):
++        self.submit()
++        self.running(seconds=0)
++        self.assertEqual(self.acts.cancelled, [])
++        report = self.tick(STAGE_SECONDS)
++        self.assertEqual(report["expired"],
++                         [{"job_id": "job-a", "outcome": "fenced",
++                           "trigger": "stage-deadline",
++                           "stage_id": "job-a/implementation",
++                           "deadline_at": at(STAGE_SECONDS)}])
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("order-cessation", "ordered")])
++        self.assertEqual(len(self.acts.cancelled), 1)
++        self.assertIn("stage-deadline reached", self.acts.cancelled[0][1])
++        fence = cancellation.fence_of(self.jobs, "job-a")
++        self.assertEqual(fence["trigger"], "stage-deadline")
++        self.assertEqual(fence["requested_at"], at(STAGE_SECONDS))
++        self.assertEqual(fence["observed_at"], at(STAGE_SECONDS))
++        held = self.projected()
++        self.assertEqual(held["cancellation"]["trigger"], "stage-deadline")
++        self.assertEqual(held["cancellation"]["trigger_at"],
++                         at(STAGE_SECONDS))
++        self.assertEqual(held["cancellation"]["targets"][0]["state"],
++                         "ordered")
++        self.assertEqual(held["control"]["fence"]["trigger"],
++                         "stage-deadline")
++        # THE BOUND RUNS FROM THE DEADLINE: within it at +30, unresolved at
++        # +121 while nothing proves cessation.
++        self.assertEqual(self.projected(seconds=STAGE_SECONDS + 30)
++                         ["cancellation"]["shutdown"], "within-bound")
++        self.assertEqual(self.projected(seconds=STAGE_SECONDS + 121)
++                         ["cancellation"]["shutdown"], "unresolved")
++        # ONE RECORD, HOWEVER MANY TICKS OBSERVE IT.
++        for seconds in (STAGE_SECONDS + 1, STAGE_SECONDS + 2):
++            later = self.tick(seconds)
++            self.assertNotIn("expired", later)
++        self.assertEqual(self.operations("job.expire"), 1)
++        self.assertEqual(len(self.acts.cancelled), 1)
++
++    def test_a_late_observation_reports_the_gap_not_a_new_trigger(self):
++        """The manager was not serving when the deadline passed. The trigger
++        is still the deadline; the observation is reported beside it and the
++        bound is already exhausted, honestly."""
++        self.submit()
++        self.running(seconds=0)
++        report = self.tick(STAGE_SECONDS + 500)
++        self.assertEqual(report["expired"][0]["outcome"], "fenced")
++        fence = cancellation.fence_of(self.jobs, "job-a")
++        self.assertEqual(fence["requested_at"], at(STAGE_SECONDS))
++        self.assertEqual(fence["observed_at"], at(STAGE_SECONDS + 500))
++        held = self.projected()["cancellation"]
++        self.assertEqual(held["trigger_at"], at(STAGE_SECONDS))
++        self.assertEqual(held["observed_at"], at(STAGE_SECONDS + 500))
++        self.assertEqual(held["shutdown"], "unresolved")
++        self.assertEqual(held["elapsed_seconds"], 500)
++
++    def test_a_queued_job_past_its_job_deadline_is_retired_before_admission(self):
++        self.submit()
++        report = self.tick(JOB_SECONDS)
++        self.assertEqual(report["expired"][0]["trigger"], "job-deadline")
++        self.assertEqual(report["acts"], [])
++        self.assertEqual(self.acts.calls, [])
++        held = self.projected()
++        self.assertEqual(held["stages"][0]["state"], "queued")
++        self.assertEqual(held["cancellation"]["targets"][0]["state"],
++                         "retired-before-admission")
++        self.assertEqual(held["cancellation"]["shutdown"], "complete")
++
++    def test_a_claimed_stage_is_not_launched_after_the_deadline(self):
++        self.submit()
++        self.acts.starts("job-a/implementation", attaches=True)
++        self.tick(0)
++        attempt = self.attempting(self.jobs)
++        self.acts.canonical_state(attempt["offer_id"], attempt["attempt_id"],
++                                  "claimed")
++        # THE CLAIM IS TAKEN BEFORE THE DEADLINE; the launch is asked after.
++        self.instants.append(at(10))
++        self.acts.refusals[("job-a/implementation", "launch")] = None
++        with mock.patch.object(type(self.acts), "launch",
++                               side_effect=ContractRefusal(
++                                   "refused", "precondition", "not yet")):
++            self.tick(10)
++        self.assertEqual(self.projected()["stages"][0]["state"], "claimed")
++        report = self.tick(STAGE_SECONDS)
++        self.assertEqual(report["expired"][0]["outcome"], "fenced")
++        self.assertEqual([(one["outcome"], one["detail"]["message"][:19])
++                          for one in report["started"]],
++                         [("deferred", "the Job was expired")])
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("fence-unstarted", "ordered")])
++        self.assertEqual([call for call in self.acts.calls
++                          if call[0] == "launch"], [])
++
++    def test_an_answered_attempt_is_left_to_its_ending_owners(self):
++        """The expiry-versus-success race: the worker answered before the
++        deadline tick. Nothing is ordered and the output stands."""
++        self.submit()
++        self.running(seconds=0)
++        self.acts.frozen("job-a/implementation", "completed",
++                         execution_runtime="running", cleanup=None)
++        report = self.tick(STAGE_SECONDS)
++        self.assertEqual(report["expired"][0]["outcome"], "fenced")
++        self.assertNotIn("cancelled", report)
++        self.assertEqual(self.acts.cancelled, [])
++        held = self.projected()
++        self.assertEqual(held["stages"][0]["state"], "answering")
++        self.assertEqual(held["cancellation"]["targets"][0]["state"],
++                         "ending-in-progress")
++
++    def test_a_completed_job_is_never_fenced_by_a_deadline_that_passes_later(self):
++        self.submit()
++        self.running(seconds=0)
++        self.acts.frozen("job-a/implementation", "completed")
++        self.assertEqual(self.projected()["stages"][0]["state"], "completed")
++        for seconds in (STAGE_SECONDS, JOB_SECONDS, JOB_SECONDS + 5000):
++            report = self.tick(seconds)
++            self.assertNotIn("expired", report)
++            self.assertNotIn("cancelled", report)
++        self.assertEqual(self.operations("job.expire"), 0)
++        held = self.projected()
++        self.assertEqual(held["stages"][0]["state"], "completed")
++        self.assertIsNone(held["cancellation"])
++        self.assertIsNone(held["control"]["fence"])
++        self.assertTrue(held["control"]["job"]["reached"])
++        self.assertEqual(self.acts.cancelled, [])
++
++    def test_the_job_deadline_fences_the_successor_of_a_completed_stage(self):
++        self.submit(controlled(stages=[
++            stage("implementation"),
++            stage("review", depends_on=[{"job_id": "job-a",
++                                         "kind": "implementation"}])]))
++        self.running(seconds=0)
++        self.acts.frozen("job-a/implementation", "completed")
++        self.instants.append(at(JOB_SECONDS))
++        report = self.tick(JOB_SECONDS)
++        self.assertEqual(report["expired"][0]["trigger"], "job-deadline")
++        self.assertEqual(report["acts"], [])
++        held = {one["kind"]: one["state"]
++                for one in self.projected()["stages"]}
++        self.assertEqual(held, {"implementation": "completed",
++                                "review": "queued"})
++        self.assertEqual(owed_acts(self.jobs, self.acts), [])
++
++    def test_a_stage_that_finished_in_time_does_not_close_its_successor(self):
++        """The implementation's 4800 s pass after it completed; the review
++        is still admitted until the JOB deadline."""
++        self.submit(controlled(stages=[
++            stage("implementation"),
++            stage("review", depends_on=[{"job_id": "job-a",
++                                         "kind": "implementation"}])]))
++        self.running(seconds=0)
++        self.acts.frozen("job-a/implementation", "completed")
++        self.acts.settled = at(STAGE_SECONDS + 10)
++        report = self.tick(STAGE_SECONDS + 10)
++        self.assertNotIn("expired", report)
++        self.assertEqual([(one["stage_id"], one["act"], one["outcome"])
++                          for one in report["acts"]],
++                         [("job-a/review", "admit", "performed")])
++        held = self.projected()["control"]
++        self.assertTrue(held["stages"][0]["reached"])
++        self.assertFalse(held["stages"][1]["reached"])
++        self.assertIsNone(held["fence"])
++
++    def test_an_explicit_cancel_after_the_expiry_is_recorded_beside_the_fence(self):
++        self.submit()
++        self.running(seconds=0)
++        self.tick(STAGE_SECONDS)
++        self.instants.append(at(STAGE_SECONDS + 10))
++        request = cancellation.request(self.jobs, job_id="job-a",
++                                       reason=REASON)
++        self.assertEqual(request["trigger"], "operator")
++        fence = cancellation.fence_of(self.jobs, "job-a")
++        self.assertEqual(fence["trigger"], "stage-deadline")
++        self.assertEqual(cancellation.requests_of(self.jobs)["job-a"], request)
++        self.assertEqual(self.projected()["cancellation"]["trigger"],
++                         "stage-deadline")
++        # AND THE OTHER WAY ROUND: a request before the deadline is the fence
++        # and the control pass leaves the Job to the cancellation pass.
++        self.setUp()
++        self.submit()
++        self.running(seconds=0)
++        self.instants.append(at(10))
++        request = cancellation.request(self.jobs, job_id="job-a",
++                                       reason=REASON)
++        report = self.tick(STAGE_SECONDS)
++        self.assertNotIn("expired", report)
++        self.assertEqual(self.operations("job.expire"), 0)
++        self.assertEqual(cancellation.fence_of(self.jobs, "job-a"), request)
++
++    def test_the_fence_and_the_elapsed_time_survive_a_restart(self):
++        self.submit()
++        self.running(seconds=0)
++        self.tick(STAGE_SECONDS)
++        reopened = JobStore.open(self.job_path, authority_uuid=UUID,
++                                 incarnation="jobs-2",
++                                 clock=lambda: at(STAGE_SECONDS + 5))
++        self.addCleanup(reopened.close)
++        fence = cancellation.fence_of(reopened, "job-a")
++        self.assertEqual(fence["trigger"], "stage-deadline")
++        self.assertEqual(fence["requested_at"], at(STAGE_SECONDS))
++        held = job_control.report(reopened, "job-a",
++                                  now=at(STAGE_SECONDS + 5))
++        self.assertEqual(held["stages"][0]["elapsed_seconds"],
++                         STAGE_SECONDS + 5)
++        self.assertEqual(held["fence"]["trigger"], "stage-deadline")
++        later = sweep(reopened, self.acts, now=at(STAGE_SECONDS + 5))
++        self.assertNotIn("expired", later)
++        self.assertEqual(self.operations("job.expire"), 1)
++
++
++class TheOwnersEvidence(ControlCase):
++    """Review 2026-11-19T00-20-37Z: the three boundary reproductions, each
++    reproduced here first and then closed. `over` is the owners' evidence of
++    cessation, never a label; the earliest reached trigger is the fence
++    whatever arrived first; a clock behind the durable origins is uncertain
++    before any watermark exists."""
++
++    def test_an_uncertain_runtime_past_the_deadline_is_fenced_and_ordered(self):
++        """P1, the reviewer's probe: runtime `uncertain`, cleanup pending,
++        exact identity retained, no output. The stage projects `exceptional`
++        -- and that is not cessation, so the deadline fences the Job and the
++        cancellation pass orders the exact runtime to cease."""
++        self.submit()
++        held = self.running(seconds=0)
++        self.acts.observed("job-a/implementation", claimed_by=True,
++                           runtime={"attempt_id": held["attempt_id"],
++                                    "runtime_id": "runtime-1",
++                                    "execution_runtime": "uncertain",
++                                    "cleanup": "pending", "assignment": None})
++        self.assertEqual(self.projected()["stages"][0]["state"], "exceptional")
++        report = self.tick(10000)
++        self.assertEqual(report["expired"],
++                         [{"job_id": "job-a", "outcome": "fenced",
++                           "trigger": "stage-deadline",
++                           "stage_id": "job-a/implementation",
++                           "deadline_at": at(STAGE_SECONDS)}])
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("order-cessation", "ordered")])
++        self.assertEqual([one[0] for one in self.acts.cancelled],
++                         [held["attempt_id"]])
++        self.assertEqual(self.operations("job.expire"), 1)
++        held = self.projected()
++        self.assertEqual(held["stages"][0]["state"], "exceptional")
++        self.assertEqual(held["cancellation"]["trigger"], "stage-deadline")
++        self.assertEqual(held["cancellation"]["targets"][0]["state"],
++                         "held-unknown")
++        self.assertEqual(held["cancellation"]["shutdown"], "unresolved")
++        # ONE ORDER: the owner recorded it for this exact runtime.
++        self.assertNotIn("cancelled", self.tick(10001))
++        self.assertEqual(len(self.acts.cancelled), 1)
++
++    def test_a_failed_start_past_the_deadline_is_fenced_with_nothing_to_stop(self):
++        """A start the manager journalled as failed is `exceptional` with no
++        runtime attached. The deadline still fences the Job -- no correction
++        or replacement is admitted after it -- and the owners are asked for
++        nothing, because nothing of it ever ran."""
++        self.submit()
++        self.acts.fails("job-a/implementation", OSError("no such image"))
++        for _ in range(3):
++            self.tick(0)
++        self.assertEqual(self.projected()["stages"][0]["state"], "exceptional")
++        report = self.tick(10000)
++        self.assertEqual(report["expired"][0]["outcome"], "fenced")
++        self.assertEqual(report["expired"][0]["trigger"], "stage-deadline")
++        self.assertNotIn("cancelled", report)
++        self.assertEqual(self.acts.cancelled, [])
++        self.assertEqual(self.acts.fenced_unstarted, [])
++        self.assertEqual(self.projected()["stages"][0]["state"], "exceptional")
++        self.assertEqual(cancellation.fence_of(self.jobs, "job-a")["trigger"],
++                         "stage-deadline")
++
++    def test_over_is_the_owners_evidence_not_the_projected_label(self):
++        """The two halves side by side on real entries: a `completed` stage
++        whose axes say ceased is over; an `exceptional` stage over an
++        uncertain runtime is not; a queued stage is not."""
++        self.submit(controlled(stages=[
++            stage("implementation"),
++            stage("review", depends_on=[{"job_id": "job-a",
++                                         "kind": "implementation"}])]))
++        from baton_v12.job_manager.projection import stage_states
++
++        self.running(seconds=0)
++        entries = stage_states(self.jobs, self.acts)
++        self.assertFalse(cancellation.over(entries["job-a/implementation"]))
++        self.assertFalse(cancellation.over(entries["job-a/review"]))
++        self.acts.frozen("job-a/implementation", "completed")
++        entries = stage_states(self.jobs, self.acts)
++        self.assertEqual(entries["job-a/implementation"]["state"], "completed")
++        self.assertTrue(cancellation.over(entries["job-a/implementation"]))
++        self.acts.frozen("job-a/implementation", "completed",
++                         execution_runtime="running", cleanup=None)
++        entries = stage_states(self.jobs, self.acts)
++        self.assertFalse(cancellation.over(entries["job-a/implementation"]))
++
++    def test_an_operator_request_after_a_missed_deadline_keeps_the_earlier_trigger(self):
++        """P2, the reviewer's probe: no sweep saw the 4800 s deadline; the
++        operator cancels at 5000 and a sweep follows. The deadline is the
++        earlier trigger, so it is journalled and is the fence; the request
++        stands beside it; the bound has already run 200 s."""
++        self.submit()
++        held = self.running(seconds=0)
++        self.instants.append(at(5000))
++        request = cancellation.request(self.jobs, job_id="job-a",
++                                       reason=REASON)
++        self.assertEqual(request["requested_at"], at(5000))
++        report = self.tick(5000)
++        self.assertEqual(report["expired"],
++                         [{"job_id": "job-a", "outcome": "fenced",
++                           "trigger": "stage-deadline",
++                           "stage_id": "job-a/implementation",
++                           "deadline_at": at(STAGE_SECONDS)}])
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("order-cessation", "ordered")])
++        self.assertEqual([one[0] for one in self.acts.cancelled],
++                         [held["attempt_id"]])
++        self.assertIn("stage-deadline reached", self.acts.cancelled[0][1])
++        fence = cancellation.fence_of(self.jobs, "job-a")
++        self.assertEqual(fence["trigger"], "stage-deadline")
++        self.assertEqual(fence["requested_at"], at(STAGE_SECONDS))
++        self.assertEqual(cancellation.requests_of(self.jobs)["job-a"], request)
++        held = self.projected()["cancellation"]
++        self.assertEqual(held["trigger"], "stage-deadline")
++        self.assertEqual(held["trigger_at"], at(STAGE_SECONDS))
++        self.assertEqual(held["observed_at"], at(5000))
++        self.assertEqual(held["elapsed_seconds"], 200)
++        self.assertEqual(held["shutdown"], "unresolved")
++        self.assertEqual(held["targets"][0]["state"], "ordered")
++        # A RESTART DERIVES THE SAME FENCE and journals nothing new.
++        reopened = JobStore.open(self.job_path, authority_uuid=UUID,
++                                 incarnation="jobs-2",
++                                 clock=lambda: at(5100))
++        self.addCleanup(reopened.close)
++        later = sweep(reopened, self.acts, now=at(5100))
++        self.assertNotIn("expired", later)
++        self.assertNotIn("cancelled", later)
++        self.assertEqual(cancellation.fence_of(reopened, "job-a"), fence)
++        self.assertEqual(self.operations("job.expire"), 1)
++        self.assertEqual(self.operations("job.cancel.reason"), 1)
++
++    def test_a_rediscovered_deadline_never_rewords_an_order_already_placed(self):
++        """The stop owner's operation is one per attempt and signed over its
++        reason. A sweep on a rolled-back clock carried the operator's request
++        out first and the stop failed; when the clock catches up the earlier
++        deadline becomes the fence, and the retry still uses the wording the
++        owner was first given -- journalled once, replayed, no collision."""
++        self.submit()
++        held = self.running(seconds=0)
++        self.instants.append(at(5000))
++        cancellation.request(self.jobs, job_id="job-a", reason=REASON)
++        self.acts.refusing.append(ContractRefusal(
++            "refused", "precondition", "injected transient stop refusal"))
++        first = self.tick(4000)
++        self.assertNotIn("expired", first)
++        self.assertEqual(first["cancelled"][0]["outcome"], "deferred")
++        self.assertEqual(self.acts.cancelled, [(held["attempt_id"], REASON)])
++        self.assertEqual(cancellation.fence_of(self.jobs, "job-a")["trigger"],
++                         "operator")
++        second = self.tick(5100)
++        self.assertEqual(second["expired"][0]["trigger"], "stage-deadline")
++        self.assertEqual(second["cancelled"][0]["outcome"], "ordered")
++        self.assertEqual(self.acts.cancelled,
++                         [(held["attempt_id"], REASON)] * 2)
++        fence = cancellation.fence_of(self.jobs, "job-a")
++        self.assertEqual(fence["trigger"], "stage-deadline")
++        self.assertEqual(fence["requested_at"], at(STAGE_SECONDS))
++        held = self.projected()["cancellation"]
++        self.assertEqual(held["trigger"], "stage-deadline")
++        self.assertEqual(held["targets"][0]["state"], "ordered")
++        self.assertEqual(len(cancellation.targets_of(self.jobs, "job-a")), 1)
++        self.assertEqual(self.operations("job.cancel.reason"), 1)
++        self.assertNotIn("cancelled", self.tick(5101))
++
++    def test_a_rollback_before_the_first_watermark_holds_admission(self):
++        """P3, the reviewer's probe: submitted at the origin, first sweep
++        100 s before it. The origin is durable evidence the clock is behind,
++        so timing is uncertain, elapsed is what the rows prove (0, never
++        -100) and nothing is admitted until the clock catches up."""
++        self.submit()
++        self.assertIsNone(job_control.watermark_in(self.jobs._connection))
++        held = self.evaluation(seconds=-100)
++        self.assertEqual(held["timing"], "uncertain")
++        self.assertEqual(held["job"]["elapsed_seconds"], 0)
++        self.assertFalse(held["job"]["reached"])
++        report = self.tick(-100)
++        self.assertEqual(report["acts"], [])
++        self.assertEqual(self.acts.calls, [])
++        self.assertEqual([one["outcome"] for one in report["expired"]],
++                         ["held"])
++        self.assertEqual(self.projected()["control"]["timing"], "uncertain")
++        self.assertEqual(self.projected()["stages"][0]["state"], "queued")
++        # THE GUARD UNDER THE LOCK SAYS THE SAME before any sweep ran.
++        self.setUp()
++        self.submit()
++        scheduler.activate_pool(self.jobs, scheduling.pool(),
++                                scheduling.principals(scheduling.pool()))
++        attempt = self.attempting(self.jobs)
++        self.instants.append(at(-100))
++        with self.assertRaises(ContractRefusal) as caught:
++            scheduler.reserve(self.jobs, attempt)
++        self.assertIn("uncertain", caught.exception.message)
++        self.assertEqual(scheduler.allocation_rows(self.jobs), [])
++        # AND A RESTART BEHIND THE ORIGIN, with no watermark to compare to.
++        reopened = JobStore.open(self.job_path, authority_uuid=UUID,
++                                 incarnation="jobs-2",
++                                 clock=lambda: at(-100))
++        self.addCleanup(reopened.close)
++        self.assertEqual(job_control.report(reopened, "job-a",
++                                            now=at(-100))["timing"],
++                         "uncertain")
++        # TRUSTED AGAIN AT THE ORIGIN: the first tick at +0 admits.
++        report = self.tick(0)
++        self.assertEqual([(one["act"], one["outcome"])
++                          for one in report["acts"]],
++                         [("admit", "performed")])
++        self.assertEqual(self.evaluation(seconds=0)["timing"], "trusted")
++
++
++class TheWriteSideGuards(ControlCase):
++
++    def test_the_reservation_refuses_after_the_deadline_under_the_lock(self):
++        scheduler.activate_pool(self.jobs, scheduling.pool(),
++                                scheduling.principals(scheduling.pool()))
++        self.submit(controlled(stages=[stage("implementation", "work:race")]))
++        attempt = self.attempting(self.jobs, "job-a/implementation")
++        self.instants.append(at(JOB_SECONDS))
++        with self.assertRaises(ContractRefusal) as caught:
++            scheduler.reserve(self.jobs, attempt)
++        self.assertIn("job-deadline", caught.exception.message)
++        self.assertFalse(caught.exception.durable)
++        self.assertEqual(scheduler.allocation_rows(self.jobs), [])
++        # AND UNDER UNCERTAIN TIMING, by the same guard. A refused act rolls
++        # its watermark back with its transaction; the sweep's own stands.
++        job_control.observe(self.jobs, at(700))
++        self.instants.append(at(5))
++        with self.assertRaises(ContractRefusal) as caught:
++            scheduler.reserve(self.jobs, attempt)
++        self.assertIn("uncertain", caught.exception.message)
++        self.assertEqual(scheduler.allocation_rows(self.jobs), [])
++
++    def test_the_claim_re_reads_the_deadline_before_the_authority_is_asked(self):
++        self.submit()
++        attempt = self.attempting(self.jobs, "job-a/implementation")
++        self.instants.append(at(JOB_SECONDS))
++        asked = []
++        pooled = SimpleNamespace(store=self.jobs,
++                                 _allocation=lambda stage: asked.append(stage))
++        with self.assertRaises(ContractRefusal) as caught:
++            scheduler.PooledManagerOperations.claim(pooled, attempt)
++        self.assertIn("job-deadline", caught.exception.message)
++        self.assertEqual(asked, [])
++
++    def test_no_replacement_episode_opens_after_the_deadline(self):
++        self.submit()
++        self.tick(0)
++        live = live_of(self.jobs, "job-a/implementation")
++        ended = end_episode(self.jobs, live, "abandoned-after-restart", 1)
++        report = self.tick(JOB_SECONDS)
++        self.assertEqual(report["replaced"], [])
++        self.assertIsNone(live_of(self.jobs, "job-a/implementation"))
++        with self.assertRaises(ContractRefusal) as caught:
++            open_next(self.jobs, "job-a/implementation", ended)
++        self.assertIn("expired", caught.exception.message)
++        self.assertIsNone(live_of(self.jobs, "job-a/implementation"))
++
++    def correction(self):
++        proved = {"verdict_id": "verdict-1", "attachment_id": "attach-1"}
++        with mock.patch.object(episodes, "_proved_verdict",
++                               return_value=proved), \
++                mock.patch.object(episodes, "_corrected_line"), \
++                mock.patch.object(episodes, "_unheld"), \
++                mock.patch.object(episodes, "_live_episode",
++                                  side_effect=lambda store, stage, what:
++                                  live_of(store, stage["stage_id"])):
++            with self.assertRaises(ContractRefusal) as caught:
++                episodes.advance_correction(
++                    self.jobs, object(), job_id="job-a", line_id="line-1",
++                    checkpoint_id="checkpoint-1", verdict_id="verdict-1")
++        self.assertEqual(live_of(self.jobs, "job-a/implementation")["episode"],
++                         1)
++        self.assertEqual(live_of(self.jobs, "job-a/review")["episode"], 1)
++        return caught.exception
++
++    def test_a_correction_round_is_refused_by_the_allowance_in_its_transaction(self):
++        self.submit(controlled(stages=[
++            stage("implementation"),
++            stage("review", depends_on=[{"job_id": "job-a",
++                                         "kind": "implementation"}])]))
++        refusal = self.correction()
++        self.assertIn("permits 0 correction round(s) and 0 were used",
++                      refusal.message)
++        self.assertFalse(refusal.durable)
++        # The verdict stands: nothing of the Job's rows moved.
++        self.assertEqual(self.operations("episode.correct"), 0)
++        # AND AFTER THE DEADLINE, BY THE DEADLINE FIRST.
++        self.instants.append(at(JOB_SECONDS))
++        self.assertIn("job-deadline", self.correction().message)
++
++    def test_rounds_are_counted_as_correction_operations_not_endings(self):
++        self.submit(controlled(stages=[
++            stage("implementation"),
++            stage("review", depends_on=[{"job_id": "job-a",
++                                         "kind": "implementation"}])]))
++        self.assertEqual(job_control.rounds_used_in(self.jobs._connection,
++                                                    "job-a"), 0)
++        # One committed round of ANOTHER Job and one of this Job, each the
++        # one `episode.correct` record a round writes.
++        for job_id in ("job-z", "job-a"):
++            self.jobs.transact(
++                episodes.correction_operation_id(job_id, "cp-1"),
++                episodes.CORRECT_KIND,
++                __import__("baton_v12.job_manager.store",
++                           fromlist=["job_signature"]).job_signature(
++                    episodes.CORRECT_KIND, {"job_id": job_id}),
++                lambda connection, job_id=job_id: {"job_id": job_id})
++        self.assertEqual(job_control.rounds_used_in(self.jobs._connection,
++                                                    "job-a"), 1)
++        self.assertEqual(self.projected()["control"]["corrections"],
++                         {"allowance": 0, "used": 1})
++
++
++class NoSuccessorThroughAFreshAttempt(fresh.FreshAttemptCase):
++
++    def controlled_prior(self):
++        """The failed prior Job, admitted under the profile."""
++        held = self.prior()
++        self.jobs.transact(
++            job_control.control_operation_id(fresh.PRIOR), "job.control",
++            __import__("baton_v12.job_manager.store",
++                       fromlist=["job_signature"]).job_signature(
++                "job.control", {"job_id": fresh.PRIOR}),
++            lambda connection: documents.job_control_record(
++                operation_id=job_control.control_operation_id(fresh.PRIOR),
++                job_id=fresh.PRIOR, profile=PROFILE,
++                resolved=job_control.resolved(PROFILE), admitted_at=NOW,
++                incarnation="jobs-1"))
++        return held
++
++    def test_an_expired_prior_job_cannot_be_retried(self):
++        self.controlled_prior()
++        job_control.expire(self.jobs, job_id=fresh.PRIOR,
++                           trigger="job-deadline", stage_id=None,
++                           deadline_at=at(JOB_SECONDS),
++                           observed_at=at(JOB_SECONDS))
++        refusal = self.refused()
++        self.assertIn("expired", refusal.message)
++        self.assertIsNone(fresh.fresh_attempt_of(self.jobs, fresh.FRESH))
++
++    def test_a_prior_job_that_failed_before_its_deadline_may_be_retried_after_it(self):
++        self.controlled_prior()
++        self.instants.append(at(JOB_SECONDS + 100))
++        admitted = self.admitted()
++        self.assertIsNotNone(fresh.fresh_attempt_of(self.jobs, fresh.FRESH))
++        # THE FRESH JOB CARRIES ITS OWN CONTROL AND ITS OWN ORIGINS when the
++        # prior document did; this prior's document stated none.
++        self.assertIsNone(job_control.control_of(self.jobs, admitted["job_id"]))
++
++    def test_uncertain_timing_holds_the_fresh_attempt(self):
++        self.controlled_prior()
++        job_control.observe(self.jobs, at(500))
++        self.instants.append(at(100))
++        refusal = self.refused()
++        self.assertIn("uncertain", refusal.message)
++        self.assertIsNone(fresh.fresh_attempt_of(self.jobs, fresh.FRESH))
++
++
++if __name__ == "__main__":
++    unittest.main()
++
++
++class TheTemplatePath(unittest.TestCase):
++    """The selection travels visibly: request, resolution, /3 submission."""
++
++    def test_a_request_may_select_a_profile_and_the_resolution_records_it(self):
++        from baton_v12.job_manager import templates
++        from tests.job_manager import test_templates as t
++
++        held = templates.resolve(t.request(control={"profile": PROFILE}),
++                                 configuration=t.configuration())
++        self.assertEqual(held["control"], {"profile": PROFILE,
++                                           "resolved": job_control.resolved(PROFILE)})
++        self.assertEqual(held["submission"]["schema"],
++                         documents.SUBMISSION_CONTROL_SCHEMA)
++        self.assertEqual(held["submission"]["jobs"][0]["control"],
++                         {"profile": PROFILE})
++        # ROUND TRIP: the resolution is still spendable, as its own request.
++        spent = templates.submission_for_admission(held)
++        self.assertEqual(spent, held["submission"])
++        # AN EDITED SELECTION IS NOT SPENDABLE.
++        edited = json.loads(json.dumps(held))
++        del edited["control"]
++        with self.assertRaises(ContractRefusal):
++            templates.submission_for_admission(edited)
++        # AND NO SELECTION IS EXACTLY THE DOCUMENT IT ALWAYS WAS.
++        plain = templates.resolve(t.request(), configuration=t.configuration())
++        self.assertNotIn("control", plain)
++        self.assertEqual(plain["submission"]["schema"],
++                         documents.SUBMISSION_SCHEMAS[0])
++        with self.assertRaises(ContractRefusal):
++            templates.resolve(t.request(control={"profile": "documentation/9"}),
++                              configuration=t.configuration())
++        with self.assertRaises(ContractRefusal):
++            templates.resolve(t.request(control=None),
++                              configuration=t.configuration())
++
++
++class TheCreationPath(unittest.TestCase):
++
++    def test_an_installed_creation_admits_the_job_under_the_profile(self):
++        from tests.job_manager import test_creation as c
++
++        case = c.CreationCase("setUp")
++        case.setUp()
++        try:
++            held = case.created(request=c.request(control={"profile": PROFILE}))
++            self.assertEqual(held["control"]["profile"], PROFILE)
++            recorded = job_control.control_of(case.jobs, held["job_id"])
++            self.assertEqual(recorded["profile"], PROFILE)
++            self.assertEqual(recorded["admitted_at"], held["recorded_at"])
++            # THE SAME REQUEST REPLAYS; another selection is another intent.
++            self.assertEqual(case.created(request=c.request(
++                control={"profile": PROFILE})), held)
++            with self.assertRaises(ContractRefusal):
++                case.created(request=c.request())
++            plain = case.created(request=c.request(task={
++                "task_id": "another-task", "statement": "another statement"}))
++            self.assertNotIn("control", plain)
++            self.assertIsNone(job_control.control_of(case.jobs, plain["job_id"]))
++        finally:
++            case.doCleanups()
++
++    def test_the_cli_states_the_profile_on_the_request(self):
++        from types import SimpleNamespace
++
++        from tools import job_manager as cli
++
++        taken = SimpleNamespace(
++            task="task-1", statement="do it", source="installed",
++            work_scope=["v12/python/src"], test_scope=[], acceptance=["ok"],
++            template=None, job_id=None, submission_id=None,
++            provider_turn_seconds=None, verification_command_seconds=None,
++            control_profile=PROFILE)
++        self.assertEqual(cli._creation_request(taken)["control"],
++                         {"profile": PROFILE})
++        taken.control_profile = None
++        self.assertNotIn("control", cli._creation_request(taken))
+diff --git a/v12/python/tests/tools/test_job_control_command.py b/v12/python/tests/tools/test_job_control_command.py
+new file mode 100644
+index 00000000..018a2e67
+--- /dev/null
++++ b/v12/python/tests/tools/test_job_control_command.py
+@@ -0,0 +1,360 @@
++"""W383217 — the finite Job control over the installed serving composition.
++
++The same disposable installed instance and REAL composed stage deployment
++the cancellation commands are proved over, with the Job admitted under the
++first documentation profile and a clock the case moves. The serving sweep
++derives the deadlines from the stores' own instants, journals the first one
++reached as the fence and orders cessation through the accepted owners; the
++installed `cancel-status` reports the control and the fence read-only.
++"""
++import json
++import os
++from pathlib import Path
++from unittest import mock
++
++from baton_v12.contracts import ContractRefusal
++from baton_v12.job_manager import (JobStore, cancellation, documents,
++                                   job_control, review_driver, scheduler,
++                                   submit, sweep)
++from baton_v12.worker_manager import ControlStore, oci
++from baton_v12.worker_manager.failure_cause import attempt_cessation_outcome_of
++from tools import instance, stack_command, stage_execution
++from tools import job_cancellation as command
++from tests.job_manager import fixtures
++from tests.job_manager.test_job_control import PROFILE, at
++from tests.tools import test_job_cancellation_command as cancel_tests
++from tests.tools import test_stage_execution as composed_tests
++
++STAGE_SECONDS = 4800
++JOB_SECONDS = 9960
++
++
++class InstalledControl(cancel_tests.InstalledCancellation):
++    """The installed cancellation fixture, with a movable clock and a Job
++    admitted under the profile."""
++
++    def setUp(self):
++        composed_tests.ComposedOneJobCase.setUp(self)
++        self.now = fixtures.NOW
++        self.places = instance.layout(self.root)
++        Path(self.places["stores"]).mkdir()
++        os.rename(self.authority_path, self.places["authority_store"])
++        self.authority_path = self.places["authority_store"]
++        self.config["authority_store"] = self.authority_path
++        self.job_path = self.places["job_store"]
++        self.control_path = self.places["control_store"]
++        distro = Path(self.places["distro"])
++        distro.mkdir(parents=True)
++        Path(self.places["command"]).write_text("deterministic packaged fixture")
++        selector = instance.emit(self.root,
++                                 authority_uuid=self.config["authority_uuid"],
++                                 identity={"fixture": True},
++                                 runtime=instance.manifest(distro), now=1)
++        instance.publish(self.places["instance"], selector)
++        self.deployment_document = self.composed_document(line_declared_base=self.base)
++        Path(self.places["deployment"]).write_text(json.dumps(self.deployment_document))
++        self.patch_checkout = mock.patch("tools.stage_execution._checkout",
++                                         return_value=self.checkout)
++        self.patch_checkout.start()
++        self.addCleanup(self.patch_checkout.stop)
++        self.submission["schema"] = documents.SUBMISSION_CONTROL_SCHEMA
++        self.submission["jobs"][0]["control"] = {"profile": PROFILE}
++        self.jobs, self.control, self.composed = self.serving()
++        submit(self.jobs, self.submission)
++        self.stage_id = "job-a/implementation"
++
++    def stores(self, incarnation):
++        from tests.tools.test_single_worker import AUTHORITY_UUID
++        job = JobStore.open(self.job_path, authority_uuid=AUTHORITY_UUID,
++                            incarnation=incarnation, clock=lambda: self.now)
++        control = ControlStore.open(self.control_path,
++                                    incarnation=incarnation,
++                                    clock=lambda: self.now)
++        self.addCleanup(job.close)
++        self.addCleanup(control.close)
++        return job, control
++
++    def serving(self, **members):
++        self.engine = self.quiescing()
++        job, control = self.stores("stage-composed")
++        composed = stage_execution.operations_from(
++            self.composed_document(line_declared_base=self.base, **members),
++            job, control, engine_run=self.engine,
++            credential_provider=lambda provider, reference: self.secret,
++            clock=lambda: self.now, checkout=self.checkout)
++        self.addCleanup(composed.close)
++        self._composed = composed
++        return job, control, composed
++
++    def tick(self, seconds=None):
++        if seconds is not None:
++            self.now = at(seconds)
++        return sweep(self.jobs, self.composed, now=self.now)
++
++    def drive(self, job, composed, kind, want, ticks=10):
++        for _ in range(ticks):
++            sweep(job, composed, now=self.now)
++            held = self.states(job, composed)
++            if held.get(kind) == want:
++                return held
++        self.fail(f"the {kind} stage never reached {want!r}: "
++                  f"{self.states(job, composed)}")
++
++    def call(self, verb, reason=None, job_id="job-a", at=None):
++        return command.execute(verb, self.places["instance"], job_id=job_id,
++                               reason=reason,
++                               clock=lambda: self.now if at is None else at)
++
++    def control_report(self, **named):
++        return self.call("cancel-status", **named)["control"]
++
++    def refusing_stop(self, count=1):
++        """The adapter's stop refuses `count` times at the real boundary."""
++        original = oci.OciAdapter.stop
++        remaining = [count]
++
++        def stop(adapter, request):
++            if remaining[0] > 0:
++                remaining[0] -= 1
++                raise ContractRefusal("refused", "precondition",
++                                      "injected transient stop refusal")
++            return original(adapter, request)
++
++        held = mock.patch.object(oci.OciAdapter, "stop", stop)
++        held.start()
++        self.addCleanup(held.stop)
++
++    def deployment(self, role="review"):
++        """The role's composed `StageDeployment`, which owns `routed`."""
++        return self.worker_of(self.composed, role).stage.deployment
++
++    def expiries(self):
++        return self.jobs._connection.execute(
++            "SELECT count(*) FROM operations WHERE kind = 'job.expire'"
++        ).fetchone()[0]
++
++
++class TheDeadlineWhileServing(InstalledControl):
++
++    def test_a_running_stage_is_stopped_at_its_stage_deadline_through_the_composition(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        starts = len(self.engine.starts)
++        self.assertEqual(starts, 1)
++        held = self.control_report()
++        # THE ORIGIN IS THE OWNER'S OFFER INSTANT, read back from the admit
++        # receipt, and the Job's is the submission's accepted instant.
++        offer = self.control._connection.execute(
++            "SELECT settled_at FROM operations WHERE kind = 'offer.issue'"
++        ).fetchone()["settled_at"]
++        self.assertEqual(held["stages"][0]["origin"], offer)
++        self.assertEqual(held["job"]["origin"], fixtures.NOW)
++        self.assertEqual(held["timing"], "trusted")
++        self.assertIsNone(held["fence"])
++        self.assertIsNone(self.report())
++        # ONE SECOND BEFORE: nothing.
++        report = self.tick(STAGE_SECONDS - 1)
++        self.assertNotIn("expired", report)
++        self.assertEqual(self.stops(), [])
++        # AT THE DEADLINE: fenced, and the exact runtime ordered to cease
++        # through the accepted owner -- one stop, one journalled intent.
++        report = self.tick(STAGE_SECONDS)
++        self.assertEqual(report["expired"],
++                         [{"job_id": "job-a", "outcome": "fenced",
++                           "trigger": "stage-deadline",
++                           "stage_id": self.stage_id,
++                           "deadline_at": at(STAGE_SECONDS)}])
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("order-cessation", "ordered")])
++        self.assertEqual(len(self.stops()), 1)
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        status = self.report()
++        self.assertEqual(status["trigger"], "stage-deadline")
++        self.assertEqual(status["requested_at"], at(STAGE_SECONDS))
++        self.assertEqual(status["observed_at"], at(STAGE_SECONDS))
++        self.assertEqual(status["targets"][0]["state"], "ordered")
++        self.assertEqual(self.control_report()["fence"]["trigger"],
++                         "stage-deadline")
++        self.assertEqual(self.report(at=at(STAGE_SECONDS + 30))["shutdown"],
++                         "within-bound")
++        self.assertEqual(self.report(at=at(STAGE_SECONDS + 121))["shutdown"],
++                         "unresolved")
++        # LATER TICKS: one record, no second order, nothing started again.
++        for seconds in (STAGE_SECONDS + 1, STAGE_SECONDS + 2):
++            later = self.tick(seconds)
++            self.assertNotIn("expired", later)
++            self.assertNotIn("cancelled", later)
++        self.assertEqual(self.expiries(), 1)
++        self.assertEqual(len(self.stops()), 1)
++        self.assertEqual(len(self.engine.starts), starts)
++
++    def test_a_claimed_stage_is_fenced_and_never_started_after_the_deadline(self):
++        unready = self.claimed()
++        report = self.tick(STAGE_SECONDS)
++        self.assertEqual(report["expired"][0]["outcome"], "fenced")
++        self.assertEqual([one["outcome"] for one in report["started"]],
++                         ["deferred"])
++        self.assertIn("expired", report["started"][0]["detail"]["message"])
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("fence-unstarted", "ordered")])
++        self.assertEqual(self.engine.starts, [])
++        self.assertEqual(self.journalled("attempt.abandon"), 1)
++        # A LATE LAUNCH CANNOT REOPEN IT at the Authority either.
++        unready.stop()
++        from baton_v12.job_manager import job_of
++        with self.assertRaises(ContractRefusal):
++            self.composed.launch(self.attempting(self.jobs, self.stage_id),
++                                 job_of(self.jobs, "job-a"))
++        self.tick(STAGE_SECONDS + 5)
++        self.assertEqual(self.engine.starts, [])
++        self.assertEqual(self.report()["targets"][0]["state"],
++                         "fenced-unstarted")
++
++    def test_a_queued_job_is_retired_at_the_job_deadline_and_reserves_nothing(self):
++        report = self.tick(JOB_SECONDS)
++        self.assertEqual(report["expired"][0]["trigger"], "job-deadline")
++        self.assertEqual(report["acts"], [])
++        for _ in range(2):
++            self.tick(JOB_SECONDS + 1)
++        self.assertEqual(self.engine.starts, [])
++        self.assertEqual(scheduler.allocation_rows(self.jobs), [])
++        status = self.report()
++        self.assertEqual(status["targets"][0]["state"],
++                         "retired-before-admission")
++        self.assertEqual(status["shutdown"], "complete")
++        self.assertEqual(status["trigger"], "job-deadline")
++
++    def test_the_fence_and_the_elapsed_time_survive_a_restart(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        self.tick(STAGE_SECONDS)
++        self.assertEqual(len(self.stops()), 1)
++        self.composed.close()
++        self.jobs, self.control, self.composed = self.serving()
++        report = self.tick(STAGE_SECONDS + 5)
++        self.assertNotIn("expired", report)
++        self.assertEqual(self.expiries(), 1)
++        self.assertEqual(self.journalled("attempt.cancel"), 1)
++        held = self.control_report()
++        self.assertEqual(held["stages"][0]["elapsed_seconds"],
++                         STAGE_SECONDS + 5)
++        self.assertEqual(held["fence"]["requested_at"], at(STAGE_SECONDS))
++        self.assertEqual(held["watermark"], at(STAGE_SECONDS + 5))
++        self.assertEqual(self.report()["requested_at"], at(STAGE_SECONDS))
++
++    def test_a_clock_rollback_holds_admission_and_is_reported(self):
++        self.now = at(300)
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        report = self.tick(100)
++        self.assertEqual(report["expired"],
++                         [{"job_id": "job-a", "outcome": "held",
++                           "detail": {"category": "uncertain",
++                                      "code": "timing",
++                                      "watermark": at(300),
++                                      "observed_at": at(100)}}])
++        held = self.control_report()
++        self.assertEqual(held["timing"], "uncertain")
++        self.assertEqual(held["watermark"], at(300))
++        self.assertEqual(held["stages"][0]["elapsed_seconds"], 0)
++        self.assertIsNone(held["fence"])
++        self.assertEqual(self.stops(), [])
++        report = self.tick(400)
++        self.assertNotIn("expired", report)
++        self.assertEqual(self.control_report()["timing"], "trusted")
++
++    def test_an_unresolved_shutdown_retains_the_hold_and_keeps_asking(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        self.refusing_stop(2)
++        report = self.tick(STAGE_SECONDS)
++        self.assertEqual([(one["effect"], one["outcome"])
++                          for one in report["cancelled"]],
++                         [("order-cessation", "deferred")])
++        self.assertEqual(self.stops(), [])
++        self.assertEqual(self.report()["targets"][0]["state"], "order-failed")
++        report = self.tick(STAGE_SECONDS + 121)
++        self.assertEqual(report["cancelled"][0]["outcome"], "deferred")
++        status = self.report()
++        self.assertEqual(status["shutdown"], "unresolved")
++        self.assertEqual(status["targets"][0]["state"], "order-failed")
++        # THE HOLD STANDS: the allocation is still reserved, nothing freed.
++        self.assertEqual([one["allocation_state"]
++                          for one in scheduler.allocation_rows(self.jobs)],
++                         ["reserved"])
++        report = self.tick(STAGE_SECONDS + 122)
++        self.assertEqual(report["cancelled"][0]["outcome"], "ordered")
++        self.assertEqual(len(self.stops()), 1)
++        recorded = attempt_cessation_outcome_of(self.control, self.attempt_id(),
++                                                "cancellation")
++        self.assertEqual(recorded["outcome"], "ordered")
++        self.assertEqual(self.report()["shutdown"], "unresolved")
++
++    def test_an_operator_request_before_the_deadline_is_the_fence(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        self.now = at(10)
++        self.cancel()
++        report = self.tick(STAGE_SECONDS)
++        self.assertNotIn("expired", report)
++        self.assertEqual(self.expiries(), 0)
++        status = self.report()
++        self.assertEqual(status["trigger"], "operator")
++        self.assertEqual(status["requested_at"], at(10))
++        self.assertEqual(self.control_report()["fence"]["trigger"], "operator")
++
++
++class TheCorrectionAndTheCommand(InstalledControl):
++
++    def test_a_changes_requested_verdict_opens_no_round_under_the_profile(self):
++        stage = self.attempting(self.jobs, self.stage_id)
++        answered = {"outcome": "correction", "line_id": "line-1",
++                    "checkpoint_id": "checkpoint-1", "verdict_id": "verdict-1"}
++        with mock.patch.object(review_driver, "open_correction",
++                               side_effect=AssertionError("opened")):
++            held = self.deployment().routed(stage, answered)
++        self.assertIsNone(held["correction"])
++        declined = held["correction_declined"]
++        self.assertEqual(declined["policy"], "job-control")
++        self.assertEqual(declined["profile"], PROFILE)
++        self.assertEqual((declined["allowance"], declined["used"]), (0, 0))
++        # A JOB UNDER NO PROFILE still follows the deployment's own policy.
++        other = dict(stage, job_id="job-nobody")
++        with mock.patch.object(review_driver, "open_correction",
++                               return_value={"opened": True}) as opened:
++            held = self.deployment().routed(other, answered)
++        self.assertEqual(held["correction"], {"opened": True})
++        self.assertEqual(opened.call_count, 1)
++
++    def test_cancel_status_reports_the_control_read_only_and_the_dispatch_carries_it(self):
++        self.drive(self.jobs, self.composed, "implementation", "waiting")
++        before = self.logical()
++        with mock.patch.object(JobStore, "open",
++                               side_effect=AssertionError("writable Jobs")), \
++                mock.patch.object(ControlStore, "open",
++                                  side_effect=AssertionError("writable control")):
++            answer = self.call("cancel-status")
++        self.assertEqual(answer["schema"], command.SCHEMA)
++        self.assertEqual(answer["control"]["profile"], PROFILE)
++        self.assertEqual(answer["control"]["resolved"]["stage_seconds"],
++                         STAGE_SECONDS)
++        self.assertEqual(self.logical(), before)
++        import io
++        from tools import job_manager
++        output = io.StringIO()
++        with mock.patch.object(job_manager, "_utc_clock",
++                               return_value=lambda: self.now), \
++                mock.patch("sys.stdout", output):
++            self.assertEqual(stack_command.main(
++                ["manager", "cancel-status", "--instance",
++                 self.places["instance"], "--job", "job-a"]), 0)
++        self.assertEqual(json.loads(output.getvalue())["control"]["profile"],
++                         PROFILE)
++
++    def test_a_stale_profile_is_refused_at_submit_and_nothing_is_recorded(self):
++        stale = json.loads(json.dumps(self.submission))
++        stale["submission_id"] = "sub-stale"
++        stale["jobs"][0]["job_id"] = "job-stale"
++        stale["jobs"][0]["control"] = {"profile": "documentation/9"}
++        before = self.logical()
++        with self.assertRaises(ContractRefusal):
++            submit(self.jobs, stale)
++        self.assertEqual(self.logical(), before)
++        self.assertIsNone(job_control.control_of(self.jobs, "job-stale"))

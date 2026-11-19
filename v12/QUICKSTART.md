@@ -291,6 +291,38 @@ that is not serving leaves targets `pending`. Completed outcomes, verdicts and
 outputs are untouched, and a cancelled Job admits no replacement episode,
 correction round or fresh attempt.
 
+### Finite Job control: deadlines and the correction allowance
+
+A Job may be admitted under a versioned control profile (DESIGN LIM-5). The
+first one, `documentation/1`, permits one implementation and one independent
+review with zero correction rounds, 4800 seconds per stage from its execution
+admission (before preparation), 9960 seconds per Job from its accepted creation
+(queue time included), and the existing 3600/900-second provider and
+verification ceilings. Select it on the installed creation, or in a `/3`
+submission's `control` member:
+
+```sh
+"$DEST/distro/baton-v12-stack" manager create ... --control-profile documentation/1
+```
+
+The profile is journalled in the Job store inside the admission that created
+the Job and never moves. The serving manager derives the deadlines from the
+stores' own instants -- the Job's accepted-creation instant and the Worker
+Manager's journalled admission instant of each stage -- against a clock whose
+latest observation is persisted, so a restart or a clock rollback never resets
+known elapsed time: an untrusted clock holds new admission and is reported as
+`uncertain`. The first deadline reached is journalled as the Job's fence and
+carried out exactly as a cancellation: no further reservation, claim, launch,
+replacement, correction or fresh attempt, and the exact active runtime is
+ordered to cease through the same owners, with the 120-second bound measured
+from the deadline itself. A stage that finished within its allowance is never
+fenced by its deadline passing later, and a finished Job stays finished. A
+`changes-requested` verdict under a zero-round profile remains a verdict: the
+deployment reports `correction_declined` with policy `job-control` and the
+Job store refuses the round under its own lock. `status` and `cancel-status`
+report the profile, origins, deadlines, elapsed time, timing and fence under
+`control`.
+
 ### Retained failed-execution settlement
 
 The installed command accepts an explicit instance selector and the exact Job,

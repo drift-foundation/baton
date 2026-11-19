@@ -55,6 +55,9 @@ from .cancellation import (REQUEST_KIND as CANCEL_KIND,
                            SHUTDOWN_BOUND_SECONDS, fence_of,
                            report as cancellation_report,
                            request as request_job_cancellation)
+from .job_control import (CONTROL_KIND, EXPIRY_KIND,
+                          PROFILES as CONTROL_PROFILES, control_of,
+                          report as control_report)
 from .creation import (CREATE_KIND, DERIVATION_MEMBERS, INSTALLED_SOURCE,
                        create_template_job, created_job_of,
                        created_job_rows, resolution_of)
@@ -127,4 +130,6 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
            "reserve", "status", "submission_of", "submission_rows",
            "submission_signature", "submit", "sweep",
            "CANCEL_KIND", "SHUTDOWN_BOUND_SECONDS", "cancellation_report",
+           "CONTROL_KIND", "CONTROL_PROFILES", "EXPIRY_KIND", "control_of",
+           "control_report",
            "fence_of", "request_job_cancellation"]

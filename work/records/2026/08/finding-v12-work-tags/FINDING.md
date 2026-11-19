@@ -346,3 +346,9 @@ backfilled.
 **Confirmed unchanged:** W29400 also owns the replay-after-revocation,
 single-snapshot projection/predicate, concurrency and projection corrections
 identified by its first independent review.
+
+## 2026-11-19T00:59:19+00:00 — owner distinguishes labels from tags; labels first
+
+Owner: "labels and tags are two diff things, tags are key-value, labels are just values. We can start with labels." Labels remain opaque values (for example `v12`, `requested-slaw`); tags mean key–value metadata (for example `release=v12`). These are distinct concepts, not synonyms. This supersedes any reading of earlier terminology notes that treats tags merely as an obsolete name for labels or reserves all future key–value metadata exclusively to another term. Historical dossier paths and Work titles remain unchanged.
+
+Start with labels only. W29400's accepted authority model remains the foundation; W29401's parked CLI exposure is the selected feature direction for a useful native coding payload, subject to revalidation against the current installed host after W383217. W29408 TUI and key–value tags are outside this first slice. No new tag schema, implementation, graph transition, live run or deployment is authorized by this terminology/scope ruling. Preserve existing Work identities and independent acceptance.

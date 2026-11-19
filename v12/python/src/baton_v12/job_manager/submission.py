@@ -19,7 +19,7 @@ import json
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
-from . import documents, episodes, execution_limits, schema
+from . import documents, episodes, execution_limits, job_control, schema
 from .store import job_signature
 
 __all__ = ["job_of", "job_rows", "jobs_of", "stage_rows", "stages_of",
@@ -64,7 +64,7 @@ def submit(store, document):
              store.incarnation, recorded_at))
         stages = []
         for ordinal, job in enumerate(owned["jobs"]):
-            _job(connection, submission_id, ordinal, job)
+            _job(connection, store, submission_id, ordinal, job)
             for position, stage in enumerate(job["stages"]):
                 stages.append(_stage(connection, store, job["job_id"],
                                      position, stage, recorded_at))
@@ -214,7 +214,7 @@ def _unclaimed(connection, submission_id, owned, signature):
             durable=True)
 
 
-def _job(connection, submission_id, ordinal, job):
+def _job(connection, store, submission_id, ordinal, job):
     # NO LOCAL CONSTRAINT HANDLER. `_unclaimed` decided the one conflict this
     # table can have, inside the same lock, so an integrity error reaching
     # here would be a defect in that decision rather than a caller's mistake
@@ -242,6 +242,16 @@ def _job(connection, submission_id, ordinal, job):
         (job["job_id"],
          json.dumps(requested, sort_keys=True, ensure_ascii=False),
          execution_limits.CURRENT_GENERATION))
+    # W383217: AND ITS CONTROL, IN THE SAME ACT. A Job that selected a
+    # profile is admitted with it or not at all; the record is journalled on
+    # this connection, agreeing with the ceilings the generation just stamped
+    # resolves to, and nothing admits the Job without it.
+    if documents.JOB_CONTROL_MEMBER in job:
+        job_control.record_within(
+            store, connection, job_id=job["job_id"],
+            control=job[documents.JOB_CONTROL_MEMBER],
+            limits=execution_limits.resolved(
+                requested, execution_limits.CURRENT_GENERATION))
 
 
 def _stage(connection, store, job_id, ordinal, stage, recorded_at):

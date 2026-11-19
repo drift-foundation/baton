@@ -22,11 +22,15 @@ from pathlib import Path
 import sys
 
 from baton_v12.contracts import ContractRefusal
-from baton_v12.job_manager import JobStore, cancellation, submission
+from baton_v12.job_manager import (JobStore, cancellation, job_control,
+                                   submission)
 from baton_v12.worker_manager import ControlStore, boundaries
 from tools import instance
 
-SCHEMA = "baton.v12.installed-cancellation/1"
+# W383217 moved this to /2: the answer carries `control`, the Job's admitted
+# finite control and derived deadlines, and the cancellation report names its
+# trigger (an operator request or a deadline expiry).
+SCHEMA = "baton.v12.installed-cancellation/2"
 COMMANDS = ("cancel-job", "cancel-status")
 
 
@@ -100,7 +104,8 @@ def execute(command, selector_path, *, job_id, reason=None, clock=None):
                 "job_id": job_id,
                 "request": (request if request is not None
                             else cancellation.fence_of(jobs, job_id)),
-                "cancellation": report}
+                "cancellation": report,
+                "control": job_control.report(jobs, job_id, now=clock())}
 
 
 def main(argv, *, clock=None, stream=None):

@@ -1,0 +1,64 @@
+{
+  "probe": "exceptional-live-runtime",
+  "before": "exceptional",
+  "expiry": null,
+  "stop_orders": [],
+  "tick_expired": null,
+  "state": "exceptional"
+}
+{
+  "probe": "late-operator-request",
+  "expected_first_deadline": "2026-09-02T01:20:00.000Z",
+  "expiry": null,
+  "report": {
+    "operation_id": "job.cancel:job-a",
+    "job_id": "job-a",
+    "reason": "operator after missed stage deadline",
+    "requested_at": "2026-09-02T01:23:20.000Z",
+    "trigger_at": "2026-09-02T01:23:20.000Z",
+    "trigger": "operator",
+    "shutdown_bound_seconds": 120,
+    "elapsed_seconds": 0,
+    "shutdown": "within-bound",
+    "targets": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+        "state": "ordered",
+        "runtime": "running",
+        "cleanup": null,
+        "cessation": {
+          "outcome": "ordered",
+          "runtime_id": "runtime-job-a/implementation",
+          "effects": [
+            "agent-cancel",
+            "stop"
+          ]
+        },
+        "orders": [
+          {
+            "effect": "order-cessation",
+            "operation_id": "job.cancel.target:0e675edcb695b885ad605307545ece7a490bff740b12bd36539954ebf053df3b",
+            "recorded_at": "2026-09-02T01:23:20.000Z"
+          }
+        ]
+      }
+    ]
+  }
+}
+{
+  "probe": "rollback-before-first-sweep",
+  "timing": "trusted",
+  "job_elapsed": -100,
+  "acts": [
+    {
+      "stage_id": "job-a/implementation",
+      "episode": 1,
+      "act": "admit",
+      "outcome": "performed",
+      "operation_id": "offer.issue:offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1"
+    }
+  ],
+  "watermark": "2026-09-01T23:58:20.000Z"
+}

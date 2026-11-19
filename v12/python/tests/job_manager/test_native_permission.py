@@ -674,7 +674,7 @@ class TheOwnerFailureReachesTheReportThroughStatus(NativeComposedCase):
         from tools import attempt_diagnostics
 
         document = projected(held.job, held.composed, observed_at=observed_at)
-        self.assertEqual(document['schema'], 'baton.v12.job-status/8')
+        self.assertEqual(document['schema'], 'baton.v12.job-status/9')
         report = attempt_diagnostics.report(
             _json.dumps(document).encode('utf-8'))
         row = [one for one in report['rows']

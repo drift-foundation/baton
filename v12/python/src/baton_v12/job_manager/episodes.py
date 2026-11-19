@@ -255,11 +255,16 @@ def open_next(store, stage_id, ended):
         owner = connection.execute(
             "SELECT job_id FROM stages WHERE stage_id = ?",
             (stage_id,)).fetchone()
-        if owner is not None:
-            cancellation.refuse_fenced(connection, owner["job_id"],
-                                       f"opening a replacement episode of "
-                                       f"stage {name_value(stage_id)}")
         opened_at = store._now()
+        if owner is not None:
+            # W383217: AND NO REPLACEMENT AFTER THE DEADLINE OR UNDER
+            # UNCERTAIN TIMING, by the same guard, under the same lock.
+            from . import job_control
+            job_control.refuse_closed(connection, owner["job_id"],
+                                      f"opening a replacement episode of "
+                                      f"stage {name_value(stage_id)}",
+                                      now=opened_at, stage_id=stage_id)
+        del cancellation
         connection.execute(
             "INSERT INTO episodes (stage_id, episode, offer_id, attempt_id, "
             "opened_at, incarnation) VALUES (?, ?, ?, ?, ?, ?)",
@@ -638,9 +643,15 @@ def advance_correction(store, custody, *, job_id, line_id, checkpoint_id,
     def act(connection):
         # W383215: NO CORRECTION ROUND FOR A CANCELLED JOB, under the lock.
         from . import cancellation
-        cancellation.refuse_fenced(connection, job_id,
-                                   "opening a correction round")
+        from . import job_control
         now = store._now()
+        # W383217: NO ROUND AFTER THE DEADLINE OR UNDER UNCERTAIN TIMING, and
+        # NO ROUND BEYOND THE ADMITTED ALLOWANCE -- decided here, at the one
+        # transactional boundary that opens a round, so no caller can bypass
+        # it. Both refusals are ordinary: the verdict stands as recorded.
+        job_control.refuse_closed(connection, job_id,
+                                  "opening a correction round", now=now)
+        job_control.refuse_round(connection, job_id)
         opened = {}
         # EVERY GUARD FOR THE WHOLE PAIR, BEFORE THE FIRST ROW MOVES. Review
         # [P0]: this used to guard and mutate one stage at a time, and the

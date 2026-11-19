@@ -39,7 +39,7 @@ from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from ..worker_manager import events
 from . import (cancellation, delegation, documents, ending, episodes,
-               projection, scheduler, submission)
+               job_control, projection, scheduler, submission)
 from .store import job_signature
 
 __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
@@ -147,6 +147,13 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # BEFORE `stage_states`, NOT AFTER. What a stage owes and what a status
     # says are both derived from that projection, so refreshing afterwards
     # would report this tick's decisions from last tick's runtime truth.
+    # W383217: AND THE CONTROL PASS, BEFORE THE FIRST PROJECTION THIS TICK
+    # DERIVES ACTS FROM. A Job whose first deadline the trusted clock has
+    # reached is fenced here, so this same tick's admission, launch and
+    # cancellation passes read the fence; it is not the only guard -- every
+    # write-side owner decides the same question under its own lock -- it
+    # is the one that journals the trigger and orders the cessation.
+    expired = _control(store, operations, now)
     refreshed = _refresh(store, operations)
     held = projection.stage_states(store, operations)
     scheduler.reconcile_allocations(store, held)
@@ -220,6 +227,8 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
                                   acts=acts, started=started, spoken=spoken,
                                   refreshed=refreshed,
                                   **({"cancelled": cancelled} if cancelled
+                                     else {}),
+                                  **({"expired": expired} if expired
                                      else {}))
 
 
@@ -483,13 +492,19 @@ def _launch(store, operations, held):
         # launch is the Worker Manager's act and cannot run under this
         # store's lock; a cancelled Job's claimed stage is reported deferred
         # and the cancellation pass fences its assignment instead.
-        if cancellation.fence_of(store, attempt["job_id"]) is not None:
+        # W383217: AND THE DEADLINE AND THE TRUSTED CLOCK, by the same
+        # question every write-side owner asks -- a stage claimed before the
+        # deadline starts no runtime after it, and an uncertain clock starts
+        # nothing new.
+        closed = job_control.closed_of(store, attempt["job_id"],
+                                       stage_id=stage_id)
+        if closed is not None:
             started.append(documents.stage_launch(
                 stage_id=stage_id, episode=attempt["episode"],
                 attempt_id=attempt["attempt_id"], outcome="deferred",
                 detail={"category": "refused", "code": "precondition",
-                        "message": "the Job is cancelled; no runtime is "
-                                   "started after the fence"}))
+                        "message": job_control.closed_message(
+                            closed, "a runtime start")}))
             continue
         job = submission.job_of(store, attempt["job_id"])
         try:
@@ -701,9 +716,85 @@ def _replace(store, operations):
         # ordinary tick from asking a question whose answer is the fence.
         if entry.get("cancellation") is not None:
             continue
+        # W383217: NOR A JOB PAST ITS DEADLINE OR UNDER UNCERTAIN TIMING.
+        if projection.control_closed(entry.get("control"), stage_id):
+            continue
         opened.append(episodes.open_next(store, stage_id,
                                          entry["history"][-1]))
     return opened
+
+
+def _control(store, operations, now):
+    """Journal the FIRST reached deadline of every controlled Job as its fence.
+
+    W383217 / LIM-5. Level-triggered on durable rows: the origins, the
+    profile and the trusted clock (the later of `now` and the persisted
+    watermark) decide; the record is signed over the derived deadline, so a
+    restart or a concurrent sweep replays it. A Job already expired is left
+    to the cancellation pass; so is one an operator cancelled AT OR BEFORE
+    its first reached deadline. An operator request LATER than a reached
+    deadline does not hide the deadline (review 2026-11-19T00-20-37Z P2):
+    the expiry is journalled beside it and, being the earlier trigger, is
+    the fence the bound runs from. A Job whose every stage is OVER by the
+    owners' evidence (`cancellation.over`) is NOT fenced: a deadline that
+    passes after useful work finished closes nothing and manufactures no
+    cancellation of it; a terminal label over an unceased or uncertain
+    runtime is not over (P1). Uncertain timing holds admission (the
+    projection and the guards do that) and is reported here; it undoes no
+    reached deadline.
+    """
+    acted = []
+    controls = job_control.controls_of(store)
+    if not controls:
+        return acted
+    job_control.observe(store, now)
+    held = projection.stage_states(store, operations)
+    over = {}
+    for entry in held.values():
+        over.setdefault(entry["stage"]["job_id"], {})[
+            entry["stage"]["stage_id"]] = cancellation.over(entry)
+    for job_id in sorted(controls):
+        fence = cancellation.fence_of(store, job_id)
+        if fence is not None and fence.get("trigger", "operator") != "operator":
+            continue
+        evaluation = job_control.evaluate(store._connection, job_id, now)
+        # A STAGE THAT IS ALREADY OVER NEVER REACHES ITS DEADLINE; the Job
+        # deadline counts while anything of the Job is not.
+        stages = over.get(job_id, {})
+        first = job_control.closing(
+            evaluation, any_stage=True,
+            finished=[stage_id for stage_id, done in stages.items() if done])
+        if first is None:
+            if fence is None and evaluation["timing"] == "uncertain":
+                acted.append(documents.job_control_notice(
+                    job_id=job_id, outcome="held",
+                    detail={"category": "uncertain", "code": "timing",
+                            "watermark": evaluation["watermark"],
+                            "observed_at": now}))
+            continue
+        if fence is not None and fence["requested_at"] <= first["deadline_at"]:
+            continue
+        if stages and all(stages.values()):
+            continue
+        try:
+            record = job_control.expire(
+                store, job_id=job_id, trigger=first["trigger"],
+                stage_id=first["stage_id"], deadline_at=first["deadline_at"],
+                observed_at=now)
+        except ContractRefusal as refusal:
+            acted.append(documents.job_control_notice(
+                job_id=job_id, outcome="refused", trigger=first["trigger"],
+                stage_id=first["stage_id"], deadline_at=first["deadline_at"],
+                detail={"category": refusal.category, "code": refusal.code,
+                        "message": refusal.message}))
+            continue
+        acted.append(documents.job_control_notice(
+            job_id=job_id,
+            outcome=("fenced" if record["observed_at"] == now
+                     else "replayed"),
+            trigger=record["trigger"], stage_id=record["stage_id"],
+            deadline_at=record["deadline_at"]))
+    return acted
 
 
 def _cancel(store, operations, held):
@@ -726,6 +817,7 @@ def _cancel(store, operations, held):
     acted = []
     cancel = getattr(operations, "cancel_attempt", None)
     fence = getattr(operations, "fence_unstarted_attempt", None)
+    reasons = {}
     for stage_id in sorted(held):
         entry = held[stage_id]
         record = entry.get("cancellation")
@@ -744,12 +836,20 @@ def _cancel(store, operations, held):
                       "message": f"this deployment composes no {effect} "
                                  f"capability"}
         else:
+            # THE WORDING THE OWNERS WERE FIRST GIVEN FOR THIS JOB, journalled
+            # once and replayed: the fence may since have become an earlier
+            # deadline (review 2026-11-19T00-20-37Z P2), and the owner's stop
+            # operation is signed over its reason.
+            job_id = attempt["job_id"]
+            if job_id not in reasons:
+                reasons[job_id] = cancellation.order_reason(store, job_id,
+                                                            record)
             try:
                 if effect == cancellation.FENCE_UNSTARTED:
-                    answer = act(attempt, reason=record["reason"])
+                    answer = act(attempt, reason=reasons[job_id])
                 else:
                     answer = act(attempt_id=attempt["attempt_id"],
-                                 reason=record["reason"])
+                                 reason=reasons[job_id])
             except ContractRefusal as refusal:
                 outcome = "refused" if refusal.durable else "deferred"
                 detail = {"category": refusal.category,

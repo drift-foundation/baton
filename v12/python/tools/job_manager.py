@@ -903,6 +903,11 @@ def _creation_request(taken):
     # submission identity -- which is the distinction `documents._job` keeps.
     if limits:
         request["overrides"] = {"execution_limits": limits}
+    # W383217: THE CONTROL PROFILE, stated by name and recorded as the
+    # request's own visible selection; absent, the Job is admitted under no
+    # finite control, exactly as before.
+    if taken.control_profile is not None:
+        request["control"] = {"profile": taken.control_profile}
     return request
 
 
@@ -1399,6 +1404,13 @@ def main(argv, *, clock=None, stream=None):
                           help="this Job's verification-command ceiling in "
                                "seconds, a permitted override reaching all "
                                "three verification boundaries")
+    creating.add_argument("--control-profile", default=None,
+                          help="the finite control profile this Job is "
+                               "admitted under (LIM-5), for example "
+                               "documentation/1: persisted correction-round "
+                               "allowance and stage/Job wall deadlines, "
+                               "enforced by the serving manager; omitted "
+                               "admits the Job under no finite control")
     creating.set_defaults(run=_create)
 
     reading = commands.add_parser(

@@ -1,3 +1,18 @@
+## 2026-11-19T00:59:19+00:00 — first useful coding payload direction
+
+Finish W383217 first. During joined readiness, revalidate W29401's existing labels CLI scope against the current native host, reusing W29400. Labels are plain values; tags are key–value metadata and excluded from this first slice, as is W29408 TUI. This supersedes documentation-only payload planning; select the exact native payload and operational commands after readiness review. No Work transition or live execution is implied.
+
+## 2026-11-18T22:40:17+00:00 — owner-confirmed current delivery path
+
+1. Finish W383217 finite-control implementation, independent review, human Git checkpoint and formal closure. W383215 is already closed satisfying (accepted code at 09405f4c).
+2. W321608 joins the accepted controls and revalidates exact host/worker artifact readiness; prepare the smallest concrete operational selection.
+3. After separate owner operational approval, execute one useful native v12 Job: implementation → independent review → retained proposal → human acceptance.
+4. Advance useful parallel development Jobs from accepted evidence.
+
+Prioritize this practical path over new cleanup/hardening campaigns. Correct only concrete selected-path blockers, with bounded acceptance and a convergence check at handoff. Job-linked messaging and richer incremental cross-submission graph work are deferred for now, remain visible retirement gaps, and are not automatically assigned to v13. No broad parity gate before the first useful run.
+
+This is the current scheduling checkpoint; historical checkpoints below retain evidence, not competing next actions. No live/build/install/cutover is selected by this note.
+
 # Current milestone — selected serial native Job control delivery
 
 Owner E383183 approves CONTROL-SELECTION-383131.md; FINDING pins it and DESIGN LIM-5 now carries the selected semantics. This supersedes pending-owner-decision scheduling below. Review review-2026-10-29T12-03-25Z.md records allocation.

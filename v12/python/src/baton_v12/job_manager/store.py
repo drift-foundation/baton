@@ -1119,6 +1119,36 @@ class JobStore:
             (operation_id, kind, signature, state, result, refusal,
              self._now()))
 
+    def journal_within(self, connection, operation_id, kind, signature,
+                       result):
+        """Journal ONE committed record inside a caller's open transaction.
+
+        W383217. A Job's control is admitted by the SAME act that admits the
+        Job, so it is written on the submission's own connection rather than
+        through a second `transact` that could commit without it -- or after
+        it. The row is the ordinary journal row; `operation_record` and the
+        kind readers answer it exactly as they answer a `transact`'s.
+        """
+        boundaries.identity(operation_id, "an operation identity")
+        self._agreeing(kind, signature)
+        if not self.holds_transaction():
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"a record journalled within an act needs the act's open "
+                f"transaction; {name_value(operation_id)} was asked outside "
+                f"one")
+        committed = own(result, what="an operation result")
+        row = {"operation_id": operation_id, "kind": kind,
+               "signature": signature, "state": "committed",
+               "result": _recorded(committed), "refusal": None}
+        check_no_durable_secret(row, what="a journalled job operation")
+        connection.execute(
+            "INSERT INTO operations (operation_id, kind, signature, state, "
+            "result, refusal, settled_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (operation_id, kind, signature, "committed", row["result"], None,
+             self._now()))
+        return committed
+
     def operation_record(self, operation_id):
         """The journal row as a FRESH document, or absence."""
         boundaries.identity(operation_id, "an operation identity")

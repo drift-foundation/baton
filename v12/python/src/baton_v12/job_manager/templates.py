@@ -89,7 +89,7 @@ requests it, are W361912's.
 
 from types import MappingProxyType
 
-from . import (documents, execution_limits, fresh_attempt,
+from . import (documents, execution_limits, fresh_attempt, job_control,
                review_driver, role_contract)
 from ..contracts import ContractRefusal, check_relative_path, digest, own
 from ..contracts.errors import name_value
@@ -279,7 +279,11 @@ REQUEST_MEMBERS = ("schema", "task", "source", "scope", "acceptance")
 # selection. Both are OPTIONAL rather than nullable, for the reason
 # `documents._job` gives: an absent member and a present null are different
 # intents, and only one of them is a document somebody wrote on purpose.
-REQUEST_OPTIONAL = ("template", "overrides")
+# W383217: and `control`, the finite control profile the request selects. It
+# is not an OVERRIDE -- the frozen templates permit none such and are not
+# edited -- it is a selection the request makes visibly, recorded in the
+# resolution and carried into a /3 submission.
+REQUEST_OPTIONAL = ("template", "overrides", "control")
 
 TASK_MEMBERS = ("job_id", "work_id", "statement")
 # Derived from the Job id when omitted, exactly as `fresh_attempt.admit`
@@ -326,6 +330,9 @@ CONFIGURATION_OPTIONAL = ("default_template",)
 RESOLUTION_MEMBERS = ("schema", "template", "task", "source", "scope",
                       "acceptance", "overrides", "stages", "rules",
                       "execution_limits", "submission")
+# W383217: present exactly when the request selected a control profile.
+RESOLUTION_OPTIONAL = ("control",)
+CONTROL_SELECTION_MEMBERS = ("profile", "resolved")
 
 
 # THE ONE SENTINEL THIS MODULE NEEDS, and why `None` cannot be it. An absent
@@ -656,9 +663,13 @@ def resolve(request, *, configuration=None):
     # silence would answer a resolution it did not ask for.
     overrides = _overrides(taken["overrides"] if "overrides" in taken
                            else _ABSENT, definition)
+    # W383217: THE CONTROL SELECTION, owned by its owner; a present null is
+    # refused there as "neither", like the override member one line up.
+    control = (job_control.owned_control(taken["control"])
+               if "control" in taken else None)
     stages = _stages(definition, task, held["profiles"])
     submission = _submission(definition, task, source, scope, stages,
-                             overrides)
+                             overrides, control)
     answer = {
         "schema": RESOLUTION_SCHEMA,
         "template": {"version": definition["version"], "origin": origin,
@@ -708,6 +719,10 @@ def resolve(request, *, configuration=None):
             execution_limits.CURRENT_GENERATION),
         "submission": submission,
     }
+    if control is not None:
+        answer["control"] = {"profile": control["profile"],
+                             "resolved": job_control.resolved(
+                                 control["profile"])}
     # OWNED ON THE WAY OUT, as the thing it is: an exact built-in document a
     # caller cannot reach back into and this module cannot leak a live
     # reference out of. It also proves the whole answer is within the frozen
@@ -994,7 +1009,8 @@ def _stages(definition, task, profiles):
     return held
 
 
-def _submission(definition, task, source, scope, stages, overrides):
+def _submission(definition, task, source, scope, stages, overrides,
+                control=None):
     """The normalized submission, PROVED BY ITS REAL OWNER before it is
     answered.
 
@@ -1038,6 +1054,11 @@ def _submission(definition, task, source, scope, stages, overrides):
         schema = documents.SUBMISSION_SCHEMA
     else:
         schema = documents.SUBMISSION_SCHEMAS[0]
+    # W383217: a selected control profile needs the version that names the
+    # member, for the same one-intent-one-identity reason.
+    if control is not None:
+        entry["control"] = dict(control)
+        schema = documents.SUBMISSION_CONTROL_SCHEMA
     document = {"schema": schema, "submission_id": task["submission_id"],
                 "jobs": [entry]}
     owned = documents.owned_submission(document)
@@ -1113,7 +1134,15 @@ def owned_resolution(resolution):
     without consuming it.
     """
     taken = boundaries.document(resolution, "a job template resolution",
-                                required=RESOLUTION_MEMBERS)
+                                required=RESOLUTION_MEMBERS,
+                                optional=RESOLUTION_OPTIONAL)
+    if "control" in taken:
+        selection = boundaries.document(taken["control"],
+                                        "a resolution's control selection",
+                                        required=CONTROL_SELECTION_MEMBERS)
+        job_control.owned_control({"profile": selection["profile"]})
+        boundaries.document(selection["resolved"],
+                            "a resolution's resolved control")
     if taken["schema"] != RESOLUTION_SCHEMA:
         _refuse(f"a job template resolution is "
                 f"{name_value(RESOLUTION_SCHEMA)}; this is "
@@ -1297,7 +1326,8 @@ def submission_for_admission(resolution, *, generation=None):
     # ignored.
     expected = _without_origin(again)
     found = _without_origin(taken)
-    differing = sorted(member for member in RESOLUTION_MEMBERS
+    differing = sorted(member for member
+                       in RESOLUTION_MEMBERS + RESOLUTION_OPTIONAL
                        if expected.get(member) != found.get(member))
     if differing:
         _refuse(f"this build resolves this resolution's own request to a "
@@ -1347,6 +1377,8 @@ def _request_of(resolution):
     if resolution["overrides"]:
         held["overrides"] = {name: dict(value) for name, value
                              in resolution["overrides"].items()}
+    if "control" in resolution:
+        held["control"] = {"profile": resolution["control"]["profile"]}
     return held
 
 

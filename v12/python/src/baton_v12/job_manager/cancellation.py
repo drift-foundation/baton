@@ -34,13 +34,31 @@ from .store import job_signature
 
 __all__ = ["REQUEST_KIND", "TARGET_KIND", "EFFECTS", "TARGET_STATES",
            "SETTLED_STATES", "SHUTDOWN_STATES", "SHUTDOWN_BOUND_SECONDS",
+           "TRIGGERS", "REASON_KIND",
            "request_operation_id", "target_operation_id", "request",
-           "fence_of", "fenced", "refuse_fenced", "requests_of",
+           "reason_operation_id", "order_reason", "over",
+           "fence_of", "fenced", "fences_of", "refuse_fenced", "requests_of",
            "targets_of", "record_target", "effect_for", "target_state",
            "reported", "report", "observed_from"]
 
 REQUEST_KIND = "job.cancel"
 TARGET_KIND = "job.cancel.target"
+# W383217 (review 2026-11-19T00-20-37Z P2): THE ONE REASON THE STOP OWNERS
+# ARE GIVEN for a Job, journalled when the first order is placed. The
+# owners' stop operation is one per attempt and signed over its reason, so
+# a Job whose fence is rediscovered as an earlier deadline after an
+# operator's request was already carried out must keep ordering with the
+# wording it first used, or a retry collides on the owner's own journal.
+REASON_KIND = "job.cancel.reason"
+
+# W383217: WHAT CAN CLOSE A JOB. The operator's explicit request, or the
+# first stage/Job deadline reached under the Job's admitted control
+# (`job_control.expire`). Both are journalled fences this module reads; the
+# EARLIEST TRIGGER INSTANT is the Job's fence, decided from the records --
+# the request's committed instant, the expiry's deadline instant -- never
+# from which one a sweep happened to observe first. A tie goes to the
+# explicit request.
+TRIGGERS = ("operator", "stage-deadline", "job-deadline")
 
 # THE TWO EFFECTS THE SWEEP CAN ORDER, each through one existing owner.
 ORDER_CESSATION = "order-cessation"
@@ -81,6 +99,10 @@ def _refuse(message, *, category="refused", code="precondition"):
 def request_operation_id(job_id):
     """ONE request per Job, so a repeat replays and a changed one collides."""
     return f"{REQUEST_KIND}:{job_id}"
+
+
+def reason_operation_id(job_id):
+    return REASON_KIND + ":" + job_id
 
 
 def target_operation_id(authority_uuid, job_id, stage_id, episode, attempt_id,
@@ -139,23 +161,43 @@ def request(store, *, job_id, reason):
         return documents.job_cancellation(
             operation_id=operation_id, job_id=job_id, reason=reason,
             requested_at=store._now(), incarnation=store.incarnation,
-            observed=observed)
+            observed=observed, trigger="operator")
 
     return store.transact(operation_id, REQUEST_KIND, signature, act)
 
 
-def fenced(connection, job_id):
-    """The committed cancellation of one Job, read on THIS connection, or None.
-
-    This is the read every admission owner makes inside its own write
-    transaction. It is one row of this database and nothing else.
-    """
+def _request_in(connection, job_id):
     row = connection.execute(
         "SELECT state, result FROM operations WHERE operation_id = ? AND "
         "kind = ?", (request_operation_id(job_id), REQUEST_KIND)).fetchone()
     if row is None or row["state"] != "committed" or row["result"] is None:
         return None
     return json.loads(row["result"])
+
+
+def _earliest(request, expiry):
+    """The Job's fence: the earliest trigger, the explicit request on a tie."""
+    if request is None:
+        return expiry
+    if expiry is None or request["requested_at"] <= expiry["requested_at"]:
+        return request
+    return expiry
+
+
+def fenced(connection, job_id):
+    """The fence of one Job, read on THIS connection, or None.
+
+    This is the read every admission owner makes inside its own write
+    transaction. It is two rows of this database and nothing else: the
+    explicit request and the deadline expiry (W383217), whichever triggered
+    first. The answer carries `trigger`, `reason` and `requested_at` -- the
+    LIM-5 trigger instant the shutdown bound runs from -- whichever record
+    it is.
+    """
+    from . import job_control
+
+    return _earliest(_request_in(connection, job_id),
+                     job_control.expiry_in(connection, job_id))
 
 
 def fence_of(store, job_id):
@@ -173,9 +215,13 @@ def refuse_fenced(connection, job_id, what):
     """
     held = fenced(connection, job_id)
     if held is not None:
-        _refuse(f"Job {name_value(job_id)} was cancelled at "
+        if held.get("trigger", "operator") == "operator":
+            _refuse(f"Job {name_value(job_id)} was cancelled at "
+                    f"{held['requested_at']} ({held['reason']}); {what} is "
+                    f"not admitted after an explicit cancellation")
+        _refuse(f"Job {name_value(job_id)} expired at "
                 f"{held['requested_at']} ({held['reason']}); {what} is not "
-                f"admitted after an explicit cancellation")
+                f"admitted after the deadline")
     return None
 
 
@@ -188,6 +234,16 @@ def requests_of(store):
         record = json.loads(row["result"])
         held[record["job_id"]] = record
     return held
+
+
+def fences_of(store):
+    """Every Job's fence -- the earliest of its request and its expiry."""
+    from . import job_control
+
+    requests = requests_of(store)
+    expiries = job_control.expiries_of(store)
+    return {job_id: _earliest(requests.get(job_id), expiries.get(job_id))
+            for job_id in set(requests) | set(expiries)}
 
 
 def targets_of(store, job_id=None):
@@ -232,6 +288,31 @@ def record_target(store, *, job_id, stage_id, episode, attempt_id, effect,
             recorded_at=store._now(), evidence=evidence)
 
     return store.transact(operation_id, TARGET_KIND, signature, act)
+
+
+def order_reason(store, job_id, fence):
+    """The reason every stop order of this Job carries, journalled ONCE.
+
+    Signed over the Job alone, so the call that finds the record committed
+    replays it whatever record is the fence by then: the first order's
+    wording is the Job's wording. `fence` is the record in force when the
+    FIRST order is placed, and its `operation_id` is kept beside the reason
+    so a reader can follow which account the owners were told.
+    """
+    operation_id = reason_operation_id(job_id)
+    signature = job_signature(REASON_KIND, {"job_id": job_id})
+
+    def act(connection):
+        if fenced(connection, job_id) is None:
+            _refuse(f"no cancellation of Job {name_value(job_id)} is "
+                    f"committed; an order's reason follows a fence that "
+                    f"exists", category="integrity", code="schema")
+        return documents.job_cancellation_reason(
+            operation_id=operation_id, job_id=job_id,
+            reason=fence["reason"], fence_operation_id=fence["operation_id"],
+            recorded_at=store._now())
+
+    return store.transact(operation_id, REASON_KIND, signature, act)["reason"]
 
 
 # -- what the sweep decides, per target, from the owners' live facts ---------
@@ -281,6 +362,28 @@ def _never_started(axes):
     runtime. `intake._no_start_declared` refuses anything else, rightly.
     """
     return axes["runtime_id"] is None and axes["execution_runtime"] == "not-started"
+
+
+def over(entry):
+    """Whether this stage's WORK IS OVER by the owners' evidence alone.
+
+    W383217 (review 2026-11-19T00-20-37Z P1): the deadline of a stage that
+    is over closes nothing, and a Job whose every stage is over is never
+    fenced by a deadline that passes later. OVER IS NOT A LABEL. The
+    projection's `exceptional` covers an uncertain runtime, a durable
+    refusal beside an attached runtime and a failed start -- none of which
+    is cessation, and each of which the cancellation pass still has to order
+    or fence. So this reads what `effect_for` reads: a live attempt is over
+    when its runtime axes say ceased; a stage with no live episode is over
+    when its last episode ended in a way nothing replaces.
+    """
+    if entry["episode"] is None:
+        history = entry["history"]
+        if not history or history[-1]["ended_at"] is None:
+            return False
+        return history[-1]["ended_state"] not in documents.REPLACEABLE_ENDINGS
+    axes = (entry.get("observed") or {}).get("runtime")
+    return axes is not None and _ceased(axes)
 
 
 def effect_for(state, observed, targets=()):
@@ -436,9 +539,12 @@ def reported(record, targets, entries, *, observed_of, now):
         operation_id=record["operation_id"], job_id=record["job_id"],
         reason=record["reason"], requested_at=record["requested_at"],
         trigger_at=record["requested_at"],
+        trigger=record.get("trigger", "operator"),
         shutdown_bound_seconds=SHUTDOWN_BOUND_SECONDS,
         elapsed_seconds=elapsed, shutdown=shutdown,
-        targets=reported_targets)
+        targets=reported_targets,
+        **({"observed_at": record["observed_at"]}
+           if "observed_at" in record else {}))
 
 
 def observed_from(control, attempt_id):

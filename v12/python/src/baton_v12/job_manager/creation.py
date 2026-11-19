@@ -366,7 +366,7 @@ def _asked(request):
         request, "an ordinary Job creation request",
         required=("schema", "task", "source_selection", "scope",
                   "acceptance"),
-        optional=("template", "overrides"))
+        optional=("template", "overrides", "control"))
     if taken["schema"] != templates.REQUEST_SCHEMA:
         _refuse(f"an ordinary Job creation request is "
                 f"{name_value(templates.REQUEST_SCHEMA)}, the resolver's own "
@@ -917,7 +917,10 @@ def _completed(store, operands, *, resolution, derivation, work, bound,
         execution_limits=resolution["execution_limits"],
         derivation=derivation, work=work, binding=bound,
         stages=list(recorded["stages"]), servable=servable,
-        recorded_at=recorded["recorded_at"])
+        recorded_at=recorded["recorded_at"],
+        # W383217: the control profile the request selected, visibly.
+        **({"control": dict(resolution["control"])}
+           if "control" in resolution else {}))
 
     def act(connection):
         changed = connection.execute(

@@ -33,7 +33,7 @@ def document(**stage):
                 diagnostic[axis] = {key: {"known": True, "value": value, "source": "fixture"} for key, value in diagnostic[axis].items()}
         stage["attempt_diagnostics"] = diagnostic
     held.update(stage)
-    return {"schema": "baton.v12.job-status/8",
+    return {"schema": "baton.v12.job-status/9",
             "jobs": [{"job_id": "job-1", "stages": [held]}]}
 
 

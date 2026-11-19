@@ -1,0 +1,90 @@
+{
+  "probe": "exceptional-live-runtime",
+  "before": "exceptional",
+  "expiry": {
+    "deadline_at": "2026-09-02T01:20:00.000Z",
+    "incarnation": "jobs-1",
+    "job_id": "job-a",
+    "observed_at": "2026-09-02T02:46:40.000Z",
+    "operation_id": "job.expire:job-a",
+    "reason": "stage-deadline reached at 2026-09-02T01:20:00.000Z (stage job-a/implementation)",
+    "requested_at": "2026-09-02T01:20:00.000Z",
+    "stage_id": "job-a/implementation",
+    "trigger": "stage-deadline"
+  },
+  "stop_orders": [
+    [
+      "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+      "stage-deadline reached at 2026-09-02T01:20:00.000Z (stage job-a/implementation)"
+    ]
+  ],
+  "tick_expired": [
+    {
+      "job_id": "job-a",
+      "outcome": "fenced",
+      "trigger": "stage-deadline",
+      "stage_id": "job-a/implementation",
+      "deadline_at": "2026-09-02T01:20:00.000Z"
+    }
+  ],
+  "state": "exceptional"
+}
+{
+  "probe": "late-operator-request",
+  "expected_first_deadline": "2026-09-02T01:20:00.000Z",
+  "expiry": {
+    "deadline_at": "2026-09-02T01:20:00.000Z",
+    "incarnation": "jobs-1",
+    "job_id": "job-a",
+    "observed_at": "2026-09-02T01:23:20.000Z",
+    "operation_id": "job.expire:job-a",
+    "reason": "stage-deadline reached at 2026-09-02T01:20:00.000Z (stage job-a/implementation)",
+    "requested_at": "2026-09-02T01:20:00.000Z",
+    "stage_id": "job-a/implementation",
+    "trigger": "stage-deadline"
+  },
+  "report": {
+    "operation_id": "job.expire:job-a",
+    "job_id": "job-a",
+    "reason": "stage-deadline reached at 2026-09-02T01:20:00.000Z (stage job-a/implementation)",
+    "requested_at": "2026-09-02T01:20:00.000Z",
+    "trigger_at": "2026-09-02T01:20:00.000Z",
+    "trigger": "stage-deadline",
+    "shutdown_bound_seconds": 120,
+    "elapsed_seconds": 200,
+    "shutdown": "unresolved",
+    "targets": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+        "state": "ordered",
+        "runtime": "running",
+        "cleanup": null,
+        "cessation": {
+          "outcome": "ordered",
+          "runtime_id": "runtime-job-a/implementation",
+          "effects": [
+            "agent-cancel",
+            "stop"
+          ]
+        },
+        "orders": [
+          {
+            "effect": "order-cessation",
+            "operation_id": "job.cancel.target:0e675edcb695b885ad605307545ece7a490bff740b12bd36539954ebf053df3b",
+            "recorded_at": "2026-09-02T01:23:20.000Z"
+          }
+        ]
+      }
+    ],
+    "observed_at": "2026-09-02T01:23:20.000Z"
+  }
+}
+{
+  "probe": "rollback-before-first-sweep",
+  "timing": "uncertain",
+  "job_elapsed": 0,
+  "acts": [],
+  "watermark": "2026-09-01T23:58:20.000Z"
+}

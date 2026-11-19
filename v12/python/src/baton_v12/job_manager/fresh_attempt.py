@@ -81,7 +81,8 @@ import sqlite3
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
-from . import cancellation, documents, episodes, projection, submission
+from . import (cancellation, documents, episodes, job_control, projection,
+               submission)
 from .store import job_signature
 
 __all__ = ["ACQUIRE_KIND", "INTENT_KIND", "ADMIT_KIND", "admit",
@@ -246,6 +247,14 @@ def admit(store, operations, *, prior_job_id, exclusion, authorization,
     # is decided.
     cancellation.refuse_fenced(store._connection, prior_job_id,
                                "a fresh attempt at it")
+    # W383217: A FRESH ATTEMPT IS A NEW JOB WITH ITS OWN CONTROL AND ITS OWN
+    # ORIGINS, so the prior Job's DERIVED deadline does not refuse it -- a
+    # Job that failed before its deadline may be repeated after it. What
+    # refuses is a FENCE the prior Job holds (an explicit request or a
+    # journalled expiry, read above through the unified fence), and
+    # uncertain timing, which holds every new admission.
+    job_control.refuse_uncertain(store._connection, prior_job_id,
+                                 "a fresh attempt at it", now=store._now())
     document = _composed(store, prior, job_id=job_id, work_id=work_id,
                          submission_id=submission_id)
 
@@ -766,6 +775,9 @@ def _reserved(store, operands, prior, document):
         # W383215: THE FENCE, DECIDED UNDER THE SAME LOCK AS THE RESERVATION.
         cancellation.refuse_fenced(connection, operands["prior_job_id"],
                                    "a fresh attempt at it")
+        job_control.refuse_uncertain(connection, operands["prior_job_id"],
+                                     "a fresh attempt at it",
+                                     now=store._now())
         # THE ORDINARY JOB TABLE IS CHECKED HERE TOO, inside the same lock.
         # A fresh identity an ordinary submission already holds is not free,
         # and finding that out at `submit` would be finding it out after the

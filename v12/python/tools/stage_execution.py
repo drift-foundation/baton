@@ -4633,6 +4633,32 @@ class StageDeployment:
         # `routed` IS the deployment's own method, so the policy is its
         # own attribute. Reaching through a `self.deployment` that does not
         # exist here answered AttributeError for 38 product cases.
+        # W383217 / LIM-5: THE JOB'S OWN ADMITTED CONTROL IS ASKED FIRST. A
+        # Job admitted under a profile whose correction allowance is spent,
+        # or whose fence or deadline has closed it, is declined here in the
+        # same shape the deployment policy declines -- and the transactional
+        # owner (`advance_correction`) refuses it again under its own lock,
+        # so a caller that skips this surface gains nothing.
+        from baton_v12.job_manager import job_control
+        held = (job_control.control_of(self.jobs, stage["job_id"])
+                if stage.get("job_id") else None)
+        if held is not None:
+            closed = job_control.closed_of(self.jobs, stage["job_id"])
+            used = job_control.rounds_used_in(self.jobs._connection,
+                                              stage["job_id"])
+            allowance = held["resolved"]["correction_rounds"]
+            if closed is not None or used >= allowance:
+                return dict(answered, correction=None, correction_declined={
+                    "policy": "job-control", "job_id": stage["job_id"],
+                    "profile": held["profile"], "allowance": allowance,
+                    "used": used,
+                    "why": (job_control.closed_message(
+                                closed, "a correction round")
+                            if closed is not None else
+                            f"control profile {held['profile']} permits "
+                            f"{allowance} correction round(s) and {used} "
+                            f"were used; the changes-requested verdict "
+                            f"stands and no round is opened")})
         policy = getattr(self, "correction_policy", "open")
         if policy == DECLINE_CORRECTION:
             return dict(answered, correction=None, correction_declined={

@@ -65,7 +65,7 @@ stage is identified by its Job and its kind, which is why one Job carries at
 most one stage of each kind and why a dependency names exactly that pair.
 """
 
-from . import execution_limits
+from . import execution_limits, job_control
 from ..contracts import (ContractRefusal, canonical_text,
                          check_relative_path, own)
 from ..contracts.errors import name_value, sample_of
@@ -100,10 +100,18 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
 # nothing -- so it resolves to exactly the behaviour it had before this Work.
 # Refusing /1 would have made a compatibility promise into a migration.
 SUBMISSION_SCHEMA = "baton.v12.job-submission/2"
-SUBMISSION_SCHEMAS = ("baton.v12.job-submission/1", SUBMISSION_SCHEMA)
+# W383217 / LIM-5 added /3: a Job may carry `control`, the versioned finite
+# control profile it is admitted under. /2 stays the ordinary document for a
+# Job that selects no profile and /1 for one that configures nothing; only a
+# Job that selects a profile needs /3, for the reason /2 exists: one intent,
+# one identity.
+SUBMISSION_CONTROL_SCHEMA = "baton.v12.job-submission/3"
+SUBMISSION_SCHEMAS = ("baton.v12.job-submission/1", SUBMISSION_SCHEMA,
+                      SUBMISSION_CONTROL_SCHEMA)
 # Which submitted members each version admits. `execution_limits` is optional
 # even in /2: a Job that configures nothing is the ordinary case.
-SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
+SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA, SUBMISSION_CONTROL_SCHEMA)
+SUBMISSION_CONTROL_SCHEMAS = (SUBMISSION_CONTROL_SCHEMA,)
 # W73629 moved this to /2. A stage now reports the EPISODES it has been through
 # and its offer/attempt identities name the current one, so a reader written
 # against /1 would see one stage's history as the stage itself. The version is
@@ -132,7 +140,13 @@ SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
 # AND IT IS A DIAGNOSTIC, NOT A STATE. Nothing in the projection branches on
 # it and no stage state is derived from it; a diagnostic cause is not an
 # acceptance and must not become a second route to `exceptional`.
-STATUS_SCHEMA = "baton.v12.job-status/8"
+# W383217 / LIM-5: AND /9 ADDS THE ADDITIVE `control` MEMBER to every Job --
+# the admitted profile, the derived origins, deadlines and elapsed time, the
+# trusted-clock timing and the fence that closed it -- and `trigger` to the
+# cancellation report, which now also reports a deadline expiry. No stage
+# state changed; a /8 reader sees a Job whose deadlines it does not know are
+# enforced, which is why the version moved.
+STATUS_SCHEMA = "baton.v12.job-status/9"
 
 # The three stages this milestone's vertical slice has. They are a CLOSED
 # vocabulary rather than free text because the projection below maps each one
@@ -291,6 +305,8 @@ JOB_MEMBERS = ("job_id", "input_digest", "policy_digest", "test_scope",
 # W156162: and the one OPTIONAL member, admitted only by the version that names
 # it. A /1 document carrying it is refused as the unknown member it is there.
 JOB_LIMIT_MEMBER = "execution_limits"
+# W383217: and the second optional member, admitted only by /3.
+JOB_CONTROL_MEMBER = "control"
 STAGE_MEMBERS = ("kind", "work_id", "profile_name", "profile_digest",
                  "depends_on")
 DEPENDENCY_MEMBERS = ("job_id", "kind")
@@ -382,6 +398,8 @@ def _unique(values, what, where):
 def _job(entry, schema=SUBMISSION_SCHEMA):
     optional = ((JOB_LIMIT_MEMBER,) if schema in SUBMISSION_LIMITS_SCHEMAS
                 else ())
+    optional += ((JOB_CONTROL_MEMBER,) if schema in SUBMISSION_CONTROL_SCHEMAS
+                 else ())
     taken = boundaries.document(entry, "a submitted Job", required=JOB_MEMBERS,
                                 optional=optional)
     job_id = boundaries.identity(taken["job_id"], "a Job id")
@@ -423,6 +441,21 @@ def _job(entry, schema=SUBMISSION_SCHEMA):
                     f"is {name_value(None)}, which is neither")
         held[JOB_LIMIT_MEMBER] = execution_limits.owned_execution_limits(
             taken[JOB_LIMIT_MEMBER])
+    # W383217: THE CONTROL PROFILE, present only when the Job selected one,
+    # and AGREEING with the ceilings the Job resolves to. The agreement is
+    # proved again where the generation is stamped (`submission._job`); here
+    # it refuses at the document, which is where a template resolution
+    # learns it before anything is recorded.
+    if JOB_CONTROL_MEMBER in taken:
+        if taken[JOB_CONTROL_MEMBER] is None:
+            _refuse(f"a Job's {JOB_CONTROL_MEMBER} names a control profile, "
+                    f"omitted entirely when the Job selects none; this is "
+                    f"{name_value(None)}, which is neither")
+        held[JOB_CONTROL_MEMBER] = job_control.owned_control(
+            taken[JOB_CONTROL_MEMBER])
+        job_control.agreeing(held[JOB_CONTROL_MEMBER],
+                             execution_limits.resolved(
+                                 held.get(JOB_LIMIT_MEMBER)))
     return held
 
 
@@ -595,12 +628,13 @@ CONTRACTS = {
     # depth 8, and a resolution carrying a normalized submission is already at
     # that bound, so `resolution` as a member is an answer nothing could
     # journal. `creation.resolution_of` is the provenance read.
+    # W383217: `control` is the profile the request selected, when it did.
     "template-job.created": (("job_id", "work_id", "submission_id",
                               "resolution_digest", "template", "task",
                               "source", "scope", "acceptance", "overrides",
                               "rules", "execution_limits", "derivation",
                               "work", "binding", "stages", "servable",
-                              "recorded_at"), ()),
+                              "recorded_at"), ("control",)),
     "stage.act": (("stage_id", "job_id", "kind", "episode", "act",
                    "operation_id", "offer_id", "attempt_id", "work_id"), ()),
     "stage.receipt": (("stage_id", "episode", "act", "operation_id", "state",
@@ -642,28 +676,58 @@ CONTRACTS = {
     # W383215 / LIM-5 added the ADDITIVE `cancellation` member, which is why
     # STATUS_SCHEMA is at /8: null for a Job nobody cancelled, and the
     # `job.cancellation-report` document otherwise. No stage state changed.
+    # W383217 / LIM-5 added the ADDITIVE `control` member, which is why
+    # STATUS_SCHEMA is at /9: null for a Job admitted under no profile, and
+    # the `job.control-report` document otherwise.
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",
-                    "execution_limits", "stages"), ("cancellation",)),
+                    "execution_limits", "stages"), ("cancellation",
+                                                    "control")),
+    # W383217: ONE JOB'S ADMITTED CONTROL, journalled inside its submission.
+    "job.control": (("operation_id", "job_id", "profile", "resolved",
+                     "admitted_at", "incarnation"), ()),
+    # W383217: THE FIRST DEADLINE REACHED, as a fence. `requested_at` IS the
+    # deadline instant (the LIM-5 trigger); `observed_at` is when a manager
+    # noticed, which is evidence of the gap and never the trigger.
+    "job.expiry": (("operation_id", "job_id", "trigger", "stage_id",
+                    "reason", "requested_at", "deadline_at", "observed_at",
+                    "incarnation"), ()),
+    "job.control-report": (("profile", "resolved", "timing", "observed_at",
+                            "watermark", "job", "stages", "corrections",
+                            "fence"), ()),
+    # One Job the sweep's control pass decided about this tick.
+    "job.control-notice": (("job_id", "outcome"),
+                           ("trigger", "stage_id", "deadline_at", "detail")),
     # W383215: ONE JOB'S EXPLICIT CANCELLATION, as this store committed it.
     # `requested_at` is the LIM-5 shutdown trigger and never moves; `observed`
     # is what the request found at that instant, evidence rather than the
     # target set the sweep acts on.
+    # W383217: `trigger` is `operator` on every new record, so the request
+    # and the expiry fence read as one shape; a record from before it is
+    # read as the operator's.
     "job.cancellation": (("operation_id", "job_id", "reason", "requested_at",
-                          "incarnation", "observed"), ()),
+                          "incarnation", "observed"), ("trigger",)),
     # One ORDER the sweep placed for one exact target through an existing
     # owner; `evidence` carries that owner's returned identities. It proves
     # an order, never cessation.
     "job.cancellation-target": (("operation_id", "job_id", "stage_id",
                                  "episode", "attempt_id", "effect",
                                  "recorded_at", "evidence"), ()),
+    # W383217 (review 2026-11-19T00-20-37Z P2): the ONE reason this store
+    # gave the stop owners for a Job, journalled with the first order and
+    # replayed for every later one, whichever fence record is in force.
+    "job.cancellation-reason": (("operation_id", "job_id", "reason",
+                                 "fence_operation_id", "recorded_at"), ()),
     "job.cancellation-target-status": (("stage_id", "episode", "attempt_id",
                                         "state", "runtime", "cleanup",
                                         "cessation", "orders"), ()),
+    # W383217: `trigger` says WHICH fence this report follows -- the
+    # operator's request or a stage/Job deadline -- and `observed_at` carries
+    # an expiry's late observation beside the trigger it never replaces.
     "job.cancellation-report": (("operation_id", "job_id", "reason",
-                                 "requested_at", "trigger_at",
+                                 "requested_at", "trigger_at", "trigger",
                                  "shutdown_bound_seconds", "elapsed_seconds",
-                                 "shutdown", "targets"), ()),
+                                 "shutdown", "targets"), ("observed_at",)),
     # One target the sweep's cancellation pass asked an owner about this tick.
     "stage.cancellation": (("stage_id", "episode", "attempt_id", "effect",
                             "outcome"), ("detail",)),
@@ -696,8 +760,10 @@ CONTRACTS = {
     # canonical assertion carries.
     # W383215: `cancelled` names every target the cancellation pass acted on
     # this tick, present only when it acted on one.
+    # W383217: `expired` names every Job the control pass decided about this
+    # tick (a journalled expiry, a replay, or a hold), present only then.
     "sweep": (("observed_at", "recovered", "observed", "replaced", "acts",
-               "started", "spoken", "refreshed"), ("cancelled",)),
+               "started", "spoken", "refreshed"), ("cancelled", "expired")),
     # One live attempt's runtime refresh. `state` is what the reconciliation
     # recorded, or null when this tick could not ask. `detail` carries only
     # what this manager itself can name: a contained refusal's typed category
@@ -817,6 +883,10 @@ def job_cancellation_target(**members):
     return _emit("job.cancellation-target", members)
 
 
+def job_cancellation_reason(**members):
+    return _emit("job.cancellation-reason", members)
+
+
 def job_cancellation_target_status(**members):
     return _emit("job.cancellation-target-status", members)
 
@@ -827,3 +897,21 @@ def job_cancellation_report(**members):
 
 def stage_cancellation(**members):
     return _emit("stage.cancellation", members)
+
+
+def job_control_record(**members):
+    """W383217: the admitted control of one Job. Named `_record` because
+    the owner module `job_control` is imported here under its own name."""
+    return _emit("job.control", members)
+
+
+def job_expiry(**members):
+    return _emit("job.expiry", members)
+
+
+def job_control_report(**members):
+    return _emit("job.control-report", members)
+
+
+def job_control_notice(**members):
+    return _emit("job.control-notice", members)
