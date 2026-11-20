@@ -818,3 +818,8 @@ M385326/E385327 and review-2026-11-20T04-14-36Z.md accept joined manifest ce1cb5
 ## 2026-11-20 — import/package evidence verified; checkpoint ready
 
 Coordinator checked M385329 import: all11host file hashes equal reviewed joined manifest ce1cb5aa…, regular owner-writable modes, new files0644. Built executable SHA2561265b1ff4c014cf9149bbdeeec8dc91163c0f41b5c3a35484e7dfbc135f9cb25 matches package evidence. Read final logs:428 focused OK28.695s,24 packaged OK14.155s,5 bundled-label probes OK8.667s. Earlier fixture-root/help-wrap failures retained, no source change concealed. git diff --check passes. Accepted import and local package evidence for human checkpoint; tests reused from K, not claimed independently rerun. Installed runtime/native pilot unchanged and unaccepted by these checks.
+
+
+## 2026-11-20 — messaging/handoffs/discovery promoted to next priority
+
+Owner selects 2b077949-W385331 at work/records/2026/11/finding-v12-native-agent-handoffs-discovery for development using v12. This supersedes the earlier temporary deferral for its bounded scope. Labels checkpoint45141ac6 remains accepted; prior native pilot run is not retroactively accepted. New scope/semantics pinned in DESIGN SCH-2a. Mechanical kickoff on a verified current runtime remains required.

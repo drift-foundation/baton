@@ -222,3 +222,8 @@ K follows IMPORT-AND-PACKAGE-LABELS-20261120.md. Exact11reviewed paths only; ful
 ## Current milestone — human labels checkpoint ready
 
 Reviewed joined bytes imported and package evidence verified. Slawomir checkpoints11source paths plus pilot/review evidence. No additional implementation correction pending. Native pilot continuation/deployment is separate and not selected.
+
+
+## 2026-11-20 — messaging/handoffs/discovery promoted to next priority
+
+Owner selects 2b077949-W385331 at work/records/2026/11/finding-v12-native-agent-handoffs-discovery for development using v12. This supersedes the earlier temporary deferral for its bounded scope. Labels checkpoint45141ac6 remains accepted; prior native pilot run is not retroactively accepted. New scope/semantics pinned in DESIGN SCH-2a. Mechanical kickoff on a verified current runtime remains required.

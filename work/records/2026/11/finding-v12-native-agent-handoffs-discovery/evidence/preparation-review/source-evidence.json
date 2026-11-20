@@ -1,0 +1,39 @@
+{
+  "observed_at": "2026-11-20T05:21:16.053848+00:00",
+  "head": "45141ac655ec6af0fa185f289847e95bdf9c41b7",
+  "v12_status": " M v12/DESIGN.md\n",
+  "source_sha256": {
+    "v12/DESIGN.md": "879dbb3c8640fc245f11d392baed673b2b6ba01a523925ae700c374dd939e3e4",
+    "v12/python/src/baton_v12/job_manager/role_contract.py": "fd1906e7ace2863becf5e472e91b0f6ee5b518456154ed661114092c6eca51a6",
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "d784215400821af1c704b896f4fc2cacb5519ad096c518f3072d8611df4f7a25",
+    "v12/python/src/baton_v12/job_manager/projection.py": "ecdb5a715a2c73093b2197556e46ba63f39e5686e2e17d73d0e2584ca9af19a1",
+    "v12/python/src/baton_v12/job_manager/job_control.py": "0e8bfc88cda40abb47a61009ac6e92f0d557a7a842514f961844eb26dbf71234",
+    "v12/python/src/baton_v12/job_manager/episodes.py": "610c37c06680b1e5da53d0e202f967089708510d05ce3a3567567390ffff2b52",
+    "v12/python/src/baton_v12/authority/core.py": "3c39f78cb9b3226c5c2bcc964256dd663e65cdeb7fa7766ec72ab1a44fb9cea8",
+    "v12/python/src/baton_v12/authority/store.py": "d67f1052ce06030f59ccb63411a6ae2257c6d6465721b88a15a5e495fbf4ea75",
+    "v12/python/src/baton_v12/authority/session.py": "9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2",
+    "v12/python/src/baton_v12/worker_manager/output.py": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+    "v12/python/tools/stage_execution.py": "8f0d85f8f3553321f892976c674bb08658758602cbb0d1c4053267fb68da137b",
+    "v12/python/tools/single_worker.py": "be697f41cc7c2b65a4d03d1327f92466ababe6dae865b66135e1e64d8760d51d",
+    "v12/python/tools/bootstrap.py": "eb344a43c575c5018ffb831eb9dbd112b7b7262c297f28deace662d65fa8c2bd",
+    "v12/python/tools/pool.py": "45d0f72d342c594cea081d8fb0dedce8d63698cf6d9e9c21270b4c54214df4ba",
+    "v12/python/tools/job_manager.py": "71f74d15eea461e56dbcf6d5ab24dc4b0a52a07b18ea20c97fca5105bd417392",
+    "v12/python/tools/accepted_base.py": "4aad8afd093f522bbc931415cd769fbb1fe304446d4ec80e73cf0b7790583d7e",
+    "v12/worker/baton_worker.py": "9596a1292da3f55fba118e4aecff5af3e5ddf545c7d47c0167e9455abf0cdd4e",
+    "v12/worker/claude_agent.py": "941b5f9c2ea617229667e3f764bb12bb4c19b8096b18cdbff6d2952019d35e75"
+  },
+  "preparation_sha256": {
+    "PREPARATION.md": "bdebfed584c09f210d2a7e7c6c153d8d7c7d9680f9916c109d0218c771deebcc",
+    "task-statement.txt": "391e90e7a8c540b17acd0a0af05bb4fed8bc703152519d892e70e8fd0be947ca"
+  },
+  "local_bundle_stamp": {
+    "changed_entries": 25,
+    "commit": "86c1c22b9125176b0127fc4a86fa00855ed6d127",
+    "detail": null,
+    "dirty": true,
+    "excused_build_output": 0,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton"
+  },
+  "execution": "Read-only source/file inspection only. No tests, build, package invocation, engine/provider, instance operation or Git mutation."
+}

@@ -1,0 +1,9 @@
+{
+  "review": "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/review-2026-11-20T05-24-56Z.md",
+  "review_sha256": "aa14098ef355432a480699d82045175bd0139031315e7b67a966815e26c55a48",
+  "handoff_sha256": {
+    "FIRST-NATIVE-SLICE.md": "617d97dc40f51f4e75f6df4d03fa3efd21c600a9ff11ee28956177acb053c29d",
+    "NATIVE-TASK.txt": "e0bc0440a8319b4b34b975d273452fbb98efdbb15f3e7d45f2d6ee648cb54a5a",
+    "KICKOFF-READINESS.md": "eb7ac48094e47b6b2d60b5d3f0e3c218435537492cb273c71e36f2aa3b9754e5"
+  }
+}
