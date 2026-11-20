@@ -511,7 +511,52 @@ REVIEW_ROLE = "review"
 # therefore the union and each role produces its own half, answering the other
 # half `missing-optional`. The assembly owns constructing that manifest; this
 # adapter owns knowing which half is its.
-COMMON_OUTPUTS = ("proposal", "findings", "logs", CONTEXT_RECEIPT)
+# -- W385331: the native handoff, on the worker's side ------------------------
+#
+# WHAT THE WORKER KNOWS AND WHAT IT DOES NOT. It is DELIVERED one read-only
+# context document beside the task (`HANDOFF_DOCUMENT`) whenever its Job's
+# admitted template has a handoff branch: the configured recipient a request
+# may be addressed to and, on a continuation, the exact question and the exact
+# reply; a reviewer over a yielded checkpoint is delivered the pending request
+# and the checkpoint it is about. It learns nothing about the Authority, the
+# message store, the episode or the manager, and it has no way to commit a
+# message: what it RETURNS is a bounded declared output carrying a claim, and
+# the host classifies that claim before anything is published.
+#
+# THE PROVIDER IS TOLD EVEN LESS. It is told where to write a request if it
+# must stop, and what the reviewer answered if it is resuming; the adapter
+# composes the versioned document, binds the retained head and the cited
+# evidence, and refuses a malformed request rather than publishing it.
+HANDOFF_DOCUMENT = "handoff.json"
+HANDOFF_CONTEXT_SCHEMA = "baton.native-handoff-context/1"
+HANDOFF_SCHEMA = "baton.native-handoff/1"
+HANDOFF_OUTPUT = "handoff"
+RESPONSE_OUTPUT = "response"
+# Provider-authored, inside the reserved handoff output of the line workspace.
+HANDOFF_REQUEST = "request.json"
+# Adapter-authored members of the handoff and response outputs.
+HANDOFF_RECORD = "handoff.json"
+HANDOFF_CONTINUATION = "continuation.txt"
+# Provider-authored, in the review room, beside where a report would go.
+RESPONSE_REPORT = "response.json"
+HANDOFF_REQUEST_KINDS = ("clarification-request", "finding-request")
+HANDOFF_FINAL_KIND = "final-submission"
+HANDOFF_RESPONSE_KIND = "response"
+HANDOFF_DISPOSITIONS = ("answer", "escalate")
+HANDOFF_REQUEST_MEMBERS = ("kind", "body", "evidence", "continuation")
+HANDOFF_RESPONSE_MEMBERS = ("disposition", "body", "rationale", "escalation")
+HANDOFF_ESCALATION_MEMBERS = ("ambiguity", "options", "recommendation")
+MAX_HANDOFF_BODY = 4096
+MAX_HANDOFF_RATIONALE = 2048
+MAX_HANDOFF_REFERENCE = 512
+MAX_HANDOFF_EVIDENCE = 16
+MAX_HANDOFF_OPTIONS = 8
+MAX_HANDOFF_PARTICIPANT = 160
+# The delivered context: two retained messages at most, plus their envelope.
+MAX_HANDOFF_CONTEXT_BYTES = 1 << 16
+
+COMMON_OUTPUTS = ("proposal", "findings", "logs", CONTEXT_RECEIPT,
+                  HANDOFF_OUTPUT, RESPONSE_OUTPUT)
 # W376586: the SHARED typed declaration refusal and its four closed codes,
 # imported rather than redefined -- a duplicate class would defeat the catch.
 from adapter_refusal import (  # noqa: E402
@@ -2119,6 +2164,16 @@ class ClaudeAgent:
                                         "implementation")
             one = produce[0]
         proposal = os.path.join(OUTPUT_ROOT, one["path"])
+        # W385331: THE HANDOFF OUTPUT AND ITS DELIVERED CONTEXT ARE A PAIR.
+        # A declared `handoff` output with no context, or a context with no
+        # declared output, is a delivery this adapter cannot serve honestly
+        # and refuses before anything is spent; neither present is every Job
+        # that existed before this slice, byte for byte.
+        handoff_output, absent = _lifted(absent, HANDOFF_OUTPUT)
+        handoff_context = _handoff_context("implementation")
+        _handoff_pairing(handoff_output, handoff_context, contextual)
+        handoff_room = (os.path.join(OUTPUT_ROOT, handoff_output["path"])
+                        if handoff_output is not None else None)
         # W112029: THE BYTES AS WELL AS THE DOCUMENT, so the ordinary-test
         # observation can name the exact task this turn consumed.
         task, task_bytes = _read_task()
@@ -2193,8 +2248,20 @@ class ClaudeAgent:
         verification_environment, verification_directories = (
             self._pinned_environment(scratch, environments["verification"]))
         try:
-            provider = self._provider(task, candidate, scratch,
-                                      environments["provider"])
+            if handoff_room is not None:
+                # A FRESH REQUEST ROOM, PROVED BEFORE THE PROVIDER RUNS. The
+                # handoff output lives on the persistent line workspace, so a
+                # previous turn's request standing there would read as this
+                # turn's question. The members this adapter owns are removed
+                # by exact name through a descriptor, exactly as the bundle is.
+                _fresh_handoff_room(handoff_room)
+                # AND THE DELIVERED CONTINUATION TAKES ITS PLACE, read-only,
+                # before the provider is invoked (review R1).
+                _delivered_continuation(handoff_room, handoff_context)
+            provider = self._provider(
+                task, candidate, scratch, environments["provider"],
+                prompt=(_handoff_prompt(task, handoff_context)
+                        if handoff_context is not None else None))
             # THE PROVIDER OWNED THIS TREE, so it is held to the staged tree's
             # own rules before anything reads or copies it. Review [P1]: the
             # source check ran before Claude and nothing ran after, so a link
@@ -2235,7 +2302,24 @@ class ClaudeAgent:
                 "changed": _measured_changes(measured,
                                              measured if line else patch),
                 "removed": list(removed or [])}
-            if not declared_context:
+            # W385331: DID THE PROVIDER YIELD? Read only from a turn that
+            # ended cleanly: a provider that failed asked nothing, whatever it
+            # left on disk. A yield skips the verification command on
+            # purpose -- a yielded checkpoint is retained evidence and does
+            # not have to pass final verification for somebody to ask a
+            # question -- and it is only ever yielded on the prepared line,
+            # because the retained head the question names is the line's.
+            requested = (_handoff_request(handoff_room)
+                         if handoff_room is not None and provider["ok"]
+                         else None)
+            if requested is not None and not line:
+                raise TaskRefusal(
+                    "a native handoff request is yielded on the prepared "
+                    "implementation line and this task names another "
+                    "source profile")
+            if requested is not None:
+                verification = None
+            elif not declared_context:
                 verification = (self._verify(
                     task, candidate, verification_environment,
                     verification_directories)
@@ -2279,6 +2363,13 @@ class ClaudeAgent:
                 _revalidated(candidate, written, measured, what=what,
                              skip=walk_skip)
             disposition, why = _disposition(provider, patch, verification)
+            if requested is not None:
+                # NOT A CANDIDATE AND NOT A FAILURE: the invocation finished
+                # and the stage did not. The word is the result record's own;
+                # what the host reads is the declared claim below.
+                disposition = "yielded"
+                why = (f"the provider yielded a {requested['kind']} to "
+                       f"{handoff_context['recipient']}")
             if line:
                 # THE COMMIT HAPPENS WHATEVER THE DISPOSITION IS, and that is
                 # deliberate. The manager freezes an immutable checkpoint over
@@ -2357,7 +2448,28 @@ class ClaudeAgent:
             receipt_output = [{"name": CONTEXT_RECEIPT, "status": "present", "result_metadata": {}}]
         recap = (f"{disposition}: {why}"
                  f" ({len(changed)} changed path(s))")[:MAX_RECAP]
-        return {"disposition": ("completed" if disposition == "candidate"
+        handoff_answer = []
+        if handoff_output is not None:
+            # WHAT THIS INVOCATION DECLARES ITSELF TO HAVE BEEN, on its own
+            # declared output: the request it yielded, bound to the retained
+            # head and the cited evidence, or the plain statement that it was
+            # a final submission. The host cross-binds the head against the
+            # checkpoint it actually freezes.
+            if requested is None:
+                # A FINAL SUBMISSION PUBLISHES ITS OWN RECORD AND NOTHING
+                # DELIVERED: the continuation this turn was given was its
+                # input, not its output, and the yielding turn's custody
+                # already retains it.
+                _discarded(handoff_room, HANDOFF_CONTINUATION)
+            document = (self._request_document(
+                requested, candidate=candidate, room=handoff_room,
+                head=head if head is not None else entry,
+                recipient=handoff_context["recipient"])
+                        if requested is not None else _final_document())
+            handoff_answer = [_handoff_answer(handoff_output, handoff_room,
+                                              document)]
+        return {"disposition": ("completed"
+                                if disposition in ("candidate", "yielded")
                                 else "unable"),
                 "outputs": [{"name": one["name"], "status": "present",
                              # W112029: THE OBSERVATION RIDES WITH THE CLAIM,
@@ -2372,8 +2484,48 @@ class ClaudeAgent:
                                                     verification,
                                                     plan["base"], head)}
                                  if head is not None else {})}]
-                           + receipt_output + _absent(absent),
+                           + handoff_answer + receipt_output + _absent(absent),
                 "recap": recap}
+
+    # -- W385331: binding one yielded request --------------------------------
+
+    def _request_document(self, requested, *, candidate, room, head,
+                          recipient):
+        """The provider's request over this adapter's bindings.
+
+        THE PROVIDER ASKS AND THE ADAPTER BINDS. The head is the one this turn
+        committed, or the one it was admitted at when it changed nothing;
+        each cited reference is read no-follow from the candidate and digested
+        here, so a citation of a path that is not a regular file in this tree
+        refuses rather than publishing a reference to nothing; and the
+        continuation is written beside the record so the retained checkpoint
+        carries it. The recipient is the delivered configuration's.
+        """
+        evidence = []
+        for one in requested["evidence"]:
+            raw = _read_under(candidate, one["reference"], "cited evidence")
+            evidence.append({"reference": one["reference"],
+                             "digest": _handoff_digest_of(raw),
+                             "note": one["note"]})
+        continuation = requested["continuation"]
+        if not continuation.endswith("\n"):
+            continuation += "\n"
+        _made(room)
+        # THE DELIVERED NOTE, IF THIS TURN WAS A CONTINUATION, IS REPLACED BY
+        # THIS TURN'S OWN: it was placed read-only, so it is removed by name
+        # rather than opened for writing.
+        _discarded(room, HANDOFF_CONTINUATION)
+        _written(os.path.join(room, HANDOFF_CONTINUATION), continuation)
+        return {"schema": HANDOFF_SCHEMA, "kind": requested["kind"],
+                "body": requested["body"], "evidence": evidence,
+                "continuation": {
+                    "reference": f"{HANDOFF_OUTPUT}/{HANDOFF_CONTINUATION}",
+                    "digest": _handoff_digest_of(
+                        continuation.encode("utf-8"))},
+                "checkpoint": {"reference": head,
+                               "digest": _handoff_digest_of(
+                                   head.encode("utf-8"))},
+                "recipient": recipient}
 
     # -- W110772: the review turn --------------------------------------------
 
@@ -2401,6 +2553,21 @@ class ClaudeAgent:
         """
         produce, absent = _selected(declared, REVIEW_OUTPUTS, "review")
         findings_output, logs_output = produce
+        # W385331: A REVIEWER OVER A YIELDED CHECKPOINT IS ANSWERING A
+        # QUESTION, and the delivered context is what says so. With none
+        # delivered this is an ordinary technical review and the declared
+        # `response` output, if any, is answered absent; with one delivered
+        # the output must be declared, because a response nobody declared is
+        # a response nobody can publish.
+        response_context = _handoff_context("review")
+        response_output, absent = _lifted(absent, RESPONSE_OUTPUT)
+        if response_context is not None and response_output is None:
+            raise TaskRefusal(
+                "this review attempt was delivered a native handoff context "
+                "and declares no response output; a reply to a question is "
+                "published on its own declared output or not at all")
+        response_room = (os.path.join(OUTPUT_ROOT, response_output["path"])
+                         if response_output is not None else None)
         findings = os.path.join(OUTPUT_ROOT, findings_output["path"])
         logs = os.path.join(OUTPUT_ROOT, logs_output["path"])
         task = _task()
@@ -2430,8 +2597,18 @@ class ClaudeAgent:
         environments = self._child_environments(scratch)
         provider = self._provider(
             task, room, scratch, environments["provider"],
-            prompt=_review_prompt(task, source, REVIEW_REPORT))
+            prompt=(_response_prompt(task, source, response_context,
+                                     RESPONSE_REPORT)
+                    if response_context is not None
+                    else _review_prompt(task, source, REVIEW_REPORT)))
         report = _review_report(room) if provider["ok"] else None
+        # W385331: THE REPLY, read only when a question was delivered. Both a
+        # report and a reply in one turn are surfaced as the two claims they
+        # are, and the host holds on the ambiguity rather than this adapter
+        # picking a half to believe.
+        response = (_response_report(room)
+                    if provider["ok"] and response_context is not None
+                    else None)
         # THE SOURCE IS RE-READ AFTER THE TURN, whatever the turn did.
         again = self._observed(source, task)
         if again != observed:
@@ -2454,7 +2631,9 @@ class ClaudeAgent:
                                  **_diagnostic_member(provider)},
                              "verification": None},
                             indent=1, sort_keys=True) + "\n")
-        if report is None:
+        unanswered = ([] if response_output is None
+                      else _absent([response_output]))
+        if report is None and response is None:
             # NO CLAIM ON ANY OUTPUT. The manager's reader finds none and
             # holds, which is what an unanswered review is worth. Answering
             # findings absent rather than empty is the same statement made in
@@ -2465,24 +2644,46 @@ class ClaudeAgent:
                                  "result_metadata": {}},
                                 {"name": logs_output["name"],
                                  "status": "present", "result_metadata": {}}]
-                            + _absent(absent),
+                            + unanswered + _absent(absent),
                     "recap": (f"unable: the review produced no usable report "
                               f"({provider.get('failure_reason') or 'absent'})"
                               )[:MAX_RECAP]}
         _made(findings)
+        if response is not None:
+            # THE FINDINGS OUTPUT CARRIES THE REPLY'S PROSE for a human to
+            # read, and the response output carries the bound document. A
+            # report written beside the reply keeps its own claim, so a turn
+            # that both answered and judged is visibly two answers.
+            written = report if report is not None else {
+                "schema": REVIEW_REPORT_SCHEMA, "verdict": None,
+                "findings": response["body"]}
+            prose = response["body"] if report is None else report["findings"]
+        else:
+            written, prose = report, report["findings"]
         _written(os.path.join(findings, REVIEW_RESULT),
-                 json.dumps(report, indent=1, sort_keys=True) + "\n")
+                 json.dumps(written, indent=1, sort_keys=True) + "\n")
         _written(os.path.join(findings, REVIEW_FINDINGS),
-                 report["findings"] + ("" if report["findings"].endswith("\n")
-                                       else "\n"))
+                 prose + ("" if prose.endswith("\n") else "\n"))
+        answered = []
+        if response is not None:
+            answered = [_handoff_answer(
+                response_output, response_room,
+                _response_document(response, response_context))]
+        elif response_output is not None:
+            answered = unanswered
         return {"disposition": "completed",
                 "outputs": [{"name": findings_output["name"],
                              "status": "present",
-                             "result_metadata": _review_claim(
-                                 report["verdict"], observed)},
+                             "result_metadata": (_review_claim(
+                                 report["verdict"], observed)
+                                 if report is not None else {})},
                             {"name": logs_output["name"], "status": "present",
-                             "result_metadata": {}}] + _absent(absent),
-                "recap": (f"{report['verdict']}: reviewed "
+                             "result_metadata": {}}]
+                           + answered + _absent(absent),
+                "recap": ((f"{response['disposition']}: replied to the "
+                           f"pending {response_context['request']['kind']}")
+                          if response is not None else
+                          f"{report['verdict']}: reviewed "
                           f"{observed['base'][:12]}..{observed['head'][:12]}"
                           )[:MAX_RECAP]}
 
@@ -5727,6 +5928,403 @@ def _selected(declared, produce, what):
                 f"their own half and answer the rest missing-optional",
                 code=_OTHER_ROLE_OUTPUT_REQUIRED, role=what)
     return [by[one] for one in produce], absent
+
+
+# -- W385331: the native handoff helpers ---------------------------------------
+
+
+def _lifted(absent, name):
+    """One declared output taken OUT of the absent set, and the rest."""
+    held = [one for one in absent if one["name"] == name]
+    if not held:
+        return None, absent
+    return held[0], [one for one in absent if one["name"] != name]
+
+
+def _handoff_pairing(output, context, contextual):
+    if output is None and context is None:
+        return
+    if output is None:
+        raise TaskRefusal(
+            "this attempt was delivered a native handoff context and "
+            "declares no handoff output; what an invocation was is published "
+            "on its own declared output or not at all")
+    if context is None:
+        raise TaskRefusal(
+            "this assignment declares a handoff output and no native handoff "
+            "context was delivered; a request needs a configured recipient "
+            "and this turn was told none")
+    if contextual is not None:
+        raise TaskRefusal(
+            "context serving and a native handoff are not combined in this "
+            "revision; the bound restore prompt admits no handoff addendum")
+
+
+def _handoff_json(raw, what):
+    """One bounded JSON object from provider- or host-written bytes."""
+    try:
+        document = json.loads(raw.decode("utf-8"),
+                              object_pairs_hook=_no_duplicates)
+    except (UnicodeDecodeError, ValueError, RecursionError):
+        raise TaskRefusal(f"{what} is not one readable JSON document") \
+            from None
+    if type(document) is not dict:
+        raise TaskRefusal(f"{what} is one JSON object")
+    return document
+
+
+def _handoff_text(value, limit, what, *, empty=False):
+    if type(value) is not str:
+        raise TaskRefusal(f"{what} is text")
+    if not empty and not value.strip():
+        raise TaskRefusal(f"{what} is not empty")
+    if len(value) > limit:
+        raise TaskRefusal(f"{what} is at most {limit} characters")
+    try:
+        value.encode("utf-8")
+    except UnicodeEncodeError:
+        raise TaskRefusal(f"{what} is not text this adapter can write") \
+            from None
+    return value
+
+
+def _exactly_members(document, members, what):
+    if sorted(document) != sorted(members):
+        raise TaskRefusal(f"{what} is exactly {', '.join(members)}")
+    return document
+
+
+def _handoff_digest_of(raw):
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def _is_digest(value):
+    return (type(value) is str and value.startswith("sha256:")
+            and len(value) == 71
+            and all(one in "0123456789abcdef" for one in value[7:]))
+
+
+def _handoff_message(document, what):
+    """One delivered retained message, bounded where this adapter reads it."""
+    if type(document) is not dict:
+        raise TaskRefusal(f"{what} is one message object")
+    for member in ("message_id", "kind"):
+        _handoff_text(document.get(member), MAX_HANDOFF_REFERENCE,
+                      f"{what}'s {member}")
+    if not _is_digest(document.get("handoff_digest")):
+        raise TaskRefusal(f"{what} carries a sha256 handoff digest")
+    body = document.get("body")
+    if type(body) is not dict:
+        raise TaskRefusal(f"{what} carries its retained handoff document")
+    _handoff_text(body.get("body"), MAX_HANDOFF_BODY, f"{what}'s body")
+    return document
+
+
+def _handoff_context(role):
+    """The delivered native handoff context, or `None` when none was
+    delivered.
+
+    ABSENCE IS ORDINARY AND MALFORMATION IS A REFUSAL. The host publishes this
+    document read-only beside the task when the Job's template has a handoff
+    branch; an attempt without one is every attempt that existed before this
+    slice. A document that is there and is not one this adapter reads is not
+    one to read the recognised parts out of.
+    """
+    # READ AS THE TASK IS READ. This is a HOST-published document in the
+    # read-only input root, the same trust as `task.json` beside it, so it is
+    # opened the way `_read_task` opens that one -- bounded, and following the
+    # name the host composed -- rather than with the no-follow discipline the
+    # provider-written report and request get. A delivery that is there and
+    # cannot be read is a refusal, not an absence.
+    place = os.path.join(INPUT_ROOT, HANDOFF_DOCUMENT)
+    try:
+        with open(place, "rb") as reading:
+            raw = reading.read(MAX_HANDOFF_CONTEXT_BYTES + 1)
+    except FileNotFoundError:
+        return None
+    except OSError as refused:
+        raise TaskRefusal(
+            f"this assignment's native handoff context at {place} is not "
+            f"readable ({type(refused).__name__})") from None
+    if not raw or len(raw) > MAX_HANDOFF_CONTEXT_BYTES:
+        raise TaskRefusal(
+            f"the native handoff context is bounded non-empty bytes, at most "
+            f"{MAX_HANDOFF_CONTEXT_BYTES}")
+    document = _handoff_json(raw, "the native handoff context")
+    if document.get("schema") != HANDOFF_CONTEXT_SCHEMA:
+        raise TaskRefusal(
+            f"the native handoff context says it is "
+            f"{document.get('schema')!r} and this adapter reads "
+            f"{HANDOFF_CONTEXT_SCHEMA!r}")
+    if document.get("role") != role:
+        raise TaskRefusal(
+            f"the native handoff context was composed for the "
+            f"{document.get('role')!r} role and this is a {role} turn")
+    if role == "implementation":
+        _handoff_text(document.get("recipient"), MAX_HANDOFF_PARTICIPANT,
+                      "the configured recipient")
+        continuation = document.get("continuation")
+        if continuation is not None:
+            if type(continuation) is not dict:
+                raise TaskRefusal("a continuation is one object")
+            _handoff_message(continuation.get("request"),
+                             "the continued request")
+            reply = _handoff_message(continuation.get("reply"),
+                                     "the continuing reply")
+            body = reply["body"]
+            if body.get("disposition") not in HANDOFF_DISPOSITIONS:
+                raise TaskRefusal("the continuing reply has a disposition")
+            _handoff_text(body.get("rationale"), MAX_HANDOFF_RATIONALE,
+                          "the continuing reply's rationale")
+            # THE RETAINED CONTINUATION ITSELF, proved against the digest
+            # the continued request committed (review 2026-11-20T19-39-15Z
+            # R1). A resumed turn is given the exact note its previous turn
+            # wrote about what remained, or it refuses: a continuation that
+            # is missing, or that does not digest to what the request named,
+            # is not silently omitted and not silently replaced.
+            asked = continuation["request"]["body"].get("continuation")
+            wanted = asked.get("digest") if type(asked) is dict else None
+            text = continuation.get("text")
+            if type(text) is not str or not text \
+                    or len(text.encode("utf-8")) > MAX_HANDOFF_CONTEXT_BYTES \
+                    or not _is_digest(wanted) \
+                    or _handoff_digest_of(text.encode("utf-8")) != wanted:
+                raise TaskRefusal(
+                    "the delivered continuation is missing or does not "
+                    "digest to what the continued request committed; a "
+                    "resumed turn is given the exact continuation it yielded")
+        return document
+    _handoff_message(document.get("request"), "the pending request")
+    checkpoint = document.get("checkpoint")
+    if type(checkpoint) is not dict \
+            or sorted(checkpoint) != ["digest", "reference"]:
+        raise TaskRefusal("the pending request names its retained checkpoint")
+    _handoff_text(checkpoint["reference"], MAX_HANDOFF_REFERENCE,
+                  "the retained checkpoint reference")
+    if not _is_digest(checkpoint["digest"]):
+        raise TaskRefusal("the retained checkpoint carries a sha256 digest")
+    return document
+
+
+def _fresh_handoff_room(room):
+    _made(room)
+    for name in (HANDOFF_REQUEST, HANDOFF_RECORD, HANDOFF_CONTINUATION):
+        _discarded(room, name)
+
+
+def _delivered_continuation(room, context):
+    """The retained continuation, placed READ-ONLY where the resumed provider
+    works, AFTER the room is fresh and BEFORE the provider runs.
+
+    Review 2026-11-20T19-39-15Z R1: the first cut cleared the previous turn's
+    `continuation.txt` -- correctly, a member of a persistent room is a fact
+    about THIS turn or it is nothing -- and then delivered nothing in its
+    place, so the implementer's own note of what remained was unavailable to
+    the invocation that was resumed to finish it. The text arrives in the
+    host-published context, already proved against the committed digest by
+    `_handoff_context`, and is written here under the same name the yielding
+    turn used, read-only, so the prompt can name one path that is true.
+
+    `None` when this turn is not a continuation. The file is this turn's
+    DELIVERY and never its output: `_request_document` replaces it with the
+    new note if the provider yields again, and the final-submission branch
+    discards it before the record is written.
+    """
+    continuation = context.get("continuation")
+    if continuation is None:
+        return None
+    place = os.path.join(room, HANDOFF_CONTINUATION)
+    with open(place, "w", encoding="utf-8") as writing:
+        writing.write(continuation["text"])
+    os.chmod(place, 0o444)
+    return place
+
+
+def _handoff_request(room):
+    """The provider's request, or `None`; a malformed one is a refusal.
+
+    BOUNDED, CLOSED AND READ NO-FOLLOW, exactly as the review report is: the
+    provider is the least trusted process in the container. A request that is
+    not one this adapter can bind is refused rather than published, because a
+    published half-request is a question nobody can answer and a claim the
+    host would have to hold on.
+    """
+    raw = _read_bounded(room, HANDOFF_REQUEST, "the native handoff request")
+    if raw is None:
+        return None
+    document = _exactly_members(
+        _handoff_json(raw, "the native handoff request"),
+        HANDOFF_REQUEST_MEMBERS, "a native handoff request")
+    if document["kind"] not in HANDOFF_REQUEST_KINDS:
+        raise TaskRefusal(
+            f"a native handoff request is one of "
+            f"{', '.join(HANDOFF_REQUEST_KINDS)}")
+    _handoff_text(document["body"], MAX_HANDOFF_BODY, "the request body")
+    _handoff_text(document["continuation"], MAX_HANDOFF_BODY,
+                  "the request's continuation")
+    evidence = document["evidence"]
+    if type(evidence) is not list or len(evidence) > MAX_HANDOFF_EVIDENCE:
+        raise TaskRefusal(
+            f"a request cites at most {MAX_HANDOFF_EVIDENCE} references")
+    seen = set()
+    for one in evidence:
+        if type(one) is not dict or sorted(one) != ["note", "reference"]:
+            raise TaskRefusal("cited evidence is exactly reference and note")
+        reference = _handoff_text(one["reference"], MAX_HANDOFF_REFERENCE,
+                                  "a cited reference")
+        if reference.startswith("/") or ".." in reference.split("/") \
+                or reference in seen:
+            raise TaskRefusal(
+                "a cited reference is one relative path inside the candidate, "
+                "cited once")
+        seen.add(reference)
+        _handoff_text(one["note"], MAX_HANDOFF_BODY, "a citation's note",
+                      empty=True)
+    return document
+
+
+def _response_report(room):
+    """The reviewer's reply, or `None`; a malformed one is a refusal."""
+    raw = _read_bounded(room, RESPONSE_REPORT, "the native handoff response")
+    if raw is None:
+        return None
+    document = _exactly_members(
+        _handoff_json(raw, "the native handoff response"),
+        HANDOFF_RESPONSE_MEMBERS, "a native handoff response")
+    if document["disposition"] not in HANDOFF_DISPOSITIONS:
+        raise TaskRefusal(
+            f"a response disposition is one of "
+            f"{', '.join(HANDOFF_DISPOSITIONS)}")
+    _handoff_text(document["body"], MAX_HANDOFF_BODY, "the response body")
+    _handoff_text(document["rationale"], MAX_HANDOFF_RATIONALE,
+                  "the response rationale")
+    escalation = document["escalation"]
+    if document["disposition"] == "answer":
+        if escalation is not None:
+            raise TaskRefusal("an answer carries no escalation")
+        return document
+    if type(escalation) is not dict:
+        raise TaskRefusal("an escalation states its ambiguity, options and "
+                          "recommendation")
+    _exactly_members(escalation, HANDOFF_ESCALATION_MEMBERS, "an escalation")
+    _handoff_text(escalation["ambiguity"], MAX_HANDOFF_BODY,
+                  "the escalation's ambiguity")
+    _handoff_text(escalation["recommendation"], MAX_HANDOFF_BODY,
+                  "the escalation's recommendation")
+    options = escalation["options"]
+    if type(options) is not list or not options \
+            or len(options) > MAX_HANDOFF_OPTIONS \
+            or len(set(options)) != len(options):
+        raise TaskRefusal(
+            f"an escalation states between one and {MAX_HANDOFF_OPTIONS} "
+            f"distinct options")
+    for one in options:
+        _handoff_text(one, MAX_HANDOFF_BODY, "an escalation option")
+    return document
+
+
+def _final_document():
+    return {"schema": HANDOFF_SCHEMA, "kind": HANDOFF_FINAL_KIND}
+
+
+def _response_document(response, context):
+    """The bound reply: the provider's decision over the host's bindings.
+
+    THE PROVIDER DECIDES AND THE ADAPTER BINDS. Which request this answers
+    and which checkpoint it is about are facts the host delivered, so they are
+    copied from the context rather than taken from the provider; the
+    disposition, the prose and the escalation are the reviewer's own.
+    """
+    request = context["request"]
+    return {"schema": HANDOFF_SCHEMA, "kind": HANDOFF_RESPONSE_KIND,
+            "request": {"reference": request["message_id"],
+                        "digest": request["handoff_digest"]},
+            "disposition": response["disposition"],
+            "body": response["body"], "rationale": response["rationale"],
+            "evidence": [], "checkpoint": dict(context["checkpoint"]),
+            "escalation": response["escalation"]}
+
+
+def _handoff_answer(output, room, document):
+    """Publish the bound document into its declared output and answer it."""
+    _made(room)
+    _written(os.path.join(room, HANDOFF_RECORD),
+             json.dumps(document, indent=1, sort_keys=True) + "\n")
+    return {"name": output["name"], "status": "present",
+            "result_metadata": {HANDOFF_SCHEMA: document}}
+
+
+def _handoff_prompt(task, context):
+    """The implementation prompt with the handoff addendum.
+
+    THE PROVIDER IS STILL NOT TOLD ABOUT THE PROTOCOL. It learns one more
+    path it may write -- the request, inside a directory that is never part of
+    the candidate -- and, on a continuation, the question it stopped at and
+    the reply it resumes on. It learns nothing about the Authority, the
+    message, the episode or the manager.
+    """
+    opening = _prompt(task)
+    addendum = (
+        f"\nIf, and only if, you cannot finish without a clarification that "
+        f"stays within the stated scope, or you discover an in-scope finding "
+        f"the reviewer must classify before you continue, stop and write "
+        f"exactly one JSON file at {HANDOFF_OUTPUT}/{HANDOFF_REQUEST} "
+        f"(relative to this directory; it is never part of the change) with "
+        f"exactly these members:\n"
+        f'  "kind": one of {", ".join(HANDOFF_REQUEST_KINDS)}\n'
+        f'  "body": the question or the finding, within the stated scope\n'
+        f'  "evidence": a list of {{"reference": <path in this tree>, '
+        f'"note": <text>}}\n'
+        f'  "continuation": what remains to be done once it is answered\n'
+        f"Leave your partial edits in place; the configured reviewer "
+        f"{context['recipient']} answers it and you resume here. Do not "
+        f"write it when you can finish.\n")
+    continuation = context.get("continuation")
+    if continuation is None:
+        return opening + addendum
+    request = continuation["request"]["body"]
+    reply = continuation["reply"]["body"]
+    note = continuation["text"]
+    return (opening + addendum
+            + f"\nYOUR PREVIOUS TURN STOPPED AT THIS {request['kind']}:\n"
+              f"{request['body']}\n\n"
+              f"THE REVIEWER'S REPLY ({reply['disposition']}):\n"
+              f"{reply['body']}\n"
+              f"RATIONALE: {reply['rationale']}\n\n"
+              f"YOUR OWN NOTE OF WHAT REMAINED TO BE DONE, exactly as you "
+              f"wrote it (also readable at "
+              f"{HANDOFF_OUTPUT}/{HANDOFF_CONTINUATION}, read-only, "
+              f"relative to this directory):\n{note}"
+              + ("" if note.endswith("\n") else "\n")
+              + f"\nContinue the same task in this working copy from that "
+              f"note; the requirements and the verification command are "
+              f"unchanged.\n")
+
+
+def _response_prompt(task, source, context, report):
+    """The reviewer's prompt over a YIELDED checkpoint: answer, do not judge."""
+    request = context["request"]["body"]
+    evidence = "".join(
+        f"  {one['reference']}" + (f" -- {one['note']}" if one["note"] else "")
+        + "\n" for one in request.get("evidence") or [])
+    return (f"An implementer working on the read-only source tree at {source} "
+            f"stopped at a {request['kind']} rather than submitting. Do not "
+            f"modify anything there, and do not attempt to build, commit or "
+            f"edit it.\n\n"
+            f"The task's requirements are:\n\n{task['instructions']}\n\n"
+            f"THE {request['kind'].upper()}:\n{request['body']}\n"
+            + (f"CITED EVIDENCE:\n{evidence}" if evidence else "")
+            + f"\nDecide within the accepted scope of those requirements. "
+            f"This turn is not a technical review and must not write "
+            f"{REVIEW_REPORT}. Write your decision to {report} as a JSON "
+            f"object with exactly these four members:\n"
+            f'  "disposition": one of {", ".join(HANDOFF_DISPOSITIONS)}\n'
+            f'  "body": your answer, or what cannot be resolved\n'
+            f'  "rationale": why, within the accepted scope\n'
+            f'  "escalation": null for an answer; for an escalation an object '
+            f'with "ambiguity", "options" (a non-empty list) and '
+            f'"recommendation"\n'
+            f"Write nothing else to that path and write no other file.\n")
 
 
 def _absent(declarations):

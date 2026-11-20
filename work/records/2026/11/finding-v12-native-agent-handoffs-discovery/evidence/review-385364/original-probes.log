@@ -1,0 +1,10 @@
+test_retained_continuation_reaches_resumed_provider (__main__.ComposedProbes.test_retained_continuation_reaches_resumed_provider) ... ok
+test_zero_edit_yield_answer_resume (__main__.ComposedProbes.test_zero_edit_yield_answer_resume) ... ok
+test_response_from_work_a_cannot_answer_work_b (__main__.ForeignRequestProbe.test_response_from_work_a_cannot_answer_work_b) ... ok
+test_actual_continuation_retry_returns_same_receipt (__main__.ReplayProbe.test_actual_continuation_retry_returns_same_receipt) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.688s
+
+OK
+CONTINUATION_OBSERVATION {"file_exists": true, "prompt_has_continuation": true}

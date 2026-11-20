@@ -692,9 +692,14 @@ CONTRACTS = {
     "job.expiry": (("operation_id", "job_id", "trigger", "stage_id",
                     "reason", "requested_at", "deadline_at", "observed_at",
                     "incarnation"), ()),
+    # W385331 added the ADDITIVE `continuations` member: the resolved
+    # continuation allowance and what this Job has spent of it, reported
+    # BESIDE the correction account and never merged with it. An operator
+    # reading a held Job has to be able to see which of the two allowances is
+    # exhausted, and one combined number cannot say.
     "job.control-report": (("profile", "resolved", "timing", "observed_at",
                             "watermark", "job", "stages", "corrections",
-                            "fence"), ()),
+                            "fence"), ("continuations",)),
     # One Job the sweep's control pass decided about this tick.
     "job.control-notice": (("job_id", "outcome"),
                            ("trigger", "stage_id", "deadline_at", "detail")),

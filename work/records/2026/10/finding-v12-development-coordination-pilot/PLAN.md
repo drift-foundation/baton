@@ -227,3 +227,8 @@ Reviewed joined bytes imported and package evidence verified. Slawomir checkpoin
 ## 2026-11-20 — messaging/handoffs/discovery promoted to next priority
 
 Owner selects 2b077949-W385331 at work/records/2026/11/finding-v12-native-agent-handoffs-discovery for development using v12. This supersedes the earlier temporary deferral for its bounded scope. Labels checkpoint45141ac6 remains accepted; prior native pilot run is not retroactively accepted. New scope/semantics pinned in DESIGN SCH-2a. Mechanical kickoff on a verified current runtime remains required.
+
+
+## Current continuation — artifact build and packaging gate
+
+K runs one step-C build/gate on3d05430f-bound source, preserving truthful stamp and input provenance. Return exact install command and artifact identity; no live instance or Job operation in this step.

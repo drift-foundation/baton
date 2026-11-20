@@ -1,0 +1,55 @@
+Derived timeline of the retained native session (tool invocations only; no model prose, no provider text).
+2026-11-20T15:23:50.693Z unittest tests.job_manager.test_role_contract tests.manager.test_output tests.job_manager.test_job_control
+2026-11-20T15:33:13.246Z Write /output/v12/python/src/baton_v12/native_handoff.py
+2026-11-20T15:35:37.068Z Write /output/v12/python/src/baton_v12/authority/messages.py
+2026-11-20T15:37:00.463Z unittest (ad hoc)
+2026-11-20T15:37:05.857Z unittest (ad hoc)
+2026-11-20T15:37:11.069Z unittest tests.authority.test_boundary
+2026-11-20T15:37:59.931Z unittest tests.authority.test_boundary
+2026-11-20T15:38:04.719Z unittest tests.authority.test_boundary
+2026-11-20T15:38:15.708Z unittest tests.authority.test_boundary
+2026-11-20T15:38:28.644Z git stash pop in same command
+2026-11-20T15:38:32.234Z git stash pop in same command
+2026-11-20T15:38:37.275Z unittest tests.authority.test_boundary
+2026-11-20T15:38:58.810Z unittest tests.authority.test_boundary tests.authority.test_boundary
+2026-11-20T15:39:16.194Z unittest tests.authority.test_boundary
+2026-11-20T15:39:45.947Z unittest tests.authority.test_boundary
+2026-11-20T15:39:52.067Z unittest tests.authority.test_session
+2026-11-20T15:40:16.849Z unittest (ad hoc)
+2026-11-20T15:42:58.979Z unittest tests.job_manager.test_role_contract tests.job_manager.test_templates tests.job_manager.test_role_capability tests.manager.test_output
+2026-11-20T15:43:04.032Z unittest tests.job_manager.test_templates
+2026-11-20T15:43:13.576Z unittest tests.job_manager.test_role_contract tests.job_manager.test_templates
+2026-11-20T15:43:23.731Z unittest tests.job_manager.test_role_contract tests.job_manager.test_templates
+2026-11-20T15:43:27.449Z unittest (ad hoc)
+2026-11-20T15:46:26.172Z unittest tests.authority.test_boundary
+2026-11-20T15:46:49.176Z unittest tests.job_manager.test_role_capability tests.job_manager.test_role_contract tests.manager.test_adapter_declaration
+2026-11-20T15:51:45.116Z Write /output/v12/python/src/baton_v12/job_manager/native_handoffs.py
+2026-11-20T15:54:27.436Z unittest tests.job_manager.test_review_driver
+2026-11-20T15:54:30.731Z unittest tests.job_manager.test_review_driver
+2026-11-20T15:55:19.497Z unittest tests.job_manager.test_review_driver
+2026-11-20T15:56:05.828Z unittest tests.job_manager.test_review_driver
+2026-11-20T15:56:51.712Z unittest tests.job_manager.test_review_driver
+2026-11-20T15:57:01.641Z unittest tests.job_manager.test_review_driver.TheImplementationEndingPublishesBeforeItFences
+2026-11-20T15:57:59.704Z unittest tests.job_manager.test_review_driver
+2026-11-20T15:58:08.781Z unittest tests.job_manager.test_review_driver.TheImplementationEndingPublishesBeforeItFences
+2026-11-20T15:58:22.299Z unittest tests.job_manager.test_review_driver
+2026-11-20T15:58:31.540Z unittest tests.job_manager.test_review_driver.TheImplementationResumeReadsRealCommittedCustody.test_the_resume_answers_the_ordinary_endings_document
+2026-11-20T15:58:42.009Z unittest tests.job_manager.test_review_driver tests.job_manager.test_role_contract tests.manager.test_output tests.job_manager.test_job_control
+2026-11-20T15:58:52.447Z unittest tests.job_manager.test_job_control.TheAdmission
+2026-11-20T15:59:02.841Z unittest tests.job_manager.test_review_driver tests.job_manager.test_role_contract tests.manager.test_output tests.job_manager.test_job_control
+2026-11-20T16:00:38.483Z unittest tests.job_manager.test_job_control tests.job_manager.test_scheduling tests.job_manager.test_status tests.job_manager.test_sweep tests.job_manager.test_recovery
+2026-11-20T16:00:45.256Z unittest (ad hoc)
+2026-11-20T16:01:22.283Z unittest tests.job_manager.test_store_readonly tests.job_manager.test_tool
+2026-11-20T16:02:33.482Z unittest tests.tools.test_stage_execution
+2026-11-20T16:05:35.252Z unittest tests.tools.test_stage_execution
+2026-11-20T16:13:14.366Z unittest tests.tools.test_stage_execution.OrdinaryTerminalLifecycle
+2026-11-20T16:16:41.342Z Write /output/v12/python/tests/authority/test_work_messages.py
+2026-11-20T16:16:46.027Z unittest tests.authority.test_work_messages
+2026-11-20T16:16:59.835Z unittest tests.authority.test_work_messages
+2026-11-20T16:19:49.762Z Write /output/v12/python/tests/job_manager/test_native_handoffs.py
+2026-11-20T16:19:54.668Z unittest tests.job_manager.test_native_handoffs
+2026-11-20T16:20:16.166Z unittest tests.job_manager.test_native_handoffs
+2026-11-20T16:21:02.174Z unittest tests.job_manager.fixtures tests.job_manager.test_native_handoffs
+2026-11-20T16:22:07.099Z unittest tests.job_manager.test_native_handoffs
+2026-11-20T16:23:22.992Z unittest (ad hoc)
+tool invocations 218 first 2026-11-20T15:23:33.681Z last 2026-11-20T16:23:22.992Z

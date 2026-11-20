@@ -1,0 +1,45 @@
+date: 2026-11-20T13:59:21Z
+--- docker image inspect (read-only)
+sha256:f2b86df0422a508bcf6603866fbf31b27828fd36b1dc3d88d9318f0225ffb380 tags=[baton-v12-worker:e670e624] created=2026-11-19T05:16:19.452607842Z
+--- recipe inputs (v12/worker/Dockerfile.claude COPY/ARG)
+58:FROM node:22-trixie-slim
+63:ARG CLAUDE_VERSION=2.1.247
+135:COPY python/src/baton_v12/attempt_log_format.py \
+145:COPY python/src/baton_v12/verification_context.py \
+147:COPY worker/baton_worker.py /opt/baton/baton_worker.py
+167:COPY worker/adapter_refusal.py /opt/baton/adapter_refusal.py
+168:COPY worker/claude_agent.py /opt/baton/claude_agent.py
+169:COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
+170:COPY worker/worker-control-1.0.schema.json \
+188:COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+267:COPY worker/verifier-layout-marker.json \
+--- git diff --stat e670e624 HEAD over the recipe inputs (empty = unchanged)
+(end)
+--- marker
+3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648  v12/worker/verifier-layout-marker.json
+{
+ "filesystem": "tmpfs",
+ "layout_digest": "1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472",
+ "mode": 448,
+ "options": [
+  "nodev",
+  "noexec",
+  "nosuid",
+  "rw"
+ ],
+ "roots": {
+  "HOME": "/run/baton-verifier/home",
+  "PYTHONPYCACHEPREFIX": "/run/baton-verifier/pycache",
+  "TMPDIR": "/run/baton-verifier/tmp",
+  "XDG_CACHE_HOME": "/run/baton-verifier/cache"
+ },
+ "schema": "baton.v12.verifier-layout-marker/1"
+}
+--- labels-5 deployment layout digest
+155:          "layout_digest": "1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472",
+295:          "layout_digest": "1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472",
+--- labels-5 identity
+{"authority_uuid": "8148af5e916148d091a9ac6ae0cc3f3c", "schema": "baton.v12.instance-identity/1"}
+
+bundle 0f75ae9aafa806288fce5e56bd59acf0eedd69e27a582defac587430f033d056 {'changed_entries': 18, 'commit': 'd8f77700f06b6a8b68f5f3fc2aedbcc95169afc6', 'detail': None, 'dirty': True, 'excused_build_output': 0, 'schema': 'baton.v12.build-stamp/1', 'source': '/home/sl/src/baton'}
+runtime {'digest': '59df90fa53de9632b30099cb5a7c665aa883582768c630175d10df8e21dde759', 'files': 82}

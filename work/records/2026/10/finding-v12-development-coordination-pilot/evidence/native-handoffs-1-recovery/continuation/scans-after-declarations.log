@@ -1,0 +1,29 @@
+started 2026-11-20T18:08:09Z
+.........................................................................................................................F.............................................................................................................................../home/sl/src/baton/work/scratch/w383217/handoffs-recovery/candidate/v12/python/tests/manager/test_boundary_inventory.py:15350: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/scratch/w383217/handoffs-recovery/candidate/v12/python/src/baton_v12/worker_manager/workspaces.py' mode='r' encoding='UTF-8'>
+  source = ast.parse(open(_ws.__file__).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....................................................................................................................................................................................................................
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w383217/handoffs-recovery/candidate/v12/python/tests/manager/test_boundary_inventory.py", line 9117, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'review_cycles.py:continuatio[102 chars]id')] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+('adopted', 'review_cycles.py:continuation_hold_of', 'operations')
+
++ []
+- [('adopted', 'review_cycles.py:continuation_hold_of', 'operations'),
+-  ('adopted',
+-   'review_cycles.py:continuation_hold_of',
+-   'operations.operation_id')] : receiving entries with no owner
+
+----------------------------------------------------------------------
+Ran 461 tests in 190.709s
+
+FAILED (failures=1)
+exit=1 finished 2026-11-20T18:11:20Z

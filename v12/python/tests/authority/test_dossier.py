@@ -352,7 +352,12 @@ class TheSchemaBoundaryIsClosedAndExplicit(DossierCase):
     refusal, not a guessed migration."""
 
     def test_this_build_speaks_the_version_that_carries_the_binding(self):
-        self.assertEqual(SCHEMA_VERSION, 6)
+        """W385331 raised the cumulative version to 7 for the durable
+        attributed Work message; the dossier binding this case is about is
+        carried at 6 AND AT EVERY LATER VERSION, so what is pinned is the
+        version this build speaks rather than the one the binding arrived in.
+        The refusal case below is what proves the boundary is still closed."""
+        self.assertEqual(SCHEMA_VERSION, 7)
 
     def test_an_OLDER_store_is_refused_READ_ONLY_and_not_one_byte_changes(self):
         """A retained authority written before the binding existed has no

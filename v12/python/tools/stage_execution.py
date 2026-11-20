@@ -62,7 +62,8 @@ from baton_v12.integration import git_profile
 from baton_v12.integration import admission, driver
 from baton_v12.integration.driver import admit_authorized_result
 from baton_v12.integration.git_profile import GitIntegrationProfile
-from baton_v12.job_manager import (ending, execution_limits, review_driver,
+from baton_v12.job_manager import (ending, execution_limits,
+                                   native_handoffs, review_driver,
                                    scheduler)
 from baton_v12.job_manager.delegation import INTEGRATION_OBSERVATION_SCHEMA
 from baton_v12.job_manager.scheduler import allocation_of
@@ -1302,6 +1303,48 @@ class StageComposition:
                     category="refused", code="precondition")
         return held["boundary"]
 
+    def handoff_document_for(self, stage):
+        """W385331: the native handoff context THIS attempt is delivered.
+
+        THE SINGLE WORKER PUBLISHES IT AND THIS COMPOSES IT, through the one
+        composer `native_handoffs.delivered_context` -- every member read from
+        the Job store, the Authority and the custody owner by their public
+        readers. `None` for every Job whose admitted template has no handoff
+        branch and for every attempt with nothing to deliver, so a delivery
+        that existed before this slice is byte for byte what it was.
+
+        DETERMINISTIC PER ATTEMPT, which is what lets the preparation replay:
+        the records it reads -- the creation record, the yield, the committed
+        continuation, the committed messages -- are all committed before the
+        attempt is prepared and none of them moves afterwards.
+        """
+        deployment = self.deployment
+        jobs = getattr(deployment, "jobs", None)
+        job_id = stage.get("job_id") if type(stage) is dict else None
+        if jobs is None or job_id is None:
+            return None
+        # THE CAPABILITY QUESTION FIRST, before any other member of the stage
+        # row is touched: a Job with no handoff branch -- every Job that
+        # existed before this slice, and every preparation driven without an
+        # episode row -- answers `None` here and reads nothing else.
+        if not native_handoffs.handoff_capable(jobs, job_id):
+            return None
+        document = native_handoffs.delivered_context(
+            jobs, deployment.control, deployment.authority, role=self.role,
+            job_id=job_id, stage_id=stage["stage_id"],
+            episode=stage["episode"])
+        if document is not None:
+            # JOURNALLED UNDER THE ATTEMPT (review 2026-11-20T19-39-15Z R3):
+            # what this attempt was told is the host's durable fact about it,
+            # written here where the document is composed and replayed by
+            # every later recomposition of the same delivery. The answer
+            # commit binds the reviewer's reply to THIS record, and the
+            # ending dispatches on it rather than on a recomposition.
+            native_handoffs.record_delivery(
+                deployment.control, attempt_id=stage["attempt_id"],
+                document=document)
+        return native_handoffs.context_bytes(document)
+
     def prepare_context(self, worker, stage):
         from baton_v12.worker_manager import provider_context, context_delivery
         if self.role != "implementation":
@@ -1611,10 +1654,25 @@ class StageComposition:
         # with a pending cleanup refuses -- so a failed review could never
         # reach its own durable ending and the manager asked forever.
         prepared = self._retained(stage)
+        # W385331: WHETHER THIS JOB'S ADMITTED TEMPLATE HAS A HANDOFF BRANCH
+        # AT ALL, read from the Job store's own creation record. A Job
+        # resolved against `/1` or `/2`, or submitted by hand, answers `False`
+        # and takes every path it always took -- which is the whole of what
+        # preserves the admitted versions.
+        job_id = stage.get("job_id")
+        capable = job_id is not None and native_handoffs.handoff_capable(
+            deployment.jobs, job_id)
         if self.role == "implementation":
             answered = review_driver.end_implementation(
                 deployment.control, worker.port, context["adapter"],
                 deployment.publication_for(assignment["participant"]),
+                # THE SEAM IS THE PRODUCER'S OWN SESSION, exactly as the
+                # publication seam above is: a request is carried out under
+                # the requesting assignment, so the only session that could
+                # act for it is this participant's.
+                handoff=(deployment.handoff_for(assignment["participant"],
+                                                job_id) if capable else None),
+                handoff_capable=capable,
                 attempt_id=attempt_id,
                 disposition=context["disposition"],
                 terminal=context["terminal"],
@@ -1635,6 +1693,42 @@ class StageComposition:
                 # from its manager/Authority owner, so anything supplied here
                 # would be the deployment asserting what the result proves.
                 proposal=None)
+        elif capable and (
+                native_handoffs.was_asked(deployment.control, attempt_id)
+                or native_handoffs.declares_response(
+                    deployment.control, attempt_id, context["terminal"])):
+            # W385331: THE RESPONSE BRANCH, AND THE DISPATCH IS A FACT THIS
+            # DEPLOYMENT ALREADY HOLDS rather than a configuration switch.
+            #
+            # A reviewer attached to a frozen checkpoint can be ANSWERING A
+            # QUESTION or JUDGING A CANDIDATE. Which one THIS attempt was
+            # launched to do is the document this deployment delivered it:
+            # an attempt delivered a pending request was asked a question,
+            # and its ending is the response ending -- a reviewer that was
+            # asked a question and judged instead declared no response, and
+            # that ending holds on it rather than reading a verdict nobody
+            # asked for. An attempt delivered nothing is an ordinary final
+            # technical review and takes the branch below, unless its own
+            # completion envelope declares a response, which the response
+            # ending then proves or refuses out of the frozen result.
+            #
+            # DECIDED BEFORE THE FREEZE, deliberately: the ending is what
+            # freezes the result, so the dispatch cannot wait for one.
+            answered = review_driver.end_response_from_result(
+                deployment.control, worker.port, context["adapter"],
+                attachment_id=prepared["attachment_id"],
+                disposition=context["disposition"],
+                terminal=context["terminal"],
+                profile=deployment.profile,
+                retention_disposition=deployment.retention_disposition,
+                retention_policy_digest=deployment.retention_policy_digest,
+                # THE ANSWERING SESSION IS THE REVIEWER'S OWN, and what
+                # authorizes it is the configured `answer-handoff` capability
+                # in the requested Work's own effective scope -- which the
+                # Authority decides, not this composition.
+                handoff=deployment.handoff_for(assignment["participant"],
+                                               job_id),
+                govern=tokens.workspace_governance())
         else:
             # THE VERDICT IS THE REVIEWER'S AND IS READ OUT OF ITS OWN FROZEN
             # RESULT. W110772's accepted channel, and the reason this replaced
@@ -1864,6 +1958,24 @@ class StageComposition:
         # Work does not own, and a member it does not name is not one to
         # invent here.
         self._handed_off(worker, stage, assignment, answered)
+        # W385331: AND THE JOB-STORE EPISODE IS RECONCILED BEFORE THE GATE
+        # CLEARS, which is the mandated order's last clause -- "reconcile the
+        # corresponding Job-store episode before permitting admission".
+        #
+        # BETWEEN THE ROUTE AND THE DISCHARGE, deliberately. The route moves
+        # while the gate still holds the Work (W125189's ordering, unchanged),
+        # and the gate is what makes the Work admissible again -- so a yield
+        # whose Job-store record landed AFTER the discharge would leave a
+        # window in which the implementation stage still projected `completed`
+        # from its frozen output and its dependent's dependency was satisfied.
+        # Committed here, the projection answers `awaiting-answer` from the
+        # first instant anything can be admitted at all.
+        #
+        # A CRASH BETWEEN THE TWO LEAVES THE WORK HELD AND REPLAYABLE: the
+        # record is journalled under a deterministic identity, the gate is
+        # still holding, and the ending obligation is still owed.
+        self._recorded_yield(stage, answered)
+        self._recorded_answer(stage, answered)
         discharge = self._discharged(worker, answered)
         routed = self.deployment.routed(stage, answered)
         if self._fenced_gate(answered) and discharge is None:
@@ -1882,6 +1994,69 @@ class StageComposition:
                              evidence=self._evidence(answered, routed,
                                                      discharge))
         return routed
+
+    def _recorded_yield(self, stage, answered):
+        """Journal that this episode stopped at a question, or do nothing.
+
+        EVERY OPERAND IS A COMMITTED RECORD'S. The kind and the handoff digest
+        come from the classification the ending made out of the frozen result;
+        the message, its destination and the continuation digest come from the
+        Authority message the ending committed; the checkpoint is the one the
+        ending froze. Nothing here is this composition's own account of any of
+        them.
+        """
+        if answered.get("outcome") != native_handoffs.YIELD_OUTCOME:
+            return None
+        requested = answered.get("requested")
+        if requested is None:
+            _refuse(f"attempt {answered['attempt_id']!r} yielded and this "
+                    f"manager holds no committed request message for it; a "
+                    f"yield is recorded against a durable question",
+                    category="refused", code="precondition")
+        # THE RETAINED CONTINUATION, RESOLVED OUT OF ACCEPTED CUSTODY
+        # (review 2026-11-20T19-39-15Z R1) and proved against the digest the
+        # committed request names, before the yield is recorded: a yield
+        # whose continuation cannot be delivered is not recorded as one.
+        continuation = native_handoffs.continuation_custody(
+            self.deployment.control, answered["attempt_id"],
+            answered["handoff"])
+        return native_handoffs.record_yield(
+            self.deployment.jobs,
+            stage_id=stage["stage_id"], episode=stage["episode"],
+            attempt_id=answered["attempt_id"],
+            kind=answered["handoff"]["kind"],
+            message_id=requested["message_id"],
+            handoff_digest=answered["handoff"]["handoff_digest"],
+            checkpoint_id=answered["checkpoint_id"],
+            continuation_digest=requested["continuation_digest"],
+            task_digest=requested["task_digest"],
+            destination=requested["destination"],
+            continuation=continuation)
+
+    def _recorded_answer(self, stage, answered):
+        """Journal that this REVIEW episode ended in a reply, or do nothing.
+
+        EVERY OPERAND IS A COMMITTED RECORD'S: the reply and the request it
+        answers come from the Authority message the ending committed, the
+        disposition from the classification out of the frozen result, the
+        checkpoint from the response record. Committed BEFORE the route moves
+        and before any continuation opens, so the review stage never projects
+        `completed` on a question -- not even for the one tick in between.
+        """
+        if answered.get("outcome") not in (native_handoffs.ANSWERED_OUTCOME,
+                                           native_handoffs.ESCALATED_OUTCOME):
+            return None
+        reply = answered.get("reply") or {}
+        message = reply.get("message") or {}
+        request = reply.get("request") or {}
+        return native_handoffs.record_answer(
+            self.deployment.jobs,
+            stage_id=stage["stage_id"], episode=stage["episode"],
+            attempt_id=answered["attempt_id"],
+            message_id=message["message_id"],
+            request_id=request["message_id"],
+            disposition=answered["response"]["disposition"],
+            checkpoint_id=answered["checkpoint_id"])
 
     def _handed_off(self, worker, stage, assignment, answered):
         """Move the Work to the route its next role is served on.
@@ -1943,7 +2118,21 @@ class StageComposition:
         forward direction stays the worker's own configured `review_route`,
         which is the operand this deployment already had.
         """
-        if answered.get("outcome") != "correction":
+        # W385331: AND A RESPONSE SENDS THE WORK BACK THE SAME WAY, for the
+        # same reason and derived from the same correlated record. A reviewer
+        # that answered a question -- or escalated it -- is not a stage whose
+        # successor is the next role: what the Work is waiting for is the
+        # producer's own continuation, so the target is the reviewed
+        # checkpoint PRODUCER's committed claim route.
+        #
+        # AN ESCALATION TAKES THE SAME ROUTE AND IS STILL HELD. Nothing is
+        # scheduled on it: the implementation stage's own state is
+        # `awaiting-answer`, which owes no admission and no claim, so moving
+        # the route makes nothing eligible and leaves the Work where a later
+        # authorized continuation would find it.
+        if answered.get("outcome") not in (
+                "correction", native_handoffs.ANSWERED_OUTCOME,
+                native_handoffs.ESCALATED_OUTCOME):
             return worker.given["review_route"]
         control = self.deployment.control
         checkpoint = review_cycles.checkpoint_of(control,
@@ -1968,9 +2157,15 @@ class StageComposition:
         # checkpoint, and that release performs the SAME assignment fence --
         # so an ending that took it carries its fence under `released` and is
         # otherwise an answer carrying none.
+        # W385331 ADDED THE FOURTH PAIR. A review ending that recorded a
+        # RESPONSE rather than a verdict performs the same assignment fence --
+        # the reviewer's runtime is quiesced and its assignment finalized --
+        # and carries it under `response_record`. An answer that carried
+        # neither is one no handoff can be about.
         for record, member in (("checkpoint", "fence"),
                                ("released", "fence"),
-                               ("verdict_record", "review_fence")):
+                               ("verdict_record", "review_fence"),
+                               ("response_record", "response_fence")):
             fence = (answered.get(record) or {}).get(member) or {}
             intent = fence.get("intent") or {}
             held = intent.get("authority_operation_id")
@@ -2031,9 +2226,11 @@ class StageComposition:
         # checkpoint, and that release performs the SAME assignment fence --
         # so an ending that took it carries its fence under `released` and is
         # otherwise an answer carrying none.
+        # W385331 ADDED THE FOURTH PAIR, for `_fence_operation`'s reason.
         for record, member in (("checkpoint", "fence"),
                                ("released", "fence"),
-                               ("verdict_record", "review_fence")):
+                               ("verdict_record", "review_fence"),
+                               ("response_record", "response_fence")):
             fence = (answered.get(record) or {}).get(member) or {}
             gate = (fence.get("fenced") or {}).get("gate")
             if gate:
@@ -4005,6 +4202,33 @@ class StageDeployment:
                     code="capability")
         return held
 
+    def handoff_for(self, participant, job_id):
+        """The W385331 native handoff seam belonging to THIS participant.
+
+        TWO DIRECTIONS, TWO SESSIONS, AND THE SESSION IS THE AUTHORIZATION.
+        A request is carried out under the requesting assignment, so the only
+        session that could commit one is the producer's -- which this
+        deployment already minted as that producer's publisher. A reply is
+        authorized by the configured `answer-handoff` capability in the
+        requested Work's own effective scope, and the answering reviewer is
+        not a publisher, so its session is minted here from the ONE Authority
+        this deployment opened.
+
+        MINTING IS NOT GRANTING. `Authority.session` binds a handle to one
+        participant and confers nothing: whether that participant may answer
+        is `_require_capability`'s decision in the Work's own scope, taken
+        inside the transition. A deployment that minted a session for an
+        ungranted reviewer still cannot answer anything.
+        """
+        session = self.publishers.get(participant)
+        if session is None:
+            session = _authority_read(
+                f"this deployment's handoff participant {participant!r} is "
+                f"not one this Authority mints a session for",
+                lambda: self.authority.session(participant))
+        return native_handoffs.HandoffPort(self.control, session,
+                                           job_id=job_id)
+
     def workers_for(self, role):
         """Every worker this deployment configured for a role, in order.
 
@@ -4628,7 +4852,12 @@ class StageDeployment:
         reviewer said, and a declining deployment is as free to receive
         `changes-requested` as any other.
         """
-        if answered.get("outcome") != "correction":
+        outcome = answered.get("outcome")
+        if outcome == native_handoffs.ANSWERED_OUTCOME:
+            return self._continued(stage, answered)
+        if outcome == native_handoffs.ESCALATED_OUTCOME:
+            return self._escalated(stage, answered)
+        if outcome != "correction":
             return answered
         # `routed` IS the deployment's own method, so the policy is its
         # own attribute. Reaching through a `self.deployment` that does not
@@ -4670,6 +4899,101 @@ class StageDeployment:
         opened = review_driver.open_correction(
             self.jobs, self.control, job_id=stage["job_id"], answered=answered)
         return dict(answered, correction=opened)
+
+    def _continued(self, stage, answered):
+        """W385331: what a RESOLVED ANSWER earns, and nothing it does not.
+
+        ONE ACT, THROUGH ITS OWN TRANSACTIONAL OWNER.
+        `native_handoffs.advance_continuation` reads the yield record this
+        store committed, proves the reply through the Authority that
+        authorized it, asks the Job's own admitted continuation allowance and
+        its fence and deadlines under this store's lock, and opens the
+        successor episodes. This method chooses nothing and proves nothing: a
+        caller that skipped it would gain exactly nothing, because every guard
+        is inside that act.
+
+        AND THE ANSWER IS NEVER CHANGED BY THE ROUNDS IT DOES OR DOES NOT
+        EARN. An exhausted allowance, a fence or a passed deadline is reported
+        as a DECLINED continuation beside the reply that stands recorded --
+        which is the shape the correction decline above already uses, and it is
+        the honest one: the reviewer answered, and whether this Job may act on
+        the answer is a separate policy fact.
+        """
+        from baton_v12.job_manager import job_control
+
+        # A RETRY IS NOT A SECOND CONTINUATION (review 2026-11-20T19-39-15Z
+        # R2). The allowance below is asked about the round this would OPEN;
+        # an ending that re-enters after its continuation committed -- a
+        # crash between the commit and the settlement, a deferred conclude --
+        # is owed the receipt it already earned, and asking the allowance
+        # first would decline it for the very continuation it spent. So the
+        # committed continuation for THIS reply's request is read first,
+        # through the act's own owner, and answers the retry.
+        request = ((answered.get("reply") or {}).get("request") or {})
+        if stage.get("job_id") and request.get("message_id"):
+            recorded = native_handoffs.continuation_for_request(
+                self.jobs, job_id=stage["job_id"],
+                request_id=request["message_id"])
+            if recorded is not None:
+                return dict(answered, continuation=recorded)
+        held = (job_control.control_of(self.jobs, stage["job_id"])
+                if stage.get("job_id") else None)
+        if held is not None:
+            closed = job_control.closed_of(self.jobs, stage["job_id"])
+            used = job_control.continuations_used_in(self.jobs._connection,
+                                                     stage["job_id"])
+            allowance = job_control.CONTINUATIONS[held["profile"]]
+            if closed is not None or used >= allowance:
+                return dict(answered, continuation=None,
+                            continuation_declined={
+                                "policy": "job-control",
+                                "job_id": stage["job_id"],
+                                "profile": held["profile"],
+                                "allowance": allowance, "used": used,
+                                "why": (job_control.closed_message(
+                                            closed, "a continuation")
+                                        if closed is not None else
+                                        f"control profile {held['profile']} "
+                                        f"permits {allowance} resolved "
+                                        f"continuation(s) and {used} were "
+                                        f"used; the answer stands recorded "
+                                        f"and the execution stays held")})
+        opened = native_handoffs.advance_continuation(
+            self.jobs, self.control, self.authority,
+            job_id=stage["job_id"])
+        return dict(answered, continuation=opened)
+
+    def _escalated(self, stage, answered):
+        """W385331: what an ESCALATION earns, which is a recorded HOLD.
+
+        ONE DURABLE PENDING ESCALATION PER REQUEST AND NO RECURSION. The record
+        is keyed by the yielding episode, so a re-entry rereads it rather than
+        raising a fresh escalation every tick -- and there is no
+        acknowledgement to wait for, because a hold is a fact rather than a
+        conversation.
+
+        NOTHING IS SCHEDULED AND NOTHING IS ROUTED BACK TO THE REVIEWER. The
+        implementation stage stays `awaiting-answer`, which owes no admission
+        and no claim; the escalation is addressed to the configured decision
+        recipient, which the Authority resolved when it committed the reply.
+        """
+        from baton_v12.job_manager import episodes
+
+        reply = (answered.get("reply") or {})
+        message = reply.get("message") or {}
+        request = reply.get("request") or {}
+        stages = episodes._stored_pair(self.jobs, stage["job_id"])
+        implementation = stages["implementation"]
+        live = episodes.live_of(self.jobs, implementation["stage_id"])
+        if live is None:
+            return dict(answered, escalation=None)
+        recorded = native_handoffs.record_hold(
+            self.jobs, stage_id=implementation["stage_id"],
+            episode=live["episode"], message_id=message["message_id"],
+            request_id=request["message_id"],
+            destination=message["destination"],
+            checkpoint_id=answered["checkpoint_id"])
+        return dict(answered, escalation=recorded)
 
 
 class StageExecution:

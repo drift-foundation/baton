@@ -1,0 +1,258 @@
+===== baton-v12-stack  --help
+usage: baton-v12-stack
+                       [{attempt-diagnostics,bootstrap,disposition,identity,logs,manager,monitor,pool,publish,record,repository,start,status,stop,view,work}]
+
+The deployed v12 stack: one command, several subcommands.
+
+positional arguments:
+  {attempt-diagnostics,bootstrap,disposition,identity,logs,manager,monitor,pool,publish,record,repository,start,status,stop,view,work}
+
+Every operand after the subcommand is that subcommand's own.
+--version (-V) says what this build is and needs nothing else.
+
+===== baton-v12-stack bootstrap --help
+usage: bootstrap [-h] --inputs INPUTS [--destination DESTINATION]
+                 [--distro DISTRO] [--repository-source REPOSITORY_SOURCE]
+                 [--no-repositories]
+
+Prepare the v12 stack's one-time deployment.
+
+options:
+  -h, --help            show this help message and exit
+  --inputs INPUTS       the baton.v12.stack-bootstrap/1 document naming this
+                        deployment's production selections
+  --destination DESTINATION
+                        an absolute external destination to install into; the
+                        instance.json emitted there selects every lifecycle
+                        command
+  --distro DISTRO       the built one-folder runtime to install
+  --repository-source REPOSITORY_SOURCE
+                        the checkout this deployment's repositories are cloned
+                        from; the default is the one containing this
+                        distribution's own v12/justfile
+  --no-repositories     install without preparing any repository, which leaves
+                        a deployment that schedules and never reconciles
+
+===== baton-v12-stack pool compose-worker --help
+usage: pool compose-worker [-h] --deployment DEPLOYMENT --worker-id WORKER_ID
+                           --role {implementation,review,integration}
+                           --participant PARTICIPANT
+                           --image-reference IMAGE_REFERENCE
+                           --image-digest IMAGE_DIGEST --cli-build CLI_BUILD
+                           --network NETWORK
+                           --credential-sources CREDENTIAL_SOURCES
+                           --credential SLOT=PROVIDER:REFERENCE
+                           --workspace-group WORKSPACE_GROUP
+                           --task-document TASK_DOCUMENT --record PATH
+                           [--checkout CHECKOUT] [--work-id WORK_ID]
+                           --into INTO [--verifier-layout MARKER |
+                           --legacy-verifier-layout] [--admit]
+
+options:
+  -h, --help            show this help message and exit
+  --deployment DEPLOYMENT
+                        the instance's deployment.json
+  --worker-id WORKER_ID
+  --role {implementation,review,integration}
+  --participant PARTICIPANT
+  --image-reference IMAGE_REFERENCE
+                        the worker image as named to the engine, e.g.
+                        baton-v12-worker:f34e1576
+  --image-digest IMAGE_DIGEST
+                        its immutable digest, sha256:…
+  --cli-build CLI_BUILD
+                        the provider CLI build the image carries, as the
+                        recipe pins it
+  --network NETWORK     the approved OCI network name
+  --credential-sources CREDENTIAL_SOURCES
+                        absolute path of the private credential registry
+  --credential SLOT=PROVIDER:REFERENCE
+                        one credential slot mapping, repeatable
+  --workspace-group WORKSPACE_GROUP
+                        the provisioned workspace group id
+  --task-document TASK_DOCUMENT
+                        absolute path of the installed task document this
+                        worker is sealed over
+  --record PATH         the repository-relative dossier path this instance's
+                        Jobs are bound to (the Work's durable record); its
+                        FINDING.md and PLAN.md are digested from the checkout
+  --checkout CHECKOUT   the repository checkout the record is read from;
+                        omitted, the one this command runs from, and refused
+                        when there is none
+  --work-id WORK_ID     the Work this worker serves; omitted, the instance's
+                        own Work
+  --into INTO           the fresh file to write the worker document to; an
+                        existing entry is refused
+  --verifier-layout MARKER
+                        the worker/verifier-layout-marker.json the selected
+                        image's recipe copied to /opt/baton, from the checkout
+                        the image was built from; the deployment then selects
+                        the trusted verifier layout (W325695). One of this and
+                        --legacy-verifier-layout is required: an image that
+                        declares a marker refuses before the provider when no
+                        selection is delivered
+  --legacy-verifier-layout
+                        the selected image was built before the marker existed
+                        and declares no verifier topology; the deployment
+                        stays explicitly legacy
+  --admit               also admit it into the instance's pool (needs the
+                        nominated source to exist)
+
+===== baton-v12-stack manager --help
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+
+Submit Jobs to the v12 Job manager, read its status, or run its control loop.
+Instance-addressed commands: settlement-preview, settle-stopped, settlement-
+status, cancel-job, cancel-status (invoke the command first, then --help).
+
+positional arguments:
+  {submit,fresh-attempt,create,status,serve}
+    submit              record one versioned multi-Job submission
+    fresh-attempt       admit a fresh attempt at a Job whose execution failed
+    create              create one ordinary Job from a versioned template
+    status              print the read-only status projection
+    serve               run the persistent control loop
+
+options:
+  -h, --help            show this help message and exit
+  --store STORE         the Job store's path; there is no default, and one
+                        inside the checkout is what the external state root
+                        exists to prevent
+  --incarnation INCARNATION
+                        this process's incarnation, which is what restart
+                        recovery distinguishes managers by
+  --authority-uuid AUTHORITY_UUID
+                        the 32-lowercase-hex Authority this Job store belongs
+                        to; it namespaces every episode identity the store
+                        derives, is persisted on first open, and a later open
+                        naming another one refuses without changing the store
+
+===== baton-v12-stack manager create --help
+usage: job_manager create [-h] --instance INSTANCE --control CONTROL
+                          --authority AUTHORITY --task TASK
+                          --statement STATEMENT --acceptance CRITERION
+                          --work-scope PATH [--test-scope PATH]
+                          [--template TEMPLATE] [--source SOURCE]
+                          [--route ROUTE] [--job-id JOB_ID]
+                          [--submission-id SUBMISSION_ID]
+                          [--provider-turn-seconds PROVIDER_TURN_SECONDS]
+                          [--verification-command-seconds VERIFICATION_COMMAND_SECONDS]
+                          [--verification WORD] [--label LABEL]
+                          [--control-profile CONTROL_PROFILE]
+
+options:
+  -h, --help            show this help message and exit
+  --instance INSTANCE   the deployment's state root, whose installed workers
+                        supply this Job's Work, input digest, policy digest
+                        and runtime profiles, and whose own bootstrap
+                        publishes its binding
+  --control CONTROL     the Worker Manager control store, opened READ-ONLY: a
+                        creation reads nothing of it but the instance guard
+                        beside its workspace root
+  --authority AUTHORITY
+                        the Authority store whose Work this Job runs under;
+                        the deployment's derived Work is reused when it is
+                        open and created once when it does not exist
+  --task TASK           what this Job is called, in the operator's own words;
+                        the Job and submission identities are derived from it
+                        unless named
+  --statement STATEMENT
+                        the task as stated. Preserved in the resolution and
+                        enforced by nothing; the authoritative statement is
+                        the Work's own dossier
+  --acceptance CRITERION
+                        one acceptance criterion, repeatable. At least one is
+                        required: a Job with nothing to be judged against
+                        cannot be independently reviewed, which is this
+                        template's second stage
+  --work-scope PATH     one repository-relative path this task covers,
+                        repeatable. This is the SELECTED WORK scope a reviewer
+                        and an integrator read a proposal against; it grants
+                        no test-change authority
+  --test-scope PATH     one repository-relative path this Work may change
+                        tests at, repeatable and empty by default. This is the
+                        bounded test-change scope the submission carries as
+                        test_scope
+  --template TEMPLATE   the exact template version; omitted resolves the
+                        configured default, which is still shown in the answer
+                        with its origin
+  --source SOURCE       which source this Job runs against. One value is
+                        supported -- the one this instance installed -- and it
+                        is an operand rather than an assumption so a later
+                        source selection has somewhere to go
+  --route ROUTE         the route a Work is created under, used only when the
+                        deployment's derived Work does not exist yet; omitted,
+                        the deployment's own implementation route (the one its
+                        bootstrap registers the implementation workers on),
+                        and an explicit route no configured implementation
+                        worker handles is refused before any Work or Job is
+                        created
+  --job-id JOB_ID       the Job identity; derived from --task when omitted, so
+                        no operator or model has to invent a name
+  --submission-id SUBMISSION_ID
+                        the submission identity; derived from the Job id when
+                        omitted
+  --provider-turn-seconds PROVIDER_TURN_SECONDS
+                        this Job's provider-turn ceiling in seconds, a
+                        permitted override; omitted preserves the runner
+                        default and submits a /1 document
+  --verification-command-seconds VERIFICATION_COMMAND_SECONDS
+                        this Job's verification-command ceiling in seconds, a
+                        permitted override reaching all three verification
+                        boundaries
+  --verification WORD   one argument word of the command this Job is verified
+                        by, repeatable in order (write a word that starts with
+                        a dash as --verification=-m); omitted, the
+                        deployment's installed verification runs
+  --label LABEL         one plain Work label, repeatable, applied ONLY when
+                        this creation makes the Work (W29401/W29400). A label
+                        is one opaque lower-case value and never a name=value
+                        tag; if the deployment's derived Work already exists,
+                        a creation naming labels refuses by name -- whether or
+                        not the Work carries them -- rather than mutating or
+                        claiming it, and reserves nothing; the one creation
+                        that reuses it with labels is the creation that minted
+                        it, run again with the Work still carrying exactly
+                        what it minted (a refusal past the reservation names
+                        the exact acts that restore that, or requires a new
+                        Job identity). Use `baton-v12-stack work label-work`
+                        for an existing Work, which is an attributable
+                        authorized act of its own, then create without --label
+  --control-profile CONTROL_PROFILE
+                        the finite control profile this Job is admitted under
+                        (LIM-5), for example documentation/1: persisted
+                        correction-round allowance and stage/Job wall
+                        deadlines, enforced by the serving manager; omitted
+                        admits the Job under no finite control
+
+===== baton-v12-stack start --help
+usage: stack start [-h]
+
+options:
+  -h, --help  show this help message and exit
+
+===== baton-v12-stack stop --help
+usage: stack stop [-h]
+
+options:
+  -h, --help  show this help message and exit
+
+===== baton-v12-stack status --help
+usage: stack status [-h]
+
+options:
+  -h, --help  show this help message and exit
+
+===== bundle
+1265b1ff4c014cf9149bbdeeec8dc91163c0f41b5c3a35484e7dfbc135f9cb25  v12/python/build/out/distro/baton-v12-stack
+{
+ "changed_entries": 25,
+ "commit": "86c1c22b9125176b0127fc4a86fa00855ed6d127",
+ "detail": null,
+ "dirty": true,
+ "excused_build_output": 0,
+ "schema": "baton.v12.build-stamp/1",
+ "source": "/home/sl/src/baton"
+}

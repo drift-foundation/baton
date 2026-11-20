@@ -195,6 +195,42 @@ class Authority:
     def labels_of(self, work_id):
         return self._core.labels_of(work_id)
 
+    # -- W385331: the native handoff reads and their configuration -----------
+    #
+    # THE READS ARE ON THIS FACE and not only the session's, for the reason the
+    # dossier reads are: "what did this Work's participants say to each other"
+    # is asked by operators, reviewers and the decision recipient whose
+    # disposition is due -- none of whom holds a claim and none of whom should
+    # need one. One retained record serves humans and agents alike, and a read
+    # receipt is not a prerequisite for anybody's progress.
+    #
+    # `native_routing` IS CONFIGURATION AND SO IS ITS WRITE. Which address may
+    # be asked and which address an unresolved question escalates to is a
+    # deployment act of the same kind as granting the capability to answer --
+    # so it is set through `set_policy` by whoever holds the deployment, and a
+    # session can read neither.
+
+    def native_routing(self):
+        return self._core.native_routing()
+
+    def work_messages(self, work_id):
+        return self._core.work_messages(work_id)
+
+    def work_message(self, message_id):
+        return self._core.work_message(message_id)
+
+    def work_message_reply(self, message_id):
+        return self._core.work_message_reply(message_id)
+
+    def work_message_transition(self, message_id):
+        return self._core.work_message_transition(message_id)
+
+    def pending_handoff_requests(self, work_id):
+        return self._core.pending_handoff_requests(work_id)
+
+    def handoff_escalations(self, work_id):
+        return self._core.handoff_escalations(work_id)
+
     def work_creation(self, work_id):
         """W29400: the act that made this Work, from the Work alone."""
         return self._core.work_creation(work_id)

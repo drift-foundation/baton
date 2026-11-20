@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.tools.test_bootstrap",
+    "tests.tools.test_connected_creation",
+    "tests.tools.test_environment",
+    "tests.tools.test_instance",
+    "tests.tools.test_stack"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/codxpc-w385331-r4a/v12/python",
+  "exit_code": 0,
+  "wall_seconds": 49.50808624504134
+}

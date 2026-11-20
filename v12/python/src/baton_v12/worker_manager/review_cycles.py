@@ -21,6 +21,9 @@ from .store import _recorded, manager_signature
 __all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
            "ATTACH_KIND", "DISPOSITIONS", "GRANT_KIND", "LINE_HOME",
            "NO_CANDIDATE",
+           # W385331: the native handoff response and its continuation hold.
+           "CONTINUATION_READY", "RESPOND_KIND", "RESPONSE_DISPOSITIONS",
+           "continuation_hold_of", "record_response", "response_of",
            "RESTORE_KIND", "VERDICT_KIND",
            "abandoned_correction_of", "attach_review", "audit_checkpoint",
            "checkpoint_of",
@@ -2621,6 +2624,234 @@ def _completed_review(store, attachment, *, verdict=None):
     if historical:
         _cleaned_review(store, attachment, attempt, result, verdict)
     return attempt, result
+
+
+# -- W385331: the reviewer's RESPONSE, which is not a verdict -----------------
+#
+# WHAT THIS ADDS AND WHAT IT DELIBERATELY DOES NOT. A reviewer attached to a
+# frozen checkpoint can be answering a QUESTION rather than judging a
+# CANDIDATE, and those two endings need the same custody evidence and produce
+# completely different effects. So the custody half is `_completed_review`'s,
+# unchanged and shared, and the effect half is its own act:
+#
+#   * NO `checkpoint_verdicts` ROW IS WRITTEN. A response records no
+#     disposition about the candidate, so there is no verdict for any later
+#     reader to find -- which is what keeps `episodes.advance_correction`
+#     unable to act on it: that act proves a recorded `changes-requested`
+#     verdict, and a continuation has none. Forging one to get a resume is
+#     exactly what this exists to make unnecessary AND impossible.
+#   * NO `integration_eligibility` ROW IS WRITTEN. An answer makes nothing
+#     eligible for integration.
+#   * THE LINE STATE IS THE EXISTING `correction-ready`, and the record beside
+#     it is what says WHY. Two states that admit a based writer would have
+#     meant two paths through `grant_writer`, and `grant_writer`'s admission
+#     rules are the ones that keep a writer bound to the exact current
+#     checkpoint -- so the state is reused and the DISTINGUISHING EVIDENCE is
+#     this journalled record, which `job_manager.native_handoffs` requires and
+#     which no verdict produces.
+#   * AN ESCALATION ADMITS NO WRITER AT ALL. The line returns to
+#     `review-ready`: the frozen checkpoint stands as retained evidence, it can
+#     be read again, and `grant_writer` refuses that state -- so the execution
+#     is held exactly as an unresolved design question must leave it.
+#
+# NO SCHEMA CHANGE AND NO SECOND JOURNAL. The record is an ordinary operation
+# in this store's existing journal under its own kind, keyed by the attachment,
+# so a second registration replays rather than repeats.
+RESPOND_KIND = "review-line.respond"
+
+# The two things a response can be, in the vocabulary
+# `baton_v12.native_handoff` owns. Spelled here because this store may not
+# import the manager-side package, and held to that owner by the assertion at
+# the point of use in `job_manager.native_handoffs`.
+RESPONSE_DISPOSITIONS = ("answer", "escalate")
+
+# THE LINE STATE A CONTINUATION RESUMES FROM. It IS `correction-ready`, named
+# here so a reader of `native_handoffs` is not left comparing a bare literal,
+# and so the sharing is a stated decision rather than a coincidence.
+CONTINUATION_READY = _CORRECTION_READY
+
+
+def response_of(store, attachment_id):
+    """The response one attachment recorded, or `None`."""
+    boundaries.identity(attachment_id, "a review attachment identity")
+    record = store.operation_record(RESPOND_KIND + ":" + attachment_id)
+    if record is None or record["state"] != "committed" \
+            or record["result"] is None:
+        return None
+    return json.loads(record["result"])
+
+
+def continuation_hold_of(store, checkpoint_id):
+    """The ANSWERED response holding this checkpoint for a continuation.
+
+    SCANNED BY KIND AND THEN PROVED, rather than selected by a derived name: a
+    checkpoint does not name its attachment, so the question "is this
+    checkpoint held for a continuation" cannot be keyed. What keeps the scan
+    honest is that every candidate row is compared back against the checkpoint
+    it was selected by and against the one disposition that holds a line for a
+    writer -- an escalation is not a continuation hold and answers `None` here.
+    """
+    boundaries.identity(checkpoint_id, "a line checkpoint identity")
+    # ONLY THE JOURNAL'S OWN ROW OWNER READS A RECORD. The scan selects
+    # identities by kind -- `provider_context`'s own shape for its journal
+    # families -- and every candidate row is then read through
+    # `operation_record`, the store's one decoder, rather than its `result`
+    # column being read raw out of the scan.
+    rows = store._connection.execute(
+        "SELECT operation_id FROM operations WHERE kind = ? ORDER BY rowid",
+        (RESPOND_KIND,)).fetchall()
+    for row_id in rows:
+        record = store.operation_record(row_id["operation_id"])
+        if record is None or record["state"] != "committed" \
+                or record["result"] is None:
+            continue
+        held = json.loads(record["result"])
+        if held.get("checkpoint_id") == checkpoint_id \
+                and held.get("disposition") == RESPONSE_DISPOSITIONS[0]:
+            return held
+    return None
+
+
+def record_response(store, *, attachment_id, disposition, response_digest,
+                    profile, port):
+    """Bind one reviewer RESPONSE to the immutable checkpoint it answers about.
+
+    THE PRECONDITIONS ARE `record_verdict`'S, because the evidence a response
+    needs is the same evidence: the exact attached runtime positively
+    quiescent, a `completed` worker disposition, a frozen result naming this
+    attempt, its separately frozen outputs, the line's own profile, and the
+    attachment active over the line's CURRENT frozen checkpoint. A response
+    read off a stale attachment would be an answer about another question.
+
+    `response_digest` IS THE REVIEWER'S OWN DOCUMENT, carried into the
+    signature so a second call with a different answer under this identity
+    collides rather than replaying the first one's effect.
+    """
+    profile_name = _profile(profile, ("validate",))
+    if disposition not in RESPONSE_DISPOSITIONS:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"a native response disposition is one of "
+            f"{RESPONSE_DISPOSITIONS!r}; this is {name_value(disposition)}")
+    boundaries.text(response_digest, "a native response digest")
+    attachment = _attachment(store, attachment_id)
+    checkpoint = checkpoint_of(store, attachment["checkpoint_id"])
+    line = line_of(store, attachment["line_id"])
+    if checkpoint["line_id"] != line["line_id"] \
+            or checkpoint["state"] != "frozen":
+        raise ContractRefusal(
+            "integrity", "schema",
+            "a response attachment does not name its line's frozen checkpoint")
+    if line["profile_name"] != profile_name:
+        raise ContractRefusal("policy", "profile-uncertified",
+                              "the line and response profile do not match")
+    if attachment["state"] == "active" and (
+            line["state"] != "reviewing"
+            or line["current_checkpoint_id"] != checkpoint["checkpoint_id"]):
+        raise ContractRefusal(
+            "refused", "precondition",
+            "a response applies only to the active current review")
+    # HISTORICAL RE-ENTRY IS EXACT COMMITTED EVIDENCE, as `record_verdict`'s
+    # is. A response ending whose runtime is already gone -- the composed
+    # ending answered once, its cleanup settled, and a later step deferred --
+    # re-enters here behind a runtime nobody can quiesce again. What answers
+    # it is the response THIS act committed, proved against the operands it
+    # is asked with; a destroyed runtime with no committed response is not
+    # one to record a response for now.
+    held = _attempt(store, attachment["runtime_attempt_id"])
+    if held["execution_runtime"] == "destroyed":
+        recorded = response_of(store, attachment_id)
+        if recorded is None or attachment["state"] != "ended":
+            raise ContractRefusal(
+                "refused", "precondition",
+                "historical response completion requires its committed "
+                "response and ended attachment")
+        if recorded["disposition"] != disposition \
+                or recorded["response_digest"] != response_digest \
+                or recorded["checkpoint_id"] != checkpoint["checkpoint_id"]:
+            raise ContractRefusal(
+                "integrity", "schema",
+                "the committed response differs from the one this re-entry "
+                "asks to record")
+        return recorded
+    attempt, review_result = _completed_review(store, attachment)
+    if attempt["assignment_participant"] != getattr(port, "participant", None):
+        raise ContractRefusal(
+            "refused", "capability",
+            "the response fence session acts for another participant")
+    if attachment["state"] == "active":
+        profile.validate(line["line_path"], checkpoint["evidence"],
+                         current=True)
+    response_fence = _fence(attempts.finalize_quiescent_assignment(
+        store, port, attempt_id=attachment["runtime_attempt_id"],
+        reason="native handoff response completed"),
+        "the checkpoint response fence")
+    _current_fence(store, attempt, response_fence,
+                   "the checkpoint response fence")
+    evidence = checkpoint["evidence"]
+    response_id = _id("response", {"attachment_id": attachment_id,
+                                   "disposition": disposition,
+                                   "response_digest": response_digest})
+    operands = {"response_id": response_id,
+                "authority_uuid": line["authority_uuid"],
+                "work_id": line["work_id"], "line_id": line["line_id"],
+                "checkpoint_id": checkpoint["checkpoint_id"],
+                "checkpoint_digest": checkpoint["checkpoint_digest"],
+                "revision": checkpoint["revision"], "base": evidence["base"],
+                "head": evidence["head"], "tree": evidence["tree"],
+                "path_set_digest": evidence["path_set_digest"],
+                "attachment_id": attachment_id,
+                "review_generation": attachment["assignment_generation"],
+                "reviewer_worker_id": attachment["reviewer_worker_id"],
+                "reviewer_participant": attachment["reviewer_participant"],
+                "reviewer_principal": attachment["reviewer_principal"],
+                "disposition": disposition,
+                "response_digest": response_digest,
+                "review_result": review_result,
+                "review_result_digest": digest(review_result),
+                "response_fence": response_fence,
+                "response_fence_digest": digest(response_fence)}
+    signature = manager_signature(RESPOND_KIND, operands)
+    operation_id = RESPOND_KIND + ":" + attachment_id
+    found, result = store.replay(operation_id, signature, kind=RESPOND_KIND)
+    if found:
+        return result
+    if attachment["state"] != "active" or line["state"] != "reviewing" \
+            or line["current_checkpoint_id"] != checkpoint["checkpoint_id"]:
+        raise ContractRefusal(
+            "refused", "precondition",
+            "a response applies only to the active current review")
+
+    def act(connection):
+        _completed_review(store, attachment)
+        current_attachment = _attachment(store, attachment_id)
+        current_line = line_of(store, line["line_id"])
+        if current_attachment["state"] != "active":
+            raise ContractRefusal("refused", "precondition",
+                                  "the review attachment has already ended")
+        if current_attachment["line_id"] != current_line["line_id"] \
+                or current_attachment["checkpoint_id"] \
+                != checkpoint["checkpoint_id"] \
+                or current_line["state"] != "reviewing" \
+                or current_line["current_checkpoint_id"] \
+                != checkpoint["checkpoint_id"]:
+            raise ContractRefusal(
+                "integrity", "schema",
+                "the active response no longer names the current checkpoint")
+        now = store._now()
+        connection.execute("UPDATE review_attachments SET state = 'ended', "
+                           "ended_at = ? WHERE attachment_id = ?",
+                           (now, attachment_id))
+        # AN ANSWER HOLDS THE LINE FOR ONE CONTINUATION WRITER; AN ESCALATION
+        # HOLDS IT FOR NOBODY. Neither writes a verdict, and neither makes
+        # anything eligible for integration.
+        connection.execute(
+            "UPDATE review_lines SET state = ? WHERE line_id = ?",
+            (CONTINUATION_READY if disposition == RESPONSE_DISPOSITIONS[0]
+             else "review-ready", line["line_id"]))
+        return dict(operands)
+
+    return store.transact(operation_id, RESPOND_KIND, signature, act)
 
 
 def record_verdict(store, *, attachment_id, disposition, profile, port):

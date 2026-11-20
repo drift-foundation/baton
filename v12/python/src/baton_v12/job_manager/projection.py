@@ -38,7 +38,7 @@ from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from . import (cancellation, delegation, documents, ending, episodes, execution_limits,
-               job_control, scheduler, schema,
+               job_control, native_handoffs, scheduler, schema,
                submission)
 
 __all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "materialized",
@@ -180,6 +180,32 @@ def _observed_state(entry):
     # axis is terminal however much of the middle already committed.
     if _ending_owed(entry):
         return "answering"
+    # W385331: AND THEN WHETHER THIS EPISODE YIELDED, ASKED BEFORE THE FROZEN
+    # OUTPUT IS READ AT ALL.
+    #
+    # THE POSITION IS THE WHOLE OF THE CORRECTION IT PREVENTS. The branch
+    # below reads a `completed` frozen disposition as the stage state
+    # `completed`, and `gates_of` opens a dependent's gate on exactly that --
+    # so a completed INVOCATION that asked a question would satisfy its
+    # dependent's dependency and project the stage as finished. A yield is a
+    # completed invocation and an UNFINISHED stage, and those are two facts.
+    #
+    # AFTER `_ending_owed` BECAUSE THE ENDING STILL HAS TO FINISH. The yield
+    # record is committed by the composed ending, and until that ending
+    # settles its obligation the stage owes its `conclude` exactly as any
+    # other answered attempt does -- the question does not excuse the ending.
+    #
+    # AND IT IS A FACT ABOUT A COMMITTED RECORD, not about a frozen
+    # disposition: `handoff` is this store's own journalled yield, so a stage
+    # that merely froze a handoff output without the host committing the
+    # message is NOT in this state, and its ending is still owed.
+    if entry.get("handoff") is not None and entry.get("continuation") is None:
+        return native_handoffs.AWAITING_STATE
+    # AND WHETHER THIS REVIEW EPISODE ENDED IN A REPLY. Same position and
+    # same reason: the reviewer's invocation completed and the stage is not
+    # a completed review, so its dependent's gate must not open on it.
+    if entry.get("answer") is not None:
+        return native_handoffs.ANSWERED_STATE
     frozen = observed.get("output")
     if type(frozen) is dict:
         disposition = frozen.get("disposition")
@@ -525,6 +551,25 @@ def materialized(store, stages=None):
                 # the ownership proof depended on who was asking.
                 "ending": (ending.ending_of(store, stage_id, live["episode"])
                            if live is not None else None),
+                # W385331: WHAT THIS EPISODE DECLARED IF IT YIELDED, and what
+                # has been done about it, read in the SAME view as the episode
+                # that owns them. Both are this store's own journalled records,
+                # and both are read for the LIVE episode only -- a prior
+                # episode's yield is a stage that has moved on, and answering
+                # for it here would project a finished attempt as this stage's
+                # current one, which is the rule the `ending` member above
+                # follows for its own obligation.
+                "handoff": (
+                    native_handoffs.yield_of(store, stage_id, live["episode"])
+                    if live is not None else None),
+                "continuation": (
+                    native_handoffs.continuation_of(store, stage_id,
+                                                    live["episode"])
+                    if live is not None else None),
+                "answer": (
+                    native_handoffs.answer_of(store, stage_id, live["episode"])
+                    if live is not None and stage["kind"] == "review"
+                    else None),
                 "managed_failure": (
                     failed_integration_of(store, stage_id, live["episode"])
                     if live is not None and stage["kind"] == "integration"
@@ -713,8 +758,25 @@ def gates_of(stage, held):
         # here means the row set changed underneath us -- and answering `open`
         # would admit a stage whose predecessor nobody can find.
         state = found["state"] if found is not None else None
+        # W385331: AND THE ONE OTHER PREDECESSOR STATE THAT OPENS THIS GATE,
+        # which is NOT dependency success.
+        #
+        # `completed` means the predecessor delivered a candidate and the
+        # dependent may judge it. `response_satisfies_dependency` answers a
+        # different question: the predecessor stopped at a question addressed
+        # to this Job's reviewer, so the reviewer's own invocation is what the
+        # Work is waiting for. The predecessor is NOT completed, publishes
+        # nothing, and its dependent earns no acceptance of any kind from it.
+        #
+        # THE WINDOW OPENS WHEN THE MESSAGE IS DURABLE AND CLOSES WHEN IT IS
+        # ANSWERED, because both halves are facts about committed records --
+        # which is what keeps a premature queued ownership window from
+        # existing at all: before the yield commits the predecessor is
+        # `answering`, and this is shut.
+        opened = state == "completed" or \
+            native_handoffs.response_satisfies_dependency(stage, found)
         gates.append(documents.dependency_gate(
-            stage_id=stage_id, state=state, open=state == "completed"))
+            stage_id=stage_id, state=state, open=opened))
     return gates
 
 

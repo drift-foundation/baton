@@ -111,6 +111,28 @@ _TRANSITIONS = {
                    "optional": (), "actor": True},
     "unlabel_work": {"required": ("work_id", "label", "operation_id"),
                      "optional": (), "actor": True},
+    # W385331: the two native handoff transitions.
+    #
+    # `request_handoff` IS ASSIGNMENT-OWNED: its `expect` is the compare-and-
+    # swap, so a session cannot ask a question under somebody else's
+    # assignment and the author on the durable row is the binding's.
+    #
+    # `answer_handoff` IS AN ACTOR TRANSITION, which is the same shape the four
+    # receipts take -- the reviewer answering holds no assignment on the Work
+    # it is answering about, and what authorizes it is the configured
+    # `answer-handoff` capability in that Work's own effective scope. Neither
+    # operand set carries a participant, scope or principal, which is this
+    # package's standing rule that a caller supplies none of the three.
+    "request_handoff": {"required": ("expect", "operation_id", "message_id",
+                                     "job_id", "kind", "body",
+                                     "handoff_digest", "task_digest",
+                                     "checkpoint_ref", "continuation_digest",
+                                     "destination"), "optional": ()},
+    "answer_handoff": {"required": ("operation_id", "message_id", "reply_to",
+                                    "disposition", "body", "handoff_digest",
+                                    "request_digest", "checkpoint_ref",
+                                    "effect", "detail", "work_id", "job_id"),
+                       "optional": (), "actor": True},
     "satisfy_gate": {"required": ("work_id", "operation_id", "gate",
                                   "evidence"), "optional": ()},
     "settle_operation": {"required": ("operation_id", "signature"),
@@ -138,6 +160,16 @@ _READS = {
     "labels_of": ("work_id",),
     "operation_record": ("operation_id",),
     "operation_result": ("operation_id",),
+    # W385331: the messages of ONE Work and the reply to ONE request. Both are
+    # facts about a Work a participant has a part in rather than deployment
+    # inventories, which is the line `works_with_labels` is on the other side
+    # of. `native_routing` is deliberately NOT here: it is configuration, and
+    # the runtime face reads facts.
+    "pending_handoff_requests": ("work_id",),
+    "work_message": ("message_id",),
+    "work_message_reply": ("message_id",),
+    "work_message_transition": ("message_id",),
+    "work_messages": ("work_id",),
     "project_work": ("work_id",),
     "proposal": ("proposal_id",),
     "receipt": ("proposal_id", "kind"),
@@ -157,7 +189,7 @@ _ACTOR_TRANSITIONS = frozenset(
 # The transitions whose FIRST argument to the core is the assignment.
 _ASSIGNMENT_FIRST = frozenset({
     "activity", "advance_contract", "cancel", "end", "pass_work", "publish",
-    "reject_plan", "route_fenced"})
+    "reject_plan", "request_handoff", "route_fenced"})
 
 
 def _sample_of(keys):

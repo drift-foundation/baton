@@ -553,10 +553,14 @@ class TheRegistryBindsTwoRevisionsAndPreservesTheFirst(unittest.TestCase):
     configured default did not move."""
 
     def test_both_revisions_are_registered(self):
+        """W385331 registered a third, handoff-capable revision beside them.
+        The inventory stays EXACT and `/1` and `/2` stay exactly where they
+        were, which is the property this case was written for."""
         self.assertEqual(
             sorted(templates.TEMPLATES),
             ["baton.v12.job-template.implementation-review/1",
-             "baton.v12.job-template.implementation-review/2"])
+             "baton.v12.job-template.implementation-review/2",
+             "baton.v12.job-template.implementation-review/3"])
 
     def test_the_configured_default_is_still_the_first_revision(self):
         """"Do not change the configured default implicitly"."""

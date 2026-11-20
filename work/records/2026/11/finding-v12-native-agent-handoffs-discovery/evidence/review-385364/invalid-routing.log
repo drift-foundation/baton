@@ -1,0 +1,36 @@
+test_invalid_decision_address_is_rejected_before_install (__main__.InvalidDecisionRecipient.test_invalid_decision_address_is_rejected_before_install) ... FAIL
+
+======================================================================
+FAIL: test_invalid_decision_address_is_rejected_before_install (__main__.InvalidDecisionRecipient.test_invalid_decision_address_is_rejected_before_install)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385364/operator-probe.py", line 51, in test_invalid_decision_address_is_rejected_before_install
+    value=a.native_routing()
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/src/baton_v12/authority/api.py", line 214, in native_routing
+    return self._core.native_routing()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/src/baton_v12/authority/core.py", line 2266, in native_routing
+    return messages.check_routing(held)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/src/baton_v12/authority/messages.py", line 144, in check_routing
+    check_participant(document[member],
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                      what=f"{what}'s {member} is one endpoint address")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/src/baton_v12/authority/identity.py", line 252, in check_participant
+    raise Refusal(
+        f"{what} is {name_of(value)}; a participant is team.member")
+baton_v12.authority.errors.Refusal: the configured native handoff routing's decision_recipient is one endpoint address is 'not-an-address'; a participant is team.member
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385364/operator-probe.py", line 53, in test_invalid_decision_address_is_rejected_before_install
+    self.fail('operator installation succeeded but persisted unusable routing: '+str(error))
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: operator installation succeeded but persisted unusable routing: the configured native handoff routing's decision_recipient is one endpoint address is 'not-an-address'; a participant is team.member
+
+----------------------------------------------------------------------
+Ran 1 test in 0.040s
+
+FAILED (failures=1)

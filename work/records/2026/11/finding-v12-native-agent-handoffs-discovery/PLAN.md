@@ -29,3 +29,18 @@ Preparation-review report M385342 posted in T385331; pass E385343 to baton.decid
 ## Current actionable milestone — concrete kickoff preparation
 
 M385342 planning accepted. First source-delivery slice is NATIVE-TASK.txt; no unresolved owner product choice. Human checkpoint of design/records precedes binding actual source. K prepares exact ordinary artifact/config/pool/install/create commands, no bespoke launcher. No implementation/live run begun. Subsequent discovery/dependency acceptance remains required.
+
+
+## 2026-11-20T19:39:15Z — independent recovery review, E385358
+
+M385357 candidate ce757322b59fbd5ca14f6ec1cd1ecec14c2781fc10c1d53c235392aeb674b866 is changes-requested. Exact append-only review: review-2026-11-20T19-39-15Z.md; evidence/review-385358/. Independently310 required tests pass; reviewer probes establish lost continuation delivery, failed actual continuation replay, and cross-Work response acceptance. Supported routing/grant configuration is also incomplete. Current continuation is correction of R1–R4 on K's isolated candidate, then refreshed digest-bound delta review; supersedes the earlier kickoff-preparation state as the actionable step. No host import or live operation. Schema6→7 fresh-store refusal is covered by DESIGN734–736 and accepted M385342; the candidate's extra-ruling gate is obsolete, not a new owner decision. Larger discovery/dependency milestone remains open.
+
+
+## 2026-11-20T20:53:37Z — delta review E385364
+
+M385363/M385361 tree766f97f2e49809c5a2ebedece65d3ebd6f6d4d933b795efd2490b4726368345a: R1–R3 resolved; R4 positive supported operator path proved, but R4a remains: bootstrap accepts/persists nonempty malformed participant addresses and reports installation success, after which native_routing refuses. Supersedes the prior four-open-findings status: only bounded R4a canonical participant validation before effects is required now. Exact append-only review review-2026-11-20T20-53-37Z.md and evidence/review-385364/.342 required tests and all4 original probes pass; malformed-address public install probe fails. Preserve prior fixes, unknown-cause transient regression disclosure and copy/build/hazard limitations. No new owner decision, import, live run or schema gate. Return corrected digest-bound delta for independent review; larger discovery milestone stays open.
+
+
+## 2026-11-20T21-32-47Z — R4a independent delta acceptance, E385370
+
+Supersedes the prior R4a changes-requested state: tree f62bbaab53c7d6a7f9730b726d68fac8cefe48a92130cdc176924acd1ec64028 (36 paths; manifest 4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24) is accepted for the first native handoff source slice. Both addresses use shared Authority validation before installer effects; refused repeats preserve policy/input. R1–R3 bytes unchanged. Independent 538 focused tests +2 reviewer probes pass, 0 failures/errors/skips, 49.771687 s measured wall. Exact review `review-2026-11-20T21-32-47Z.md` and `evidence/review-385370/`. One existing refusal-text assertion changed correctly despite packet wording claiming no expectation changes. Prior baseline/copy/hazard/transient limitations remain; no live qualification or blanket green suite. Return baton.decide; owner integration/runtime selection and later discovery/dependency outcome remain open. No product edits or Git mutations.

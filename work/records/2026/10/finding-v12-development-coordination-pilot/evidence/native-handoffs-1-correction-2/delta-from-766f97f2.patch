@@ -1,0 +1,337 @@
+diff -ruN -x __pycache__ previous/v12/python/tests/tools/test_bootstrap.py candidate/v12/python/tests/tools/test_bootstrap.py
+--- previous/v12/python/tests/tools/test_bootstrap.py	2026-11-20 14:03:21.388477819 -0700
++++ candidate/v12/python/tests/tools/test_bootstrap.py	2026-11-20 14:14:52.147593258 -0700
+@@ -1334,7 +1334,7 @@
+     def test_one_address_for_both_roles_is_refused_before_anything_is_made(self):
+         said = self.refused(native_handoff_routing={
+             "reviewer": "baton.reviewer", "decision_recipient": "baton.reviewer"})
+-        self.assertIn("never back to the reviewer", said)
++        self.assertIn("both the reviewer and the decision recipient", said)
+         self.nothing_was_composed()
+ 
+     def test_a_reviewer_nobody_serves_is_refused(self):
+@@ -1365,6 +1365,71 @@
+         self.assertIn("native_handoff_routing", said)
+         self.nothing_was_composed()
+ 
++    MALFORMED = ("not-an-address", "baton.", ".member", "Baton.Reviewer",
++                 "baton reviewer", "baton.reviewer.extra", "baton/reviewer",
++                 "1baton.reviewer", "baton.-x")
++
++    def test_a_malformed_decision_recipient_is_refused_by_the_authoritys_grammar(self):
++        """Review 2026-11-20T20-53-37Z R4a: a nonempty string is not an
++        address. The selection is held to `authority.messages.check_routing`
++        -- the validator the Authority's own read applies -- before any
++        effect, so an installation can never succeed with a policy its first
++        handoff-capable preparation would refuse to read."""
++        for bad in self.MALFORMED:
++            with self.subTest(bad=bad):
++                said = self.refused(native_handoff_routing={
++                    "reviewer": "baton.reviewer", "decision_recipient": bad})
++                self.assertIn("a participant is team.member", said)
++                self.assertIn("decision_recipient", said)
++                self.nothing_was_composed()
++
++    def test_a_malformed_reviewer_is_refused_by_the_same_grammar(self):
++        for bad in self.MALFORMED:
++            with self.subTest(bad=bad):
++                said = self.refused(native_handoff_routing={
++                    "reviewer": bad, "decision_recipient": "baton.slaw"})
++                self.assertIn("a participant is team.member", said)
++                self.nothing_was_composed()
++
++    def test_the_grammar_is_the_shared_validator_and_not_a_second_one(self):
++        """What refuses here is exactly what the Authority's read refuses:
++        every malformed address above refuses `check_routing` itself, and
++        every address this preflight accepts reads back."""
++        from baton_v12.authority import Refusal, messages
++
++        for bad in self.MALFORMED:
++            with self.assertRaises(Refusal):
++                messages.check_routing({"schema": messages.ROUTING_SCHEMA,
++                                        "reviewer": "baton.reviewer",
++                                        "decision_recipient": bad})
++        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
++        authority = self.opened(answer)
++        try:
++            self.assertEqual(authority.native_routing()["decision_recipient"],
++                             "baton.slaw")
++        finally:
++            authority.dispose()
++
++    def test_a_refused_repeat_leaves_the_valid_selection_unchanged(self):
++        """A later repeat naming a malformed address is refused before any
++        effect; the policy and the grant the valid install made stand."""
++        from baton_v12.authority import messages
++
++        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
++        said = self.refused(native_handoff_routing={
++            "reviewer": "baton.reviewer", "decision_recipient": "not-an-address"})
++        self.assertIn("a participant is team.member", said)
++        authority = self.opened(answer)
++        try:
++            self.assertEqual(authority.native_routing(),
++                             dict(self.SELECTED,
++                                  schema=messages.ROUTING_SCHEMA))
++            scope = authority.project_work(self.work)["scope"]
++            self.assertTrue(authority.holds_capability(
++                "baton.reviewer", messages.ANSWER_CAPABILITY, scope=scope))
++        finally:
++            authority.dispose()
++
+ 
+ class TheCustodyRecordIsEvidenceOrItIsNothing(ValidFixture):
+     """G1. A record that does not say what is bound is not evidence.
+diff -ruN -x __pycache__ previous/v12/python/tests/tools/test_connected_creation.py candidate/v12/python/tests/tools/test_connected_creation.py
+--- previous/v12/python/tests/tools/test_connected_creation.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/python/tests/tools/test_connected_creation.py	2026-11-20 14:00:09.760457384 -0700
+@@ -183,6 +183,141 @@
+         return store, creation
+ 
+ 
++class TheNativeRoutingThroughTheRealInstaller(ConnectedCreationCase):
++    """W385331 R4/R4a (reviews 2026-11-20T19-39-15Z, 20-53-37Z): the native
++    handoff routing through the REAL installer and the REAL command.
++
++    A two-role pool (the native template's implementation/review), each
++    worker's manifest declaring the `/3` outputs: `bootstrap.main` installs
++    the instance with a `native_handoff_routing` selection, `job_manager.main`
++    creates an ordinary `/3` Job under the native-handoff profile, and the
++    Authority holds the policy and the reviewer's scoped `answer-handoff`
++    grant -- and no `review` grant for that worker. A malformed address is
++    refused by the installer before anything durable exists.
++    """
++
++    ROUTING = {"reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"}
++
++    def workers(self):
++        import copy
++
++        from baton_v12.contracts import digest
++
++        held = [one for one in super().workers()
++                if one["role"] in ("implementation", "review")]
++        for worker in held:
++            manifest = copy.deepcopy(worker["deployment"]["input_manifest"])
++            prototype = manifest["outputs"][0]
++            manifest["outputs"] = [
++                dict(prototype, name=name, type=kind, path=name, required=False)
++                for name, kind in (("proposal", "git-change-proposal"),
++                                   ("findings", "directory-result"),
++                                   ("logs", "directory-result"),
++                                   ("handoff", "directory-result"),
++                                   ("response", "directory-result"))]
++            manifest.pop("manifest_digest")
++            manifest["manifest_digest"] = digest(manifest)
++            worker["deployment"]["input_manifest"] = manifest
++        return held
++
++    def authority(self):
++        from baton_v12.authority import Authority
++
++        held = Authority.open(self.owned["authority_store"],
++                              expected_authority_uuid=self.owned["authority_uuid"])
++        self.addCleanup(held.dispose)
++        return held
++
++    def test_a_fresh_install_and_an_ordinary_creation_install_the_scoped_grant(self):
++        from baton_v12.authority import messages
++        from baton_v12.job_manager import native_handoffs, role_contract
++
++        self.installed(jobs=[], line_declared_base="a" * 40,
++                       canonical_target_id="target-1",
++                       native_handoff_routing=dict(self.ROUTING))
++        self.assertEqual(self.authority().native_routing(),
++                         dict(self.ROUTING, schema=messages.ROUTING_SCHEMA))
++        held = self.answered(template=role_contract.HANDOFF_TEMPLATE,
++                             control_profile="native-handoff/1")
++        authority = self.authority()
++        scope = authority.project_work(held["work_id"])["scope"]
++        self.assertTrue(authority.holds_capability(
++            self.ROUTING["reviewer"], messages.ANSWER_CAPABILITY, scope=scope))
++        self.assertFalse(authority.holds_capability(
++            self.ROUTING["reviewer"], "review", scope=scope))
++        self.assertFalse(authority.holds_capability(
++            self.ROUTING["decision_recipient"], messages.ANSWER_CAPABILITY,
++            scope=scope))
++        store, _creation = self.rows()
++        self.assertTrue(native_handoffs.handoff_capable(store, held["job_id"]))
++        self.assertEqual(self.install_document()["native_handoff_routing"],
++                         self.ROUTING)
++        self.assertNotIn("native_handoff_routing", self.configuration())
++
++    def refused_install(self, routing):
++        """The real installer, refusing: exit 2, the refusal said, and
++        nothing durable at the destination -- no selector, no record, no
++        configuration, no Authority store, no install document."""
++        document = self.document(jobs=[], line_declared_base="a" * 40,
++                                 canonical_target_id="target-1",
++                                 native_handoff_routing=routing)
++        document.pop("state_root", None)
++        inputs = os.path.join(self.root, "operator-inputs-bad.json")
++        Path(inputs).write_text(json.dumps(document))
++        out = io.StringIO()
++        code = bootstrap.main(
++            ["--inputs", inputs, "--destination", self.state,
++             "--distro", self.stand_in_runtime(), "--no-repositories"],
++            stream=out)
++        said = out.getvalue()
++        self.assertEqual(code, 2, said)
++        self.assertIn("refused:", said)
++        self.assertIn("a participant is team.member", said)
++        for name in ("instance.json", "install-inputs.json", "deployment.json",
++                     "justfile", "distro"):
++            self.assertFalse(os.path.exists(os.path.join(self.state, name)),
++                             name)
++        places = bootstrap.layout(self.state)
++        for name in ("record", "configuration", "authority_store"):
++            self.assertFalse(os.path.exists(places[name]), name)
++        return said
++
++    def test_a_malformed_decision_recipient_is_refused_before_any_effect(self):
++        """The reviewer's own public-path probe (`evidence/review-385364/
++        operator-probe.py`), now refused where it must be."""
++        said = self.refused_install({"reviewer": "baton.reviewer",
++                                     "decision_recipient": "not-an-address"})
++        self.assertIn("decision_recipient", said)
++
++    def test_a_malformed_reviewer_is_refused_before_any_effect(self):
++        self.refused_install({"reviewer": "reviewer-without-a-team",
++                              "decision_recipient": "baton.slaw"})
++
++    def test_a_refused_repeat_leaves_the_installed_routing_unchanged(self):
++        """A valid install, then a one-operand repeat naming a malformed
++        address: refused, and the policy and install document stand."""
++        from baton_v12.authority import messages
++
++        self.installed(jobs=[], line_declared_base="a" * 40,
++                       canonical_target_id="target-1",
++                       native_handoff_routing=dict(self.ROUTING))
++        before = Path(os.path.join(self.state, "install-inputs.json")).read_bytes()
++        bad = dict(self.install_document(),
++                   native_handoff_routing={"reviewer": "baton.reviewer",
++                                           "decision_recipient": "nobody"})
++        inputs = os.path.join(self.root, "operator-inputs-repeat.json")
++        Path(inputs).write_text(json.dumps(bad))
++        out = io.StringIO()
++        code = bootstrap.main(["--inputs", inputs], stream=out)
++        self.assertEqual(code, 2, out.getvalue())
++        self.assertIn("a participant is team.member", out.getvalue())
++        self.assertEqual(
++            Path(os.path.join(self.state, "install-inputs.json")).read_bytes(),
++            before)
++        self.assertEqual(self.authority().native_routing(),
++                         dict(self.ROUTING, schema=messages.ROUTING_SCHEMA))
++
++
+ class TheInstallKeepsTheDocumentItConsumed(ConnectedCreationCase):
+     """The first defect, and the smallest one to state.
+ 
+diff -ruN -x __pycache__ previous/v12/python/tools/bootstrap.py candidate/v12/python/tools/bootstrap.py
+--- previous/v12/python/tools/bootstrap.py	2026-11-20 14:03:21.388754533 -0700
++++ candidate/v12/python/tools/bootstrap.py	2026-11-20 14:14:52.147398457 -0700
+@@ -594,11 +594,26 @@
+             faults.append(what + "." + name + " names one participant")
+     if faults:
+         return faults
+-    if routing["reviewer"] == routing["decision_recipient"]:
+-        faults.append(what + " names " + repr(routing["reviewer"])
+-                      + " as both the reviewer and the decision recipient; an "
+-                      "unresolved request escalates to a higher authority and "
+-                      "never back to the reviewer under another label")
++    # THE AUTHORITY'S OWN GRAMMAR, APPLIED HERE AND NOT A SECOND LOOSER ONE
++    # (review 2026-11-20T20-53-37Z R4a). `_compose` persists this selection
++    # through the generic policy writer, which accepts any owned JSON; what
++    # refuses a malformed address is the Authority's semantic READ, which every
++    # handoff-capable preparation makes -- so an installation that accepted
++    # `not-an-address` here reported success and could never prepare a turn.
++    # The selection is held to exactly the validator that read will apply,
++    # before any directory, store, policy or configuration effect.
++    from baton_v12.authority.errors import Refusal
++    from baton_v12.authority.messages import check_routing
++
++    try:
++        check_routing({"schema": ROUTING_SCHEMA,
++                       "reviewer": routing["reviewer"],
++                       "decision_recipient": routing["decision_recipient"]},
++                      what=what)
++    except Refusal as refused:
++        # The grammar of both addresses AND the one-address-for-both-roles
++        # rule are the validator's own, stated once there.
++        return [str(refused)]
+     if reviewers and routing["reviewer"] not in reviewers:
+         faults.append(what + ".reviewer " + repr(routing["reviewer"])
+                       + " is not a configured review worker's participant ("
+@@ -611,6 +626,32 @@
+     return faults
+ 
+ 
++def _routing_preflight(document):
++    """The routing selection's own faults, raised BEFORE any installer effect.
++
++    ONLY THE SELECTION. `held` proves the whole document inside `prepare`, and
++    the installer's admissions (the runtime, the repositories, the prerequisite
++    roots) deliberately precede it so that their own refusals are reached and
++    reported in their own words; a malformed routing address, though, would
++    be persisted by `_compose` through the generic policy writer and refused
++    only at the Authority's semantic read -- so it is held here first, with
++    exactly the check `held` makes.
++    """
++    if type(document) is not dict or ROUTING[0] not in document:
++        return
++    by_role = {}
++    for worker in workers_of(document):
++        if type(worker) is dict:
++            by_role.setdefault(worker.get("role"), []).append(worker)
++    reviewers = {one.get("participant") for one in by_role.get("review", [])}
++    producers = {one.get("participant")
++                 for one in by_role.get("implementation", [])}
++    faults = _routing_faults(document, reviewers, producers)
++    if faults:
++        raise BootstrapRefusal("this deployment cannot be prepared: "
++                               + "; ".join(faults) + ". Nothing was changed.")
++
++
+ def routing_of(document):
+     """The native handoff routing this document selects, as the Authority
+     policy document, or `None`."""
+@@ -3693,6 +3734,12 @@
+ 
+             places = instance.layout(taken.destination)
+             document = dict(document, state_root=places["destination"])
++            # THE ROUTING SELECTION IS PROVED BEFORE THE FIRST EFFECT (review
++            # 2026-11-20T20-53-37Z R4a). `prepare` holds the whole document,
++            # but by then the runtime has been admitted and repositories
++            # cloned into the destination -- effects a malformed address must
++            # not earn. The same pure check `held` applies, applied first.
++            _routing_preflight(document)
+             # PREPARED BY DEFAULT, because the owner's two-operand command
+             # "creates the bundled distro, databases and independent
+             # repositories" -- and the source is this checkout rather than a
+@@ -3721,6 +3768,9 @@
+             # the instance's own target before anything serves them.
+             from tools import instance
+ 
++            # PROVED BEFORE ANY ROOT IS MADE OR SOURCE CLONED, for the
++            # destination form's reason (R4a).
++            _routing_preflight(document)
+             places = instance.layout(document["state_root"])
+             # AND THE ROOTS THOSE WORKERS START IN (review 2026-11-19T05-23-
+             # 45Z). `prepare_prerequisites` ran only in the destination
+diff -ruN -x __pycache__ previous/v12/STACK.md candidate/v12/STACK.md
+--- previous/v12/STACK.md	2026-11-20 14:03:21.389566712 -0700
++++ candidate/v12/STACK.md	2026-11-20 14:14:52.147713993 -0700
+@@ -1214,7 +1214,12 @@
+ **Configuration.** The bootstrap input selects the routing once, as the
+ optional object `native_handoff_routing` with `reviewer` (a configured review
+ worker's own participant, never an implementation participant) and
+-`decision_recipient` (the human owner, never the same address); `just
++`decision_recipient` (the human owner, never the same address). Both
++addresses are held to the Authority's own participant grammar and routing
++validator at preflight, and that selection is proved before the installer
++admits a runtime, clones a repository or writes anything, so a malformed
++address is refused with no effect and a refused repeat leaves the installed
++selection unchanged; `just
+ bootstrap` composes the Authority policy `native_handoff_routing`
+ (`baton.native-handoff-routing/1`) from it and grants the reviewer
+ `answer-handoff` in each bound Work's own scope, exactly as it grants the

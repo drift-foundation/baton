@@ -1,0 +1,7 @@
+test_both_addresses_refuse_before_effect_functions_in_both_forms (__main__.ReviewProbe.test_both_addresses_refuse_before_effect_functions_in_both_forms) ... ok
+test_invalid_reviewer_repeat_preserves_installed_input_and_policy (__main__.ReviewProbe.test_invalid_reviewer_repeat_preserves_installed_input_and_policy) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.053s
+
+OK

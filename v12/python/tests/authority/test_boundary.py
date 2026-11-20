@@ -187,6 +187,26 @@ class ExportedSurface(unittest.TestCase):
                     # W29400: the act that made a Work is a READ on this face,
                     # and reading it acts on nothing.
                     "work_creation",
+                    # W321608 native-labels-3: whether a participant is a
+                    # configured handler of a route -- the question a claim on
+                    # a Work created there would be authorized by, asked
+                    # BEFORE such a Work exists. Pinned late: the accessor
+                    # landed with the native-labels slice and this enumeration
+                    # was not updated with it.
+                    "handles_route",
+                    # W385331: the native handoff READS and the configured
+                    # routing. On this face because "what did this Work's
+                    # participants say to each other" is asked by operators,
+                    # reviewers and the decision recipient whose disposition
+                    # is due -- none of whom holds a claim and none of whom
+                    # should need one. `native_routing` is CONFIGURATION read
+                    # back, which is what `policy` already is; the two
+                    # MUTATIONS are session transitions and are deliberately
+                    # absent from this face.
+                    "handoff_escalations", "native_routing",
+                    "pending_handoff_requests", "work_message",
+                    "work_message_reply", "work_message_transition",
+                    "work_messages",
                     # Review [P0]/[P1]: the decision one authorized act was
                     # taken under, and the scope- and provenance-bearing grant
                     # projection `capabilities_of` deliberately flattens.
@@ -372,7 +392,19 @@ class Isolation(unittest.TestCase):
             # The FILES are not here either: this authority stores references
             # and never opens one, which is what keeps filesystem I/O out of
             # every authority transaction.
-            "work_dossier", "work_dossier_evidence"})
+            "work_dossier", "work_dossier_evidence",
+            # W385331 schema 7: the durable attributed Work message and the
+            # separate transition receipt for the one ownership effect a reply
+            # can earn.  AUTHORITY FACTS, by the same argument: a request is
+            # carried out under an exact assignment this store authorized, a
+            # reply is an act this store authorized by capability in the
+            # requested Work's own scope, and what either EARNED is recorded
+            # apart from the text so no reader can mistake one for the other.
+            # No offer, runtime attempt, quarantined output or runtime
+            # observation crosses with them, and the handoff BODIES are
+            # bounded canonical documents this store retains rather than
+            # files it opens.
+            "work_message", "work_message_transition"})
         # An authority that also stored these would be answering questions it
         # is not authoritative for.  They are the Worker Manager control
         # store's, and their absence is the boundary.

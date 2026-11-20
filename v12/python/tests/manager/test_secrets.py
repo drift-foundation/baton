@@ -989,6 +989,13 @@ COVERED_ELSEWHERE = {
         "the same accepted-checkpoint act writes eligibility",
     ("review_cycles.py", "record_verdict", "review_attachments"): "the same",
     ("review_cycles.py", "record_verdict", "review_lines"): "the same",
+    # W385331: the native response record ends the attachment and moves the
+    # line exactly as the verdict record does, inside its own journalled act
+    # whose signature binds the checkpoint evidence, the reviewer's bound
+    # response digest and the response fence; no free text reaches a row.
+    ("review_cycles.py", "record_response", "review_attachments"):
+        "the checkpoint evidence, the response digest and the fence ride the response signature",
+    ("review_cycles.py", "record_response", "review_lines"): "the same",
     ("attempts.py", "record_attempt", "attempts"):
         "written inside the journalled record act",
     ("attempts.py", "activate_assignment", "attempts"):

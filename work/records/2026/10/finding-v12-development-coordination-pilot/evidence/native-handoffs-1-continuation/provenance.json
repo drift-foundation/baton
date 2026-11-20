@@ -1,0 +1,20 @@
+{
+ "base": "3d05430f97ca9d4a516b51d15eb940840a6f0eff",
+ "built_at": "2026-11-20T18:27Z",
+ "built_by": "baton.prompt (K), isolated copy work/scratch/w383217/handoffs-recovery/candidate, under the owner-held W321608 arrangement; no claim held",
+ "candidate_sha256_file": "sha256:ce757322b59fbd5ca14f6ec1cd1ecec14c2781fc10c1d53c235392aeb674b866",
+ "git": "read-only only (archive, hash-object); no staging, commit, checkout, worktree or stash; host working tree v12 clean at 3d05430f before and after",
+ "manifest_json": "sha256:1286fbc7b9295c453ae4353fb70d4ff937d8affd4d37d7d6a40821474cf55210",
+ "patches": {
+  "candidate-from-3d05430f.patch": "sha256:f65372fda33ae1336e1f52624a32b523d481690ba8757ef543d08581d15f4b51",
+  "delta-from-a743edeb.patch": "sha256:da6ee98025adf877910c0b7082cb0445b32311c6de6a959c9ab19ce2d00ba9d8"
+ },
+ "reproduction": [
+  "GIT_OPTIONAL_LOCKS=0 git archive 3d05430f | tar -x -C verify-base; patch -p1 -s -d verify-base < candidate-from-3d05430f.patch; sha256sum -c candidate.sha256 -> all 33 match; diff -rq verify-base/v12 candidate/v12 -> identical",
+  "GIT_OPTIONAL_LOCKS=0 git archive 3d05430f | tar -x -C verify-retained; patch -p1 -s -d verify-retained < evidence/native-handoffs-1-recovery/proposal/change.patch (the frozen a743edeb patch, 24 blobs verified equal to the retained commit); patch -p1 -s -d verify-retained < delta-from-a743edeb.patch; sha256sum -c candidate.sha256 -> all 33 match"
+ ],
+ "retained_parent": "a743edebacf5c744020083ee68549f2bd1fa91f7",
+ "retained_parent_patch_sha256": "sha256:5ec3e85b4b82c993517edfdc4cb40cc54577f581776ade74cbe8ad7aa6588b86",
+ "schema": "k.native-handoffs-continuation-provenance/1",
+ "tree_digest": "sha256:ce757322b59fbd5ca14f6ec1cd1ecec14c2781fc10c1d53c235392aeb674b866"
+}

@@ -1,0 +1,9 @@
+ M work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md
+ M work/records/2026/10/finding-v12-development-coordination-pilot/PLAN.md
+ M work/records/2026/10/finding-v12-development-coordination-pilot/PROGRESS.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-installed-task-3d05430f.json
+?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-installed-task-handoffs-1.unbound.json
+?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-3d05430f.json
+?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-handoffs-1.unbound.json
+?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/checkpoint-3d05430f-packaging/
+?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-kickoff-20261120/

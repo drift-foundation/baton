@@ -124,6 +124,11 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
                     # The command over it is `tests.tools.test_work_command`,
                     # below.
                     "tests.authority.test_work_label_exposure",
+                    # W385331: the durable attributed Work message, its reply,
+                    # its separately recorded effect and the configured
+                    # routing, through the public Authority faces. PARALLEL:
+                    # a disposable authority per case and no engine.
+                    "tests.authority.test_work_messages",
                     "tests.authority.test_store",
                     "tests.manager.test_attempts",
                     "tests.manager.test_boundary_inventory",
@@ -279,6 +284,12 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
                     # that case's own temporary root with no ambient
                     # configuration -- so nothing is shared with another shard.
                     "tests.tools.test_stage_execution",
+                    # W385331: one native handoff end to end over the composed
+                    # stage deployment, with a scripted provider through the
+                    # real `serve_exchange`. PARALLEL for the same reason as
+                    # `test_stage_execution`: real version control and real
+                    # worker children, each inside its own temporary root.
+                    "tests.tools.test_native_handoffs",
     # W110935: the integration worker's additive provider wrapper. PARALLEL:
     # every case owns one temporary root, the process seam is a recording
     # callable and no provider, credential, engine or network is reached.
@@ -449,6 +460,12 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     "tests.authority.test_dossier",
     "tests.job_manager.test_creation",
     "tests.job_manager.test_fresh_attempt",
+    # W385331: the host's side of one native handoff -- classification before
+    # publication, the yield that is not a completed stage, the response that
+    # is not a verdict, the continuation under its own allowance. PARALLEL:
+    # disposable stores and a disposable authority per case, fake profile and
+    # adapter, no engine, no provider.
+    "tests.job_manager.test_native_handoffs",
     "tests.job_manager.test_native_permission",
     "tests.job_manager.test_native_stop_restart",
     # W383215: the Job-store cancellation owner and its fences. PARALLEL: real

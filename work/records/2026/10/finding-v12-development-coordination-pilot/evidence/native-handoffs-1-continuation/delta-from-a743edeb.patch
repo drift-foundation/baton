@@ -1,0 +1,2592 @@
+diff -ruN -x __pycache__ a743edeb/v12/python/src/baton_v12/job_manager/native_handoffs.py candidate/v12/python/src/baton_v12/job_manager/native_handoffs.py
+--- a743edeb/v12/python/src/baton_v12/job_manager/native_handoffs.py	2026-11-20 10:59:55.030313821 -0700
++++ candidate/v12/python/src/baton_v12/job_manager/native_handoffs.py	2026-11-20 11:20:22.174377193 -0700
+@@ -65,7 +65,11 @@
+ __all__ = ["ANSWER_DISPOSITION", "ESCALATE_DISPOSITION", "HandoffPort",
+            "REQUEST_OPERATION", "RESPOND_OPERATION", "commit_answer",
+            "commit_request", "message_identity",
+-           "AWAITING_STATE", "CONTINUE_KIND", "HOLD_KIND", "YIELD_KIND",
++           "CONTEXT_SCHEMA", "context_bytes", "cross_bound",
++           "delivered_context",
++           "AWAITING_STATE", "ANSWERED_STATE", "ANSWER_KIND",
++           "CONTINUE_KIND", "HOLD_KIND", "YIELD_KIND", "answer_of",
++           "answer_operation_id", "record_answer",
+            "ANSWERED_OUTCOME", "ESCALATED_OUTCOME", "YIELD_OUTCOME",
+            "HANDOFF_OUTPUT", "RESPONSE_OUTPUT", "YIELD_MEMBERS",
+            "classified_handoff", "classified_response", "continuation_of",
+@@ -87,6 +91,12 @@
+ YIELD_KIND = "native.yield"
+ CONTINUE_KIND = "native.continue"
+ HOLD_KIND = "native.hold"
++# THE REVIEW STAGE'S OWN RECORD that its episode ended in a RESPONSE rather
++# than a verdict, keyed by the review stage and episode. Without it the
++# review stage's completed frozen result would project `completed` and open
++# its dependent's gate -- an integration admitted on a question nobody
++# answered with a verdict.
++ANSWER_KIND = "native.answer"
+ 
+ # THE CONTINUATION OUTCOME, DISTINCT FROM FINAL SUBMISSION. This is the
+ # explicit held/awaiting-answer state the slice asks for: a stage that stopped
+@@ -94,6 +104,12 @@
+ # gate) nor `exceptional` (which would say the Job is over) nor
+ # `changes-requested` (which is a verdict nobody gave).
+ AWAITING_STATE = "awaiting-answer"
++# AND THE REVIEW STAGE'S COUNTERPART: its live episode ended in a reply,
++# which is neither `completed` (that would satisfy the integration's gate on
++# a candidate nobody judged) nor `changes-requested` (a verdict nobody gave).
++# An answer moves both stages to fresh episodes in the same act, so this is
++# what an ESCALATED review stage stays in while the execution is held.
++ANSWERED_STATE = "answered"
+ 
+ # WHAT AN ENDING ANSWERS WITH on each of the three new paths. `held` is
+ # deliberately NOT reused for a yield: `_finished` reads `held` as "the ending
+@@ -128,6 +144,9 @@
+ HOLD_MEMBERS = ("job_id", "stage_id", "episode", "message_id", "request_id",
+                 "destination", "checkpoint_id")
+ 
++ANSWER_MEMBERS = ("job_id", "stage_id", "episode", "attempt_id", "message_id",
++                  "request_id", "disposition", "checkpoint_id")
++
+ 
+ def _refuse(message, *, category="refused", code="precondition"):
+     raise ContractRefusal(category, code, message)
+@@ -345,30 +364,50 @@
+             "assignment": fixed}
+ 
+ 
+-def declares_response(control, attempt_id):
++def declares_response(control, attempt_id, terminal=None):
+     """Whether this review attempt declared a RESPONSE at all, as a BOOLEAN.
+ 
+-    THE DISPATCH QUESTION AND NOTHING MORE. A review attempt whose frozen
+-    result answers its `response` output `missing-optional` is an ordinary
+-    final technical review and takes the verdict branch; one that declares a
++    THE DISPATCH QUESTION AND NOTHING MORE. A review attempt whose result
++    answers its `response` output `missing-optional` is an ordinary final
++    technical review and takes the verdict branch; one that declares a
+     response takes the response branch, and whether that response is WELL
+     FORMED is then `classified_response`'s refusal rather than a reason to
+     silently fall back to reading a verdict that is not there.
+ 
++    FROM THE FROZEN RESULT WHEN THERE IS ONE, AND FROM THE WORKER'S OWN
++    COMPLETION ENVELOPE BEFORE THERE IS ONE. The ending is what freezes the
++    result, so on the tick that dispatches the ending nothing is frozen yet;
++    the envelope the runtime published is the evidence that exists at that
++    moment and it is the same document the ending correlates the frozen
++    result against (`_correlated`). Dispatching on it chooses a BRANCH and
++    decides nothing: the response branch still freezes, correlates and
++    classifies out of the frozen result, and an envelope that declared a
++    response the frozen result does not carry is that branch's own refusal.
++
+     A LEGACY RESULT WITH NO SUCH OUTPUT ANSWERS `False`, which is what keeps
+     every `/1` and `/2` review reading exactly as it did.
+     """
+     frozen = frozen_output_of(control, attempt_id)
+-    if frozen is None or frozen["disposition"] != "completed":
+-        return False
+-    result = load_manifest(control, frozen["manifest_digest"],
+-                           "resultManifest")
+-    if result is None:
++    if frozen is not None:
++        if frozen["disposition"] != "completed":
++            return False
++        result = load_manifest(control, frozen["manifest_digest"],
++                               "resultManifest")
++        if result is None:
++            return False
++        return _declares(result.get("outputs"))
++    if type(terminal) is dict and terminal.get("disposition") == "completed":
++        return _declares(terminal.get("outputs"))
++    return False
++
++
++def _declares(outputs):
++    if type(outputs) is not list:
+         return False
+-    for one in result["outputs"]:
+-        if one["name"] != RESPONSE_OUTPUT:
++    for one in outputs:
++        if type(one) is not dict or one.get("name") != RESPONSE_OUTPUT:
+             continue
+-        return (one["status"] == "present"
++        return (one.get("status") == "present"
+                 and type(one.get("result_metadata")) is dict
+                 and HANDOFF_SCHEMA in one["result_metadata"])
+     return False
+@@ -405,6 +444,10 @@
+     return _operation_id(HOLD_KIND, stage_id, episode)
+ 
+ 
++def answer_operation_id(stage_id, episode):
++    return _operation_id(ANSWER_KIND, stage_id, episode)
++
++
+ def _committed(store, kind, operation_id, members, stage_id, episode):
+     """One committed record of this store's journal, PROVED to be this
+     stage's.
+@@ -456,6 +499,13 @@
+                       stage_id, episode)
+ 
+ 
++def answer_of(store, stage_id, episode):
++    """The reply this REVIEW stage's episode ended in, or `None`."""
++    return _committed(store, ANSWER_KIND,
++                      answer_operation_id(stage_id, episode), ANSWER_MEMBERS,
++                      stage_id, episode)
++
++
+ def _stage_row(store, stage_id):
+     from . import submission
+ 
+@@ -534,6 +584,39 @@
+         lambda connection: record)
+ 
+ 
++def record_answer(store, *, stage_id, episode, attempt_id, message_id,
++                  request_id, disposition, checkpoint_id):
++    """Journal that THIS review episode ended in a reply, not a verdict.
++
++    THE REVIEW-SIDE TWIN OF `record_yield`, and it exists for the projection's
++    reason: the reviewer's invocation is `completed` and the stage is NOT a
++    completed review. Keyed by the review stage and episode, so an answer that
++    goes on to open fresh episodes leaves this record on the episode it ended
++    and the successor carries none.
++    """
++    boundaries.identity(attempt_id, "a runtime attempt id")
++    boundaries.identity(message_id, "a Work message identity")
++    boundaries.identity(request_id, "a Work message identity")
++    boundaries.identity(checkpoint_id, "a line checkpoint identity")
++    if disposition not in (ANSWER_DISPOSITION, ESCALATE_DISPOSITION):
++        _refuse(f"a reply is recorded as {ANSWER_DISPOSITION} or "
++                f"{ESCALATE_DISPOSITION}; this is {name_value(disposition)}",
++                category="integrity", code="schema")
++    stage = _stage_row(store, stage_id)
++    if stage["kind"] != "review":
++        _refuse(f"stage {name_value(stage_id)} is a {stage['kind']} stage and "
++                f"a reply is recorded against the review stage that gave it",
++                category="integrity", code="schema")
++    record = {"job_id": stage["job_id"], "stage_id": stage_id,
++              "episode": episode, "attempt_id": attempt_id,
++              "message_id": message_id, "request_id": request_id,
++              "disposition": disposition, "checkpoint_id": checkpoint_id}
++    operation_id = answer_operation_id(stage_id, episode)
++    return store.transact(
++        operation_id, ANSWER_KIND, job_signature(ANSWER_KIND, record),
++        lambda connection: record)
++
++
+ # -- the dependency question -------------------------------------------------
+ 
+ 
+@@ -566,7 +649,10 @@
+     "no premature queued ownership window" means here: before the yield
+     commits the predecessor is `answering` and the gate is shut.
+     """
+-    if stage["kind"] != "review":
++    # `.get`, because `gates_of` is asked about partial stage documents by
++    # readers that carry only the dependency member; a stage that does not
++    # say it is a review stage is not one.
++    if type(stage) is not dict or stage.get("kind") != "review":
+         return False
+     if predecessor is None or predecessor.get("state") != AWAITING_STATE:
+         return False
+@@ -579,7 +665,7 @@
+ # -- the resolved continuation -----------------------------------------------
+ 
+ 
+-def _answered_request(authority, yielded, what):
++def _answered_request(authority, yielded, what, *, head):
+     """The committed reply to this episode's request, read from the Authority.
+ 
+     THE REPLY IS THE AUTHORIZATION AND IT IS READ THROUGH ITS OWN OWNER. This
+@@ -599,10 +685,14 @@
+                 f"store recorded {name_value(yielded['handoff_digest'])}; a "
+                 f"{what} is about the question that was actually asked",
+                 category="integrity", code="digest")
+-    if request["checkpoint_ref"] != yielded["checkpoint_id"]:
+-        _refuse(f"request {name_value(yielded['message_id'])} retained "
+-                f"checkpoint {name_value(request['checkpoint_ref'])} and this "
+-                f"store recorded {name_value(yielded['checkpoint_id'])}",
++    # THE RETAINED HEAD, PROVED THROUGH THE CUSTODY OWNER: the message names
++    # the head object it yielded at and the frozen checkpoint this store's
++    # yield record names records what was frozen. Both are owners' facts.
++    if request["checkpoint_ref"] != head:
++        _refuse(f"request {name_value(yielded['message_id'])} names retained "
++                f"head {name_value(request['checkpoint_ref'])} and checkpoint "
++                f"{name_value(yielded['checkpoint_id'])} froze "
++                f"{name_value(head)}",
+                 category="integrity", code="schema")
+     reply = authority.work_message_reply(yielded["message_id"])
+     if reply is None:
+@@ -686,8 +776,9 @@
+         _refuse(f"stage {name_value(implementation['stage_id'])} episode "
+                 f"{live['episode']} recorded no yield; a continuation follows "
+                 f"a durable request and nothing else")
+-    request, reply, effect = _answered_request(authority, yielded,
+-                                               "continuation")
++    frozen = review_cycles.checkpoint_of(custody, yielded["checkpoint_id"])
++    request, reply, effect = _answered_request(
++        authority, yielded, "continuation", head=frozen["evidence"]["head"])
+     if effect["effect"] != CONTINUATION_EFFECT:
+         _refuse(f"reply {name_value(reply['message_id'])} earned the effect "
+                 f"{name_value(effect['effect'])}; an escalation leaves the "
+@@ -837,6 +928,107 @@
+     return line, checkpoint
+ 
+ 
++# -- the delivered context: what an attempt is told, read from owners --------
++#
++# W385331. A WORKER HAS NO HOST-STORE ACCESS, so what it needs to know about a
++# handoff reaches it the way the task does: as one read-only document the
++# deployment publishes beside the task before the runtime starts. This is the
++# ONE composer of that document, and every member of it is read from the owner
++# that holds it -- the Job store's own yield and continuation records, the
++# Authority's committed messages and configured routing, the custody owner's
++# frozen checkpoint. Nothing here is the deployment's own account of any of
++# them, and nothing here decides anything: whether a request may be sent or
++# answered is still the Authority's, at the commit.
++#
++# THREE SHAPES AND ONE SCHEMA. A fresh or resumed IMPLEMENTATION attempt is
++# told the configured recipient it may address a request to and, when it is a
++# continuation, the exact question it stopped at and the exact reply it
++# resumes on. A REVIEW attempt over a yielded checkpoint is told the pending
++# request and the checkpoint it is about. An ordinary review over a submitted
++# candidate is told nothing, because there is nothing to answer -- and a Job
++# admitted under a legacy template is never composed one at all, which is what
++# keeps every older delivery byte for byte what it was.
++
++CONTEXT_SCHEMA = "baton.native-handoff-context/1"
++
++
++def delivered_context(store, custody, authority, *, role, job_id, stage_id,
++                      episode):
++    """The native handoff context one attempt is delivered, or `None`.
++
++    FAIL-CLOSED ON AN UNCONFIGURED DEPLOYMENT. A Job admitted under a
++    handoff-capable template in a deployment that configures no native routing
++    could yield a question nobody is permitted to receive; the Authority would
++    refuse that request at the commit, after the provider had spent a turn.
++    Refusing at preparation is the same answer given before anything is spent.
++
++    A CONTINUATION CARRIES THE EXACT MESSAGES, read back from the Authority by
++    the identities the committed continuation record names -- never the
++    deployment's memory of them. The reply's task digest was already proved
++    equal to the yield's when the continuation was admitted, so what is
++    delivered here is the same admitted task's own correspondence.
++    """
++    boundaries.identity(job_id, "a Job identity")
++    boundaries.identity(stage_id, "a stage id")
++    boundaries.generation(episode, "an episode number")
++    if not handoff_capable(store, job_id):
++        return None
++    routing = authority.native_routing()
++    if routing is None:
++        _refuse(f"Job {name_value(job_id)} is admitted under a handoff-capable "
++                f"template and this deployment configures no native handoff "
++                f"routing; a request would have no permitted recipient, so "
++                f"the attempt is refused before a provider turn is spent",
++                category="policy", code="denied")
++    if role == "implementation":
++        held = {"schema": CONTEXT_SCHEMA, "role": role, "job_id": job_id,
++                "recipient": routing["reviewer"], "continuation": None}
++        prior = (continuation_of(store, stage_id, episode - 1)
++                 if episode > 1 else None)
++        if prior is not None:
++            request = authority.work_message(prior["request_id"])
++            reply = authority.work_message(prior["message_id"])
++            if request is None or reply is None:
++                _refuse(f"the committed continuation of stage "
++                        f"{name_value(stage_id)} episode {episode - 1} names "
++                        f"messages this Authority does not hold; a resumed "
++                        f"attempt is delivered the exact correspondence it "
++                        f"continues on", category="integrity", code="schema")
++            held["continuation"] = {"request": request, "reply": reply,
++                                    "checkpoint_id": prior["checkpoint_id"]}
++        return held
++    if role != "review":
++        return None
++    stages = episodes._stored_pair(store, job_id)
++    implementation = stages["implementation"]
++    live = episodes.live_of(store, implementation["stage_id"])
++    if live is None:
++        return None
++    yielded = yield_of(store, implementation["stage_id"], live["episode"])
++    if yielded is None or continuation_of(
++            store, implementation["stage_id"], live["episode"]) is not None:
++        return None
++    request = authority.work_message(yielded["message_id"])
++    if request is None:
++        _refuse(f"the yield of stage {name_value(implementation['stage_id'])} "
++                f"episode {live['episode']} names a message this Authority "
++                f"does not hold", category="integrity", code="schema")
++    checkpoint = review_cycles.checkpoint_of(custody, yielded["checkpoint_id"])
++    return {"schema": CONTEXT_SCHEMA, "role": role, "job_id": job_id,
++            "request": request,
++            "checkpoint": {"reference": request["checkpoint_ref"],
++                           "digest": digest(checkpoint["evidence"])}}
++
++
++def context_bytes(document):
++    """The delivered document as the exact bytes it is published and
++    re-proved as: canonical, sorted, compact."""
++    if document is None:
++        return None
++    return json.dumps(document, sort_keys=True,
++                      separators=(",", ":")).encode("utf-8")
++
++
+ # -- the participant-bound seam the endings reach the Authority through -------
+ #
+ # W385331. WHY A PORT AND NOT AN AUTHORITY HANDLE. `review_driver` holds the
+@@ -874,14 +1066,20 @@
+     return f"{prefix}-{digest(operands)[len('sha256:'):][:24]}"
+ 
+ 
+-def _request_operands(control, attempt_id, classified, checkpoint):
+-    """Everything a request commits, derived from owners rather than claimed.
++def cross_bound(classified, checkpoint):
++    """The worker's claimed head, held to the checkpoint actually frozen.
++
++    THE ONE CROSS-BINDING THIS SLICE ADDS, and WHERE it is made is the whole
++    correction of the first cut. The request is committed under the LIVE
++    producer assignment -- the Authority compares and swaps it, and the
++    checkpoint freeze is the act that fences and ends that assignment -- so
++    the message is committed BEFORE the freeze and names the head object the
++    worker says it yielded at. The freeze then records what was actually
++    frozen, and this is asked immediately after it: a request about a head the
++    line does not stand at is refused, the ending stays unfinished with its
++    evidence intact, and nothing is recorded as a yield.
+ 
+-    THE ONE CROSS-BINDING THIS ADDS. The worker names the head object it says
+-    it is yielding, and the frozen checkpoint records what was actually frozen;
+-    comparing them is what makes the retained checkpoint the one the question
+-    is about rather than a checkpoint the manager happened to freeze next. It
+-    is the same cross-binding `review_verdict_from_result` makes for a
++    It is the same cross-binding `review_verdict_from_result` makes for a
+     reviewer's claimed base, head and tree, and for its reason: a namespaced
+     claim alone says only that somebody wrote members into an output.
+     """
+@@ -894,6 +1092,20 @@
+                 f"{name_value(evidence['head'])}; a request is about the "
+                 f"checkpoint that was actually retained",
+                 category="integrity", code="digest")
++    return checkpoint
++
++
++def _request_operands(control, attempt_id, classified):
++    """Everything a request commits, derived from owners rather than claimed.
++
++    THE CHECKPOINT REFERENCE IS THE RETAINED HEAD OBJECT, not a manager
++    checkpoint identity: at the moment this commits the checkpoint has not
++    been minted yet (see `cross_bound`), and the head object is the one name
++    both the worker's own claim and the later frozen evidence spell. The
++    reply must name the same reference, and the continuation proves it
++    against the frozen checkpoint's head.
++    """
++    held = classified["handoff"]
+     # THE ADMITTED TASK AND SPECIFICATION DIGEST IS THE ATTEMPT'S OWN RECORDED
+     # INPUT IDENTITY. `record_attempt` fixes it at the start and the frozen
+     # result is compared against it, so it is the one durable value that says
+@@ -910,14 +1122,13 @@
+         "body": held,
+         "handoff_digest": classified["handoff_digest"],
+         "task_digest": task_digest,
+-        "checkpoint_ref": checkpoint["checkpoint_id"],
++        "checkpoint_ref": held["checkpoint"]["reference"],
+         "continuation_digest": held["continuation"]["digest"],
+         "destination": held["recipient"],
+     }
+ 
+ 
+-def commit_request(control, session, *, attempt_id, job_id, classified,
+-                   checkpoint):
++def commit_request(control, session, *, attempt_id, job_id, classified):
+     """Commit ONE implementer's request through its own assignment's session.
+ 
+     THE ASSIGNMENT IS READ FROM THE CONTROL STORE AND NOT FROM AN OPERAND. What
+@@ -932,7 +1143,7 @@
+                            "work_id": fixed["work_id"]},
+               "participant": fixed["participant"],
+               "generation": fixed["generation"]}
+-    operands = _request_operands(control, attempt_id, classified, checkpoint)
++    operands = _request_operands(control, attempt_id, classified)
+     message_id = message_identity("message", dict(operands, expect=expect))
+     return session.request_handoff(dict(
+         operands, expect=expect, job_id=job_id, message_id=message_id,
+@@ -992,10 +1203,10 @@
+         self.requested = []
+         self.answered = []
+ 
+-    def request(self, *, attempt_id, handoff, checkpoint):
++    def request(self, *, attempt_id, handoff):
+         held = commit_request(self.control, self.session,
+                               attempt_id=attempt_id, job_id=self.job_id,
+-                              classified=handoff, checkpoint=checkpoint)
++                              classified=handoff)
+         self.requested.append(held)
+         return held
+ 
+diff -ruN -x __pycache__ a743edeb/v12/python/src/baton_v12/job_manager/projection.py candidate/v12/python/src/baton_v12/job_manager/projection.py
+--- a743edeb/v12/python/src/baton_v12/job_manager/projection.py	2026-11-20 10:59:55.030388800 -0700
++++ candidate/v12/python/src/baton_v12/job_manager/projection.py	2026-11-20 10:56:37.896628567 -0700
+@@ -201,6 +201,11 @@
+     # message is NOT in this state, and its ending is still owed.
+     if entry.get("handoff") is not None and entry.get("continuation") is None:
+         return native_handoffs.AWAITING_STATE
++    # AND WHETHER THIS REVIEW EPISODE ENDED IN A REPLY. Same position and
++    # same reason: the reviewer's invocation completed and the stage is not
++    # a completed review, so its dependent's gate must not open on it.
++    if entry.get("answer") is not None:
++        return native_handoffs.ANSWERED_STATE
+     frozen = observed.get("output")
+     if type(frozen) is dict:
+         disposition = frozen.get("disposition")
+@@ -561,6 +566,10 @@
+                     native_handoffs.continuation_of(store, stage_id,
+                                                     live["episode"])
+                     if live is not None else None),
++                "answer": (
++                    native_handoffs.answer_of(store, stage_id, live["episode"])
++                    if live is not None and stage["kind"] == "review"
++                    else None),
+                 "managed_failure": (
+                     failed_integration_of(store, stage_id, live["episode"])
+                     if live is not None and stage["kind"] == "integration"
+diff -ruN -x __pycache__ a743edeb/v12/python/src/baton_v12/job_manager/review_driver.py candidate/v12/python/src/baton_v12/job_manager/review_driver.py
+--- a743edeb/v12/python/src/baton_v12/job_manager/review_driver.py	2026-11-20 10:59:55.030469020 -0700
++++ candidate/v12/python/src/baton_v12/job_manager/review_driver.py	2026-11-20 10:48:42.252636959 -0700
+@@ -798,6 +798,19 @@
+     # keeps owing its conclude, and NOTHING falls back to legacy success.
+     classified, yielding = _classified_handoff(control, attempt_id,
+                                                disposition, handoff_capable)
++    # STEP SIX AND THREE QUARTERS: THE MESSAGE, COMMITTED UNDER THE LIVE
++    # PRODUCER ASSIGNMENT. It stands where the publication stands and for the
++    # publication's own reason (W119733): the Authority authorizes this act by
++    # the exact live assignment, and the checkpoint freeze below is the act
++    # that fences and ends it. Execution is already inhibited -- the runtime
++    # is quiesced and its outputs are frozen and retained -- so this is the
++    # mandated "commit the message while execution remains inhibited", and
++    # the message names the retained head object, which the freeze then
++    # proves it stands at (`cross_bound`). A resumed ending replays the same
++    # deterministic operation and commits nothing a second time.
++    requested = None
++    if yielding:
++        requested = handoff.request(attempt_id=attempt_id, handoff=classified)
+     # STEP SEVEN, AND IT IS OWED ONLY BY A RESULT THAT HAS A CANDIDATE. The
+     # producer assignment is live until the next line runs, and this module
+     # hands over the manager's own frozen account of the result rather than
+@@ -854,21 +867,12 @@
+     # AN OPERAND RATHER THAN A COMPOSITION, because which resources a deployment
+     # governs is the deployment's fact. `None` is exactly what it always was: no
+     # resource is named, nothing is released, and no existing caller changes.
+-    # STEP EIGHT AND A HALF: THE MESSAGE, COMMITTED WHILE EXECUTION IS
+-    # INHIBITED. The freeze above ended this assignment and installed the
+-    # runtime-quiescence gate, so nothing can write between here and the
+-    # discharge the composed ending performs -- which is exactly where the
+-    # mandated order puts the message and the next route: commit the
+-    # message/handoff and the next route while execution remains inhibited.
+-    #
+-    # AFTER THE CHECKPOINT BECAUSE THE MESSAGE NAMES IT. The retained
+-    # checkpoint identity is minted by the freeze, and a request naming a
+-    # checkpoint that did not exist yet could not have preserved it.
+-    requested = None
+-    if yielding:
+-        requested = handoff.request(attempt_id=attempt_id,
+-                                    handoff=classified,
+-                                    checkpoint=checkpoint)
++    # STEP EIGHT AND A HALF: THE CROSS-BINDING, asked of the checkpoint the
++    # freeze actually produced. A request about a head the line does not
++    # stand at refuses here, before cleanup, with the frozen evidence intact
++    # and no yield recorded.
++    if yielding and checkpoint is not None:
++        native_handoffs_cross_bound(classified, checkpoint)
+     authorize_cleanup(control, port, adapter, attempt_id=attempt_id,
+                       retention_policy_digest=retention_policy_digest,
+                       govern=govern)
+@@ -944,6 +948,12 @@
+     return native_handoffs.YIELD_OUTCOME
+ 
+ 
++def native_handoffs_cross_bound(classified, checkpoint):
++    from . import native_handoffs
++
++    return native_handoffs.cross_bound(classified, checkpoint)
++
++
+ # WHICH IMPLEMENTATION RESULTS HAVE A CANDIDATE TO PUBLISH, and it is only
+ # one of them. W239528: `integration.retain_proposal` refuses a frozen result
+ # whose disposition is not `completed` -- "has no completed frozen result to
+@@ -1344,9 +1354,10 @@
+     # is deterministic at the Authority, so a resume behind a committed message
+     # answers the same message and commits nothing a second time -- which is
+     # what makes the yield re-enterable at every cut the ordinary ending has.
+-    requested = (handoff.request(attempt_id=attempt_id, handoff=classified,
+-                                 checkpoint=checkpoint)
++    requested = (handoff.request(attempt_id=attempt_id, handoff=classified)
+                  if yielding else None)
++    if yielding and checkpoint is not None:
++        native_handoffs_cross_bound(classified, checkpoint)
+     return {"attempt_id": attempt_id, "disposition": disposition,
+             "result_id": frozen["result_id"],
+             "manifest_digest": frozen["manifest_digest"],
+@@ -1465,9 +1476,10 @@
+         published = _published(control, publication, attempt_id=attempt_id,
+                                frozen=frozen,
+                                assignment=_assignment_ref(fixed), what=what)
+-    requested = (handoff.request(attempt_id=attempt_id, handoff=classified,
+-                                 checkpoint=checkpoint)
++    requested = (handoff.request(attempt_id=attempt_id, handoff=classified)
+                  if yielding else None)
++    if yielding and checkpoint is not None:
++        native_handoffs_cross_bound(classified, checkpoint)
+     # THE ACT THIS ENTRY EXISTS TO REACH. It replays its own journalled
+     # operation, so an ending re-entered after a cleanup that committed and
+     # whose axis has not yet been read reaches the same answer rather than a
+diff -ruN -x __pycache__ a743edeb/v12/python/src/baton_v12/worker_manager/review_cycles.py candidate/v12/python/src/baton_v12/worker_manager/review_cycles.py
+--- a743edeb/v12/python/src/baton_v12/worker_manager/review_cycles.py	2026-11-20 10:59:55.031028780 -0700
++++ candidate/v12/python/src/baton_v12/worker_manager/review_cycles.py	2026-11-20 11:08:09.479594120 -0700
+@@ -2692,10 +2692,20 @@
+     writer -- an escalation is not a continuation hold and answers `None` here.
+     """
+     boundaries.identity(checkpoint_id, "a line checkpoint identity")
+-    for row in store._connection.execute(
+-            "SELECT result FROM operations WHERE kind = ? AND state = "
+-            "'committed' AND result IS NOT NULL", (RESPOND_KIND,)):
+-        held = json.loads(row["result"])
++    # ONLY THE JOURNAL'S OWN ROW OWNER READS A RECORD. The scan selects
++    # identities by kind -- `provider_context`'s own shape for its journal
++    # families -- and every candidate row is then read through
++    # `operation_record`, the store's one decoder, rather than its `result`
++    # column being read raw out of the scan.
++    rows = store._connection.execute(
++        "SELECT operation_id FROM operations WHERE kind = ? ORDER BY rowid",
++        (RESPOND_KIND,)).fetchall()
++    for row_id in rows:
++        record = store.operation_record(row_id["operation_id"])
++        if record is None or record["state"] != "committed" \
++                or record["result"] is None:
++            continue
++        held = json.loads(record["result"])
+         if held.get("checkpoint_id") == checkpoint_id \
+                 and held.get("disposition") == RESPONSE_DISPOSITIONS[0]:
+             return held
+@@ -2741,6 +2751,29 @@
+         raise ContractRefusal(
+             "refused", "precondition",
+             "a response applies only to the active current review")
++    # HISTORICAL RE-ENTRY IS EXACT COMMITTED EVIDENCE, as `record_verdict`'s
++    # is. A response ending whose runtime is already gone -- the composed
++    # ending answered once, its cleanup settled, and a later step deferred --
++    # re-enters here behind a runtime nobody can quiesce again. What answers
++    # it is the response THIS act committed, proved against the operands it
++    # is asked with; a destroyed runtime with no committed response is not
++    # one to record a response for now.
++    held = _attempt(store, attachment["runtime_attempt_id"])
++    if held["execution_runtime"] == "destroyed":
++        recorded = response_of(store, attachment_id)
++        if recorded is None or attachment["state"] != "ended":
++            raise ContractRefusal(
++                "refused", "precondition",
++                "historical response completion requires its committed "
++                "response and ended attachment")
++        if recorded["disposition"] != disposition \
++                or recorded["response_digest"] != response_digest \
++                or recorded["checkpoint_id"] != checkpoint["checkpoint_id"]:
++            raise ContractRefusal(
++                "integrity", "schema",
++                "the committed response differs from the one this re-entry "
++                "asks to record")
++        return recorded
+     attempt, review_result = _completed_review(store, attachment)
+     if attempt["assignment_participant"] != getattr(port, "participant", None):
+         raise ContractRefusal(
+diff -ruN -x __pycache__ a743edeb/v12/python/tests/authority/test_catalog.py candidate/v12/python/tests/authority/test_catalog.py
+--- a743edeb/v12/python/tests/authority/test_catalog.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/python/tests/authority/test_catalog.py	2026-11-20 11:20:43.839422367 -0700
+@@ -165,7 +165,10 @@
+                                  # Node counterpart: the frozen host has no
+                                  # Work labels to port.
+                                  "test_work_label_exposure.py",
+-                                 "test_work_labels.py"])
++                                 "test_work_labels.py",
++                                 # W385331: the durable attributed Work
++                                 # message, its reply and its effect.
++                                 "test_work_messages.py"])
+         self.assertEqual([path.name for path in
+                           DISTRIBUTION.glob("tests/test_*.py")], [])
+ 
+diff -ruN -x __pycache__ a743edeb/v12/python/tests/job_manager/test_native_handoffs.py candidate/v12/python/tests/job_manager/test_native_handoffs.py
+--- a743edeb/v12/python/tests/job_manager/test_native_handoffs.py	2026-11-20 10:59:55.031489676 -0700
++++ candidate/v12/python/tests/job_manager/test_native_handoffs.py	2026-11-20 10:58:19.802465957 -0700
+@@ -376,8 +376,8 @@
+                                      generation=number, document=document)
+         classified = self.classified(round_)
+         requested = self.port_for(WRITER).request(
+-            attempt_id=round_["attempt_id"], handoff=classified,
+-            checkpoint=checkpoint)
++            attempt_id=round_["attempt_id"], handoff=classified)
++        native_handoffs.cross_bound(classified, checkpoint)
+         live = episodes.live_of(self.jobs, "job-a/implementation")
+         record = native_handoffs.record_yield(
+             self.jobs, stage_id="job-a/implementation",
+@@ -407,7 +407,7 @@
+         self.completed(attempt, review=True)
+         document = handoff_response(held["message"]["message_id"],
+                                     held["classified"]["handoff_digest"],
+-                                    held["checkpoint_id"],
++                                    held["message"]["checkpoint_ref"],
+                                     disposition=disposition)
+         self.retained_response(attempt, generation=number, document=document)
+         response = native_handoffs.classified_response(self.control, attempt)
+@@ -492,9 +492,9 @@
+ 
+ 
+ class TheClassificationHappensBeforePublication(HandoffCase):
+-    """"Classify typed terminal evidence and enforce success-versus-yield
++    """Classify typed terminal evidence and enforce success-versus-yield
+     BEFORE proposal publication, review-for-acceptance attachment, completed
+-    projection or satisfied stage dependency.""""
++    projection or satisfied stage dependency."""
+ 
+     def ending(self, document, *, publication=None, capable=True,
+                handoff=..., outputs=None):
+@@ -535,10 +535,19 @@
+         freezes, so a fixture that made one up would be proving that refusal
+         instead of this path.
+         """
+-        return self.ending(handoff_request(self.profile.head_for(1),
+-                                           kind=kind),
++        return self.ending(handoff_request(self.next_head(), kind=kind),
+                            publication=publication)
+ 
++    def next_head(self):
++        """The head the fake profile WILL mint for the line's next freeze.
++
++        Derived from the profile's own rule (`Profile.freeze` names the head
++        after the revision) and the line's own current revision, so this case
++        predicts the cross-binding rather than patching the profile to agree.
++        """
++        line = review_cycles.line_of(self.control, self.line["line_id"])
++        return f"{line['revision'] + 1:040x}"
++
+     def test_a_final_submission_publishes_exactly_as_it_always_did(self):
+         _round, seam, answered, recorded = self.ending(handoff_final())
+         self.assertEqual(len(seam.calls), 1)
+@@ -574,18 +583,18 @@
+                          native_handoff.FINDING_KIND)
+ 
+     def test_a_yield_still_freezes_the_exact_retained_checkpoint(self):
+-        """"A yielded checkpoint ... is retained evidence, not an acceptance
++        """A yielded checkpoint ... is retained evidence, not an acceptance
+         proposal, and does not have to pass final verification to ask a
+-        question.""""
++        question."""
+         _round, _seam, answered, _recorded = self.yielding_ending()
+         checkpoint = review_cycles.checkpoint_of(self.control,
+                                                  answered["checkpoint_id"])
+         self.assertEqual(checkpoint["state"], "frozen")
+         self.assertEqual(answered["requested"]["checkpoint_ref"],
+-                         answered["checkpoint_id"])
++                         checkpoint["evidence"]["head"])
+ 
+     def test_an_undeclared_handoff_HOLDS_rather_than_publishing(self):
+-        """"Undeclared, mixed, missing or foreign output holds." The refusal
++        """Undeclared, mixed, missing or foreign output holds." The refusal
+         stops the ending BEFORE the publication seam is reached."""
+         seam = _Publication()
+         caught = self.refusal(self.ending, None, publication=seam)
+@@ -713,7 +722,7 @@
+         self.assertEqual(held["record"]["checkpoint_id"],
+                          held["checkpoint_id"])
+         self.assertEqual(held["message"]["checkpoint_ref"],
+-                         held["checkpoint_id"])
++                         checkpoint["evidence"]["head"])
+ 
+     def test_the_worker_claimed_head_is_cross_bound_to_what_was_frozen(self):
+         round_ = self.implementation_round(1)
+@@ -722,9 +731,8 @@
+             round_["attempt_id"], generation=1,
+             document=handoff_request("not-the-frozen-head"))
+         classified = self.classified(round_)
+-        caught = self.refusal(self.port_for(WRITER).request,
+-                              attempt_id=round_["attempt_id"],
+-                              handoff=classified, checkpoint=checkpoint)
++        caught = self.refusal(native_handoffs.cross_bound, classified,
++                              checkpoint)
+         self.assertIn("actually retained", str(caught))
+ 
+     def test_the_yield_record_names_the_admitted_template_version(self):
+@@ -867,7 +875,7 @@
+             self.control, held["checkpoint_id"]))
+ 
+     def test_a_result_that_both_answers_and_judges_is_AMBIGUOUS(self):
+-        """"One invocation answers once." A reviewer cannot answer a question
++        """One invocation answers once." A reviewer cannot answer a question
+         and give an accepted technical review in one turn."""
+         held = self.yielded()
+         attempt = self.attempt("response-attempt-1", 1, REVIEWER,
+@@ -882,7 +890,7 @@
+             attempt, generation=1,
+             document=handoff_response(held["message"]["message_id"],
+                                       held["classified"]["handoff_digest"],
+-                                      held["checkpoint_id"]),
++                                      held["message"]["checkpoint_ref"]),
+             verdict_claim={"verdict": "accepted", "base": evidence["base"],
+                            "head": evidence["head"], "tree": evidence["tree"]})
+         caught = self.refusal(native_handoffs.classified_response,
+@@ -1044,7 +1052,7 @@
+         self.assertIn("deadline", str(caught))
+ 
+     def test_the_original_deadlines_are_PRESERVED_by_a_continuation(self):
+-        """"It resets no stage or Job clock." The deadline a continuation
++        """It resets no stage or Job clock." The deadline a continuation
+         resumes under is the one the Job was admitted with."""
+         before = job_control.evaluate(self.jobs._connection, "job-a", NOW)
+         _held, _answered, _opened = self.resumed()
+@@ -1059,8 +1067,7 @@
+     def cancel(self):
+         """One operator cancellation, through the accepted owner."""
+         return cancellation.request(
+-            self.jobs, self.acting(), job_id="job-a",
+-            reason="the operator stops this Job", now=NOW)
++            self.jobs, job_id="job-a", reason="the operator stops this Job")
+ 
+     def after(self, seconds):
+         from datetime import datetime, timedelta, timezone
+@@ -1094,6 +1101,188 @@
+         self.assertIn("same admitted task", str(caught))
+ 
+ 
++class TheReviewStageAnsweredIsNotACompletedReview(HandoffCase):
++    """W385331: the review-side record, and what it keeps from happening.
++
++    A reviewer's response invocation is `completed` and the review STAGE is
++    not a completed review: a projection that read the frozen disposition
++    would open the next stage's gate on a question nobody answered with a
++    verdict.
++    """
++
++    def recorded(self, held, answered):
++        live = episodes.live_of(self.jobs, "job-a/review")
++        return native_handoffs.record_answer(
++            self.jobs, stage_id="job-a/review", episode=live["episode"],
++            attempt_id=answered["attempt_id"],
++            message_id=answered["reply"]["message"]["message_id"],
++            request_id=held["message"]["message_id"],
++            disposition=answered["document"]["disposition"],
++            checkpoint_id=held["checkpoint_id"])
++
++    def test_an_escalated_review_projects_answered_and_owes_nothing(self):
++        held = self.yielded()
++        answered = self.answered(held, disposition="escalate")
++        record = self.recorded(held, answered)
++        self.assertEqual(record["disposition"],
++                         native_handoff.ESCALATE_DISPOSITION)
++        states = self.states(frozen="job-a/review")
++        self.assertEqual(states["review"], native_handoffs.ANSWERED_STATE)
++        self.assertNotEqual(states["review"], "completed")
++        owed = {one["stage_id"] for one in owed_acts(self.jobs, self.acting())}
++        self.assertNotIn("job-a/review", owed)
++        self.assertEqual(native_handoffs.answer_of(
++            self.jobs, "job-a/review", 1), record)
++
++    def test_the_record_is_the_review_stages_own_and_replays(self):
++        held = self.yielded()
++        answered = self.answered(held)
++        first = self.recorded(held, answered)
++        again = self.recorded(held, answered)
++        self.assertEqual(first, again)
++        caught = self.refusal(
++            native_handoffs.record_answer, self.jobs,
++            stage_id="job-a/implementation", episode=1,
++            attempt_id=answered["attempt_id"],
++            message_id=answered["reply"]["message"]["message_id"],
++            request_id=held["message"]["message_id"],
++            disposition="answer", checkpoint_id=held["checkpoint_id"])
++        self.assertIn("recorded against the review stage", str(caught))
++
++    def test_the_continuation_leaves_the_answer_on_the_episode_it_ended(self):
++        held = self.yielded()
++        answered = self.answered(held)
++        self.recorded(held, answered)
++        native_handoffs.advance_continuation(
++            self.jobs, self.control, self.authority, job_id="job-a")
++        self.assertIsNotNone(native_handoffs.answer_of(
++            self.jobs, "job-a/review", 1))
++        self.assertIsNone(native_handoffs.answer_of(
++            self.jobs, "job-a/review", 2))
++        self.assertEqual(self.states()["review"], "blocked")
++        self.assertEqual(self.states()["implementation"], "queued")
++
++
++class AResponseReEntersBehindADestroyedRuntime(HandoffCase):
++    """W385331: the historical re-entry of the response record.
++
++    The composed ending answers once; a later step of the same conclude can
++    defer, and the next tick re-enters behind a runtime that is already gone.
++    What answers it is the response this store committed, proved against the
++    operands it is asked with again.
++    """
++
++    def test_the_committed_response_answers_the_re_entry(self):
++        held = self.yielded()
++        answered = self.answered(held)
++        self.control._connection.execute(
++            "UPDATE attempts SET execution_runtime = 'destroyed' WHERE "
++            "runtime_attempt_id = ?", (answered["attempt_id"],))
++        again = review_cycles.record_response(
++            self.control, attachment_id=answered["attachment"]["attachment_id"],
++            disposition=answered["document"]["disposition"],
++            response_digest=answered["response"]["handoff_digest"],
++            profile=self.profile, port=self.port(REVIEWER))
++        self.assertEqual(again, answered["record"])
++
++    def test_a_different_answer_behind_the_same_identity_is_refused(self):
++        held = self.yielded()
++        answered = self.answered(held)
++        self.control._connection.execute(
++            "UPDATE attempts SET execution_runtime = 'destroyed' WHERE "
++            "runtime_attempt_id = ?", (answered["attempt_id"],))
++        caught = self.refusal(
++            review_cycles.record_response, self.control,
++            attachment_id=answered["attachment"]["attachment_id"],
++            disposition="escalate",
++            response_digest=answered["response"]["handoff_digest"],
++            profile=self.profile, port=self.port(REVIEWER))
++        self.assertIn("differs from the one this re-entry", str(caught))
++
++    def test_a_destroyed_runtime_with_no_committed_response_is_refused(self):
++        held = self.yielded()
++        number = held["round"]["generation"]
++        attempt = self.attempt(f"response-attempt-{number}", number, REVIEWER,
++                               f"response-principal-{number}")
++        attached = review_driver.prepare_review(
++            self.control, checkpoint_id=held["checkpoint_id"],
++            attempt_id=attempt, generation=number,
++            reviewer_worker_id=f"response-worker-{number}",
++            profile=self.profile)
++        self.completed(attempt, review=True)
++        self.control._connection.execute(
++            "UPDATE attempts SET execution_runtime = 'destroyed' WHERE "
++            "runtime_attempt_id = ?", (attempt,))
++        caught = self.refusal(
++            review_cycles.record_response, self.control,
++            attachment_id=attached["attachment_id"], disposition="answer",
++            response_digest="sha256:" + "4" * 64, profile=self.profile,
++            port=self.port(REVIEWER))
++        self.assertIn("committed response", str(caught))
++
++
++class TheDeliveredContextIsReadFromOwners(HandoffCase):
++    """W385331: what an attempt is told, composed from committed records."""
++
++    def test_a_fresh_implementation_is_told_only_its_recipient(self):
++        document = native_handoffs.delivered_context(
++            self.jobs, self.control, self.authority, role="implementation",
++            job_id="job-a", stage_id="job-a/implementation", episode=1)
++        self.assertEqual(document["schema"], native_handoffs.CONTEXT_SCHEMA)
++        self.assertEqual(document["recipient"], REVIEWER)
++        self.assertIsNone(document["continuation"])
++
++    def test_a_review_over_a_yield_is_told_the_pending_request(self):
++        held = self.yielded()
++        document = native_handoffs.delivered_context(
++            self.jobs, self.control, self.authority, role="review",
++            job_id="job-a", stage_id="job-a/review", episode=1)
++        self.assertEqual(document["request"]["message_id"],
++                         held["message"]["message_id"])
++        self.assertEqual(document["checkpoint"]["reference"],
++                         held["message"]["checkpoint_ref"])
++        self.assertEqual(document["checkpoint"]["digest"],
++                         digest(held["checkpoint"]["evidence"]))
++
++    def test_an_ordinary_review_is_told_nothing(self):
++        round_ = self.implementation_round(1)
++        self.frozen_checkpoint(round_)
++        self.assertIsNone(native_handoffs.delivered_context(
++            self.jobs, self.control, self.authority, role="review",
++            job_id="job-a", stage_id="job-a/review", episode=1))
++
++    def test_a_continuation_is_told_the_exact_correspondence(self):
++        held = self.yielded()
++        answered = self.answered(held)
++        native_handoffs.advance_continuation(
++            self.jobs, self.control, self.authority, job_id="job-a")
++        document = native_handoffs.delivered_context(
++            self.jobs, self.control, self.authority, role="implementation",
++            job_id="job-a", stage_id="job-a/implementation", episode=2)
++        continuation = document["continuation"]
++        self.assertEqual(continuation["request"]["message_id"],
++                         held["message"]["message_id"])
++        self.assertEqual(continuation["reply"]["message_id"],
++                         answered["reply"]["message"]["message_id"])
++        self.assertEqual(continuation["checkpoint_id"], held["checkpoint_id"])
++        self.assertIsNotNone(native_handoffs.context_bytes(document))
++
++    def test_a_legacy_job_is_composed_no_context(self):
++        self.template_job(version="baton.v12.job-template.implementation-"
++                                  "review/1")
++        self.assertIsNone(native_handoffs.delivered_context(
++            self.jobs, self.control, self.authority, role="implementation",
++            job_id="job-a", stage_id="job-a/implementation", episode=1))
++
++    def test_an_unconfigured_routing_refuses_before_a_turn_is_spent(self):
++        self.authority.set_policy(work_messages.ROUTING_POLICY, None)
++        caught = self.refusal(
++            native_handoffs.delivered_context, self.jobs, self.control,
++            self.authority, role="implementation", job_id="job-a",
++            stage_id="job-a/implementation", episode=1)
++        self.assertIn("no native handoff routing", str(caught))
++
++
+ class TheHoldIsRecordedOnceAndRereadForever(HandoffCase):
+ 
+     def test_one_durable_pending_escalation_per_request(self):
+diff -ruN -x __pycache__ a743edeb/v12/python/tests/manager/test_boundary_inventory.py candidate/v12/python/tests/manager/test_boundary_inventory.py
+--- a743edeb/v12/python/tests/manager/test_boundary_inventory.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/python/tests/manager/test_boundary_inventory.py	2026-11-20 11:11:39.880728283 -0700
+@@ -2609,6 +2609,9 @@
+     ("caller", "review_cycles.py:freeze_checkpoint", "profile"):
+         "the same, for freeze and validate",
+     ("caller", "review_cycles.py:record_verdict", "profile"): "the same",
++    # W385331: the native response record types its profile aggregate through
++    # the same `_profile` as the verdict record.
++    ("caller", "review_cycles.py:record_response", "profile"): "the same",
+     ("caller", "review_cycles.py:audit_checkpoint", "profile"): "the same",
+     ("caller", "review_cycles.py:review_boundary", "profile"):
+         "an injected profile aggregate whose validate capability is typed before use",
+@@ -2624,6 +2627,10 @@
+     ("caller", "review_cycles.py:settle_restoration_execution", "profile"): "the same",
+     ("caller", "review_cycles.py:record_verdict", "disposition"):
+         "compared against the closed review disposition vocabulary before use",
++    # W385331: a native response's disposition is held to its own closed pair
++    # (`RESPONSE_DISPOSITIONS`) before anything is read.
++    ("caller", "review_cycles.py:record_response", "disposition"):
++        "compared against the closed native response disposition vocabulary before use",
+     ("caller", "review_cycles.py:record_progress", "document"):
+         "canonicalized before it reaches either the signature or durable row",
+     # W384870 (B2): W301404 moved create_line's read into `_reserved_line`,
+@@ -2632,6 +2639,14 @@
+         "the complete row is forwarded through line_of's canonical row decoder",
+     ("adopted", "review_cycles.py:attach_review", "line_writers"):
+         "a SELECT 1 existence answer; no row member crosses into this manager",
++    # W385331: the continuation-hold reader scans the journal by kind for
++    # identities only, and every candidate row is then read through
++    # `operation_record`, the journal's own decoder, before any member is
++    # compared -- `provider_context`'s shape for its own journal families.
++    ("adopted", "review_cycles.py:continuation_hold_of", "operations"):
++        "a kind-filtered identity scan; every row is re-read through operation_record, the journal's own decoder",
++    ("adopted", "review_cycles.py:continuation_hold_of", "operations.operation_id"):
++        "the same",
+     ("adopted", "review_cycles.py:review_boundary", "line_writers"): "the same",
+     ("caller", "workspaces.py:line_assignment_workspace", "pinned"):
+         "the exact two-integer object identity compared with the filesystem stat",
+@@ -3824,6 +3839,9 @@
+         ("review_cycles.py:writer_of", "caller:writer_id"),
+     ("caller", "review_cycles.py:record_verdict", "attachment_id"):
+         ("review_cycles.py:_attachment", "caller:attachment_id"),
++    # W385331: the native response record reaches its attachment the same way.
++    ("caller", "review_cycles.py:record_response", "attachment_id"):
++        ("review_cycles.py:_attachment", "caller:attachment_id"),
+     ("caller", "review_cycles.py:audit_checkpoint", "checkpoint_id"):
+         ("review_cycles.py:checkpoint_of", "caller:checkpoint_id"),
+     ("caller", "review_cycles.py:integration_checkpoint", "line_id"):
+@@ -4492,7 +4510,8 @@
+     "offers.py:issue_offer", "output.py:record_frozen_result",
+     "review_cycles.py:_completed_line", "review_cycles.py:_reserved_line", "review_cycles.py:_settled_elsewhere",
+     "review_cycles.py:attach_review", "review_cycles.py:freeze_checkpoint", "review_cycles.py:grant_writer",
+-    "review_cycles.py:record_progress", "review_cycles.py:record_verdict", "review_cycles.py:release_writer",
++    "review_cycles.py:record_progress", "review_cycles.py:record_response", "review_cycles.py:record_verdict",
++    "review_cycles.py:release_writer",
+     "review_cycles.py:restore_abandoned_correction",
+     "stopped_settlement.py:settle_stopped", "stopped_settlement.py:status",
+     "store.py:ControlStore.transact", "tokens.py:_fence_settlement",
+@@ -12105,6 +12124,27 @@
+                     self.store, attachment_id=SURROGATE,
+                     disposition="accepted", profile=self.review_profile(),
+                     port=self.review_port("baton.review")),
++            # W385331: the native response record and its two readers.
++            (at("record_response", "attachment_id"),
++             "a review attachment identity"):
++                lambda: review_cycles.record_response(
++                    self.store, attachment_id=SURROGATE,
++                    disposition="answer", response_digest="sha256:" + "1" * 64,
++                    profile=self.review_profile(),
++                    port=self.review_port("baton.review")),
++            (at("record_response", "response_digest"),
++             "a native response digest"):
++                lambda: review_cycles.record_response(
++                    self.store, attachment_id="attachment",
++                    disposition="answer", response_digest=SURROGATE,
++                    profile=self.review_profile(),
++                    port=self.review_port("baton.review")),
++            (at("response_of", "attachment_id"),
++             "a review attachment identity"):
++                lambda: review_cycles.response_of(self.store, SURROGATE),
++            (at("continuation_hold_of", "checkpoint_id"),
++             "a line checkpoint identity"):
++                lambda: review_cycles.continuation_hold_of(self.store, SURROGATE),
+             (at("review_boundary", "attachment_id"),
+              "a review attachment identity"):
+                 lambda: review_cycles.review_boundary(
+diff -ruN -x __pycache__ a743edeb/v12/python/tests/manager/test_dependencies.py candidate/v12/python/tests/manager/test_dependencies.py
+--- a743edeb/v12/python/tests/manager/test_dependencies.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/python/tests/manager/test_dependencies.py	2026-11-20 11:08:09.484125427 -0700
+@@ -920,6 +920,11 @@
+         # was handed the identity of. It is a supplied durable operand, not a
+         # cursor -- reading the same verdict twice answers the same document.
+         "verdict_id",
++        # W385331 adds `response_digest`: the reviewer's own bound reply
++        # document identity, carried into the response record's signature so
++        # a second answer under one attachment collides rather than replays.
++        # A supplied durable operand, exactly as `verdict_id` is.
++        "response_digest",
+         "storage_usage",
+         # `workspace_storage` WAS DECLARED HERE AND IS GONE AGAIN, which is
+         # worth a line rather than a silent deletion. W36540's eighth round
+diff -ruN -x __pycache__ a743edeb/v12/python/tests/manager/test_secrets.py candidate/v12/python/tests/manager/test_secrets.py
+--- a743edeb/v12/python/tests/manager/test_secrets.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/python/tests/manager/test_secrets.py	2026-11-20 11:20:43.839957331 -0700
+@@ -989,6 +989,13 @@
+         "the same accepted-checkpoint act writes eligibility",
+     ("review_cycles.py", "record_verdict", "review_attachments"): "the same",
+     ("review_cycles.py", "record_verdict", "review_lines"): "the same",
++    # W385331: the native response record ends the attachment and moves the
++    # line exactly as the verdict record does, inside its own journalled act
++    # whose signature binds the checkpoint evidence, the reviewer's bound
++    # response digest and the response fence; no free text reaches a row.
++    ("review_cycles.py", "record_response", "review_attachments"):
++        "the checkpoint evidence, the response digest and the fence ride the response signature",
++    ("review_cycles.py", "record_response", "review_lines"): "the same",
+     ("attempts.py", "record_attempt", "attempts"):
+         "written inside the journalled record act",
+     ("attempts.py", "activate_assignment", "attempts"):
+diff -ruN -x __pycache__ a743edeb/v12/python/tests/tools/test_native_handoffs.py candidate/v12/python/tests/tools/test_native_handoffs.py
+--- a743edeb/v12/python/tests/tools/test_native_handoffs.py	1969-12-31 17:00:00.000000000 -0700
++++ candidate/v12/python/tests/tools/test_native_handoffs.py	2026-11-20 10:59:21.828887594 -0700
+@@ -0,0 +1,544 @@
++"""W385331 — one native handoff, end to end, over the composed stage deployment.
++
++WHAT THESE CASES PROVE, and each is one of the slice's named proofs: an
++implementer stops at a clarification or an in-scope finding, its exact
++checkpoint is retained and nothing is published; the configured reviewer is
++delivered the question and answers it in its own invocation; the SAME admitted
++task resumes on the retained checkpoint with the answer delivered to it, with
++ZERO human acts; the resumed turn's final submission then goes through the
++ordinary independent technical review; a genuine ambiguity escalates ONCE to
++the configured decision recipient and the execution stays held; and a restart
++at the cuts between those steps duplicates no message and no attempt.
++
++WHAT IS REAL HERE is `tests.tools.test_stage_execution.ComposedOneJobCase`'s
++whole arrangement: the serving factory, real local Authority, Job, Control and
++Integration stores, a real version-controlled line materialized by the accepted
++checkpoint profile, the actual `claude_agent` workload entered through
++`baton_worker.serve_exchange` over the namespaces the deployment mounted, and
++`review_driver`'s endings. The engine is the fixture's daemonless callable and
++the PROVIDER is a scripted process seam that writes files where a model would
++-- there is no daemon, no container, no image, no network, no live model and no
++live credential anywhere in this file.
++
++THE ONLY ROW THIS SUITE WRITES BY HAND is the creation record naming the
++handoff-capable `/3` template, exactly as `tests.job_manager.test_native_handoffs`
++writes it: what is under test is what the deployment does with an admitted
++template version, and composing a whole creation through its four deployment
++ports would be proving the creation operation instead.
++"""
++
++import copy
++import json
++import os
++import unittest
++from types import SimpleNamespace
++
++from baton_v12 import native_handoff
++from baton_v12.authority import Authority
++from baton_v12.authority import messages as work_messages
++from baton_v12.contracts import digest, job_input_identity
++from baton_v12.job_manager import (documents, episodes, job_control,
++                                   native_handoffs, role_contract)
++from baton_v12.worker_manager import review_cycles
++
++from tools import stage_execution
++
++from tests.job_manager import fixtures
++from tests.tools import test_stage_execution as composed
++
++OWNER = "baton.slaw"
++REVIEWER = "baton.reviewer"
++HANDOFF_OUTPUTS = composed.SHARED_OUTPUTS + (
++    (role_contract.HANDOFF_OUTPUT, "directory-result"),
++    (role_contract.RESPONSE_OUTPUT, "directory-result"))
++
++REQUEST = {"kind": native_handoff.CLARIFICATION_KIND,
++           "body": "Is the narrower harness the one in scope, or the wider?",
++           "evidence": [{"reference": "harness.py",
++                         "note": "the partial edit this question is about"}],
++           "continuation": "finish the harness once the base is settled"}
++ANSWER = {"disposition": "answer",
++          "body": "the narrower harness is the admitted one",
++          "rationale": "the task's requirements name one harness and no "
++                       "other", "escalation": None}
++ESCALATION = {"disposition": "escalate",
++              "body": "both readings are admitted by the requirements",
++              "rationale": "nothing in the accepted scope selects one",
++              "escalation": {"ambiguity": "two incompatible harnesses are "
++                                          "admitted",
++                             "options": ["narrower", "wider"],
++                             "recommendation": "narrower"}}
++
++
++class HandoffJobCase(composed.ComposedOneJobCase):
++    """One composed Job under the `/3` template and the native-handoff
++    profile, with the routing and the answer capability configured."""
++
++    def setUp(self):
++        super().setUp()
++        # THE `/3` UNION OF DECLARED OUTPUTS, composed exactly as the parent
++        # composes the shared three: each role writes its own half and answers
++        # the rest `missing-optional`, and none is required.
++        manifest = copy.deepcopy(self.config["input_manifest"])
++        held = manifest["outputs"][0]
++        manifest["outputs"] = [dict(held, name=name, type=kind, path=name,
++                                    required=False)
++                               for name, kind in HANDOFF_OUTPUTS]
++        manifest.pop("manifest_digest")
++        manifest["manifest_digest"] = digest(manifest)
++        self.config["input_manifest"] = manifest
++        self.manifest = manifest
++        job = fixtures.job(
++            "job-a", input_digest=job_input_identity(manifest),
++            policy_digest=fixtures.POLICY_DIGEST,
++            stages=[
++                fixtures.stage("implementation", self.work),
++                fixtures.stage("review", self.work,
++                               depends_on=[{"job_id": "job-a",
++                                            "kind": "implementation"}]),
++                fixtures.stage("integration", self.work,
++                               depends_on=[{"job_id": "job-a",
++                                            "kind": "review"}])])
++        job["control"] = {"profile": job_control.NATIVE_HANDOFF_PROFILE}
++        self.submission = dict(fixtures.submission(jobs=[job]),
++                               schema=documents.SUBMISSION_CONTROL_SCHEMA)
++        # THE CONFIGURED ROUTING AND THE EXPLICIT GRANT. Existing `review`
++        # membership grants nothing here; the reviewer answers under its own
++        # `answer-handoff` capability in the Work's effective scope, and the
++        # decision recipient is the human owner and never the reviewer.
++        authority = Authority.open(
++            self.authority_path,
++            expected_authority_uuid=self.config["authority_uuid"])
++        try:
++            authority.set_policy(work_messages.ROUTING_POLICY, {
++                "schema": work_messages.ROUTING_SCHEMA,
++                "reviewer": REVIEWER, "decision_recipient": OWNER})
++            authority.grant_capability(
++                REVIEWER, work_messages.ANSWER_CAPABILITY, scope=self.scope)
++        finally:
++            authority.dispose()
++        self.prompts = []
++
++    # -- the one hand-written row ---------------------------------------------
++
++    def template_job(self, job, version=role_contract.HANDOFF_TEMPLATE):
++        request = {"schema": "baton.v12.job-template-request/1"}
++        job._connection.execute(
++            "INSERT OR REPLACE INTO template_jobs (job_id, work_id, "
++            "submission_id, template_version, state, request, request_digest, "
++            "resolution_digest, resolution, task_document, "
++            "submission_signature, intended_at, created_at, incarnation, "
++            "holder) VALUES (?, ?, ?, ?, 'created', ?, ?, ?, ?, NULL, "
++            "?, ?, ?, 'stage-composed', NULL)",
++            ("job-a", self.work, self.submission["submission_id"], version,
++             json.dumps(request), digest(request), digest({"v": version}),
++             json.dumps({"template": version}), json.dumps({"kind": "submit"}),
++             fixtures.NOW, fixtures.NOW))
++        job._connection.commit()
++
++    # -- the provider seam, recording what it was asked ----------------------
++
++    def provider(self, edits=None, status=0):
++        import claude_agent
++
++        run = super().provider(edits, status)
++
++        def recording(argv, **options):
++            if argv[0] == claude_agent.PROVIDER_PROGRAM:
++                self.prompts.append(argv[-1])
++            return run(argv, **options)
++
++        return recording
++
++    # -- the reads this suite makes, through public owners -------------------
++
++    def authority(self):
++        held = Authority.open(
++            self.authority_path,
++            expected_authority_uuid=self.config["authority_uuid"])
++        self.addCleanup(held.dispose)
++        return held
++
++    def messages(self):
++        return self.authority().work_messages(self.work)
++
++    def attempts_of(self, held, role):
++        return sorted(self.worker_of(held.composed, role).stage._prepared)
++
++    def operations(self, job, kind):
++        return job._connection.execute(
++            "SELECT count(*) FROM operations WHERE kind = ?",
++            (kind,)).fetchone()[0]
++
++    def line(self, held):
++        deployment = self.deployment_of(held)
++        return review_cycles.line_of(deployment.control,
++                                     deployment.line()["line_id"])
++
++    # -- the composed rounds -------------------------------------------------
++
++    def started(self):
++        from baton_v12.job_manager import submit as submit_jobs
++
++        job, control, serving = self.serving()
++        submit_jobs(job, self.submission)
++        self.template_job(job)
++        self.assertTrue(native_handoffs.handoff_capable(job, "job-a"))
++        self.drive(job, serving, "implementation", "waiting")
++        attempt_id = self.only_attempt(serving, "implementation")
++        return SimpleNamespace(job=job, control=control, composed=serving,
++                               attempt_id=attempt_id,
++                               roots=self.mounted(serving, "implementation",
++                                                  attempt_id))
++
++    def yielded(self, kind=native_handoff.CLARIFICATION_KIND):
++        """One implementation turn that stops at a question, driven to the
++        host's own `awaiting-answer` state by ordinary ticks."""
++        held = self.started()
++        request = dict(REQUEST, kind=kind)
++        self.assertEqual(
++            self.turn(held.control, "implementation", held.attempt_id,
++                      held.roots,
++                      edits={"harness.py": "print('the partial harness')\n",
++                             "handoff/request.json": json.dumps(request)}),
++            0)
++        self.drive(held.job, held.composed, "implementation",
++                   native_handoffs.AWAITING_STATE)
++        held.request = request
++        return held
++
++    def answered(self, held, response=ANSWER):
++        """The configured reviewer's own invocation over the yielded
++        checkpoint, answering the delivered question."""
++        self.drive(held.job, held.composed, "review", "waiting")
++        attempt = self.only_attempt_of(held.composed, "review",
++                                       exclude=getattr(held, "review", None))
++        self.assertEqual(
++            self.turn(held.control, "review", attempt,
++                      self.mounted(held.composed, "review", attempt),
++                      edits={"response.json": json.dumps(response)}), 0)
++        held.review = attempt
++        return held
++
++    def resumed(self, held):
++        """The continuation: the SAME line, the retained checkpoint, a fresh
++        attempt, and the reply delivered to it."""
++        self.drive(held.job, held.composed, "implementation", "waiting",
++                   ticks=12)
++        attempt = self.only_attempt_of(held.composed, "implementation",
++                                       exclude=held.attempt_id)
++        held.resumed = attempt
++        held.resumed_roots = self.mounted(held.composed, "implementation",
++                                          attempt)
++        return held
++
++    def submitted(self, held):
++        """The resumed turn's FINAL submission and the ordinary review."""
++        self.assertEqual(
++            self.turn(held.control, "implementation", held.resumed,
++                      held.resumed_roots,
++                      edits={"harness.py": "print('the finished harness')\n"}),
++            0)
++        self.drive(held.job, held.composed, "implementation", "completed",
++                   ticks=12)
++        self.drive(held.job, held.composed, "review", "waiting", ticks=12)
++        reviewer = self.only_attempt_of(held.composed, "review",
++                                        exclude=held.review)
++        report = copy.deepcopy(
++            composed.TheComposedJobTraversesReviewAndAcceptance.REPORT)
++        self.assertEqual(
++            self.turn(held.control, "review", reviewer,
++                      self.mounted(held.composed, "review", reviewer),
++                      edits={"review-report.json": json.dumps(report)}), 0)
++        held.final_review = reviewer
++        return held
++
++    def reconnected(self, held):
++        """A FRESH serving object over the same stores: the restart cut.
++
++        Nothing is carried over but the stores and the engine; every
++        preparation, every delivery and every ending is re-derived from
++        committed records, which is what a restart is.
++        """
++        serving = stage_execution.operations_from(
++            self.composed_document(line_declared_base=self.base), held.job,
++            held.control, engine_run=self.engine,
++            credential_provider=lambda *_: self.secret,
++            clock=lambda: fixtures.NOW, checkout=self.checkout)
++        self.addCleanup(serving.close)
++        self._composed = serving
++        held.composed = serving
++        return held
++
++    def only_attempt_of(self, held_composed, role, *, exclude):
++        found = sorted(one for one in
++                       self.worker_of(held_composed, role).stage._prepared
++                       if one != exclude)
++        self.assertEqual(len(found), 1, found)
++        return found[0]
++
++    deployment_of = staticmethod(
++        composed.TheComposedJobTraversesReviewAndAcceptance.deployment_of)
++    projected = composed.TheComposedJobTraversesReviewAndAcceptance.projected
++
++
++class AClarificationResumesTheSameTaskWithNoHumanAct(HandoffJobCase):
++
++    def test_the_yield_is_retained_and_publishes_nothing(self):
++        held = self.yielded()
++        self.assertEqual(self.states(held.job, held.composed)["implementation"],
++                         native_handoffs.AWAITING_STATE)
++        # ONE DURABLE ATTRIBUTED REQUEST, authored by the assignment and not
++        # by the worker, addressed to the configured reviewer.
++        [request] = self.messages()
++        self.assertEqual(request["kind"], native_handoff.CLARIFICATION_KIND)
++        self.assertEqual(request["author"], self.config["participant"])
++        self.assertEqual(request["destination"], REVIEWER)
++        self.assertEqual(request["body"]["body"], REQUEST["body"])
++        self.assertEqual(request["body"]["evidence"][0]["reference"],
++                         "harness.py")
++        # THE EXACT PARTIAL CHECKPOINT IS FROZEN, and the message names it.
++        line = self.line(held)
++        checkpoint = review_cycles.checkpoint_of(
++            self.deployment_of(held).control, line["current_checkpoint_id"])
++        self.assertEqual(checkpoint["state"], "frozen")
++        # THE MESSAGE NAMES THE RETAINED HEAD OBJECT, which is what both the
++        # worker's own claim and the frozen evidence spell, and the yield
++        # record names the manager's checkpoint identity that froze it.
++        self.assertEqual(request["checkpoint_ref"],
++                         checkpoint["evidence"]["head"])
++        self.assertEqual(request["body"]["checkpoint"]["reference"],
++                         checkpoint["evidence"]["head"])
++        # NOTHING IS PUBLISHED AND NOTHING IS ELIGIBLE: no proposal rides the
++        # line and no integration checkpoint exists.
++        deployment = self.deployment_of(held)
++        self.assertIsNone(review_cycles.integration_checkpoint(
++            deployment.control, line["line_id"]))
++        self.assertEqual(deployment.control._connection.execute(
++            "SELECT count(*) FROM checkpoint_verdicts").fetchone()[0], 0)
++        # AND THE YIELD RECORD IS THE HOST'S OWN JOURNALLED FACT.
++        live = episodes.live_of(held.job, "job-a/implementation")
++        recorded = native_handoffs.yield_of(held.job, "job-a/implementation",
++                                            live["episode"])
++        self.assertEqual(recorded["message_id"], request["message_id"])
++        self.assertEqual(recorded["checkpoint_id"],
++                         checkpoint["checkpoint_id"])
++        self.assertEqual(recorded["template_version"],
++                         role_contract.HANDOFF_TEMPLATE)
++
++    def test_the_reviewer_answers_and_the_same_task_resumes(self):
++        held = self.answered(self.yielded())
++        self.resumed(held)
++        # TWO MESSAGES: the request and ONE reply, bound to it by identity and
++        # digest, with the effect recorded separately and never a receipt.
++        request, reply = self.messages()
++        self.assertEqual(reply["reply_to"], request["message_id"])
++        self.assertEqual(reply["body"]["request"]["digest"],
++                         request["handoff_digest"])
++        self.assertEqual(reply["author"], REVIEWER)
++        self.assertEqual(reply["task_digest"], request["task_digest"])
++        transition = self.authority().work_message_transition(
++            reply["message_id"])
++        self.assertEqual(transition["effect"],
++                         work_messages.CONTINUATION_EFFECT)
++        # THE CONTINUATION SPENT ITS OWN ALLOWANCE AND NO CORRECTION ROUND.
++        self.assertEqual(job_control.continuations_used_in(
++            held.job._connection, "job-a"), 1)
++        self.assertEqual(job_control.rounds_used_in(
++            held.job._connection, "job-a"), 0)
++        self.assertEqual(self.operations(held.job,
++                                         native_handoffs.CONTINUE_KIND), 1)
++        continued = native_handoffs.continuation_of(
++            held.job, "job-a/implementation", 1)
++        self.assertEqual(continued["message_id"], reply["message_id"])
++        # THE RESUMED WRITER IS BASED ON THE EXACT RETAINED CHECKPOINT.
++        deployment = self.deployment_of(held)
++        writer = review_cycles.writer_for_attempt(
++            deployment.control, attempt_id=held.resumed,
++            generation=deployment.generation_of(held.resumed))
++        self.assertEqual(writer["based_checkpoint_id"],
++                         continued["checkpoint_id"])
++        self.assertEqual(self.line(held)["current_checkpoint_id"],
++                         continued["checkpoint_id"])
++        # AND THE REPLY REACHED THE RESUMED TURN: the worker is delivered
++        # the exact correspondence beside its task, and the provider is told
++        # the answer. Read from the delivered root, not from this fixture.
++        with open(os.path.join(held.resumed_roots["inputs"], "handoff.json"),
++                  "rb") as reading:
++            delivered = json.loads(reading.read())
++        self.assertEqual(delivered["schema"], native_handoffs.CONTEXT_SCHEMA)
++        self.assertEqual(delivered["continuation"]["reply"]["message_id"],
++                         reply["message_id"])
++        self.assertEqual(delivered["continuation"]["request"]["message_id"],
++                         request["message_id"])
++
++    def test_zero_human_acts_to_the_ordinary_final_review(self):
++        held = self.submitted(self.resumed(self.answered(self.yielded())))
++        # THE RESUMED PROVIDER WAS TOLD THE ANSWER, verbatim.
++        self.assertIn(ANSWER["body"], self.prompts[-2])
++        self.assertIn(REQUEST["body"], self.prompts[-2])
++        states = self.drive(held.job, held.composed, "integration", "claimed",
++                            ticks=12)
++        self.assertEqual(states["implementation"], "completed")
++        self.assertEqual(states["review"], "completed")
++        # EXACTLY TWO IMPLEMENTATION ATTEMPTS AND TWO REVIEW ATTEMPTS, on ONE
++        # line, and still two messages: the final review is a verdict and
++        # mints no third one.
++        self.assertEqual(len(self.attempts_of(held, "implementation")), 2)
++        self.assertEqual(len(self.attempts_of(held, "review")), 2)
++        self.assertEqual(len(self.messages()), 2)
++        self.assertEqual(self.authority().pending_handoff_requests(self.work),
++                         [])
++        deployment = self.deployment_of(held)
++        line = self.line(held)
++        accepted = review_cycles.integration_checkpoint(deployment.control,
++                                                        line["line_id"])
++        self.assertIsNotNone(accepted)
++        checkpoint = review_cycles.checkpoint_of(deployment.control,
++                                                 accepted["checkpoint_id"])
++        writer = review_cycles.writer_of(deployment.control,
++                                         checkpoint["writer_id"])
++        self.assertEqual(writer["runtime_attempt_id"], held.resumed)
++        self.assertEqual(self.projected()["route"], self.INTEGRATION_ROUTE)
++        self.assertEqual(job_control.continuations_used_in(
++            held.job._connection, "job-a"), 1)
++        self.assertEqual(job_control.rounds_used_in(
++            held.job._connection, "job-a"), 0)
++
++
++class AFindingContinuesTheSameWay(HandoffJobCase):
++
++    def test_an_in_scope_finding_is_classified_and_the_task_resumes(self):
++        held = self.yielded(kind=native_handoff.FINDING_KIND)
++        [request] = self.messages()
++        self.assertEqual(request["kind"], native_handoff.FINDING_KIND)
++        self.resumed(self.answered(held))
++        self.assertEqual(self.states(held.job, held.composed)["implementation"],
++                         "waiting")
++        self.assertEqual(job_control.continuations_used_in(
++            held.job._connection, "job-a"), 1)
++
++
++class AGenuineAmbiguityEscalatesOnceAndStaysHeld(HandoffJobCase):
++
++    def test_one_escalation_to_the_owner_and_nothing_scheduled(self):
++        held = self.answered(self.yielded(), response=ESCALATION)
++        self.drive(held.job, held.composed, "review",
++                   native_handoffs.ANSWERED_STATE, ticks=12)
++        # THE EXECUTION STAYS HELD: the implementation stage owes no admission
++        # and no claim, the review stage is ANSWERED and not completed -- so
++        # the integration's gate stays shut on a question -- the line admits
++        # no writer, and no continuation was spent.
++        states = self.states(held.job, held.composed)
++        self.assertEqual(states["implementation"],
++                         native_handoffs.AWAITING_STATE)
++        self.assertEqual(states["review"], native_handoffs.ANSWERED_STATE)
++        self.assertEqual(states["integration"], "blocked")
++        answer = native_handoffs.answer_of(
++            held.job, "job-a/review",
++            episodes.live_of(held.job, "job-a/review")["episode"])
++        self.assertEqual(answer["disposition"],
++                         native_handoff.ESCALATE_DISPOSITION)
++        self.assertEqual(self.line(held)["state"], "review-ready")
++        self.assertEqual(job_control.continuations_used_in(
++            held.job._connection, "job-a"), 0)
++        # ONE ESCALATION, ADDRESSED TO THE OWNER AND NOT TO THE REVIEWER.
++        request, escalation = self.messages()
++        self.assertEqual(escalation["kind"], work_messages.ESCALATION_KIND)
++        self.assertEqual(escalation["destination"], OWNER)
++        self.assertEqual(escalation["body"]["escalation"]["options"],
++                         ["narrower", "wider"])
++        self.assertEqual(
++            len(self.authority().handoff_escalations(self.work)), 1)
++        self.assertEqual(self.authority().work_message_transition(
++            escalation["message_id"])["effect"], work_messages.HELD_EFFECT)
++        live = episodes.live_of(held.job, "job-a/implementation")
++        hold = native_handoffs.hold_of(held.job, "job-a/implementation",
++                                       live["episode"])
++        self.assertEqual(hold["destination"], OWNER)
++        self.assertEqual(hold["request_id"], request["message_id"])
++        # AND RE-ENTRY REREADS IT RATHER THAN RAISING IT AGAIN: five more
++        # ordinary ticks mint no message, no attempt, no hold and no episode.
++        from baton_v12.job_manager import sweep as tick
++
++        before = (len(self.messages()), self.attempts_of(held, "implementation"),
++                  self.attempts_of(held, "review"),
++                  self.operations(held.job, native_handoffs.HOLD_KIND),
++                  live["episode"])
++        for _ in range(5):
++            tick(held.job, held.composed, now=fixtures.NOW)
++        after = (len(self.messages()), self.attempts_of(held, "implementation"),
++                 self.attempts_of(held, "review"),
++                 self.operations(held.job, native_handoffs.HOLD_KIND),
++                 episodes.live_of(held.job, "job-a/implementation")["episode"])
++        self.assertEqual(after, before)
++        self.assertEqual(self.states(held.job, held.composed)["implementation"],
++                         native_handoffs.AWAITING_STATE)
++        self.assertIsNone(self.projected()["handler"])
++
++
++class AMalformedRequestIsRefusedNotPublished(HandoffJobCase):
++
++    def test_a_request_the_adapter_cannot_bind_ends_the_turn_unable(self):
++        """"Undeclared, mixed, missing or foreign output holds." A provider
++        that wrote a request this adapter cannot bind -- here, one citing a
++        path that is not in the tree -- produced no question anybody can
++        answer: the turn ends `unable`, no claim is published, no message is
++        committed, and the stage is honestly exceptional rather than silently
++        a final submission."""
++        held = self.started()
++        request = dict(REQUEST, evidence=[{"reference": "nowhere.py",
++                                           "note": "not in this tree"}])
++        # THE WORKER'S OWN REFUSAL ENDS THE TURN: `serve_exchange` reports it
++        # rather than publishing a claim, so the status is the worker's and
++        # what matters is what the host then does with the ending.
++        self.turn(held.control, "implementation", held.attempt_id, held.roots,
++                  edits={"harness.py": "print('the partial harness')\n",
++                         "handoff/request.json": json.dumps(request)})
++        self.drive(held.job, held.composed, "implementation", "exceptional",
++                   ticks=12)
++        self.assertEqual(self.messages(), [])
++        self.assertIsNone(native_handoffs.yield_of(
++            held.job, "job-a/implementation", 1))
++
++
++class ARestartBetweenTheCutsDuplicatesNothing(HandoffJobCase):
++
++    def test_a_fresh_serving_object_rereads_the_yield_and_the_answer(self):
++        held = self.yielded()
++        self.reconnected(held)
++        # RESTART AFTER THE YIELD: the message, the attempt and the state are
++        # reread, not re-made.
++        self.drive(held.job, held.composed, "review", "waiting", ticks=12)
++        self.assertEqual(len(self.messages()), 1)
++        self.assertEqual(self.states(held.job, held.composed)["implementation"],
++                         native_handoffs.AWAITING_STATE)
++        self.answered(held)
++        self.reconnected(held)
++        # RESTART AFTER THE ANSWER: one continuation, one reply, and the
++        # resumed attempt opens exactly once.
++        self.resumed(held)
++        self.assertEqual(len(self.messages()), 2)
++        self.assertEqual(self.operations(held.job,
++                                         native_handoffs.CONTINUE_KIND), 1)
++        self.assertEqual(job_control.continuations_used_in(
++            held.job._connection, "job-a"), 1)
++        from baton_v12.job_manager import sweep as tick
++
++        for _ in range(3):
++            tick(held.job, held.composed, now=fixtures.NOW)
++        self.assertEqual(self.operations(held.job,
++                                         native_handoffs.CONTINUE_KIND), 1)
++        self.assertEqual(len(self.messages()), 2)
++        self.assertEqual(episodes.live_of(
++            held.job, "job-a/implementation")["episode"], 2)
++        # AND ONLY ONE WRITER IS EVER ACTIVE ON THE LINE.
++        deployment = self.deployment_of(held)
++        active = deployment.control._connection.execute(
++            "SELECT count(*) FROM line_writers WHERE state = 'active'"
++        ).fetchone()[0]
++        self.assertEqual(active, 1)
++
++
++if __name__ == "__main__":  # pragma: no cover
++    unittest.main()
+diff -ruN -x __pycache__ a743edeb/v12/python/tools/parallel_test.py candidate/v12/python/tools/parallel_test.py
+--- a743edeb/v12/python/tools/parallel_test.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/python/tools/parallel_test.py	2026-11-20 10:49:26.680855902 -0700
+@@ -124,6 +124,11 @@
+                     # The command over it is `tests.tools.test_work_command`,
+                     # below.
+                     "tests.authority.test_work_label_exposure",
++                    # W385331: the durable attributed Work message, its reply,
++                    # its separately recorded effect and the configured
++                    # routing, through the public Authority faces. PARALLEL:
++                    # a disposable authority per case and no engine.
++                    "tests.authority.test_work_messages",
+                     "tests.authority.test_store",
+                     "tests.manager.test_attempts",
+                     "tests.manager.test_boundary_inventory",
+@@ -279,6 +284,12 @@
+                     # that case's own temporary root with no ambient
+                     # configuration -- so nothing is shared with another shard.
+                     "tests.tools.test_stage_execution",
++                    # W385331: one native handoff end to end over the composed
++                    # stage deployment, with a scripted provider through the
++                    # real `serve_exchange`. PARALLEL for the same reason as
++                    # `test_stage_execution`: real version control and real
++                    # worker children, each inside its own temporary root.
++                    "tests.tools.test_native_handoffs",
+     # W110935: the integration worker's additive provider wrapper. PARALLEL:
+     # every case owns one temporary root, the process seam is a recording
+     # callable and no provider, credential, engine or network is reached.
+@@ -449,6 +460,12 @@
+     "tests.authority.test_dossier",
+     "tests.job_manager.test_creation",
+     "tests.job_manager.test_fresh_attempt",
++    # W385331: the host's side of one native handoff -- classification before
++    # publication, the yield that is not a completed stage, the response that
++    # is not a verdict, the continuation under its own allowance. PARALLEL:
++    # disposable stores and a disposable authority per case, fake profile and
++    # adapter, no engine, no provider.
++    "tests.job_manager.test_native_handoffs",
+     "tests.job_manager.test_native_permission",
+     "tests.job_manager.test_native_stop_restart",
+     # W383215: the Job-store cancellation owner and its fences. PARALLEL: real
+diff -ruN -x __pycache__ a743edeb/v12/python/tools/single_worker.py candidate/v12/python/tools/single_worker.py
+--- a743edeb/v12/python/tools/single_worker.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/python/tools/single_worker.py	2026-11-20 11:20:43.839723196 -0700
+@@ -132,6 +132,11 @@
+ # entry over the root this deployment composes and asserts these names against
+ # the workload's own constants.
+ TASK_DOCUMENT = "task.json"
++# W385331: THE NATIVE HANDOFF CONTEXT, delivered beside the task at one fixed
++# name when the stage owner composes one. The worker reads it bounded and
++# no-follow exactly as it reads the task; an attempt with none delivered has
++# an input root byte for byte what it always was.
++HANDOFF_DOCUMENT = "handoff.json"
+ SOURCE_DESTINATION = "source"
+ # THE WORKER'S OWN READ CEILING. `claude_agent._task` reads at most 1 MiB and
+ # a document wider than that is one it will never see whole, so this refuses it
+@@ -1712,6 +1717,10 @@
+             if self.judgment_document is not None:
+                 self._published_task(roots["inputs"], name="judgment.json",
+                                      content=self.judgment_document)
++            handoff = self._handoff_document(stage)
++            if handoff is not None:
++                self._published_task(roots["inputs"], name=HANDOFF_DOCUMENT,
++                                     content=handoff)
+             # W71917: THE MOUNTPOINT, NOT A COPY. What stood here walked the
+             # nominated tree a second time and wrote every file into the input
+             # root -- the ordinary copied bootstrap this Work retires. The
+@@ -1749,8 +1758,37 @@
+         if self.judgment_document is not None:
+             self._proved_task(roots["inputs"], name="judgment.json",
+                               content=self.judgment_document)
++        handoff = self._handoff_document(stage)
++        if handoff is not None:
++            self._proved_task(roots["inputs"], name=HANDOFF_DOCUMENT,
++                              content=handoff)
+         return held_input
+ 
++    def _handoff_document(self, stage):
++        """W385331: the native handoff context THIS attempt is delivered, or
++        `None`.
++
++        COMPOSED BY THE STAGE OWNER AND NEVER HERE. Which question a reviewer
++        is answering, which answer a resumed implementer continues on, and
++        which configured reviewer a request may be addressed to are facts of
++        the Job store and the Authority -- owners this worker does not hold.
++        The stage composition reads them through their public readers and
++        answers bytes; this publishes them exactly as it publishes the task,
++        at one fixed name beside it, read-only, re-proved on every restart.
++
++        `None` IS THE ORDINARY ANSWER for every Job that existed before this
++        slice and for every attempt with nothing to deliver: no document is
++        published, nothing is recorded under the name, and the input root is
++        byte for byte what it always was.
++        """
++        owner = getattr(self, "stage", None)
++        if stage is None or owner is None:
++            return None
++        compose = getattr(owner, "handoff_document_for", None)
++        if compose is None:
++            return None
++        return compose(stage)
++
+     def _published_task(self, inputs, *, name=TASK_DOCUMENT, content=None):
+         """Install the held task bytes as the read-only workload document.
+ 
+@@ -2370,7 +2408,9 @@
+         workspaces.record_preparation(
+             self.control, attempt_id, roots,
+             (TASK_DOCUMENT,) + (("judgment.json",)
+-                                if self.judgment_document is not None else ()))
++                                if self.judgment_document is not None else ())
++            + ((HANDOFF_DOCUMENT,)
++               if self._handoff_document(stage) is not None else ()))
+         self.checkpoint("prepared")
+         state = attempt_runtime_of(self.control, attempt_id)
+         fresh = state["execution_runtime"] == "not-started"
+diff -ruN -x __pycache__ a743edeb/v12/python/tools/stage_execution.py candidate/v12/python/tools/stage_execution.py
+--- a743edeb/v12/python/tools/stage_execution.py	2026-11-20 10:59:55.032060096 -0700
++++ candidate/v12/python/tools/stage_execution.py	2026-11-20 11:19:09.425567626 -0700
+@@ -1303,6 +1303,37 @@
+                     category="refused", code="precondition")
+         return held["boundary"]
+ 
++    def handoff_document_for(self, stage):
++        """W385331: the native handoff context THIS attempt is delivered.
++
++        THE SINGLE WORKER PUBLISHES IT AND THIS COMPOSES IT, through the one
++        composer `native_handoffs.delivered_context` -- every member read from
++        the Job store, the Authority and the custody owner by their public
++        readers. `None` for every Job whose admitted template has no handoff
++        branch and for every attempt with nothing to deliver, so a delivery
++        that existed before this slice is byte for byte what it was.
++
++        DETERMINISTIC PER ATTEMPT, which is what lets the preparation replay:
++        the records it reads -- the creation record, the yield, the committed
++        continuation, the committed messages -- are all committed before the
++        attempt is prepared and none of them moves afterwards.
++        """
++        deployment = self.deployment
++        jobs = getattr(deployment, "jobs", None)
++        job_id = stage.get("job_id") if type(stage) is dict else None
++        if jobs is None or job_id is None:
++            return None
++        # THE CAPABILITY QUESTION FIRST, before any other member of the stage
++        # row is touched: a Job with no handoff branch -- every Job that
++        # existed before this slice, and every preparation driven without an
++        # episode row -- answers `None` here and reads nothing else.
++        if not native_handoffs.handoff_capable(jobs, job_id):
++            return None
++        return native_handoffs.context_bytes(native_handoffs.delivered_context(
++            jobs, deployment.control, deployment.authority, role=self.role,
++            job_id=job_id, stage_id=stage["stage_id"],
++            episode=stage["episode"]))
++
+     def prepare_context(self, worker, stage):
+         from baton_v12.worker_manager import provider_context, context_delivery
+         if self.role != "implementation":
+@@ -1651,20 +1682,27 @@
+                 # from its manager/Authority owner, so anything supplied here
+                 # would be the deployment asserting what the result proves.
+                 proposal=None)
+-        elif capable and native_handoffs.declares_response(
+-                deployment.control, attempt_id):
+-            # W385331: THE RESPONSE BRANCH, AND THE DISPATCH IS A FACT ABOUT
+-            # THE FROZEN RESULT rather than a configuration switch.
++        elif capable and (
++                self.handoff_document_for(stage) is not None
++                or native_handoffs.declares_response(
++                    deployment.control, attempt_id, context["terminal"])):
++            # W385331: THE RESPONSE BRANCH, AND THE DISPATCH IS A FACT THIS
++            # DEPLOYMENT ALREADY HOLDS rather than a configuration switch.
+             #
+             # A reviewer attached to a frozen checkpoint can be ANSWERING A
+-            # QUESTION or JUDGING A CANDIDATE, and `declares_response` asks
+-            # which by looking at whether its own declared `response` output
+-            # carries a handoff claim. A result that declares one takes this
+-            # branch; one that answers that output `missing-optional` is an
+-            # ordinary final technical review and takes the branch below.
+-            # Whether a declared response is WELL FORMED is then the response
+-            # ending's own refusal, not a reason to fall back to reading a
+-            # verdict that is not there.
++            # QUESTION or JUDGING A CANDIDATE. Which one THIS attempt was
++            # launched to do is the document this deployment delivered it:
++            # an attempt delivered a pending request was asked a question,
++            # and its ending is the response ending -- a reviewer that was
++            # asked a question and judged instead declared no response, and
++            # that ending holds on it rather than reading a verdict nobody
++            # asked for. An attempt delivered nothing is an ordinary final
++            # technical review and takes the branch below, unless its own
++            # completion envelope declares a response, which the response
++            # ending then proves or refuses out of the frozen result.
++            #
++            # DECIDED BEFORE THE FREEZE, deliberately: the ending is what
++            # freezes the result, so the dispatch cannot wait for one.
+             answered = review_driver.end_response_from_result(
+                 deployment.control, worker.port, context["adapter"],
+                 attachment_id=prepared["attachment_id"],
+@@ -1926,6 +1964,7 @@
+         # record is journalled under a deterministic identity, the gate is
+         # still holding, and the ending obligation is still owed.
+         self._recorded_yield(stage, answered)
++        self._recorded_answer(stage, answered)
+         discharge = self._discharged(worker, answered)
+         routed = self.deployment.routed(stage, answered)
+         if self._fenced_gate(answered) and discharge is None:
+@@ -1975,6 +2014,31 @@
+             task_digest=requested["task_digest"],
+             destination=requested["destination"])
+ 
++    def _recorded_answer(self, stage, answered):
++        """Journal that this REVIEW episode ended in a reply, or do nothing.
++
++        EVERY OPERAND IS A COMMITTED RECORD'S: the reply and the request it
++        answers come from the Authority message the ending committed, the
++        disposition from the classification out of the frozen result, the
++        checkpoint from the response record. Committed BEFORE the route moves
++        and before any continuation opens, so the review stage never projects
++        `completed` on a question -- not even for the one tick in between.
++        """
++        if answered.get("outcome") not in (native_handoffs.ANSWERED_OUTCOME,
++                                           native_handoffs.ESCALATED_OUTCOME):
++            return None
++        reply = answered.get("reply") or {}
++        message = reply.get("message") or {}
++        request = reply.get("request") or {}
++        return native_handoffs.record_answer(
++            self.deployment.jobs,
++            stage_id=stage["stage_id"], episode=stage["episode"],
++            attempt_id=answered["attempt_id"],
++            message_id=message["message_id"],
++            request_id=request["message_id"],
++            disposition=answered["response"]["disposition"],
++            checkpoint_id=answered["checkpoint_id"])
++
+     def _handed_off(self, worker, stage, assignment, answered):
+         """Move the Work to the route its next role is served on.
+ 
+diff -ruN -x __pycache__ a743edeb/v12/STACK.md candidate/v12/STACK.md
+--- a743edeb/v12/STACK.md	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/STACK.md	2026-11-20 10:58:42.716358147 -0700
+@@ -1123,6 +1123,75 @@
+   operation, and a **new Job identity** without `--label` is required. It never
+   claims that nothing was reserved.
+ 
++## Native handoffs — a question is not a candidate
++
++W385331, first slice. A Job admitted under the handoff-capable template
++`baton.v12.job-template.implementation-review/3` (bound to the descriptor
++`baton.v12.development-role-contract.native-handoff/1`) lets an implementer
++stop at a **clarification request** or a within-scope **finding request**
++instead of submitting, and lets the configured reviewer answer it in its own
++invocation, after which the SAME admitted task resumes on the exact retained
++checkpoint with no human relay. Nothing about `/1` or `/2` changes: a Job
++resolved against either has no handoff branch at all, its workers are delivered
++nothing new, and every ending reads exactly as it did.
++
++**What the worker returns.** The `/3` implementation role declares two
++outputs, `proposal` and `handoff`, and OWES only `handoff`: the bounded
++`baton.native-handoff/1` document on that output's `result_metadata` says which
++of four things the invocation was — `final-submission`, `clarification-request`,
++`finding-request` or (on the review role's `response` output) `response`. The
++provider is told one more path it may write, `handoff/request.json` inside the
++reserved handoff output of its working copy; the adapter binds the retained
++head, the cited evidence and the continuation note into the versioned document
++and refuses a malformed request rather than publishing it. A yield skips the
++task's verification command on purpose: a yielded checkpoint is retained
++evidence, not an acceptance proposal.
++
++**What the host does, in order.** After the runtime is quiesced and its outputs
++frozen and retained, the ending CLASSIFIES the declared handoff BEFORE any
++publication. A request is committed to the Authority under the live producer
++assignment (`request_handoff`; author, generation and claim event are the
++binding's, never the worker's), addressed only to the configured reviewer; the
++checkpoint is then frozen and the claimed head is cross-bound against it; the
++Job store journals the yield (`native.yield`); the route moves to the reviewer
++while the gate still holds. The implementation stage projects `awaiting-answer`
++— not `completed`, not `exceptional`, not a verdict — and its dependent review
++stage's gate opens for a RESPONSE only. Undeclared, mixed, missing or foreign
++handoff evidence holds the ending with its evidence intact; it never falls back
++to legacy success.
++
++**What an attempt is told.** The deployment publishes one read-only
++`handoff.json` beside `task.json` (`baton.native-handoff-context/1`) whenever
++the Job's template has a handoff branch: a fresh implementer learns the
++configured recipient; a reviewer over a yielded checkpoint learns the pending
++request and the checkpoint it is about; a resumed implementer learns the exact
++question it stopped at and the exact reply, read back from the Authority by the
++identities the committed continuation names. Workers never see a host store.
++
++**What a reply earns.** The reviewer's `response` is a clarification or
++discovery interpretation and never an accepted technical review: it mints no
++verification, review, approval or integration receipt, and the review stage
++projects `answered` rather than `completed`, so the integration's gate stays
++shut. An `answer` is committed as the one reply to the exact pending request
++(by identity and by digest), earns a recorded `continuation` effect, holds the
++line for one continuation writer, and `advance_continuation` opens fresh
++episodes for both stages under the Job's own continuation allowance — spending
++no correction round and moving no deadline. An `escalate` earns a recorded
++`held` effect addressed to the configured decision recipient (never the same
++reviewer), is journalled once per yielding episode (`native.hold`) and reread
++on every later tick rather than raised again, and leaves the execution held.
++
++**Configuration.** The Authority policy `native_handoff_routing`
++(`baton.native-handoff-routing/1`: `reviewer`, `decision_recipient`, which may
++not be one address) and the `answer-handoff` capability granted to the
++reviewer in the Work's effective scope; the control profile `native-handoff/1`
++(every ceiling of `documentation/1`, zero correction rounds, ONE resolved
++continuation). A handoff-capable Job in a deployment with no routing is refused
++at preparation, before a provider turn is spent. The worker image must carry
++this revision's adapter; an older image refuses a declared `handoff` output
++by name. Authority schema version 7 adds `work_message` and
++`work_message_transition`; a retained store at 6 is refused, not migrated.
++
+ ## Boundaries
+ 
+ This launcher does not migrate a backlog, does not copy v11 Work, and is not a
+diff -ruN -x __pycache__ a743edeb/v12/worker/claude_agent.py candidate/v12/worker/claude_agent.py
+--- a743edeb/v12/worker/claude_agent.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/worker/claude_agent.py	2026-11-20 10:50:32.132865658 -0700
+@@ -511,7 +511,52 @@
+ # therefore the union and each role produces its own half, answering the other
+ # half `missing-optional`. The assembly owns constructing that manifest; this
+ # adapter owns knowing which half is its.
+-COMMON_OUTPUTS = ("proposal", "findings", "logs", CONTEXT_RECEIPT)
++# -- W385331: the native handoff, on the worker's side ------------------------
++#
++# WHAT THE WORKER KNOWS AND WHAT IT DOES NOT. It is DELIVERED one read-only
++# context document beside the task (`HANDOFF_DOCUMENT`) whenever its Job's
++# admitted template has a handoff branch: the configured recipient a request
++# may be addressed to and, on a continuation, the exact question and the exact
++# reply; a reviewer over a yielded checkpoint is delivered the pending request
++# and the checkpoint it is about. It learns nothing about the Authority, the
++# message store, the episode or the manager, and it has no way to commit a
++# message: what it RETURNS is a bounded declared output carrying a claim, and
++# the host classifies that claim before anything is published.
++#
++# THE PROVIDER IS TOLD EVEN LESS. It is told where to write a request if it
++# must stop, and what the reviewer answered if it is resuming; the adapter
++# composes the versioned document, binds the retained head and the cited
++# evidence, and refuses a malformed request rather than publishing it.
++HANDOFF_DOCUMENT = "handoff.json"
++HANDOFF_CONTEXT_SCHEMA = "baton.native-handoff-context/1"
++HANDOFF_SCHEMA = "baton.native-handoff/1"
++HANDOFF_OUTPUT = "handoff"
++RESPONSE_OUTPUT = "response"
++# Provider-authored, inside the reserved handoff output of the line workspace.
++HANDOFF_REQUEST = "request.json"
++# Adapter-authored members of the handoff and response outputs.
++HANDOFF_RECORD = "handoff.json"
++HANDOFF_CONTINUATION = "continuation.txt"
++# Provider-authored, in the review room, beside where a report would go.
++RESPONSE_REPORT = "response.json"
++HANDOFF_REQUEST_KINDS = ("clarification-request", "finding-request")
++HANDOFF_FINAL_KIND = "final-submission"
++HANDOFF_RESPONSE_KIND = "response"
++HANDOFF_DISPOSITIONS = ("answer", "escalate")
++HANDOFF_REQUEST_MEMBERS = ("kind", "body", "evidence", "continuation")
++HANDOFF_RESPONSE_MEMBERS = ("disposition", "body", "rationale", "escalation")
++HANDOFF_ESCALATION_MEMBERS = ("ambiguity", "options", "recommendation")
++MAX_HANDOFF_BODY = 4096
++MAX_HANDOFF_RATIONALE = 2048
++MAX_HANDOFF_REFERENCE = 512
++MAX_HANDOFF_EVIDENCE = 16
++MAX_HANDOFF_OPTIONS = 8
++MAX_HANDOFF_PARTICIPANT = 160
++# The delivered context: two retained messages at most, plus their envelope.
++MAX_HANDOFF_CONTEXT_BYTES = 1 << 16
++
++COMMON_OUTPUTS = ("proposal", "findings", "logs", CONTEXT_RECEIPT,
++                  HANDOFF_OUTPUT, RESPONSE_OUTPUT)
+ # W376586: the SHARED typed declaration refusal and its four closed codes,
+ # imported rather than redefined -- a duplicate class would defeat the catch.
+ from adapter_refusal import (  # noqa: E402
+@@ -2119,6 +2164,16 @@
+                                         "implementation")
+             one = produce[0]
+         proposal = os.path.join(OUTPUT_ROOT, one["path"])
++        # W385331: THE HANDOFF OUTPUT AND ITS DELIVERED CONTEXT ARE A PAIR.
++        # A declared `handoff` output with no context, or a context with no
++        # declared output, is a delivery this adapter cannot serve honestly
++        # and refuses before anything is spent; neither present is every Job
++        # that existed before this slice, byte for byte.
++        handoff_output, absent = _lifted(absent, HANDOFF_OUTPUT)
++        handoff_context = _handoff_context("implementation")
++        _handoff_pairing(handoff_output, handoff_context, contextual)
++        handoff_room = (os.path.join(OUTPUT_ROOT, handoff_output["path"])
++                        if handoff_output is not None else None)
+         # W112029: THE BYTES AS WELL AS THE DOCUMENT, so the ordinary-test
+         # observation can name the exact task this turn consumed.
+         task, task_bytes = _read_task()
+@@ -2193,8 +2248,17 @@
+         verification_environment, verification_directories = (
+             self._pinned_environment(scratch, environments["verification"]))
+         try:
+-            provider = self._provider(task, candidate, scratch,
+-                                      environments["provider"])
++            if handoff_room is not None:
++                # A FRESH REQUEST ROOM, PROVED BEFORE THE PROVIDER RUNS. The
++                # handoff output lives on the persistent line workspace, so a
++                # previous turn's request standing there would read as this
++                # turn's question. The members this adapter owns are removed
++                # by exact name through a descriptor, exactly as the bundle is.
++                _fresh_handoff_room(handoff_room)
++            provider = self._provider(
++                task, candidate, scratch, environments["provider"],
++                prompt=(_handoff_prompt(task, handoff_context)
++                        if handoff_context is not None else None))
+             # THE PROVIDER OWNED THIS TREE, so it is held to the staged tree's
+             # own rules before anything reads or copies it. Review [P1]: the
+             # source check ran before Claude and nothing ran after, so a link
+@@ -2235,7 +2299,24 @@
+                 "changed": _measured_changes(measured,
+                                              measured if line else patch),
+                 "removed": list(removed or [])}
+-            if not declared_context:
++            # W385331: DID THE PROVIDER YIELD? Read only from a turn that
++            # ended cleanly: a provider that failed asked nothing, whatever it
++            # left on disk. A yield skips the verification command on
++            # purpose -- a yielded checkpoint is retained evidence and does
++            # not have to pass final verification for somebody to ask a
++            # question -- and it is only ever yielded on the prepared line,
++            # because the retained head the question names is the line's.
++            requested = (_handoff_request(handoff_room)
++                         if handoff_room is not None and provider["ok"]
++                         else None)
++            if requested is not None and not line:
++                raise TaskRefusal(
++                    "a native handoff request is yielded on the prepared "
++                    "implementation line and this task names another "
++                    "source profile")
++            if requested is not None:
++                verification = None
++            elif not declared_context:
+                 verification = (self._verify(
+                     task, candidate, verification_environment,
+                     verification_directories)
+@@ -2279,6 +2360,13 @@
+                 _revalidated(candidate, written, measured, what=what,
+                              skip=walk_skip)
+             disposition, why = _disposition(provider, patch, verification)
++            if requested is not None:
++                # NOT A CANDIDATE AND NOT A FAILURE: the invocation finished
++                # and the stage did not. The word is the result record's own;
++                # what the host reads is the declared claim below.
++                disposition = "yielded"
++                why = (f"the provider yielded a {requested['kind']} to "
++                       f"{handoff_context['recipient']}")
+             if line:
+                 # THE COMMIT HAPPENS WHATEVER THE DISPOSITION IS, and that is
+                 # deliberate. The manager freezes an immutable checkpoint over
+@@ -2357,7 +2445,22 @@
+             receipt_output = [{"name": CONTEXT_RECEIPT, "status": "present", "result_metadata": {}}]
+         recap = (f"{disposition}: {why}"
+                  f" ({len(changed)} changed path(s))")[:MAX_RECAP]
+-        return {"disposition": ("completed" if disposition == "candidate"
++        handoff_answer = []
++        if handoff_output is not None:
++            # WHAT THIS INVOCATION DECLARES ITSELF TO HAVE BEEN, on its own
++            # declared output: the request it yielded, bound to the retained
++            # head and the cited evidence, or the plain statement that it was
++            # a final submission. The host cross-binds the head against the
++            # checkpoint it actually freezes.
++            document = (self._request_document(
++                requested, candidate=candidate, room=handoff_room,
++                head=head if head is not None else entry,
++                recipient=handoff_context["recipient"])
++                        if requested is not None else _final_document())
++            handoff_answer = [_handoff_answer(handoff_output, handoff_room,
++                                              document)]
++        return {"disposition": ("completed"
++                                if disposition in ("candidate", "yielded")
+                                 else "unable"),
+                 "outputs": [{"name": one["name"], "status": "present",
+                              # W112029: THE OBSERVATION RIDES WITH THE CLAIM,
+@@ -2372,9 +2475,45 @@
+                                                     verification,
+                                                     plan["base"], head)}
+                                  if head is not None else {})}]
+-                           + receipt_output + _absent(absent),
++                           + handoff_answer + receipt_output + _absent(absent),
+                 "recap": recap}
+ 
++    # -- W385331: binding one yielded request --------------------------------
++
++    def _request_document(self, requested, *, candidate, room, head,
++                          recipient):
++        """The provider's request over this adapter's bindings.
++
++        THE PROVIDER ASKS AND THE ADAPTER BINDS. The head is the one this turn
++        committed, or the one it was admitted at when it changed nothing;
++        each cited reference is read no-follow from the candidate and digested
++        here, so a citation of a path that is not a regular file in this tree
++        refuses rather than publishing a reference to nothing; and the
++        continuation is written beside the record so the retained checkpoint
++        carries it. The recipient is the delivered configuration's.
++        """
++        evidence = []
++        for one in requested["evidence"]:
++            raw = _read_under(candidate, one["reference"], "cited evidence")
++            evidence.append({"reference": one["reference"],
++                             "digest": _handoff_digest_of(raw),
++                             "note": one["note"]})
++        continuation = requested["continuation"]
++        if not continuation.endswith("\n"):
++            continuation += "\n"
++        _made(room)
++        _written(os.path.join(room, HANDOFF_CONTINUATION), continuation)
++        return {"schema": HANDOFF_SCHEMA, "kind": requested["kind"],
++                "body": requested["body"], "evidence": evidence,
++                "continuation": {
++                    "reference": f"{HANDOFF_OUTPUT}/{HANDOFF_CONTINUATION}",
++                    "digest": _handoff_digest_of(
++                        continuation.encode("utf-8"))},
++                "checkpoint": {"reference": head,
++                               "digest": _handoff_digest_of(
++                                   head.encode("utf-8"))},
++                "recipient": recipient}
++
+     # -- W110772: the review turn --------------------------------------------
+ 
+     def _review(self, declared):
+@@ -2401,6 +2540,21 @@
+         """
+         produce, absent = _selected(declared, REVIEW_OUTPUTS, "review")
+         findings_output, logs_output = produce
++        # W385331: A REVIEWER OVER A YIELDED CHECKPOINT IS ANSWERING A
++        # QUESTION, and the delivered context is what says so. With none
++        # delivered this is an ordinary technical review and the declared
++        # `response` output, if any, is answered absent; with one delivered
++        # the output must be declared, because a response nobody declared is
++        # a response nobody can publish.
++        response_context = _handoff_context("review")
++        response_output, absent = _lifted(absent, RESPONSE_OUTPUT)
++        if response_context is not None and response_output is None:
++            raise TaskRefusal(
++                "this review attempt was delivered a native handoff context "
++                "and declares no response output; a reply to a question is "
++                "published on its own declared output or not at all")
++        response_room = (os.path.join(OUTPUT_ROOT, response_output["path"])
++                         if response_output is not None else None)
+         findings = os.path.join(OUTPUT_ROOT, findings_output["path"])
+         logs = os.path.join(OUTPUT_ROOT, logs_output["path"])
+         task = _task()
+@@ -2430,8 +2584,18 @@
+         environments = self._child_environments(scratch)
+         provider = self._provider(
+             task, room, scratch, environments["provider"],
+-            prompt=_review_prompt(task, source, REVIEW_REPORT))
++            prompt=(_response_prompt(task, source, response_context,
++                                     RESPONSE_REPORT)
++                    if response_context is not None
++                    else _review_prompt(task, source, REVIEW_REPORT)))
+         report = _review_report(room) if provider["ok"] else None
++        # W385331: THE REPLY, read only when a question was delivered. Both a
++        # report and a reply in one turn are surfaced as the two claims they
++        # are, and the host holds on the ambiguity rather than this adapter
++        # picking a half to believe.
++        response = (_response_report(room)
++                    if provider["ok"] and response_context is not None
++                    else None)
+         # THE SOURCE IS RE-READ AFTER THE TURN, whatever the turn did.
+         again = self._observed(source, task)
+         if again != observed:
+@@ -2454,7 +2618,9 @@
+                                  **_diagnostic_member(provider)},
+                              "verification": None},
+                             indent=1, sort_keys=True) + "\n")
+-        if report is None:
++        unanswered = ([] if response_output is None
++                      else _absent([response_output]))
++        if report is None and response is None:
+             # NO CLAIM ON ANY OUTPUT. The manager's reader finds none and
+             # holds, which is what an unanswered review is worth. Answering
+             # findings absent rather than empty is the same statement made in
+@@ -2465,24 +2631,46 @@
+                                  "result_metadata": {}},
+                                 {"name": logs_output["name"],
+                                  "status": "present", "result_metadata": {}}]
+-                            + _absent(absent),
++                            + unanswered + _absent(absent),
+                     "recap": (f"unable: the review produced no usable report "
+                               f"({provider.get('failure_reason') or 'absent'})"
+                               )[:MAX_RECAP]}
+         _made(findings)
++        if response is not None:
++            # THE FINDINGS OUTPUT CARRIES THE REPLY'S PROSE for a human to
++            # read, and the response output carries the bound document. A
++            # report written beside the reply keeps its own claim, so a turn
++            # that both answered and judged is visibly two answers.
++            written = report if report is not None else {
++                "schema": REVIEW_REPORT_SCHEMA, "verdict": None,
++                "findings": response["body"]}
++            prose = response["body"] if report is None else report["findings"]
++        else:
++            written, prose = report, report["findings"]
+         _written(os.path.join(findings, REVIEW_RESULT),
+-                 json.dumps(report, indent=1, sort_keys=True) + "\n")
++                 json.dumps(written, indent=1, sort_keys=True) + "\n")
+         _written(os.path.join(findings, REVIEW_FINDINGS),
+-                 report["findings"] + ("" if report["findings"].endswith("\n")
+-                                       else "\n"))
++                 prose + ("" if prose.endswith("\n") else "\n"))
++        answered = []
++        if response is not None:
++            answered = [_handoff_answer(
++                response_output, response_room,
++                _response_document(response, response_context))]
++        elif response_output is not None:
++            answered = unanswered
+         return {"disposition": "completed",
+                 "outputs": [{"name": findings_output["name"],
+                              "status": "present",
+-                             "result_metadata": _review_claim(
+-                                 report["verdict"], observed)},
++                             "result_metadata": (_review_claim(
++                                 report["verdict"], observed)
++                                 if report is not None else {})},
+                             {"name": logs_output["name"], "status": "present",
+-                             "result_metadata": {}}] + _absent(absent),
+-                "recap": (f"{report['verdict']}: reviewed "
++                             "result_metadata": {}}]
++                           + answered + _absent(absent),
++                "recap": ((f"{response['disposition']}: replied to the "
++                           f"pending {response_context['request']['kind']}")
++                          if response is not None else
++                          f"{report['verdict']}: reviewed "
+                           f"{observed['base'][:12]}..{observed['head'][:12]}"
+                           )[:MAX_RECAP]}
+ 
+@@ -5729,6 +5917,351 @@
+     return [by[one] for one in produce], absent
+ 
+ 
++# -- W385331: the native handoff helpers ---------------------------------------
++
++
++def _lifted(absent, name):
++    """One declared output taken OUT of the absent set, and the rest."""
++    held = [one for one in absent if one["name"] == name]
++    if not held:
++        return None, absent
++    return held[0], [one for one in absent if one["name"] != name]
++
++
++def _handoff_pairing(output, context, contextual):
++    if output is None and context is None:
++        return
++    if output is None:
++        raise TaskRefusal(
++            "this attempt was delivered a native handoff context and "
++            "declares no handoff output; what an invocation was is published "
++            "on its own declared output or not at all")
++    if context is None:
++        raise TaskRefusal(
++            "this assignment declares a handoff output and no native handoff "
++            "context was delivered; a request needs a configured recipient "
++            "and this turn was told none")
++    if contextual is not None:
++        raise TaskRefusal(
++            "context serving and a native handoff are not combined in this "
++            "revision; the bound restore prompt admits no handoff addendum")
++
++
++def _handoff_json(raw, what):
++    """One bounded JSON object from provider- or host-written bytes."""
++    try:
++        document = json.loads(raw.decode("utf-8"),
++                              object_pairs_hook=_no_duplicates)
++    except (UnicodeDecodeError, ValueError, RecursionError):
++        raise TaskRefusal(f"{what} is not one readable JSON document") \
++            from None
++    if type(document) is not dict:
++        raise TaskRefusal(f"{what} is one JSON object")
++    return document
++
++
++def _handoff_text(value, limit, what, *, empty=False):
++    if type(value) is not str:
++        raise TaskRefusal(f"{what} is text")
++    if not empty and not value.strip():
++        raise TaskRefusal(f"{what} is not empty")
++    if len(value) > limit:
++        raise TaskRefusal(f"{what} is at most {limit} characters")
++    try:
++        value.encode("utf-8")
++    except UnicodeEncodeError:
++        raise TaskRefusal(f"{what} is not text this adapter can write") \
++            from None
++    return value
++
++
++def _exactly_members(document, members, what):
++    if sorted(document) != sorted(members):
++        raise TaskRefusal(f"{what} is exactly {', '.join(members)}")
++    return document
++
++
++def _handoff_digest_of(raw):
++    return "sha256:" + hashlib.sha256(raw).hexdigest()
++
++
++def _is_digest(value):
++    return (type(value) is str and value.startswith("sha256:")
++            and len(value) == 71
++            and all(one in "0123456789abcdef" for one in value[7:]))
++
++
++def _handoff_message(document, what):
++    """One delivered retained message, bounded where this adapter reads it."""
++    if type(document) is not dict:
++        raise TaskRefusal(f"{what} is one message object")
++    for member in ("message_id", "kind"):
++        _handoff_text(document.get(member), MAX_HANDOFF_REFERENCE,
++                      f"{what}'s {member}")
++    if not _is_digest(document.get("handoff_digest")):
++        raise TaskRefusal(f"{what} carries a sha256 handoff digest")
++    body = document.get("body")
++    if type(body) is not dict:
++        raise TaskRefusal(f"{what} carries its retained handoff document")
++    _handoff_text(body.get("body"), MAX_HANDOFF_BODY, f"{what}'s body")
++    return document
++
++
++def _handoff_context(role):
++    """The delivered native handoff context, or `None` when none was
++    delivered.
++
++    ABSENCE IS ORDINARY AND MALFORMATION IS A REFUSAL. The host publishes this
++    document read-only beside the task when the Job's template has a handoff
++    branch; an attempt without one is every attempt that existed before this
++    slice. A document that is there and is not one this adapter reads is not
++    one to read the recognised parts out of.
++    """
++    # READ AS THE TASK IS READ. This is a HOST-published document in the
++    # read-only input root, the same trust as `task.json` beside it, so it is
++    # opened the way `_read_task` opens that one -- bounded, and following the
++    # name the host composed -- rather than with the no-follow discipline the
++    # provider-written report and request get. A delivery that is there and
++    # cannot be read is a refusal, not an absence.
++    place = os.path.join(INPUT_ROOT, HANDOFF_DOCUMENT)
++    try:
++        with open(place, "rb") as reading:
++            raw = reading.read(MAX_HANDOFF_CONTEXT_BYTES + 1)
++    except FileNotFoundError:
++        return None
++    except OSError as refused:
++        raise TaskRefusal(
++            f"this assignment's native handoff context at {place} is not "
++            f"readable ({type(refused).__name__})") from None
++    if not raw or len(raw) > MAX_HANDOFF_CONTEXT_BYTES:
++        raise TaskRefusal(
++            f"the native handoff context is bounded non-empty bytes, at most "
++            f"{MAX_HANDOFF_CONTEXT_BYTES}")
++    document = _handoff_json(raw, "the native handoff context")
++    if document.get("schema") != HANDOFF_CONTEXT_SCHEMA:
++        raise TaskRefusal(
++            f"the native handoff context says it is "
++            f"{document.get('schema')!r} and this adapter reads "
++            f"{HANDOFF_CONTEXT_SCHEMA!r}")
++    if document.get("role") != role:
++        raise TaskRefusal(
++            f"the native handoff context was composed for the "
++            f"{document.get('role')!r} role and this is a {role} turn")
++    if role == "implementation":
++        _handoff_text(document.get("recipient"), MAX_HANDOFF_PARTICIPANT,
++                      "the configured recipient")
++        continuation = document.get("continuation")
++        if continuation is not None:
++            if type(continuation) is not dict:
++                raise TaskRefusal("a continuation is one object")
++            _handoff_message(continuation.get("request"),
++                             "the continued request")
++            reply = _handoff_message(continuation.get("reply"),
++                                     "the continuing reply")
++            body = reply["body"]
++            if body.get("disposition") not in HANDOFF_DISPOSITIONS:
++                raise TaskRefusal("the continuing reply has a disposition")
++            _handoff_text(body.get("rationale"), MAX_HANDOFF_RATIONALE,
++                          "the continuing reply's rationale")
++        return document
++    _handoff_message(document.get("request"), "the pending request")
++    checkpoint = document.get("checkpoint")
++    if type(checkpoint) is not dict \
++            or sorted(checkpoint) != ["digest", "reference"]:
++        raise TaskRefusal("the pending request names its retained checkpoint")
++    _handoff_text(checkpoint["reference"], MAX_HANDOFF_REFERENCE,
++                  "the retained checkpoint reference")
++    if not _is_digest(checkpoint["digest"]):
++        raise TaskRefusal("the retained checkpoint carries a sha256 digest")
++    return document
++
++
++def _fresh_handoff_room(room):
++    _made(room)
++    for name in (HANDOFF_REQUEST, HANDOFF_RECORD, HANDOFF_CONTINUATION):
++        _discarded(room, name)
++
++
++def _handoff_request(room):
++    """The provider's request, or `None`; a malformed one is a refusal.
++
++    BOUNDED, CLOSED AND READ NO-FOLLOW, exactly as the review report is: the
++    provider is the least trusted process in the container. A request that is
++    not one this adapter can bind is refused rather than published, because a
++    published half-request is a question nobody can answer and a claim the
++    host would have to hold on.
++    """
++    raw = _read_bounded(room, HANDOFF_REQUEST, "the native handoff request")
++    if raw is None:
++        return None
++    document = _exactly_members(
++        _handoff_json(raw, "the native handoff request"),
++        HANDOFF_REQUEST_MEMBERS, "a native handoff request")
++    if document["kind"] not in HANDOFF_REQUEST_KINDS:
++        raise TaskRefusal(
++            f"a native handoff request is one of "
++            f"{', '.join(HANDOFF_REQUEST_KINDS)}")
++    _handoff_text(document["body"], MAX_HANDOFF_BODY, "the request body")
++    _handoff_text(document["continuation"], MAX_HANDOFF_BODY,
++                  "the request's continuation")
++    evidence = document["evidence"]
++    if type(evidence) is not list or len(evidence) > MAX_HANDOFF_EVIDENCE:
++        raise TaskRefusal(
++            f"a request cites at most {MAX_HANDOFF_EVIDENCE} references")
++    seen = set()
++    for one in evidence:
++        if type(one) is not dict or sorted(one) != ["note", "reference"]:
++            raise TaskRefusal("cited evidence is exactly reference and note")
++        reference = _handoff_text(one["reference"], MAX_HANDOFF_REFERENCE,
++                                  "a cited reference")
++        if reference.startswith("/") or ".." in reference.split("/") \
++                or reference in seen:
++            raise TaskRefusal(
++                "a cited reference is one relative path inside the candidate, "
++                "cited once")
++        seen.add(reference)
++        _handoff_text(one["note"], MAX_HANDOFF_BODY, "a citation's note",
++                      empty=True)
++    return document
++
++
++def _response_report(room):
++    """The reviewer's reply, or `None`; a malformed one is a refusal."""
++    raw = _read_bounded(room, RESPONSE_REPORT, "the native handoff response")
++    if raw is None:
++        return None
++    document = _exactly_members(
++        _handoff_json(raw, "the native handoff response"),
++        HANDOFF_RESPONSE_MEMBERS, "a native handoff response")
++    if document["disposition"] not in HANDOFF_DISPOSITIONS:
++        raise TaskRefusal(
++            f"a response disposition is one of "
++            f"{', '.join(HANDOFF_DISPOSITIONS)}")
++    _handoff_text(document["body"], MAX_HANDOFF_BODY, "the response body")
++    _handoff_text(document["rationale"], MAX_HANDOFF_RATIONALE,
++                  "the response rationale")
++    escalation = document["escalation"]
++    if document["disposition"] == "answer":
++        if escalation is not None:
++            raise TaskRefusal("an answer carries no escalation")
++        return document
++    if type(escalation) is not dict:
++        raise TaskRefusal("an escalation states its ambiguity, options and "
++                          "recommendation")
++    _exactly_members(escalation, HANDOFF_ESCALATION_MEMBERS, "an escalation")
++    _handoff_text(escalation["ambiguity"], MAX_HANDOFF_BODY,
++                  "the escalation's ambiguity")
++    _handoff_text(escalation["recommendation"], MAX_HANDOFF_BODY,
++                  "the escalation's recommendation")
++    options = escalation["options"]
++    if type(options) is not list or not options \
++            or len(options) > MAX_HANDOFF_OPTIONS \
++            or len(set(options)) != len(options):
++        raise TaskRefusal(
++            f"an escalation states between one and {MAX_HANDOFF_OPTIONS} "
++            f"distinct options")
++    for one in options:
++        _handoff_text(one, MAX_HANDOFF_BODY, "an escalation option")
++    return document
++
++
++def _final_document():
++    return {"schema": HANDOFF_SCHEMA, "kind": HANDOFF_FINAL_KIND}
++
++
++def _response_document(response, context):
++    """The bound reply: the provider's decision over the host's bindings.
++
++    THE PROVIDER DECIDES AND THE ADAPTER BINDS. Which request this answers
++    and which checkpoint it is about are facts the host delivered, so they are
++    copied from the context rather than taken from the provider; the
++    disposition, the prose and the escalation are the reviewer's own.
++    """
++    request = context["request"]
++    return {"schema": HANDOFF_SCHEMA, "kind": HANDOFF_RESPONSE_KIND,
++            "request": {"reference": request["message_id"],
++                        "digest": request["handoff_digest"]},
++            "disposition": response["disposition"],
++            "body": response["body"], "rationale": response["rationale"],
++            "evidence": [], "checkpoint": dict(context["checkpoint"]),
++            "escalation": response["escalation"]}
++
++
++def _handoff_answer(output, room, document):
++    """Publish the bound document into its declared output and answer it."""
++    _made(room)
++    _written(os.path.join(room, HANDOFF_RECORD),
++             json.dumps(document, indent=1, sort_keys=True) + "\n")
++    return {"name": output["name"], "status": "present",
++            "result_metadata": {HANDOFF_SCHEMA: document}}
++
++
++def _handoff_prompt(task, context):
++    """The implementation prompt with the handoff addendum.
++
++    THE PROVIDER IS STILL NOT TOLD ABOUT THE PROTOCOL. It learns one more
++    path it may write -- the request, inside a directory that is never part of
++    the candidate -- and, on a continuation, the question it stopped at and
++    the reply it resumes on. It learns nothing about the Authority, the
++    message, the episode or the manager.
++    """
++    opening = _prompt(task)
++    addendum = (
++        f"\nIf, and only if, you cannot finish without a clarification that "
++        f"stays within the stated scope, or you discover an in-scope finding "
++        f"the reviewer must classify before you continue, stop and write "
++        f"exactly one JSON file at {HANDOFF_OUTPUT}/{HANDOFF_REQUEST} "
++        f"(relative to this directory; it is never part of the change) with "
++        f"exactly these members:\n"
++        f'  "kind": one of {", ".join(HANDOFF_REQUEST_KINDS)}\n'
++        f'  "body": the question or the finding, within the stated scope\n'
++        f'  "evidence": a list of {{"reference": <path in this tree>, '
++        f'"note": <text>}}\n'
++        f'  "continuation": what remains to be done once it is answered\n'
++        f"Leave your partial edits in place; the configured reviewer "
++        f"{context['recipient']} answers it and you resume here. Do not "
++        f"write it when you can finish.\n")
++    continuation = context.get("continuation")
++    if continuation is None:
++        return opening + addendum
++    request = continuation["request"]["body"]
++    reply = continuation["reply"]["body"]
++    return (opening + addendum
++            + f"\nYOUR PREVIOUS TURN STOPPED AT THIS {request['kind']}:\n"
++              f"{request['body']}\n\n"
++              f"THE REVIEWER'S REPLY ({reply['disposition']}):\n"
++              f"{reply['body']}\n"
++              f"RATIONALE: {reply['rationale']}\n\n"
++              f"Continue the same task in this working copy; the "
++              f"requirements and the verification command are unchanged.\n")
++
++
++def _response_prompt(task, source, context, report):
++    """The reviewer's prompt over a YIELDED checkpoint: answer, do not judge."""
++    request = context["request"]["body"]
++    evidence = "".join(
++        f"  {one['reference']}" + (f" -- {one['note']}" if one["note"] else "")
++        + "\n" for one in request.get("evidence") or [])
++    return (f"An implementer working on the read-only source tree at {source} "
++            f"stopped at a {request['kind']} rather than submitting. Do not "
++            f"modify anything there, and do not attempt to build, commit or "
++            f"edit it.\n\n"
++            f"The task's requirements are:\n\n{task['instructions']}\n\n"
++            f"THE {request['kind'].upper()}:\n{request['body']}\n"
++            + (f"CITED EVIDENCE:\n{evidence}" if evidence else "")
++            + f"\nDecide within the accepted scope of those requirements. "
++            f"This turn is not a technical review and must not write "
++            f"{REVIEW_REPORT}. Write your decision to {report} as a JSON "
++            f"object with exactly these four members:\n"
++            f'  "disposition": one of {", ".join(HANDOFF_DISPOSITIONS)}\n'
++            f'  "body": your answer, or what cannot be resolved\n'
++            f'  "rationale": why, within the accepted scope\n'
++            f'  "escalation": null for an answer; for an escalation an object '
++            f'with "ambiguity", "options" (a non-empty list) and '
++            f'"recommendation"\n'
++            f"Write nothing else to that path and write no other file.\n")
++
++
+ def _absent(declarations):
+     """The answer for every declared output this turn did not write."""
+     return [{"name": one["name"], "status": "missing-optional",

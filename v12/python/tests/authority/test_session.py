@@ -147,7 +147,14 @@ class Minting(SessionCase):
             "publish", "reject_plan", "review", "route_fenced", "satisfy_gate",
             "settle_operation", "verify",
             # W29400: the two Work-label mutations, entered deliberately.
-            "label_work", "unlabel_work"]))
+            "label_work", "unlabel_work",
+            # W385331: the two native handoff mutations, entered deliberately
+            # too. `request_handoff` is assignment-owned, so an implementer
+            # cannot ask a question under somebody else's assignment;
+            # `answer_handoff` is an ACTOR transition authorized by the
+            # configured `answer-handoff` capability in the requested Work's
+            # own effective scope.
+            "answer_handoff", "request_handoff"]))
         self.assertEqual(list(SESSION_READS), sorted([
             "activities", "assert_invariants", "assignment_events",
             "assignment_of", "canonical_target", "contract_events",
@@ -155,7 +162,13 @@ class Minting(SessionCase):
             "operation_record", "operation_result", "project_work", "proposal",
             "receipt", "receipts", "slot_holder",
             # W29400: one Work's live set and its mutation history.
-            "labels_of", "work_label_events"]))
+            "labels_of", "work_label_events",
+            # W385331: this Work's messages, one message, the reply to one
+            # request and the effect a reply earned -- facts about a Work the
+            # asker has a part in rather than deployment inventories, which is
+            # the line `works_with_labels` is on the other side of.
+            "pending_handoff_requests", "work_message", "work_message_reply",
+            "work_message_transition", "work_messages"]))
         public = sorted(name for name in dir(self.claude)
                         if not name.startswith("_"))
         self.assertEqual(
@@ -196,6 +209,14 @@ class Minting(SessionCase):
             # because it answers about the session's own address.
             "authorize", "bind_endpoint", "endpoints_of", "policy_generation",
             "principal_of", "slot_holder_of_principal",
+            # W385331: which address may be asked and which address an
+            # unresolved question escalates to is deployment CONFIGURATION of
+            # the same kind as granting the capability to answer -- so it is
+            # read back here beside `policy` and a session can reach neither.
+            # `handoff_escalations` is an inventory read for the decision
+            # recipient, who holds no claim, which is the same reason
+            # `works_with_labels` is not a session read.
+            "handoff_escalations", "native_routing",
             # W16821 review: `decision_of` and `grants_of` answer about acts
             # and grants a session did not perform and does not hold, which is
             # a deployment question.
@@ -665,11 +686,27 @@ class TheWholeSurfaceWorksThroughTheSession(SessionCase):
             "receipt": self.claude.receipt("proposal-1", "review"),
             "receipts": self.claude.receipts("proposal-1"),
             "slot_holder": self.claude.slot_holder(CLAUDE),
+            # W385331. All four answer honestly with nothing: this Work has
+            # exchanged no messages, and "nobody has asked anything" is an
+            # answer rather than a fault -- which is the property that keeps a
+            # read receipt from becoming a prerequisite for progress.
+            "pending_handoff_requests":
+                self.claude.pending_handoff_requests(WORK),
+            "work_message": self.claude.work_message("msg-1"),
+            "work_message_reply": self.claude.work_message_reply("msg-1"),
+            "work_message_transition":
+                self.claude.work_message_transition("msg-1"),
+            "work_messages": self.claude.work_messages(WORK),
         }
         self.assertEqual(sorted(answers), list(SESSION_READS))
         self.assertEqual(answers["slot_holder"], WORK)
         self.assertEqual(answers["assignment_of"], mine)
         self.assertIsNone(answers["receipt"])
+        self.assertEqual(answers["work_messages"], [])
+        self.assertEqual(answers["pending_handoff_requests"], [])
+        self.assertIsNone(answers["work_message"])
+        self.assertIsNone(answers["work_message_reply"])
+        self.assertIsNone(answers["work_message_transition"])
         # And a read takes exactly its operands: too many or too few refuses
         # rather than raising a TypeError from the delegate.
         for what, call in [

@@ -1261,6 +1261,176 @@ class AnOptionalSelectionTravelsOrIsRefused(ValidFixture):
             self.assertIn(name, bootstrap.OPTIONAL, name)
 
 
+class TheNativeHandoffRoutingIsConfiguredHere(ValidFixture):
+    """W385331, review 2026-11-20T19-39-15Z R4: the routing policy and the
+    actual reviewer's answering grant are composed by this helper from its
+    own validated selection, exactly as the receipt grants are."""
+
+    SELECTED = {"reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"}
+
+    def opened(self, answer):
+        from baton_v12.authority import Authority
+        return Authority.open(answer["places"]["authority_store"],
+                              expected_authority_uuid=self.config["authority_uuid"])
+
+    def test_the_spellings_are_the_authoritys_own(self):
+        from baton_v12.authority import messages
+
+        self.assertEqual(bootstrap.ROUTING[0], messages.ROUTING_POLICY)
+        self.assertEqual(bootstrap.ROUTING_SCHEMA, messages.ROUTING_SCHEMA)
+        self.assertEqual(bootstrap.ANSWER_GRANT, messages.ANSWER_CAPABILITY)
+
+    def test_the_selection_installs_the_policy_and_the_reviewers_grant(self):
+        from baton_v12.authority import messages
+
+        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
+        authority = self.opened(answer)
+        try:
+            self.assertEqual(authority.native_routing(),
+                             dict(self.SELECTED,
+                                  schema=messages.ROUTING_SCHEMA))
+            scope = authority.project_work(self.work)["scope"]
+            self.assertTrue(authority.holds_capability(
+                "baton.reviewer", messages.ANSWER_CAPABILITY, scope=scope))
+            # NOT `review`, AND NOT TO THE DECISION RECIPIENT: answering a
+            # question is not writing a technical review receipt, and the
+            # owner decides escalations rather than answering questions.
+            self.assertFalse(authority.holds_capability(
+                "baton.reviewer", "review", scope=scope))
+            self.assertFalse(authority.holds_capability(
+                "baton.slaw", messages.ANSWER_CAPABILITY, scope=scope))
+        finally:
+            authority.dispose()
+
+    def test_an_absent_selection_installs_nothing(self):
+        from baton_v12.authority import messages
+
+        answer = self.prepared()
+        authority = self.opened(answer)
+        try:
+            self.assertIsNone(authority.native_routing())
+            scope = authority.project_work(self.work)["scope"]
+            self.assertFalse(authority.holds_capability(
+                "baton.reviewer", messages.ANSWER_CAPABILITY, scope=scope))
+        finally:
+            authority.dispose()
+
+    def test_the_selection_never_travels_into_the_execution_document(self):
+        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
+        self.assertNotIn("native_handoff_routing", answer["configuration"])
+        self.assertNotIn("native_handoff_routing", bootstrap.OPTIONAL)
+
+    def test_a_repeat_keeps_the_routing_and_grants_once(self):
+        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
+        again = self.prepared(native_handoff_routing=dict(self.SELECTED))
+        self.assertEqual(again["created_works"], [])
+        authority = self.opened(answer)
+        try:
+            self.assertEqual(authority.native_routing()["reviewer"],
+                             "baton.reviewer")
+        finally:
+            authority.dispose()
+
+    def test_one_address_for_both_roles_is_refused_before_anything_is_made(self):
+        said = self.refused(native_handoff_routing={
+            "reviewer": "baton.reviewer", "decision_recipient": "baton.reviewer"})
+        self.assertIn("both the reviewer and the decision recipient", said)
+        self.nothing_was_composed()
+
+    def test_a_reviewer_nobody_serves_is_refused(self):
+        said = self.refused(native_handoff_routing={
+            "reviewer": "baton.nobody", "decision_recipient": "baton.slaw"})
+        self.assertIn("not a configured review worker's participant", said)
+        self.nothing_was_composed()
+
+    def test_an_implementer_cannot_be_the_reviewer(self):
+        said = self.refused(native_handoff_routing={
+            "reviewer": "baton.impl-a", "decision_recipient": "baton.slaw"})
+        self.assertIn("implementation participant", said)
+        self.nothing_was_composed()
+
+    def test_a_malformed_selection_is_refused_by_member(self):
+        said = self.refused(native_handoff_routing={"reviewer": "baton.reviewer"})
+        self.assertIn("native_handoff_routing.decision_recipient", said)
+        said = self.refused(native_handoff_routing={
+            "reviewer": "baton.reviewer", "decision_recipient": "baton.slaw",
+            "decider": "baton.slaw"})
+        self.assertIn("native_handoff_routing.decider", said)
+        said = self.refused(native_handoff_routing="baton.reviewer")
+        self.assertIn("is one object", said)
+        self.nothing_was_composed()
+
+    def test_the_refusal_names_the_selection_as_supported(self):
+        said = self.refused(natve_handoff_routing=dict(self.SELECTED))
+        self.assertIn("native_handoff_routing", said)
+        self.nothing_was_composed()
+
+    MALFORMED = ("not-an-address", "baton.", ".member", "Baton.Reviewer",
+                 "baton reviewer", "baton.reviewer.extra", "baton/reviewer",
+                 "1baton.reviewer", "baton.-x")
+
+    def test_a_malformed_decision_recipient_is_refused_by_the_authoritys_grammar(self):
+        """Review 2026-11-20T20-53-37Z R4a: a nonempty string is not an
+        address. The selection is held to `authority.messages.check_routing`
+        -- the validator the Authority's own read applies -- before any
+        effect, so an installation can never succeed with a policy its first
+        handoff-capable preparation would refuse to read."""
+        for bad in self.MALFORMED:
+            with self.subTest(bad=bad):
+                said = self.refused(native_handoff_routing={
+                    "reviewer": "baton.reviewer", "decision_recipient": bad})
+                self.assertIn("a participant is team.member", said)
+                self.assertIn("decision_recipient", said)
+                self.nothing_was_composed()
+
+    def test_a_malformed_reviewer_is_refused_by_the_same_grammar(self):
+        for bad in self.MALFORMED:
+            with self.subTest(bad=bad):
+                said = self.refused(native_handoff_routing={
+                    "reviewer": bad, "decision_recipient": "baton.slaw"})
+                self.assertIn("a participant is team.member", said)
+                self.nothing_was_composed()
+
+    def test_the_grammar_is_the_shared_validator_and_not_a_second_one(self):
+        """What refuses here is exactly what the Authority's read refuses:
+        every malformed address above refuses `check_routing` itself, and
+        every address this preflight accepts reads back."""
+        from baton_v12.authority import Refusal, messages
+
+        for bad in self.MALFORMED:
+            with self.assertRaises(Refusal):
+                messages.check_routing({"schema": messages.ROUTING_SCHEMA,
+                                        "reviewer": "baton.reviewer",
+                                        "decision_recipient": bad})
+        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
+        authority = self.opened(answer)
+        try:
+            self.assertEqual(authority.native_routing()["decision_recipient"],
+                             "baton.slaw")
+        finally:
+            authority.dispose()
+
+    def test_a_refused_repeat_leaves_the_valid_selection_unchanged(self):
+        """A later repeat naming a malformed address is refused before any
+        effect; the policy and the grant the valid install made stand."""
+        from baton_v12.authority import messages
+
+        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
+        said = self.refused(native_handoff_routing={
+            "reviewer": "baton.reviewer", "decision_recipient": "not-an-address"})
+        self.assertIn("a participant is team.member", said)
+        authority = self.opened(answer)
+        try:
+            self.assertEqual(authority.native_routing(),
+                             dict(self.SELECTED,
+                                  schema=messages.ROUTING_SCHEMA))
+            scope = authority.project_work(self.work)["scope"]
+            self.assertTrue(authority.holds_capability(
+                "baton.reviewer", messages.ANSWER_CAPABILITY, scope=scope))
+        finally:
+            authority.dispose()
+
+
 class TheCustodyRecordIsEvidenceOrItIsNothing(ValidFixture):
     """G1. A record that does not say what is bound is not evidence.
 

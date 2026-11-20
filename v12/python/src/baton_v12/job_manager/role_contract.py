@@ -61,7 +61,12 @@ __all__ = ["CONTRACT_SCHEMA", "CONTRACT_MEMBERS", "CONSTRAINT_MEMBERS",
            "MAX_OUTPUT_BYTES", "MAX_OUTPUT_ENTRIES", "OCTET_STREAM",
            "PLAIN_TEXT", "TEMPLATE_CONTRACTS", "baseline_document",
            "check_role_contract", "contract_digest", "contract_for",
-           "role_contract_of_bytes"]
+           "role_contract_of_bytes",
+           # W385331
+           "HANDOFF_CONTRACT_SCHEMA", "HANDOFF_DIGEST", "HANDOFF_OUTPUT",
+           "HANDOFF_TEMPLATE", "RESPONSE_OUTPUT",
+           "check_any_role_contract", "check_handoff_role_contract",
+           "handoff_document", "is_handoff_capable"]
 
 # -- the closed vocabulary ---------------------------------------------------
 
@@ -263,10 +268,13 @@ def _role(value, declared, what):
     _literal(taken["role"], declared["role"], f"{what}'s role")
     _consumes(taken["consumes"], declared["consumes"], what)
     _exact_list(taken["produces"], declared["produces"], f"{what}'s produces")
-    # PRODUCES AND REQUIRED_FOR_SUCCESS ARE THE SAME LIST HERE, and that is
-    # this revision's approved value rather than a rule that they must be. A
-    # later descriptor may declare an output a role produces and does not owe.
-    _exact_list(taken["required_for_success"], declared["produces"],
+    # PRODUCES AND REQUIRED_FOR_SUCCESS ARE THE SAME LIST IN `/1`, and that is
+    # that revision's approved value rather than a rule that they must be. A
+    # later descriptor may declare an output a role produces and does not owe
+    # -- which is exactly what the native-handoff revision below does, and why
+    # the expectation carries `owes` rather than reusing `produces` here.
+    _exact_list(taken["required_for_success"],
+                declared.get("owes", declared["produces"]),
                 f"{what}'s required_for_success")
     _literal(taken["consumer"], declared["consumer"], f"{what}'s consumer")
     return taken
@@ -296,14 +304,109 @@ _ROLES = (
      "consumer": CONSUMERS[1]},
 )
 
+# ONE REVISION RECORD PER DESCRIPTOR GENERATION, and the validator is driven
+# from it rather than from module globals. W385331: the native-handoff
+# descriptor below is a SECOND generation, and a validator that read `_OUTPUTS`
+# directly could only ever have had one.
+#
+# `/1`'s RECORD NAMES EXACTLY WHAT IT ALWAYS DID, so every refusal `/1` already
+# produced is produced word for word -- the version, the template, the task
+# schema, the source profile, the output order and the role order. Generalizing
+# the mechanism is not permission to move a bound.
+_BASELINE = {"schema": CONTRACT_SCHEMA, "template": BASELINE_TEMPLATE,
+             "task_schema": BASELINE_TASK_SCHEMA,
+             "source_profile": BASELINE_SOURCE_PROFILE,
+             "outputs": _OUTPUTS, "roles": _ROLES}
 
-def _authored():
-    """The baseline descriptor, composed from the expectations above."""
+# -- W385331: the native-handoff descriptor revision -------------------------
+#
+# WHY A NEW SCHEMA NAME AND NOT `/2`. The planning disposition says to "choose
+# the concrete next supported version in implementation, not by silently
+# editing /1 or /2 bytes", and `/2` of THIS schema is already a name that means
+# something: `check_role_contract` refuses it by name, and its refusal is
+# accepted coverage. A handoff-capable descriptor is a different FAMILY of
+# contract -- it declares two outputs `/1` has no word for and a role that owes
+# less than it produces -- so it carries its own schema name and its own
+# validator, and `/1`'s bytes, validator and refusals are untouched.
+HANDOFF_CONTRACT_SCHEMA = \
+    "baton.v12.development-role-contract.native-handoff/1"
+HANDOFF_TEMPLATE = "baton.v12.job-template.implementation-review/3"
+
+# THE TWO NEW DECLARED OUTPUTS. `handoff` is what an implementation invocation
+# says it WAS -- a final submission, a clarification request or a within-scope
+# finding request -- and `response` is what a reviewer's answering invocation
+# returns. Both are ordinary `directory-result` outputs on the existing
+# collection path: the bounded document rides the frozen output's own
+# `result_metadata` claim, exactly as the candidate's `baton.git-proposal/1`
+# claim and the reviewer's `baton.checkpoint-review/1` claim already do, and
+# the tree beside it is the retained evidence a human reads.
+HANDOFF_OUTPUT = "handoff"
+RESPONSE_OUTPUT = "response"
+
+# THE CONSUMER IDS FOR THE TWO NEW ROLES' DECLARATIONS. They are the SAME two
+# closed built-in development-profile ids: a handoff-capable implementation
+# still delivers its candidate through `git-proposal/1` when it finally submits
+# one, and a handoff-capable review still decides a checkpoint through
+# `checkpoint-review/1` when it finally gives a verdict. A third consumer id
+# would be claiming a third set of semantics, and this slice adds none -- what
+# it adds is a BRANCH inside the two that exist.
+_HANDOFF_OUTPUTS = _OUTPUTS + (
+    {"name": HANDOFF_OUTPUT, "type": OUTPUT_TYPES[1],
+     "media": (OCTET_STREAM,)},
+    {"name": RESPONSE_OUTPUT, "type": OUTPUT_TYPES[1],
+     "media": (OCTET_STREAM,)},
+)
+_HANDOFF_ROLES = (
+    # THE IMPLEMENTATION ROLE OWES ITS HANDOFF AND NOT ITS CANDIDATE, which is
+    # the whole of why this revision exists and the first place `produces` and
+    # `required_for_success` legitimately differ.
+    #
+    # It owes `handoff` because an invocation that declares nothing about what
+    # it was is UNDECLARED, and undeclared holds -- so the one output every
+    # handoff-capable implementation turn must answer is the one that says
+    # which of the four kinds it is.
+    #
+    # It does NOT owe `proposal`, because a yielded checkpoint may contain
+    # unfinished edits or no edits at all: it is retained evidence rather than
+    # an acceptance proposal, and it does not have to pass final verification
+    # to ask a question. WHETHER A CANDIDATE IS OWED IS THEREFORE DECIDED BY
+    # THE HANDOFF KIND AT THE ENDING rather than statically here -- a final
+    # submission with no candidate still refuses, at the publication boundary
+    # that already owns that rule.
+    {"role": "implementation", "consumes": (),
+     "produces": (CANDIDATE_OUTPUT, HANDOFF_OUTPUT),
+     "owes": (HANDOFF_OUTPUT,), "consumer": CONSUMERS[0]},
+    # AND THE REVIEW ROLE OWES ITS FINDINGS AND LOGS AND NOT ITS RESPONSE, for
+    # the mirror-image reason: an ordinary final technical review of this
+    # template produces no response at all, and a response invocation is not a
+    # review that failed to give a verdict. Which of the two an attempt was is
+    # read from the claims its frozen result carries, and carrying both is the
+    # ambiguity the ending holds on.
+    {"role": "review",
+     "consumes": ({"role": "implementation", "output": CANDIDATE_OUTPUT},),
+     "produces": (review_driver.FINDINGS_OUTPUT, review_driver.LOGS_OUTPUT,
+                  RESPONSE_OUTPUT),
+     "owes": (review_driver.FINDINGS_OUTPUT, review_driver.LOGS_OUTPUT),
+     "consumer": CONSUMERS[1]},
+)
+_HANDOFF = {"schema": HANDOFF_CONTRACT_SCHEMA, "template": HANDOFF_TEMPLATE,
+            "task_schema": BASELINE_TASK_SCHEMA,
+            "source_profile": BASELINE_SOURCE_PROFILE,
+            "outputs": _HANDOFF_OUTPUTS, "roles": _HANDOFF_ROLES}
+
+# EVERY REVISION THIS BUILD CARRIES, keyed by its own schema name. Closed, so a
+# descriptor naming a schema that is not a key refuses as a VERSION.
+_REVISIONS = {CONTRACT_SCHEMA: _BASELINE,
+              HANDOFF_CONTRACT_SCHEMA: _HANDOFF}
+
+
+def _authored(revision):
+    """One revision's descriptor, composed from its own expectations."""
     return {
-        "schema": CONTRACT_SCHEMA,
-        "template": BASELINE_TEMPLATE,
-        "task_schema": BASELINE_TASK_SCHEMA,
-        "source_profile": BASELINE_SOURCE_PROFILE,
+        "schema": revision["schema"],
+        "template": revision["template"],
+        "task_schema": revision["task_schema"],
+        "source_profile": revision["source_profile"],
         "outputs": [
             {"name": one["name"], "type": one["type"], "path": one["name"],
              "required": False,
@@ -312,15 +415,15 @@ def _authored():
                              "allowed_media_types": list(one["media"]),
                              "link_policy": LINK_POLICY,
                              "validator_digest": None}}
-            for one in _OUTPUTS],
+            for one in revision["outputs"]],
         "roles": [
             {"role": one["role"],
              "consumes": [dict(each, delivery=DELIVERY)
                           for each in one["consumes"]],
              "produces": list(one["produces"]),
-             "required_for_success": list(one["produces"]),
+             "required_for_success": list(one.get("owes", one["produces"])),
              "consumer": one["consumer"]}
-            for one in _ROLES],
+            for one in revision["roles"]],
     }
 
 
@@ -332,7 +435,7 @@ def baseline_document():
     would make reading the contract indistinguishable from being able to edit
     it, and the next caller would resolve against whatever the last one did.
     """
-    return _authored()
+    return _authored(_BASELINE)
 
 
 def contract_digest(document):
@@ -388,8 +491,9 @@ def role_contract_of_bytes(payload, *, what="a development role contract"):
     return check_role_contract(document, what=what)
 
 
-def check_role_contract(document, *, what="a development role contract"):
-    """The pure closed validator. Answers the owned document or refuses.
+def _checked(document, revision, what):
+    """The pure closed validator for ONE revision. The owned document, or a
+    refusal.
 
     PURE, in the proposal's sense and audibly so: no store, no filesystem, no
     configuration, no engine or provider call, and no import of provider code.
@@ -412,43 +516,88 @@ def check_role_contract(document, *, what="a development role contract"):
     # `templates.resolve` applies to its own request -- so an unsupported
     # version refuses as a version rather than as whichever field happened to
     # differ.
-    if taken["schema"] != CONTRACT_SCHEMA:
+    if taken["schema"] != revision["schema"]:
         _denied(f"{what} says it is {name_value(taken['schema'])} and this "
-                f"build reads exactly {name_value(CONTRACT_SCHEMA)}; a "
+                f"build reads exactly {name_value(revision['schema'])}; a "
                 f"descriptor from another revision is not one to read the "
                 f"recognised parts out of")
-    _literal(taken["template"], BASELINE_TEMPLATE, f"{what}'s template")
+    _literal(taken["template"], revision["template"], f"{what}'s template")
     # THE TASK SCHEMA IS PINNED AT `/2`, AND `/3` IS THE CASE THIS NAMES.
     # `verification_context` carries a context-enabled `/3`; the approved
     # bounds say that workload "continues its explicit legacy path; this
     # descriptor refuses new /2 qualification until its distinct contract is
     # approved". So this is a refusal with a reason rather than an unsupported
     # value, and it is the one a reader is most likely to meet.
-    if taken["task_schema"] != BASELINE_TASK_SCHEMA:
+    if taken["task_schema"] != revision["task_schema"]:
         _denied(f"{what} names the task schema "
                 f"{name_value(taken['task_schema'])} and this descriptor "
                 f"revision supports exactly "
-                f"{name_value(BASELINE_TASK_SCHEMA)}; a context-enabled or "
+                f"{name_value(revision['task_schema'])}; a context-enabled or "
                 f"later task workload continues its own explicit path, and "
                 f"qualifying it here would be reinterpreting it rather than "
                 f"selecting a contract for it")
-    _literal(taken["source_profile"], BASELINE_SOURCE_PROFILE,
+    _literal(taken["source_profile"], revision["source_profile"],
              f"{what}'s source_profile")
+    declared_outputs = revision["outputs"]
+    declared_roles = revision["roles"]
     outputs = taken["outputs"]
-    if type(outputs) is not list or len(outputs) != len(_OUTPUTS):
-        _refuse(f"{what} declares exactly {len(_OUTPUTS)} outputs, in "
-                f"{', '.join(one['name'] for one in _OUTPUTS)} order; this "
-                f"declares {len(outputs) if type(outputs) is list else 0}")
-    for index, (one, declared) in enumerate(zip(outputs, _OUTPUTS)):
+    if type(outputs) is not list or len(outputs) != len(declared_outputs):
+        _refuse(f"{what} declares exactly {len(declared_outputs)} outputs, in "
+                f"{', '.join(one['name'] for one in declared_outputs)} order; "
+                f"this declares "
+                f"{len(outputs) if type(outputs) is list else 0}")
+    for index, (one, declared) in enumerate(zip(outputs, declared_outputs)):
         _output(one, declared, f"{what}'s output {index}")
     roles = taken["roles"]
-    if type(roles) is not list or len(roles) != len(_ROLES):
-        _refuse(f"{what} declares exactly {len(_ROLES)} roles, "
-                f"{' then '.join(one['role'] for one in _ROLES)}; this "
-                f"declares {len(roles) if type(roles) is list else 0}")
-    for index, (one, declared) in enumerate(zip(roles, _ROLES)):
+    if type(roles) is not list or len(roles) != len(declared_roles):
+        _refuse(f"{what} declares exactly {len(declared_roles)} roles, "
+                f"{' then '.join(one['role'] for one in declared_roles)}; "
+                f"this declares {len(roles) if type(roles) is list else 0}")
+    for index, (one, declared) in enumerate(zip(roles, declared_roles)):
         _role(one, declared, f"{what}'s role {index}")
     return taken
+
+
+def check_role_contract(document, *, what="a development role contract"):
+    """`/1`, and ONLY `/1`. Unchanged in behaviour, word for word.
+
+    THIS IS THE LEGACY ENTRY POINT AND IT STAYS NARROW. Every caller that has
+    ever meant "the baseline development role contract" means exactly that, and
+    a descriptor from the native-handoff family refuses here as a VERSION --
+    which is the same answer it got before that family existed. Admitting two
+    revisions through one door would have reinterpreted every existing caller's
+    question.
+    """
+    return _checked(document, _BASELINE, what)
+
+
+def check_handoff_role_contract(document,
+                                *, what="a native handoff role contract"):
+    """W385331's revision, and ONLY it. The mirror of the above."""
+    return _checked(document, _HANDOFF, what)
+
+
+def check_any_role_contract(document,
+                            *, what="a development role contract"):
+    """Whichever revision this document SAYS it is, or a refusal.
+
+    FAILS CLOSED ON A MISMATCHED VERSION, which is the qualification rule this
+    exists for: the schema member selects the validator and an unregistered
+    schema selects none, so a descriptor from a family this build does not
+    carry is refused as a version rather than read with whichever validator
+    happened to be reached first. A caller that must have one named revision
+    asks for it by name above; this is for the callers whose question really is
+    "is this a contract this build carries at all".
+    """
+    taken = own(document, what=what)
+    schema = taken.get("schema") if type(taken) is dict else None
+    revision = _REVISIONS.get(schema) if type(schema) is str else None
+    if revision is None:
+        _denied(f"{what} says it is {name_value(schema)} and this build "
+                f"carries {', '.join(sorted(_REVISIONS))}; a descriptor from "
+                f"another revision is not one to read the recognised parts "
+                f"out of")
+    return _checked(taken, revision, what)
 
 
 # -- which template versions are bound to a contract -------------------------
@@ -463,7 +612,12 @@ def check_role_contract(document, *, what="a development role contract"):
 #
 # `/1` IS ABSENT ON PURPOSE AND `contract_for` SAYS SO. Absence is the legacy
 # answer, which is what preserves every Job already resolved against `/1`.
-TEMPLATE_CONTRACTS = (BASELINE_TEMPLATE,)
+TEMPLATE_CONTRACTS = (BASELINE_TEMPLATE, HANDOFF_TEMPLATE)
+
+# WHICH REVISION EACH BOUND TEMPLATE RESOLVES TO. One entry per bound version,
+# so adding a template without choosing its descriptor is a KeyError at import
+# rather than a deployment resolving a template to nothing.
+_BY_TEMPLATE = {BASELINE_TEMPLATE: _BASELINE, HANDOFF_TEMPLATE: _HANDOFF}
 
 
 def contract_for(version):
@@ -477,7 +631,25 @@ def contract_for(version):
     boundaries.text(version, "a job template version")
     if version not in TEMPLATE_CONTRACTS:
         return None
-    return baseline_document()
+    return _authored(_BY_TEMPLATE[version])
+
+
+def handoff_document():
+    """W385331's descriptor as plain JSON data, detached. A FRESH DOCUMENT
+    EVERY CALL, for `baseline_document`'s reason."""
+    return _authored(_HANDOFF)
+
+
+def is_handoff_capable(version):
+    """Whether this template version is bound to a handoff-capable descriptor.
+
+    THE ONE QUESTION EVERY HOST BRANCH ASKS, answered from the registry rather
+    than by comparing a version string somewhere else. A legacy template is not
+    handoff-capable, which is what keeps every already admitted Job reading
+    exactly as it did.
+    """
+    boundaries.text(version, "a job template version")
+    return _BY_TEMPLATE.get(version) is _HANDOFF
 
 
 # -- what this module is held to at import ------------------------------------
@@ -499,6 +671,33 @@ assert check_role_contract(baseline_document()) == baseline_document()
 
 # And it fits the encoded ceiling it declares.
 assert len(canonical_bytes(baseline_document())) <= MAX_CONTRACT_BYTES
+
+# W385331: THE SAME THREE PROPERTIES FOR THE NEW REVISION, and two more that
+# are about the RELATIONSHIP between the revisions rather than about either one.
+assert check_handoff_role_contract(handoff_document()) == handoff_document()
+assert check_any_role_contract(handoff_document()) == handoff_document()
+assert check_any_role_contract(baseline_document()) == baseline_document()
+assert len(canonical_bytes(handoff_document())) <= MAX_CONTRACT_BYTES
+# THE TWO FAMILIES DO NOT ADMIT EACH OTHER. This is the fail-closed half of
+# qualification, asserted at import so a refactor that made one validator
+# accept the other's document fails the build rather than a deployment.
+for _one, _other in ((baseline_document(), check_handoff_role_contract),
+                     (handoff_document(), check_role_contract)):
+    try:
+        _other(_one)
+    except ContractRefusal:
+        pass
+    else:
+        raise AssertionError(_one["schema"])
+del _one, _other
+# AND THE TWO DESCRIPTORS ARE NOT THE SAME DOCUMENT WEARING TWO NAMES: a
+# capability qualified against one proves nothing about the other, and that is
+# only true if their canonical digests differ.
+assert contract_digest(handoff_document()) != contract_digest(
+    baseline_document())
+# The new revision's digest, pinned like the baseline's so a changed descriptor
+# fails the build rather than a deployment admitting a contract nobody saw.
+HANDOFF_DIGEST = contract_digest(handoff_document())
 
 # THE CONSUMER IDS ARE THEIR OWNERS' CLAIM NAMESPACES. `integration.driver`
 # and `review_driver` own what each consumer actually enforces; this holds the

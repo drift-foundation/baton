@@ -183,6 +183,141 @@ class ConnectedCreationCase(test_bootstrap.ValidFixture):
         return store, creation
 
 
+class TheNativeRoutingThroughTheRealInstaller(ConnectedCreationCase):
+    """W385331 R4/R4a (reviews 2026-11-20T19-39-15Z, 20-53-37Z): the native
+    handoff routing through the REAL installer and the REAL command.
+
+    A two-role pool (the native template's implementation/review), each
+    worker's manifest declaring the `/3` outputs: `bootstrap.main` installs
+    the instance with a `native_handoff_routing` selection, `job_manager.main`
+    creates an ordinary `/3` Job under the native-handoff profile, and the
+    Authority holds the policy and the reviewer's scoped `answer-handoff`
+    grant -- and no `review` grant for that worker. A malformed address is
+    refused by the installer before anything durable exists.
+    """
+
+    ROUTING = {"reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"}
+
+    def workers(self):
+        import copy
+
+        from baton_v12.contracts import digest
+
+        held = [one for one in super().workers()
+                if one["role"] in ("implementation", "review")]
+        for worker in held:
+            manifest = copy.deepcopy(worker["deployment"]["input_manifest"])
+            prototype = manifest["outputs"][0]
+            manifest["outputs"] = [
+                dict(prototype, name=name, type=kind, path=name, required=False)
+                for name, kind in (("proposal", "git-change-proposal"),
+                                   ("findings", "directory-result"),
+                                   ("logs", "directory-result"),
+                                   ("handoff", "directory-result"),
+                                   ("response", "directory-result"))]
+            manifest.pop("manifest_digest")
+            manifest["manifest_digest"] = digest(manifest)
+            worker["deployment"]["input_manifest"] = manifest
+        return held
+
+    def authority(self):
+        from baton_v12.authority import Authority
+
+        held = Authority.open(self.owned["authority_store"],
+                              expected_authority_uuid=self.owned["authority_uuid"])
+        self.addCleanup(held.dispose)
+        return held
+
+    def test_a_fresh_install_and_an_ordinary_creation_install_the_scoped_grant(self):
+        from baton_v12.authority import messages
+        from baton_v12.job_manager import native_handoffs, role_contract
+
+        self.installed(jobs=[], line_declared_base="a" * 40,
+                       canonical_target_id="target-1",
+                       native_handoff_routing=dict(self.ROUTING))
+        self.assertEqual(self.authority().native_routing(),
+                         dict(self.ROUTING, schema=messages.ROUTING_SCHEMA))
+        held = self.answered(template=role_contract.HANDOFF_TEMPLATE,
+                             control_profile="native-handoff/1")
+        authority = self.authority()
+        scope = authority.project_work(held["work_id"])["scope"]
+        self.assertTrue(authority.holds_capability(
+            self.ROUTING["reviewer"], messages.ANSWER_CAPABILITY, scope=scope))
+        self.assertFalse(authority.holds_capability(
+            self.ROUTING["reviewer"], "review", scope=scope))
+        self.assertFalse(authority.holds_capability(
+            self.ROUTING["decision_recipient"], messages.ANSWER_CAPABILITY,
+            scope=scope))
+        store, _creation = self.rows()
+        self.assertTrue(native_handoffs.handoff_capable(store, held["job_id"]))
+        self.assertEqual(self.install_document()["native_handoff_routing"],
+                         self.ROUTING)
+        self.assertNotIn("native_handoff_routing", self.configuration())
+
+    def refused_install(self, routing):
+        """The real installer, refusing: exit 2, the refusal said, and
+        nothing durable at the destination -- no selector, no record, no
+        configuration, no Authority store, no install document."""
+        document = self.document(jobs=[], line_declared_base="a" * 40,
+                                 canonical_target_id="target-1",
+                                 native_handoff_routing=routing)
+        document.pop("state_root", None)
+        inputs = os.path.join(self.root, "operator-inputs-bad.json")
+        Path(inputs).write_text(json.dumps(document))
+        out = io.StringIO()
+        code = bootstrap.main(
+            ["--inputs", inputs, "--destination", self.state,
+             "--distro", self.stand_in_runtime(), "--no-repositories"],
+            stream=out)
+        said = out.getvalue()
+        self.assertEqual(code, 2, said)
+        self.assertIn("refused:", said)
+        self.assertIn("a participant is team.member", said)
+        for name in ("instance.json", "install-inputs.json", "deployment.json",
+                     "justfile", "distro"):
+            self.assertFalse(os.path.exists(os.path.join(self.state, name)),
+                             name)
+        places = bootstrap.layout(self.state)
+        for name in ("record", "configuration", "authority_store"):
+            self.assertFalse(os.path.exists(places[name]), name)
+        return said
+
+    def test_a_malformed_decision_recipient_is_refused_before_any_effect(self):
+        """The reviewer's own public-path probe (`evidence/review-385364/
+        operator-probe.py`), now refused where it must be."""
+        said = self.refused_install({"reviewer": "baton.reviewer",
+                                     "decision_recipient": "not-an-address"})
+        self.assertIn("decision_recipient", said)
+
+    def test_a_malformed_reviewer_is_refused_before_any_effect(self):
+        self.refused_install({"reviewer": "reviewer-without-a-team",
+                              "decision_recipient": "baton.slaw"})
+
+    def test_a_refused_repeat_leaves_the_installed_routing_unchanged(self):
+        """A valid install, then a one-operand repeat naming a malformed
+        address: refused, and the policy and install document stand."""
+        from baton_v12.authority import messages
+
+        self.installed(jobs=[], line_declared_base="a" * 40,
+                       canonical_target_id="target-1",
+                       native_handoff_routing=dict(self.ROUTING))
+        before = Path(os.path.join(self.state, "install-inputs.json")).read_bytes()
+        bad = dict(self.install_document(),
+                   native_handoff_routing={"reviewer": "baton.reviewer",
+                                           "decision_recipient": "nobody"})
+        inputs = os.path.join(self.root, "operator-inputs-repeat.json")
+        Path(inputs).write_text(json.dumps(bad))
+        out = io.StringIO()
+        code = bootstrap.main(["--inputs", inputs], stream=out)
+        self.assertEqual(code, 2, out.getvalue())
+        self.assertIn("a participant is team.member", out.getvalue())
+        self.assertEqual(
+            Path(os.path.join(self.state, "install-inputs.json")).read_bytes(),
+            before)
+        self.assertEqual(self.authority().native_routing(),
+                         dict(self.ROUTING, schema=messages.ROUTING_SCHEMA))
+
+
 class TheInstallKeepsTheDocumentItConsumed(ConnectedCreationCase):
     """The first defect, and the smallest one to state.
 

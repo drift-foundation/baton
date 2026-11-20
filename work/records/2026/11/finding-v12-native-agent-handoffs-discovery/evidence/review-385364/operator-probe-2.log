@@ -1,0 +1,25 @@
+test_fresh_install_then_operator_create_installs_scoped_answer_grant (__main__.OperatorConfiguration.test_fresh_install_then_operator_create_installs_scoped_answer_grant) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+routing               reviewer baton.reviewer, decisions to baton.slaw
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+answer               answer-handoff to baton.reviewer in its own scope; no review grant
+target                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa established from line_declared_base
+configuration /home/sl/src/baton/work/scratch/codxpc-w385331-delta-fixtures/v12-w71917-z___sx9b/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-cli-first": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": [], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/src/baton/work/scratch/codxpc-w385331-delta-fixtures/v12-w71917-z___sx9b/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/src/baton/work/scratch/codxpc-w385331-delta-fixtures/v12-w71917-z___sx9b/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/src/baton/work/scratch/codxpc-w385331-delta-fixtures/v12-w71917-z___sx9b/bootstrap-deployment/deployment.json"
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.090s
+
+OK
+OPERATOR_CREATED {"job_id": "job-cli-first", "work_id": "0000000a-W1", "template": {"version": "baton.v12.job-template.implementation-review/3", "origin": "request", "permitted_overrides": ["execution_limits"]}, "scope": "scope:deployment"}

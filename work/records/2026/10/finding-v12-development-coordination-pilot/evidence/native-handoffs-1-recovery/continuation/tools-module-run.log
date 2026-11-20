@@ -1,0 +1,13 @@
+started 2026-11-20T17:57:27Z
+test_the_reviewer_answers_and_the_same_task_resumes (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_the_reviewer_answers_and_the_same_task_resumes) ... ok
+test_the_yield_is_retained_and_publishes_nothing (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_the_yield_is_retained_and_publishes_nothing) ... ok
+test_zero_human_acts_to_the_ordinary_final_review (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_zero_human_acts_to_the_ordinary_final_review) ... ok
+test_an_in_scope_finding_is_classified_and_the_task_resumes (tests.tools.test_native_handoffs.AFindingContinuesTheSameWay.test_an_in_scope_finding_is_classified_and_the_task_resumes) ... ok
+test_one_escalation_to_the_owner_and_nothing_scheduled (tests.tools.test_native_handoffs.AGenuineAmbiguityEscalatesOnceAndStaysHeld.test_one_escalation_to_the_owner_and_nothing_scheduled) ... ok
+test_a_fresh_serving_object_rereads_the_yield_and_the_answer (tests.tools.test_native_handoffs.ARestartBetweenTheCutsDuplicatesNothing.test_a_fresh_serving_object_rereads_the_yield_and_the_answer) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 5.284s
+
+OK
+exit=0 finished 2026-11-20T17:57:33Z

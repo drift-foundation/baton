@@ -1,0 +1,63 @@
+test_fresh_install_then_operator_create_installs_scoped_answer_grant (__main__.OperatorConfiguration.test_fresh_install_then_operator_create_installs_scoped_answer_grant) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+routing               reviewer baton.reviewer, decisions to baton.slaw
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+answer               answer-handoff to baton.reviewer in its own scope; no review grant
+target                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa established from line_declared_base
+configuration /home/sl/src/baton/work/scratch/codxpc-w385331-delta-fixtures/v12-w71917-hj4a58zg/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-cli-first": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/1", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/src/baton/work/scratch/codxpc-w385331-delta-fixtures/v12-w71917-hj4a58zg/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/src/baton/work/scratch/codxpc-w385331-delta-fixtures/v12-w71917-hj4a58zg/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/src/baton/work/scratch/codxpc-w385331-delta-fixtures/v12-w71917-hj4a58zg/bootstrap-deployment/deployment.json"
+ERROR
+
+======================================================================
+ERROR: test_fresh_install_then_operator_create_installs_scoped_answer_grant (__main__.OperatorConfiguration.test_fresh_install_then_operator_create_installs_scoped_answer_grant)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385364/operator-probe.py", line 29, in test_fresh_install_then_operator_create_installs_scoped_answer_grant
+    held=self.answered(template=role_contract.HANDOFF_TEMPLATE,control_profile='native-handoff/1')
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/tests/tools/test_connected_creation.py", line 157, in answered
+    code, said = self.created(**named)
+                 ~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/tests/tools/test_connected_creation.py", line 130, in created
+    code = job_manager.main(self.argv(**named), stream=said)
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/tools/job_manager.py", line 1548, in main
+    return taken.run(taken, clock or _utc_clock(),
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stream if stream is not None else sys.stdout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/tools/job_manager.py", line 862, in _create
+    return _emit(create_template_job(
+                 ~~~~~~~~~~~~~~~~~~~^
+        store, _ReadOnly(control), request=request,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+                                       deployment.configuration(),
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                       identity=identity)), stream)
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/src/baton_v12/job_manager/creation.py", line 245, in create_template_job
+    return _owned(store, resolution=resolution, operands=held,
+                  derived=derived, authorization=authorization,
+                  binding=binding, owner=owner)
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/src/baton_v12/job_manager/creation.py", line 294, in _owned
+    bound = _bound(binding, operands, resolution=resolution)
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python/src/baton_v12/job_manager/creation.py", line 1082, in _bound
+    raise _incomplete(f"this deployment reported no binding for Job "
+                      f"{name_value(job_id)} after publishing one",
+                      reserved=job_id)
+baton_v12.contracts.errors.ContractRefusal: this deployment reported no binding for Job 'job-cli-first' after publishing one. The Job identity 'job-cli-first' is RESERVED and its Work authorization and deployment binding may already be published: this creation is INCOMPLETE rather than undone, no submission was recorded, and running the same request again finishes it once what is named above is repaired
+
+----------------------------------------------------------------------
+Ran 1 test in 0.093s
+
+FAILED (errors=1)

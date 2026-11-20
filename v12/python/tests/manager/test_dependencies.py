@@ -920,6 +920,11 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # was handed the identity of. It is a supplied durable operand, not a
         # cursor -- reading the same verdict twice answers the same document.
         "verdict_id",
+        # W385331 adds `response_digest`: the reviewer's own bound reply
+        # document identity, carried into the response record's signature so
+        # a second answer under one attachment collides rather than replays.
+        # A supplied durable operand, exactly as `verdict_id` is.
+        "response_digest",
         "storage_usage",
         # `workspace_storage` WAS DECLARED HERE AND IS GONE AGAIN, which is
         # worth a line rather than a silent deletion. W36540's eighth round

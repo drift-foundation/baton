@@ -1,0 +1,40 @@
+{
+  "runs": [
+    {
+      "run": "bound-foreign-probe",
+      "wall_seconds": 0.26379158603958786,
+      "exit": 0
+    },
+    {
+      "run": "original-probes",
+      "wall_seconds": 1.9154286329867318,
+      "exit": 0
+    },
+    {
+      "run": "six-modules",
+      "wall_seconds": 19.48070637404453,
+      "exit": 0
+    },
+    {
+      "run": "focused-config-and-regression",
+      "wall_seconds": 3.7674223849899136,
+      "exit": 0
+    },
+    {
+      "run": "operator-probe-2",
+      "wall_seconds": 0.3137929809745401,
+      "exit": 0
+    },
+    {
+      "run": "invalid-routing",
+      "wall_seconds": 0.26382267504232004,
+      "exit": 1
+    },
+    {
+      "run": "operator-probe",
+      "wall_seconds": 0.31394203001400456,
+      "exit": 1
+    }
+  ],
+  "total_process_wall_seconds": 26.318906664091628
+}

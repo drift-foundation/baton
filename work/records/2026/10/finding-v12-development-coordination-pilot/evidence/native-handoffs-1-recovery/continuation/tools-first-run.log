@@ -1,0 +1,21 @@
+started 2026-11-20T17:48:44Z argv: tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_the_yield_is_retained_and_publishes_nothing
+F
+======================================================================
+FAIL: test_the_yield_is_retained_and_publishes_nothing (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_the_yield_is_retained_and_publishes_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w383217/handoffs-recovery/candidate/v12/python/tests/tools/test_native_handoffs.py", line 305, in test_the_yield_is_retained_and_publishes_nothing
+    self.assertEqual(request["checkpoint_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     checkpoint["checkpoint_id"])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'e5609a88af1be34bf61ab452c8dd5ea94b65f15f' != 'checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a'
+- e5609a88af1be34bf61ab452c8dd5ea94b65f15f
++ checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.275s
+
+FAILED (failures=1)
+exit=1 finished 2026-11-20T17:48:45Z

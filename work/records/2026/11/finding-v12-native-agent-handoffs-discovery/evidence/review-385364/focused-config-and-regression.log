@@ -1,0 +1,16 @@
+test_a_malformed_selection_is_refused_by_member (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_a_malformed_selection_is_refused_by_member) ... ok
+test_a_repeat_keeps_the_routing_and_grants_once (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_a_repeat_keeps_the_routing_and_grants_once) ... ok
+test_a_reviewer_nobody_serves_is_refused (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_a_reviewer_nobody_serves_is_refused) ... ok
+test_an_absent_selection_installs_nothing (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_an_absent_selection_installs_nothing) ... ok
+test_an_implementer_cannot_be_the_reviewer (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_an_implementer_cannot_be_the_reviewer) ... ok
+test_one_address_for_both_roles_is_refused_before_anything_is_made (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_one_address_for_both_roles_is_refused_before_anything_is_made) ... ok
+test_the_refusal_names_the_selection_as_supported (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_the_refusal_names_the_selection_as_supported) ... ok
+test_the_selection_installs_the_policy_and_the_reviewers_grant (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_the_selection_installs_the_policy_and_the_reviewers_grant) ... ok
+test_the_selection_never_travels_into_the_execution_document (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_the_selection_never_travels_into_the_execution_document) ... ok
+test_the_spellings_are_the_authoritys_own (tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere.test_the_spellings_are_the_authoritys_own) ... ok
+test_rejected_derived_judgment_cannot_authorize_import (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_rejected_derived_judgment_cannot_authorize_import) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 3.564s
+
+OK

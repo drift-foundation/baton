@@ -1,0 +1,29 @@
+{
+ "built_at": "2026-11-20T20:32:21Z",
+ "previous_tree_verified": "sha256:ce757322b59fbd5ca14f6ec1cd1ecec14c2781fc10c1d53c235392aeb674b866",
+ "reproductions": [
+  {
+   "applied": true,
+   "mismatched": [],
+   "patch": "candidate-from-3d05430f.patch",
+   "paths": 35,
+   "paths_changed_outside_the_set": []
+  },
+  {
+   "applied": true,
+   "mismatched": [],
+   "patch": "delta-from-a743edeb.patch",
+   "paths": 35,
+   "paths_changed_outside_the_set": []
+  },
+  {
+   "applied": true,
+   "mismatched": [],
+   "patch": "delta-from-ce757322.patch",
+   "paths": 35,
+   "paths_changed_outside_the_set": []
+  }
+ ],
+ "schema": "k.native-handoffs-correction-provenance/1",
+ "tree_digest": "sha256:766f97f2e49809c5a2ebedece65d3ebd6f6d4d933b795efd2490b4726368345a"
+}

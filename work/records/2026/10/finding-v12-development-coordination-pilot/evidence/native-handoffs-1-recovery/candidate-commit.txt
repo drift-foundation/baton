@@ -1,0 +1,2 @@
+a743edebacf5c744020083ee68549f2bd1fa91f7 Baton worker <worker@baton.invalid> Fri Nov 20 16:23:23 2026 +0000 baton candidate: w385331-handoffs-1
+3d05430f97ca9d4a516b51d15eb940840a6f0eff Slawomir Lisznianski <sl@pushcoin.com> Fri Nov 20 06:53:56 2026 -0700 v12: define native messaging and retained-continuation delivery

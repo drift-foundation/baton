@@ -1,0 +1,24 @@
+ok v12/python/src/baton_v12/authority/api.py
+ok v12/python/src/baton_v12/authority/core.py
+ok v12/python/src/baton_v12/authority/messages.py
+ok v12/python/src/baton_v12/authority/schema.py
+ok v12/python/src/baton_v12/authority/session.py
+ok v12/python/src/baton_v12/job_manager/documents.py
+ok v12/python/src/baton_v12/job_manager/job_control.py
+ok v12/python/src/baton_v12/job_manager/native_handoffs.py
+ok v12/python/src/baton_v12/job_manager/projection.py
+ok v12/python/src/baton_v12/job_manager/review_driver.py
+ok v12/python/src/baton_v12/job_manager/role_capability.py
+ok v12/python/src/baton_v12/job_manager/role_contract.py
+ok v12/python/src/baton_v12/job_manager/templates.py
+ok v12/python/src/baton_v12/native_handoff.py
+ok v12/python/src/baton_v12/worker_manager/review_cycles.py
+ok v12/python/tests/authority/test_boundary.py
+ok v12/python/tests/authority/test_dossier.py
+ok v12/python/tests/authority/test_session.py
+ok v12/python/tests/authority/test_work_messages.py
+SyntaxError: unterminated string literal (detected at line 497) v12/python/tests/job_manager/test_native_handoffs.py
+ok v12/python/tests/job_manager/test_review_driver.py
+ok v12/python/tests/job_manager/test_role_contract.py
+ok v12/python/tests/job_manager/test_templates.py
+ok v12/python/tools/stage_execution.py

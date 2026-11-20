@@ -2609,6 +2609,9 @@ STATED_OWNERS = {
     ("caller", "review_cycles.py:freeze_checkpoint", "profile"):
         "the same, for freeze and validate",
     ("caller", "review_cycles.py:record_verdict", "profile"): "the same",
+    # W385331: the native response record types its profile aggregate through
+    # the same `_profile` as the verdict record.
+    ("caller", "review_cycles.py:record_response", "profile"): "the same",
     ("caller", "review_cycles.py:audit_checkpoint", "profile"): "the same",
     ("caller", "review_cycles.py:review_boundary", "profile"):
         "an injected profile aggregate whose validate capability is typed before use",
@@ -2624,6 +2627,10 @@ STATED_OWNERS = {
     ("caller", "review_cycles.py:settle_restoration_execution", "profile"): "the same",
     ("caller", "review_cycles.py:record_verdict", "disposition"):
         "compared against the closed review disposition vocabulary before use",
+    # W385331: a native response's disposition is held to its own closed pair
+    # (`RESPONSE_DISPOSITIONS`) before anything is read.
+    ("caller", "review_cycles.py:record_response", "disposition"):
+        "compared against the closed native response disposition vocabulary before use",
     ("caller", "review_cycles.py:record_progress", "document"):
         "canonicalized before it reaches either the signature or durable row",
     # W384870 (B2): W301404 moved create_line's read into `_reserved_line`,
@@ -2632,6 +2639,14 @@ STATED_OWNERS = {
         "the complete row is forwarded through line_of's canonical row decoder",
     ("adopted", "review_cycles.py:attach_review", "line_writers"):
         "a SELECT 1 existence answer; no row member crosses into this manager",
+    # W385331: the continuation-hold reader scans the journal by kind for
+    # identities only, and every candidate row is then read through
+    # `operation_record`, the journal's own decoder, before any member is
+    # compared -- `provider_context`'s shape for its own journal families.
+    ("adopted", "review_cycles.py:continuation_hold_of", "operations"):
+        "a kind-filtered identity scan; every row is re-read through operation_record, the journal's own decoder",
+    ("adopted", "review_cycles.py:continuation_hold_of", "operations.operation_id"):
+        "the same",
     ("adopted", "review_cycles.py:review_boundary", "line_writers"): "the same",
     ("caller", "workspaces.py:line_assignment_workspace", "pinned"):
         "the exact two-integer object identity compared with the filesystem stat",
@@ -3824,6 +3839,9 @@ DELEGATED = {
         ("review_cycles.py:writer_of", "caller:writer_id"),
     ("caller", "review_cycles.py:record_verdict", "attachment_id"):
         ("review_cycles.py:_attachment", "caller:attachment_id"),
+    # W385331: the native response record reaches its attachment the same way.
+    ("caller", "review_cycles.py:record_response", "attachment_id"):
+        ("review_cycles.py:_attachment", "caller:attachment_id"),
     ("caller", "review_cycles.py:audit_checkpoint", "checkpoint_id"):
         ("review_cycles.py:checkpoint_of", "caller:checkpoint_id"),
     ("caller", "review_cycles.py:integration_checkpoint", "line_id"):
@@ -4492,7 +4510,8 @@ STAGE_C_PASSTHRU = (
     "offers.py:issue_offer", "output.py:record_frozen_result",
     "review_cycles.py:_completed_line", "review_cycles.py:_reserved_line", "review_cycles.py:_settled_elsewhere",
     "review_cycles.py:attach_review", "review_cycles.py:freeze_checkpoint", "review_cycles.py:grant_writer",
-    "review_cycles.py:record_progress", "review_cycles.py:record_verdict", "review_cycles.py:release_writer",
+    "review_cycles.py:record_progress", "review_cycles.py:record_response", "review_cycles.py:record_verdict",
+    "review_cycles.py:release_writer",
     "review_cycles.py:restore_abandoned_correction",
     "stopped_settlement.py:settle_stopped", "stopped_settlement.py:status",
     "store.py:ControlStore.transact", "tokens.py:_fence_settlement",
@@ -12105,6 +12124,27 @@ class EveryProbeProvesItArrived(BoundaryCase):
                     self.store, attachment_id=SURROGATE,
                     disposition="accepted", profile=self.review_profile(),
                     port=self.review_port("baton.review")),
+            # W385331: the native response record and its two readers.
+            (at("record_response", "attachment_id"),
+             "a review attachment identity"):
+                lambda: review_cycles.record_response(
+                    self.store, attachment_id=SURROGATE,
+                    disposition="answer", response_digest="sha256:" + "1" * 64,
+                    profile=self.review_profile(),
+                    port=self.review_port("baton.review")),
+            (at("record_response", "response_digest"),
+             "a native response digest"):
+                lambda: review_cycles.record_response(
+                    self.store, attachment_id="attachment",
+                    disposition="answer", response_digest=SURROGATE,
+                    profile=self.review_profile(),
+                    port=self.review_port("baton.review")),
+            (at("response_of", "attachment_id"),
+             "a review attachment identity"):
+                lambda: review_cycles.response_of(self.store, SURROGATE),
+            (at("continuation_hold_of", "checkpoint_id"),
+             "a line checkpoint identity"):
+                lambda: review_cycles.continuation_hold_of(self.store, SURROGATE),
             (at("review_boundary", "attachment_id"),
              "a review attachment identity"):
                 lambda: review_cycles.review_boundary(

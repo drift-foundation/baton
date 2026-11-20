@@ -1,0 +1,1 @@
+{"declared": "partial", "reason": "the drain ended on its own clock rather than at end of file, so this is a prefix of the stream rather than the stream"}

@@ -61,6 +61,7 @@ from ..worker_manager import (attempts, authorize_cleanup, boundaries,
 from . import episodes
 
 __all__ = ["ADAPTER_IDENTITIES", "FENCE_PORT", "FINDINGS_OUTPUT",
+           "HANDOFF_SEAM", "end_response_from_result",
            "HISTORICAL_IMPLEMENTATION_ENDING", "IMPLEMENTATION_ENDING",
            "IMPLEMENTATION_PROFILE",
            "LOGS_OUTPUT", "PUBLICATION_HISTORY", "PUBLICATION_SEAM",
@@ -78,6 +79,19 @@ __all__ = ["ADAPTER_IDENTITIES", "FENCE_PORT", "FINDINGS_OUTPUT",
 # would be this module deciding part of a lifecycle the integration driver
 # owns; a seam with none would be this module publishing.
 PUBLICATION_SEAM = ("publish",)
+
+# W385331: THE PARTICIPANT-BOUND NATIVE HANDOFF SEAM. Two methods, because the
+# two directions are two different authorizations: `request` is carried out
+# under the REQUESTING assignment and `answer` is authorized by the configured
+# answer capability in the requested Work's own scope. One method taking a
+# direction operand would have been one object holding both.
+#
+# WHY A SEAM AT ALL, and not an Authority handle. This driver holds the control
+# store and an adapter; it does not hold -- and must not hold -- the Authority
+# or a session for any participant but the one whose attempt it is ending. The
+# seam is composed by the deployment from the session it already minted, which
+# is exactly how `PUBLICATION_SEAM` already works.
+HANDOFF_SEAM = ("request", "answer")
 
 # AND THE SEAM'S REPLAY HALF, REQUIRED ONLY WHERE THE ACT CANNOT BE REPEATED.
 # W119733: `Authority.publish` needs the exact LIVE producer assignment, and a
@@ -233,11 +247,18 @@ def _refuse(message, *, category="refused", code="precondition"):
     raise ContractRefusal(category, code, message)
 
 
-def _seam(value):
-    """The publication seam, typed before anything is spent on it."""
-    for verb in PUBLICATION_SEAM:
+def _seam(value, *, needs=None, what="the integration publication seam"):
+    """One injected seam, typed before anything is spent on it.
+
+    W385331 generalized the `needs` set. The rule is unchanged and so is the
+    default: every verb an ending will reach is proved to be callable BEFORE
+    the first container is stopped, because a composite that discovers halfway
+    through that it cannot finish has already spent somebody's work and
+    describes the wrong moment when it finally refuses.
+    """
+    for verb in (PUBLICATION_SEAM if needs is None else needs):
         boundaries.capability(getattr(value, verb, None),
-                              f"the integration publication seam's {verb}")
+                              f"{what}'s {verb}")
     return value
 
 
@@ -632,7 +653,8 @@ def prepare_review(control, *, checkpoint_id, attempt_id, generation,
 def end_implementation(control, port, adapter, publication, *, attempt_id,
                        disposition, terminal, writer_id, generation, profile,
                        retention_disposition, retention_policy_digest,
-                       proposal, govern=None):
+                       proposal, govern=None, handoff=None,
+                       handoff_capable=False):
     """End one implementation attempt into an immutable, published checkpoint.
 
     THE ORDER, and every step of it is somebody else's operation:
@@ -683,6 +705,22 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
     from what committed, and the one outstanding act is authorized.
     """
     _seam(publication)
+    # W385331: AND THE HANDOFF SEAM, WHEN THIS JOB'S TEMPLATE HAS ONE. Typed
+    # beside the publication seam and for the same reason: a handoff-capable
+    # attempt whose ending could not reach the Authority would discover that
+    # AFTER stopping the container and freezing the output, leaving a question
+    # nobody could deliver.
+    #
+    # `handoff_capable` IS THE JOB STORE'S FACT AND IS NEVER INFERRED HERE.
+    # Whether a declared handoff may be read at all is decided by the admitted
+    # template revision -- `native_handoffs.handoff_capable` -- and the composed
+    # ending passes the answer in. A deployment that says a Job IS
+    # handoff-capable and supplies no seam is refused rather than quietly
+    # taking the legacy path: the alternative would publish a candidate for an
+    # invocation that asked a question.
+    if handoff_capable:
+        _seam(handoff, needs=HANDOFF_SEAM,
+              what="a native handoff request seam")
     _typed(adapter, port, profile, IMPLEMENTATION_PROFILE)
     # W119733: AND WHETHER THERE IS STILL A RUNTIME TO END, ASKED BEFORE THE
     # FIRST OPERAND IS PROVED AGAINST A LIVE ONE. `_own_writer` requires a
@@ -696,7 +734,8 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
             disposition=disposition, terminal=terminal, writer_id=writer_id,
             generation=generation, profile=profile,
             retention_disposition=retention_disposition,
-            retention_policy_digest=retention_policy_digest)
+            retention_policy_digest=retention_policy_digest,
+            handoff=handoff, handoff_capable=handoff_capable)
     # W124784: AND THE CUT BETWEEN THOSE TWO, which neither branch reached.
     # Step eight revokes this writer and step nine authorizes the cleanup, so
     # a cleanup that refuses once leaves a fenced writer beside a runtime that
@@ -709,7 +748,8 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
             disposition=disposition, terminal=terminal, writer_id=writer_id,
             generation=generation, profile=profile,
             retention_disposition=retention_disposition,
-            retention_policy_digest=retention_policy_digest, govern=govern)
+            retention_policy_digest=retention_policy_digest, govern=govern,
+            handoff=handoff, handoff_capable=handoff_capable)
     writer = _own_writer(control, writer_id=writer_id, attempt_id=attempt_id,
                          generation=generation)
     _profile_of_the_line(control, profile, writer["line_id"])
@@ -740,6 +780,37 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
         control, port, adapter, attempt_id=attempt_id,
         retention_disposition=retention_disposition,
         retention_policy_digest=retention_policy_digest)
+    # STEP SIX AND A HALF: W385331'S CLASSIFICATION, AND ITS POSITION IS THE
+    # WHOLE OF THE ENFORCEMENT.
+    #
+    # BEFORE PUBLICATION, BEFORE THE CHECKPOINT AND BEFORE CLEANUP. By this
+    # line the outputs are frozen, correlated, collected and retained -- so
+    # there IS typed terminal evidence to classify -- and nothing has been
+    # published, no review has been attached, no stage has been projected
+    # `completed` and no dependent stage's dependency has been satisfied. A
+    # completed invocation that asked a question can therefore STOP the legacy
+    # path instead of having to undo it, which is the mandated host handling
+    # order in one statement.
+    #
+    # AND IT REFUSES RATHER THAN GUESSING. An undeclared, mixed, missing or
+    # foreign handoff is evidence this manager cannot settle: the refusal
+    # leaves the ending unfinished with the frozen evidence intact, the stage
+    # keeps owing its conclude, and NOTHING falls back to legacy success.
+    classified, yielding = _classified_handoff(control, attempt_id,
+                                               disposition, handoff_capable)
+    # STEP SIX AND THREE QUARTERS: THE MESSAGE, COMMITTED UNDER THE LIVE
+    # PRODUCER ASSIGNMENT. It stands where the publication stands and for the
+    # publication's own reason (W119733): the Authority authorizes this act by
+    # the exact live assignment, and the checkpoint freeze below is the act
+    # that fences and ends it. Execution is already inhibited -- the runtime
+    # is quiesced and its outputs are frozen and retained -- so this is the
+    # mandated "commit the message while execution remains inhibited", and
+    # the message names the retained head object, which the freeze then
+    # proves it stands at (`cross_bound`). A resumed ending replays the same
+    # deterministic operation and commits nothing a second time.
+    requested = None
+    if yielding:
+        requested = handoff.request(attempt_id=attempt_id, handoff=classified)
     # STEP SEVEN, AND IT IS OWED ONLY BY A RESULT THAT HAS A CANDIDATE. The
     # producer assignment is live until the next line runs, and this module
     # hands over the manager's own frozen account of the result rather than
@@ -749,7 +820,7 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
     # note above. An `unable` or `cancelled` turn skips straight to eight and
     # nine, which are the acts that actually end an attempt.
     published = None
-    if _publishable(disposition):
+    if _publishable(disposition) and not yielding:
         published = publication.publish(
             attempt_id=attempt_id, result_id=frozen["result_id"],
             manifest_digest=frozen["manifest_digest"],
@@ -770,6 +841,12 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
     released = None
     checkpoint = None
     if _publishable(disposition):
+        # A YIELDED CHECKPOINT IS FROZEN EXACTLY LIKE A SUBMITTED ONE, and that
+        # is deliberate: it may contain unfinished edits or no edits at all, it
+        # is RETAINED EVIDENCE rather than an acceptance proposal, and it does
+        # not have to pass final verification for somebody to ask a question
+        # about it. What a yield skips is the PUBLICATION above -- the act that
+        # offers a candidate against a target.
         checkpoint = review_cycles.freeze_checkpoint(
             control, writer_id=writer_id, generation=generation,
             profile=profile, port=port)
@@ -790,6 +867,12 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
     # AN OPERAND RATHER THAN A COMPOSITION, because which resources a deployment
     # governs is the deployment's fact. `None` is exactly what it always was: no
     # resource is named, nothing is released, and no existing caller changes.
+    # STEP EIGHT AND A HALF: THE CROSS-BINDING, asked of the checkpoint the
+    # freeze actually produced. A request about a head the line does not
+    # stand at refuses here, before cleanup, with the frozen evidence intact
+    # and no yield recorded.
+    if yielding and checkpoint is not None:
+        native_handoffs_cross_bound(classified, checkpoint)
     authorize_cleanup(control, port, adapter, attempt_id=attempt_id,
                       retention_policy_digest=retention_policy_digest,
                       govern=govern)
@@ -800,6 +883,18 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
             "artifacts": sorted(one["artifact_id"] for one in held),
             "retention": decided["disposition"],
             "published": published,
+            # W385331. `handoff` is what this invocation DECLARED ITSELF TO BE,
+            # and `None` for a Job whose admitted template has no such
+            # declaration; `requested` is the committed message a yield earned,
+            # and `None` for a final submission. `outcome` is present ONLY on a
+            # yield: an ordinary implementation ending has never carried one and
+            # its consumers derive theirs from the publication, so adding one
+            # unconditionally would have changed what every existing caller
+            # reads.
+            "handoff": classified,
+            "requested": requested,
+            **({"outcome": native_handoffs_yield_outcome()}
+               if yielding else {}),
             # AND `None` RATHER THAN OMITTED, for the reason `published` is:
             # an explicit null says the step was reached and no checkpoint was
             # owed. `released` carries what happened instead.
@@ -807,6 +902,56 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
                               else checkpoint["checkpoint_id"]),
             "checkpoint": checkpoint,
             "released": released}
+
+
+def _classified_handoff(control, attempt_id, disposition, handoff_capable):
+    """What this completed implementation invocation DECLARED ITSELF TO BE.
+
+    ONE READER FOR ALL THREE ENTRY POINTS -- the ordinary ending and both
+    resumes -- because a resume that skipped this would answer the ordinary
+    ending's document with no handoff in it, and its caller would then record a
+    final submission for an invocation that asked a question. The whole promise
+    of these entries is that the answer is the ordinary one member for member.
+
+    PURE AND REPEATABLE. It reads the frozen result and the retained manifest
+    and nothing mutable, so this incarnation and the next one derive the same
+    classification from the same immutable evidence.
+
+    `(None, False)` FOR A LEGACY TEMPLATE, which is what preserves every
+    already admitted version: without a handoff-capable template there is no
+    branch to reach, so nothing an older Job does can be reinterpreted.
+    """
+    if not handoff_capable or not _publishable(disposition):
+        return None, False
+    from . import native_handoffs
+
+    classified = native_handoffs.classified_handoff(control, attempt_id)
+    return classified, classified["kind"] in native_handoffs_request_kinds()
+
+
+def native_handoffs_request_kinds():
+    """The two handoff kinds that YIELD, read from their owner.
+
+    A FUNCTION RATHER THAN A MODULE-LEVEL IMPORT, because `native_handoffs`
+    imports this module for its claim namespace and a module-level cycle would
+    fail every process whose first import is either of them -- the same
+    correction `role_contract.consumer_namespaces` carries, for its reason.
+    """
+    from ..native_handoff import REQUEST_KINDS
+
+    return REQUEST_KINDS
+
+
+def native_handoffs_yield_outcome():
+    from . import native_handoffs
+
+    return native_handoffs.YIELD_OUTCOME
+
+
+def native_handoffs_cross_bound(classified, checkpoint):
+    from . import native_handoffs
+
+    return native_handoffs.cross_bound(classified, checkpoint)
 
 
 # WHICH IMPLEMENTATION RESULTS HAVE A CANDIDATE TO PUBLISH, and it is only
@@ -1124,7 +1269,8 @@ def _released_round(control, port, writer, *, generation, what):
 def _resumed_implementation(control, port, adapter, publication, *,
                             attempt_id, disposition, terminal, writer_id,
                             generation, profile, retention_disposition,
-                            retention_policy_digest):
+                            retention_policy_digest, handoff=None,
+                            handoff_capable=False):
     """W119733: finish an implementation ending whose runtime is already gone.
 
     WHY THIS EXISTS. `end_implementation` promises that "a process death
@@ -1197,11 +1343,21 @@ def _resumed_implementation(control, port, adapter, publication, *,
     # wrong for one that never had anything to publish. Asking would make every
     # `unable` ending unresumable for the absence of a record that could not
     # exist.
+    classified, yielding = _classified_handoff(control, attempt_id,
+                                               disposition, handoff_capable)
     published = None
-    if _publishable(disposition):
+    if _publishable(disposition) and not yielding:
         published = _published(control, publication, attempt_id=attempt_id,
                                frozen=frozen,
                                assignment=_assignment_ref(fixed), what=what)
+    # THE REQUEST REPLAYS RATHER THAN BEING ASKED AGAIN. Its operation identity
+    # is deterministic at the Authority, so a resume behind a committed message
+    # answers the same message and commits nothing a second time -- which is
+    # what makes the yield re-enterable at every cut the ordinary ending has.
+    requested = (handoff.request(attempt_id=attempt_id, handoff=classified)
+                 if yielding else None)
+    if yielding and checkpoint is not None:
+        native_handoffs_cross_bound(classified, checkpoint)
     return {"attempt_id": attempt_id, "disposition": disposition,
             "result_id": frozen["result_id"],
             "manifest_digest": frozen["manifest_digest"],
@@ -1209,6 +1365,10 @@ def _resumed_implementation(control, port, adapter, publication, *,
             "artifacts": sorted(one["artifact_id"] for one in held),
             "retention": decided["disposition"],
             "published": published,
+            "handoff": classified,
+            "requested": requested,
+            **({"outcome": native_handoffs_yield_outcome()}
+               if yielding else {}),
             "checkpoint_id": (None if checkpoint is None
                               else checkpoint["checkpoint_id"]),
             "checkpoint": checkpoint,
@@ -1242,7 +1402,8 @@ def _fence_settled(control, *, writer_id, attempt_id, generation):
 def _cleaning_implementation(control, port, adapter, publication, *,
                              attempt_id, disposition, terminal, writer_id,
                              generation, profile, retention_disposition,
-                             retention_policy_digest, govern=None):
+                             retention_policy_digest, govern=None,
+                             handoff=None, handoff_capable=False):
     """W124784: finish the ONE act an ending whose checkpoint froze still owes.
 
     WHY THIS IS NOT `_resumed_implementation`. That one answers behind a
@@ -1308,11 +1469,17 @@ def _cleaning_implementation(control, port, adapter, publication, *,
     # published, so requiring its record here would refuse the one act this
     # entry exists to reach -- and leave the runtime standing for the absence
     # of something that was never owed.
+    classified, yielding = _classified_handoff(control, attempt_id,
+                                               disposition, handoff_capable)
     published = None
-    if _publishable(disposition):
+    if _publishable(disposition) and not yielding:
         published = _published(control, publication, attempt_id=attempt_id,
                                frozen=frozen,
                                assignment=_assignment_ref(fixed), what=what)
+    requested = (handoff.request(attempt_id=attempt_id, handoff=classified)
+                 if yielding else None)
+    if yielding and checkpoint is not None:
+        native_handoffs_cross_bound(classified, checkpoint)
     # THE ACT THIS ENTRY EXISTS TO REACH. It replays its own journalled
     # operation, so an ending re-entered after a cleanup that committed and
     # whose axis has not yet been read reaches the same answer rather than a
@@ -1329,6 +1496,10 @@ def _cleaning_implementation(control, port, adapter, publication, *,
             "artifacts": sorted(one["artifact_id"] for one in held),
             "retention": decided["disposition"],
             "published": published,
+            "handoff": classified,
+            "requested": requested,
+            **({"outcome": native_handoffs_yield_outcome()}
+               if yielding else {}),
             "checkpoint_id": (None if checkpoint is None
                               else checkpoint["checkpoint_id"]),
             "checkpoint": checkpoint,
@@ -1446,6 +1617,134 @@ def end_review_from_result(control, port, adapter, *, attachment_id,
             control, attachment_id=attachment_id)["verdict"])
 
 
+def end_response_from_result(control, port, adapter, *, attachment_id,
+                             disposition, terminal, profile,
+                             retention_disposition, retention_policy_digest,
+                             handoff, govern=None):
+    """End one review attempt that ANSWERED A QUESTION rather than judging.
+
+    W385331. THE EXPLICIT RESPONSE CONTRACT AND DISPATCH BRANCH the slice asks
+    for, and the whole of its difference from `end_review_from_result` is what
+    step eight records: `record_response` instead of `record_verdict`.
+
+    THE ORDER IS THE VERDICT ENDING'S, through the same `_review_custody`:
+
+      1. positively quiesce and reconcile the exact runtime;
+      2. record the worker's returned disposition;
+      3. freeze the declared output for that disposition;
+      4. CORRELATE the worker's claimed envelope with this manager's own;
+      5. collect it and record the intake receipt;
+      6. decide every artifact's retention under the configured policy;
+      7. RESOLVE the reviewer's response from the frozen result;
+      8. commit the ANSWER to the Authority and record the response; and only
+         then
+      9. authorize runtime cleanup.
+
+    WHAT IT MUST NOT DO, and does not:
+
+      * IT MINTS NO RECEIPT OF ANY KIND for the unfinished candidate. No
+        verification, review, approval or integration receipt is written here,
+        no verdict row is recorded, and nothing becomes eligible for
+        integration. `_source_receipts` is unreachable from this outcome
+        because it is conditioned on an ACCEPTED verdict.
+      * IT NEVER INVENTS AN ANSWER. An unresolved, ambiguous, mixed or foreign
+        response is `held` with no reply committed at all -- not an answer, not
+        an escalation, and emphatically not a verdict. A reviewer that did not
+        answer has not answered.
+      * IT COMMITS THE REPLY BEFORE IT RECORDS THE RESPONSE, so a crash between
+        them re-enters with the Authority reply durable and the local record
+        replayable. The reverse order would leave a line held for a
+        continuation whose answer nobody could find.
+
+    `handoff` is the participant-bound reply seam -- the configured reviewer's
+    own session, typed below. This ending cannot reach the Authority any other
+    way, and a deployment that supplies none gets a refusal rather than a
+    response nobody can attribute.
+    """
+    _typed(adapter, port, profile, REVIEW_PROFILE)
+    _own_terminal(terminal)
+    _seam(handoff, needs=HANDOFF_SEAM, what="a native handoff reply seam")
+    from . import native_handoffs
+
+    custody = _review_custody(
+        control, port, adapter, attachment_id=attachment_id,
+        disposition=disposition, terminal=terminal, profile=profile,
+        retention_disposition=retention_disposition,
+        retention_policy_digest=retention_policy_digest)
+    attempt_id = custody["attempt_id"]
+    frozen, receipt = custody["frozen"], custody["receipt"]
+    held, decided = custody["held"], custody["decided"]
+    response = None
+    try:
+        if custody["historical"]:
+            frozen, receipt, held = _historical_review_custody(
+                control, attempt_id=attempt_id, disposition=disposition,
+                terminal=terminal,
+                retention_disposition=retention_disposition,
+                retention_policy_digest=retention_policy_digest)
+        response = native_handoffs.classified_response(control, attempt_id)
+        reply = handoff.answer(attempt_id=attempt_id, response=response)
+        recorded = review_cycles.record_response(
+            control, attachment_id=attachment_id,
+            disposition=response["disposition"],
+            response_digest=response["handoff_digest"], profile=profile,
+            port=port)
+    except ContractRefusal as refusal:
+        # THE SAME HELD SHAPE THE VERDICT ENDING USES, and for its reason:
+        # cleanup is deliberately NOT authorized, so the assignment is still
+        # live, the runtime stays where an operator can look at it, and the
+        # account says the ending is unfinished.
+        if refusal.category not in _EVIDENCE_REFUSALS:
+            raise
+        return {"attempt_id": attempt_id, "attachment_id": attachment_id,
+                "verdict": None, "verdict_id": None, "verdict_record": None,
+                "response": response, "response_record": None, "reply": None,
+                "line_id": None, "checkpoint_id": None,
+                "result_id": frozen.get("result_id"),
+                "manifest_digest": frozen.get("manifest_digest"),
+                "receipt_digest": receipt.get("receipt_digest"),
+                "artifacts": sorted(one["artifact_id"] for one in held),
+                "retention": decided["disposition"], "outcome": "held",
+                "held_reason": f"the handoff response evidence is not one this "
+                               f"manager can settle: "
+                               f"{refusal.category}/{refusal.code} -- "
+                               f"{refusal}",
+                "cleaned_up": False}
+    cleaned_up = True
+    if not custody["historical"]:
+        cleanup = authorize_cleanup(
+            control, port, adapter, attempt_id=attempt_id,
+            retention_policy_digest=retention_policy_digest, govern=govern)
+        cleaned_up = (type(cleanup) is dict and cleanup.get("state") == "absent"
+                      and cleanup.get("cleanup") in ("retained", "complete"))
+    if not cleaned_up:
+        outcome, reason = "held", "runtime cleanup has not positively settled"
+    elif response["disposition"] == native_handoffs.ANSWER_DISPOSITION:
+        outcome, reason = native_handoffs.ANSWERED_OUTCOME, None
+    else:
+        # AN ESCALATION IS A FINISHED ENDING AND A HELD EXECUTION, which are
+        # two facts. The ending settles -- the runtime is gone, the outputs are
+        # frozen and the escalation is durable -- and nothing is scheduled on
+        # it, because what it is waiting for is a human decision.
+        outcome = native_handoffs.ESCALATED_OUTCOME
+        reason = (f"this reviewer could not resolve the request within "
+                  f"accepted scope and recorded one escalation for "
+                  f"{reply['message']['destination']}; the execution stays "
+                  f"held for that decision")
+    return {"attempt_id": attempt_id, "attachment_id": attachment_id,
+            "verdict": None, "verdict_id": None, "verdict_record": None,
+            "response": response, "response_record": recorded, "reply": reply,
+            "line_id": recorded["line_id"],
+            "checkpoint_id": recorded["checkpoint_id"],
+            "cleaned_up": cleaned_up,
+            "result_id": frozen["result_id"],
+            "manifest_digest": frozen["manifest_digest"],
+            "receipt_digest": receipt["receipt_digest"],
+            "artifacts": sorted(one["artifact_id"] for one in held),
+            "retention": decided["disposition"],
+            "outcome": outcome, "held_reason": reason}
+
+
 def _own_terminal(terminal):
     """The worker's completion envelope, owned before anything is spent on it.
 
@@ -1467,6 +1766,65 @@ def _own_terminal(terminal):
     return terminal
 
 
+def _review_custody(control, port, adapter, *, attachment_id, disposition,
+                    terminal, profile, retention_disposition,
+                    retention_policy_digest):
+    """Steps ONE to SIX of a review ending, for every ending that has them.
+
+    W385331 extracted this, and the extraction is the point rather than a
+    saving. A reviewer's attempt can end in a VERDICT about a candidate or in a
+    RESPONSE to a question, and those two need exactly the same custody
+    evidence -- the positive quiescence, the recorded disposition, the freeze
+    before any read, the correlation of the worker's own envelope, the intake
+    receipt and the retention decision -- in exactly this order. A second copy
+    of that order would be a second place for it to drift from the rulings
+    recorded above `_ended_review`, and the rulings are what make it right.
+
+    IT DECIDES NOTHING AND RECORDS NO EFFECT. What a reviewer's attempt MEANT
+    is the caller's, which is why this answers a custody view rather than an
+    outcome.
+    """
+    attachment = review_cycles.review_of(control, attachment_id)
+    attempt_id = attachment["runtime_attempt_id"]
+    _profile_of_the_line(control, profile, attachment["line_id"])
+    _acting_for(control, port, attempt_id)
+    historical = _destroyed(control, attempt_id)
+    if historical:
+        return {"attachment": attachment, "attempt_id": attempt_id,
+                "historical": True, "frozen": {}, "receipt": {}, "held": [],
+                "decided": {"disposition": retention_disposition}}
+    _quiesced(control, adapter, attempt_id)
+    observe(control, attempt_id=attempt_id, axis="worker_disposition",
+            value=disposition)
+    frozen = request_freeze(control, port, adapter, attempt_id=attempt_id,
+                            disposition=disposition)
+    _correlated(control, frozen, terminal, attempt_id)
+    receipt, held, decided = _collected(
+        control, port, adapter, attempt_id=attempt_id,
+        retention_disposition=retention_disposition,
+        retention_policy_digest=retention_policy_digest)
+    return {"attachment": attachment, "attempt_id": attempt_id,
+            "historical": False, "frozen": frozen, "receipt": receipt,
+            "held": held, "decided": decided}
+
+
+def _historical_review_custody(control, *, attempt_id, disposition, terminal,
+                               retention_disposition,
+                               retention_policy_digest):
+    """The historical half, read from what committed. Word for word what it
+    was: the `completed` disposition stays here because it is the review's own
+    rule -- a review that did not complete decided nothing -- rather than
+    something every ending owes."""
+    if disposition != "completed":
+        _refuse("historical review replay requires its completed disposition")
+    frozen, receipt, held, _retention, _decisions = _retained(
+        control, attempt_id, disposition=disposition, terminal=terminal,
+        retention_disposition=retention_disposition,
+        retention_policy_digest=retention_policy_digest,
+        what="historical review replay")
+    return frozen, receipt, held
+
+
 def _ended_review(control, port, adapter, *, attachment_id, disposition,
                   terminal, profile, retention_disposition,
                   retention_policy_digest, resolve, govern=None):
@@ -1483,25 +1841,16 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
     explicit-operand entry point's behaviour identical rather than merely
     similar to what it was.
     """
-    attachment = review_cycles.review_of(control, attachment_id)
-    attempt_id = attachment["runtime_attempt_id"]
-    _profile_of_the_line(control, profile, attachment["line_id"])
-    _acting_for(control, port, attempt_id)
-    historical = _destroyed(control, attempt_id)
-    if historical:
-        frozen, receipt, held = {}, {}, []
-        decided = {"disposition": retention_disposition}
-    else:
-        _quiesced(control, adapter, attempt_id)
-        observe(control, attempt_id=attempt_id, axis="worker_disposition",
-                value=disposition)
-        frozen = request_freeze(control, port, adapter, attempt_id=attempt_id,
-                                disposition=disposition)
-        _correlated(control, frozen, terminal, attempt_id)
-        receipt, held, decided = _collected(
-            control, port, adapter, attempt_id=attempt_id,
-            retention_disposition=retention_disposition,
-            retention_policy_digest=retention_policy_digest)
+    custody = _review_custody(
+        control, port, adapter, attachment_id=attachment_id,
+        disposition=disposition, terminal=terminal, profile=profile,
+        retention_disposition=retention_disposition,
+        retention_policy_digest=retention_policy_digest)
+    attachment = custody["attachment"]
+    attempt_id = custody["attempt_id"]
+    historical = custody["historical"]
+    frozen, receipt = custody["frozen"], custody["receipt"]
+    held, decided = custody["held"], custody["decided"]
     # UNBOUND UNTIL RESOLVED, and the held document below reports exactly what
     # is known. `end_review`'s resolver answers its caller's operand before
     # anything can fail, so that entry point still reports the verdict it was
@@ -1521,14 +1870,11 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
             # from this one. The `completed` disposition stays HERE because it
             # is the review's own rule -- a review that did not complete
             # decided nothing -- rather than something every ending owes.
-            if disposition != "completed":
-                _refuse("historical review replay requires its completed disposition")
-            frozen, receipt, held, _retention, _decisions = _retained(
-                control, attempt_id, disposition=disposition,
+            frozen, receipt, held = _historical_review_custody(
+                control, attempt_id=attempt_id, disposition=disposition,
                 terminal=terminal,
                 retention_disposition=retention_disposition,
-                retention_policy_digest=retention_policy_digest,
-                what="historical review replay")
+                retention_policy_digest=retention_policy_digest)
         verdict = resolve(frozen)
         recorded = review_cycles.record_verdict(
             control, attachment_id=attachment_id, disposition=verdict,

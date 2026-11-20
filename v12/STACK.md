@@ -599,9 +599,21 @@ this build, and none is implied.
   "workers": [{"worker_id": "impl-a", "role": "implementation",
                "participant": "baton.…", "deployment": { … }}],
   "jobs": [{"job_id": "job-a", "work_id": "…", "line_declared_base": "…",
-            "canonical_target_id": "…", "source_worker_id": "impl-a"}]
+            "canonical_target_id": "…", "source_worker_id": "impl-a"}],
+  "native_handoff_routing": {"reviewer": "baton.…",
+                             "decision_recipient": "baton.…"}
 }
 ```
+
+`native_handoff_routing` is **optional** (W385331): when a deployment will
+admit Jobs under the handoff-capable `/3` template, it names the configured
+review worker's participant that an implementer's question may be addressed to
+and the human owner an unresolved question escalates to — never one address for
+both, never an implementation participant. The bootstrap composes the Authority
+routing policy from it and grants that reviewer `answer-handoff` in each bound
+Work's own scope; it never travels into the execution document. Omitted, no
+routing is configured and a handoff-capable Job is refused at preparation. See
+"Native handoffs" below.
 
 `jobs` is **optional** and `authority_uuid` is **refused**; the rest is the
 instance. See "A fresh installation has zero Jobs" above for the form that
@@ -1122,6 +1134,105 @@ which it is and what actually works next:
   exists and cannot complete, the refusal names the Work's recorded minting
   operation, and a **new Job identity** without `--label` is required. It never
   claims that nothing was reserved.
+
+## Native handoffs — a question is not a candidate
+
+W385331, first slice. A Job admitted under the handoff-capable template
+`baton.v12.job-template.implementation-review/3` (bound to the descriptor
+`baton.v12.development-role-contract.native-handoff/1`) lets an implementer
+stop at a **clarification request** or a within-scope **finding request**
+instead of submitting, and lets the configured reviewer answer it in its own
+invocation, after which the SAME admitted task resumes on the exact retained
+checkpoint with no human relay. Nothing about `/1` or `/2` changes: a Job
+resolved against either has no handoff branch at all, its workers are delivered
+nothing new, and every ending reads exactly as it did.
+
+**What the worker returns.** The `/3` implementation role declares two
+outputs, `proposal` and `handoff`, and OWES only `handoff`: the bounded
+`baton.native-handoff/1` document on that output's `result_metadata` says which
+of four things the invocation was — `final-submission`, `clarification-request`,
+`finding-request` or (on the review role's `response` output) `response`. The
+provider is told one more path it may write, `handoff/request.json` inside the
+reserved handoff output of its working copy; the adapter binds the retained
+head, the cited evidence and the continuation note into the versioned document
+and refuses a malformed request rather than publishing it. A yield skips the
+task's verification command on purpose: a yielded checkpoint is retained
+evidence, not an acceptance proposal.
+
+**What the host does, in order.** After the runtime is quiesced and its outputs
+frozen and retained, the ending CLASSIFIES the declared handoff BEFORE any
+publication. A request is committed to the Authority under the live producer
+assignment (`request_handoff`; author, generation and claim event are the
+binding's, never the worker's), addressed only to the configured reviewer; the
+checkpoint is then frozen and the claimed head is cross-bound against it; the
+Job store journals the yield (`native.yield`); the route moves to the reviewer
+while the gate still holds. The implementation stage projects `awaiting-answer`
+— not `completed`, not `exceptional`, not a verdict — and its dependent review
+stage's gate opens for a RESPONSE only. Undeclared, mixed, missing or foreign
+handoff evidence holds the ending with its evidence intact; it never falls back
+to legacy success.
+
+**What an attempt is told.** The deployment publishes one read-only
+`handoff.json` beside `task.json` (`baton.native-handoff-context/1`) whenever
+the Job's template has a handoff branch: a fresh implementer learns the
+configured recipient; a reviewer over a yielded checkpoint learns the pending
+request and the checkpoint it is about; a resumed implementer learns the exact
+question it stopped at, the exact reply, and **the exact continuation note its
+previous turn wrote** — resolved out of the yielding attempt's accepted custody
+when the yield is recorded, proved against the digest the committed request
+names, journalled on the yield record, and re-proved at delivery; a missing or
+tampered continuation refuses the yield or the delivery rather than being
+omitted. The adapter places that note read-only at `handoff/continuation.txt`
+in the resumed working copy and quotes it in the prompt. What each attempt was
+delivered is journalled in the control store under the attempt
+(`native-handoff.delivered`), which is the fact the review ending dispatches on
+and the reply is bound to. Workers never see a host store.
+
+**What a reply earns.** The reviewer's `response` is a clarification or
+discovery interpretation and never an accepted technical review: it mints no
+verification, review, approval or integration receipt, and the review stage
+projects `answered` rather than `completed`, so the integration's gate stays
+shut. Before any reply commits, the host binds it to the review attempt's fixed
+assignment and to the exact pending request that attempt was delivered — same
+Work, same Job, same addressee, same request identity, digest and checkpoint —
+and the Authority binds the Work and Job again under its own rules; a response
+from an invocation that was asked nothing, or citing another Work's or Job's
+request however the same reviewer is granted there, is refused with nothing
+committed. An `answer` is committed as the one reply to the exact pending
+request (by identity and by digest), earns a recorded `continuation` effect,
+holds the line for one continuation writer, and `advance_continuation` opens
+fresh episodes for both stages under the Job's own continuation allowance —
+spending no correction round and moving no deadline. An exact retry of a
+committed continuation — a crashed ending's re-entry, a deferred conclude — is
+answered with the same receipt from the original yield, spends nothing and
+opens nothing; only a NEW yield asks for a second continuation, and the
+allowance refuses it. An `escalate` earns a recorded `held` effect addressed to
+the configured decision recipient (never the same reviewer), is journalled once
+per yielding episode (`native.hold`) and reread on every later tick rather than
+raised again, and leaves the execution held.
+
+**Configuration.** The bootstrap input selects the routing once, as the
+optional object `native_handoff_routing` with `reviewer` (a configured review
+worker's own participant, never an implementation participant) and
+`decision_recipient` (the human owner, never the same address). Both
+addresses are held to the Authority's own participant grammar and routing
+validator at preflight, and that selection is proved before the installer
+admits a runtime, clones a repository or writes anything, so a malformed
+address is refused with no effect and a refused repeat leaves the installed
+selection unchanged; `just
+bootstrap` composes the Authority policy `native_handoff_routing`
+(`baton.native-handoff-routing/1`) from it and grants the reviewer
+`answer-handoff` in each bound Work's own scope, exactly as it grants the
+receipt actors theirs — and grants it no `review`. The selection never travels
+into the execution document. The control profile `native-handoff/1` carries
+every ceiling of `documentation/1`, zero correction rounds and ONE resolved
+continuation. A handoff-capable Job in a deployment with no routing is refused
+at preparation, before a provider turn is spent. The worker image must carry
+this revision's adapter; an older image refuses a declared `handoff` output
+by name. Authority schema version 7 adds `work_message` and
+`work_message_transition`; a retained store at 6 is refused, not migrated —
+an ordinary fresh-schema step under DESIGN's no-migration ruling, which the
+independent review classified as needing no separate owner decision.
 
 ## Boundaries
 

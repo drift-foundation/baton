@@ -1,0 +1,2342 @@
+diff -ruN -x __pycache__ previous/v12/python/src/baton_v12/authority/core.py candidate/v12/python/src/baton_v12/authority/core.py
+--- previous/v12/python/src/baton_v12/authority/core.py	2026-11-20 13:18:04.636857916 -0700
++++ candidate/v12/python/src/baton_v12/authority/core.py	2026-11-20 13:01:15.384594311 -0700
+@@ -2277,12 +2277,13 @@
+ 
+     def answer_handoff(self, *, operation_id, message_id, reply_to, actor,
+                        disposition, body, handoff_digest, request_digest,
+-                       checkpoint_ref, effect, detail):
++                       checkpoint_ref, effect, detail, work_id, job_id):
+         return messages.respond(
+             self, operation_id=operation_id, message_id=message_id,
+             reply_to=reply_to, actor=actor, disposition=disposition, body=body,
+             handoff_digest=handoff_digest, request_digest=request_digest,
+-            checkpoint_ref=checkpoint_ref, effect=effect, detail=detail)
++            checkpoint_ref=checkpoint_ref, effect=effect, detail=detail,
++            work_id=work_id, job_id=job_id)
+ 
+     def work_messages(self, work_id):
+         return messages.messages_of(self, work_id)
+diff -ruN -x __pycache__ previous/v12/python/src/baton_v12/authority/messages.py candidate/v12/python/src/baton_v12/authority/messages.py
+--- previous/v12/python/src/baton_v12/authority/messages.py	2026-11-20 13:18:04.637030467 -0700
++++ candidate/v12/python/src/baton_v12/authority/messages.py	2026-11-20 13:01:15.384335941 -0700
+@@ -41,7 +41,7 @@
+ 
+ from .errors import Refusal, label_of, name_of
+ from .identity import (check_opaque_id, check_participant, check_text,
+-                       normalize_assignment, signature_of)
++                       check_work_id, normalize_assignment, signature_of)
+ 
+ __all__ = ["MESSAGE_KINDS", "REQUEST_KINDS", "RESPONSE_KIND",
+            "ESCALATION_KIND", "EFFECTS", "CONTINUATION_EFFECT", "HELD_EFFECT",
+@@ -368,7 +368,7 @@
+ 
+ def respond(core, *, operation_id, message_id, reply_to, actor, disposition,
+             body, handoff_digest, request_digest, checkpoint_ref, effect,
+-            detail):
++            detail, work_id, job_id):
+     """The configured reviewer's ONE reply to ONE pending request.
+ 
+     AUTHORIZED BY A CAPABILITY IN THE REQUESTED WORK'S OWN EFFECTIVE SCOPE, and
+@@ -387,9 +387,20 @@
+     AND THE EFFECT IS RECORDED SEPARATELY, in one transaction with the message
+     but in its own relation: an answer earns a `continuation` and an escalation
+     earns a `held`, and no reply of any disposition earns a receipt.
++
++    AND THE REPLY NAMES THE WORK AND THE JOB IT ANSWERS FOR (review
++    2026-11-20T19-39-15Z R3). A capability in a Work's scope is not an
++    invitation to answer every request that scope happens to cover: the
++    reviewer's invocation was fixed to ONE assignment on ONE Work for ONE
++    Job, and the host that commits this reply names them. A request belonging
++    to another Work or another Job -- even one addressed to this same
++    reviewer, even one it holds a grant for -- refuses here, and the signed
++    operands record which Work and Job this reply was authorized against.
+     """
+     check_opaque_id(message_id, "a message id")
+     check_opaque_id(reply_to, "a replied-to message id")
++    check_work_id(work_id)
++    check_opaque_id(job_id, "the Job a reply answers for")
+     if disposition not in (RESPONSE_KIND, ESCALATION_KIND):
+         raise Refusal(f"a reply is a {RESPONSE_KIND} or an {ESCALATION_KIND}; "
+                       f"this is {name_of(disposition)}")
+@@ -425,6 +436,18 @@
+                 f"{name_of(asked['checkpoint_ref'])} and this reply names "
+                 f"{name_of(checkpoint_ref)}; an answer preserves the exact "
+                 f"retained checkpoint")
++        if asked["work_id"] != work_id:
++            raise Refusal(
++                f"request {name_of(reply_to)} belongs to "
++                f"{name_of(asked['work_id'])} and this reply answers for "
++                f"{name_of(work_id)}; a reply answers the request its own "
++                f"review assignment was delivered and never another Work's")
++        if asked["job_id"] != job_id:
++            raise Refusal(
++                f"request {name_of(reply_to)} was asked by Job "
++                f"{name_of(asked['job_id'])} and this reply answers for Job "
++                f"{name_of(job_id)}; a reply answers the request its own "
++                f"review attempt was delivered and never another Job's")
+         work = core._work(asked["work_id"])
+         decision = core._require_capability(
+             actor, ANSWER_CAPABILITY, f"a native {disposition}",
+@@ -485,4 +508,5 @@
+                       "body": taken, "handoff_digest": handoff_digest,
+                       "request_digest": request_digest,
+                       "checkpoint_ref": checkpoint_ref, "effect": effect,
+-                      "detail": held}), body_)
++                      "detail": held, "work_id": work_id,
++                      "job_id": job_id}), body_)
+diff -ruN -x __pycache__ previous/v12/python/src/baton_v12/authority/schema.py candidate/v12/python/src/baton_v12/authority/schema.py
+--- previous/v12/python/src/baton_v12/authority/schema.py	2026-11-20 13:18:04.637126575 -0700
++++ candidate/v12/python/src/baton_v12/authority/schema.py	2026-11-20 13:07:00.411580618 -0700
+@@ -112,11 +112,14 @@
+ # every other transition, so a table here adds a read model and no second
+ # idempotency mechanism.
+ #
+-# THE RULING FOR THIS NUMBER IS OWED RATHER THAN CITED, exactly as W321688
+-# recorded for 6. Treat a missing approver ruling as a reason to withhold
+-# acceptance of this number, not as permission to renumber it later -- and the
+-# retention consequence above applies unchanged: a retained store at 6 becomes
+-# unreadable by this build, is refused read-only, and is not migrated.
++# THE NUMBER IS WITHIN ACCEPTED SCOPE AND NO SEPARATE RULING IS OWED.
++# Independent review 2026-11-20T19-39-15Z (W385331): DESIGN's joined startup
++# ruling targets fresh supported schemas with no migration or backward
++# compatibility, and the accepted planning report M385342 classified this
++# slice the same way -- so 6 -> 7 is an ordinary fresh-schema step under that
++# authority. The retention consequence applies unchanged: a retained store at
++# 6 becomes unreadable by this build, is refused read-only, and is not
++# migrated; an instance is reinstalled rather than reopened.
+ SCHEMA_VERSION = 7
+ 
+ META_STORE_KIND = "store_kind"
+diff -ruN -x __pycache__ previous/v12/python/src/baton_v12/authority/session.py candidate/v12/python/src/baton_v12/authority/session.py
+--- previous/v12/python/src/baton_v12/authority/session.py	2026-11-20 13:18:04.637186176 -0700
++++ candidate/v12/python/src/baton_v12/authority/session.py	2026-11-20 13:01:15.384688596 -0700
+@@ -131,7 +131,7 @@
+     "answer_handoff": {"required": ("operation_id", "message_id", "reply_to",
+                                     "disposition", "body", "handoff_digest",
+                                     "request_digest", "checkpoint_ref",
+-                                    "effect", "detail"),
++                                    "effect", "detail", "work_id", "job_id"),
+                        "optional": (), "actor": True},
+     "satisfy_gate": {"required": ("work_id", "operation_id", "gate",
+                                   "evidence"), "optional": ()},
+diff -ruN -x __pycache__ previous/v12/python/src/baton_v12/job_manager/native_handoffs.py candidate/v12/python/src/baton_v12/job_manager/native_handoffs.py
+--- previous/v12/python/src/baton_v12/job_manager/native_handoffs.py	2026-11-20 13:18:04.637347095 -0700
++++ candidate/v12/python/src/baton_v12/job_manager/native_handoffs.py	2026-11-20 13:05:23.210355382 -0700
+@@ -50,15 +50,19 @@
+ """
+ 
+ import json
++import os
++import stat
++from urllib.parse import unquote, urlsplit
+ 
+-from ..contracts import ContractRefusal, digest
++from ..contracts import ContractRefusal, digest, digest_of_bytes
+ from ..contracts.errors import name_value
+ from ..native_handoff import (ANSWER_DISPOSITION, CLARIFICATION_KIND,
+                               ESCALATE_DISPOSITION, FINAL_KIND, FINDING_KIND,
+                               HANDOFF_SCHEMA, REQUEST_KINDS, RESPONSE_KIND,
+                               check_handoff, handoff_digest)
+ from ..worker_manager import (attempts, boundaries, frozen_output_of,
+-                              load_manifest, review_cycles)
++                              intake_receipt_of, load_manifest,
++                              manager_signature, review_cycles)
+ from . import documents, episodes, job_control, role_contract
+ from .store import job_signature
+ 
+@@ -76,7 +80,11 @@
+            "continuation_operation_id", "handoff_capable", "hold_of",
+            "hold_operation_id", "record_hold",
+            "record_yield", "response_satisfies_dependency",
+-           "yield_of", "yield_operation_id", "advance_continuation"]
++           "yield_of", "yield_operation_id", "advance_continuation",
++           "DELIVERY_KIND", "MAX_RETAINED_CONTINUATION",
++           "continuation_custody", "continuation_for_request",
++           "delivered_of", "delivery_operation_id", "record_delivery",
++           "retained_continuation", "was_asked"]
+ 
+ # THE JOURNAL KINDS. All three are ordinary operations in the Job store's
+ # existing journal, taken through `transact` under deterministic identities
+@@ -131,7 +139,27 @@
+ YIELD_MEMBERS = ("stage_id", "job_id", "work_id", "episode", "attempt_id",
+                  "kind", "message_id", "handoff_digest", "checkpoint_id",
+                  "continuation_digest", "task_digest", "destination",
+-                 "template_version")
++                 "template_version", "continuation")
++
++# THE RETAINED CONTINUATION TRAVELS WITH THE YIELD (review
++# 2026-11-20T19-39-15Z R1). The yielding invocation wrote the implementer's
++# own account of what remains -- `handoff/continuation.txt` -- and the frozen
++# `handoff` output retained it in accepted custody; what the first cut
++# delivered to the resumed invocation was the message's DIGEST of it and
++# nothing a provider could read. So the exact bytes are resolved out of
++# custody when the yield is recorded, proved against the digest the committed
++# request names, journalled on the yield record, and re-proved against the
++# Authority's digest at delivery. A continuation that cannot be resolved or
++# does not match REFUSES the yield rather than silently omitting it.
++MAX_RETAINED_CONTINUATION = 1 << 16
++
++# THE DELIVERY RECORD, in the CONTROL store (review 2026-11-20T19-39-15Z R3).
++# What one attempt was delivered beside its task is a host fact about THAT
++# attempt, journalled under its identity at preparation: a reviewer's reply is
++# then bound to the exact pending request this attempt was asked, and an
++# invocation that was delivered no question -- an ordinary final review --
++# cannot answer one.
++DELIVERY_KIND = "native-handoff.delivered"
+ 
+ CONTINUATION_MEMBERS = ("job_id", "stage_id", "episode", "message_id",
+                         "request_id", "checkpoint_id", "task_digest")
+@@ -518,7 +546,7 @@
+ 
+ def record_yield(store, *, stage_id, episode, attempt_id, kind, message_id,
+                  handoff_digest, checkpoint_id, continuation_digest,
+-                 task_digest, destination, now=None):
++                 task_digest, destination, continuation, now=None):
+     """Journal that THIS episode stopped at a question rather than a candidate.
+ 
+     EVERY SELECTOR IS READ FROM THIS STORE rather than accepted: the Job, the
+@@ -530,10 +558,27 @@
+     REPLAY IS THE JOURNAL'S. The same operands under the same identity replay
+     this record; changed operands collide, which is what stops one yielding
+     episode from being recorded as two different questions.
++
++    `continuation` IS THE RETAINED TEXT ITSELF, proved here against the
++    digest the committed request names: a record that carried a continuation
++    its own digest does not vouch for would deliver the resumed invocation
++    something nobody asked for.
+     """
+     boundaries.identity(attempt_id, "a runtime attempt id")
+     boundaries.identity(message_id, "a Work message identity")
+     boundaries.identity(checkpoint_id, "a line checkpoint identity")
++    if type(continuation) is not str or not continuation \
++            or len(continuation.encode("utf-8")) > MAX_RETAINED_CONTINUATION:
++        _refuse("a yield records the retained continuation as bounded "
++                "non-empty text", category="integrity", code="schema")
++    if digest_of_bytes(continuation.encode("utf-8")) != continuation_digest:
++        _refuse(f"the retained continuation of attempt "
++                f"{name_value(attempt_id)} digests to "
++                f"{name_value(digest_of_bytes(continuation.encode('utf-8')))} "
++                f"and the committed request names "
++                f"{name_value(continuation_digest)}; a yield records the "
++                f"exact continuation the request was about",
++                category="integrity", code="digest")
+     if kind not in REQUEST_KINDS:
+         _refuse(f"a yield is recorded for {', '.join(REQUEST_KINDS)}; this is "
+                 f"{name_value(kind)}. A final submission is not a yield and "
+@@ -554,7 +599,7 @@
+               "checkpoint_id": checkpoint_id,
+               "continuation_digest": continuation_digest,
+               "task_digest": task_digest, "destination": destination,
+-              "template_version": version}
++              "template_version": version, "continuation": continuation}
+     operation_id = yield_operation_id(stage_id, episode)
+     return store.transact(
+         operation_id, YIELD_KIND, job_signature(YIELD_KIND, record),
+@@ -771,11 +816,8 @@
+         _refuse(f"stage {name_value(implementation['stage_id'])} has no live "
+                 f"episode, so there is no yielded round to continue; a "
+                 f"continuation advances the attempt that asked")
+-    yielded = yield_of(store, implementation["stage_id"], live["episode"])
+-    if yielded is None:
+-        _refuse(f"stage {name_value(implementation['stage_id'])} episode "
+-                f"{live['episode']} recorded no yield; a continuation follows "
+-                f"a durable request and nothing else")
++    episode, yielded = _yielding_episode(store, implementation["stage_id"],
++                                         live)
+     frozen = review_cycles.checkpoint_of(custody, yielded["checkpoint_id"])
+     request, reply, effect = _answered_request(
+         authority, yielded, "continuation", head=frozen["evidence"]["head"])
+@@ -786,17 +828,25 @@
+                 f"continuation is not manufactured from it",
+                 category="policy", code="denied")
+     record = {"job_id": job_id, "stage_id": implementation["stage_id"],
+-              "episode": live["episode"], "message_id": reply["message_id"],
++              "episode": episode, "message_id": reply["message_id"],
+               "request_id": request["message_id"],
+               "checkpoint_id": yielded["checkpoint_id"],
+               "task_digest": yielded["task_digest"]}
+     operation_id = continuation_operation_id(implementation["stage_id"],
+-                                             live["episode"])
++                                             episode)
+     signature = job_signature(CONTINUE_KIND, record)
+     found, recorded = store.replay(operation_id, signature,
+                                    kind=CONTINUE_KIND)
+     if found:
+         return recorded
++    if episode != live["episode"]:
++        # UNREACHABLE WHEN THE JOURNAL IS WHOLE: `_yielding_episode` names a
++        # prior episode only because its continuation is committed, and the
++        # replay above answers it or collides. Said anyway, because the
++        # alternative is opening a second continuation on an ended episode.
++        _refuse(f"stage {name_value(implementation['stage_id'])} episode "
++                f"{episode} is no longer live and its continuation did not "
++                f"replay; a continuation advances the pair it observed")
+ 
+     review_live = episodes.live_of(store, review["stage_id"])
+     if review_live is None:
+@@ -881,6 +931,62 @@
+     return store.transact(operation_id, CONTINUE_KIND, signature, act)
+ 
+ 
++def _yielding_episode(store, stage_id, live):
++    """The episode a continuation is ABOUT, and its yield record.
++
++    REVIEW 2026-11-20T19-39-15Z R2. The first cut derived the retry from the
++    LIVE episode and required its yield -- and after a continuation commits
++    the live episode is the successor it opened, which asked nothing. So the
++    exact second invocation of the public act, the one a crashed ending's
++    re-entry makes, refused with "recorded no yield" instead of returning the
++    receipt it had committed.
++
++    THE RETRY IS BOUND TO THE ORIGINAL YIELD. A live episode that yielded is
++    the ordinary case; a live episode that did not, whose predecessor BOTH
++    yielded AND carries a committed continuation, is the retry of that
++    continuation, and the record is rebuilt from the predecessor's own yield
++    and the Authority's reply so the journal can answer it -- or collide on
++    changed operands. Anything else is a continuation following nothing.
++    """
++    yielded = yield_of(store, stage_id, live["episode"])
++    if yielded is not None:
++        return live["episode"], yielded
++    prior = live["episode"] - 1
++    if prior >= 1 and continuation_of(store, stage_id, prior) is not None:
++        yielded = yield_of(store, stage_id, prior)
++        if yielded is not None:
++            return prior, yielded
++    _refuse(f"stage {name_value(stage_id)} episode {live['episode']} "
++            f"recorded no yield; a continuation follows a durable request "
++            f"and nothing else")
++
++
++def continuation_for_request(store, *, job_id, request_id):
++    """The COMMITTED continuation that answered this request, or `None`.
++
++    THE SERVING SIDE'S RETRY QUESTION (review 2026-11-20T19-39-15Z R2): a
++    deployment that guards the continuation allowance BEFORE it asks the act
++    must first know whether the act already happened, or an exact retry of a
++    committed continuation reads as a second one and is declined for
++    exhaustion. Keyed by the REQUEST, which is the one identity the reply the
++    deployment holds and the yield record both name.
++    """
++    boundaries.identity(job_id, "a Job identity")
++    boundaries.identity(request_id, "a Work message identity")
++    stage_id = episodes._stored_pair(store, job_id)["implementation"]["stage_id"]
++    live = episodes.live_of(store, stage_id)
++    if live is None:
++        return None
++    for episode in (live["episode"], live["episode"] - 1):
++        if episode < 1:
++            continue
++        yielded = yield_of(store, stage_id, episode)
++        if yielded is None or yielded["message_id"] != request_id:
++            continue
++        return continuation_of(store, stage_id, episode)
++    return None
++
++
+ def _continuation_line(custody, *, line_id, checkpoint_id, authority_uuid,
+                        work_id):
+     """The custody proof a continuation makes, through the line provider only.
+@@ -994,8 +1100,26 @@
+                         f"messages this Authority does not hold; a resumed "
+                         f"attempt is delivered the exact correspondence it "
+                         f"continues on", category="integrity", code="schema")
++            # THE RETAINED CONTINUATION ITSELF, re-proved against the
++            # Authority's digest at the moment of delivery: the yield record
++            # journalled the text, the committed request says what the text
++            # must digest to, and a record that no longer agrees with the
++            # message delivers nothing rather than something else.
++            yielded = yield_of(store, stage_id, episode - 1)
++            text = None if yielded is None else yielded.get("continuation")
++            if type(text) is not str or digest_of_bytes(
++                    text.encode("utf-8")) != request["continuation_digest"]:
++                _refuse(f"the retained continuation of stage "
++                        f"{name_value(stage_id)} episode {episode - 1} is "
++                        f"missing or does not digest to "
++                        f"{name_value(request['continuation_digest'])}, "
++                        f"which request {name_value(request['message_id'])} "
++                        f"committed; a resumed attempt is delivered the exact "
++                        f"continuation it yielded or it is not resumed",
++                        category="integrity", code="digest")
+             held["continuation"] = {"request": request, "reply": reply,
+-                                    "checkpoint_id": prior["checkpoint_id"]}
++                                    "checkpoint_id": prior["checkpoint_id"],
++                                    "text": text}
+         return held
+     if role != "review":
+         return None
+@@ -1020,6 +1144,174 @@
+                            "digest": digest(checkpoint["evidence"])}}
+ 
+ 
++def retained_continuation(result, receipt, classified):
++    """The exact continuation bytes the yielding invocation retained, read out
++    of ACCEPTED CUSTODY and proved three ways.
++
++    THREE OWNERS AND ONE TEXT. The frozen result's `handoff` output names the
++    artifact and measures its entries; the intake receipt says where this
++    manager keeps that artifact; the classified handoff says what the
++    continuation must digest to. The bytes are read no-follow out of the
++    custody directory the receipt names, held to the entry's measured size and
++    content digest, and then to the handoff's own continuation digest. A
++    missing, moved, oversized or tampered continuation REFUSES -- the yield is
++    not recorded and the ending stays unfinished with its evidence intact --
++    rather than being omitted from what the resumed invocation is told.
++    """
++    held = classified["handoff"]
++    reference = held["continuation"]["reference"]
++    prefix = HANDOFF_OUTPUT + "/"
++    name = reference[len(prefix):] if reference.startswith(prefix) else ""
++    if not name or "/" in name or name in (".", ".."):
++        _refuse(f"the handoff names its continuation at "
++                f"{name_value(reference)}; a retained continuation is one "
++                f"member of the {name_value(HANDOFF_OUTPUT)} output",
++                category="integrity", code="schema")
++    output = _sole_output(result, HANDOFF_OUTPUT, "continuation")
++    entries = [one for one in output["content_manifest"]["entries"]
++               if one["path"] == name]
++    if len(entries) != 1:
++        _refuse(f"the frozen {name_value(HANDOFF_OUTPUT)} output measures "
++                f"{len(entries)} entries named {name_value(name)}; the "
++                f"retained continuation is exactly one measured entry",
++                category="integrity", code="schema")
++    entry = entries[0]
++    if entry["bytes"] > MAX_RETAINED_CONTINUATION:
++        _refuse(f"the retained continuation measures {entry['bytes']} bytes "
++                f"and this manager delivers at most "
++                f"{MAX_RETAINED_CONTINUATION}", category="integrity",
++                code="schema")
++    if type(receipt) is not dict or receipt.get("custody") != "accepted":
++        _refuse("the retained continuation is read out of ACCEPTED custody "
++                "and this attempt's intake receipt records none")
++    wanted = output["artifact"]["artifact_id"]
++    artifacts = [one for one in receipt.get("artifacts") or ()
++                 if type(one) is dict and one.get("artifact_id") == wanted]
++    if len(artifacts) != 1:
++        _refuse(f"the intake receipt holds {len(artifacts)} custody entries "
++                f"for artifact {name_value(wanted)}; the retained "
++                f"continuation is read from exactly one",
++                category="integrity", code="schema")
++    locator = urlsplit(artifacts[0].get("custody_locator") or "")
++    if locator.scheme != "file" or locator.netloc or locator.query \
++            or locator.fragment or not locator.path:
++        _refuse("the retained continuation is read from local accepted "
++                "custody and this receipt's locator is not one")
++    try:
++        holding = os.open(unquote(locator.path),
++                          os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
++    except OSError as refused:
++        _refuse(f"the custody directory of the retained "
++                f"{name_value(HANDOFF_OUTPUT)} output is not readable "
++                f"({type(refused).__name__})")
++    try:
++        try:
++            descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW
++                                 | os.O_NONBLOCK, dir_fd=holding)
++        except OSError as refused:
++            _refuse(f"the retained continuation {name_value(reference)} is "
++                    f"not in accepted custody ({type(refused).__name__}); a "
++                    f"resumed invocation is delivered the exact continuation "
++                    f"or the yield is not recorded",
++                    category="integrity", code="digest")
++    finally:
++        os.close(holding)
++    try:
++        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
++            _refuse("the retained continuation is not a regular file",
++                    category="integrity", code="schema")
++        raw = os.read(descriptor, entry["bytes"] + 1)
++    finally:
++        os.close(descriptor)
++    if len(raw) != entry["bytes"] \
++            or digest_of_bytes(raw) != entry["content_digest"]:
++        _refuse(f"the retained continuation {name_value(reference)} differs "
++                f"from the frozen custody that measured it; a tampered "
++                f"continuation is not delivered",
++                category="integrity", code="digest")
++    if digest_of_bytes(raw) != held["continuation"]["digest"]:
++        _refuse(f"the retained continuation digests to "
++                f"{name_value(digest_of_bytes(raw))} and the handoff names "
++                f"{name_value(held['continuation']['digest'])}; the "
++                f"continuation delivered is the one the request was about",
++                category="integrity", code="digest")
++    try:
++        return raw.decode("utf-8")
++    except UnicodeDecodeError:
++        _refuse("the retained continuation is UTF-8 text",
++                category="integrity", code="schema")
++
++
++def continuation_custody(control, attempt_id, classified):
++    """`retained_continuation` over the control store's own account of one
++    yielding attempt: its frozen result, cross-bound to the attempt, and its
++    intake receipt."""
++    boundaries.identity(attempt_id, "a runtime attempt id")
++    _frozen, result, _fixed = _frozen_result(control, attempt_id,
++                                             "continuation")
++    receipt = intake_receipt_of(control, attempt_id)
++    if receipt is None:
++        _refuse(f"attempt {name_value(attempt_id)} has no intake receipt; the "
++                f"retained continuation is read out of accepted custody")
++    return retained_continuation(result, receipt, classified)
++
++
++def delivery_operation_id(attempt_id):
++    boundaries.identity(attempt_id, "a runtime attempt id")
++    return f"{DELIVERY_KIND}:{attempt_id}"
++
++
++def record_delivery(control, *, attempt_id, document):
++    """Journal, in the control store, WHAT THIS ATTEMPT WAS DELIVERED.
++
++    ONE RECORD PER ATTEMPT, UNDER ITS IDENTITY, and the operands are the
++    delivered document itself: a restart that recomposes the same delivery
++    replays, and a different document under one attempt collides -- an
++    attempt is told one thing. Written by the composition that composes the
++    document, at preparation, before the task is admitted; read by the
++    answer commit, which binds a reviewer's reply to the exact pending
++    request THIS attempt was asked and refuses every other.
++    """
++    if type(document) is not dict or document.get("schema") != CONTEXT_SCHEMA:
++        _refuse(f"a delivery record carries one "
++                f"{name_value(CONTEXT_SCHEMA)} document",
++                category="integrity", code="schema")
++    record = {"attempt_id": attempt_id, "document": document}
++    return control.transact(delivery_operation_id(attempt_id), DELIVERY_KIND,
++                            manager_signature(DELIVERY_KIND, record),
++                            lambda _connection: dict(record))
++
++
++def delivered_of(control, attempt_id):
++    """The document this attempt was delivered beside its task, or `None`."""
++    row = control.operation_record(delivery_operation_id(attempt_id))
++    if row is None or row["state"] != "committed" or row["result"] is None:
++        return None
++    record = json.loads(row["result"])
++    if type(record) is not dict or record.get("attempt_id") != attempt_id \
++            or type(record.get("document")) is not dict:
++        _refuse(f"the committed delivery record of attempt "
++                f"{name_value(attempt_id)} is not one this build can read",
++                category="integrity", code="schema")
++    return record["document"]
++
++
++def was_asked(control, attempt_id):
++    """Whether this attempt was DELIVERED A PENDING REQUEST, as a boolean.
++
++    THE DISPATCH FACT FOR A REVIEW ENDING, read from the delivery record
++    rather than recomposed: a review attempt that was asked a question takes
++    the response ending whatever its result declares, and one that was asked
++    nothing is an ordinary final technical review. Recomposing the context at
++    ending time answered differently once the continuation had moved the
++    implementation episode on, which is exactly when a deferred response
++    ending re-enters.
++    """
++    delivered = delivered_of(control, attempt_id)
++    return (delivered is not None and delivered.get("role") == "review"
++            and type(delivered.get("request")) is dict)
++
++
+ def context_bytes(document):
+     """The delivered document as the exact bytes it is published and
+     re-proved as: canonical, sorted, compact."""
+@@ -1150,14 +1442,31 @@
+         operation_id=f"{REQUEST_OPERATION}:{attempt_id}"))
+ 
+ 
+-def commit_answer(control, session, *, attempt_id, response):
++def commit_answer(control, session, *, attempt_id, response, job_id):
+     """Commit ONE reviewer's reply through the configured answering session.
+ 
+-    THE REQUEST IT ANSWERS COMES OUT OF THE REVIEWER'S OWN CLAIM, and both
+-    halves of that claim are checked by the Authority against the stored
+-    request: the identity says WHICH question and the digest says which
+-    VERSION of it, so a stale or replayed request cannot be answered as a newer
+-    one and an older reply cannot consume a newer request.
++    THE REQUEST IT ANSWERS IS THE ONE THIS ATTEMPT WAS DELIVERED, and the
++    reviewer's own claim is held to it before anything reaches the Authority
++    (review 2026-11-20T19-39-15Z R3). The first cut let the Authority check
++    the named request's recipient, capability, digest and head -- all facts
++    about the REQUEST -- and nothing bound the reply to the review invocation
++    that was making it, so a frozen result on Work A could answer Work B's
++    question when one reviewer held grants on both. Now, before the commit:
++
++      * the review attempt's FIXED assignment names the Work and participant
++        this reply is made for;
++      * the control store's own delivery record says which pending request
++        THIS attempt was asked -- an attempt delivered none is an ordinary
++        final review, and its declared response is refused as unsolicited;
++      * the delivered request's Work, Job and destination must be this
++        assignment's, this port's Job and this participant; and
++      * the reviewer's claimed request identity, request digest and checkpoint
++        reference must be the delivered ones -- a stale request, a newer
++        version of it, or another checkpoint refuses.
++
++    The Authority then binds the same Work and Job again under its own rules,
++    with the capability in the requested Work's effective scope, so the
++    signed reply records which Work and Job it was authorized against.
+ 
+     THE EFFECT IS DERIVED FROM THE DISPOSITION AND IS NOT A SECOND CHOICE. An
+     answer within accepted scope earns a continuation; an escalation earns a
+@@ -1165,7 +1474,64 @@
+     receipt of any kind.
+     """
+     boundaries.identity(attempt_id, "a runtime attempt id")
++    boundaries.identity(job_id, "a Job id")
+     held = response["handoff"]
++    fixed = attempts.assignment_of(control, attempt_id)
++    acting = getattr(session, "participant", None)
++    if acting != fixed["participant"]:
++        _refuse(f"the answering session acts for {name_value(acting)} and "
++                f"attempt {name_value(attempt_id)} is fixed to "
++                f"{name_value(fixed['participant'])}; a reply is committed "
++                f"through the answering assignment's own session",
++                category="refused", code="capability")
++    delivered = delivered_of(control, attempt_id)
++    request = None if delivered is None else delivered.get("request")
++    if delivered is None or delivered.get("role") != "review" \
++            or type(request) is not dict:
++        _refuse(f"attempt {name_value(attempt_id)} was delivered no pending "
++                f"request; a response from an invocation that was asked no "
++                f"question is unsolicited and is not committed")
++    if delivered.get("job_id") != job_id or request.get("job_id") != job_id:
++        _refuse(f"attempt {name_value(attempt_id)} was delivered a request "
++                f"of Job {name_value(request.get('job_id'))} and this reply "
++                f"is committed for Job {name_value(job_id)}; a reply answers "
++                f"the Job that asked", category="integrity", code="schema")
++    if request.get("work_id") != fixed["work_id"]:
++        _refuse(f"the request delivered to attempt {name_value(attempt_id)} "
++                f"belongs to {name_value(request.get('work_id'))} and the "
++                f"attempt is fixed to {name_value(fixed['work_id'])}; a "
++                f"reply answers its own Work's request",
++                category="integrity", code="schema")
++    if request.get("destination") != fixed["participant"]:
++        _refuse(f"the request delivered to attempt {name_value(attempt_id)} "
++                f"is addressed to {name_value(request.get('destination'))} "
++                f"and the attempt is fixed to "
++                f"{name_value(fixed['participant'])}; a reply is made by the "
++                f"participant the question was addressed to",
++                category="refused", code="capability")
++    if held["request"]["reference"] != request.get("message_id"):
++        _refuse(f"this response answers request "
++                f"{name_value(held['request']['reference'])} and attempt "
++                f"{name_value(attempt_id)} was delivered "
++                f"{name_value(request.get('message_id'))}; a reply answers "
++                f"the exact pending request it was asked and never "
++                f"another", category="integrity", code="schema")
++    if held["request"]["digest"] != request.get("handoff_digest"):
++        _refuse(f"this response binds request digest "
++                f"{name_value(held['request']['digest'])} and the delivered "
++                f"request carries "
++                f"{name_value(request.get('handoff_digest'))}; a reply is "
++                f"about the version of the question it was delivered",
++                category="integrity", code="digest")
++    checkpoint = (delivered.get("checkpoint") or {}).get("reference")
++    if held["checkpoint"]["reference"] != checkpoint \
++            or request.get("checkpoint_ref") != checkpoint:
++        _refuse(f"this response names checkpoint "
++                f"{name_value(held['checkpoint']['reference'])} and attempt "
++                f"{name_value(attempt_id)} was delivered "
++                f"{name_value(checkpoint)}; an answer preserves the exact "
++                f"retained checkpoint it was asked about",
++                category="integrity", code="digest")
+     effect = ("continuation" if held["disposition"] == ANSWER_DISPOSITION
+               else "held")
+     message_id = message_identity("reply", {
+@@ -1184,7 +1550,8 @@
+         "effect": effect,
+         "detail": {"disposition": held["disposition"],
+                    "response_digest": response["handoff_digest"],
+-                   "attempt_id": attempt_id}})
++                   "attempt_id": attempt_id},
++        "work_id": fixed["work_id"], "job_id": job_id})
+ 
+ 
+ class HandoffPort:
+@@ -1212,7 +1579,8 @@
+ 
+     def answer(self, *, attempt_id, response):
+         held = commit_answer(self.control, self.session,
+-                             attempt_id=attempt_id, response=response)
++                             attempt_id=attempt_id, response=response,
++                             job_id=self.job_id)
+         self.answered.append(held)
+         return held
+ 
+diff -ruN -x __pycache__ previous/v12/python/tests/authority/test_work_messages.py candidate/v12/python/tests/authority/test_work_messages.py
+--- previous/v12/python/tests/authority/test_work_messages.py	2026-11-20 13:18:04.638654934 -0700
++++ candidate/v12/python/tests/authority/test_work_messages.py	2026-11-20 13:08:46.787644300 -0700
+@@ -131,7 +131,8 @@
+     def answered(self, request=None, *, disposition="answer",
+                  message_id="msg-2", operation_id="op-answer", session=None,
+                  document=None, checkpoint=None, effect=None,
+-                 request_digest=None, reply_to=None):
++                 request_digest=None, reply_to=None, work_id=WORK,
++                 job_id="job-a"):
+         request = self.asked() if request is None else request
+         held = document if document is not None else response_document(
+             request["message_id"], request["handoff_digest"],
+@@ -150,7 +151,11 @@
+                                else held["checkpoint"]["reference"]),
+             "effect": effect or ("continuation" if disposition == "answer"
+                                  else "held"),
+-            "detail": {"disposition": disposition}})
++            "detail": {"disposition": disposition},
++            # THE WORK AND THE JOB THE REPLY ANSWERS FOR (review
++            # 2026-11-20T19-39-15Z R3): the host names the review
++            # assignment's own, and the Authority holds the request to them.
++            "work_id": work_id, "job_id": job_id})
+ 
+     def refusal(self, call, *operands, **named):
+         with self.assertRaises(Refusal) as caught:
+@@ -342,6 +347,39 @@
+         self.assertEqual(reply["continuation_digest"],
+                          request["continuation_digest"])
+ 
++    def test_a_reply_answering_for_another_work_refuses(self):
++        """R3. A grant in a Work's scope is not an invitation to answer every
++        request that scope covers: the reply names the Work its own review
++        assignment is fixed to, and a request of another Work refuses."""
++        self.authority.create_work(OTHER_WORK, "impl", operation_id="op-other",
++                                   contract=V12)
++        self.authority.grant_capability(REVIEWER, messages.ANSWER_CAPABILITY,
++                                        scope=self.scope)
++        request = self.asked()
++        said = self.refusal(lambda: self.answered(request, work_id=OTHER_WORK))
++        self.assertIn("belongs to", said)
++        self.assertIn("never another Work's", said)
++        self.assertIsNone(self.authority.work_message_reply(
++            request["message_id"]))
++        self.assertEqual(len(self.authority.work_messages(WORK)), 1)
++        self.assertEqual(self.authority.work_messages(OTHER_WORK), [])
++
++    def test_a_reply_answering_for_another_job_refuses(self):
++        request = self.asked()
++        said = self.refusal(lambda: self.answered(request, job_id="job-b"))
++        self.assertIn("was asked by Job", said)
++        self.assertIsNone(self.authority.work_message_reply(
++            request["message_id"]))
++        self.assertIsNone(self.authority.work_message_transition("msg-2"))
++
++    def test_the_work_and_job_answered_for_are_in_the_signed_operands(self):
++        request = self.asked()
++        first = self.answered(request)
++        self.assertEqual(self.answered(request), first)
++        said = self.refusal(lambda: self.answered(request, job_id="job-b"))
++        self.assertIn("different operands", said)
++        self.assertEqual(len(self.authority.work_messages(WORK)), 2)
++
+     def test_the_reply_relation_is_readable_from_both_ends(self):
+         request = self.asked()
+         held = self.answered(request)
+diff -ruN -x __pycache__ previous/v12/python/tests/job_manager/test_native_handoffs.py candidate/v12/python/tests/job_manager/test_native_handoffs.py
+--- previous/v12/python/tests/job_manager/test_native_handoffs.py	2026-11-20 13:18:04.638872148 -0700
++++ candidate/v12/python/tests/job_manager/test_native_handoffs.py	2026-11-20 13:12:31.928296089 -0700
+@@ -30,12 +30,13 @@
+ import contextlib
+ import json
+ import os
++import tempfile
+ import unittest
+ from unittest import mock
+ 
+ from baton_v12 import native_handoff
+ from baton_v12.authority import Authority
+-from baton_v12.contracts import ContractRefusal, digest
++from baton_v12.contracts import ContractRefusal, digest, digest_of_bytes
+ from baton_v12.job_manager import (JobStore, cancellation, documents,
+                                    episodes, job_control, native_handoffs,
+                                    review_driver, role_contract, submit)
+@@ -56,6 +57,12 @@
+ TEMPLATE = role_contract.HANDOFF_TEMPLATE
+ TASK_DIGEST = "sha256:" + "7" * 64
+ POLICY_DIGEST = "sha256:" + "8" * 64
++# THE RETAINED CONTINUATION, AS TEXT AND AS THE DIGEST THE REQUEST NAMES
++# (review 2026-11-20T19-39-15Z R1): the implementer's own note of what
++# remained, which the yield journals and the resumed attempt is delivered.
++CONTINUATION_TEXT = "finish the harness once the base is settled\n"
++CONTINUATION_DIGEST = digest_of_bytes(CONTINUATION_TEXT.encode("utf-8"))
++CONTINUATION_REFERENCE = f"{role_contract.HANDOFF_OUTPUT}/continuation.txt"
+ 
+ 
+ def handoff_request(head, *, kind=native_handoff.CLARIFICATION_KIND,
+@@ -71,8 +78,8 @@
+             "body": body,
+             "evidence": [{"reference": "v12/python/src/baton_v12/x.py",
+                           "digest": "sha256:" + "1" * 64, "note": ""}],
+-            "continuation": {"reference": "line-1",
+-                             "digest": "sha256:" + "2" * 64},
++            "continuation": {"reference": CONTINUATION_REFERENCE,
++                             "digest": CONTINUATION_DIGEST},
+             "checkpoint": {"reference": head, "digest": "sha256:" + "3" * 64},
+             "recipient": recipient}
+ 
+@@ -387,7 +394,8 @@
+             checkpoint_id=checkpoint["checkpoint_id"],
+             continuation_digest=requested["continuation_digest"],
+             task_digest=requested["task_digest"],
+-            destination=requested["destination"])
++            destination=requested["destination"],
++            continuation=CONTINUATION_TEXT)
+         return {"round": round_, "checkpoint": checkpoint,
+                 "document": document, "classified": classified,
+                 "message": requested, "record": record,
+@@ -410,6 +418,7 @@
+                                     held["message"]["checkpoint_ref"],
+                                     disposition=disposition)
+         self.retained_response(attempt, generation=number, document=document)
++        self.delivered(attempt)
+         response = native_handoffs.classified_response(self.control, attempt)
+         reply = self.port_for(REVIEWER).answer(attempt_id=attempt,
+                                                response=response)
+@@ -422,8 +431,23 @@
+                 "document": document, "response": response, "reply": reply,
+                 "record": recorded}
+ 
++    def delivered(self, attempt_id, *, role="review", stage_id="job-a/review",
++                  job_id="job-a"):
++        """The host's own record of what THIS attempt was delivered beside
++        its task: the context the composition composes and journals under
++        the attempt at preparation (review 2026-11-20T19-39-15Z R3)."""
++        live = episodes.live_of(self.jobs, stage_id)
++        document = native_handoffs.delivered_context(
++            self.jobs, self.control, self.authority, role=role,
++            job_id=job_id, stage_id=stage_id, episode=live["episode"])
++        if document is not None:
++            native_handoffs.record_delivery(self.control,
++                                            attempt_id=attempt_id,
++                                            document=document)
++        return document
++
+     def retained_response(self, attempt_id, *, generation, document,
+-                          verdict_claim=None):
++                          verdict_claim=None, participant=REVIEWER):
+         from baton_v12.worker_manager import retain_manifest
+ 
+         def one(name, metadata):
+@@ -451,7 +475,7 @@
+             driver._result_vector(), result_id="result-" + attempt_id,
+             assignment_ref={"work_ref": {"authority_uuid": self.AUTHORITY,
+                                          "work_id": WORK_A},
+-                            "participant": REVIEWER,
++                            "participant": participant,
+                             "generation": generation},
+             outputs=composed)
+         held.pop("manifest_digest")
+@@ -752,8 +776,9 @@
+             kind=native_handoff.CLARIFICATION_KIND, message_id="msg-1",
+             handoff_digest="sha256:" + "1" * 64,
+             checkpoint_id="checkpoint-1",
+-            continuation_digest="sha256:" + "2" * 64,
+-            task_digest="sha256:" + "3" * 64, destination=REVIEWER)
++            continuation_digest=CONTINUATION_DIGEST,
++            task_digest="sha256:" + "3" * 64, destination=REVIEWER,
++            continuation=CONTINUATION_TEXT)
+         self.assertIn("not handoff-capable", str(caught))
+ 
+     def test_a_FINAL_SUBMISSION_is_never_recorded_as_a_yield(self):
+@@ -765,8 +790,9 @@
+             kind=native_handoff.FINAL_KIND, message_id="msg-1",
+             handoff_digest="sha256:" + "1" * 64,
+             checkpoint_id="checkpoint-1",
+-            continuation_digest="sha256:" + "2" * 64,
+-            task_digest="sha256:" + "3" * 64, destination=REVIEWER)
++            continuation_digest=CONTINUATION_DIGEST,
++            task_digest="sha256:" + "3" * 64, destination=REVIEWER,
++            continuation=CONTINUATION_TEXT)
+         self.assertIn("A final submission is not a yield", str(caught))
+ 
+     def test_an_exact_retry_replays_the_yield_and_the_message(self):
+@@ -781,7 +807,8 @@
+             checkpoint_id=held["checkpoint_id"],
+             continuation_digest=held["message"]["continuation_digest"],
+             task_digest=held["message"]["task_digest"],
+-            destination=held["message"]["destination"])
++            destination=held["message"]["destination"],
++            continuation=CONTINUATION_TEXT)
+         self.assertEqual(again, held["record"])
+         self.assertEqual(len(self.authority.work_messages(WORK_A)), 1)
+ 
+@@ -963,12 +990,32 @@
+             held["checkpoint_id"])
+ 
+     def test_ONE_continuation_and_the_second_is_refused(self):
++        """The allowance is ONE resolved continuation per Job. An exact retry
++        of the committed one is not a second (R2, below); a second YIELD on
++        the resumed episode asking for another is, and it is refused by the
++        allowance and holds."""
+         held, _answered, _opened = self.resumed()
++        live = episodes.live_of(self.jobs, "job-a/implementation")
++        native_handoffs.record_yield(
++            self.jobs, stage_id="job-a/implementation",
++            episode=live["episode"], attempt_id="writer-attempt-2",
++            kind=held["classified"]["kind"],
++            message_id=held["message"]["message_id"],
++            handoff_digest=held["classified"]["handoff_digest"],
++            checkpoint_id=held["checkpoint_id"],
++            continuation_digest=held["message"]["continuation_digest"],
++            task_digest=held["message"]["task_digest"],
++            destination=held["message"]["destination"],
++            continuation=CONTINUATION_TEXT)
+         caught = self.refusal(native_handoffs.advance_continuation,
+                               self.jobs, self.control, self.authority,
+                               job_id="job-a")
+-        self.assertIn("recorded no yield", str(caught))
+-        del held
++        self.assertIn("permits 1 resolved continuation", str(caught))
++        self.assertEqual(
++            job_control.continuations_used_in(self.jobs._connection,
++                                              "job-a"), 1)
++        self.assertEqual(episodes.live_of(
++            self.jobs, "job-a/implementation")["episode"], live["episode"])
+ 
+     def test_an_exhausted_allowance_HOLDS_and_reports_honestly(self):
+         held = self.yielded()
+@@ -996,21 +1043,30 @@
+                               self.jobs._connection, "job-a")
+         self.assertIn("permits 0 correction round", str(caught))
+ 
+-    def test_replay_does_not_spend_the_allowance_twice(self):
++    def test_an_actual_second_invocation_returns_the_committed_receipt(self):
++        """Review 2026-11-20T19-39-15Z R2. The exact second call of the public
++        act -- what a crashed ending's re-entry makes after the continuation
++        committed -- is answered by the journal: the same receipt, nothing
++        spent twice, nothing opened twice. The previous version of this case
++        never made the second call."""
+         held = self.yielded()
+         self.answered(held)
+         first = native_handoffs.advance_continuation(
+             self.jobs, self.control, self.authority, job_id="job-a")
++        again = native_handoffs.advance_continuation(
++            self.jobs, self.control, self.authority, job_id="job-a")
++        self.assertEqual(again, first)
++        self.assertEqual(again["episode"], held["episode"])
++        self.assertEqual(again["continued_at"], first["continued_at"])
+         self.assertEqual(
+             job_control.continuations_used_in(self.jobs._connection,
+                                               "job-a"), 1)
+-        # The journal replays the committed operation before the allowance
+-        # guard is reached at all, which is why an exact retry is free.
+-        again = self.jobs._connection.execute(
++        self.assertEqual(self.jobs._connection.execute(
+             "SELECT count(*) FROM operations WHERE kind = ?",
+-            (native_handoffs.CONTINUE_KIND,)).fetchone()[0]
+-        self.assertEqual(again, 1)
+-        self.assertEqual(first["message_id"], first["message_id"])
++            (native_handoffs.CONTINUE_KIND,)).fetchone()[0], 1)
++        for stage_id in ("job-a/implementation", "job-a/review"):
++            self.assertEqual(episodes.live_of(self.jobs, stage_id)["episode"],
++                             held["episode"] + 1)
+ 
+     def test_an_ESCALATION_resumes_nothing(self):
+         held = self.yielded()
+@@ -1265,8 +1321,30 @@
+         self.assertEqual(continuation["reply"]["message_id"],
+                          answered["reply"]["message"]["message_id"])
+         self.assertEqual(continuation["checkpoint_id"], held["checkpoint_id"])
++        # AND THE RETAINED CONTINUATION ITSELF (R1), re-proved against the
++        # digest the committed request names.
++        self.assertEqual(continuation["text"], CONTINUATION_TEXT)
++        self.assertEqual(digest_of_bytes(continuation["text"].encode("utf-8")),
++                         continuation["request"]["continuation_digest"])
+         self.assertIsNotNone(native_handoffs.context_bytes(document))
+ 
++    def test_a_tampered_retained_continuation_is_refused_not_delivered(self):
++        held = self.yielded()
++        self.answered(held)
++        native_handoffs.advance_continuation(
++            self.jobs, self.control, self.authority, job_id="job-a")
++        self.jobs._connection.execute(
++            "UPDATE operations SET result = ? WHERE operation_id = ?",
++            (json.dumps(dict(held["record"],
++                             continuation="do something else entirely\n")),
++             native_handoffs.yield_operation_id("job-a/implementation",
++                                                held["episode"])))
++        caught = self.refusal(
++            native_handoffs.delivered_context, self.jobs, self.control,
++            self.authority, role="implementation", job_id="job-a",
++            stage_id="job-a/implementation", episode=2)
++        self.assertIn("does not digest to", str(caught))
++
+     def test_a_legacy_job_is_composed_no_context(self):
+         self.template_job(version="baton.v12.job-template.implementation-"
+                                   "review/1")
+@@ -1283,6 +1361,385 @@
+         self.assertIn("no native handoff routing", str(caught))
+ 
+ 
++class TheContinuationRetryIsBoundToItsOriginalYield(HandoffCase):
++    """Review 2026-11-20T19-39-15Z R2: the retry, the interior fault, and the
++    serving side's own question, each against the ORIGINAL yield."""
++
++    def advance(self, **named):
++        return native_handoffs.advance_continuation(
++            self.jobs, self.control, self.authority, job_id="job-a", **named)
++
++    def spent(self):
++        return job_control.continuations_used_in(self.jobs._connection,
++                                                 "job-a")
++
++    def live(self, kind):
++        return episodes.live_of(self.jobs, f"job-a/{kind}")["episode"]
++
++    def test_a_retry_after_cancellation_returns_the_committed_receipt(self):
++        """What was committed is history: a later cancellation closes the
++        Job to NEW continuations and changes nothing about the one that
++        already happened, which the retry is still owed."""
++        held = self.yielded()
++        self.answered(held)
++        first = self.advance()
++        cancellation.request(self.jobs, job_id="job-a",
++                             reason="the operator stops this Job")
++        self.assertEqual(self.advance(), first)
++        self.assertEqual(self.spent(), 1)
++        self.assertEqual(self.live("implementation"), held["episode"] + 1)
++
++    def test_a_retry_past_the_deadline_returns_the_committed_receipt(self):
++        held = self.yielded()
++        self.answered(held)
++        first = self.advance()
++        later = TheContinuationIsTheSameAdmittedTask.after(
++            self, job_control.PROFILES[HANDOFF_PROFILE]["job_seconds"] + 60)
++        again = self.advance(now=later)
++        self.assertEqual(again, first)
++        # AND THE ORIGINAL INSTANT STANDS: a replay does not re-stamp it.
++        self.assertEqual(again["continued_at"], NOW)
++
++    def test_a_fault_inside_the_write_leaves_both_episodes_live_and_the_retry_commits_once(self):
++        """The interior cut: a fault after the first row moved and before the
++        transaction committed. Nothing is half-written -- both episodes are
++        still the live pair, nothing is spent, the line is still held -- and
++        the retry commits exactly one continuation on the same yield."""
++        held = self.yielded()
++        self.answered(held)
++        real = native_handoffs.documents.stage_episode
++        calls = []
++
++        def faulting(**members):
++            calls.append(members["stage_id"])
++            if len(calls) == 1:
++                raise RuntimeError("the manager died mid-transaction")
++            return real(**members)
++
++        with mock.patch.object(native_handoffs.documents, "stage_episode",
++                               faulting):
++            with self.assertRaises(RuntimeError):
++                self.advance()
++        self.assertEqual(self.spent(), 0)
++        self.assertEqual(self.jobs._connection.execute(
++            "SELECT count(*) FROM operations WHERE kind = ?",
++            (native_handoffs.CONTINUE_KIND,)).fetchone()[0], 0)
++        for kind in ("implementation", "review"):
++            self.assertEqual(self.live(kind), held["episode"])
++            row = episodes.episode_of(self.jobs, f"job-a/{kind}",
++                                      held["episode"])
++            self.assertIsNone(row["ended_state"])
++        self.assertEqual(self.states()["implementation"],
++                         native_handoffs.AWAITING_STATE)
++        self.assertEqual(review_cycles.line_of(
++            self.control, self.line["line_id"])["state"],
++            review_cycles.CONTINUATION_READY)
++        opened = self.advance()
++        self.assertEqual(opened["episode"], held["episode"])
++        self.assertEqual(self.spent(), 1)
++        self.assertEqual(self.live("implementation"), held["episode"] + 1)
++        self.assertEqual(self.advance(), opened)
++
++    def test_the_serving_side_question_is_answered_by_request_identity(self):
++        held = self.yielded()
++        self.answered(held)
++        request_id = held["message"]["message_id"]
++        self.assertIsNone(native_handoffs.continuation_for_request(
++            self.jobs, job_id="job-a", request_id=request_id))
++        opened = self.advance()
++        self.assertEqual(native_handoffs.continuation_for_request(
++            self.jobs, job_id="job-a", request_id=request_id), opened)
++        self.assertIsNone(native_handoffs.continuation_for_request(
++            self.jobs, job_id="job-a", request_id="some-other-request"))
++
++    def test_a_retry_whose_yield_was_rewritten_refuses_rather_than_replays(self):
++        """Changed operands under the committed identity collide; a retry is
++        the SAME continuation or it is nothing."""
++        held = self.yielded()
++        self.answered(held)
++        first = self.advance()
++        self.jobs._connection.execute(
++            "UPDATE operations SET result = ? WHERE operation_id = ?",
++            (json.dumps(dict(held["record"], checkpoint_id="checkpoint-x")),
++             native_handoffs.yield_operation_id("job-a/implementation",
++                                                held["episode"])))
++        caught = self.refusal(self.advance)
++        self.assertNotIn("recorded no yield", str(caught))
++        self.assertEqual(self.spent(), 1)
++        self.assertEqual(self.live("implementation"), first["episode"] + 1)
++
++
++class AReplyIsBoundToTheRequestItWasDelivered(HandoffCase):
++    """Review 2026-11-20T19-39-15Z R3: before ANY answer commits, the reply is
++    held to the review attempt's fixed assignment and to the exact pending
++    request the host delivered that attempt. Every refusal below commits no
++    reply and no transition."""
++
++    OTHER_WORK = "0000000a-W2"
++    OTHER_PRODUCER = "baton.other-producer"
++    STRANGER = "baton.other-reviewer"
++
++    def response_attempt(self, held, *, participant=REVIEWER, deliver=True,
++                         document=None, name="response"):
++        number = held["round"]["generation"]
++        attempt = self.attempt(f"{name}-attempt-{number}", number, participant,
++                               f"{name}-principal-{number}")
++        review_driver.prepare_review(
++            self.control, checkpoint_id=held["checkpoint_id"],
++            attempt_id=attempt, generation=number,
++            reviewer_worker_id=f"{name}-worker-{number}",
++            profile=self.profile)
++        self.completed(attempt, review=True)
++        if document is None:
++            document = handoff_response(held["message"]["message_id"],
++                                        held["classified"]["handoff_digest"],
++                                        held["message"]["checkpoint_ref"])
++        self.retained_response(attempt, generation=number, document=document,
++                               participant=participant)
++        if deliver:
++            self.delivered(attempt)
++        return attempt
++
++    def refused_answer(self, held, attempt, *, port=None):
++        response = native_handoffs.classified_response(self.control, attempt)
++        port = self.port_for(REVIEWER) if port is None else port
++        caught = self.refusal(port.answer, attempt_id=attempt,
++                              response=response)
++        self.nothing_committed(held)
++        return str(caught)
++
++    def nothing_committed(self, held):
++        self.assertIsNone(self.authority.work_message_reply(
++            held["message"]["message_id"]))
++        self.assertEqual(len(self.authority.work_messages(WORK_A)), 1)
++        self.assertEqual(self.authority.pending_handoff_requests(WORK_A)[0]
++                         ["message_id"], held["message"]["message_id"])
++
++    def other_request(self, held):
++        """Another Work's request, addressed to the SAME reviewer, who holds
++        a grant on both: the reviewer's own probe (foreign-request-3)."""
++        self.authority.create_work(self.OTHER_WORK, "impl",
++                                   operation_id="op-create-other",
++                                   contract="baton.v12.contract/1")
++        scope = self.authority.project_work(self.OTHER_WORK)["scope"]
++        self.authority.grant_capability(REVIEWER,
++                                        work_messages.ANSWER_CAPABILITY,
++                                        scope=scope)
++        self.authority.add_route_handler("impl", self.OTHER_PRODUCER)
++        producer = self.authority.session(self.OTHER_PRODUCER)
++        assignment = producer.claim({"work_id": self.OTHER_WORK,
++                                     "operation_id": "op-claim-other"})
++        original = held["message"]
++        return producer.request_handoff({
++            "expect": assignment["assignment"],
++            "operation_id": "other-request", "message_id": "other-request",
++            "job_id": "other-job", "kind": original["kind"],
++            "body": original["body"],
++            "handoff_digest": original["handoff_digest"],
++            "task_digest": original["task_digest"],
++            "checkpoint_ref": original["checkpoint_ref"],
++            "continuation_digest": original["continuation_digest"],
++            "destination": REVIEWER})
++
++    def test_a_response_citing_another_works_request_is_refused_by_the_host(self):
++        held = self.yielded()
++        other = self.other_request(held)
++        attempt = self.response_attempt(
++            held, document=handoff_response(other["message_id"],
++                                            other["handoff_digest"],
++                                            other["checkpoint_ref"]))
++        said = self.refused_answer(held, attempt)
++        self.assertIn("exact pending request it was asked", said)
++        self.assertIsNone(self.authority.work_message_reply(
++            other["message_id"]))
++
++    def test_the_authority_refuses_the_same_reply_for_the_wrong_work(self):
++        """The second binding, the Authority's own: a reply naming Work A's
++        assignment cannot answer Work B's request however the host spelled
++        the rest."""
++        held = self.yielded()
++        other = self.other_request(held)
++        document = handoff_response(other["message_id"],
++                                    other["handoff_digest"],
++                                    other["checkpoint_ref"])
++        from baton_v12.authority import Refusal
++
++        with self.assertRaises(Refusal) as caught:
++            self.answerer.answer_handoff({
++                "operation_id": "respond-by-hand", "message_id": "reply-x",
++                "reply_to": other["message_id"], "disposition": "response",
++                "body": document,
++                "handoff_digest": native_handoff.handoff_digest(document),
++                "request_digest": other["handoff_digest"],
++                "checkpoint_ref": other["checkpoint_ref"],
++                "effect": "continuation", "detail": {},
++                "work_id": WORK_A, "job_id": "job-a"})
++        self.assertIn("never another Work's", str(caught.exception))
++        self.assertIsNone(self.authority.work_message_reply(
++            other["message_id"]))
++        self.nothing_committed(held)
++
++    def test_an_unsolicited_response_from_an_ordinary_review_is_refused(self):
++        held = self.yielded()
++        attempt = self.response_attempt(held, deliver=False)
++        said = self.refused_answer(held, attempt)
++        self.assertIn("unsolicited", said)
++
++    def test_a_stale_request_digest_is_refused(self):
++        held = self.yielded()
++        attempt = self.response_attempt(
++            held, document=handoff_response(held["message"]["message_id"],
++                                            "sha256:" + "f" * 64,
++                                            held["message"]["checkpoint_ref"]))
++        said = self.refused_answer(held, attempt)
++        self.assertIn("version of the question", said)
++
++    def test_another_checkpoint_is_refused(self):
++        held = self.yielded()
++        attempt = self.response_attempt(
++            held, document=handoff_response(held["message"]["message_id"],
++                                            held["classified"]["handoff_digest"],
++                                            "0" * 40))
++        said = self.refused_answer(held, attempt)
++        self.assertIn("exact retained checkpoint", said)
++
++    def test_a_request_of_another_job_is_refused(self):
++        held = self.yielded()
++        attempt = self.response_attempt(held)
++        said = self.refused_answer(held, attempt,
++                                   port=self.port_for(REVIEWER, job_id="job-b"))
++        self.assertIn("answers the Job that asked", said)
++
++    def test_another_participants_session_cannot_commit_this_reply(self):
++        held = self.yielded()
++        attempt = self.response_attempt(held)
++        said = self.refused_answer(held, attempt, port=self.port_for(WRITER))
++        self.assertIn("answering session acts for", said)
++
++    def test_an_attempt_fixed_to_a_participant_the_question_was_not_addressed_to_is_refused(self):
++        held = self.yielded()
++        self.authority.add_route_handler("rview", self.STRANGER)
++        self.authority.grant_capability(self.STRANGER,
++                                        work_messages.ANSWER_CAPABILITY,
++                                        scope=self.scope)
++        attempt = self.response_attempt(held, participant=self.STRANGER,
++                                        name="stranger")
++        stranger = native_handoffs.HandoffPort(
++            self.control, self.authority.session(self.STRANGER),
++            job_id="job-a")
++        said = self.refused_answer(held, attempt, port=stranger)
++        self.assertIn("addressed to", said)
++
++    def test_the_delivery_record_is_one_per_attempt_and_replays(self):
++        held = self.yielded()
++        attempt = self.response_attempt(held)
++        first = native_handoffs.delivered_of(self.control, attempt)
++        self.assertEqual(first["request"]["message_id"],
++                         held["message"]["message_id"])
++        self.assertEqual(self.delivered(attempt), first)
++        caught = self.refusal(
++            native_handoffs.record_delivery, self.control,
++            attempt_id=attempt, document=dict(first, job_id="job-z"))
++        self.assertIn("different", str(caught))
++        self.assertIsNone(native_handoffs.delivered_of(self.control,
++                                                       "never-prepared"))
++
++
++class TheRetainedContinuationIsReadOutOfCustody(HandoffCase):
++    """Review 2026-11-20T19-39-15Z R1: the exact bytes, out of accepted
++    custody, proved against the frozen measurement and the committed digest."""
++
++    def custody(self, text=CONTINUATION_TEXT, *, name="continuation.txt",
++                accepted=True, link=False):
++        root = tempfile.mkdtemp(dir=self.root)
++        raw = text.encode("utf-8")
++        place = os.path.join(root, name)
++        if link:
++            with open(place + ".target", "wb") as writing:
++                writing.write(raw)
++            os.symlink(place + ".target", place)
++        else:
++            with open(place, "wb") as writing:
++                writing.write(raw)
++        entry = {"path": name, "bytes": len(raw),
++                 "content_digest": digest_of_bytes(raw)}
++        content = {"entries": [entry], "entry_count": 1,
++                   "total_bytes": len(raw), "tree_digest": digest([entry])}
++        output = {"name": role_contract.HANDOFF_OUTPUT,
++                  "type": "directory-result", "status": "present",
++                  "content_manifest": content,
++                  "artifact": {"artifact_id": "artifact-handoff-1",
++                               "media_type": "text/plain", "bytes": len(raw),
++                               "content_digest": content["tree_digest"],
++                               "locator": "file:///var/lib/baton/x/handoff"},
++                  "result_metadata": {}}
++        receipt = {"custody": "accepted" if accepted else "rejected",
++                   "artifacts": [{"artifact_id": "artifact-handoff-1",
++                                  "custody_locator": "file://" + root}]}
++        return root, {"outputs": [output]}, receipt
++
++    def classified(self, digest_=CONTINUATION_DIGEST):
++        document = handoff_request("a" * 40)
++        document["continuation"] = {"reference": CONTINUATION_REFERENCE,
++                                    "digest": digest_}
++        return {"handoff": document}
++
++    def test_the_exact_bytes_are_read_and_proved(self):
++        _root, result, receipt = self.custody()
++        self.assertEqual(native_handoffs.retained_continuation(
++            result, receipt, self.classified()), CONTINUATION_TEXT)
++
++    def test_a_missing_continuation_refuses(self):
++        root, result, receipt = self.custody()
++        os.unlink(os.path.join(root, "continuation.txt"))
++        caught = self.refusal(native_handoffs.retained_continuation,
++                              result, receipt, self.classified())
++        self.assertIn("not in accepted custody", str(caught))
++
++    def test_a_tampered_continuation_refuses(self):
++        root, result, receipt = self.custody()
++        with open(os.path.join(root, "continuation.txt"), "w",
++                  encoding="utf-8") as writing:
++            writing.write("finish something else\n")
++        caught = self.refusal(native_handoffs.retained_continuation,
++                              result, receipt, self.classified())
++        self.assertIn("differs from the frozen custody", str(caught))
++
++    def test_a_continuation_the_request_did_not_name_refuses(self):
++        _root, result, receipt = self.custody()
++        caught = self.refusal(native_handoffs.retained_continuation,
++                              result, receipt,
++                              self.classified("sha256:" + "d" * 64))
++        self.assertIn("the request was about", str(caught))
++
++    def test_a_link_in_custody_is_not_followed(self):
++        _root, result, receipt = self.custody(link=True)
++        caught = self.refusal(native_handoffs.retained_continuation,
++                              result, receipt, self.classified())
++        self.assertIn("not in accepted custody", str(caught))
++
++    def test_custody_that_is_not_accepted_refuses(self):
++        _root, result, receipt = self.custody(accepted=False)
++        caught = self.refusal(native_handoffs.retained_continuation,
++                              result, receipt, self.classified())
++        self.assertIn("ACCEPTED custody", str(caught))
++
++    def test_a_yield_records_only_the_continuation_its_request_names(self):
++        round_ = self.implementation_round(1)
++        caught = self.refusal(
++            native_handoffs.record_yield, self.jobs,
++            stage_id="job-a/implementation", episode=1,
++            attempt_id=round_["attempt_id"],
++            kind=native_handoff.CLARIFICATION_KIND, message_id="msg-1",
++            handoff_digest="sha256:" + "1" * 64,
++            checkpoint_id="checkpoint-1",
++            continuation_digest=CONTINUATION_DIGEST,
++            task_digest="sha256:" + "3" * 64, destination=REVIEWER,
++            continuation="a note the request never named\n")
++        self.assertIn("exact continuation the request was about",
++                      str(caught))
++
++
+ class TheHoldIsRecordedOnceAndRereadForever(HandoffCase):
+ 
+     def test_one_durable_pending_escalation_per_request(self):
+diff -ruN -x __pycache__ previous/v12/python/tests/tools/test_bootstrap.py candidate/v12/python/tests/tools/test_bootstrap.py
+--- previous/v12/python/tests/tools/test_bootstrap.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/python/tests/tools/test_bootstrap.py	2026-11-20 13:15:45.972235971 -0700
+@@ -1261,6 +1261,111 @@
+             self.assertIn(name, bootstrap.OPTIONAL, name)
+ 
+ 
++class TheNativeHandoffRoutingIsConfiguredHere(ValidFixture):
++    """W385331, review 2026-11-20T19-39-15Z R4: the routing policy and the
++    actual reviewer's answering grant are composed by this helper from its
++    own validated selection, exactly as the receipt grants are."""
++
++    SELECTED = {"reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"}
++
++    def opened(self, answer):
++        from baton_v12.authority import Authority
++        return Authority.open(answer["places"]["authority_store"],
++                              expected_authority_uuid=self.config["authority_uuid"])
++
++    def test_the_spellings_are_the_authoritys_own(self):
++        from baton_v12.authority import messages
++
++        self.assertEqual(bootstrap.ROUTING[0], messages.ROUTING_POLICY)
++        self.assertEqual(bootstrap.ROUTING_SCHEMA, messages.ROUTING_SCHEMA)
++        self.assertEqual(bootstrap.ANSWER_GRANT, messages.ANSWER_CAPABILITY)
++
++    def test_the_selection_installs_the_policy_and_the_reviewers_grant(self):
++        from baton_v12.authority import messages
++
++        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
++        authority = self.opened(answer)
++        try:
++            self.assertEqual(authority.native_routing(),
++                             dict(self.SELECTED,
++                                  schema=messages.ROUTING_SCHEMA))
++            scope = authority.project_work(self.work)["scope"]
++            self.assertTrue(authority.holds_capability(
++                "baton.reviewer", messages.ANSWER_CAPABILITY, scope=scope))
++            # NOT `review`, AND NOT TO THE DECISION RECIPIENT: answering a
++            # question is not writing a technical review receipt, and the
++            # owner decides escalations rather than answering questions.
++            self.assertFalse(authority.holds_capability(
++                "baton.reviewer", "review", scope=scope))
++            self.assertFalse(authority.holds_capability(
++                "baton.slaw", messages.ANSWER_CAPABILITY, scope=scope))
++        finally:
++            authority.dispose()
++
++    def test_an_absent_selection_installs_nothing(self):
++        from baton_v12.authority import messages
++
++        answer = self.prepared()
++        authority = self.opened(answer)
++        try:
++            self.assertIsNone(authority.native_routing())
++            scope = authority.project_work(self.work)["scope"]
++            self.assertFalse(authority.holds_capability(
++                "baton.reviewer", messages.ANSWER_CAPABILITY, scope=scope))
++        finally:
++            authority.dispose()
++
++    def test_the_selection_never_travels_into_the_execution_document(self):
++        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
++        self.assertNotIn("native_handoff_routing", answer["configuration"])
++        self.assertNotIn("native_handoff_routing", bootstrap.OPTIONAL)
++
++    def test_a_repeat_keeps_the_routing_and_grants_once(self):
++        answer = self.prepared(native_handoff_routing=dict(self.SELECTED))
++        again = self.prepared(native_handoff_routing=dict(self.SELECTED))
++        self.assertEqual(again["created_works"], [])
++        authority = self.opened(answer)
++        try:
++            self.assertEqual(authority.native_routing()["reviewer"],
++                             "baton.reviewer")
++        finally:
++            authority.dispose()
++
++    def test_one_address_for_both_roles_is_refused_before_anything_is_made(self):
++        said = self.refused(native_handoff_routing={
++            "reviewer": "baton.reviewer", "decision_recipient": "baton.reviewer"})
++        self.assertIn("never back to the reviewer", said)
++        self.nothing_was_composed()
++
++    def test_a_reviewer_nobody_serves_is_refused(self):
++        said = self.refused(native_handoff_routing={
++            "reviewer": "baton.nobody", "decision_recipient": "baton.slaw"})
++        self.assertIn("not a configured review worker's participant", said)
++        self.nothing_was_composed()
++
++    def test_an_implementer_cannot_be_the_reviewer(self):
++        said = self.refused(native_handoff_routing={
++            "reviewer": "baton.impl-a", "decision_recipient": "baton.slaw"})
++        self.assertIn("implementation participant", said)
++        self.nothing_was_composed()
++
++    def test_a_malformed_selection_is_refused_by_member(self):
++        said = self.refused(native_handoff_routing={"reviewer": "baton.reviewer"})
++        self.assertIn("native_handoff_routing.decision_recipient", said)
++        said = self.refused(native_handoff_routing={
++            "reviewer": "baton.reviewer", "decision_recipient": "baton.slaw",
++            "decider": "baton.slaw"})
++        self.assertIn("native_handoff_routing.decider", said)
++        said = self.refused(native_handoff_routing="baton.reviewer")
++        self.assertIn("is one object", said)
++        self.nothing_was_composed()
++
++    def test_the_refusal_names_the_selection_as_supported(self):
++        said = self.refused(natve_handoff_routing=dict(self.SELECTED))
++        self.assertIn("native_handoff_routing", said)
++        self.nothing_was_composed()
++
++
+ class TheCustodyRecordIsEvidenceOrItIsNothing(ValidFixture):
+     """G1. A record that does not say what is bound is not evidence.
+ 
+diff -ruN -x __pycache__ previous/v12/python/tests/tools/test_native_handoffs.py candidate/v12/python/tests/tools/test_native_handoffs.py
+--- previous/v12/python/tests/tools/test_native_handoffs.py	2026-11-20 13:18:04.640670418 -0700
++++ candidate/v12/python/tests/tools/test_native_handoffs.py	2026-11-20 13:26:31.369194740 -0700
+@@ -25,13 +25,20 @@
+ writes it: what is under test is what the deployment does with an admitted
+ template version, and composing a whole creation through its four deployment
+ ports would be proving the creation operation instead.
++
++THE ROUTING AND THE REVIEWER'S GRANT ARE INSTALLED BY THE CONFIGURATION OWNER
++(review 2026-11-20T19-39-15Z R4): `tools.bootstrap` composes them from a
++`native_handoff_routing` selection in its own input document, exactly as it
++composes the receipt grants, and nothing here sets a policy or a grant by hand.
+ """
+ 
+ import copy
++import io
+ import json
+ import os
+ import unittest
+ from types import SimpleNamespace
++from unittest import mock
+ 
+ from baton_v12 import native_handoff
+ from baton_v12.authority import Authority
+@@ -41,7 +48,7 @@
+                                    native_handoffs, role_contract)
+ from baton_v12.worker_manager import review_cycles
+ 
+-from tools import stage_execution
++from tools import bootstrap, stage_execution
+ 
+ from tests.job_manager import fixtures
+ from tests.tools import test_stage_execution as composed
+@@ -72,7 +79,44 @@
+ 
+ class HandoffJobCase(composed.ComposedOneJobCase):
+     """One composed Job under the `/3` template and the native-handoff
+-    profile, with the routing and the answer capability configured."""
++    profile, with the routing and the answer capability configured THROUGH
++    THE BOOTSTRAP HELPER's own composition."""
++
++    # THE OPERATOR'S SELECTION, as the bootstrap input spells it. `None` is
++    # a deployment that selected no routing at all.
++    ROUTING = {"reviewer": REVIEWER, "decision_recipient": OWNER}
++
++    def bootstrap_document(self):
++        """The bootstrap input this deployment would have been composed from:
++        the same two stage workers, the same receipt actors, this Job bound to
++        this Work at this base, and the routing selection."""
++        given = {
++            "schema": bootstrap.SCHEMA, "state_root": self.state_root,
++            "checkpoint_profile": "git",
++            "integration_profile": {
++                "profile_kind": "git", "profile_version": 1,
++                "integrator_participant": "baton.integrator",
++                "instructions_digest": "sha256:" + "e" * 64},
++            "retention_policy_digest": "sha256:" + "5" * 64,
++            "retention_disposition": "retain",
++            "pool_generation": 1, "policy_generation": 1,
++            "workers": [
++                {"worker_id": "impl-a", "role": "implementation",
++                 "participant": self.config["participant"],
++                 "deployment": {"adapter_name": "fixture"}},
++                {"worker_id": "review-a", "role": "review",
++                 "participant": REVIEWER,
++                 "deployment": {"adapter_name": "fixture"}}],
++            "receipt_participants": dict(
++                verification="baton.verifier", review="baton.approver-review",
++                approval="baton.approver"),
++            "jobs": [{"job_id": "job-a", "work_id": self.work,
++                      "line_declared_base": self.base,
++                      "canonical_target_id": self.base,
++                      "source_worker_id": "impl-a"}]}
++        if self.ROUTING is not None:
++            given["native_handoff_routing"] = dict(self.ROUTING)
++        return given
+ 
+     def setUp(self):
+         super().setUp()
+@@ -102,19 +146,22 @@
+         job["control"] = {"profile": job_control.NATIVE_HANDOFF_PROFILE}
+         self.submission = dict(fixtures.submission(jobs=[job]),
+                                schema=documents.SUBMISSION_CONTROL_SCHEMA)
+-        # THE CONFIGURED ROUTING AND THE EXPLICIT GRANT. Existing `review`
+-        # membership grants nothing here; the reviewer answers under its own
+-        # `answer-handoff` capability in the Work's effective scope, and the
+-        # decision recipient is the human owner and never the reviewer.
++        # THE CONFIGURED ROUTING AND THE EXPLICIT GRANT, composed by the
++        # bootstrap helper from its own validated input (R4). Existing
++        # `review` membership grants nothing here; the reviewer answers under
++        # its own `answer-handoff` capability in the Work's effective scope,
++        # and the decision recipient is the human owner and never the
++        # reviewer. `held` is the accepted validator; `_compose` is the one
++        # step of `prepare` that composes routes, Works, grants and policy --
++        # the rest of `prepare` lays out a state root this fixture already has.
++        document = bootstrap.held(self.bootstrap_document())
+         authority = Authority.open(
+             self.authority_path,
+             expected_authority_uuid=self.config["authority_uuid"])
+         try:
+-            authority.set_policy(work_messages.ROUTING_POLICY, {
+-                "schema": work_messages.ROUTING_SCHEMA,
+-                "reviewer": REVIEWER, "decision_recipient": OWNER})
+-            authority.grant_capability(
+-                REVIEWER, work_messages.ANSWER_CAPABILITY, scope=self.scope)
++            self.bootstrap_report = io.StringIO()
++            bootstrap._compose(authority, document,
++                               stream=self.bootstrap_report)
+         finally:
+             authority.dispose()
+         self.prompts = []
+@@ -372,6 +419,189 @@
+         self.assertEqual(delivered["continuation"]["request"]["message_id"],
+                          request["message_id"])
+ 
++    def test_the_resumed_provider_is_given_the_exact_retained_continuation(self):
++        """Review 2026-11-20T19-39-15Z R1, observed at the actual provider
++        boundary through the real adapter: the continuation the yielding turn
++        wrote is in the resumed working copy, read-only, byte for byte, and
++        its text is in the prompt -- and the yield record journalled it."""
++        held = self.resumed(self.answered(self.yielded()))
++        expected = REQUEST["continuation"] + "\n"
++        recorded = native_handoffs.yield_of(held.job, "job-a/implementation",
++                                            1)
++        self.assertEqual(recorded["continuation"], expected)
++        seen = {}
++        original = self.provider
++
++        def instrumented(edits=None, status=0):
++            import claude_agent
++
++            run = original(edits, status)
++
++            def capture(argv, **options):
++                if argv[0] == claude_agent.PROVIDER_PROGRAM:
++                    place = os.path.join(options["cwd"], "handoff",
++                                         claude_agent.HANDOFF_CONTINUATION)
++                    seen["exists"] = os.path.isfile(place)
++                    if seen["exists"]:
++                        with open(place, "rb") as reading:
++                            seen["bytes"] = reading.read()
++                        seen["mode"] = os.stat(place).st_mode & 0o777
++                    seen["prompt"] = argv[-1]
++                return run(argv, **options)
++
++            return capture
++
++        self.provider = instrumented
++        self.assertEqual(
++            self.turn(held.control, "implementation", held.resumed,
++                      held.resumed_roots,
++                      edits={"harness.py": "print('the finished harness')\n"}),
++            0)
++        self.assertTrue(seen["exists"])
++        self.assertEqual(seen["bytes"], expected.encode("utf-8"))
++        self.assertEqual(seen["mode"] & 0o222, 0)
++        self.assertIn(REQUEST["continuation"], seen["prompt"])
++        self.assertIn("handoff/continuation.txt", seen["prompt"])
++        # AND THE FINAL SUBMISSION PUBLISHES ITS OWN RECORD AND NOTHING
++        # DELIVERED: the resumed turn's frozen handoff output carries the
++        # final-submission record alone.
++        from baton_v12.worker_manager import frozen_output_of, load_manifest
++
++        self.drive(held.job, held.composed, "implementation", "completed",
++                   ticks=12)
++        control = self.deployment_of(held).control
++        frozen = frozen_output_of(control, held.resumed)
++        result = load_manifest(control, frozen["manifest_digest"],
++                               "resultManifest")
++        [output] = [one for one in result["outputs"]
++                    if one["name"] == role_contract.HANDOFF_OUTPUT]
++        self.assertEqual(
++            [one["path"] for one in output["content_manifest"]["entries"]],
++            ["handoff.json"])
++
++    def test_an_exact_retry_of_the_continuation_is_the_committed_receipt(self):
++        """Review 2026-11-20T19-39-15Z R2, through the deployment's own
++        serving surface and through the act: a retry after the continuation
++        committed is answered with the same receipt, declined by nothing and
++        spending nothing."""
++        held = self.resumed(self.answered(self.yielded()))
++        deployment = self.deployment_of(held)
++        committed = native_handoffs.continuation_of(
++            held.job, "job-a/implementation", 1)
++        again = native_handoffs.advance_continuation(
++            held.job, deployment.control, deployment.authority,
++            job_id="job-a")
++        self.assertEqual(again, committed)
++        request, reply = self.messages()
++        routed = deployment.routed(
++            {"job_id": "job-a", "stage_id": "job-a/review", "kind": "review"},
++            {"outcome": native_handoffs.ANSWERED_OUTCOME,
++             "reply": {"message": reply, "request": request}})
++        self.assertEqual(routed["continuation"], committed)
++        self.assertNotIn("continuation_declined", routed)
++        self.assertEqual(self.operations(held.job,
++                                         native_handoffs.CONTINUE_KIND), 1)
++        self.assertEqual(job_control.continuations_used_in(
++            held.job._connection, "job-a"), 1)
++        self.assertEqual(len(self.attempts_of(held, "implementation")), 2)
++
++    def test_a_fault_between_the_continuation_and_the_settlement_duplicates_nothing(self):
++        """The interior restart cut (R2): the response ending commits the
++        reply, the continuation opens the successor episodes, and the
++        process dies before the ending is settled. The re-entry replays the
++        answer and the continuation, settles once, and the resumed attempt
++        opens exactly once."""
++        from baton_v12.job_manager import ending as endings
++        from baton_v12.job_manager import sweep as tick
++
++        held = self.answered(self.yielded())
++        real = endings.settle_ending
++        faults = []
++
++        def dying(jobs, stage, **named):
++            if stage["stage_id"] == "job-a/review" and not faults:
++                faults.append(stage["stage_id"])
++                raise RuntimeError("the manager died before settling")
++            return real(jobs, stage, **named)
++
++        with mock.patch.object(endings, "settle_ending", dying):
++            for _ in range(12):
++                try:
++                    tick(held.job, held.composed, now=fixtures.NOW)
++                except RuntimeError:
++                    break
++            else:
++                self.fail("the review ending never reached its settlement")
++        self.assertEqual(faults, ["job-a/review"])
++        # THE CUT LEFT: the reply committed, the continuation committed, the
++        # ending unsettled. Nothing is undone and nothing is doubled.
++        self.assertEqual(len(self.messages()), 2)
++        self.assertEqual(self.operations(held.job,
++                                         native_handoffs.CONTINUE_KIND), 1)
++        # THE RE-ENTRY, over a FRESH serving object (the restart itself).
++        self.reconnected(held)
++        self.resumed(held)
++        self.assertEqual(len(self.messages()), 2)
++        self.assertEqual(self.operations(held.job,
++                                         native_handoffs.CONTINUE_KIND), 1)
++        self.assertEqual(self.operations(held.job,
++                                         native_handoffs.ANSWER_KIND), 1)
++        self.assertEqual(job_control.continuations_used_in(
++            held.job._connection, "job-a"), 1)
++        # COUNTED FROM DURABLE STATE, because the fresh serving object
++        # prepared only the resumed attempt: two implementation episodes and
++        # two review episodes exist, each stage's first ended once and its
++        # second live; two writers ever on the line and one active.
++        for kind in ("implementation", "review"):
++            first = episodes.episode_of(held.job, f"job-a/{kind}", 1)
++            self.assertEqual(first["ended_state"], episodes.CORRECTION_ENDING)
++            self.assertEqual(episodes.live_of(
++                held.job, f"job-a/{kind}")["episode"], 2)
++            self.assertIsNone(episodes.episode_of(held.job, f"job-a/{kind}",
++                                                  3))
++        deployment = self.deployment_of(held)
++        writers = deployment.control._connection.execute(
++            "SELECT state FROM line_writers").fetchall()
++        self.assertEqual(len(writers), 2)
++        self.assertEqual(sum(one["state"] == "active" for one in writers), 1)
++        self.assertEqual(len(self.attempts_of(held, "implementation")), 1)
++        # AND THE WHOLE PATH STILL FINISHES.
++        self.submitted(held)
++        states = self.drive(held.job, held.composed, "integration", "claimed",
++                            ticks=12)
++        self.assertEqual(states["review"], "completed")
++
++    def test_the_configured_routing_is_the_bootstraps_and_the_grant_is_its(self):
++        """R4, end to end: the selection in the bootstrap input is the policy
++        the Authority holds, the recipient the implementer is told, the
++        destination the request is committed to, and the grant the reply is
++        authorized under. Nothing here was set by hand."""
++        report = self.bootstrap_report.getvalue()
++        self.assertIn("routing", report)
++        self.assertIn(bootstrap.ANSWER_GRANT, report)
++        authority = self.authority()
++        self.assertEqual(authority.native_routing(), {
++            "schema": work_messages.ROUTING_SCHEMA,
++            "reviewer": REVIEWER, "decision_recipient": OWNER})
++        self.assertTrue(authority.holds_capability(
++            REVIEWER, work_messages.ANSWER_CAPABILITY, scope=self.scope))
++        self.assertFalse(authority.holds_capability(
++            OWNER, work_messages.ANSWER_CAPABILITY, scope=self.scope))
++        self.assertFalse(authority.holds_capability(
++            REVIEWER, "review", scope=self.scope))
++        held = self.answered(self.yielded())
++        with open(os.path.join(held.roots["inputs"], "handoff.json"),
++                  "rb") as reading:
++            delivered = json.loads(reading.read())
++        self.assertEqual(delivered["recipient"], REVIEWER)
++        [request] = self.messages()
++        self.assertEqual(request["destination"], REVIEWER)
++        self.resumed(held)
++        _request, reply = self.messages()
++        self.assertEqual(reply["author"], REVIEWER)
++        decision = authority.work_message_transition(reply["message_id"])
++        self.assertEqual(decision["effect"], work_messages.CONTINUATION_EFFECT)
++
+     def test_zero_human_acts_to_the_ordinary_final_review(self):
+         held = self.submitted(self.resumed(self.answered(self.yielded())))
+         # THE RESUMED PROVIDER WAS TOLD THE ANSWER, verbatim.
+@@ -406,6 +636,28 @@
+             held.job._connection, "job-a"), 0)
+ 
+ 
++class AZeroEditYieldContinuesTheSameWay(HandoffJobCase):
++    """The reviewer's own composed probe, retained: a question asked with no
++    edits at all yields, is answered and resumes on the retained checkpoint,
++    which is the admitted base."""
++
++    def test_a_question_with_no_edits_yields_and_resumes(self):
++        held = self.started()
++        self.assertEqual(
++            self.turn(held.control, "implementation", held.attempt_id,
++                      held.roots,
++                      edits={"handoff/request.json": json.dumps(REQUEST)}), 0)
++        self.drive(held.job, held.composed, "implementation",
++                   native_handoffs.AWAITING_STATE)
++        [request] = self.messages()
++        self.assertEqual(request["checkpoint_ref"], self.base)
++        self.resumed(self.answered(held))
++        self.assertEqual(len(self.messages()), 2)
++        self.assertEqual(native_handoffs.yield_of(
++            held.job, "job-a/implementation", 1)["continuation"],
++            REQUEST["continuation"] + "\n")
++
++
+ class AFindingContinuesTheSameWay(HandoffJobCase):
+ 
+     def test_an_in_scope_finding_is_classified_and_the_task_resumes(self):
+@@ -477,6 +729,78 @@
+         self.assertIsNone(self.projected()["handler"])
+ 
+ 
++class AnUnsolicitedResponseAnswersNothing(HandoffJobCase):
++
++    def test_a_final_review_that_answers_a_question_nobody_asked_commits_no_reply(self):
++        """R3 at the composed boundary. The ordinary final review after the
++        resumed submission was delivered no question; a provider that writes
++        a reply anyway produces no bound response (the adapter binds a reply
++        only against a delivered request) and no report, so the review turn
++        is `unable`, no message is committed, and the integration gate stays
++        shut. The host-side refusal of a response that does arrive is
++        `tests.job_manager.test_native_handoffs.
++        AReplyIsBoundToTheRequestItWasDelivered`."""
++        held = self.resumed(self.answered(self.yielded()))
++        self.assertEqual(
++            self.turn(held.control, "implementation", held.resumed,
++                      held.resumed_roots,
++                      edits={"harness.py": "print('the finished harness')\n"}),
++            0)
++        self.drive(held.job, held.composed, "implementation", "completed",
++                   ticks=12)
++        self.drive(held.job, held.composed, "review", "waiting", ticks=12)
++        reviewer = self.only_attempt_of(held.composed, "review",
++                                        exclude=held.review)
++        self.assertFalse(os.path.exists(os.path.join(
++            self.mounted(held.composed, "review", reviewer)["inputs"],
++            "handoff.json")))
++        self.turn(held.control, "review", reviewer,
++                  self.mounted(held.composed, "review", reviewer),
++                  edits={"response.json": json.dumps(ANSWER)})
++        from baton_v12.job_manager import sweep as tick
++
++        for _ in range(8):
++            tick(held.job, held.composed, now=fixtures.NOW)
++        self.assertEqual(len(self.messages()), 2)
++        self.assertEqual(self.authority().pending_handoff_requests(self.work),
++                         [])
++        states = self.states(held.job, held.composed)
++        self.assertNotEqual(states["review"], "completed")
++        self.assertNotEqual(states["integration"], "claimed")
++        self.assertEqual(self.operations(held.job,
++                                         native_handoffs.ANSWER_KIND), 1)
++
++
++class AnUnconfiguredDeploymentRefusesBeforeATurnIsSpent(HandoffJobCase):
++    """R4, fail-closed: a handoff-capable Job in a deployment whose bootstrap
++    selected no routing is refused at preparation -- no attempt is started,
++    no provider turn is spent, no message exists to be misrouted."""
++
++    ROUTING = None
++
++    def test_the_preparation_refuses_and_no_runtime_starts(self):
++        from baton_v12.job_manager import submit as submit_jobs
++        from baton_v12.job_manager import sweep as tick
++        from baton_v12.worker_manager import attempt_runtime_of, attempts
++
++        self.assertIsNone(self.authority().native_routing())
++        job, control, serving = self.serving()
++        submit_jobs(job, self.submission)
++        self.template_job(job)
++        for _ in range(6):
++            tick(job, serving, now=fixtures.NOW)
++        [attempt] = sorted(
++            self.worker_of(serving, "implementation").stage._prepared)
++        self.assertEqual(attempt_runtime_of(control, attempt)
++                         ["execution_runtime"], "not-started")
++        failure = attempts.attempt_preparation_failure_of(control, attempt)
++        self.assertIn("no native handoff routing", failure["failure"]["message"])
++        self.assertEqual(self.states(job, serving)["implementation"],
++                         "exceptional")
++        self.assertEqual(self.messages(), [])
++        self.assertEqual(self.prompts, [])
++
++
+ class AMalformedRequestIsRefusedNotPublished(HandoffJobCase):
+ 
+     def test_a_request_the_adapter_cannot_bind_ends_the_turn_unable(self):
+diff -ruN -x __pycache__ previous/v12/python/tools/bootstrap.py candidate/v12/python/tools/bootstrap.py
+--- previous/v12/python/tools/bootstrap.py	2026-11-20 06:53:56.000000000 -0700
++++ candidate/v12/python/tools/bootstrap.py	2026-11-20 13:07:37.920321029 -0700
+@@ -172,6 +172,35 @@
+ DISPOSITION = ("owner_participant",)
+ OWNER_GRANTS = ("approve", "integrate", "close")
+ 
++# W385331 (review 2026-11-20T19-39-15Z R4): THE NATIVE HANDOFF ROUTING, as a
++# selection of THIS helper, which is the configuration and grant owner the
++# accepted slice assigns it to.
++#
++# WHAT WAS MISSING. The Authority policy `native_handoff_routing` and the
++# `answer-handoff` capability existed in the Authority and in every runtime
++# consumer, and no supported configuration path installed either: the joined
++# tests set them by direct Authority calls, and a deployment prepared by this
++# helper could admit a handoff-capable Job whose first question nobody was
++# permitted to receive.
++#
++# ONE OPTIONAL OBJECT WITH TWO ADDRESSES. `reviewer` is the configured review
++# worker's own participant -- the only address an implementer's request may be
++# addressed to, and the one granted `answer-handoff` in each bound Work's own
++# scope, exactly as the receipt actors are granted theirs. `decision_recipient`
++# is where an unresolved request escalates, the human owner, and it is refused
++# here when it is the reviewer: the Authority refuses the same policy at read,
++# and a deployment should learn that before it is composed. Nothing here grants
++# `review`: answering a question is not writing a technical review receipt.
++#
++# NOT IN `OPTIONAL`, for `DISPOSITION`'s reason: that tuple travels verbatim
++# into the emitted `stage_execution` document, whose member set is closed and
++# whose consumers serve execution. Who may be asked and who decides is
++# Authority policy and a grant, and both are made here.
++ROUTING = ("native_handoff_routing",)
++_ROUTING = ("reviewer", "decision_recipient")
++ANSWER_GRANT = "answer-handoff"
++ROUTING_SCHEMA = "baton.native-handoff-routing/1"
++
+ # The route each stage is served on. `review_route` on a worker names where its
+ # own ending hands the Work on to, which is why the last one is not a stage.
+ ROUTES = {"implementation": "impl", "review": "rview", "integration": "integration"}
+@@ -382,7 +411,7 @@
+     the deployment behaves differently from what they asked for.
+     """
+     allowed = (set(REQUIRED) | set(OPTIONAL) | set(INSTALLER_ONLY)
+-               | set(DEFERRED) | set(DISPOSITION))
++               | set(DEFERRED) | set(DISPOSITION) | set(ROUTING))
+     found = [name + " -- " + SUPERSEDED[name] if name in SUPERSEDED else name
+              for name in document if name not in allowed]
+     for index, worker in enumerate(document.get("workers") or []):
+@@ -401,6 +430,10 @@
+     if type(profile) is dict:
+         found += ["integration_profile." + name for name in profile
+                   if name not in _PROFILE]
++    routing = document.get(ROUTING[0])
++    if type(routing) is dict:
++        found += [ROUTING[0] + "." + name for name in routing
++                  if name not in _ROUTING]
+     return found
+ 
+ 
+@@ -452,7 +485,7 @@
+             "two are indistinguishable to an operator until the deployment "
+             "behaves differently from what they asked for. The supported "
+             "optional selections are "
+-            + ", ".join(OPTIONAL + DISPOSITION) + ".")
++            + ", ".join(OPTIONAL + DISPOSITION + ROUTING) + ".")
+     named = [name for name in INSTANCE_SOURCE
+              if document.get(name) not in (None, "")]
+     if named and len(named) != len(INSTANCE_SOURCE):
+@@ -508,6 +541,7 @@
+     if shared:
+         faults.append("implementation and review may share no participant, and "
+                       + ", ".join(sorted(shared)) + " serves both")
++    faults += _routing_faults(document, reviewers, producers)
+ 
+     # EVERY JOB RULE, UNCHANGED, WHENEVER JOBS ARE SUPPLIED. The fresh install
+     # names none; one that names some is held to exactly what it always was.
+@@ -538,6 +572,55 @@
+     return document
+ 
+ 
++def _routing_faults(document, reviewers, producers):
++    """Every fault in the native handoff routing selection, or none.
++
++    FAIL-CLOSED ON THE ADDRESS. A reviewer this deployment serves no review
++    worker for could never be delivered a question, so a request addressed to
++    it would hold forever; that is refused here when workers are configured
++    at all. An instance installed with no workers names the address it WILL
++    serve, exactly as it names its receipt participants.
++    """
++    if ROUTING[0] not in document:
++        return []
++    routing = document[ROUTING[0]]
++    what = ROUTING[0]
++    if type(routing) is not dict:
++        return [what + " is one object naming " + " and ".join(_ROUTING)
++                + ", not " + type(routing).__name__]
++    faults = []
++    for name in _ROUTING:
++        if type(routing.get(name)) is not str or not routing.get(name):
++            faults.append(what + "." + name + " names one participant")
++    if faults:
++        return faults
++    if routing["reviewer"] == routing["decision_recipient"]:
++        faults.append(what + " names " + repr(routing["reviewer"])
++                      + " as both the reviewer and the decision recipient; an "
++                      "unresolved request escalates to a higher authority and "
++                      "never back to the reviewer under another label")
++    if reviewers and routing["reviewer"] not in reviewers:
++        faults.append(what + ".reviewer " + repr(routing["reviewer"])
++                      + " is not a configured review worker's participant ("
++                      + ", ".join(sorted(reviewers)) + "); a question is "
++                      "addressed to the reviewer this deployment serves")
++    if routing["reviewer"] in producers:
++        faults.append(what + ".reviewer " + repr(routing["reviewer"])
++                      + " is an implementation participant; an implementer's "
++                      "question is not answered by an implementer")
++    return faults
++
++
++def routing_of(document):
++    """The native handoff routing this document selects, as the Authority
++    policy document, or `None`."""
++    if ROUTING[0] not in document:
++        return None
++    held = document[ROUTING[0]]
++    return {"schema": ROUTING_SCHEMA, "reviewer": held["reviewer"],
++            "decision_recipient": held["decision_recipient"]}
++
++
+ # -- the external layout ------------------------------------------------------
+ 
+ 
+@@ -778,6 +861,16 @@
+         route = ROUTES[worker["role"]]
+         authority.add_route_handler(route, worker["participant"])
+         print("route %-14s -> %s" % (route, worker["participant"]), file=stream)
++    # W385331: THE NATIVE HANDOFF ROUTING IS INSTANCE POLICY, set whether or
++    # not a Job is bound -- it names addresses, not a Work -- and said out
++    # loud, for the owner grant's reason. The reviewer's grant is per bound
++    # Work below, exactly as the receipt grants are.
++    routing = routing_of(document)
++    if routing is not None:
++        authority.set_policy("native_handoff_routing", routing)
++        print("routing%-14s reviewer %s, decisions to %s"
++              % ("", routing["reviewer"], routing["decision_recipient"]),
++              file=stream)
+ 
+     # NO JOB, NO WORK, NO GRANT. OWNER-FRESH-INSTALL-20260916.md: "Do not
+     # create placeholder Work, Jobs or per-Work grants to satisfy the old
+@@ -819,6 +912,13 @@
+                 authority.grant_capability(owner, capability, scope=scope)
+             print("owner %-14s %s in its own scope; no verify or review grant"
+                   % (job["work_id"], "/".join(OWNER_GRANTS)), file=stream)
++        # W385331: THE ACTUAL REVIEWER'S ANSWERING GRANT, in the same Work's
++        # own scope. Not `review`: a reply is not a technical review receipt.
++        if routing is not None:
++            authority.grant_capability(routing["reviewer"], ANSWER_GRANT,
++                                       scope=scope)
++            print("answer%-14s %s to %s in its own scope; no review grant"
++                  % ("", ANSWER_GRANT, routing["reviewer"]), file=stream)
+     _canonical_target(authority, document, stream=stream)
+     return created
+ 
+diff -ruN -x __pycache__ previous/v12/python/tools/stage_execution.py candidate/v12/python/tools/stage_execution.py
+--- previous/v12/python/tools/stage_execution.py	2026-11-20 13:18:04.641147033 -0700
++++ candidate/v12/python/tools/stage_execution.py	2026-11-20 13:05:23.210959545 -0700
+@@ -1329,10 +1329,21 @@
+         # episode row -- answers `None` here and reads nothing else.
+         if not native_handoffs.handoff_capable(jobs, job_id):
+             return None
+-        return native_handoffs.context_bytes(native_handoffs.delivered_context(
++        document = native_handoffs.delivered_context(
+             jobs, deployment.control, deployment.authority, role=self.role,
+             job_id=job_id, stage_id=stage["stage_id"],
+-            episode=stage["episode"]))
++            episode=stage["episode"])
++        if document is not None:
++            # JOURNALLED UNDER THE ATTEMPT (review 2026-11-20T19-39-15Z R3):
++            # what this attempt was told is the host's durable fact about it,
++            # written here where the document is composed and replayed by
++            # every later recomposition of the same delivery. The answer
++            # commit binds the reviewer's reply to THIS record, and the
++            # ending dispatches on it rather than on a recomposition.
++            native_handoffs.record_delivery(
++                deployment.control, attempt_id=stage["attempt_id"],
++                document=document)
++        return native_handoffs.context_bytes(document)
+ 
+     def prepare_context(self, worker, stage):
+         from baton_v12.worker_manager import provider_context, context_delivery
+@@ -1683,7 +1694,7 @@
+                 # would be the deployment asserting what the result proves.
+                 proposal=None)
+         elif capable and (
+-                self.handoff_document_for(stage) is not None
++                native_handoffs.was_asked(deployment.control, attempt_id)
+                 or native_handoffs.declares_response(
+                     deployment.control, attempt_id, context["terminal"])):
+             # W385331: THE RESPONSE BRANCH, AND THE DISPATCH IS A FACT THIS
+@@ -2002,6 +2013,13 @@
+                     f"manager holds no committed request message for it; a "
+                     f"yield is recorded against a durable question",
+                     category="refused", code="precondition")
++        # THE RETAINED CONTINUATION, RESOLVED OUT OF ACCEPTED CUSTODY
++        # (review 2026-11-20T19-39-15Z R1) and proved against the digest the
++        # committed request names, before the yield is recorded: a yield
++        # whose continuation cannot be delivered is not recorded as one.
++        continuation = native_handoffs.continuation_custody(
++            self.deployment.control, answered["attempt_id"],
++            answered["handoff"])
+         return native_handoffs.record_yield(
+             self.deployment.jobs,
+             stage_id=stage["stage_id"], episode=stage["episode"],
+@@ -2012,7 +2030,8 @@
+             checkpoint_id=answered["checkpoint_id"],
+             continuation_digest=requested["continuation_digest"],
+             task_digest=requested["task_digest"],
+-            destination=requested["destination"])
++            destination=requested["destination"],
++            continuation=continuation)
+ 
+     def _recorded_answer(self, stage, answered):
+         """Journal that this REVIEW episode ended in a reply, or do nothing.
+@@ -4902,6 +4921,21 @@
+         """
+         from baton_v12.job_manager import job_control
+ 
++        # A RETRY IS NOT A SECOND CONTINUATION (review 2026-11-20T19-39-15Z
++        # R2). The allowance below is asked about the round this would OPEN;
++        # an ending that re-enters after its continuation committed -- a
++        # crash between the commit and the settlement, a deferred conclude --
++        # is owed the receipt it already earned, and asking the allowance
++        # first would decline it for the very continuation it spent. So the
++        # committed continuation for THIS reply's request is read first,
++        # through the act's own owner, and answers the retry.
++        request = ((answered.get("reply") or {}).get("request") or {})
++        if stage.get("job_id") and request.get("message_id"):
++            recorded = native_handoffs.continuation_for_request(
++                self.jobs, job_id=stage["job_id"],
++                request_id=request["message_id"])
++            if recorded is not None:
++                return dict(answered, continuation=recorded)
+         held = (job_control.control_of(self.jobs, stage["job_id"])
+                 if stage.get("job_id") else None)
+         if held is not None:
+diff -ruN -x __pycache__ previous/v12/STACK.md candidate/v12/STACK.md
+--- previous/v12/STACK.md	2026-11-20 13:18:04.641415111 -0700
++++ candidate/v12/STACK.md	2026-11-20 13:17:40.661792802 -0700
+@@ -599,10 +599,22 @@
+   "workers": [{"worker_id": "impl-a", "role": "implementation",
+                "participant": "baton.…", "deployment": { … }}],
+   "jobs": [{"job_id": "job-a", "work_id": "…", "line_declared_base": "…",
+-            "canonical_target_id": "…", "source_worker_id": "impl-a"}]
++            "canonical_target_id": "…", "source_worker_id": "impl-a"}],
++  "native_handoff_routing": {"reviewer": "baton.…",
++                             "decision_recipient": "baton.…"}
+ }
+ ```
+ 
++`native_handoff_routing` is **optional** (W385331): when a deployment will
++admit Jobs under the handoff-capable `/3` template, it names the configured
++review worker's participant that an implementer's question may be addressed to
++and the human owner an unresolved question escalates to — never one address for
++both, never an implementation participant. The bootstrap composes the Authority
++routing policy from it and grants that reviewer `answer-handoff` in each bound
++Work's own scope; it never travels into the execution document. Omitted, no
++routing is configured and a handoff-capable Job is refused at preparation. See
++"Native handoffs" below.
++
+ `jobs` is **optional** and `authority_uuid` is **refused**; the rest is the
+ instance. See "A fresh installation has zero Jobs" above for the form that
+ names no Job at all.
+@@ -1165,32 +1177,57 @@
+ the Job's template has a handoff branch: a fresh implementer learns the
+ configured recipient; a reviewer over a yielded checkpoint learns the pending
+ request and the checkpoint it is about; a resumed implementer learns the exact
+-question it stopped at and the exact reply, read back from the Authority by the
+-identities the committed continuation names. Workers never see a host store.
++question it stopped at, the exact reply, and **the exact continuation note its
++previous turn wrote** — resolved out of the yielding attempt's accepted custody
++when the yield is recorded, proved against the digest the committed request
++names, journalled on the yield record, and re-proved at delivery; a missing or
++tampered continuation refuses the yield or the delivery rather than being
++omitted. The adapter places that note read-only at `handoff/continuation.txt`
++in the resumed working copy and quotes it in the prompt. What each attempt was
++delivered is journalled in the control store under the attempt
++(`native-handoff.delivered`), which is the fact the review ending dispatches on
++and the reply is bound to. Workers never see a host store.
+ 
+ **What a reply earns.** The reviewer's `response` is a clarification or
+ discovery interpretation and never an accepted technical review: it mints no
+ verification, review, approval or integration receipt, and the review stage
+ projects `answered` rather than `completed`, so the integration's gate stays
+-shut. An `answer` is committed as the one reply to the exact pending request
+-(by identity and by digest), earns a recorded `continuation` effect, holds the
+-line for one continuation writer, and `advance_continuation` opens fresh
+-episodes for both stages under the Job's own continuation allowance — spending
+-no correction round and moving no deadline. An `escalate` earns a recorded
+-`held` effect addressed to the configured decision recipient (never the same
+-reviewer), is journalled once per yielding episode (`native.hold`) and reread
+-on every later tick rather than raised again, and leaves the execution held.
+-
+-**Configuration.** The Authority policy `native_handoff_routing`
+-(`baton.native-handoff-routing/1`: `reviewer`, `decision_recipient`, which may
+-not be one address) and the `answer-handoff` capability granted to the
+-reviewer in the Work's effective scope; the control profile `native-handoff/1`
+-(every ceiling of `documentation/1`, zero correction rounds, ONE resolved
+-continuation). A handoff-capable Job in a deployment with no routing is refused
++shut. Before any reply commits, the host binds it to the review attempt's fixed
++assignment and to the exact pending request that attempt was delivered — same
++Work, same Job, same addressee, same request identity, digest and checkpoint —
++and the Authority binds the Work and Job again under its own rules; a response
++from an invocation that was asked nothing, or citing another Work's or Job's
++request however the same reviewer is granted there, is refused with nothing
++committed. An `answer` is committed as the one reply to the exact pending
++request (by identity and by digest), earns a recorded `continuation` effect,
++holds the line for one continuation writer, and `advance_continuation` opens
++fresh episodes for both stages under the Job's own continuation allowance —
++spending no correction round and moving no deadline. An exact retry of a
++committed continuation — a crashed ending's re-entry, a deferred conclude — is
++answered with the same receipt from the original yield, spends nothing and
++opens nothing; only a NEW yield asks for a second continuation, and the
++allowance refuses it. An `escalate` earns a recorded `held` effect addressed to
++the configured decision recipient (never the same reviewer), is journalled once
++per yielding episode (`native.hold`) and reread on every later tick rather than
++raised again, and leaves the execution held.
++
++**Configuration.** The bootstrap input selects the routing once, as the
++optional object `native_handoff_routing` with `reviewer` (a configured review
++worker's own participant, never an implementation participant) and
++`decision_recipient` (the human owner, never the same address); `just
++bootstrap` composes the Authority policy `native_handoff_routing`
++(`baton.native-handoff-routing/1`) from it and grants the reviewer
++`answer-handoff` in each bound Work's own scope, exactly as it grants the
++receipt actors theirs — and grants it no `review`. The selection never travels
++into the execution document. The control profile `native-handoff/1` carries
++every ceiling of `documentation/1`, zero correction rounds and ONE resolved
++continuation. A handoff-capable Job in a deployment with no routing is refused
+ at preparation, before a provider turn is spent. The worker image must carry
+ this revision's adapter; an older image refuses a declared `handoff` output
+ by name. Authority schema version 7 adds `work_message` and
+-`work_message_transition`; a retained store at 6 is refused, not migrated.
++`work_message_transition`; a retained store at 6 is refused, not migrated —
++an ordinary fresh-schema step under DESIGN's no-migration ruling, which the
++independent review classified as needing no separate owner decision.
+ 
+ ## Boundaries
+ 
+diff -ruN -x __pycache__ previous/v12/worker/claude_agent.py candidate/v12/worker/claude_agent.py
+--- previous/v12/worker/claude_agent.py	2026-11-20 13:18:04.641581961 -0700
++++ candidate/v12/worker/claude_agent.py	2026-11-20 13:07:00.411411313 -0700
+@@ -2255,6 +2255,9 @@
+                 # turn's question. The members this adapter owns are removed
+                 # by exact name through a descriptor, exactly as the bundle is.
+                 _fresh_handoff_room(handoff_room)
++                # AND THE DELIVERED CONTINUATION TAKES ITS PLACE, read-only,
++                # before the provider is invoked (review R1).
++                _delivered_continuation(handoff_room, handoff_context)
+             provider = self._provider(
+                 task, candidate, scratch, environments["provider"],
+                 prompt=(_handoff_prompt(task, handoff_context)
+@@ -2452,6 +2455,12 @@
+             # head and the cited evidence, or the plain statement that it was
+             # a final submission. The host cross-binds the head against the
+             # checkpoint it actually freezes.
++            if requested is None:
++                # A FINAL SUBMISSION PUBLISHES ITS OWN RECORD AND NOTHING
++                # DELIVERED: the continuation this turn was given was its
++                # input, not its output, and the yielding turn's custody
++                # already retains it.
++                _discarded(handoff_room, HANDOFF_CONTINUATION)
+             document = (self._request_document(
+                 requested, candidate=candidate, room=handoff_room,
+                 head=head if head is not None else entry,
+@@ -2502,6 +2511,10 @@
+         if not continuation.endswith("\n"):
+             continuation += "\n"
+         _made(room)
++        # THE DELIVERED NOTE, IF THIS TURN WAS A CONTINUATION, IS REPLACED BY
++        # THIS TURN'S OWN: it was placed read-only, so it is removed by name
++        # rather than opened for writing.
++        _discarded(room, HANDOFF_CONTINUATION)
+         _written(os.path.join(room, HANDOFF_CONTINUATION), continuation)
+         return {"schema": HANDOFF_SCHEMA, "kind": requested["kind"],
+                 "body": requested["body"], "evidence": evidence,
+@@ -6063,6 +6076,23 @@
+                 raise TaskRefusal("the continuing reply has a disposition")
+             _handoff_text(body.get("rationale"), MAX_HANDOFF_RATIONALE,
+                           "the continuing reply's rationale")
++            # THE RETAINED CONTINUATION ITSELF, proved against the digest
++            # the continued request committed (review 2026-11-20T19-39-15Z
++            # R1). A resumed turn is given the exact note its previous turn
++            # wrote about what remained, or it refuses: a continuation that
++            # is missing, or that does not digest to what the request named,
++            # is not silently omitted and not silently replaced.
++            asked = continuation["request"]["body"].get("continuation")
++            wanted = asked.get("digest") if type(asked) is dict else None
++            text = continuation.get("text")
++            if type(text) is not str or not text \
++                    or len(text.encode("utf-8")) > MAX_HANDOFF_CONTEXT_BYTES \
++                    or not _is_digest(wanted) \
++                    or _handoff_digest_of(text.encode("utf-8")) != wanted:
++                raise TaskRefusal(
++                    "the delivered continuation is missing or does not "
++                    "digest to what the continued request committed; a "
++                    "resumed turn is given the exact continuation it yielded")
+         return document
+     _handoff_message(document.get("request"), "the pending request")
+     checkpoint = document.get("checkpoint")
+@@ -6082,6 +6112,34 @@
+         _discarded(room, name)
+ 
+ 
++def _delivered_continuation(room, context):
++    """The retained continuation, placed READ-ONLY where the resumed provider
++    works, AFTER the room is fresh and BEFORE the provider runs.
++
++    Review 2026-11-20T19-39-15Z R1: the first cut cleared the previous turn's
++    `continuation.txt` -- correctly, a member of a persistent room is a fact
++    about THIS turn or it is nothing -- and then delivered nothing in its
++    place, so the implementer's own note of what remained was unavailable to
++    the invocation that was resumed to finish it. The text arrives in the
++    host-published context, already proved against the committed digest by
++    `_handoff_context`, and is written here under the same name the yielding
++    turn used, read-only, so the prompt can name one path that is true.
++
++    `None` when this turn is not a continuation. The file is this turn's
++    DELIVERY and never its output: `_request_document` replaces it with the
++    new note if the provider yields again, and the final-submission branch
++    discards it before the record is written.
++    """
++    continuation = context.get("continuation")
++    if continuation is None:
++        return None
++    place = os.path.join(room, HANDOFF_CONTINUATION)
++    with open(place, "w", encoding="utf-8") as writing:
++        writing.write(continuation["text"])
++    os.chmod(place, 0o444)
++    return place
++
++
+ def _handoff_request(room):
+     """The provider's request, or `None`; a malformed one is a refusal.
+ 
+@@ -6226,14 +6284,21 @@
+         return opening + addendum
+     request = continuation["request"]["body"]
+     reply = continuation["reply"]["body"]
++    note = continuation["text"]
+     return (opening + addendum
+             + f"\nYOUR PREVIOUS TURN STOPPED AT THIS {request['kind']}:\n"
+               f"{request['body']}\n\n"
+               f"THE REVIEWER'S REPLY ({reply['disposition']}):\n"
+               f"{reply['body']}\n"
+               f"RATIONALE: {reply['rationale']}\n\n"
+-              f"Continue the same task in this working copy; the "
+-              f"requirements and the verification command are unchanged.\n")
++              f"YOUR OWN NOTE OF WHAT REMAINED TO BE DONE, exactly as you "
++              f"wrote it (also readable at "
++              f"{HANDOFF_OUTPUT}/{HANDOFF_CONTINUATION}, read-only, "
++              f"relative to this directory):\n{note}"
++              + ("" if note.endswith("\n") else "\n")
++              + f"\nContinue the same task in this working copy from that "
++              f"note; the requirements and the verification command are "
++              f"unchanged.\n")
+ 
+ 
+ def _response_prompt(task, source, context, report):

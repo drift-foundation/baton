@@ -1,0 +1,51 @@
+{
+  "manifest": "sha256:4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24",
+  "tree": "sha256:f62bbaab53c7d6a7f9730b726d68fac8cefe48a92130cdc176924acd1ec64028",
+  "patches": {
+    "candidate-from-3d05430f.patch": "sha256:265f6d3e3205ea5ad6a72dc552d8ea322907707e302d932d45a05e19f923ed2c",
+    "delta-from-766f97f2.patch": "sha256:9a50ac60147c5d29e7aa91d5b6554c3fce001e9b297afb57199d89895d35566b",
+    "delta-from-a743edeb.patch": "sha256:8f0395dafe87c3eab006a7eb22da90d9fdbccea5b9281dfe7c9e4d87118ddf92"
+  },
+  "verified_paths": 36,
+  "unchanged": [
+    "v12/python/src/baton_v12/authority/api.py",
+    "v12/python/src/baton_v12/authority/core.py",
+    "v12/python/src/baton_v12/authority/messages.py",
+    "v12/python/src/baton_v12/authority/schema.py",
+    "v12/python/src/baton_v12/authority/session.py",
+    "v12/python/src/baton_v12/job_manager/documents.py",
+    "v12/python/src/baton_v12/job_manager/job_control.py",
+    "v12/python/src/baton_v12/job_manager/native_handoffs.py",
+    "v12/python/src/baton_v12/job_manager/projection.py",
+    "v12/python/src/baton_v12/job_manager/review_driver.py",
+    "v12/python/src/baton_v12/job_manager/role_capability.py",
+    "v12/python/src/baton_v12/job_manager/role_contract.py",
+    "v12/python/src/baton_v12/job_manager/templates.py",
+    "v12/python/src/baton_v12/native_handoff.py",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+    "v12/python/tests/authority/test_boundary.py",
+    "v12/python/tests/authority/test_catalog.py",
+    "v12/python/tests/authority/test_dossier.py",
+    "v12/python/tests/authority/test_session.py",
+    "v12/python/tests/authority/test_work_messages.py",
+    "v12/python/tests/job_manager/test_native_handoffs.py",
+    "v12/python/tests/job_manager/test_review_driver.py",
+    "v12/python/tests/job_manager/test_role_contract.py",
+    "v12/python/tests/job_manager/test_templates.py",
+    "v12/python/tests/manager/test_boundary_inventory.py",
+    "v12/python/tests/manager/test_dependencies.py",
+    "v12/python/tests/manager/test_secrets.py",
+    "v12/python/tests/tools/test_native_handoffs.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tools/single_worker.py",
+    "v12/python/tools/stage_execution.py",
+    "v12/worker/claude_agent.py"
+  ],
+  "delta_paths": [
+    "v12/STACK.md",
+    "v12/python/tests/tools/test_bootstrap.py",
+    "v12/python/tests/tools/test_connected_creation.py",
+    "v12/python/tools/bootstrap.py"
+  ],
+  "reconstruction": "/home/sl/src/baton/work/scratch/codxpc-w385331-r4a"
+}

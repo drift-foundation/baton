@@ -44,7 +44,10 @@ from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from .store import job_signature
 
-__all__ = ["CONTROL_KIND", "EXPIRY_KIND", "PROFILES", "PROFILE_MEMBERS",
+__all__ = ["CONTINUATIONS", "CONTROL_KIND", "EXPIRY_KIND",
+           "NATIVE_HANDOFF_PROFILE", "PROFILES", "PROFILE_MEMBERS",
+           "continuation_allowance", "continuations_used_in",
+           "refuse_continuation",
            "TRIGGERS", "TIMING", "WATERMARK_KEY", "control_operation_id",
            "expiry_operation_id", "owned_control", "resolved", "agreeing",
            "record_within", "control_in", "control_of", "controls_of",
@@ -72,12 +75,54 @@ UNITS = "seconds"
 # provider invocation and 900 s per verification command.
 PROFILE_MEMBERS = ("correction_rounds", "stage_seconds", "job_seconds",
                    "provider_turn_seconds", "verification_command_seconds")
+
+# The one profile W385331 adds, named once so no caller spells it twice.
+NATIVE_HANDOFF_PROFILE = "native-handoff/1"
 PROFILES = {
     "documentation/1": {"correction_rounds": 0, "stage_seconds": 4800,
                         "job_seconds": 9960, "provider_turn_seconds": 3600,
                         "verification_command_seconds": 900},
+    # W385331: THE MINIMAL HANDOFF-CAPABLE PROFILE, and a NEW entry rather
+    # than a widened `documentation/1` -- which is this table's standing rule
+    # ("a profile a Job was admitted under is never edited") and the slice's
+    # own instruction in the same words: add a new immutable profile revision,
+    # do not widen documentation/1 in place.
+    #
+    # EVERY NUMBER HERE IS `documentation/1`'S, UNCHANGED. Zero code-correction
+    # rounds, 4800 s per stage, 9960 s per Job, 3600 s per provider invocation
+    # and 900 s per verification command. What this profile adds is ONE
+    # RESOLVED CONTINUATION, and that allowance is deliberately NOT a member of
+    # this document -- see `CONTINUATIONS` below.
+    NATIVE_HANDOFF_PROFILE: {"correction_rounds": 0, "stage_seconds": 4800,
+                             "job_seconds": 9960,
+                             "provider_turn_seconds": 3600,
+                             "verification_command_seconds": 900},
 }
 CONTROL_MEMBERS = ("profile",)
+
+# -- the continuation allowance, in its own table ----------------------------
+#
+# W385331. A SEPARATE FROZEN TABLE AND DELIBERATELY NOT A SIXTH
+# `PROFILE_MEMBERS` ENTRY, for exactly the reason `role_contract` keeps its
+# template binding out of `templates.TEMPLATE_MEMBERS`: that tuple is closed
+# and it is what `resolved()` projects, so adding a member to it would have
+# added one to `documentation/1`'s resolved document too -- and the resolved
+# document of an already admitted profile is the policy a running Job is
+# admitted under. Keeping documentation/1 immutable means keeping its BYTES
+# immutable, not only its numbers.
+#
+# ZERO IS THE ANSWER FOR EVERY PROFILE THAT DOES NOT NAME ONE, and it is
+# written out for `documentation/1` rather than defaulted, because "this
+# profile permits no continuation" is a policy statement and a missing key is
+# not one.
+#
+# WHAT A CONTINUATION IS NOT. It is not a correction round: it consumes no
+# correction allowance, it resets no stage or Job clock, and
+# `rounds_used_in` -- which counts `CORRECT_KIND` operations -- cannot see it.
+# A profile with one continuation and zero correction rounds is therefore
+# exactly what the slice selects: one more implementation invocation and its
+# necessary response invocation, and still no code-correction round.
+CONTINUATIONS = {"documentation/1": 0, NATIVE_HANDOFF_PROFILE: 1}
 
 
 def _refuse(message, *, category="refused", code="precondition"):
@@ -375,7 +420,14 @@ def evaluate(connection, job_id, now, *, stages=None):
             "timing": timing, "observed_at": now, "watermark": watermark,
             "job": job_view, "stages": stage_views,
             "corrections": {"allowance": policy["correction_rounds"],
-                            "used": rounds_used_in(connection, job_id)}}
+                            "used": rounds_used_in(connection, job_id)},
+            # W385331: AND THE CONTINUATION ACCOUNT, beside the correction one
+            # and never merged with it. An operator reading a held Job has to
+            # be able to see which of the two allowances is exhausted, and one
+            # combined number cannot say.
+            "continuations": {
+                "allowance": CONTINUATIONS[control["profile"]],
+                "used": continuations_used_in(connection, job_id)}}
     # THE RAW FIRST DEADLINE over every stage, finished or not: a reader's
     # convenience. Which deadline CLOSES the Job is `closing`'s question,
     # and it depends on which stages are already over.
@@ -516,6 +568,60 @@ def rounds_used_in(connection, job_id):
     return used
 
 
+def continuation_allowance(profile):
+    """How many resolved continuations one profile permits.
+
+    A PROFILE THIS BUILD DOES NOT CARRY IS A STALE SELECTION, answered by
+    `owned_control` rather than by a second membership test here -- so the
+    refusal a caller gets is the one `resolved` already gives.
+    """
+    held = owned_control({"profile": profile})["profile"]
+    return CONTINUATIONS[held]
+
+
+def continuations_used_in(connection, job_id):
+    """Continuations this Job already spent: committed continuation
+    OPERATIONS, one per resolved continuation.
+
+    THE MIRROR OF `rounds_used_in` AND A DIFFERENT COUNT. It reads the
+    continuation kind and nothing else, so a correction round is invisible here
+    and a continuation is invisible there -- which is what makes "one
+    continuation and zero correction rounds" two allowances rather than one
+    shared pool.
+    """
+    from .native_handoffs import CONTINUE_KIND
+
+    used = 0
+    for row in connection.execute(
+            "SELECT result FROM operations WHERE kind = ? AND state = "
+            "'committed' AND result IS NOT NULL", (CONTINUE_KIND,)):
+        if json.loads(row["result"]).get("job_id") == job_id:
+            used += 1
+    return used
+
+
+def refuse_continuation(connection, job_id):
+    """Refuse a continuation this Job's admitted profile does not permit.
+
+    EXHAUSTION HOLDS AND REPORTS HONESTLY; it does not fall back to a
+    correction round, to a fresh attempt or to success. And REPLAY DOES NOT
+    SPEND TWICE: the count is over committed continuation operations, so an
+    exact retry of a continuation that already committed replays its own
+    operation before ever reaching this guard.
+    """
+    control = control_in(connection, job_id)
+    if control is None:
+        return None
+    allowance = CONTINUATIONS[control["profile"]]
+    used = continuations_used_in(connection, job_id)
+    if used >= allowance:
+        _refuse(f"Job {name_value(job_id)} is admitted under control profile "
+                f"{name_value(control['profile'])}, which permits "
+                f"{allowance} resolved continuation(s) and {used} were used; "
+                f"the answer stands recorded and the execution stays held")
+    return {"allowance": allowance, "used": used}
+
+
 def refuse_round(connection, job_id):
     control = control_in(connection, job_id)
     if control is None:
@@ -582,6 +688,7 @@ def reported(evaluation, fence):
         timing=evaluation["timing"], observed_at=evaluation["observed_at"],
         watermark=evaluation["watermark"], job=evaluation["job"],
         stages=evaluation["stages"], corrections=evaluation["corrections"],
+        continuations=evaluation["continuations"],
         fence=(None if fence is None else {
             "trigger": fence.get("trigger", "operator"),
             "requested_at": fence["requested_at"],

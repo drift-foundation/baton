@@ -132,6 +132,11 @@ MAX_CONFIG_BYTES = 1024 * 1024
 # entry over the root this deployment composes and asserts these names against
 # the workload's own constants.
 TASK_DOCUMENT = "task.json"
+# W385331: THE NATIVE HANDOFF CONTEXT, delivered beside the task at one fixed
+# name when the stage owner composes one. The worker reads it bounded and
+# no-follow exactly as it reads the task; an attempt with none delivered has
+# an input root byte for byte what it always was.
+HANDOFF_DOCUMENT = "handoff.json"
 SOURCE_DESTINATION = "source"
 # THE WORKER'S OWN READ CEILING. `claude_agent._task` reads at most 1 MiB and
 # a document wider than that is one it will never see whole, so this refuses it
@@ -1712,6 +1717,10 @@ class _SingleWorker:
             if self.judgment_document is not None:
                 self._published_task(roots["inputs"], name="judgment.json",
                                      content=self.judgment_document)
+            handoff = self._handoff_document(stage)
+            if handoff is not None:
+                self._published_task(roots["inputs"], name=HANDOFF_DOCUMENT,
+                                     content=handoff)
             # W71917: THE MOUNTPOINT, NOT A COPY. What stood here walked the
             # nominated tree a second time and wrote every file into the input
             # root -- the ordinary copied bootstrap this Work retires. The
@@ -1749,7 +1758,36 @@ class _SingleWorker:
         if self.judgment_document is not None:
             self._proved_task(roots["inputs"], name="judgment.json",
                               content=self.judgment_document)
+        handoff = self._handoff_document(stage)
+        if handoff is not None:
+            self._proved_task(roots["inputs"], name=HANDOFF_DOCUMENT,
+                              content=handoff)
         return held_input
+
+    def _handoff_document(self, stage):
+        """W385331: the native handoff context THIS attempt is delivered, or
+        `None`.
+
+        COMPOSED BY THE STAGE OWNER AND NEVER HERE. Which question a reviewer
+        is answering, which answer a resumed implementer continues on, and
+        which configured reviewer a request may be addressed to are facts of
+        the Job store and the Authority -- owners this worker does not hold.
+        The stage composition reads them through their public readers and
+        answers bytes; this publishes them exactly as it publishes the task,
+        at one fixed name beside it, read-only, re-proved on every restart.
+
+        `None` IS THE ORDINARY ANSWER for every Job that existed before this
+        slice and for every attempt with nothing to deliver: no document is
+        published, nothing is recorded under the name, and the input root is
+        byte for byte what it always was.
+        """
+        owner = getattr(self, "stage", None)
+        if stage is None or owner is None:
+            return None
+        compose = getattr(owner, "handoff_document_for", None)
+        if compose is None:
+            return None
+        return compose(stage)
 
     def _published_task(self, inputs, *, name=TASK_DOCUMENT, content=None):
         """Install the held task bytes as the read-only workload document.
@@ -2370,7 +2408,9 @@ class _SingleWorker:
         workspaces.record_preparation(
             self.control, attempt_id, roots,
             (TASK_DOCUMENT,) + (("judgment.json",)
-                                if self.judgment_document is not None else ()))
+                                if self.judgment_document is not None else ())
+            + ((HANDOFF_DOCUMENT,)
+               if self._handoff_document(stage) is not None else ()))
         self.checkpoint("prepared")
         state = attempt_runtime_of(self.control, attempt_id)
         fresh = state["execution_runtime"] == "not-started"

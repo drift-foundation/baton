@@ -1,0 +1,18 @@
+started 2026-11-20T17:21:20Z argv: tests.tools.test_native_handoffs
+test_native_handoffs (unittest.loader._FailedTest.test_native_handoffs) ... ERROR
+
+======================================================================
+ERROR: test_native_handoffs (unittest.loader._FailedTest.test_native_handoffs)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_native_handoffs
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.tools.test_native_handoffs'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
+exit=1 finished 2026-11-20T17:21:20Z

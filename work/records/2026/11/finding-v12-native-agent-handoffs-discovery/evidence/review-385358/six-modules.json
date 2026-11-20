@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.authority.test_work_messages",
+    "tests.job_manager.test_native_handoffs",
+    "tests.tools.test_native_handoffs",
+    "tests.job_manager.test_role_contract",
+    "tests.manager.test_output",
+    "tests.job_manager.test_job_control"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python",
+  "seconds": 11.42422202101443,
+  "exit": 0,
+  "roots": "/home/sl/src/baton/work/scratch/codxpc-w385331-fixtures"
+}

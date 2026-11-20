@@ -673,7 +673,11 @@ class TheFrozenTable(unittest.TestCase):
         """
         self.assertEqual(sorted(TEMPLATES),
                          [IMPLEMENTATION_REVIEW,
-                          templates.IMPLEMENTATION_REVIEW_2])
+                          templates.IMPLEMENTATION_REVIEW_2,
+                          # W385331: and the handoff-capable third revision.
+                          # The inventory stays EXACT -- what grew is the set
+                          # of registered revisions, not this case's rule.
+                          templates.IMPLEMENTATION_REVIEW_3])
         for version, definition in TEMPLATES.items():
             self.assertEqual(version, definition["version"])
             check_template(definition)
@@ -1160,7 +1164,11 @@ class TheRegisteredTemplateCannotBeWrittenTo(ResolverCase):
         # two sharing a mutable member.
         self.assertEqual(sorted(TEMPLATES),
                          [IMPLEMENTATION_REVIEW,
-                          templates.IMPLEMENTATION_REVIEW_2])
+                          templates.IMPLEMENTATION_REVIEW_2,
+                          # W385331: and the handoff-capable third revision.
+                          # The inventory stays EXACT -- what grew is the set
+                          # of registered revisions, not this case's rule.
+                          templates.IMPLEMENTATION_REVIEW_3])
         with self.assertRaises(TypeError):
             del templates.template_of(
                 templates.IMPLEMENTATION_REVIEW_2)["failure"]

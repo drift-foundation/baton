@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385364/operator-probe.py",
+    "InvalidDecisionRecipient.test_invalid_decision_address_is_rejected_before_install"
+  ],
+  "seconds": 0.26382267504232004,
+  "exit": 1
+}

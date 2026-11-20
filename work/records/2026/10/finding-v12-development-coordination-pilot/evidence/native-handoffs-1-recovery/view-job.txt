@@ -1,0 +1,58 @@
+observed at 2026-11-20T17:22:49.288Z   (3s old, read 0s ago)
+
+JOB w385331-handoffs-1   FAILED
+  submission   sub-w385331-handoffs-1
+  input        sha256:cc1b6096874535ed989569e62606544be8df8a275cc9df8cd5c375522b13580b
+  policy       sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917
+  terminal     report-and-hold
+
+  STAGE w385331-handoffs-1/implementation  [exceptional]
+    work         daec1190-W1
+    episode      1
+    offer        offer-15d73943a502da9798653d2c42386cbb2e6f21a690a200df0b596d5da38caf97
+    attempt      attempt-15d73943a502da9798653d2c42386cbb2e6f21a690a200df0b596d5da38caf97
+    operation    unknown
+    runtime      e3559b37c01e16959b41222846bbb1bc4bac5ee26dda03d4e5dec6efe19cc14a
+    engine       destroyed
+    assigned to  baton.claude-native
+    assigned work {'authority_uuid': 'daec1190ac0c48329cf41937f7e2073d', 'work_id': 'daec1190-W1'}
+    assigned gen 1
+    reserved worker impl-a
+    reserved as  baton.claude-native
+    reservation  attempt-15d73943a502da9798653d2c42386cbb2e6f21a690a200df0b596d5da38caf97
+    reservation state released
+    lane         implementation
+    pool generation 1
+    selection    initial
+    started      2026-11-20T15:23:04.651Z
+    elapsed      1h59m
+    activity     3.24 MiB last at 2026-11-20T16:22:36.084Z
+    corrections  0
+    reason       failed: stage ended exceptionally; cause unknown
+    results
+      proposal                 425348  file:///home/sl/baton-instances/native-handoffs-1/state/workspaces/.baton-review-lines/line-3eb38e93f28c49d611d876afe236e6456757bbaff4c22b5167441378e3891f27/custody/attempt-15d73943a502da9798653d2c42386cbb2e6f21a690a200df0b596d5da38caf97/proposal
+
+  STAGE w385331-handoffs-1/review  [blocked]
+    work         daec1190-W1
+    episode      1
+    offer        offer-5074c1219779f1398f7ab3a154bdb4cb9ffb860f19c3f04e762e4cc4b0244c4a
+    attempt      attempt-5074c1219779f1398f7ab3a154bdb4cb9ffb860f19c3f04e762e4cc4b0244c4a
+    operation    unknown
+    runtime      unknown
+    engine       unknown
+    assigned to  unknown
+    assigned work unknown
+    assigned gen unknown
+    reserved worker unknown
+    reserved as  unknown
+    reservation  unknown
+    reservation state unknown
+    lane         unknown
+    pool generation unknown
+    selection    unknown
+    started      2026-11-20T15:23:04.651Z
+    elapsed      1h59m
+    activity     unknown
+    corrections  0
+    reason       held: waiting on w385331-handoffs-1/implementation (exceptional)
+    results      unavailable (no frozen output in this snapshot)

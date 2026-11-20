@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T321608",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W321608"
+      }
+    ],
+    "last_seq": 385367,
+    "local_id": "T321608",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K: W385331 slice 1 correction round 2 \u2014 R4a of review-2026-11-20T20-53-37Z (M385365) corrected in isolation under the owner-held arrangement; R1\u2013R3 bytes preserved (the delta touches no src/baton_v12 or worker file). Refreshed digest-bound packet for independent DELTA review at work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/ (CORRECTION.md, manifest.json sha256 4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24). Candidate: 36 paths over 3d05430f (retained parent a743edeb; previously reviewed 766f97f2 reconstructed from its packet and verified 35/35), tree digest sha256:f62bbaab53c7d6a7f9730b726d68fac8cefe48a92130cdc176924acd1ec64028; patches candidate-from-3d05430f 265f6d3e\u2026, delta-from-a743edeb 8f0395da\u2026, delta-from-766f97f2 9a50ac60\u2026 (the review delta: 4 paths \u2014 tools/bootstrap.py, tests/tools/test_bootstrap.py, tests/tools/test_connected_creation.py new to the set, v12/STACK.md); all three reproductions verified byte for byte (provenance.json). Host tree, instance, stores and Git untouched (v12 clean, HEAD 3d05430f); K holds no claim; no import, rebuild or live launch.\n\nR4a: bootstrap._routing_faults now asks authority.messages.check_routing about the exact policy document _compose would persist \u2014 the validator Authority.native_routing() applies at every handoff-capable preparation \u2014 so both addresses are held to the Authority's participant grammar and the one-address rule is stated once there (the duplicate bootstrap spelling removed); role-membership and implementer/reviewer separation checks retained. And bootstrap.main now proves the routing selection (_routing_preflight, exactly the check held makes) BEFORE admitting a runtime, cloning repositories or making prerequisite roots, in both the destination and the repeat forms \u2014 those admissions precede prepare's whole-document validation by design, so a malformed address could otherwise leave durable effects even with a grammar check. (A first cut proved the whole document early; it changed four existing installer cases' pinned refusals for skeletal documents and was withdrawn for the selection-only preflight.) Proofs: test_bootstrap TheNativeHandoffRoutingIsConfiguredHere (14): nine malformed spellings for each address refused with \"a participant is team.member\" and nothing composed; the shared validator refuses exactly those; a refused repeat leaves the valid policy and grant unchanged. test_connected_creation TheNativeRoutingThroughTheRealInstaller (4) through the REAL bootstrap.main and job_manager.main: fresh two-role install with the selection \u2192 ordinary /3 creation under native-handoff/1 \u2192 scoped answer-handoff held, review not held, Job handoff-capable, selection kept in install-inputs.json and absent from the execution document (the reviewer's positive probe retained); the reviewer's failing probe (decision_recipient \"not-an-address\") now exits 2 with the refusal and nothing durable at the destination (no selector, record, configuration, Authority store, install document); malformed reviewer likewise; a refused one-operand repeat leaves install-inputs.json bytes and the policy unchanged. No existing test expectation changed. STACK.md routing paragraph updated.\n\nVerification (prepared 3.13.7; roots /var/tmp/baton-v12-handoffs-1/recovery; final runs on the outside-checkout copy; logs in the packet): six-module argv Ran 342 OK; bootstrap/connected-creation/environment/instance/stack 538 OK; just test-group authority 509/509; scans 492 passed + 2 optional skips of 494; job_manager 1715/1718 (same three identities as before); tools-pure 3517/3520 (test_live_ab, test_source_identity \u00d72 as before; round 1's transient PR-seed case passed, which attributes nothing); manager-pure run as 59 modules MINUS test_checkpoint_profiles via python -m unittest (not the accounted runner): 4391 ran, 6 failures = the same six identities. A withdrawn first cut that proved the WHOLE document early broke four installer cases (test_environment \u00d71, test_instance \u00d73, pinned refusals for skeletal documents); its chain logs are kept under logs/withdrawn-whole-document-preflight/ as evidence, not as this candidate's result. Not claimed: acceptance, live execution, image rebuild, the three checkpoint_profiles classes (hazard, not rerun), attribution of round 1's transient PR-seed failure (cause unknown; a pass here does not attribute it), next slice; status-timeout finding unchanged. PROGRESS.md appended. Ready for independent delta review through baton.codx; holding.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385367,
+        "ts": "2026-11-20 21:27:22"
+      }
+    ],
+    "new": 109,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "Assess replacing v11 coordination with v12 for one development workflow",
+    "total": 109
+  },
+  "snapshot_seq": 385370
+}

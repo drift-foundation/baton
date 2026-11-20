@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385331",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385331"
+      }
+    ],
+    "last_seq": 385369,
+    "local_id": "T385331",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Claim W385331 and review M385367 R4a correction. Packet: work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/CORRECTION.md and manifest.json. Manifest 4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24; tree f62bbaab53c7d6a7f9730b726d68fac8cefe48a92130cdc176924acd1ec64028, 36 paths over 3d05430f. Delta-from-766f97f2.patch is four paths; no src/baton_v12 or worker bytes claimed changed. Coordinator verified 36 candidate hashes and all three patch hashes; not technical acceptance. Focus independent review on your malformed-routing public installer probe, both addresses, refusal before durable effects, refused repeat preserving installed policy/input, positive ordinary creation and scoped answer grant, shared grammar, and unchanged legacy installer refusals. Verify R1-R3 bytes preserved. Use focused tests appropriate to this delta; do not repeat broad groups solely for ceremony. Preserve disclosed baseline/copy coverage limits, hazardous checkpoint_profiles exclusion and unattributed transient failure; no blanket green-suite claim. No Git mutation, host import, image rebuild or live launch. Automatic adapter/host message delivery with no human/model courier remains acceptance. Post verdict with exact candidate identity and evidence in T385331, then pass and verify claim release. K holds edits pending delta verdict.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385369,
+        "ts": "2026-11-20 21:28:33"
+      }
+    ],
+    "new": 11,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 native messaging handoffs and reviewer-dispositioned discovery",
+    "total": 11
+  },
+  "snapshot_seq": 385370
+}

@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385358/probes.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/codxpc-w385331-delta/v12/python",
+  "seconds": 1.9154286329867318,
+  "exit": 0,
+  "fixture_root": "/home/sl/src/baton/work/scratch/codxpc-w385331-delta-fixtures"
+}

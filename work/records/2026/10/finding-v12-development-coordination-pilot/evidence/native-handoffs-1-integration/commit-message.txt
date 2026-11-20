@@ -1,0 +1,30 @@
+v12: native handoffs — a question is not a candidate (W385331 slice 1)
+
+Import the independently accepted first native handoff source slice:
+candidate tree sha256:f62bbaab53c7d6a7f9730b726d68fac8cefe48a92130cdc176924acd1ec64028
+(36 paths over 3d05430f; manifest sha256 4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24;
+retained parent a743edeb from the native Job w385331-handoffs-1; accepted by
+baton.codxpc review-2026-11-20T21-32-47Z after reviews 19-39-15Z and 20-53-37Z).
+
+Authority schema 7: work_message and work_message_transition; request_handoff
+(assignment-owned) and answer_handoff (answer-handoff capability, bound to the
+Work and Job); native_handoff_routing policy. Template implementation-review/3
+bound to development-role-contract.native-handoff/1 (handoff/response outputs);
+control profile native-handoff/1 (one resolved continuation, zero corrections).
+Host: classification before publication, request committed under the live
+assignment then cross-bound to the frozen checkpoint, native.yield/continue/
+hold/answer journal records, awaiting-answer and answered states, retained
+continuation resolved from accepted custody and delivered to the resumed
+attempt, per-attempt delivery record binding the reply, replayable
+continuation. Worker adapter: handoff/request.json and response.json bound
+into baton.native-handoff/1, read-only continuation placement, prompts.
+Bootstrap: native_handoff_routing selection validated with the Authority's own
+grammar before any installer effect, policy and scoped answer-handoff grant.
+Tests: test_work_messages (66), job_manager.test_native_handoffs (82),
+tools.test_native_handoffs (14), bootstrap/connected-creation routing cases;
+inventories declared. Image rebuild and runtime qualification follow separately.
+
+Evidence: work/records/2026/10/finding-v12-development-coordination-pilot/
+evidence/native-handoffs-1-{recovery,continuation,correction,correction-2,
+integration}/ and work/records/2026/11/finding-v12-native-agent-handoffs-
+discovery/review-2026-11-20T*.md.

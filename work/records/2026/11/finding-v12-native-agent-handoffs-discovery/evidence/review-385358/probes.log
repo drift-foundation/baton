@@ -1,0 +1,38 @@
+test_retained_continuation_reaches_resumed_provider (__main__.ComposedProbes.test_retained_continuation_reaches_resumed_provider) ... FAIL
+test_zero_edit_yield_answer_resume (__main__.ComposedProbes.test_zero_edit_yield_answer_resume) ... ok
+test_actual_continuation_retry_returns_same_receipt (__main__.ReplayProbe.test_actual_continuation_retry_returns_same_receipt) ... ERROR
+
+======================================================================
+ERROR: test_actual_continuation_retry_returns_same_receipt (__main__.ReplayProbe.test_actual_continuation_retry_returns_same_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385358/probes.py", line 48, in test_actual_continuation_retry_returns_same_receipt
+    again = native_handoffs.advance_continuation(self.jobs, self.control,
+        self.authority, job_id='job-a')
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/job_manager/native_handoffs.py", line 776, in advance_continuation
+    _refuse(f"stage {name_value(implementation['stage_id'])} episode "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{live['episode']} recorded no yield; a continuation follows "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a durable request and nothing else")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/job_manager/native_handoffs.py", line 152, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-a/implementation' episode 2 recorded no yield; a continuation follows a durable request and nothing else
+
+======================================================================
+FAIL: test_retained_continuation_reaches_resumed_provider (__main__.ComposedProbes.test_retained_continuation_reaches_resumed_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385358/probes.py", line 39, in test_retained_continuation_reaches_resumed_provider
+    self.assertTrue(seen['file_exists'] or seen['prompt_has_continuation'],
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'retained continuation is absent from both provider prompt and working copy')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : retained continuation is absent from both provider prompt and working copy
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.618s
+
+FAILED (failures=1, errors=1)
+CONTINUATION_OBSERVATION {"file_exists": false, "prompt_has_continuation": false}

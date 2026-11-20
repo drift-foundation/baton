@@ -1,0 +1,6 @@
+work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-recovery/proposal/objects.bundle is okay
+The bundle contains this ref:
+a743edebacf5c744020083ee68549f2bd1fa91f7 HEAD
+The bundle requires this ref:
+3d05430f97ca9d4a516b51d15eb940840a6f0eff 
+The bundle uses this hash algorithm: sha1

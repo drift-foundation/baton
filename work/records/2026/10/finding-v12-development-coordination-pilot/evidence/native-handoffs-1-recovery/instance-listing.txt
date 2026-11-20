@@ -1,0 +1,21 @@
+total 32
+dr-xr-xr-x+ 8 sl sl              4096 Nov 20 08:23 .
+drwx------ 4 sl sl              4096 Nov 20 08:23 ..
+drwxrwxr-x 2 sl sl              4096 Nov 20 08:23 credential-state
+drwxrwxr-x 2 sl sl              4096 Nov 20 08:23 credentials
+drwxrwxr-x 2 sl sl              4096 Nov 20 08:23 custody
+dr-xr-xr-x 3 sl sl              4096 Nov 20 08:23 inputs
+drwxrwxr-x 6 sl sl              4096 Nov 20 09:22 scratch
+drwxrws--- 3 sl baton-workspace 4096 Nov 20 08:23 workspace
+
+total 432
+dr-xr-xr-x+ 2 sl sl   4096 Nov 20 09:23 .
+drwxrwxr-x 3 sl sl   4096 Nov 20 09:23 ..
+-r--r--r-- 1 sl sl 329567 Nov 20 09:23 change.patch
+-r--r--r-- 1 sl sl  93940 Nov 20 09:23 objects.bundle
+-r--r--r-- 1 sl sl   1811 Nov 20 09:23 result.json
+-r--r--r-- 1 sl sl     30 Nov 20 09:23 verification.txt
+
+    PID     ELAPSED CMD
+2236050    01:59:39 /home/sl/baton-instances/native-handoffs-1/distro/baton-v12-stack manager --store /home/sl/baton-instances/native-handoffs-1/db/jobs.sqlite3 --incarnation v12-stack-2236049-1795188193148081881 --authority-uuid daec1190ac0c48329cf41937f7e2073d serve --control /home/sl/baton-instances/native-handoffs-1/db/control.sqlite3 --operations tools.stage_execution:factory
+2236051    01:59:39 /home/sl/baton-instances/native-handoffs-1/distro/baton-v12-stack publish --root /home/sl/baton-instances/native-handoffs-1/state

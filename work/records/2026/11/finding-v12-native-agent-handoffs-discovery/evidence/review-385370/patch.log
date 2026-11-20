@@ -1,0 +1,4 @@
+patching file v12/python/tests/tools/test_bootstrap.py
+patching file v12/python/tests/tools/test_connected_creation.py
+patching file v12/python/tools/bootstrap.py
+patching file v12/STACK.md

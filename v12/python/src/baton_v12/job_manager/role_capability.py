@@ -45,7 +45,10 @@ __all__ = ["CAPABILITY_SCHEMA", "CAPABILITY_MEMBERS", "CAPABILITY_DIGESTS",
            "TASK_MEMBERS", "TASK_SOURCE_ROOT", "check_dogfood_task",
            "capability_digest",
            "check_role_capability", "role_capability_of_bytes",
-           "compatible_capability", "admissible_roles"]
+           "compatible_capability", "admissible_roles",
+           # W385331: the handoff-capable synthetic vector, for the same
+           # reason `SYNTHETIC_DIGEST` is exported -- a shape, never a grant.
+           "HANDOFF_SYNTHETIC"]
 
 CAPABILITY_SCHEMA = "baton.v12.adapter-role-capability/1"
 # Closed, and in the order the proposal names them.
@@ -190,7 +193,14 @@ def compatible_capability(capability, contract, *, what="this deployment"):
     this is a predicate, and the existing owners still decide.
     """
     held = check_role_capability(capability)
-    agreed = role_contract.check_role_contract(contract)
+    # W385331: WHICHEVER REVISION THE CONTRACT SAYS IT IS, and a revision this
+    # build does not carry refuses as a VERSION. That is the fail-closed half
+    # of qualification and the reason this is `check_any_role_contract` rather
+    # than a second call site pinned to one family: a capability qualified
+    # against the baseline descriptor must prove nothing about a
+    # handoff-capable one, and the digest comparison below is what decides
+    # that -- which it can only do if both revisions reach it at all.
+    agreed = role_contract.check_any_role_contract(contract)
     mine = role_contract.contract_digest(agreed)
     if held["role_contract_digest"] != mine:
         _denied(f"{what}'s installed capability was qualified against role "
@@ -233,6 +243,30 @@ assert check_role_capability(_SYNTHETIC) == _SYNTHETIC
 assert compatible_capability(
     _SYNTHETIC, role_contract.baseline_document()) == [
         "implementation", "review"]
+# W385331: AND THE NEGATIVE SIDE IS A REPRODUCED FACT TOO. The same synthetic
+# capability, qualified against the BASELINE descriptor's digest, proves
+# nothing about the handoff-capable revision -- so it is refused rather than
+# carried across, which is "new template/image qualification fails closed on
+# mismatched versions" asserted at import rather than described.
+try:
+    compatible_capability(_SYNTHETIC, role_contract.handoff_document())
+except ContractRefusal:
+    pass
+else:
+    raise AssertionError(role_contract.HANDOFF_CONTRACT_SCHEMA)
+# And a capability qualified against the NEW descriptor is compatible with it
+# and with nothing else, which is the same statement from the other side.
+HANDOFF_SYNTHETIC = dict(_SYNTHETIC,
+                         role_contract_digest=role_contract.HANDOFF_DIGEST)
+assert compatible_capability(
+    HANDOFF_SYNTHETIC, role_contract.handoff_document()) == [
+        "implementation", "review"]
+try:
+    compatible_capability(HANDOFF_SYNTHETIC, role_contract.baseline_document())
+except ContractRefusal:
+    pass
+else:
+    raise AssertionError(role_contract.CONTRACT_SCHEMA)
 # And `boundaries` is imported for the refusal vocabulary this package shares;
 # naming it keeps the dependency visible rather than implicit.
 assert boundaries is not None
@@ -737,7 +771,7 @@ def admissible_roles(contract, *, candidates, what="this deployment"):
     workflow. A single-role capability remains a valid LANE input; it cannot
     be the stage decision.
     """
-    agreed = role_contract.check_role_contract(
+    agreed = role_contract.check_any_role_contract(
         contract, what=f"{what}'s role contract")
     required = [one["role"] for one in agreed["roles"]]
     if type(candidates) is not dict:

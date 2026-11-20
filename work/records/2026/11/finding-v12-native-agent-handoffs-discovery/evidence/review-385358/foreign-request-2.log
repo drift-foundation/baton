@@ -1,0 +1,42 @@
+test_response_from_work_a_cannot_answer_work_b (__main__.ForeignRequestProbe.test_response_from_work_a_cannot_answer_work_b) ... ERROR
+
+======================================================================
+ERROR: test_response_from_work_a_cannot_answer_work_b (__main__.ForeignRequestProbe.test_response_from_work_a_cannot_answer_work_b)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385358/probes.py", line 62, in test_response_from_work_a_cannot_answer_work_b
+    assignment = self.producer.claim({'work_id':'0000000a-W2','operation_id':'claim-other'})['assignment']
+                 ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/authority/session.py", line 356, in call
+    return self._call(name, documents)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/authority/session.py", line 320, in _call
+    return method(operands["work_id"], self._participant,
+                  operation_id=operands["operation_id"])
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/authority/core.py", line 1767, in claim
+    return self._replay(operation_id,
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^
+                        claim_signature(work_id, participant), body)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/authority/core.py", line 2833, in _replay
+    return self._store.replay(operation_id, signature, action,
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              at=at or self._now())
+                              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/authority/store.py", line 502, in replay
+    raise outcome["refusal"]
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/authority/store.py", line 436, in _savepoint
+    value = body()
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/authority/core.py", line 1717, in body
+    self._take_slot(decision, work_id, generation)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/codxpc-w385331-review/v12/python/src/baton_v12/authority/core.py", line 1615, in _take_slot
+    raise Refusal(
+    ...<2 lines>...
+        f"time, across every endpoint address it acts through")
+baton_v12.authority.errors.Refusal: 'principal:baton.impl' already holds '0000000a-W1'; a principal holds ONE active claim at a time, across every endpoint address it acts through
+
+----------------------------------------------------------------------
+Ran 1 test in 0.058s
+
+FAILED (errors=1)

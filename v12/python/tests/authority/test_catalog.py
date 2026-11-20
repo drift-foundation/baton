@@ -165,7 +165,10 @@ class TheMigrationChecklistIsRead(unittest.TestCase):
                                  # Node counterpart: the frozen host has no
                                  # Work labels to port.
                                  "test_work_label_exposure.py",
-                                 "test_work_labels.py"])
+                                 "test_work_labels.py",
+                                 # W385331: the durable attributed Work
+                                 # message, its reply and its effect.
+                                 "test_work_messages.py"])
         self.assertEqual([path.name for path in
                           DISTRIBUTION.glob("tests/test_*.py")], [])
 

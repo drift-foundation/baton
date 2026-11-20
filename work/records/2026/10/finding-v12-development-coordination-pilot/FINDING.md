@@ -823,3 +823,13 @@ Coordinator checked M385329 import: all11host file hashes equal reviewed joined 
 ## 2026-11-20 — messaging/handoffs/discovery promoted to next priority
 
 Owner selects 2b077949-W385331 at work/records/2026/11/finding-v12-native-agent-handoffs-discovery for development using v12. This supersedes the earlier temporary deferral for its bounded scope. Labels checkpoint45141ac6 remains accepted; prior native pilot run is not retroactively accepted. New scope/semantics pinned in DESIGN SCH-2a. Mechanical kickoff on a verified current runtime remains required.
+
+
+## 2026-11-20 — kickoff packet bound; single build/gate released
+
+M385347/M385348 bind the next ordinary native development run to3d05430f. Coordinator releases step C only. Packet clean-stamp requirement superseded: truthful evidence-only dirty state is permitted with actual build-input/source equivalence and artifact provenance verified, consistent with KICKOFF-READINESS. No repeated commit/rebind cycle solely for generated evidence. Install/admit/create/start not yet performed.
+
+
+## 2026-11-20 — handoffs instance installed and worker inputs composed
+
+Owner installation readback verified: native-handoffs-1 authority daec1190ac0c48329cf41937f7e2073d, checkpoint3d05430f, runtime ea772e90867c32a8f1125201f3e2c7bbd699ebac17f6c6ce7a7fa1eaff7d3d7b/82files, no workers. Coordinator completed ordinary step E directly to avoid another manual relay: delivered exact bound task and composed impl-a/review-a through installed pool CLI; both exit0, layout1423c3aa…, current image, no Job/Work/config mutation. Prepared config/native-workers-3d05430f.json. K do not duplicate E. Owner worker-admission bootstrap is next; no model start/create done.

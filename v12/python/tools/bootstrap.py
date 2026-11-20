@@ -172,6 +172,35 @@ INTEGRATOR_GRANT = "integrate"
 DISPOSITION = ("owner_participant",)
 OWNER_GRANTS = ("approve", "integrate", "close")
 
+# W385331 (review 2026-11-20T19-39-15Z R4): THE NATIVE HANDOFF ROUTING, as a
+# selection of THIS helper, which is the configuration and grant owner the
+# accepted slice assigns it to.
+#
+# WHAT WAS MISSING. The Authority policy `native_handoff_routing` and the
+# `answer-handoff` capability existed in the Authority and in every runtime
+# consumer, and no supported configuration path installed either: the joined
+# tests set them by direct Authority calls, and a deployment prepared by this
+# helper could admit a handoff-capable Job whose first question nobody was
+# permitted to receive.
+#
+# ONE OPTIONAL OBJECT WITH TWO ADDRESSES. `reviewer` is the configured review
+# worker's own participant -- the only address an implementer's request may be
+# addressed to, and the one granted `answer-handoff` in each bound Work's own
+# scope, exactly as the receipt actors are granted theirs. `decision_recipient`
+# is where an unresolved request escalates, the human owner, and it is refused
+# here when it is the reviewer: the Authority refuses the same policy at read,
+# and a deployment should learn that before it is composed. Nothing here grants
+# `review`: answering a question is not writing a technical review receipt.
+#
+# NOT IN `OPTIONAL`, for `DISPOSITION`'s reason: that tuple travels verbatim
+# into the emitted `stage_execution` document, whose member set is closed and
+# whose consumers serve execution. Who may be asked and who decides is
+# Authority policy and a grant, and both are made here.
+ROUTING = ("native_handoff_routing",)
+_ROUTING = ("reviewer", "decision_recipient")
+ANSWER_GRANT = "answer-handoff"
+ROUTING_SCHEMA = "baton.native-handoff-routing/1"
+
 # The route each stage is served on. `review_route` on a worker names where its
 # own ending hands the Work on to, which is why the last one is not a stage.
 ROUTES = {"implementation": "impl", "review": "rview", "integration": "integration"}
@@ -382,7 +411,7 @@ def _unknown(document):
     the deployment behaves differently from what they asked for.
     """
     allowed = (set(REQUIRED) | set(OPTIONAL) | set(INSTALLER_ONLY)
-               | set(DEFERRED) | set(DISPOSITION))
+               | set(DEFERRED) | set(DISPOSITION) | set(ROUTING))
     found = [name + " -- " + SUPERSEDED[name] if name in SUPERSEDED else name
              for name in document if name not in allowed]
     for index, worker in enumerate(document.get("workers") or []):
@@ -401,6 +430,10 @@ def _unknown(document):
     if type(profile) is dict:
         found += ["integration_profile." + name for name in profile
                   if name not in _PROFILE]
+    routing = document.get(ROUTING[0])
+    if type(routing) is dict:
+        found += [ROUTING[0] + "." + name for name in routing
+                  if name not in _ROUTING]
     return found
 
 
@@ -452,7 +485,7 @@ def held(document):
             "two are indistinguishable to an operator until the deployment "
             "behaves differently from what they asked for. The supported "
             "optional selections are "
-            + ", ".join(OPTIONAL + DISPOSITION) + ".")
+            + ", ".join(OPTIONAL + DISPOSITION + ROUTING) + ".")
     named = [name for name in INSTANCE_SOURCE
              if document.get(name) not in (None, "")]
     if named and len(named) != len(INSTANCE_SOURCE):
@@ -508,6 +541,7 @@ def held(document):
     if shared:
         faults.append("implementation and review may share no participant, and "
                       + ", ".join(sorted(shared)) + " serves both")
+    faults += _routing_faults(document, reviewers, producers)
 
     # EVERY JOB RULE, UNCHANGED, WHENEVER JOBS ARE SUPPLIED. The fresh install
     # names none; one that names some is held to exactly what it always was.
@@ -536,6 +570,96 @@ def held(document):
         raise BootstrapRefusal("this deployment cannot be prepared: "
                                + "; ".join(faults))
     return document
+
+
+def _routing_faults(document, reviewers, producers):
+    """Every fault in the native handoff routing selection, or none.
+
+    FAIL-CLOSED ON THE ADDRESS. A reviewer this deployment serves no review
+    worker for could never be delivered a question, so a request addressed to
+    it would hold forever; that is refused here when workers are configured
+    at all. An instance installed with no workers names the address it WILL
+    serve, exactly as it names its receipt participants.
+    """
+    if ROUTING[0] not in document:
+        return []
+    routing = document[ROUTING[0]]
+    what = ROUTING[0]
+    if type(routing) is not dict:
+        return [what + " is one object naming " + " and ".join(_ROUTING)
+                + ", not " + type(routing).__name__]
+    faults = []
+    for name in _ROUTING:
+        if type(routing.get(name)) is not str or not routing.get(name):
+            faults.append(what + "." + name + " names one participant")
+    if faults:
+        return faults
+    # THE AUTHORITY'S OWN GRAMMAR, APPLIED HERE AND NOT A SECOND LOOSER ONE
+    # (review 2026-11-20T20-53-37Z R4a). `_compose` persists this selection
+    # through the generic policy writer, which accepts any owned JSON; what
+    # refuses a malformed address is the Authority's semantic READ, which every
+    # handoff-capable preparation makes -- so an installation that accepted
+    # `not-an-address` here reported success and could never prepare a turn.
+    # The selection is held to exactly the validator that read will apply,
+    # before any directory, store, policy or configuration effect.
+    from baton_v12.authority.errors import Refusal
+    from baton_v12.authority.messages import check_routing
+
+    try:
+        check_routing({"schema": ROUTING_SCHEMA,
+                       "reviewer": routing["reviewer"],
+                       "decision_recipient": routing["decision_recipient"]},
+                      what=what)
+    except Refusal as refused:
+        # The grammar of both addresses AND the one-address-for-both-roles
+        # rule are the validator's own, stated once there.
+        return [str(refused)]
+    if reviewers and routing["reviewer"] not in reviewers:
+        faults.append(what + ".reviewer " + repr(routing["reviewer"])
+                      + " is not a configured review worker's participant ("
+                      + ", ".join(sorted(reviewers)) + "); a question is "
+                      "addressed to the reviewer this deployment serves")
+    if routing["reviewer"] in producers:
+        faults.append(what + ".reviewer " + repr(routing["reviewer"])
+                      + " is an implementation participant; an implementer's "
+                      "question is not answered by an implementer")
+    return faults
+
+
+def _routing_preflight(document):
+    """The routing selection's own faults, raised BEFORE any installer effect.
+
+    ONLY THE SELECTION. `held` proves the whole document inside `prepare`, and
+    the installer's admissions (the runtime, the repositories, the prerequisite
+    roots) deliberately precede it so that their own refusals are reached and
+    reported in their own words; a malformed routing address, though, would
+    be persisted by `_compose` through the generic policy writer and refused
+    only at the Authority's semantic read -- so it is held here first, with
+    exactly the check `held` makes.
+    """
+    if type(document) is not dict or ROUTING[0] not in document:
+        return
+    by_role = {}
+    for worker in workers_of(document):
+        if type(worker) is dict:
+            by_role.setdefault(worker.get("role"), []).append(worker)
+    reviewers = {one.get("participant") for one in by_role.get("review", [])}
+    producers = {one.get("participant")
+                 for one in by_role.get("implementation", [])}
+    faults = _routing_faults(document, reviewers, producers)
+    if faults:
+        raise BootstrapRefusal("this deployment cannot be prepared: "
+                               + "; ".join(faults) + ". Nothing was changed.")
+
+
+def routing_of(document):
+    """The native handoff routing this document selects, as the Authority
+    policy document, or `None`."""
+    if ROUTING[0] not in document:
+        return None
+    held = document[ROUTING[0]]
+    return {"schema": ROUTING_SCHEMA, "reviewer": held["reviewer"],
+            "decision_recipient": held["decision_recipient"]}
 
 
 # -- the external layout ------------------------------------------------------
@@ -778,6 +902,16 @@ def _compose(authority, document, *, stream):
         route = ROUTES[worker["role"]]
         authority.add_route_handler(route, worker["participant"])
         print("route %-14s -> %s" % (route, worker["participant"]), file=stream)
+    # W385331: THE NATIVE HANDOFF ROUTING IS INSTANCE POLICY, set whether or
+    # not a Job is bound -- it names addresses, not a Work -- and said out
+    # loud, for the owner grant's reason. The reviewer's grant is per bound
+    # Work below, exactly as the receipt grants are.
+    routing = routing_of(document)
+    if routing is not None:
+        authority.set_policy("native_handoff_routing", routing)
+        print("routing%-14s reviewer %s, decisions to %s"
+              % ("", routing["reviewer"], routing["decision_recipient"]),
+              file=stream)
 
     # NO JOB, NO WORK, NO GRANT. OWNER-FRESH-INSTALL-20260916.md: "Do not
     # create placeholder Work, Jobs or per-Work grants to satisfy the old
@@ -819,6 +953,13 @@ def _compose(authority, document, *, stream):
                 authority.grant_capability(owner, capability, scope=scope)
             print("owner %-14s %s in its own scope; no verify or review grant"
                   % (job["work_id"], "/".join(OWNER_GRANTS)), file=stream)
+        # W385331: THE ACTUAL REVIEWER'S ANSWERING GRANT, in the same Work's
+        # own scope. Not `review`: a reply is not a technical review receipt.
+        if routing is not None:
+            authority.grant_capability(routing["reviewer"], ANSWER_GRANT,
+                                       scope=scope)
+            print("answer%-14s %s to %s in its own scope; no review grant"
+                  % ("", ANSWER_GRANT, routing["reviewer"]), file=stream)
     _canonical_target(authority, document, stream=stream)
     return created
 
@@ -3593,6 +3734,12 @@ def main(argv=None, *, stream=sys.stdout, runner=None):
 
             places = instance.layout(taken.destination)
             document = dict(document, state_root=places["destination"])
+            # THE ROUTING SELECTION IS PROVED BEFORE THE FIRST EFFECT (review
+            # 2026-11-20T20-53-37Z R4a). `prepare` holds the whole document,
+            # but by then the runtime has been admitted and repositories
+            # cloned into the destination -- effects a malformed address must
+            # not earn. The same pure check `held` applies, applied first.
+            _routing_preflight(document)
             # PREPARED BY DEFAULT, because the owner's two-operand command
             # "creates the bundled distro, databases and independent
             # repositories" -- and the source is this checkout rather than a
@@ -3621,6 +3768,9 @@ def main(argv=None, *, stream=sys.stdout, runner=None):
             # the instance's own target before anything serves them.
             from tools import instance
 
+            # PROVED BEFORE ANY ROOT IS MADE OR SOURCE CLONED, for the
+            # destination form's reason (R4a).
+            _routing_preflight(document)
             places = instance.layout(document["state_root"])
             # AND THE ROOTS THOSE WORKERS START IN (review 2026-11-19T05-23-
             # 45Z). `prepare_prerequisites` ran only in the destination

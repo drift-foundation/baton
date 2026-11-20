@@ -32,6 +32,7 @@ import json
 from datetime import datetime, timezone
 
 from .errors import Refusal, label_of, name_of
+from . import messages
 from .dossier import (EVIDENCE_LIMIT, check_evidence_digest,
                       check_evidence_reference, check_locator)
 from .labels import MAX_LABELS, canonical_label, canonical_label_set
@@ -89,8 +90,23 @@ CAPABILITIES = ("verify", "review", "approve", "integrate", "close",
                 # authorize nothing here, and reusing `close` or any
                 # other receipt capability would have made one of
                 # them mean two different permissions.
-                "manage-work-labels")
+                "manage-work-labels",
+                # W385331: answering a native implementer's clarification or
+                # in-scope finding request. A SEPARATE grant, resolved in the
+                # requested WORK's effective scope, because the slice is
+                # explicit that existing `review` membership or route handling
+                # grants no new capability by implication -- a technical review
+                # receipt is about a candidate, and answering a question is not
+                # that act.
+                "answer-handoff")
 _CAPABILITY_SET = frozenset(CAPABILITIES)
+# SPELLED AS A LITERAL ABOVE AND HELD TO ITS OWNER HERE. `messages` is what
+# REQUIRES this capability, so it owns the name -- but this tuple is the one
+# list a deployment configures from and it is interpolated into a refusal that
+# `tests.authority.test_boundary` proves is bounded by construction, which a
+# tuple containing an attribute reference would no longer be. One assertion
+# rather than two spellings that agree until they don't.
+assert messages.ANSWER_CAPABILITY in _CAPABILITY_SET, messages.ANSWER_CAPABILITY
 
 
 def _utc_now():
@@ -2225,6 +2241,67 @@ class Core:
                 for row in self._store.all(
                     "SELECT * FROM activity WHERE work_id = ? ORDER BY seq",
                     self._work(work_id)["work_id"])]
+
+    # -- W385331: the native handoff message surface -------------------------
+    #
+    # THE TRANSITIONS ARE ASSIGNMENT-OWNED AND CAPABILITY-OWNED RESPECTIVELY,
+    # which is the same split every other pair here takes: an implementer's
+    # request is carried out UNDER its exact live assignment, and a reviewer's
+    # reply is an attributable act authorized by a configured capability in the
+    # requested Work's own effective scope. The bodies live in `messages`; the
+    # methods are here because `Core` is the one implementation both public
+    # faces expose a subset of.
+
+    def native_routing(self):
+        """The configured reviewer and decision recipient, or `None`.
+
+        `None` IS AN ORDINARY ANSWER and not a refusal: a deployment that has
+        configured no native routing admits no native request, and the
+        transitions say so where they refuse. Deciding it here would make an
+        unconfigured deployment an error for every reader.
+        """
+        held = self.policy(messages.ROUTING_POLICY)
+        if held is None:
+            return None
+        return messages.check_routing(held)
+
+    def request_handoff(self, expect, *, operation_id, message_id, job_id,
+                        kind, body, handoff_digest, task_digest,
+                        checkpoint_ref, continuation_digest, destination):
+        return messages.request(
+            self, expect, operation_id=operation_id, message_id=message_id,
+            job_id=job_id, kind=kind, body=body,
+            handoff_digest=handoff_digest, task_digest=task_digest,
+            checkpoint_ref=checkpoint_ref,
+            continuation_digest=continuation_digest, destination=destination)
+
+    def answer_handoff(self, *, operation_id, message_id, reply_to, actor,
+                       disposition, body, handoff_digest, request_digest,
+                       checkpoint_ref, effect, detail, work_id, job_id):
+        return messages.respond(
+            self, operation_id=operation_id, message_id=message_id,
+            reply_to=reply_to, actor=actor, disposition=disposition, body=body,
+            handoff_digest=handoff_digest, request_digest=request_digest,
+            checkpoint_ref=checkpoint_ref, effect=effect, detail=detail,
+            work_id=work_id, job_id=job_id)
+
+    def work_messages(self, work_id):
+        return messages.messages_of(self, work_id)
+
+    def work_message(self, message_id):
+        return messages.message_of(self, message_id)
+
+    def work_message_reply(self, message_id):
+        return messages.reply_of(self, message_id)
+
+    def work_message_transition(self, message_id):
+        return messages.transition_of(self, message_id)
+
+    def pending_handoff_requests(self, work_id):
+        return messages.pending_requests_of(self, work_id)
+
+    def handoff_escalations(self, work_id):
+        return messages.escalations_of(self, work_id)
 
     # -- proposal and the four workflow receipts ------------------------------
 

@@ -1,0 +1,6 @@
+test_response_from_work_a_cannot_answer_work_b (__main__.ForeignRequestProbe.test_response_from_work_a_cannot_answer_work_b) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.070s
+
+OK

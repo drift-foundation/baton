@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere",
+    "tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_rejected_derived_judgment_cannot_authorize_import"
+  ],
+  "seconds": 3.7674223849899136,
+  "exit": 0
+}

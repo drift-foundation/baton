@@ -1,0 +1,13 @@
+date: 2026-11-20T14:20:04Z
+HEAD: 3d05430f97ca9d4a516b51d15eb940840a6f0eff
+--- v12 status (build-consumed source; expect empty)
+--- all dirty paths before build
+ M work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md
+ M work/records/2026/10/finding-v12-development-coordination-pilot/PLAN.md
+ M work/records/2026/10/finding-v12-development-coordination-pilot/PROGRESS.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-installed-task-3d05430f.json
+?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-installed-task-handoffs-1.unbound.json
+?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-3d05430f.json
+?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-handoffs-1.unbound.json
+?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/checkpoint-3d05430f-packaging/
+?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-kickoff-20261120/

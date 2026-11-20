@@ -1,0 +1,16 @@
+date: 2026-11-20T14:03:28Z
+HEAD: 3d05430f97ca9d4a516b51d15eb940840a6f0eff
+3d05430f v12: define native messaging and retained-continuation delivery
+45141ac6 v12: expose Work labels through bundled CLI and create-time labels
+--- git status --porcelain -- v12 dossier (empty)
+--- git diff --stat e670e624 3d05430f97ca9d4a516b51d15eb940840a6f0eff image inputs (empty)
+--- committed dossier sha256
+9a7be38a984b2a5afb7e637d343a3bbb5092bca7203cc4d726e87da9a4eb7fd0  FINDING.md
+e4832136733fe7e3e1131670ff977fafcd8e2b783765bd4fb2151d1a7202c463  PLAN.md
+617d97dc40f51f4e75f6df4d03fa3efd21c600a9ff11ee28956177acb053c29d  FIRST-NATIVE-SLICE.md
+e0bc0440a8319b4b34b975d273452fbb98efdbb15f3e7d45f2d6ee648cb54a5a  NATIVE-TASK.txt
+eb7ac48094e47b6b2d60b5d3f0e3c218435537492cb273c71e36f2aa3b9754e5  KICKOFF-READINESS.md
+aa14098ef355432a480699d82045175bd0139031315e7b67a966815e26c55a48  review-2026-11-20T05-24-56Z.md
+--- bound inputs
+19b1e92cb92694c993d25fac9074f58dabd8051f5c983a63557f79ccc214f345  work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-3d05430f.json
+01b881d95327bd36c08908b33fef982dea52e4c8d8d731ed9fb997bd7c9b1e13  work/records/2026/10/finding-v12-development-coordination-pilot/config/native-installed-task-3d05430f.json

@@ -105,7 +105,7 @@ __all__ = ["ACCEPTANCE_LIMIT", "CANDIDATE_OUTPUT", "CONFIGURATION_MEMBERS",
            "RESOLVED_TASK_MEMBERS", "ROLE_MEMBERS", "RULE_MEMBERS",
            "SELECTION_MEMBERS", "SELECTION_ORIGINS", "SOURCE_MEMBERS",
            "SCOPE_MEMBERS", "TASK_MEMBERS", "TASK_OPTIONAL", "TEMPLATES",
-           "IMPLEMENTATION_REVIEW_2",
+           "IMPLEMENTATION_REVIEW_2", "IMPLEMENTATION_REVIEW_3",
            "check_template", "owned_resolution", "resolution_digest",
            "resolve", "submission_for_admission", "submission_id_for",
            "template_document", "template_of"]
@@ -267,6 +267,54 @@ _AUTHORED = {
 # descriptor, whose owner is `role_contract`.
 _AUTHORED[IMPLEMENTATION_REVIEW_2] = dict(
     _AUTHORED[IMPLEMENTATION_REVIEW], version=IMPLEMENTATION_REVIEW_2)
+
+# -- the third revision: the handoff-capable workflow ------------------------
+#
+# W385331. `/3` DIFFERS FROM `/1` AND `/2` IN EXACTLY THREE WAYS: its version,
+# the native-handoff role contract bound to it in
+# `role_contract.TEMPLATE_CONTRACTS`, and the two DECLARED OUTPUTS its roles
+# produce -- `handoff` on the implementation role and `response` on the review
+# role. The stages, the dependency, the consumed result and all three rules are
+# the same workflow.
+#
+# THE OUTPUT LISTS ARE THE ONLY PART RETYPED, and they are retyped from
+# `role_contract`'s own spellings rather than from literals here, so the
+# descriptor and the graph cannot name two different outputs. The assertions at
+# the foot of this module prove that both directions agree.
+#
+# WHAT `/3` DOES NOT DO. `/1` and `/2` are byte-for-byte what they were,
+# `DEFAULT_TEMPLATE` still names `/1`, and nothing resolves `/3` unless a
+# request selects it by name -- which is the same restraint `/2` was added
+# under and for the same reason: a configured default that moved implicitly
+# would reinterpret every bare request.
+#
+# AND THE THREE RULES ARE UNCHANGED, which is the part worth saying out loud.
+# `completion` still ends an ordinary Job on an ACCEPTED technical review of
+# the delivered candidate; `correction` still repeats both roles on a
+# changes-requested verdict. A continuation is NEITHER of those: it is not a
+# completion, so it appears in none of these rules, and it is not a correction,
+# so it spends no correction round. Adding it as a fourth rule here would have
+# made it a verdict outcome, and a reviewer answering a question gives no
+# verdict.
+_AUTHORED[role_contract.HANDOFF_TEMPLATE] = dict(
+    _AUTHORED[IMPLEMENTATION_REVIEW],
+    version=role_contract.HANDOFF_TEMPLATE,
+    roles=(
+        {"role": "implementation", "kind": "implementation",
+         "depends_on": (), "consumes": (),
+         "produces": (CANDIDATE_OUTPUT, role_contract.HANDOFF_OUTPUT)},
+        {"role": "review", "kind": "review",
+         "depends_on": ("implementation",),
+         "consumes": (CANDIDATE_OUTPUT,),
+         "produces": (review_driver.FINDINGS_OUTPUT,
+                      review_driver.LOGS_OUTPUT,
+                      role_contract.RESPONSE_OUTPUT)},
+    ))
+
+# THE HANDOFF-CAPABLE VERSION, named here for the same reason
+# `IMPLEMENTATION_REVIEW_2` is: there is ONE spelling of this string, and it is
+# the descriptor's own.
+IMPLEMENTATION_REVIEW_3 = role_contract.HANDOFF_TEMPLATE
 
 # WHICH TEMPLATE A BARE REQUEST MEANS WHEN A DEPLOYMENT CONFIGURES NOTHING.
 # It is still RESOLVED and still SHOWN: the saving is typing, not visibility.
@@ -529,6 +577,13 @@ del _version, _definition
 assert role_contract.contract_for(IMPLEMENTATION_REVIEW) is None
 assert set(role_contract.TEMPLATE_CONTRACTS) <= set(TEMPLATES)
 assert DEFAULT_TEMPLATE == IMPLEMENTATION_REVIEW
+# W385331: AND ONLY `/3` IS HANDOFF-CAPABLE. Asserted in both directions, so a
+# descriptor binding that drifted onto an older revision would fail here rather
+# than let an already admitted `/1` or `/2` Job yield a handoff its consumers
+# have no branch for.
+assert role_contract.is_handoff_capable(IMPLEMENTATION_REVIEW_3)
+assert not any(role_contract.is_handoff_capable(_one) for _one in
+               (IMPLEMENTATION_REVIEW, IMPLEMENTATION_REVIEW_2))
 
 for _version in role_contract.TEMPLATE_CONTRACTS:
     _contract = role_contract.contract_for(_version)

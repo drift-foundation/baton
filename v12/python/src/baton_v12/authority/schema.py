@@ -91,7 +91,36 @@ STORE_KIND = "baton.v12.python.authority"
 # silent loss -- the refusal names the file, changes no byte of it, and the
 # bounded recovery procedure in this Work's dossier is what an operator holding
 # one is meant to follow.
-SCHEMA_VERSION = 6
+#
+# W385331 raises this from 6 to 7 for the DURABLE ATTRIBUTED WORK MESSAGE and
+# its transition receipt: the clarification/finding request a native implementer
+# yields, the reviewer answer or escalation that replies to it, and the
+# separately recorded ownership effect each of those earns.
+#
+# WHY A RELATION AND NOT THE OPERATION JOURNAL, which is where `job_manager.
+# job_control` and `job_manager.ending` put their own records and say so in as
+# many words. That journal is the right home for a record selected BY ITS OWN
+# DETERMINISTIC IDENTITY, which is what those two always have. A message is
+# read the other way round -- "every message of this Work, in order", "the
+# reply to this request", "is there a pending escalation" -- and this
+# authority's `operation` table carries no kind column, so answering those
+# would mean matching operation-id PREFIXES. `work_label_event`'s own [P0]
+# correction is explicit that recovering a kind by probing until something
+# matches "is not prefix guessing, and it is still guessing", and the same
+# judgement applies to recovering a message set that way. The replay machinery
+# is still the journal's: every write below goes through `_replay` exactly like
+# every other transition, so a table here adds a read model and no second
+# idempotency mechanism.
+#
+# THE NUMBER IS WITHIN ACCEPTED SCOPE AND NO SEPARATE RULING IS OWED.
+# Independent review 2026-11-20T19-39-15Z (W385331): DESIGN's joined startup
+# ruling targets fresh supported schemas with no migration or backward
+# compatibility, and the accepted planning report M385342 classified this
+# slice the same way -- so 6 -> 7 is an ordinary fresh-schema step under that
+# authority. The retention consequence applies unchanged: a retained store at
+# 6 becomes unreadable by this build, is refused read-only, and is not
+# migrated; an instance is reinstalled rather than reopened.
+SCHEMA_VERSION = 7
 
 META_STORE_KIND = "store_kind"
 META_SCHEMA_VERSION = "schema_version"
@@ -579,5 +608,99 @@ CREATE TABLE IF NOT EXISTS work_dossier_evidence (
     recorded_at TEXT NOT NULL,
     PRIMARY KEY (work_id, reference),
     FOREIGN KEY (work_id) REFERENCES work_dossier (work_id)
+) STRICT;
+
+-- W385331: THE DURABLE ATTRIBUTED WORK MESSAGE.
+--
+-- One row per message: the clarification or within-scope finding request a
+-- native implementer yields, the reviewer response that replies to it, and the
+-- single escalation a reviewer that cannot resolve one records for the
+-- configured decision recipient.
+--
+-- EVERY ATTRIBUTION COLUMN IS THE AUTHORITY'S, NOT THE MESSAGE'S. `author` is
+-- the endpoint of the assignment the message was carried out under and
+-- `claim_seq` names the exact claim event that authorized it -- the same pair
+-- `activity` and `proposal` carry, and for the same reason: a
+-- worker-supplied author identity cannot substitute for assignment
+-- attribution, so there is nowhere in this table for a worker to put one.
+-- WHICH principal that endpoint resolved to, in which scope and by which
+-- grant is the DECISION, and it lives in `authorization_decision` keyed by
+-- this message's own identity rather than in four more columns here.
+--
+-- `handoff_digest` IS THE BODY'S IDENTITY and `body` is the retained document.
+-- Both, because the digest is what a reply BINDS to and the document is what a
+-- human or an agent READS BACK; a store holding only the digest could prove a
+-- reply was about this request and could not say what the request was.
+--
+-- `task_digest` AND `checkpoint_ref`/`continuation_digest` ARE WHAT MAKE A
+-- CONTINUATION THE SAME TASK. A clarification preserves the admitted task and
+-- specification digest, and the exact retained checkpoint; a response that
+-- named another one would be answering a different question.
+--
+-- `destination` IS THE PERMITTED RECIPIENT this message was authenticated
+-- against. Recorded rather than re-derived, because the configured routing can
+-- move and a committed message is a fact about the configuration it was
+-- admitted under.
+--
+-- NO READ CURSOR, NO SEEN FLAG AND NO ACKNOWLEDGEMENT COLUMN, deliberately: a
+-- read receipt is not a prerequisite for progress, and a column for one is how
+-- it becomes one.
+CREATE TABLE IF NOT EXISTS work_message (
+    seq                 INTEGER PRIMARY KEY AUTOINCREMENT,
+    message_id          TEXT NOT NULL UNIQUE,
+    work_id             TEXT NOT NULL,
+    job_id              TEXT NOT NULL,
+    author              TEXT NOT NULL,
+    generation          INTEGER,
+    claim_seq           INTEGER NOT NULL,
+    kind                TEXT NOT NULL CHECK (kind IN
+                          ('clarification-request', 'finding-request',
+                           'response', 'escalation')),
+    body                TEXT NOT NULL,
+    handoff_digest      TEXT NOT NULL,
+    reply_to            TEXT,
+    checkpoint_ref      TEXT,
+    continuation_digest TEXT,
+    task_digest         TEXT NOT NULL,
+    destination         TEXT NOT NULL,
+    operation_id        TEXT NOT NULL UNIQUE,
+    recorded_at         TEXT NOT NULL,
+    FOREIGN KEY (work_id) REFERENCES work (work_id),
+    FOREIGN KEY (reply_to) REFERENCES work_message (message_id)
+) STRICT;
+
+-- THE INVERSE READS, because the questions this table exists to answer are
+-- "every message of this Work, in order" and "what replied to this request".
+CREATE INDEX IF NOT EXISTS work_message_by_work
+    ON work_message (work_id, seq);
+
+-- ONE REPLY PER REQUEST, enforced by the index rather than by a check somebody
+-- can forget. A second answer to one question is two answers, which is exactly
+-- the ambiguity the escalation arm exists for -- and a partial unique index is
+-- what lets the requests themselves carry NULL here.
+CREATE UNIQUE INDEX IF NOT EXISTS work_message_one_reply
+    ON work_message (reply_to) WHERE reply_to IS NOT NULL;
+
+-- W385331: THE SEPARATE TRANSITION RECEIPT FOR A MESSAGE'S OWNERSHIP EFFECT.
+--
+-- A message is text and text never transfers ownership. What a message can
+-- EARN is one bounded effect: a resolved continuation of the same admitted
+-- task, or a hold for the configured decision recipient. That effect is
+-- recorded HERE, separately, so a reader can never mistake the existence of a
+-- message for the effect it earned -- which is the same separation §10.12
+-- draws between a disposition and a receipt.
+--
+-- IMMUTABLE BY ITS OWN KEY. One effect per message, so a second effect for one
+-- message cannot be recorded rather than being refused after the fact; and the
+-- operation identity is unique, so one act cannot be claimed by two messages.
+CREATE TABLE IF NOT EXISTS work_message_transition (
+    message_id   TEXT PRIMARY KEY,
+    work_id      TEXT NOT NULL,
+    effect       TEXT NOT NULL CHECK (effect IN ('continuation', 'held')),
+    detail       TEXT NOT NULL,
+    operation_id TEXT NOT NULL UNIQUE,
+    recorded_at  TEXT NOT NULL,
+    FOREIGN KEY (message_id) REFERENCES work_message (message_id),
+    FOREIGN KEY (work_id) REFERENCES work (work_id)
 ) STRICT;
 """

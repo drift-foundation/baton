@@ -1,0 +1,379 @@
+{
+ "faults": [],
+ "host_head": "3d05430f97ca9d4a516b51d15eb940840a6f0eff",
+ "host_v12_status_lines": 0,
+ "manifest_expected": "4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24",
+ "manifest_sha256": "4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24",
+ "packet": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2",
+ "paths": [
+  {
+   "head_blob": "2d01a111f5690297823e0ef48ae7ad79db74442c",
+   "host_blob": "2d01a111f5690297823e0ef48ae7ad79db74442c",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:f1a3445b58be923e3fb698476cd085a184a7f706470ddf174097236de7167b2c",
+   "packet_candidate_sha256": "sha256:bf94056797cba54e8df6b393a43d75cc51ad94e4831ff1049c1212d3db1eac70",
+   "path": "v12/STACK.md",
+   "state": "modified"
+  },
+  {
+   "head_blob": "214996a1b7fc6ce79d436c1a3cbdcb9677c80a6c",
+   "host_blob": "214996a1b7fc6ce79d436c1a3cbdcb9677c80a6c",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:4e3850504b55f4bbf845433e533eaa0a95336428e0eb50a40ac5bc5aa99aa46e",
+   "packet_candidate_sha256": "sha256:5bc4c0bb6cf536673292018df23fcf09d6f74729db49e332af25ec08c29cf851",
+   "path": "v12/python/src/baton_v12/authority/api.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "da66577e7fb29bd5c1315041f1fa1469cda54af2",
+   "host_blob": "da66577e7fb29bd5c1315041f1fa1469cda54af2",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:3c39f78cb9b3226c5c2bcc964256dd663e65cdeb7fa7766ec72ab1a44fb9cea8",
+   "packet_candidate_sha256": "sha256:b537fb94e97628af3f7509ad28046e1cdd6ccac089f9d9c4a412fa2860518d2c",
+   "path": "v12/python/src/baton_v12/authority/core.py",
+   "state": "modified"
+  },
+  {
+   "host_kind": "absent",
+   "packet_candidate_sha256": "sha256:61f7be5f7fedafc097b2afa3ba115e7d6f9a6fe8d5e572c1fc949992130e8f4e",
+   "path": "v12/python/src/baton_v12/authority/messages.py",
+   "state": "added"
+  },
+  {
+   "head_blob": "e215c89b961a54dac3734092964578e806ac0866",
+   "host_blob": "e215c89b961a54dac3734092964578e806ac0866",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:e96f702484a8f1e720f9785aeb1c51790e4362766f11620d260e2a3671bcfaf4",
+   "packet_candidate_sha256": "sha256:51932ce57b0c25e9f2f52211b47e66988d489a509e728ceb3f4f6713b53152e1",
+   "path": "v12/python/src/baton_v12/authority/schema.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "a0ec09743ec473b5b9663d650dec79752bdb0d6a",
+   "host_blob": "a0ec09743ec473b5b9663d650dec79752bdb0d6a",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2",
+   "packet_candidate_sha256": "sha256:98a36309afc7590dfc15f981edd04edc91784450709eae4056e24a00913e8346",
+   "path": "v12/python/src/baton_v12/authority/session.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "fe2fe1d8160239bb6459faf65424b1331a4d1920",
+   "host_blob": "fe2fe1d8160239bb6459faf65424b1331a4d1920",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:1dc4281be64251850277f8190b0f50849529666b99cc54d82d75e5547cb3a60b",
+   "packet_candidate_sha256": "sha256:96919273f74d407fa6a2a583886d53a7243786574da7a609b256665232af073a",
+   "path": "v12/python/src/baton_v12/job_manager/documents.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "e72484405eeb477951503b0e489165276fe4c7d8",
+   "host_blob": "e72484405eeb477951503b0e489165276fe4c7d8",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:0e8bfc88cda40abb47a61009ac6e92f0d557a7a842514f961844eb26dbf71234",
+   "packet_candidate_sha256": "sha256:74e6f0f8a7e7a1617ee45b663c7531dddb087ac037c3118fd5a270c561349df7",
+   "path": "v12/python/src/baton_v12/job_manager/job_control.py",
+   "state": "modified"
+  },
+  {
+   "host_kind": "absent",
+   "packet_candidate_sha256": "sha256:d45ea69b5fddf8c353abdc318b4f6cccfb1f26462c79e846ddaf8a1adcbd9708",
+   "path": "v12/python/src/baton_v12/job_manager/native_handoffs.py",
+   "state": "added"
+  },
+  {
+   "head_blob": "2f82514ff53da7ef7e275627580a3478d39934dc",
+   "host_blob": "2f82514ff53da7ef7e275627580a3478d39934dc",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:ecdb5a715a2c73093b2197556e46ba63f39e5686e2e17d73d0e2584ca9af19a1",
+   "packet_candidate_sha256": "sha256:211eb4cff7326957ae15fc8e709463cf326aa82fe896907268d0f0bf2be3665b",
+   "path": "v12/python/src/baton_v12/job_manager/projection.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "0a0bec450e1aa7e800c42a09196dcce1f6e4c8f0",
+   "host_blob": "0a0bec450e1aa7e800c42a09196dcce1f6e4c8f0",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:d784215400821af1c704b896f4fc2cacb5519ad096c518f3072d8611df4f7a25",
+   "packet_candidate_sha256": "sha256:c78d538849292e78c3927c2bbf2812e41ab3b930b6fc81c4344dbb2e6a8cf367",
+   "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "3e44aa91f4cecf270f49a2963ca01d67a23edc69",
+   "host_blob": "3e44aa91f4cecf270f49a2963ca01d67a23edc69",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:7b3db27c0f400d66f678ad714fe12aba5db80b47c94a38e22833d4d4c2b5456c",
+   "packet_candidate_sha256": "sha256:ebc104844a4eb28bd479af0fb284e8185c10ef5ed8c44b7941a62563f498ba2a",
+   "path": "v12/python/src/baton_v12/job_manager/role_capability.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "a40204c6a32cacac965389b1d670988802336ddb",
+   "host_blob": "a40204c6a32cacac965389b1d670988802336ddb",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:fd1906e7ace2863becf5e472e91b0f6ee5b518456154ed661114092c6eca51a6",
+   "packet_candidate_sha256": "sha256:122e8b9c5b874b19597015c89b50727826dc06ede344f4cbb6f86dbab96fb47d",
+   "path": "v12/python/src/baton_v12/job_manager/role_contract.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "265d54940a544dc2a98525c045a9b90c173e1a7e",
+   "host_blob": "265d54940a544dc2a98525c045a9b90c173e1a7e",
+   "host_kind": "file",
+   "host_mode": "0o644",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:1408e7e1eea65d90c61df32ae1fb04357756ea7d41a2fc4a91f0c8bbaaf7004a",
+   "packet_candidate_sha256": "sha256:cd168ef65143a379200753cecc201b36b69d5987398d8ac6f6c502bea44cab7b",
+   "path": "v12/python/src/baton_v12/job_manager/templates.py",
+   "state": "modified"
+  },
+  {
+   "host_kind": "absent",
+   "packet_candidate_sha256": "sha256:5d264c1f240a6e8342cf79a9a89784c2f8c846547cc352f9324907fd009764df",
+   "path": "v12/python/src/baton_v12/native_handoff.py",
+   "state": "added"
+  },
+  {
+   "head_blob": "179678e4df46c974cda9cfa11604bc9f906aafa7",
+   "host_blob": "179678e4df46c974cda9cfa11604bc9f906aafa7",
+   "host_kind": "file",
+   "host_mode": "0o644",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:3b466c902ff4f9e9c89643a2769aed2f98f69fc6716edaca8e0c078e999b8bfc",
+   "packet_candidate_sha256": "sha256:54fd49a22b650e8d648f6c3b328a0802971b59fd132a0d15edec349ca1481874",
+   "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "6eba8d511b52790a9ed12070b2184d7f60e84fc5",
+   "host_blob": "6eba8d511b52790a9ed12070b2184d7f60e84fc5",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:2d25cc18e803702dc54338b4efa0f3141924fa1431040c9c8dc1f08c4663ceae",
+   "packet_candidate_sha256": "sha256:c7a00e8d5426cac6ac4b3ff016c0324148cf608ecd240a67f7715772a7df52a1",
+   "path": "v12/python/tests/authority/test_boundary.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "d3d97705b7e820659d7ec2881558e71d07ea178d",
+   "host_blob": "d3d97705b7e820659d7ec2881558e71d07ea178d",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:7e70f111ed33482c6eeb4ef0fc989a5a335758ad8208874271ce894155e04bd2",
+   "packet_candidate_sha256": "sha256:2a54f7aae9e95ec5adea3a601603d5d67e249e6bd7009713e1a1804126c1f409",
+   "path": "v12/python/tests/authority/test_catalog.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "443894ff377b7c35330f05998ce596a9fa563635",
+   "host_blob": "443894ff377b7c35330f05998ce596a9fa563635",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:ab493c66d88ce147aa9530c12d08bb1f3ef8b18f97c6d713171db69e9d63d8ee",
+   "packet_candidate_sha256": "sha256:8f1a0ecf47f93a6c322ead764c3ae628e8497870f40db9dc05d87b75d8285760",
+   "path": "v12/python/tests/authority/test_dossier.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "76fc72004c8a7558c6fc86d97bee2503b884613b",
+   "host_blob": "76fc72004c8a7558c6fc86d97bee2503b884613b",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:a5b8adff2cac48f99f104f5566b367753c77ac141d8554af4f54120081ab3329",
+   "packet_candidate_sha256": "sha256:f98e16b0d252146881d271687103835f53a6ab024ce0b12f87c006c52ba02041",
+   "path": "v12/python/tests/authority/test_session.py",
+   "state": "modified"
+  },
+  {
+   "host_kind": "absent",
+   "packet_candidate_sha256": "sha256:f64e56e87c3e07748c7ba92586f7f36276ffeb7041bd7a0a98d3047814fa31f8",
+   "path": "v12/python/tests/authority/test_work_messages.py",
+   "state": "added"
+  },
+  {
+   "host_kind": "absent",
+   "packet_candidate_sha256": "sha256:09fdb908731a8cfc018eb4302ac4657a43e3f7664dc1a4a7870d49e17e284064",
+   "path": "v12/python/tests/job_manager/test_native_handoffs.py",
+   "state": "added"
+  },
+  {
+   "head_blob": "2d46b768c3c5bbdb83db6e6248fac9e918331624",
+   "host_blob": "2d46b768c3c5bbdb83db6e6248fac9e918331624",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:f9978c556ed0f238932ac7ed01d9fc1a1622c1bbcf4466eab8675446d60952b3",
+   "packet_candidate_sha256": "sha256:65869356b789db4ca39cc939efaaf62c7a729f60c3464008e4eb8e70419ae7a7",
+   "path": "v12/python/tests/job_manager/test_review_driver.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "ca3992f5a5089f620aa8160095b632e3cfda7df2",
+   "host_blob": "ca3992f5a5089f620aa8160095b632e3cfda7df2",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:a7ad11af5b3b7ce334af75ce729b8dab23bf0b3c547173483b02d5eb7f231e8f",
+   "packet_candidate_sha256": "sha256:7d7c1c6b2929f238da9ea8ed75fcb757183629ad3bae997247a72cc9e0f336fd",
+   "path": "v12/python/tests/job_manager/test_role_contract.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "9189bd5fa5a9708c501aa36d961d559827517090",
+   "host_blob": "9189bd5fa5a9708c501aa36d961d559827517090",
+   "host_kind": "file",
+   "host_mode": "0o644",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:696b99bda60f1a2f265f60ccf4583850c7ab37e07866dc6076bcae3e90be59af",
+   "packet_candidate_sha256": "sha256:eb723d88ddc5112e7b77dee613b9bc4811f6fa74ca595f0900e3c258579d1d3f",
+   "path": "v12/python/tests/job_manager/test_templates.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "4b48965c7f3fa1aee45ae79ce1669fbdab29c947",
+   "host_blob": "4b48965c7f3fa1aee45ae79ce1669fbdab29c947",
+   "host_kind": "file",
+   "host_mode": "0o644",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:e46ebd5350d452837e860893ec4cb5bda8fbf34569b45b6102ec3b120949dbd1",
+   "packet_candidate_sha256": "sha256:7da1a6010369191bc7ab22bbe94f786c330c4dc2730d0bab2a5214bd5a594323",
+   "path": "v12/python/tests/manager/test_boundary_inventory.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "0fa2465930e979ba52534a7e905c237e5c387733",
+   "host_blob": "0fa2465930e979ba52534a7e905c237e5c387733",
+   "host_kind": "file",
+   "host_mode": "0o644",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:55de787583d2729c982ce22b70bbd8d77cb3470d0f20a74a992370e622c6bd5b",
+   "packet_candidate_sha256": "sha256:f080e464b4e8e2ca3b285b71cacc04e355b87517b192605ade747958be5a65ab",
+   "path": "v12/python/tests/manager/test_dependencies.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "ff9c3bef5bb460a63c87b808003f52420788006f",
+   "host_blob": "ff9c3bef5bb460a63c87b808003f52420788006f",
+   "host_kind": "file",
+   "host_mode": "0o644",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:95608dbad02d38e7e27c939c7fe6012f68d092e34c7aa617be20b1269918a907",
+   "packet_candidate_sha256": "sha256:c1ddb9e4fb63ba8f9ae37bc08919d10cfe192524e600be3e8c33237687142d4b",
+   "path": "v12/python/tests/manager/test_secrets.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "b87b826d740337769f1e5c51b65bf064d8dfd140",
+   "host_blob": "b87b826d740337769f1e5c51b65bf064d8dfd140",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:7c67bcf48786523a3e3e9a00b374ca90c3fa604279f7bd2e2aa5a55c58068516",
+   "packet_candidate_sha256": "sha256:6466670fea8fd2de97fb6ec9731d1c800839a5a855084442bae2e5367cbe664a",
+   "path": "v12/python/tests/tools/test_bootstrap.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "0420230b31b61649551777335d3359459cad6cb8",
+   "host_blob": "0420230b31b61649551777335d3359459cad6cb8",
+   "host_kind": "file",
+   "host_mode": "0o644",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:483fe49c7bf3b1ab02414e8011e3892eb91723ae56b3d7757386e97d82fb59ff",
+   "packet_candidate_sha256": "sha256:9ca4a660a110d508a2836b72f87ed11cf3e82dca3b2570a7e1c2f8aa07be395c",
+   "path": "v12/python/tests/tools/test_connected_creation.py",
+   "state": "modified"
+  },
+  {
+   "host_kind": "absent",
+   "packet_candidate_sha256": "sha256:f39e3dd0be8ea97717e1c2cc49d8202a1f6264f7f6e195b9ed04de4b8c911e4f",
+   "path": "v12/python/tests/tools/test_native_handoffs.py",
+   "state": "added"
+  },
+  {
+   "head_blob": "9aa71fd4c46ae9477667cb25ad6512e5debcf274",
+   "host_blob": "9aa71fd4c46ae9477667cb25ad6512e5debcf274",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:eb344a43c575c5018ffb831eb9dbd112b7b7262c297f28deace662d65fa8c2bd",
+   "packet_candidate_sha256": "sha256:75c462593f2780670d816ed8746188dd7fa2388b3d6db64be958083a838d8d22",
+   "path": "v12/python/tools/bootstrap.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "003cf32a5671143e3ccc1b1e2aa92ca9936c5915",
+   "host_blob": "003cf32a5671143e3ccc1b1e2aa92ca9936c5915",
+   "host_kind": "file",
+   "host_mode": "0o644",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:059ff5fb1a319d176121cd6cd1ca25e6904bfd64b9bcb200d8267a1c996251a8",
+   "packet_candidate_sha256": "sha256:1c4eeda8755612f6a5942c3ad549b11df68540646f45ad009d62aa94f42df6b5",
+   "path": "v12/python/tools/parallel_test.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "e28d527a1d5c1c545c690a3f622505d782c7d633",
+   "host_blob": "e28d527a1d5c1c545c690a3f622505d782c7d633",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:be697f41cc7c2b65a4d03d1327f92466ababe6dae865b66135e1e64d8760d51d",
+   "packet_candidate_sha256": "sha256:ebaa89b4229c9be3ef0a552dc7e84ef9e0e71976ff1b41e26040819d236721c3",
+   "path": "v12/python/tools/single_worker.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "f14587d43c59ed75f135f465a72288369fbd0ca3",
+   "host_blob": "f14587d43c59ed75f135f465a72288369fbd0ca3",
+   "host_kind": "file",
+   "host_mode": "0o664",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:8f0d85f8f3553321f892976c674bb08658758602cbb0d1c4053267fb68da137b",
+   "packet_candidate_sha256": "sha256:43c7921aca3ce03f2a27dddd5d9d698b1581c361673126cbf11ab9308c98a117",
+   "path": "v12/python/tools/stage_execution.py",
+   "state": "modified"
+  },
+  {
+   "head_blob": "3b09fbd1be79d89616c404a2c2a920b667219e47",
+   "host_blob": "3b09fbd1be79d89616c404a2c2a920b667219e47",
+   "host_kind": "file",
+   "host_mode": "0o644",
+   "host_owner_writable": true,
+   "host_sha256": "sha256:941b5f9c2ea617229667e3f764bb12bb4c19b8096b18cdbff6d2952019d35e75",
+   "packet_candidate_sha256": "sha256:368eae7ad5342703d76720c96b092f53037bf86c82ce187be4bbf31986eacd23",
+   "path": "v12/worker/claude_agent.py",
+   "state": "modified"
+  }
+ ],
+ "tree_digest": "sha256:f62bbaab53c7d6a7f9730b726d68fac8cefe48a92130cdc176924acd1ec64028",
+ "tree_expected": "sha256:f62bbaab53c7d6a7f9730b726d68fac8cefe48a92130cdc176924acd1ec64028",
+ "verdict": "PREFLIGHT OK"
+}

@@ -1,0 +1,15 @@
+test_response_from_work_a_cannot_answer_work_b (__main__.ForeignRequestProbe.test_response_from_work_a_cannot_answer_work_b) ... FAIL
+
+======================================================================
+FAIL: test_response_from_work_a_cannot_answer_work_b (__main__.ForeignRequestProbe.test_response_from_work_a_cannot_answer_work_b)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385358/probes.py", line 80, in test_response_from_work_a_cannot_answer_work_b
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.070s
+
+FAILED (failures=1)
