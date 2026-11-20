@@ -1,0 +1,14 @@
+labels CLI probe through the fresh bundle started 2026-11-20T04:48:54Z (rerun after correcting the probe's own help-text assertion; product bytes unchanged)
+bundle sha256 1265b1ff4c014cf9149bbdeeec8dc91163c0f41b5c3a35484e7dfbc135f9cb25
+roots BATON_V12_STACK_TEST_ROOT=BATON_V12_DISK_ROOT=/var/tmp/baton-v12-labels5-import/cli TMPDIR=/home/sl/src/baton/work/scratch/w383217/labels5-import/tmp
+test_a_creation_that_makes_the_work_applies_its_labels (packaged_work_labels_probe.PackagedWorkLabels.test_a_creation_that_makes_the_work_applies_its_labels) ... ok
+test_a_reused_work_refuses_relabel_and_the_work_verb_adds_the_label (packaged_work_labels_probe.PackagedWorkLabels.test_a_reused_work_refuses_relabel_and_the_work_verb_adds_the_label) ... ok
+test_full_capacity_restoring_acts_run_in_the_named_order (packaged_work_labels_probe.PackagedWorkLabels.test_full_capacity_restoring_acts_run_in_the_named_order) ... ok
+test_malformed_and_duplicate_labels_refuse_before_any_effect (packaged_work_labels_probe.PackagedWorkLabels.test_malformed_and_duplicate_labels_refuse_before_any_effect) ... ok
+test_the_work_subcommand_is_offered_with_its_four_verbs (packaged_work_labels_probe.PackagedWorkLabels.test_the_work_subcommand_is_offered_with_its_four_verbs) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 8.667s
+
+OK
+exit=0 wall_seconds=8.905904934

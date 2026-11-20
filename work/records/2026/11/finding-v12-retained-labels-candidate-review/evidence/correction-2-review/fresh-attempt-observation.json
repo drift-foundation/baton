@@ -1,0 +1,7 @@
+{
+  "path": "v12/python/src/baton_v12/job_manager/fresh_attempt.py",
+  "identical_to_base": true,
+  "sha256": "276dd31a3584e1789ce9d9fd7bcf4629a1fa07d46de8c4c524d9dc8dbf7d6cab",
+  "call_boundary": "fresh_attempt._authorized calls work_operation_id only when work_of returns None; existing Work reuse does not call it. Ordinary creation does not call fresh_attempt.work_operation_id.",
+  "classification": "pre-existing separate observation, not introduced by this packet or required ordinary-create path regression; coordinator classification requested, no scope expansion"
+}

@@ -1,0 +1,89 @@
+test_a_granted_participant_labels_and_unlabels (tests.tools.test_work_command.MutationsAreAuthorizedOrTheyDoNotHappen.test_a_granted_participant_labels_and_unlabels) ... ok
+test_a_participant_without_the_grant_is_refused_and_nothing_moves (tests.tools.test_work_command.MutationsAreAuthorizedOrTheyDoNotHappen.test_a_participant_without_the_grant_is_refused_and_nothing_moves) ... ok
+test_a_repeated_request_stops_at_the_first_unauthorized_label (tests.tools.test_work_command.MutationsAreAuthorizedOrTheyDoNotHappen.test_a_repeated_request_stops_at_the_first_unauthorized_label)
+A revocation between two acts of one request leaves the first ... ok
+test_a_work_this_authority_does_not_hold_refuses (tests.tools.test_work_command.MutationsAreAuthorizedOrTheyDoNotHappen.test_a_work_this_authority_does_not_hold_refuses) ... ok
+test_authorization_is_resolved_in_the_works_own_scope (tests.tools.test_work_command.MutationsAreAuthorizedOrTheyDoNotHappen.test_authorization_is_resolved_in_the_works_own_scope)
+A deployment-wide grant does not authorize a scoped Work, and the ... ok
+test_the_actor_comes_from_the_participant_and_there_is_no_actor_operand (tests.tools.test_work_command.MutationsAreAuthorizedOrTheyDoNotHappen.test_the_actor_comes_from_the_participant_and_there_is_no_actor_operand)
+`--actor` does not exist here, and that absence is the point. ... ok
+test_a_convergent_request_succeeds_as_changed_false (tests.tools.test_work_command.ReplayConvergenceAndCollision.test_a_convergent_request_succeeds_as_changed_false) ... ok
+test_a_retry_replays_even_after_the_grant_is_revoked (tests.tools.test_work_command.ReplayConvergenceAndCollision.test_a_retry_replays_even_after_the_grant_is_revoked)
+Replay answers the committed act, not whether it could happen ... ok
+test_an_exact_retry_prints_byte_identical_output (tests.tools.test_work_command.ReplayConvergenceAndCollision.test_an_exact_retry_prints_byte_identical_output) ... ok
+test_the_same_identity_for_a_different_label_set_collides (tests.tools.test_work_command.ReplayConvergenceAndCollision.test_the_same_identity_for_a_different_label_set_collides) ... ok
+test_the_same_identity_for_another_participant_collides (tests.tools.test_work_command.ReplayConvergenceAndCollision.test_the_same_identity_for_another_participant_collides) ... ok
+test_the_same_identity_for_another_work_collides (tests.tools.test_work_command.ReplayConvergenceAndCollision.test_the_same_identity_for_another_work_collides) ... ok
+test_the_same_identity_for_the_other_verb_collides (tests.tools.test_work_command.ReplayConvergenceAndCollision.test_the_same_identity_for_the_other_verb_collides)
+`label-work` and `unlabel-work` under one identity are two ... ok
+test_a_closed_work_is_labelled_and_unlabelled_through_the_command (tests.tools.test_work_command.TerminalWorkStaysLabellable.test_a_closed_work_is_labelled_and_unlabelled_through_the_command) ... ok
+test_the_post_closure_change_is_audited_and_readable (tests.tools.test_work_command.TerminalWorkStaysLabellable.test_the_post_closure_change_is_audited_and_readable) ... ok
+test_dispatch_is_by_command_name_and_never_by_how_a_label_is_spelled (tests.tools.test_work_command.TheCommandIsBundledAndItsVocabularyIsItsOwn.test_dispatch_is_by_command_name_and_never_by_how_a_label_is_spelled)
+A label that LOOKS like another vocabulary is still just a value. ... ok
+test_the_command_reaches_no_oci_or_runtime_label_vocabulary (tests.tools.test_work_command.TheCommandIsBundledAndItsVocabularyIsItsOwn.test_the_command_reaches_no_oci_or_runtime_label_vocabulary)
+The Worker Manager's `labels` are OCI execution identity. ... ok
+test_the_existing_subcommands_are_untouched_and_work_is_additive (tests.tools.test_work_command.TheCommandIsBundledAndItsVocabularyIsItsOwn.test_the_existing_subcommands_are_untouched_and_work_is_additive)
+The change to this table is ONE new name and nothing else. ... ok
+test_the_four_verbs_are_the_whole_surface (tests.tools.test_work_command.TheCommandIsBundledAndItsVocabularyIsItsOwn.test_the_four_verbs_are_the_whole_surface) ... ok
+test_the_installed_command_serves_work (tests.tools.test_work_command.TheCommandIsBundledAndItsVocabularyIsItsOwn.test_the_installed_command_serves_work) ... ok
+test_v11s_thread_verbs_are_not_reachable_here (tests.tools.test_work_command.TheCommandIsBundledAndItsVocabularyIsItsOwn.test_v11s_thread_verbs_are_not_reachable_here)
+v11's `baton label` BINDS A THREAD TO A WORK; this command's ... ok
+test_a_key_value_tag_is_refused_as_a_key_this_grammar_lacks (tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys.test_a_key_value_tag_is_refused_as_a_key_this_grammar_lacks) ... ok
+test_a_label_that_starts_with_a_dash_is_written_as_one_operand (tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys.test_a_label_that_starts_with_a_dash_is_written_as_one_operand)
+`--label=-leading` is how argparse takes a value that looks like an ... ok
+test_a_request_beyond_the_cardinality_refuses_at_the_boundary (tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys.test_a_request_beyond_the_cardinality_refuses_at_the_boundary) ... ok
+test_an_operation_id_too_long_to_derive_from_refuses_first (tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys.test_an_operation_id_too_long_to_derive_from_refuses_first)
+Named with its bound, before the store is touched at all. ... ok
+test_an_or_like_operand_is_refused_rather_than_split (tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys.test_an_or_like_operand_is_refused_rather_than_split)
+A comma-joined or space-joined list is not one key, and this ... ok
+test_repeated_label_operands_normalize_into_one_sorted_set (tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys.test_repeated_label_operands_normalize_into_one_sorted_set) ... ok
+test_the_act_identities_are_derived_from_the_labels_not_their_order (tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys.test_the_act_identities_are_derived_from_the_labels_not_their_order)
+So the same request written in another order is the same acts. ... ok
+test_the_grammar_boundaries_reach_the_operator_unaltered (tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys.test_the_grammar_boundaries_reach_the_operator_unaltered) ... ok
+test_two_operands_that_are_one_key_refuse_and_change_nothing (tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys.test_two_operands_that_are_one_key_refuse_and_change_nothing) ... ok
+test_a_filter_operand_is_matched_exactly_and_never_as_a_substring (tests.tools.test_work_command.TheReadVerbs.test_a_filter_operand_is_matched_exactly_and_never_as_a_substring) ... ok
+test_a_filter_requiring_and_excluding_one_label_refuses (tests.tools.test_work_command.TheReadVerbs.test_a_filter_requiring_and_excluding_one_label_refuses) ... ok
+test_a_malformed_filter_operand_refuses_rather_than_matching_nothing (tests.tools.test_work_command.TheReadVerbs.test_a_malformed_filter_operand_refuses_rather_than_matching_nothing) ... ok
+test_an_unfiltered_list_is_every_work (tests.tools.test_work_command.TheReadVerbs.test_an_unfiltered_list_is_every_work) ... ok
+test_an_unlabelled_work_reads_an_empty_set_and_an_empty_history (tests.tools.test_work_command.TheReadVerbs.test_an_unlabelled_work_reads_an_empty_set_and_an_empty_history)
+The behaviour of a Work nobody labelled, PRESERVED: absence is an ... ok
+test_every_answer_is_deterministic_json (tests.tools.test_work_command.TheReadVerbs.test_every_answer_is_deterministic_json)
+Key-sorted and stable, so two invocations are comparable rather ... ok
+test_labels_reads_the_sorted_live_set_and_its_events (tests.tools.test_work_command.TheReadVerbs.test_labels_reads_the_sorted_live_set_and_its_events) ... ok
+test_repeated_label_operands_are_all_of_and_never_or (tests.tools.test_work_command.TheReadVerbs.test_repeated_label_operands_are_all_of_and_never_or) ... ok
+test_repeated_without_label_operands_are_none_of (tests.tools.test_work_command.TheReadVerbs.test_repeated_without_label_operands_are_none_of) ... ok
+test_the_positive_and_negative_halves_compose (tests.tools.test_work_command.TheReadVerbs.test_the_positive_and_negative_halves_compose) ... ok
+test_the_read_verbs_never_open_the_store_writably (tests.tools.test_work_command.TheReadVerbs.test_the_read_verbs_never_open_the_store_writably)
+So asking a serving deployment what it carries takes no write lock. ... ok
+test_the_read_verbs_take_no_participant_and_no_operation_identity (tests.tools.test_work_command.TheReadVerbs.test_the_read_verbs_take_no_participant_and_no_operation_identity)
+They write nothing, so there is no act to attribute or replay. ... ok
+test_a_wrong_authority_identity_refuses_and_reads_nothing (tests.tools.test_work_command.TheStoreSelectionIsCompared.test_a_wrong_authority_identity_refuses_and_reads_nothing)
+`--authority-uuid` is a compare-and-swap on identity, not a label: ... ok
+test_an_absent_store_is_refused_as_a_readable_sentence (tests.tools.test_work_command.TheStoreSelectionIsCompared.test_an_absent_store_is_refused_as_a_readable_sentence) ... ok
+test_every_verb_requires_the_store_and_its_identity (tests.tools.test_work_command.TheStoreSelectionIsCompared.test_every_verb_requires_the_store_and_its_identity) ... ok
+test_a_closed_work_still_refuses_on_its_own_terms (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_a_closed_work_still_refuses_on_its_own_terms)
+The order of the two refusals matters: a Job under a closed Work is ... ok
+test_a_creation_that_reuses_a_work_refuses_to_relabel_it (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_a_creation_that_reuses_a_work_refuses_to_relabel_it) ... ok
+test_a_creation_that_states_no_labels_creates_the_work_unlabelled (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_a_creation_that_states_no_labels_creates_the_work_unlabelled)
+WHICH IS THE BEHAVIOUR OF EVERY CREATION BEFORE THIS OPTION, and ... ok
+test_a_malformed_or_oversized_label_set_refuses_before_any_effect (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_a_malformed_or_oversized_label_set_refuses_before_any_effect) ... ok
+test_a_work_already_carrying_the_asked_for_labels_is_reused (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_a_work_already_carrying_the_asked_for_labels_is_reused)
+WHICH IS WHAT LETS AN INCOMPLETE CREATION BE RUN AGAIN. ... ok
+test_an_exact_retry_replays_the_recorded_creation (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_an_exact_retry_replays_the_recorded_creation) ... ok
+test_an_unlabelled_creation_still_reuses_an_existing_work (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_an_unlabelled_creation_still_reuses_an_existing_work)
+THE PRESERVED BEHAVIOUR. A request that says nothing about labels ... ok
+test_one_and_repeated_labels_reach_the_creating_act (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_one_and_repeated_labels_reach_the_creating_act) ... ok
+test_the_labels_are_normalized_into_the_requests_own_digest (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_the_labels_are_normalized_into_the_requests_own_digest)
+So two spellings of one key are ONE creation and not a collision ... ok
+test_the_labels_are_part_of_the_callers_intent (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_the_labels_are_part_of_the_callers_intent)
+A second request under one Job identity naming other labels is a ... ok
+test_the_resolver_is_never_handed_the_labels_member (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_the_resolver_is_never_handed_the_labels_member)
+A Work label is metadata on the Work; nothing in a submission, a ... ok
+test_two_operands_that_are_one_key_refuse_before_any_effect (tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork.test_two_operands_that_are_one_key_refuse_before_any_effect) ... ok
+test_no_broad_except_stands_between_a_fault_and_its_caller (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_no_broad_except_stands_between_a_fault_and_its_caller)
+ASSERTED FROM THE SOURCE, not remembered. ... ok
+
+----------------------------------------------------------------------
+Ran 58 tests in 0.434s
+
+OK

@@ -1,0 +1,14 @@
+# parent reference bytes: GIT_OPTIONAL_LOCKS=0 git -C <retained review-line checkout> archive 04648e1b <11 paths> (read-only); each sha256 compared with git show 04648e1b:<path>
+match fb50298b90a33b7b4ce4485a3d8a45fc359cfba4454dd27ed4d68737e43e69d6 v12/STACK.md
+match a77b85a66470b9a1df37e14bb379d2815a73f9a67154435c466d8e04cb432589 v12/python/src/baton_v12/job_manager/creation.py
+match 0d37e424ca49ca92fc9809eaff194fb02d9375e7f46cf9303eceff424d5e5d4e v12/python/tests/authority/test_work_label_exposure.py
+match 6441f5184969992fe5737c9b4096614a89bb58a78036376e5748dc26f54651ef v12/python/tests/job_manager/test_creation.py
+match 9d6586cbc44b900f296f3ea873390506ec54c1570c0e888e56f4dbf66c25425f v12/python/tests/tools/test_connected_creation.py
+match b6cf4438b49f4658c009d26a6ee1edf5de9584322ccf7e3a9e6ebebc7898b796 v12/python/tests/tools/test_work_command.py
+match f705e4711858d2173c4a31c675360559a15d7acdb59461cff9a966fe0ecfc481 v12/python/tools/fresh_attempt_ports.py
+match 54b3c88ae82dfcf1814f400c74fa9ea41b75075ea49014c7f1f0e8d9547f5b75 v12/python/tools/job_manager.py
+match 55c71051c4075fe5f3d1777b7785b97bbcddea20db353d3cdfbc439a714f860e v12/python/tools/parallel_test.py
+match c2ed2884fd16330dd1b5523017084c4954632abbb8c156ec30487d8d21feb716 v12/python/tools/stack_command.py
+match 4ce8cf24bdaf5411982d4ec2fb5792e96216ca6b8644b275584568e55ee596d6 v12/python/tools/work_command.py
+# base reference bytes: git show d8f77700:<path> from the host checkout (read-only); absent at base: tests/tools/test_work_command.py, tools/work_command.py
+# M385299 reference bytes: evidence/native-labels-5-correction/candidate/<path> (the prior packet)

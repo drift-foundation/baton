@@ -1,0 +1,6 @@
+The bundle contains this ref:
+04648e1b21b98aa0b3efad1b57fc3264c4a566ba HEAD
+The bundle requires this ref:
+d8f77700f06b6a8b68f5f3fc2aedbcc95169afc6 
+The bundle uses this hash algorithm: sha1
+work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-failure/proposal/objects.bundle is okay

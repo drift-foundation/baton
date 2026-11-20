@@ -993,6 +993,136 @@ quotes the tail of the relevant log in its own refusal; the file is the rest of
 the evidence. The publisher also writes the reason a `status` read was refused
 to its log, which is where a deployment that does not compose becomes visible.
 
+## `work` — the Work labels of this deployment's Authority
+
+A **Work label** is one plain cross-cutting value carried by a Work: an opaque
+lower-case key, not a `name=value` tag, inheriting nowhere, and read by nothing
+in the scheduler. The bundled `work` subcommand is the supported surface over
+it (W29401, over W29400's authority behaviour). Every verb takes
+`--authority-store` and `--authority-uuid`; the two reads open the store
+read-only, so asking a serving deployment what it carries takes no write lock
+on it.
+
+```sh
+S=/srv/baton-v12/distro/baton-v12-stack
+UUID=$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["authority_uuid"])' \
+       /srv/baton-v12/authority-identity.json)
+A="--authority-store /srv/baton-v12/db/authority.sqlite3 --authority-uuid $UUID"
+
+# add or remove labels. --label is repeatable; --operation-id makes the
+# request replayable, and reusing it for a different request is refused.
+"$S" work label-work   $A --participant baton.slaw --work 19b4f145-W1 \
+                          --operation-id labels-1 --label v12 --label release-foo
+"$S" work unlabel-work $A --participant baton.slaw --work 19b4f145-W1 \
+                          --operation-id labels-2 --label release-foo
+
+# read one Work's live set and the journal that produced it
+"$S" work labels $A --work 19b4f145-W1
+
+# which Work carries all of one set and none of another
+"$S" work list $A --label v12
+"$S" work list $A --label v12 --without-label archived
+```
+
+**What the operands mean, and what they refuse.**
+
+- `--label` is **one label per operand, repeatable**. It is 1–64 characters,
+  starts with an ASCII letter or digit and continues with ASCII letters,
+  digits, dots, underscores or hyphens; it is normalized to lower case, so
+  `--label Release-Foo` and `--label release-foo` are one key. A `key=value`
+  tag, a comma-joined list and every other OR-like spelling are **refused**:
+  a label is one opaque key and nothing here takes one apart. Two operands
+  that are one key after normalization are refused too — a caller who wrote
+  two things meant two things.
+- On `list`, repeated `--label` is **all-of** and repeated `--without-label`
+  is **none-of**, and the two compose. Repeated operands never mean OR. An
+  empty filter is every Work. Requiring and excluding one label is refused.
+- `--participant` and **no `--actor`**: the session is minted for that
+  participant and the authority takes the decision's principal from the
+  binding. The act needs the `manage-work-labels` capability **in the Work's
+  own scope**; holding the Work, handling its route or being its claimant
+  authorizes nothing.
+- `--operation-id` is the operator's one handle on the whole request. An exact
+  retry replays and prints the same bytes — after an intervening change or a
+  revoked grant too, because the answer is the committed result of the
+  request's own acts: its `labels` member is the set the request's last act
+  left, as committed, never a fresh read. What the Work carries *now* is
+  `work labels`'s answer. The same identity with a different verb, Work,
+  participant or label set is refused, and nothing is done.
+- Repeated labels are **separate authority acts** under identities derived
+  from that one, performed in sorted order. A request refused part-way — at
+  the 32-label bound, say — has completed the acts before the refusal and
+  keeps them: it exits 2 with the refusal and no JSON summary, and `work
+  labels` shows what landed. An exact retry under the same identity replays
+  the completed acts and performs the rest, so repairing what the refusal
+  names and repeating the request finishes it with no second effect.
+- A label a Work already carries (or a removal of one it does not) **succeeds**
+  and reports `changed: false`. That is agreement, not a conflict, and it
+  writes no event.
+- Labels are permitted **whatever the Work's phase, and after it is closed**:
+  a label change is archive metadata and reopens, reschedules and
+  re-authorizes nothing.
+
+**Not these labels.** v11's `baton label` / `baton unlabel` bind a *thread* to
+a Work — a relation between two records — which is why the verbs here are
+spelled `label-work` and `unlabel-work`. The Worker Manager's own `labels` are
+OCI runtime labels, the container execution identity a runtime is discovered
+and fenced by. Neither is reachable from this subcommand.
+
+### `manager create --label` — a Work's create-time labels
+
+`manager create` takes the same repeatable `--label`, and it applies **only
+when that creation makes the Work**, in the act that makes it — so a reader
+never sees the Work for an instant without the labels it was created with.
+
+```sh
+"$S" manager --store … --incarnation … --authority-uuid $UUID create … \
+     --label v12 --label w29401
+```
+
+The labels are part of the caller's intent, so an exact retry replays the
+creation and a second request under the same Job identity naming other labels
+is refused as the different creation it is.
+
+If the deployment's derived Work **already exists**, a creation that states
+labels is **refused by name** — whether the Work carries none of them, some,
+all of them or more — and the refusal says to use `work label-work` instead
+and then to repeat the creation without `--label`: that Work is shared by
+every Job bound to it, and a creation neither relabels Work it did not make
+nor reports labels it did not apply. The refusal reserves nothing, so the same
+Job identity stays free for the creation the guidance names. The one creation
+that reuses an existing Work *with* labels is the creation that minted it: the
+Work's creation record names the minting act, so a creation interrupted after
+it made the Work (at its binding, say) is finished by running the same request
+again, exactly as its refusal promises. A creation that states no `--label`
+behaves exactly as it did before this option existed.
+
+The minting act's operation identity is `template_job.create.work:` followed
+by the canonical digest of `{"job_id": …, "work_id": …}` — 96 characters of
+the Authority's opaque grammar for *every* Job id, so a Job id of any length
+or spelling mints exactly as it did before labels existed, and a reader holding
+the Job id can recompute which creation made the Work.
+
+Past the reservation there are three distinct answers, and each refusal says
+which it is and what actually works next:
+
+- the creation's own minted Work still carrying exactly what it minted: the
+  interrupted creation finishes;
+- the creation's own minted Work relabelled since by an authorized act: the
+  refusal says so, names the minted and the carried sets and the exact acts
+  that restore the minted set — the `work unlabel-work` of the extra labels
+  first, then the `work label-work` of the missing ones, in that order
+  because a Work holds at most 32 labels and the Authority refuses an
+  addition at that limit until a label is removed — after which the same
+  request finishes; or create under a new Job identity without `--label`.
+  Repeating without `--label` under the *reserved* identity is a different
+  intent and collides, as it must;
+- Work another act made, found only after this creation reserved (it appeared
+  between the pre-reservation check and the authorization): the reservation
+  exists and cannot complete, the refusal names the Work's recorded minting
+  operation, and a **new Job identity** without `--label` is required. It never
+  claims that nothing was reserved.
+
 ## Boundaries
 
 This launcher does not migrate a backlog, does not copy v11 Work, and is not a

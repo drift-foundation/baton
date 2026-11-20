@@ -1,0 +1,12 @@
+import started 2026-11-20T04:43:15Z
+{
+  "verdict": "ok",
+  "head": "86c1c22b9125176b0127fc4a86fa00855ed6d127",
+  "refusals": [],
+  "checked": 11
+}
+{
+  "verdict": "imported",
+  "written": 11
+}
+exit=0

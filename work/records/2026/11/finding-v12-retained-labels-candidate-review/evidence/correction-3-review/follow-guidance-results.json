@@ -1,0 +1,65 @@
+{
+  "seconds": 0.25120135699398816,
+  "scenarios": [
+    {
+      "replacement_count": 1,
+      "refusal": "this creation minted the Work '0000000a-W1' carrying exactly 'label-00', 'label-01', 'label-02' and 29 more, which its reserved request names, and an authorized label act has changed the Work since: it now carries 'extra-0', 'label-01', 'label-02' and 29 more. Create-time labels are applied only in the act that MAKES a Work, so this creation neither relabels its Work now nor reports labels it did not leave there. Either restore exactly the minted set -- `baton-v12-stack work unlabel-work --work 0000000a-W1 --label extra-0` and then `baton-v12-stack work label-work --work 0000000a-W1 --label label-00` -- and run the same request again, which finishes this creation, or create the Job under a new Job identity without --label. The Job identity 'job-cli-first' is RESERVED and its Work authorization and deployment binding may already be published: this creation is INCOMPLETE rather than undone, no submission was recorded, and running the same request again finishes it once what is named above is repaired",
+      "commands": [
+        "baton-v12-stack work unlabel-work --work 0000000a-W1 --label extra-0",
+        "baton-v12-stack work label-work --work 0000000a-W1 --label label-00"
+      ],
+      "wrong_order_control": {
+        "exit": 2,
+        "stdout": "",
+        "stderr": "refused: Work '0000000a-W1' already holds the maximum 32 labels; a label is removed before another is added\n"
+      },
+      "steps": [
+        {
+          "command": "baton-v12-stack work unlabel-work --work 0000000a-W1 --label extra-0",
+          "exit": 0,
+          "label_count": 31
+        },
+        {
+          "command": "baton-v12-stack work label-work --work 0000000a-W1 --label label-00",
+          "exit": 0,
+          "label_count": 32
+        }
+      ],
+      "continuation": "this deployment reported no binding for Job 'job-cli-first' after publishing one. The Job identity 'job-cli-first' is RESERVED and its Work authorization and deployment binding may already be published: this creation is INCOMPLETE rather than undone, no submission was recorded, and running the same request again finishes it once what is named above is repaired",
+      "changed_intent_refusal": "operation 'template_job.intend:job-cli-first' is already recorded with a different kind or signature; reusing an id with different operands changes nothing",
+      "submission_count": 0,
+      "events": 36,
+      "exact_set_restored": true
+    },
+    {
+      "replacement_count": 2,
+      "refusal": "this creation minted the Work '0000000a-W1' carrying exactly 'label-00', 'label-01', 'label-02' and 29 more, which its reserved request names, and an authorized label act has changed the Work since: it now carries 'extra-0', 'extra-1', 'label-02' and 29 more. Create-time labels are applied only in the act that MAKES a Work, so this creation neither relabels its Work now nor reports labels it did not leave there. Either restore exactly the minted set -- `baton-v12-stack work unlabel-work --work 0000000a-W1 --label extra-0 --label extra-1` and then `baton-v12-stack work label-work --work 0000000a-W1 --label label-00 --label label-01` -- and run the same request again, which finishes this creation, or create the Job under a new Job identity without --label. The Job identity 'job-cli-first' is RESERVED and its Work authorization and deployment binding may already be published: this creation is INCOMPLETE rather than undone, no submission was recorded, and running the same request again finishes it once what is named above is repaired",
+      "commands": [
+        "baton-v12-stack work unlabel-work --work 0000000a-W1 --label extra-0 --label extra-1",
+        "baton-v12-stack work label-work --work 0000000a-W1 --label label-00 --label label-01"
+      ],
+      "wrong_order_control": {
+        "exit": 2,
+        "stdout": "",
+        "stderr": "refused: Work '0000000a-W1' already holds the maximum 32 labels; a label is removed before another is added\n"
+      },
+      "steps": [
+        {
+          "command": "baton-v12-stack work unlabel-work --work 0000000a-W1 --label extra-0 --label extra-1",
+          "exit": 0,
+          "label_count": 30
+        },
+        {
+          "command": "baton-v12-stack work label-work --work 0000000a-W1 --label label-00 --label label-01",
+          "exit": 0,
+          "label_count": 32
+        }
+      ],
+      "continuation": "this deployment reported no binding for Job 'job-cli-first' after publishing one. The Job identity 'job-cli-first' is RESERVED and its Work authorization and deployment binding may already be published: this creation is INCOMPLETE rather than undone, no submission was recorded, and running the same request again finishes it once what is named above is repaired",
+      "changed_intent_refusal": "operation 'template_job.intend:job-cli-first' is already recorded with a different kind or signature; reusing an id with different operands changes nothing",
+      "submission_count": 0,
+      "events": 40,
+      "exact_set_restored": true
+    }
+  ]
+}

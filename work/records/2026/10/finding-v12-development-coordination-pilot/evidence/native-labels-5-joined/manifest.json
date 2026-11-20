@@ -1,0 +1,156 @@
+{
+  "schema": "k.labels-joined-manifest/1",
+  "answers": "T321608 seq 385321 (joined labels + observation candidate and import preflight; accepted by review-2026-11-20T03-29-23Z.md)",
+  "checkpoint": "86c1c22b9125176b0127fc4a86fa00855ed6d127",
+  "labels_manifest_sha256": "d52ebd7e3da298d02c1db867671b01ff648ed386f6772e0eaba0f50b8481d8ca",
+  "labels_packet": "evidence/native-labels-5-correction-3",
+  "observation_manifest_sha256": "7c1da2d2acc6aea1b3fd3e65b02eb6ab8ec21379ddc9462d361c72ad4d52c16f",
+  "observation_manifest": "work/records/2026/11/finding-v12-shared-work-liveness/candidate-option-a-registry/manifest.json",
+  "observation_paths_held_at_checkpoint": [
+    "v12/python/tools/job_observation.py",
+    "v12/python/tools/job_viewer.py",
+    "v12/python/tools/stack.py",
+    "v12/python/tests/tools/test_job_observation.py",
+    "v12/python/tests/tools/test_job_viewer.py",
+    "v12/python/JOB-VIEWER.md",
+    "v12/python/tools/parallel_test.py"
+  ],
+  "paths": [
+    {
+      "path": "v12/STACK.md",
+      "host_86c1c22b": "8f117f0f30b0b4d8c73f4dc7fd51f9109b68e5b9feefc71058896ecac88cf4e0",
+      "labels_accepted_d52ebd7e": "f1a3445b58be923e3fb698476cd085a184a7f706470ddf174097236de7167b2c",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "f1a3445b58be923e3fb698476cd085a184a7f706470ddf174097236de7167b2c",
+      "new": false,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/creation.py",
+      "host_86c1c22b": "a9aa278be615ab3ee5726eeb6dcd1952ffe942eff19b29309a57626012aa994e",
+      "labels_accepted_d52ebd7e": "d85631d06ca20a18b97d0a56e7277eac7a2ada1447c4342d6898904bf7372d16",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "d85631d06ca20a18b97d0a56e7277eac7a2ada1447c4342d6898904bf7372d16",
+      "new": false,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/tests/authority/test_work_label_exposure.py",
+      "host_86c1c22b": "81c302ec7177243eeb03f8f090f3c6162e5cdfb9e8bab883b138fa5ae6d58cac",
+      "labels_accepted_d52ebd7e": "0d37e424ca49ca92fc9809eaff194fb02d9375e7f46cf9303eceff424d5e5d4e",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "0d37e424ca49ca92fc9809eaff194fb02d9375e7f46cf9303eceff424d5e5d4e",
+      "new": false,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_creation.py",
+      "host_86c1c22b": "c432ea651be95c2421d3abbe33b9eacab368a61162d4a4cb4382e4604bf9f29a",
+      "labels_accepted_d52ebd7e": "bb35896a080f70b88e0fc763253c07977e7c3635a630d34bca075e935c382e8c",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "bb35896a080f70b88e0fc763253c07977e7c3635a630d34bca075e935c382e8c",
+      "new": false,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "host_86c1c22b": "cfa1ea0d7974ac94eebb858a76514bf8ffe8a2e85336d40799a369ddbd174e5f",
+      "labels_accepted_d52ebd7e": "483fe49c7bf3b1ab02414e8011e3892eb91723ae56b3d7757386e97d82fb59ff",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "483fe49c7bf3b1ab02414e8011e3892eb91723ae56b3d7757386e97d82fb59ff",
+      "new": false,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_work_command.py",
+      "host_86c1c22b": null,
+      "labels_accepted_d52ebd7e": "1d1755acffe5d4777b5d3cd1e9c55bb55c2ecb466b85d2a7e94da55a9d3ab5c1",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "1d1755acffe5d4777b5d3cd1e9c55bb55c2ecb466b85d2a7e94da55a9d3ab5c1",
+      "new": true,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/tools/fresh_attempt_ports.py",
+      "host_86c1c22b": "153c6bc1c2084e023ac8ca13115d6db3b8a04dc3dc369a9d5336572697193914",
+      "labels_accepted_d52ebd7e": "6a3dc27a0c1409d60ef2840980623d2566710ba4a6d22b135c99c2ec282bee93",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "6a3dc27a0c1409d60ef2840980623d2566710ba4a6d22b135c99c2ec282bee93",
+      "new": false,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "host_86c1c22b": "5116b6773f35c9f3831a4d25d7aa03731f7ab5edb84635a2b03e8426287958f2",
+      "labels_accepted_d52ebd7e": "71f74d15eea461e56dbcf6d5ab24dc4b0a52a07b18ea20c97fca5105bd417392",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "71f74d15eea461e56dbcf6d5ab24dc4b0a52a07b18ea20c97fca5105bd417392",
+      "new": false,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "host_86c1c22b": "a808786507fb4d06e4b9d407f73f81b8e9e256794ef58e58f187f9cf17711042",
+      "labels_accepted_d52ebd7e": "55c71051c4075fe5f3d1777b7785b97bbcddea20db353d3cdfbc439a714f860e",
+      "observation_accepted_7c1da2d2": "a808786507fb4d06e4b9d407f73f81b8e9e256794ef58e58f187f9cf17711042",
+      "joined": "059ff5fb1a319d176121cd6cd1ca25e6904bfd64b9bcb200d8267a1c996251a8",
+      "new": false,
+      "composition": "host 86c1c22b bytes (= observation accepted a8087865\u2026) + the two labels hunks of compose/labels-registration.patch (d8f77700 -> accepted labels bytes), patch --fuzz=0, hunk 2 at offset +4; joined == labels accepted + the four-line W385263 test_job_observation registration (compose/joined-vs-labels.diff) == host + the labels registration and its comment (compose/joined-vs-host.diff)",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/tools/stack_command.py",
+      "host_86c1c22b": "38b6d0c539adaa380e989616013b40d839a3e93d7e85bc8e489b66d8ed49cfe6",
+      "labels_accepted_d52ebd7e": "c2ed2884fd16330dd1b5523017084c4954632abbb8c156ec30487d8d21feb716",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "c2ed2884fd16330dd1b5523017084c4954632abbb8c156ec30487d8d21feb716",
+      "new": false,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    },
+    {
+      "path": "v12/python/tools/work_command.py",
+      "host_86c1c22b": null,
+      "labels_accepted_d52ebd7e": "0605f37f1339806c06feed2dceff360a05fbcde081f0968db1374fbc6d002ad1",
+      "observation_accepted_7c1da2d2": null,
+      "joined": "0605f37f1339806c06feed2dceff360a05fbcde081f0968db1374fbc6d002ad1",
+      "new": true,
+      "composition": "exact accepted labels bytes",
+      "changed_on_host_by_import": true
+    }
+  ],
+  "shared_paths": [
+    "v12/python/tools/parallel_test.py"
+  ],
+  "new_paths": [
+    "v12/python/tests/tools/test_work_command.py",
+    "v12/python/tools/work_command.py"
+  ],
+  "import_changes": [
+    "v12/STACK.md",
+    "v12/python/src/baton_v12/job_manager/creation.py",
+    "v12/python/tests/authority/test_work_label_exposure.py",
+    "v12/python/tests/job_manager/test_creation.py",
+    "v12/python/tests/tools/test_connected_creation.py",
+    "v12/python/tests/tools/test_work_command.py",
+    "v12/python/tools/fresh_attempt_ports.py",
+    "v12/python/tools/job_manager.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tools/stack_command.py",
+    "v12/python/tools/work_command.py"
+  ],
+  "reconstruction": "GIT_OPTIONAL_LOCKS=0 git archive 86c1c22b v12 + the runner's CONSUMED_INPUTS + the vectors fixture (read-only) into work/scratch/w383217/labels5-joined/{base,candidate}; the 10 non-shared paths copied from the accepted packet; parallel_test.py composed as described; base/ untouched for diffs",
+  "fixture": {
+    "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+    "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "copy": "fixture/vectors.json"
+  }
+}

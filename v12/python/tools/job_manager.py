@@ -916,6 +916,15 @@ def _creation_request(taken):
     verification = getattr(taken, "verification", None)
     if verification:
         request["verification"] = list(verification)
+    # W29401: THE WORK LABELS THIS CREATION STATES, present ONLY when the
+    # operator stated one -- the `verification` rule above, for the same
+    # reason. An absent member and an empty one are different intents: absent
+    # is "this creation says nothing about labels", which is what every
+    # creation before this option meant and still means, and an empty list
+    # would be a caller asking for a set.
+    labels = getattr(taken, "label", None)
+    if labels:
+        request["labels"] = list(labels)
     return request
 
 
@@ -1460,6 +1469,26 @@ def main(argv, *, clock=None, stream=None):
                                "word that starts with a dash as "
                                "--verification=-m); omitted, the deployment's "
                                "installed verification runs")
+    creating.add_argument("--label", action="append", default=None,
+                          metavar="LABEL",
+                          help="one plain Work label, repeatable, applied "
+                               "ONLY when this creation makes the Work "
+                               "(W29401/W29400). A label is one opaque "
+                               "lower-case value and never a name=value tag; "
+                               "if the deployment's derived Work already "
+                               "exists, a creation naming labels refuses by "
+                               "name -- whether or not the Work carries them "
+                               "-- rather than mutating or claiming it, and "
+                               "reserves nothing; the one creation that "
+                               "reuses it with labels is the creation that "
+                               "minted it, run again with the Work still "
+                               "carrying exactly what it minted (a refusal "
+                               "past the reservation names the exact acts "
+                               "that restore that, or requires a new Job "
+                               "identity). Use `baton-v12-stack work "
+                               "label-work` for an existing Work, which is "
+                               "an attributable authorized act of its own, "
+                               "then create without --label")
     creating.add_argument("--control-profile", default=None,
                           help="the finite control profile this Job is "
                                "admitted under (LIM-5), for example "

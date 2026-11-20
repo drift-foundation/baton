@@ -1,0 +1,8 @@
+tests.tools.test_work_command: Ran 49 tests in 0.163s OK 
+tests.job_manager.test_creation: Ran 102 tests in 0.304s OK 
+tests.tools.test_connected_creation: Ran 38 tests in 3.445s OK 
+tests.authority.test_work_labels: Ran 52 tests in 0.087s OK 
+tests.authority.test_work_label_exposure: Ran 27 tests in 0.036s OK 
+tests.tools.test_job_observation: Ran 7 tests in 0.005s OK 
+tests.tools.test_job_viewer: Ran 81 tests in 7.077s OK 
+tests.tools.test_parallel_runner: Ran 72 tests in 16.210s FAILED (failures=1) 

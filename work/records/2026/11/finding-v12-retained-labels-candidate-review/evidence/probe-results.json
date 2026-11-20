@@ -1,0 +1,118 @@
+{
+  "preexisting_work_with_explicit_subset_labels": {
+    "state": "reused",
+    "requested_labels": [
+      "v12"
+    ],
+    "existing_labels": [
+      "hot",
+      "v12"
+    ],
+    "work_create_calls": [],
+    "spec_requires_refusal": true
+  },
+  "exact_replay_after_intervening_mutation": {
+    "exit_codes": [
+      0,
+      0,
+      0
+    ],
+    "byte_identical": false,
+    "first": {
+      "actor": "baton.slaw",
+      "acts": [
+        {
+          "action": "added",
+          "changed": true,
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.slaw",
+            "grant": "direct",
+            "policy_generation": 3,
+            "principal": "principal:baton.slaw",
+            "role": "manage-work-labels"
+          },
+          "label": "v12",
+          "operation_id": "review-add:label-work:v12"
+        }
+      ],
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "changed": [
+        "v12"
+      ],
+      "labels": [
+        "v12"
+      ],
+      "operation_id": "review-add",
+      "request": {
+        "bound_at": "2026-11-19T21:49:19.242Z",
+        "kind": "command-request",
+        "request": {
+          "labels": [
+            "v12"
+          ],
+          "participant": "baton.slaw",
+          "verb": "label-work",
+          "work": "0123abcd-W1"
+        },
+        "verb": "label-work",
+        "work_id": "0123abcd-W1"
+      },
+      "verb": "label-work",
+      "work_id": "0123abcd-W1"
+    },
+    "replay": {
+      "actor": "baton.slaw",
+      "acts": [
+        {
+          "action": "added",
+          "changed": true,
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.slaw",
+            "grant": "direct",
+            "policy_generation": 3,
+            "principal": "principal:baton.slaw",
+            "role": "manage-work-labels"
+          },
+          "label": "v12",
+          "operation_id": "review-add:label-work:v12"
+        }
+      ],
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "changed": [
+        "v12"
+      ],
+      "labels": [],
+      "operation_id": "review-add",
+      "request": {
+        "bound_at": "2026-11-19T21:49:19.242Z",
+        "kind": "command-request",
+        "request": {
+          "labels": [
+            "v12"
+          ],
+          "participant": "baton.slaw",
+          "verb": "label-work",
+          "work": "0123abcd-W1"
+        },
+        "verb": "label-work",
+        "work_id": "0123abcd-W1"
+      },
+      "verb": "label-work",
+      "work_id": "0123abcd-W1"
+    },
+    "events_before_replay": 2,
+    "events_after_replay": 2
+  },
+  "multi_label_overflow": {
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "refused: Work '0123abcd-W1' already holds the maximum 32 labels; a label is removed before another is added\n",
+    "new_labels_retained": [
+      "z-last-slot"
+    ]
+  },
+  "typed_refusal_allowlist": "RuntimeError escapes; not masked by new Refusal catch",
+  "seconds": 0.03078333000303246
+}

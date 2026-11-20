@@ -1,0 +1,422 @@
+{
+  "interruption": {
+    "refusal": "binding interrupted",
+    "code": "precondition",
+    "rows": [
+      {
+        "job_id": "job-w361912-a",
+        "work_id": "0000000a-W1",
+        "submission_id": "sub-job-w361912-a",
+        "template_version": "baton.v12.job-template.implementation-review/1",
+        "state": "intended",
+        "request": "{\"job_id\": \"job-w361912-a\", \"request_digest\": \"sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e\", \"submission_id\": \"sub-job-w361912-a\"}",
+        "request_digest": "sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e",
+        "resolution_digest": "sha256:8c7dd682c3d441bd4b423ce106be369c0437f1519cefafc051942caed9669e0b",
+        "resolution": "{\"acceptance\": [\"A created Job is recorded, bound and servable.\"], \"execution_limits\": {\"boundaries\": {\"host_verification\": {\"default_seconds\": 300, \"origin\": \"compatibility\", \"seconds\": 300, \"setting\": \"verification_command_seconds\"}, \"integration_verification\": {\"default_seconds\": 1800, \"origin\": \"compatibility\", \"seconds\": 1800, \"setting\": \"verification_command_seconds\"}, \"ordinary_verification\": {\"default_seconds\": 900, \"origin\": \"compatibility\", \"seconds\": 900, \"setting\": \"verification_command_seconds\"}, \"provider_turn\": {\"default_seconds\": 3600, \"origin\": \"compatibility\", \"seconds\": 3600, \"setting\": \"provider_turn_seconds\"}}, \"compatibility_generation\": 1, \"requested\": {}, \"scope\": \"per-invocation\", \"units\": \"seconds\"}, \"overrides\": {}, \"rules\": {\"completion\": {\"deciding_role\": \"review\", \"delivers\": \"proposal\", \"outcome\": \"accepted\", \"verdict_output\": \"findings\"}, \"correction\": {\"episode_ending\": \"superseded-by-correction\", \"outcome\": \"correction\", \"repeats\": [\"implementation\", \"review\"]}, \"failure\": {\"outcome\": \"held\", \"recovery_operation\": \"fresh_attempt.admit\", \"stage_state\": \"exceptional\", \"terminal_policy\": \"report-and-hold\"}}, \"schema\": \"baton.v12.job-template-resolution/1\", \"scope\": {\"tests\": [\"v12/python/tests/job_manager/test_creation.py\"], \"work\": [\"v12/python/src/baton_v12/job_manager/creation.py\"]}, \"source\": {\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\"}, \"stages\": [{\"consumes\": [], \"depends_on\": [], \"kind\": \"implementation\", \"produces\": [\"proposal\"], \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"role\": \"implementation\", \"stage_id\": \"job-w361912-a/implementation\", \"work_id\": \"0000000a-W1\"}, {\"consumes\": [\"proposal\"], \"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"produces\": [\"findings\", \"logs\"], \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"role\": \"review\", \"stage_id\": \"job-w361912-a/review\", \"work_id\": \"0000000a-W1\"}], \"submission\": {\"jobs\": [{\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"job_id\": \"job-w361912-a\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\", \"stages\": [{\"depends_on\": [], \"kind\": \"implementation\", \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"work_id\": \"0000000a-W1\"}, {\"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"work_id\": \"0000000a-W1\"}], \"terminal_policy\": \"report-and-hold\", \"test_scope\": [\"v12/python/tests/job_manager/test_creation.py\"]}], \"schema\": \"baton.v12.job-submission/1\", \"submission_id\": \"sub-job-w361912-a\"}, \"task\": {\"job_id\": \"job-w361912-a\", \"statement\": \"Create ordinary Jobs through manager-owned template admission.\", \"submission_id\": \"sub-job-w361912-a\", \"work_id\": \"0000000a-W1\"}, \"template\": {\"origin\": \"configured-default\", \"permitted_overrides\": [\"execution_limits\"], \"version\": \"baton.v12.job-template.implementation-review/1\"}}",
+        "task_document": null,
+        "submission_signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"job-w361912-a\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"},{\"depends_on\":[{\"job_id\":\"job-w361912-a\",\"kind\":\"implementation\"}],\"kind\":\"review\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reviewer\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager/test_creation.py\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"sub-job-w361912-a\"}}",
+        "intended_at": "2026-09-02T00:00:00.000Z",
+        "created_at": null,
+        "incarnation": "jobs-1",
+        "holder": "jobs-1@control.sqlite3"
+      }
+    ]
+  },
+  "own_work_relabelled": {
+    "refusal": "this creation minted the Work '0000000a-W1' carrying exactly 'v12', which its reserved request names, and an authorized label act has changed the Work since: it now carries 'hot', 'v12'. Create-time labels are applied only in the act that MAKES a Work, so this creation neither relabels its Work now nor reports labels it did not leave there. Either restore exactly the minted set -- `baton-v12-stack work unlabel-work --work 0000000a-W1 --label hot` -- and run the same request again, which finishes this creation, or create the Job under a new Job identity without --label. The Job identity 'job-w361912-a' is RESERVED and its Work authorization and deployment binding may already be published: this creation is INCOMPLETE rather than undone, no submission was recorded, and running the same request again finishes it once what is named above is repaired",
+    "code": "precondition",
+    "rows": [
+      {
+        "job_id": "job-w361912-a",
+        "work_id": "0000000a-W1",
+        "submission_id": "sub-job-w361912-a",
+        "template_version": "baton.v12.job-template.implementation-review/1",
+        "state": "intended",
+        "request": "{\"job_id\": \"job-w361912-a\", \"request_digest\": \"sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e\", \"submission_id\": \"sub-job-w361912-a\"}",
+        "request_digest": "sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e",
+        "resolution_digest": "sha256:8c7dd682c3d441bd4b423ce106be369c0437f1519cefafc051942caed9669e0b",
+        "resolution": "{\"acceptance\": [\"A created Job is recorded, bound and servable.\"], \"execution_limits\": {\"boundaries\": {\"host_verification\": {\"default_seconds\": 300, \"origin\": \"compatibility\", \"seconds\": 300, \"setting\": \"verification_command_seconds\"}, \"integration_verification\": {\"default_seconds\": 1800, \"origin\": \"compatibility\", \"seconds\": 1800, \"setting\": \"verification_command_seconds\"}, \"ordinary_verification\": {\"default_seconds\": 900, \"origin\": \"compatibility\", \"seconds\": 900, \"setting\": \"verification_command_seconds\"}, \"provider_turn\": {\"default_seconds\": 3600, \"origin\": \"compatibility\", \"seconds\": 3600, \"setting\": \"provider_turn_seconds\"}}, \"compatibility_generation\": 1, \"requested\": {}, \"scope\": \"per-invocation\", \"units\": \"seconds\"}, \"overrides\": {}, \"rules\": {\"completion\": {\"deciding_role\": \"review\", \"delivers\": \"proposal\", \"outcome\": \"accepted\", \"verdict_output\": \"findings\"}, \"correction\": {\"episode_ending\": \"superseded-by-correction\", \"outcome\": \"correction\", \"repeats\": [\"implementation\", \"review\"]}, \"failure\": {\"outcome\": \"held\", \"recovery_operation\": \"fresh_attempt.admit\", \"stage_state\": \"exceptional\", \"terminal_policy\": \"report-and-hold\"}}, \"schema\": \"baton.v12.job-template-resolution/1\", \"scope\": {\"tests\": [\"v12/python/tests/job_manager/test_creation.py\"], \"work\": [\"v12/python/src/baton_v12/job_manager/creation.py\"]}, \"source\": {\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\"}, \"stages\": [{\"consumes\": [], \"depends_on\": [], \"kind\": \"implementation\", \"produces\": [\"proposal\"], \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"role\": \"implementation\", \"stage_id\": \"job-w361912-a/implementation\", \"work_id\": \"0000000a-W1\"}, {\"consumes\": [\"proposal\"], \"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"produces\": [\"findings\", \"logs\"], \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"role\": \"review\", \"stage_id\": \"job-w361912-a/review\", \"work_id\": \"0000000a-W1\"}], \"submission\": {\"jobs\": [{\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"job_id\": \"job-w361912-a\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\", \"stages\": [{\"depends_on\": [], \"kind\": \"implementation\", \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"work_id\": \"0000000a-W1\"}, {\"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"work_id\": \"0000000a-W1\"}], \"terminal_policy\": \"report-and-hold\", \"test_scope\": [\"v12/python/tests/job_manager/test_creation.py\"]}], \"schema\": \"baton.v12.job-submission/1\", \"submission_id\": \"sub-job-w361912-a\"}, \"task\": {\"job_id\": \"job-w361912-a\", \"statement\": \"Create ordinary Jobs through manager-owned template admission.\", \"submission_id\": \"sub-job-w361912-a\", \"work_id\": \"0000000a-W1\"}, \"template\": {\"origin\": \"configured-default\", \"permitted_overrides\": [\"execution_limits\"], \"version\": \"baton.v12.job-template.implementation-review/1\"}}",
+        "task_document": null,
+        "submission_signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"job-w361912-a\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"},{\"depends_on\":[{\"job_id\":\"job-w361912-a\",\"kind\":\"implementation\"}],\"kind\":\"review\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reviewer\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager/test_creation.py\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"sub-job-w361912-a\"}}",
+        "intended_at": "2026-09-02T00:00:00.000Z",
+        "created_at": null,
+        "incarnation": "jobs-1",
+        "holder": "jobs-1@control.sqlite3"
+      }
+    ]
+  },
+  "follow_guidance_without_label": {
+    "refusal": "operation 'template_job.intend:job-w361912-a' is already recorded with a different kind or signature; reusing an id with different operands changes nothing",
+    "code": "operation-collision",
+    "rows": [
+      {
+        "job_id": "job-w361912-a",
+        "work_id": "0000000a-W1",
+        "submission_id": "sub-job-w361912-a",
+        "template_version": "baton.v12.job-template.implementation-review/1",
+        "state": "intended",
+        "request": "{\"job_id\": \"job-w361912-a\", \"request_digest\": \"sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e\", \"submission_id\": \"sub-job-w361912-a\"}",
+        "request_digest": "sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e",
+        "resolution_digest": "sha256:8c7dd682c3d441bd4b423ce106be369c0437f1519cefafc051942caed9669e0b",
+        "resolution": "{\"acceptance\": [\"A created Job is recorded, bound and servable.\"], \"execution_limits\": {\"boundaries\": {\"host_verification\": {\"default_seconds\": 300, \"origin\": \"compatibility\", \"seconds\": 300, \"setting\": \"verification_command_seconds\"}, \"integration_verification\": {\"default_seconds\": 1800, \"origin\": \"compatibility\", \"seconds\": 1800, \"setting\": \"verification_command_seconds\"}, \"ordinary_verification\": {\"default_seconds\": 900, \"origin\": \"compatibility\", \"seconds\": 900, \"setting\": \"verification_command_seconds\"}, \"provider_turn\": {\"default_seconds\": 3600, \"origin\": \"compatibility\", \"seconds\": 3600, \"setting\": \"provider_turn_seconds\"}}, \"compatibility_generation\": 1, \"requested\": {}, \"scope\": \"per-invocation\", \"units\": \"seconds\"}, \"overrides\": {}, \"rules\": {\"completion\": {\"deciding_role\": \"review\", \"delivers\": \"proposal\", \"outcome\": \"accepted\", \"verdict_output\": \"findings\"}, \"correction\": {\"episode_ending\": \"superseded-by-correction\", \"outcome\": \"correction\", \"repeats\": [\"implementation\", \"review\"]}, \"failure\": {\"outcome\": \"held\", \"recovery_operation\": \"fresh_attempt.admit\", \"stage_state\": \"exceptional\", \"terminal_policy\": \"report-and-hold\"}}, \"schema\": \"baton.v12.job-template-resolution/1\", \"scope\": {\"tests\": [\"v12/python/tests/job_manager/test_creation.py\"], \"work\": [\"v12/python/src/baton_v12/job_manager/creation.py\"]}, \"source\": {\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\"}, \"stages\": [{\"consumes\": [], \"depends_on\": [], \"kind\": \"implementation\", \"produces\": [\"proposal\"], \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"role\": \"implementation\", \"stage_id\": \"job-w361912-a/implementation\", \"work_id\": \"0000000a-W1\"}, {\"consumes\": [\"proposal\"], \"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"produces\": [\"findings\", \"logs\"], \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"role\": \"review\", \"stage_id\": \"job-w361912-a/review\", \"work_id\": \"0000000a-W1\"}], \"submission\": {\"jobs\": [{\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"job_id\": \"job-w361912-a\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\", \"stages\": [{\"depends_on\": [], \"kind\": \"implementation\", \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"work_id\": \"0000000a-W1\"}, {\"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"work_id\": \"0000000a-W1\"}], \"terminal_policy\": \"report-and-hold\", \"test_scope\": [\"v12/python/tests/job_manager/test_creation.py\"]}], \"schema\": \"baton.v12.job-submission/1\", \"submission_id\": \"sub-job-w361912-a\"}, \"task\": {\"job_id\": \"job-w361912-a\", \"statement\": \"Create ordinary Jobs through manager-owned template admission.\", \"submission_id\": \"sub-job-w361912-a\", \"work_id\": \"0000000a-W1\"}, \"template\": {\"origin\": \"configured-default\", \"permitted_overrides\": [\"execution_limits\"], \"version\": \"baton.v12.job-template.implementation-review/1\"}}",
+        "task_document": null,
+        "submission_signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"job-w361912-a\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"},{\"depends_on\":[{\"job_id\":\"job-w361912-a\",\"kind\":\"implementation\"}],\"kind\":\"review\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reviewer\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager/test_creation.py\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"sub-job-w361912-a\"}}",
+        "intended_at": "2026-09-02T00:00:00.000Z",
+        "created_at": null,
+        "incarnation": "jobs-1",
+        "holder": "jobs-1@control.sqlite3"
+      }
+    ]
+  },
+  "restore_exact_set_and_retry": {
+    "result": {
+      "job_id": "job-w361912-a",
+      "work_id": "0000000a-W1",
+      "submission_id": "sub-job-w361912-a",
+      "resolution_digest": "sha256:8c7dd682c3d441bd4b423ce106be369c0437f1519cefafc051942caed9669e0b",
+      "template": {
+        "version": "baton.v12.job-template.implementation-review/1",
+        "origin": "configured-default",
+        "permitted_overrides": [
+          "execution_limits"
+        ]
+      },
+      "task": {
+        "job_id": "job-w361912-a",
+        "work_id": "0000000a-W1",
+        "submission_id": "sub-job-w361912-a",
+        "statement": "Create ordinary Jobs through manager-owned template admission."
+      },
+      "source": {
+        "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "scope": {
+        "work": [
+          "v12/python/src/baton_v12/job_manager/creation.py"
+        ],
+        "tests": [
+          "v12/python/tests/job_manager/test_creation.py"
+        ]
+      },
+      "acceptance": [
+        "A created Job is recorded, bound and servable."
+      ],
+      "overrides": {},
+      "rules": {
+        "completion": {
+          "outcome": "accepted",
+          "deciding_role": "review",
+          "verdict_output": "findings",
+          "delivers": "proposal"
+        },
+        "correction": {
+          "outcome": "correction",
+          "episode_ending": "superseded-by-correction",
+          "repeats": [
+            "implementation",
+            "review"
+          ]
+        },
+        "failure": {
+          "outcome": "held",
+          "terminal_policy": "report-and-hold",
+          "stage_state": "exceptional",
+          "recovery_operation": "fresh_attempt.admit"
+        }
+      },
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {},
+        "boundaries": {
+          "host_verification": {
+            "seconds": 300,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 1800,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "compatibility",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "derivation": {
+        "work_id": "0000000a-W1",
+        "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "profiles": {
+          "implementation": {
+            "profile_name": "reference",
+            "profile_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "review": {
+            "profile_name": "reviewer",
+            "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        }
+      },
+      "work": {
+        "work_id": "0000000a-W1",
+        "state": "reused",
+        "requested_labels": [
+          "v12"
+        ],
+        "projection": {
+          "work_id": "0000000a-W1",
+          "state": "open",
+          "phase": "queued",
+          "labels": [
+            "v12"
+          ]
+        }
+      },
+      "binding": {
+        "job_id": "job-w361912-a",
+        "job_work_id": "0000000a-W1",
+        "source_worker_id": "implementation-worker"
+      },
+      "stages": [
+        "job-w361912-a/implementation",
+        "job-w361912-a/review"
+      ],
+      "servable": {
+        "implementation": [
+          "implementation-worker"
+        ],
+        "review": [
+          "review-worker"
+        ]
+      },
+      "recorded_at": "2026-09-02T00:00:00.000Z"
+    }
+  },
+  "race_first": {
+    "refusal": "this creation asks for Work labels 'v12', and the Work '0000000a-W1' it runs under has no creation record this Authority attributes to a creation, not by this creation, and carries 'v12': it appeared between this creation's check and its authorization. The Job identity 'job-w361912-a' is RESERVED for exactly this labelled request and that reservation CANNOT complete: create-time labels are applied only by the act that MAKES a Work, no repair makes this creation the author of Work it did not make, and repeating this request without --label is a different intent that the reservation refuses as a collision. Create the Job under a NEW Job identity without --label; labels for an existing Work are their own authorized act -- `baton-v12-stack work label-work --work 0000000a-W1 --label <value>`. The reservation of 'job-w361912-a' stays recorded and incomplete: no binding and no submission was recorded for it",
+    "code": "precondition",
+    "rows": [
+      {
+        "job_id": "job-w361912-a",
+        "work_id": "0000000a-W1",
+        "submission_id": "sub-job-w361912-a",
+        "template_version": "baton.v12.job-template.implementation-review/1",
+        "state": "intended",
+        "request": "{\"job_id\": \"job-w361912-a\", \"request_digest\": \"sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e\", \"submission_id\": \"sub-job-w361912-a\"}",
+        "request_digest": "sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e",
+        "resolution_digest": "sha256:8c7dd682c3d441bd4b423ce106be369c0437f1519cefafc051942caed9669e0b",
+        "resolution": "{\"acceptance\": [\"A created Job is recorded, bound and servable.\"], \"execution_limits\": {\"boundaries\": {\"host_verification\": {\"default_seconds\": 300, \"origin\": \"compatibility\", \"seconds\": 300, \"setting\": \"verification_command_seconds\"}, \"integration_verification\": {\"default_seconds\": 1800, \"origin\": \"compatibility\", \"seconds\": 1800, \"setting\": \"verification_command_seconds\"}, \"ordinary_verification\": {\"default_seconds\": 900, \"origin\": \"compatibility\", \"seconds\": 900, \"setting\": \"verification_command_seconds\"}, \"provider_turn\": {\"default_seconds\": 3600, \"origin\": \"compatibility\", \"seconds\": 3600, \"setting\": \"provider_turn_seconds\"}}, \"compatibility_generation\": 1, \"requested\": {}, \"scope\": \"per-invocation\", \"units\": \"seconds\"}, \"overrides\": {}, \"rules\": {\"completion\": {\"deciding_role\": \"review\", \"delivers\": \"proposal\", \"outcome\": \"accepted\", \"verdict_output\": \"findings\"}, \"correction\": {\"episode_ending\": \"superseded-by-correction\", \"outcome\": \"correction\", \"repeats\": [\"implementation\", \"review\"]}, \"failure\": {\"outcome\": \"held\", \"recovery_operation\": \"fresh_attempt.admit\", \"stage_state\": \"exceptional\", \"terminal_policy\": \"report-and-hold\"}}, \"schema\": \"baton.v12.job-template-resolution/1\", \"scope\": {\"tests\": [\"v12/python/tests/job_manager/test_creation.py\"], \"work\": [\"v12/python/src/baton_v12/job_manager/creation.py\"]}, \"source\": {\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\"}, \"stages\": [{\"consumes\": [], \"depends_on\": [], \"kind\": \"implementation\", \"produces\": [\"proposal\"], \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"role\": \"implementation\", \"stage_id\": \"job-w361912-a/implementation\", \"work_id\": \"0000000a-W1\"}, {\"consumes\": [\"proposal\"], \"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"produces\": [\"findings\", \"logs\"], \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"role\": \"review\", \"stage_id\": \"job-w361912-a/review\", \"work_id\": \"0000000a-W1\"}], \"submission\": {\"jobs\": [{\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"job_id\": \"job-w361912-a\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\", \"stages\": [{\"depends_on\": [], \"kind\": \"implementation\", \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"work_id\": \"0000000a-W1\"}, {\"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"work_id\": \"0000000a-W1\"}], \"terminal_policy\": \"report-and-hold\", \"test_scope\": [\"v12/python/tests/job_manager/test_creation.py\"]}], \"schema\": \"baton.v12.job-submission/1\", \"submission_id\": \"sub-job-w361912-a\"}, \"task\": {\"job_id\": \"job-w361912-a\", \"statement\": \"Create ordinary Jobs through manager-owned template admission.\", \"submission_id\": \"sub-job-w361912-a\", \"work_id\": \"0000000a-W1\"}, \"template\": {\"origin\": \"configured-default\", \"permitted_overrides\": [\"execution_limits\"], \"version\": \"baton.v12.job-template.implementation-review/1\"}}",
+        "task_document": null,
+        "submission_signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"job-w361912-a\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"},{\"depends_on\":[{\"job_id\":\"job-w361912-a\",\"kind\":\"implementation\"}],\"kind\":\"review\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reviewer\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager/test_creation.py\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"sub-job-w361912-a\"}}",
+        "intended_at": "2026-09-02T00:00:00.000Z",
+        "created_at": null,
+        "incarnation": "jobs-1",
+        "holder": "jobs-1@control.sqlite3"
+      }
+    ]
+  },
+  "race_retry": {
+    "refusal": "this creation asks for Work labels 'v12', and the Work '0000000a-W1' it runs under has no creation record this Authority attributes to a creation, not by this creation, and carries 'v12': it appeared between this creation's check and its authorization. The Job identity 'job-w361912-a' is RESERVED for exactly this labelled request and that reservation CANNOT complete: create-time labels are applied only by the act that MAKES a Work, no repair makes this creation the author of Work it did not make, and repeating this request without --label is a different intent that the reservation refuses as a collision. Create the Job under a NEW Job identity without --label; labels for an existing Work are their own authorized act -- `baton-v12-stack work label-work --work 0000000a-W1 --label <value>`. The reservation of 'job-w361912-a' stays recorded and incomplete: no binding and no submission was recorded for it",
+    "code": "precondition",
+    "rows": [
+      {
+        "job_id": "job-w361912-a",
+        "work_id": "0000000a-W1",
+        "submission_id": "sub-job-w361912-a",
+        "template_version": "baton.v12.job-template.implementation-review/1",
+        "state": "intended",
+        "request": "{\"job_id\": \"job-w361912-a\", \"request_digest\": \"sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e\", \"submission_id\": \"sub-job-w361912-a\"}",
+        "request_digest": "sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e",
+        "resolution_digest": "sha256:8c7dd682c3d441bd4b423ce106be369c0437f1519cefafc051942caed9669e0b",
+        "resolution": "{\"acceptance\": [\"A created Job is recorded, bound and servable.\"], \"execution_limits\": {\"boundaries\": {\"host_verification\": {\"default_seconds\": 300, \"origin\": \"compatibility\", \"seconds\": 300, \"setting\": \"verification_command_seconds\"}, \"integration_verification\": {\"default_seconds\": 1800, \"origin\": \"compatibility\", \"seconds\": 1800, \"setting\": \"verification_command_seconds\"}, \"ordinary_verification\": {\"default_seconds\": 900, \"origin\": \"compatibility\", \"seconds\": 900, \"setting\": \"verification_command_seconds\"}, \"provider_turn\": {\"default_seconds\": 3600, \"origin\": \"compatibility\", \"seconds\": 3600, \"setting\": \"provider_turn_seconds\"}}, \"compatibility_generation\": 1, \"requested\": {}, \"scope\": \"per-invocation\", \"units\": \"seconds\"}, \"overrides\": {}, \"rules\": {\"completion\": {\"deciding_role\": \"review\", \"delivers\": \"proposal\", \"outcome\": \"accepted\", \"verdict_output\": \"findings\"}, \"correction\": {\"episode_ending\": \"superseded-by-correction\", \"outcome\": \"correction\", \"repeats\": [\"implementation\", \"review\"]}, \"failure\": {\"outcome\": \"held\", \"recovery_operation\": \"fresh_attempt.admit\", \"stage_state\": \"exceptional\", \"terminal_policy\": \"report-and-hold\"}}, \"schema\": \"baton.v12.job-template-resolution/1\", \"scope\": {\"tests\": [\"v12/python/tests/job_manager/test_creation.py\"], \"work\": [\"v12/python/src/baton_v12/job_manager/creation.py\"]}, \"source\": {\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\"}, \"stages\": [{\"consumes\": [], \"depends_on\": [], \"kind\": \"implementation\", \"produces\": [\"proposal\"], \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"role\": \"implementation\", \"stage_id\": \"job-w361912-a/implementation\", \"work_id\": \"0000000a-W1\"}, {\"consumes\": [\"proposal\"], \"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"produces\": [\"findings\", \"logs\"], \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"role\": \"review\", \"stage_id\": \"job-w361912-a/review\", \"work_id\": \"0000000a-W1\"}], \"submission\": {\"jobs\": [{\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"job_id\": \"job-w361912-a\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\", \"stages\": [{\"depends_on\": [], \"kind\": \"implementation\", \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"work_id\": \"0000000a-W1\"}, {\"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"work_id\": \"0000000a-W1\"}], \"terminal_policy\": \"report-and-hold\", \"test_scope\": [\"v12/python/tests/job_manager/test_creation.py\"]}], \"schema\": \"baton.v12.job-submission/1\", \"submission_id\": \"sub-job-w361912-a\"}, \"task\": {\"job_id\": \"job-w361912-a\", \"statement\": \"Create ordinary Jobs through manager-owned template admission.\", \"submission_id\": \"sub-job-w361912-a\", \"work_id\": \"0000000a-W1\"}, \"template\": {\"origin\": \"configured-default\", \"permitted_overrides\": [\"execution_limits\"], \"version\": \"baton.v12.job-template.implementation-review/1\"}}",
+        "task_document": null,
+        "submission_signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"job-w361912-a\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"},{\"depends_on\":[{\"job_id\":\"job-w361912-a\",\"kind\":\"implementation\"}],\"kind\":\"review\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reviewer\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager/test_creation.py\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"sub-job-w361912-a\"}}",
+        "intended_at": "2026-09-02T00:00:00.000Z",
+        "created_at": null,
+        "incarnation": "jobs-1",
+        "holder": "jobs-1@control.sqlite3"
+      }
+    ]
+  },
+  "race_follow_guidance_without_label": {
+    "refusal": "operation 'template_job.intend:job-w361912-a' is already recorded with a different kind or signature; reusing an id with different operands changes nothing",
+    "code": "operation-collision",
+    "rows": [
+      {
+        "job_id": "job-w361912-a",
+        "work_id": "0000000a-W1",
+        "submission_id": "sub-job-w361912-a",
+        "template_version": "baton.v12.job-template.implementation-review/1",
+        "state": "intended",
+        "request": "{\"job_id\": \"job-w361912-a\", \"request_digest\": \"sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e\", \"submission_id\": \"sub-job-w361912-a\"}",
+        "request_digest": "sha256:e7d79370188180972cf64b1436fc55d42c756fcb06ea619353d3882b8f58d53e",
+        "resolution_digest": "sha256:8c7dd682c3d441bd4b423ce106be369c0437f1519cefafc051942caed9669e0b",
+        "resolution": "{\"acceptance\": [\"A created Job is recorded, bound and servable.\"], \"execution_limits\": {\"boundaries\": {\"host_verification\": {\"default_seconds\": 300, \"origin\": \"compatibility\", \"seconds\": 300, \"setting\": \"verification_command_seconds\"}, \"integration_verification\": {\"default_seconds\": 1800, \"origin\": \"compatibility\", \"seconds\": 1800, \"setting\": \"verification_command_seconds\"}, \"ordinary_verification\": {\"default_seconds\": 900, \"origin\": \"compatibility\", \"seconds\": 900, \"setting\": \"verification_command_seconds\"}, \"provider_turn\": {\"default_seconds\": 3600, \"origin\": \"compatibility\", \"seconds\": 3600, \"setting\": \"provider_turn_seconds\"}}, \"compatibility_generation\": 1, \"requested\": {}, \"scope\": \"per-invocation\", \"units\": \"seconds\"}, \"overrides\": {}, \"rules\": {\"completion\": {\"deciding_role\": \"review\", \"delivers\": \"proposal\", \"outcome\": \"accepted\", \"verdict_output\": \"findings\"}, \"correction\": {\"episode_ending\": \"superseded-by-correction\", \"outcome\": \"correction\", \"repeats\": [\"implementation\", \"review\"]}, \"failure\": {\"outcome\": \"held\", \"recovery_operation\": \"fresh_attempt.admit\", \"stage_state\": \"exceptional\", \"terminal_policy\": \"report-and-hold\"}}, \"schema\": \"baton.v12.job-template-resolution/1\", \"scope\": {\"tests\": [\"v12/python/tests/job_manager/test_creation.py\"], \"work\": [\"v12/python/src/baton_v12/job_manager/creation.py\"]}, \"source\": {\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\"}, \"stages\": [{\"consumes\": [], \"depends_on\": [], \"kind\": \"implementation\", \"produces\": [\"proposal\"], \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"role\": \"implementation\", \"stage_id\": \"job-w361912-a/implementation\", \"work_id\": \"0000000a-W1\"}, {\"consumes\": [\"proposal\"], \"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"produces\": [\"findings\", \"logs\"], \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"role\": \"review\", \"stage_id\": \"job-w361912-a/review\", \"work_id\": \"0000000a-W1\"}], \"submission\": {\"jobs\": [{\"input_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\", \"job_id\": \"job-w361912-a\", \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\", \"stages\": [{\"depends_on\": [], \"kind\": \"implementation\", \"profile_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"profile_name\": \"reference\", \"work_id\": \"0000000a-W1\"}, {\"depends_on\": [{\"job_id\": \"job-w361912-a\", \"kind\": \"implementation\"}], \"kind\": \"review\", \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"profile_name\": \"reviewer\", \"work_id\": \"0000000a-W1\"}], \"terminal_policy\": \"report-and-hold\", \"test_scope\": [\"v12/python/tests/job_manager/test_creation.py\"]}], \"schema\": \"baton.v12.job-submission/1\", \"submission_id\": \"sub-job-w361912-a\"}, \"task\": {\"job_id\": \"job-w361912-a\", \"statement\": \"Create ordinary Jobs through manager-owned template admission.\", \"submission_id\": \"sub-job-w361912-a\", \"work_id\": \"0000000a-W1\"}, \"template\": {\"origin\": \"configured-default\", \"permitted_overrides\": [\"execution_limits\"], \"version\": \"baton.v12.job-template.implementation-review/1\"}}",
+        "task_document": null,
+        "submission_signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"job-w361912-a\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"},{\"depends_on\":[{\"job_id\":\"job-w361912-a\",\"kind\":\"implementation\"}],\"kind\":\"review\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reviewer\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager/test_creation.py\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"sub-job-w361912-a\"}}",
+        "intended_at": "2026-09-02T00:00:00.000Z",
+        "created_at": null,
+        "incarnation": "jobs-1",
+        "holder": "jobs-1@control.sqlite3"
+      }
+    ]
+  },
+  "old_identity_labelled": {
+    "refusal": "this creation asks for Work labels 'v12' and would reuse the existing Work '0000000a-W1', which carries 'v12' and was not made by this creation: it was made by the operation 'template_job.create.work:0000000a-W1'; create-time labels are applied only by the act that MAKES a Work, and a creation neither relabels Work it did not make nor claims labels it did not apply -- whether the labels it names are new, already carried or carried among others. Add them as their own authorized act -- `baton-v12-stack work label-work --work 0000000a-W1 --label <value>` -- and repeat this creation without --label. Nothing was reserved by this request, no Work or binding was touched and no submission was recorded",
+    "code": "precondition",
+    "rows": []
+  },
+  "old_identity_unlabelled": {
+    "result": {
+      "job_id": "job-w361912-a",
+      "work_id": "0000000a-W1",
+      "submission_id": "sub-job-w361912-a",
+      "resolution_digest": "sha256:8c7dd682c3d441bd4b423ce106be369c0437f1519cefafc051942caed9669e0b",
+      "template": {
+        "version": "baton.v12.job-template.implementation-review/1",
+        "origin": "configured-default",
+        "permitted_overrides": [
+          "execution_limits"
+        ]
+      },
+      "task": {
+        "job_id": "job-w361912-a",
+        "work_id": "0000000a-W1",
+        "submission_id": "sub-job-w361912-a",
+        "statement": "Create ordinary Jobs through manager-owned template admission."
+      },
+      "source": {
+        "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "scope": {
+        "work": [
+          "v12/python/src/baton_v12/job_manager/creation.py"
+        ],
+        "tests": [
+          "v12/python/tests/job_manager/test_creation.py"
+        ]
+      },
+      "acceptance": [
+        "A created Job is recorded, bound and servable."
+      ],
+      "overrides": {},
+      "rules": {
+        "completion": {
+          "outcome": "accepted",
+          "deciding_role": "review",
+          "verdict_output": "findings",
+          "delivers": "proposal"
+        },
+        "correction": {
+          "outcome": "correction",
+          "episode_ending": "superseded-by-correction",
+          "repeats": [
+            "implementation",
+            "review"
+          ]
+        },
+        "failure": {
+          "outcome": "held",
+          "terminal_policy": "report-and-hold",
+          "stage_state": "exceptional",
+          "recovery_operation": "fresh_attempt.admit"
+        }
+      },
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {},
+        "boundaries": {
+          "host_verification": {
+            "seconds": 300,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 1800,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "compatibility",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "derivation": {
+        "work_id": "0000000a-W1",
+        "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "profiles": {
+          "implementation": {
+            "profile_name": "reference",
+            "profile_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "review": {
+            "profile_name": "reviewer",
+            "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        }
+      },
+      "work": {
+        "work_id": "0000000a-W1",
+        "state": "reused",
+        "requested_labels": [],
+        "projection": {
+          "work_id": "0000000a-W1",
+          "state": "open",
+          "phase": "queued",
+          "labels": [
+            "v12"
+          ]
+        }
+      },
+      "binding": {
+        "job_id": "job-w361912-a",
+        "job_work_id": "0000000a-W1",
+        "source_worker_id": "implementation-worker"
+      },
+      "stages": [
+        "job-w361912-a/implementation",
+        "job-w361912-a/review"
+      ],
+      "servable": {
+        "implementation": [
+          "implementation-worker"
+        ],
+        "review": [
+          "review-worker"
+        ]
+      },
+      "recorded_at": "2026-09-02T00:00:00.000Z"
+    }
+  },
+  "seconds": 0.012879360001534224
+}

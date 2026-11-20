@@ -1,0 +1,61 @@
+# correction.patch onto the 04648e1b parent bytes, patch --batch --fuzz=0 -p1
+patching file v12/python/src/baton_v12/job_manager/creation.py
+patching file v12/python/tests/job_manager/test_creation.py
+patching file v12/python/tests/tools/test_connected_creation.py
+patching file v12/python/tests/tools/test_work_command.py
+patching file v12/python/tools/fresh_attempt_ports.py
+patching file v12/python/tools/job_manager.py
+patching file v12/python/tools/work_command.py
+patching file v12/STACK.md
+# candidate-from-base.patch onto d8f77700 bytes (git show, read-only), patch --batch --fuzz=0 -p1
+patching file v12/python/src/baton_v12/job_manager/creation.py
+patching file v12/python/tests/authority/test_work_label_exposure.py
+patching file v12/python/tests/job_manager/test_creation.py
+patching file v12/python/tests/tools/test_connected_creation.py
+patching file v12/python/tests/tools/test_work_command.py
+patching file v12/python/tools/fresh_attempt_ports.py
+patching file v12/python/tools/job_manager.py
+patching file v12/python/tools/parallel_test.py
+patching file v12/python/tools/stack_command.py
+patching file v12/python/tools/work_command.py
+patching file v12/STACK.md
+# delta-from-m385307.patch onto the M385307 packet's candidate bytes (evidence/native-labels-5-correction-2/candidate), patch --batch --fuzz=0 -p1
+patching file v12/python/src/baton_v12/job_manager/creation.py
+patching file v12/python/tests/job_manager/test_creation.py
+patching file v12/python/tests/tools/test_connected_creation.py
+patching file v12/STACK.md
+# resulting sha256 vs corrected candidate bytes
+match parent ./v12/STACK.md
+match parent ./v12/python/src/baton_v12/job_manager/creation.py
+match parent ./v12/python/tests/authority/test_work_label_exposure.py
+match parent ./v12/python/tests/job_manager/test_creation.py
+match parent ./v12/python/tests/tools/test_connected_creation.py
+match parent ./v12/python/tests/tools/test_work_command.py
+match parent ./v12/python/tools/fresh_attempt_ports.py
+match parent ./v12/python/tools/job_manager.py
+match parent ./v12/python/tools/parallel_test.py
+match parent ./v12/python/tools/stack_command.py
+match parent ./v12/python/tools/work_command.py
+match base ./v12/STACK.md
+match base ./v12/python/src/baton_v12/job_manager/creation.py
+match base ./v12/python/tests/authority/test_work_label_exposure.py
+match base ./v12/python/tests/job_manager/test_creation.py
+match base ./v12/python/tests/tools/test_connected_creation.py
+match base ./v12/python/tests/tools/test_work_command.py
+match base ./v12/python/tools/fresh_attempt_ports.py
+match base ./v12/python/tools/job_manager.py
+match base ./v12/python/tools/parallel_test.py
+match base ./v12/python/tools/stack_command.py
+match base ./v12/python/tools/work_command.py
+match m385307 ./v12/STACK.md
+match m385307 ./v12/python/src/baton_v12/job_manager/creation.py
+match m385307 ./v12/python/tests/authority/test_work_label_exposure.py
+match m385307 ./v12/python/tests/job_manager/test_creation.py
+match m385307 ./v12/python/tests/tools/test_connected_creation.py
+match m385307 ./v12/python/tests/tools/test_work_command.py
+match m385307 ./v12/python/tools/fresh_attempt_ports.py
+match m385307 ./v12/python/tools/job_manager.py
+match m385307 ./v12/python/tools/parallel_test.py
+match m385307 ./v12/python/tools/stack_command.py
+match m385307 ./v12/python/tools/work_command.py
+# 33 match, 0 mismatch

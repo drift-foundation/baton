@@ -1,0 +1,4 @@
+corrected candidate tree (all files, __pycache__ excluded): aecab5ab6534c0c8f8021697faecd86b236c76cb316dccf3987a254e807c55d5
+parent 04648e1b export tree, same rule: 829c54e66959aacf02c98800e54f3084306a79a0b48d32b132579f1f7a047bc6 (829c54e6… recorded at export time)
+M385299 candidate tree, same rule, as recorded in ../native-labels-5-correction/manifest.tree-digest.txt: 4fe71cb30a251b7f99c33b974b1f9280607ca5a11f865a1971b361862e5594a2
+diff -rq parent reference vs corrected: the 8 changed paths in manifest.json; diff -rq M385299 reference vs corrected: the 5 paths in delta_paths_from_m385299

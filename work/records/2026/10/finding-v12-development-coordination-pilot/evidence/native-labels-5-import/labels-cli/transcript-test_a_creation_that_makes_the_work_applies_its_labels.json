@@ -1,0 +1,135 @@
+{
+ "test": "packaged_work_labels_probe.PackagedWorkLabels.test_a_creation_that_makes_the_work_applies_its_labels",
+ "bundle": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+ "seconds": 1.447,
+ "calls": [
+  {
+   "argv": [
+    "bootstrap",
+    "--inputs",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/operator-inputs.json",
+    "--destination",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment",
+    "--distro",
+    "/home/sl/src/baton/v12/python/build/out/distro",
+    "--no-repositories"
+   ],
+   "returncode": 0,
+   "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 0000000a...    reused from this root's record\nroute impl           -> baton.impl-a\nroute rview          -> baton.reviewer\nroute integration    -> baton.integrator\njob   none; no Work, grant or placeholder was created\nconfiguration /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance configures a pool and binds no Job; a Work, a declared base and a canonical target are supplied when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [\"impl-a\"], \"integration\": [\"integ-a\"], \"review\": [\"review-a\"]}}\nno Job was submitted and nothing was executed\nprerequisite  launch_home /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/launch\nprerequisite  credential_home /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/credentials\ninstance      /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/instance.json\ninstall       /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/install-inputs.json\nruntime       82 files, digest 58517d944b60d251...\ncopied        29 directories, 82 files, 0 symlinks, each owned\nstores        /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db\nrepository    /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/repo\njustfile      /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment && just status\n    just --justfile /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/distro/baton-v12-stack status --instance /var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/instance.json\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "manager",
+    "--store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/jobs.sqlite3",
+    "--incarnation",
+    "cli-1",
+    "--authority-uuid",
+    "0000000a000000000000000000000000",
+    "create",
+    "--instance",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment",
+    "--control",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/control.sqlite3",
+    "--authority",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/authority.sqlite3",
+    "--task",
+    "pkg-first",
+    "--statement",
+    "The task the packaged command was given.",
+    "--acceptance",
+    "The frozen command creates a bound, servable Job.",
+    "--work-scope",
+    "v12/python/tools/job_manager.py",
+    "--label",
+    "Release-Foo",
+    "--label",
+    "V12"
+   ],
+   "returncode": 1,
+   "stdout": "",
+   "stderr": "\": \"impl-a\"}, \"jobs\": 1, \"note\": \"each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee\", \"schema\": \"baton.v12.stage-execution-deployment/1\", \"targets\": [\"target-1\"], \"workers_by_role\": {\"implementation\": [\"impl-a\"], \"integration\": [\"integ-a\"], \"review\": [\"review-a\"]}}\nno Job was submitted and nothing was executed\n\nNow export these and run `just start` from v12/:\n\nexport BATON_V12_JOB_STORE=\"/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/jobs.sqlite3\"\nexport BATON_V12_CONTROL_STORE=\"/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/control.sqlite3\"\nexport BATON_V12_AUTHORITY_UUID=\"0000000a000000000000000000000000\"\nexport BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/deployment.json\"\nTraceback (most recent call last):\n  File \"stack_command.py\", line 347, in <module>\n  File \"stack_command.py\", line 343, in main\n  File \"stack_command.py\", line 82, in _manager\n  File \"tools/job_manager.py\", line 1548, in main\n  File \"tools/job_manager.py\", line 862, in _create\n  File \"baton_v12/job_manager/creation.py\", line 245, in create_template_job\n  File \"baton_v12/job_manager/creation.py\", line 294, in _owned\n  File \"baton_v12/job_manager/creation.py\", line 1082, in _bound\nbaton_v12.contracts.errors.ContractRefusal: this deployment reported no binding for Job 'job-pkg-first' after publishing one. The Job identity 'job-pkg-first' is RESERVED and its Work authorization and deployment binding may already be published: this creation is INCOMPLETE rather than undone, no submission was recorded, and running the same request again finishes it once what is named above is repaired\n[PYI-2202599:ERROR] Failed to execute script 'stack_command' due to unhandled exception!\n"
+  },
+  {
+   "argv": [
+    "work",
+    "labels",
+    "--work",
+    "0000000a-W1",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"authority_uuid\": \"0000000a000000000000000000000000\",\n  \"events\": [\n    {\n      \"act\": \"work-create\",\n      \"act_id\": \"template_job.create.work:sha256:7e1714bb873cf66d042018f551a6f5e9facf7c379c1eeba17d5735cdb6a76e91\",\n      \"action\": \"added\",\n      \"at\": \"2026-11-20T04:48:56.014Z\",\n      \"creation\": {\n        \"at\": \"2026-11-20T04:48:56.014Z\",\n        \"kind\": \"trusted-bootstrap\",\n        \"operation_id\": \"template_job.create.work:sha256:7e1714bb873cf66d042018f551a6f5e9facf7c379c1eeba17d5735cdb6a76e91\",\n        \"scope\": \"scope:deployment\",\n        \"work_id\": \"0000000a-W1\"\n      },\n      \"decision\": null,\n      \"label\": \"release-foo\",\n      \"seq\": 1,\n      \"work_id\": \"0000000a-W1\"\n    },\n    {\n      \"act\": \"work-create\",\n      \"act_id\": \"template_job.create.work:sha256:7e1714bb873cf66d042018f551a6f5e9facf7c379c1eeba17d5735cdb6a76e91\",\n      \"action\": \"added\",\n      \"at\": \"2026-11-20T04:48:56.014Z\",\n      \"creation\": {\n        \"at\": \"2026-11-20T04:48:56.014Z\",\n        \"kind\": \"trusted-bootstrap\",\n        \"operation_id\": \"template_job.create.work:sha256:7e1714bb873cf66d042018f551a6f5e9facf7c379c1eeba17d5735cdb6a76e91\",\n        \"scope\": \"scope:deployment\",\n        \"work_id\": \"0000000a-W1\"\n      },\n      \"decision\": null,\n      \"label\": \"v12\",\n      \"seq\": 2,\n      \"work_id\": \"0000000a-W1\"\n    }\n  ],\n  \"labels\": [\n    \"release-foo\",\n    \"v12\"\n  ],\n  \"work_id\": \"0000000a-W1\"\n}\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "work",
+    "list",
+    "--label",
+    "v12",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"authority_uuid\": \"0000000a000000000000000000000000\",\n  \"filter\": {\n    \"all_of\": [\n      \"v12\"\n    ],\n    \"none_of\": []\n  },\n  \"matched\": 1,\n  \"work\": [\n    \"0000000a-W1\"\n  ]\n}\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "work",
+    "list",
+    "--label",
+    "v12",
+    "--without-label",
+    "release-foo",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"authority_uuid\": \"0000000a000000000000000000000000\",\n  \"filter\": {\n    \"all_of\": [\n      \"v12\"\n    ],\n    \"none_of\": [\n      \"release-foo\"\n    ]\n  },\n  \"matched\": 0,\n  \"work\": []\n}\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "manager",
+    "--store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/jobs.sqlite3",
+    "--incarnation",
+    "cli-1",
+    "--authority-uuid",
+    "0000000a000000000000000000000000",
+    "create",
+    "--instance",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment",
+    "--control",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/control.sqlite3",
+    "--authority",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/authority.sqlite3",
+    "--task",
+    "pkg-first",
+    "--statement",
+    "The task the packaged command was given.",
+    "--acceptance",
+    "The frozen command creates a bound, servable Job.",
+    "--work-scope",
+    "v12/python/tools/job_manager.py",
+    "--label",
+    "Release-Foo",
+    "--label",
+    "V12"
+   ],
+   "returncode": 1,
+   "stdout": "",
+   "stderr": "\": \"impl-a\"}, \"jobs\": 1, \"note\": \"each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee\", \"schema\": \"baton.v12.stage-execution-deployment/1\", \"targets\": [\"target-1\"], \"workers_by_role\": {\"implementation\": [\"impl-a\"], \"integration\": [\"integ-a\"], \"review\": [\"review-a\"]}}\nno Job was submitted and nothing was executed\n\nNow export these and run `just start` from v12/:\n\nexport BATON_V12_JOB_STORE=\"/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/jobs.sqlite3\"\nexport BATON_V12_CONTROL_STORE=\"/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/db/control.sqlite3\"\nexport BATON_V12_AUTHORITY_UUID=\"0000000a000000000000000000000000\"\nexport BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-v12-labels5-import/cli/v12-w71917-fzs5sh3r/bootstrap-deployment/deployment.json\"\nTraceback (most recent call last):\n  File \"stack_command.py\", line 347, in <module>\n  File \"stack_command.py\", line 343, in main\n  File \"stack_command.py\", line 82, in _manager\n  File \"tools/job_manager.py\", line 1548, in main\n  File \"tools/job_manager.py\", line 862, in _create\n  File \"baton_v12/job_manager/creation.py\", line 245, in create_template_job\n  File \"baton_v12/job_manager/creation.py\", line 294, in _owned\n  File \"baton_v12/job_manager/creation.py\", line 1082, in _bound\nbaton_v12.contracts.errors.ContractRefusal: this deployment reported no binding for Job 'job-pkg-first' after publishing one. The Job identity 'job-pkg-first' is RESERVED and its Work authorization and deployment binding may already be published: this creation is INCOMPLETE rather than undone, no submission was recorded, and running the same request again finishes it once what is named above is repaired\n[PYI-2202603:ERROR] Failed to execute script 'stack_command' due to unhandled exception!\n"
+  }
+ ]
+}

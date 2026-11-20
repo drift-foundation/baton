@@ -1,0 +1,46 @@
+[
+ {
+  "job": "job-ü",
+  "len": 5,
+  "minted": true,
+  "op": "template_job.create.work:sha256:d7fa1801a6a81d4e8d7f520b375f4b3ce8b2bfb22e0d0e0372279e6e91ffb1f4",
+  "fault": null,
+  "refusal": "ContractRefusal: this deployment reported no binding for Job 'job-\\xfc' after publishing one. The Job identity 'job-\\xfc' is RESERVED and its Work authorization and deployment b"
+ },
+ {
+  "job": "job with space",
+  "len": 14,
+  "minted": true,
+  "op": "template_job.create.work:sha256:4fba9b66d0ca5bd22b8aebfebed52f857b6901d63ceda79c21771805c2220048",
+  "fault": null,
+  "refusal": "ContractRefusal: this deployment reported no binding for Job 'job with space' after publishing one. The Job identity 'job with space' is RESERVED and its Work authorization and "
+ },
+ {
+  "job": "job-xxxxxxxxxxxxxxxx",
+  "len": 304,
+  "minted": true,
+  "op": "template_job.create.work:sha256:5f7bf4bdb4048f69391291de7aed36ca1d22c78f0e5b7d6b37de3a7fc649b8e4",
+  "fault": null,
+  "refusal": "ContractRefusal: this deployment reported no binding for Job 'job-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx… after publishing one. The Job identity 'job-xxxxxxxxxx"
+ },
+ {
+  "job": "jjjjjjjjjjjjjjjjjjjj",
+  "len": 160,
+  "minted": true,
+  "op": "template_job.create.work:sha256:8a2382dc4944b87ed9b621c82a17f5de0eb72f5be464825e7248cedcab85ad82",
+  "fault": null,
+  "refusal": "ContractRefusal: this deployment reported no binding for Job 'jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj… after publishing one. The Job identity 'jjjjjjjjjjjjjj"
+ },
+ {
+  "bootstrap_record": {
+   "work_id": "0000000a-W1",
+   "operation_id": "bootstrap-job-a",
+   "kind": "trusted-bootstrap",
+   "scope": "scope:deployment",
+   "at": "2026-11-20T03:13:23.783Z"
+  }
+ },
+ {
+  "bootstrap_refusal": "this creation asks for Work labels 'v12' and would reuse the existing Work '0000000a-W1', which carries none and was not made by this creation: it was made by the operation `bootstrap-job-a`; create-time labels are applied only by the act that MAKES a Work, and a creation neither relabels Work it did not make nor claims labels it did not apply -- whether the labels it names are new, already carried or carried among others. Add them as their own authorized act -- `baton-v12-stack work label-work --work 0000000a-W1 --label <value>` -- and repeat this creation without --label. Nothing was reserved by this request, no Work or binding was touched and no submission was recorded"
+ }
+]

@@ -1,0 +1,5 @@
+# Reproduction
+
+Same prepared interpreter and disk-root environment as ../correction-review/COMMANDS.md, with export work/scratch/w385292/corrected-2-export. Reconstruct from base-v12.tar (read-only git archive d8f77700 v12) and correction-2/candidate-from-base.patch, --fuzz=0 -p1; restore the supplied vectors fixture at manifest.fixture.path after comparing it with git show of that base. All three patches were separately applied to declared base/parent/M385299 input bytes and all 33 resulting hashes checked.
+
+Set PYTHONPATH to this export's v12/python/src and v12/python. TMPDIR, BATON_V12_STACK_TEST_ROOT and BATON_V12_DISK_ROOT each point at /home/sl/src/baton/work/scratch/w385292/roots. With timeout 60 and /home/sl/.local/state/baton-v12-venv/bin/python run focused.py, probe.py, identity-probe.py <new-output-path>, recovery-probe.py and capacity-recovery-probe.py in this evidence directory. Preserve original result files; use a copied script/evidence destination for a rerun. The capacity scenario is an observed product refusal, not an acceptance test pass.

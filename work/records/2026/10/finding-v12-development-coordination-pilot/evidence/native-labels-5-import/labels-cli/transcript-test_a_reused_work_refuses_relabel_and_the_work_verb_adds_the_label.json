@@ -1,0 +1,263 @@
+{
+ "test": "packaged_work_labels_probe.PackagedWorkLabels.test_a_reused_work_refuses_relabel_and_the_work_verb_adds_the_label",
+ "bundle": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+ "seconds": 2.134,
+ "calls": [
+  {
+   "argv": [
+    "bootstrap",
+    "--inputs",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/operator-inputs.json",
+    "--destination",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment",
+    "--distro",
+    "/home/sl/src/baton/v12/python/build/out/distro",
+    "--no-repositories"
+   ],
+   "returncode": 0,
+   "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 0000000a...    reused from this root's record\nroute impl           -> baton.impl-a\nroute rview          -> baton.reviewer\nroute integration    -> baton.integrator\nwork  0000000a-W1    created on impl\ngrant 0000000a-W1    approve/review/verify/integrate in its own scope\ntarget                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa established from line_declared_base\nconfiguration /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/deployment.json\ncapacity      {\"job_affinity\": {\"job-a\": \"impl-a\"}, \"jobs\": 1, \"note\": \"each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee\", \"schema\": \"baton.v12.stage-execution-deployment/1\", \"targets\": [\"target-1\"], \"workers_by_role\": {\"implementation\": [\"impl-a\"], \"integration\": [\"integ-a\"], \"review\": [\"review-a\"]}}\nno Job was submitted and nothing was executed\nprerequisite  launch_home /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/launch\nprerequisite  credential_home /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/credentials\ninstance      /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/instance.json\ninstall       /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/install-inputs.json\nruntime       82 files, digest 58517d944b60d251...\ncopied        29 directories, 82 files, 0 symlinks, each owned\nstores        /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db\nrepository    /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/repo\njustfile      /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment && just status\n    just --justfile /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/distro/baton-v12-stack status --instance /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/instance.json\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "manager",
+    "--store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/jobs.sqlite3",
+    "--incarnation",
+    "cli-1",
+    "--authority-uuid",
+    "0000000a000000000000000000000000",
+    "create",
+    "--instance",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment",
+    "--control",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/control.sqlite3",
+    "--authority",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--task",
+    "pkg-first",
+    "--statement",
+    "The task the packaged command was given.",
+    "--acceptance",
+    "The frozen command creates a bound, servable Job.",
+    "--work-scope",
+    "v12/python/tools/job_manager.py",
+    "--label",
+    "v12"
+   ],
+   "returncode": 1,
+   "stdout": "",
+   "stderr": "Traceback (most recent call last):\n  File \"stack_command.py\", line 347, in <module>\n  File \"stack_command.py\", line 343, in main\n  File \"stack_command.py\", line 82, in _manager\n  File \"tools/job_manager.py\", line 1548, in main\n  File \"tools/job_manager.py\", line 862, in _create\n  File \"baton_v12/job_manager/creation.py\", line 245, in create_template_job\n  File \"baton_v12/job_manager/creation.py\", line 281, in _owned\n  File \"baton_v12/job_manager/creation.py\", line 939, in _relabel_refused\n  File \"baton_v12/job_manager/creation.py\", line 122, in _refuse\nbaton_v12.contracts.errors.ContractRefusal: this creation asks for Work labels 'v12' and would reuse the existing Work '0000000a-W1', which carries none and was not made by this creation: it was made by the operation `bootstrap-job-a`; create-time labels are applied only by the act that MAKES a Work, and a creation neither relabels Work it did not make nor claims labels it did not apply -- whether the labels it names are new, already carried or carried among others. Add them as their own authorized act -- `baton-v12-stack work label-work --work 0000000a-W1 --label <value>` -- and repeat this creation without --label. Nothing was reserved by this request, no Work or binding was touched and no submission was recorded\n[PYI-2202607:ERROR] Failed to execute script 'stack_command' due to unhandled exception!\n"
+  },
+  {
+   "argv": [
+    "work",
+    "labels",
+    "--work",
+    "0000000a-W1",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"authority_uuid\": \"0000000a000000000000000000000000\",\n  \"events\": [],\n  \"labels\": [],\n  \"work_id\": \"0000000a-W1\"\n}\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "work",
+    "label-work",
+    "--participant",
+    "baton.slaw",
+    "--work",
+    "0000000a-W1",
+    "--operation-id",
+    "labels-0",
+    "--label",
+    "V12",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 2,
+   "stdout": "",
+   "stderr": "refused: 'baton.slaw' does not hold the manage-work-labels capability; a Work label addition is written by the configured actor, not by whoever holds the object\n"
+  },
+  {
+   "argv": [
+    "work",
+    "label-work",
+    "--participant",
+    "baton.slaw",
+    "--work",
+    "0000000a-W1",
+    "--operation-id",
+    "labels-1",
+    "--label",
+    "V12",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"actor\": \"baton.slaw\",\n  \"acts\": [\n    {\n      \"action\": \"added\",\n      \"changed\": true,\n      \"decision\": {\n        \"effective_scope\": \"scope:deployment\",\n        \"endpoint\": \"baton.slaw\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 10,\n        \"principal\": \"principal:baton.slaw\",\n        \"role\": \"manage-work-labels\"\n      },\n      \"label\": \"v12\",\n      \"operation_id\": \"labels-1:label-work:v12\"\n    }\n  ],\n  \"authority_uuid\": \"0000000a000000000000000000000000\",\n  \"changed\": [\n    \"v12\"\n  ],\n  \"labels\": [\n    \"v12\"\n  ],\n  \"operation_id\": \"labels-1\",\n  \"request\": {\n    \"bound_at\": \"2026-11-20T04:48:57.732Z\",\n    \"kind\": \"command-request\",\n    \"request\": {\n      \"labels\": [\n        \"v12\"\n      ],\n      \"participant\": \"baton.slaw\",\n      \"verb\": \"label-work\",\n      \"work\": \"0000000a-W1\"\n    },\n    \"verb\": \"label-work\",\n    \"work_id\": \"0000000a-W1\"\n  },\n  \"verb\": \"label-work\",\n  \"work_id\": \"0000000a-W1\"\n}\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "work",
+    "label-work",
+    "--participant",
+    "baton.slaw",
+    "--work",
+    "0000000a-W1",
+    "--operation-id",
+    "labels-1",
+    "--label",
+    "V12",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"actor\": \"baton.slaw\",\n  \"acts\": [\n    {\n      \"action\": \"added\",\n      \"changed\": true,\n      \"decision\": {\n        \"effective_scope\": \"scope:deployment\",\n        \"endpoint\": \"baton.slaw\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 10,\n        \"principal\": \"principal:baton.slaw\",\n        \"role\": \"manage-work-labels\"\n      },\n      \"label\": \"v12\",\n      \"operation_id\": \"labels-1:label-work:v12\"\n    }\n  ],\n  \"authority_uuid\": \"0000000a000000000000000000000000\",\n  \"changed\": [\n    \"v12\"\n  ],\n  \"labels\": [\n    \"v12\"\n  ],\n  \"operation_id\": \"labels-1\",\n  \"request\": {\n    \"bound_at\": \"2026-11-20T04:48:57.732Z\",\n    \"kind\": \"command-request\",\n    \"request\": {\n      \"labels\": [\n        \"v12\"\n      ],\n      \"participant\": \"baton.slaw\",\n      \"verb\": \"label-work\",\n      \"work\": \"0000000a-W1\"\n    },\n    \"verb\": \"label-work\",\n    \"work_id\": \"0000000a-W1\"\n  },\n  \"verb\": \"label-work\",\n  \"work_id\": \"0000000a-W1\"\n}\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "work",
+    "label-work",
+    "--participant",
+    "baton.slaw",
+    "--work",
+    "0000000a-W1",
+    "--operation-id",
+    "labels-1",
+    "--label",
+    "other",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 2,
+   "stdout": "{\n  \"already_carries\": {\n    \"bound_at\": \"2026-11-20T04:48:57.732Z\",\n    \"kind\": \"command-request\",\n    \"request\": {\n      \"labels\": [\n        \"v12\"\n      ],\n      \"participant\": \"baton.slaw\",\n      \"verb\": \"label-work\",\n      \"work\": \"0000000a-W1\"\n    },\n    \"verb\": \"label-work\",\n    \"work_id\": \"0000000a-W1\"\n  },\n  \"operation_id\": \"labels-1\",\n  \"performed\": \"nothing\",\n  \"replayed\": false,\n  \"this_request\": {\n    \"labels\": [\n      \"other\"\n    ],\n    \"participant\": \"baton.slaw\",\n    \"verb\": \"label-work\",\n    \"work\": \"0000000a-W1\"\n  },\n  \"verb\": \"label-work\",\n  \"work_id\": \"0000000a-W1\"\n}\n",
+   "stderr": "refused: this label-work request is not the one operation 'labels-1' already carries: operation id was reused for different operands. The answer above shows both; a retry under one identity is the same request or it is refused, and nothing was done\n"
+  },
+  {
+   "argv": [
+    "manager",
+    "--store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/jobs.sqlite3",
+    "--incarnation",
+    "cli-1",
+    "--authority-uuid",
+    "0000000a000000000000000000000000",
+    "create",
+    "--instance",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment",
+    "--control",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/control.sqlite3",
+    "--authority",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--task",
+    "pkg-first",
+    "--statement",
+    "The task the packaged command was given.",
+    "--acceptance",
+    "The frozen command creates a bound, servable Job.",
+    "--work-scope",
+    "v12/python/tools/job_manager.py",
+    "--label",
+    "v12"
+   ],
+   "returncode": 1,
+   "stdout": "",
+   "stderr": "Traceback (most recent call last):\n  File \"stack_command.py\", line 347, in <module>\n  File \"stack_command.py\", line 343, in main\n  File \"stack_command.py\", line 82, in _manager\n  File \"tools/job_manager.py\", line 1548, in main\n  File \"tools/job_manager.py\", line 862, in _create\n  File \"baton_v12/job_manager/creation.py\", line 245, in create_template_job\n  File \"baton_v12/job_manager/creation.py\", line 281, in _owned\n  File \"baton_v12/job_manager/creation.py\", line 939, in _relabel_refused\n  File \"baton_v12/job_manager/creation.py\", line 122, in _refuse\nbaton_v12.contracts.errors.ContractRefusal: this creation asks for Work labels 'v12' and would reuse the existing Work '0000000a-W1', which carries 'v12' and was not made by this creation: it was made by the operation `bootstrap-job-a`; create-time labels are applied only by the act that MAKES a Work, and a creation neither relabels Work it did not make nor claims labels it did not apply -- whether the labels it names are new, already carried or carried among others. Add them as their own authorized act -- `baton-v12-stack work label-work --work 0000000a-W1 --label <value>` -- and repeat this creation without --label. Nothing was reserved by this request, no Work or binding was touched and no submission was recorded\n[PYI-2202614:ERROR] Failed to execute script 'stack_command' due to unhandled exception!\n"
+  },
+  {
+   "argv": [
+    "manager",
+    "--store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/jobs.sqlite3",
+    "--incarnation",
+    "cli-1",
+    "--authority-uuid",
+    "0000000a000000000000000000000000",
+    "create",
+    "--instance",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment",
+    "--control",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/control.sqlite3",
+    "--authority",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--task",
+    "pkg-first",
+    "--statement",
+    "The task the packaged command was given.",
+    "--acceptance",
+    "The frozen command creates a bound, servable Job.",
+    "--work-scope",
+    "v12/python/tools/job_manager.py"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"job_id\": \"job-pkg-first\",\n  \"work_id\": \"0000000a-W1\",\n  \"submission_id\": \"sub-job-pkg-first\",\n  \"resolution_digest\": \"sha256:951da0e75ada1d687eafd51cbfc6434fc4bfb0656b3612c88b2e074855460ca6\",\n  \"template\": {\n    \"version\": \"baton.v12.job-template.implementation-review/1\",\n    \"origin\": \"configured-default\",\n    \"permitted_overrides\": [\n      \"execution_limits\"\n    ]\n  },\n  \"task\": {\n    \"job_id\": \"job-pkg-first\",\n    \"work_id\": \"0000000a-W1\",\n    \"submission_id\": \"sub-job-pkg-first\",\n    \"statement\": \"The task the packaged command was given.\"\n  },\n  \"source\": {\n    \"input_digest\": \"sha256:f0b94e9e94198277c29a42a70d8c3c69da29471f448772aa84c79d9cb2ab4958\",\n    \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\"\n  },\n  \"scope\": {\n    \"work\": [\n      \"v12/python/tools/job_manager.py\"\n    ],\n    \"tests\": []\n  },\n  \"acceptance\": [\n    \"The frozen command creates a bound, servable Job.\"\n  ],\n  \"overrides\": {},\n  \"rules\": {\n    \"completion\": {\n      \"outcome\": \"accepted\",\n      \"deciding_role\": \"review\",\n      \"verdict_output\": \"findings\",\n      \"delivers\": \"proposal\"\n    },\n    \"correction\": {\n      \"outcome\": \"correction\",\n      \"episode_ending\": \"superseded-by-correction\",\n      \"repeats\": [\n        \"implementation\",\n        \"review\"\n      ]\n    },\n    \"failure\": {\n      \"outcome\": \"held\",\n      \"terminal_policy\": \"report-and-hold\",\n      \"stage_state\": \"exceptional\",\n      \"recovery_operation\": \"fresh_attempt.admit\"\n    }\n  },\n  \"execution_limits\": {\n    \"units\": \"seconds\",\n    \"scope\": \"per-invocation\",\n    \"compatibility_generation\": 1,\n    \"requested\": {},\n    \"boundaries\": {\n      \"host_verification\": {\n        \"seconds\": 300,\n        \"origin\": \"compatibility\",\n        \"setting\": \"verification_command_seconds\",\n        \"default_seconds\": 300\n      },\n      \"integration_verification\": {\n        \"seconds\": 1800,\n        \"origin\": \"compatibility\",\n        \"setting\": \"verification_command_seconds\",\n        \"default_seconds\": 1800\n      },\n      \"ordinary_verification\": {\n        \"seconds\": 900,\n        \"origin\": \"compatibility\",\n        \"setting\": \"verification_command_seconds\",\n        \"default_seconds\": 900\n      },\n      \"provider_turn\": {\n        \"seconds\": 3600,\n        \"origin\": \"compatibility\",\n        \"setting\": \"provider_turn_seconds\",\n        \"default_seconds\": 3600\n      }\n    }\n  },\n  \"derivation\": {\n    \"work_id\": \"0000000a-W1\",\n    \"input_digest\": \"sha256:f0b94e9e94198277c29a42a70d8c3c69da29471f448772aa84c79d9cb2ab4958\",\n    \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\n    \"profiles\": {\n      \"implementation\": {\n        \"profile_name\": \"reference\",\n        \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n      },\n      \"review\": {\n        \"profile_name\": \"reference\",\n        \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n      }\n    },\n    \"task_document\": \"{\\\"declared_base\\\":null,\\\"instructions\\\":\\\"The task the packaged command was given.\\\\n\\\\nAcceptance criteria:\\\\n  - The frozen command creates a bound, servable Job.\\\\n\\\\nSelected work scope (the paths this task covers):\\\\n  - v12/python/tools/job_manager.py\\\\n\\\\nBounded test-change scope: none. This task changes no test.\\\\n\\\\nTemplate: baton.v12.job-template.implementation-review/1\\\\nWork: 0000000a-W1\\\\n\\\",\\\"schema\\\":\\\"baton.dogfood-task/2\\\",\\\"source_profile\\\":\\\"generic\\\",\\\"source_root\\\":\\\"source\\\",\\\"task_id\\\":\\\"job-pkg-first\\\",\\\"verification\\\":[\\\"python3\\\",\\\"-c\\\",\\\"raise SystemExit(0)\\\"]}\",\n    \"input_manifest\": {\n      \"assignment_contract\": \"v12-assignment-1\",\n      \"created_at\": \"2026-08-21T22:00:00.000Z\",\n      \"credential_policy_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n      \"extensions\": {},\n      \"human_contract\": {\n        \"artifact_id\": \"w81115-task-1\",\n        \"bytes\": 555,\n        \"content_digest\": \"sha256:4092d9205e29668e83b287c10821ef5811c68eb83eb5cc7f6323cec7db6c517c\",\n        \"locator\": \"artifact://contracts/w81115-task-1\",\n        \"media_type\": \"application/json\"\n      },\n      \"manifest_digest\": \"sha256:9d6ac293bb28654ed2cefc17781991dd136fd941c42e0fa39122309777d8683f\",\n      \"manifest_id\": \"input-manifest-1\",\n      \"mount_policy_digest\": \"sha256:9999999999999999999999999999999999999999999999999999999999999999\",\n      \"network_policy_digest\": \"sha256:8888888888888888888888888888888888888888888888888888888888888888\",\n      \"outputs\": [\n        {\n          \"constraints\": {\n            \"allowed_media_types\": [\n              \"application/octet-stream\",\n              \"text/plain\"\n            ],\n            \"link_policy\": \"forbid\",\n            \"max_bytes\": 1048576,\n            \"max_entries\": 100,\n            \"validator_digest\": null\n          },\n          \"name\": \"proposal\",\n          \"path\": \"workspace/output\",\n          \"required\": true,\n          \"type\": \"directory-result\"\n        }\n      ],\n      \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\n      \"record_binding\": {\n        \"finding_digest\": \"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\n        \"path\": \"work/records/2026/08/finding-v12-isolated-agent-workers\",\n        \"plan_digest\": \"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\n        \"root\": \"baton-repository\"\n      },\n      \"resource_policy_digest\": \"sha256:7777777777777777777777777777777777777777777777777777777777777777\",\n      \"retention_policy_digest\": \"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\n      \"role_instructions_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\n      \"runtime_profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n      \"schema\": \"baton.worker-manifest/input\",\n      \"sources\": [\n        {\n          \"consumption\": {\n            \"baton.source-boundary/1\": {\n              \"delivery\": \"nominated-mount\",\n              \"profile\": \"generic\",\n              \"workspace\": \"disk\"\n            }\n          },\n          \"content_manifest\": {\n            \"entries\": [],\n            \"entry_count\": 0,\n            \"total_bytes\": 0,\n            \"tree_digest\": \"sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\"\n          },\n          \"destination\": \"source\",\n          \"name\": \"source\",\n          \"required\": true\n        }\n      ],\n      \"tool_policy_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"toolchain_digest\": \"sha256:4444444444444444444444444444444444444444444444444444444444444444\",\n      \"version\": {\n        \"major\": 1,\n        \"minor\": 0\n      },\n      \"work_ref\": {\n        \"authority_uuid\": \"0000000a000000000000000000000000\",\n        \"work_id\": \"0000000a-W1\"\n      },\n      \"worker_image_digest\": \"sha256:5555555555555555555555555555555555555555555555555555555555555555\"\n    }\n  },\n  \"work\": {\n    \"work_id\": \"0000000a-W1\",\n    \"state\": \"reused\",\n    \"requested_labels\": [],\n    \"projection\": {\n      \"authority_uuid\": \"0000000a000000000000000000000000\",\n      \"work_id\": \"0000000a-W1\",\n      \"route\": \"impl\",\n      \"status\": \"open\",\n      \"phase\": \"queued\",\n      \"outcome\": null,\n      \"rationale\": null,\n      \"handler\": null,\n      \"contract\": \"v12-assignment-1\",\n      \"scope\": \"scope:deployment\",\n      \"labels\": [\n        \"v12\"\n      ],\n      \"creation\": {\n        \"work_id\": \"0000000a-W1\",\n        \"operation_id\": \"bootstrap-job-a\",\n        \"kind\": \"trusted-bootstrap\",\n        \"scope\": \"scope:deployment\",\n        \"at\": \"2026-11-20T04:48:57.055Z\"\n      },\n      \"close_decision\": null,\n      \"generation_counter\": 0,\n      \"live_generation\": null,\n      \"assignment\": null,\n      \"gate\": null,\n      \"fenced_generations\": [],\n      \"ready\": true\n    }\n  },\n  \"binding\": {\n    \"canonical_target_id\": \"target-1\",\n    \"job_id\": \"job-pkg-first\",\n    \"job_work_id\": \"0000000a-W1\",\n    \"line_declared_base\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n    \"review_work_id\": \"0000000a-W1\",\n    \"source_worker_id\": \"impl-a\"\n  },\n  \"stages\": [\n    \"job-pkg-first/implementation\",\n    \"job-pkg-first/review\"\n  ],\n  \"servable\": {\n    \"implementation\": [\n      \"impl-a\"\n    ],\n    \"review\": [\n      \"review-a\"\n    ]\n  },\n  \"recorded_at\": \"2026-11-20T04:48:58.442Z\"\n}\n",
+   "stderr": "authority 0000000a...    reused from this root's record\nroute impl           -> baton.impl-a\nroute rview          -> baton.reviewer\nroute integration    -> baton.integrator\nwork  0000000a-W1    already exists; left alone\ngrant 0000000a-W1    approve/review/verify/integrate in its own scope\nwork  0000000a-W1    already exists; left alone\ngrant 0000000a-W1    approve/review/verify/integrate in its own scope\ntarget                already established; left alone\nconfiguration /var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/deployment.json\ncapacity      {\"job_affinity\": {\"job-a\": \"impl-a\", \"job-pkg-first\": \"impl-a\"}, \"jobs\": 2, \"note\": \"each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [\"target-1\"], \"workers_by_role\": {\"implementation\": [\"impl-a\"], \"integration\": [\"integ-a\"], \"review\": [\"review-a\"]}}\nno Job was submitted and nothing was executed\n\nNow export these and run `just start` from v12/:\n\nexport BATON_V12_JOB_STORE=\"/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/jobs.sqlite3\"\nexport BATON_V12_CONTROL_STORE=\"/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/control.sqlite3\"\nexport BATON_V12_AUTHORITY_UUID=\"0000000a000000000000000000000000\"\nexport BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/deployment.json\"\n"
+  },
+  {
+   "argv": [
+    "work",
+    "list",
+    "--label",
+    "v12",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"authority_uuid\": \"0000000a000000000000000000000000\",\n  \"filter\": {\n    \"all_of\": [\n      \"v12\"\n    ],\n    \"none_of\": []\n  },\n  \"matched\": 1,\n  \"work\": [\n    \"0000000a-W1\"\n  ]\n}\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "work",
+    "unlabel-work",
+    "--participant",
+    "baton.slaw",
+    "--work",
+    "0000000a-W1",
+    "--operation-id",
+    "labels-2",
+    "--label",
+    "v12",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"actor\": \"baton.slaw\",\n  \"acts\": [\n    {\n      \"action\": \"removed\",\n      \"changed\": true,\n      \"decision\": {\n        \"effective_scope\": \"scope:deployment\",\n        \"endpoint\": \"baton.slaw\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 21,\n        \"principal\": \"principal:baton.slaw\",\n        \"role\": \"manage-work-labels\"\n      },\n      \"label\": \"v12\",\n      \"operation_id\": \"labels-2:unlabel-work:v12\"\n    }\n  ],\n  \"authority_uuid\": \"0000000a000000000000000000000000\",\n  \"changed\": [\n    \"v12\"\n  ],\n  \"labels\": [],\n  \"operation_id\": \"labels-2\",\n  \"request\": {\n    \"bound_at\": \"2026-11-20T04:48:58.615Z\",\n    \"kind\": \"command-request\",\n    \"request\": {\n      \"labels\": [\n        \"v12\"\n      ],\n      \"participant\": \"baton.slaw\",\n      \"verb\": \"unlabel-work\",\n      \"work\": \"0000000a-W1\"\n    },\n    \"verb\": \"unlabel-work\",\n    \"work_id\": \"0000000a-W1\"\n  },\n  \"verb\": \"unlabel-work\",\n  \"work_id\": \"0000000a-W1\"\n}\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "work",
+    "labels",
+    "--work",
+    "0000000a-W1",
+    "--authority-store",
+    "/var/tmp/baton-v12-labels5-import/cli/v12-w71917-thdj22ok/bootstrap-deployment/db/authority.sqlite3",
+    "--authority-uuid",
+    "0000000a000000000000000000000000"
+   ],
+   "returncode": 0,
+   "stdout": "{\n  \"authority_uuid\": \"0000000a000000000000000000000000\",\n  \"events\": [\n    {\n      \"act\": \"work-label\",\n      \"act_id\": \"labels-1:label-work:v12\",\n      \"action\": \"added\",\n      \"at\": \"2026-11-20T04:48:57.734Z\",\n      \"creation\": null,\n      \"decision\": {\n        \"effective_scope\": \"scope:deployment\",\n        \"endpoint\": \"baton.slaw\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 10,\n        \"principal\": \"principal:baton.slaw\",\n        \"role\": \"manage-work-labels\"\n      },\n      \"label\": \"v12\",\n      \"seq\": 1,\n      \"work_id\": \"0000000a-W1\"\n    },\n    {\n      \"act\": \"work-unlabel\",\n      \"act_id\": \"labels-2:unlabel-work:v12\",\n      \"action\": \"removed\",\n      \"at\": \"2026-11-20T04:48:58.619Z\",\n      \"creation\": null,\n      \"decision\": {\n        \"effective_scope\": \"scope:deployment\",\n        \"endpoint\": \"baton.slaw\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 21,\n        \"principal\": \"principal:baton.slaw\",\n        \"role\": \"manage-work-labels\"\n      },\n      \"label\": \"v12\",\n      \"seq\": 2,\n      \"work_id\": \"0000000a-W1\"\n    }\n  ],\n  \"labels\": [],\n  \"work_id\": \"0000000a-W1\"\n}\n",
+   "stderr": ""
+  }
+ ]
+}

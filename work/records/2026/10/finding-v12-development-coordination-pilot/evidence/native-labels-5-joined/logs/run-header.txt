@@ -1,0 +1,10 @@
+start 2026-11-20T03:37:24Z
+interpreter /home/sl/.local/state/baton-v12-venv/bin/python (Python 3.13.7)
+cwd /home/sl/src/baton/work/scratch/w383217/labels5-joined/candidate/v12/python (disposable joined candidate: git archive 86c1c22b v12 + fixture, read-only, plus the 10 accepted labels paths exact and parallel_test.py composed)
+BATON_V12_STACK_TEST_ROOT=/home/sl/src/baton/work/scratch/w383217/labels5-host-verification/roots BATON_V12_DISK_ROOT=/home/sl/src/baton/work/scratch/w383217/labels5-host-verification/roots
+/dev/nvme0n1p2  915G  320G  549G  37% /
+task argv (8 modules): exit 1 elapsed 29 s end 2026-11-20T03:37:53Z
+just test-one (8 modules): exit 1 elapsed 27 s
+first run (v12-only export): task argv and just test-one each Ran 428, FAILED (failures=1): test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead.test_every_declared_input_names_its_consumers_and_is_not_a_whole_dossier, a declared input absent from the export (work/records/.../instance-201492/context); logs kept as *-first-v12-only-export.*; declared inputs then exported from HEAD (inputs-export.txt) and the run repeated below
+task argv (8 modules, inputs exported): exit 0 elapsed 27 s end 2026-11-20T03:39:54Z
+just test-one (8 modules, inputs exported): exit 0 elapsed 28 s

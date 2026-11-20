@@ -1,0 +1,24 @@
+{
+  "registry_complete": true,
+  "groups_consistent": true,
+  "modules_registered": 189,
+  "both_registrations_present": {
+    "tests.tools.test_job_observation": true,
+    "tests.tools.test_work_command": true
+  },
+  "groups": {
+    "tests.tools.test_work_command": "tools-pure",
+    "tests.job_manager.test_creation": "job_manager",
+    "tests.tools.test_connected_creation": "tools-pure",
+    "tests.authority.test_work_labels": "authority",
+    "tests.authority.test_work_label_exposure": "authority",
+    "tests.tools.test_job_observation": "tools-pure",
+    "tests.tools.test_job_viewer": "tools-pure",
+    "tests.tools.test_parallel_runner": "tools-pure"
+  },
+  "checks": {
+    "check_registry": "ok",
+    "check_groups": "ok"
+  },
+  "optional_skips_touching_these": []
+}

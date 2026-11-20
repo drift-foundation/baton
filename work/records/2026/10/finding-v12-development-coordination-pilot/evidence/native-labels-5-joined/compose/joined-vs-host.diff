@@ -1,0 +1,31 @@
+--- work/scratch/w383217/labels5-joined/compose/parallel_test.host.py	2026-11-19 20:36:50.534064939 -0700
++++ work/scratch/w383217/labels5-joined/compose/parallel_test.joined.py	2026-11-19 20:36:50.535077990 -0700
+@@ -116,10 +116,13 @@
+                     # case owns a disposable authority under its own temporary
+                     # directory and shares no file with anything else.
+                     "tests.authority.test_work_labels",
+-                    # W29401's exposure revalidation. PARALLEL: a disposable
+-                    # authority per case and no engine, image or container --
+-                    # and deliberately small, because v12 has no CLI or
+-                    # protocol host for the rest of that cut to land in.
++                    # W29401's exposure: the 2026-08-29 revalidation (Work
++                    # labels are not OCI runtime labels) plus, for slice 1,
++                    # W29400's label API through the two PUBLIC faces a
++                    # command can actually reach. PARALLEL: a disposable
++                    # authority per case and no engine, image or container.
++                    # The command over it is `tests.tools.test_work_command`,
++                    # below.
+                     "tests.authority.test_work_label_exposure",
+                     "tests.authority.test_store",
+                     "tests.manager.test_attempts",
+@@ -505,6 +508,10 @@
+     "tests.tools.test_startup_prerequisites",
+     "tests.tools.test_stopped_settlement_command",
+     "tests.tools.test_stopped_settlement_joined",
++    # W29401: the bundled `work` verbs, entered as argv over a disposable
++    # Authority in this case's own temporary directory. PARALLEL: no engine,
++    # no image, no network, no instance and no file shared with anything.
++    "tests.tools.test_work_command",
+     "tests.tools.test_worker_visibility",
+     # W384870 review R2: the content-bound source identity `test-all` records.
+     # Pure: a disposable git repository per case, no engine, no network.

@@ -1,0 +1,98 @@
+{
+  "schema": "k.labels-correction-manifest/1",
+  "base": "d8f77700f06b6a8b68f5f3fc2aedbcc95169afc6",
+  "parent_candidate": "04648e1b21b98aa0b3efad1b57fc3264c4a566ba",
+  "parent_reconstruction": "git archive 04648e1b from the retained native-labels-5 line checkout (read-only), work/scratch/w383217/labels5-host-verification/export; copied to work/scratch/w383217/labels5-correction/candidate and edited there",
+  "paths": [
+    {
+      "path": "v12/STACK.md",
+      "base_d8f77700": "8f117f0f30b0b4d8c73f4dc7fd51f9109b68e5b9feefc71058896ecac88cf4e0",
+      "parent_04648e1b": "fb50298b90a33b7b4ce4485a3d8a45fc359cfba4454dd27ed4d68737e43e69d6",
+      "corrected": "eab8d773ced7083fa4860b77dab0dcd6f05ed427ab0992f3749a51f8463358d3",
+      "changed_by_correction": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/creation.py",
+      "base_d8f77700": "a9aa278be615ab3ee5726eeb6dcd1952ffe942eff19b29309a57626012aa994e",
+      "parent_04648e1b": "a77b85a66470b9a1df37e14bb379d2815a73f9a67154435c466d8e04cb432589",
+      "corrected": "d8b47f194c177067091aef85c24ed7c3f073f704ca37d92af1c158737478e5f5",
+      "changed_by_correction": true
+    },
+    {
+      "path": "v12/python/tests/authority/test_work_label_exposure.py",
+      "base_d8f77700": "81c302ec7177243eeb03f8f090f3c6162e5cdfb9e8bab883b138fa5ae6d58cac",
+      "parent_04648e1b": "0d37e424ca49ca92fc9809eaff194fb02d9375e7f46cf9303eceff424d5e5d4e",
+      "corrected": "0d37e424ca49ca92fc9809eaff194fb02d9375e7f46cf9303eceff424d5e5d4e",
+      "changed_by_correction": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_creation.py",
+      "base_d8f77700": "c432ea651be95c2421d3abbe33b9eacab368a61162d4a4cb4382e4604bf9f29a",
+      "parent_04648e1b": "6441f5184969992fe5737c9b4096614a89bb58a78036376e5748dc26f54651ef",
+      "corrected": "ee39c4233b7c05b62d299f0e98ed333d0762f82cfd48e0e1e843797c717be85d",
+      "changed_by_correction": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "base_d8f77700": "cfa1ea0d7974ac94eebb858a76514bf8ffe8a2e85336d40799a369ddbd174e5f",
+      "parent_04648e1b": "9d6586cbc44b900f296f3ea873390506ec54c1570c0e888e56f4dbf66c25425f",
+      "corrected": "dc556e0812263d442191ea1d58cc5e450729216866a36abc6df45dc4a4edd59e",
+      "changed_by_correction": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_work_command.py",
+      "base_d8f77700": null,
+      "parent_04648e1b": "b6cf4438b49f4658c009d26a6ee1edf5de9584322ccf7e3a9e6ebebc7898b796",
+      "corrected": "1d1755acffe5d4777b5d3cd1e9c55bb55c2ecb466b85d2a7e94da55a9d3ab5c1",
+      "changed_by_correction": true
+    },
+    {
+      "path": "v12/python/tools/fresh_attempt_ports.py",
+      "base_d8f77700": "153c6bc1c2084e023ac8ca13115d6db3b8a04dc3dc369a9d5336572697193914",
+      "parent_04648e1b": "f705e4711858d2173c4a31c675360559a15d7acdb59461cff9a966fe0ecfc481",
+      "corrected": "6a3dc27a0c1409d60ef2840980623d2566710ba4a6d22b135c99c2ec282bee93",
+      "changed_by_correction": true
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "base_d8f77700": "5116b6773f35c9f3831a4d25d7aa03731f7ab5edb84635a2b03e8426287958f2",
+      "parent_04648e1b": "54b3c88ae82dfcf1814f400c74fa9ea41b75075ea49014c7f1f0e8d9547f5b75",
+      "corrected": "e2bc8ab4fc8d8798a3933cd94969d69c33773944cb79e3f134ac7063c345711c",
+      "changed_by_correction": true
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "base_d8f77700": "11363712cf2a94586ca62bda3113c91d1aaf89832d7061ee124b2538e197deb6",
+      "parent_04648e1b": "55c71051c4075fe5f3d1777b7785b97bbcddea20db353d3cdfbc439a714f860e",
+      "corrected": "55c71051c4075fe5f3d1777b7785b97bbcddea20db353d3cdfbc439a714f860e",
+      "changed_by_correction": false
+    },
+    {
+      "path": "v12/python/tools/stack_command.py",
+      "base_d8f77700": "38b6d0c539adaa380e989616013b40d839a3e93d7e85bc8e489b66d8ed49cfe6",
+      "parent_04648e1b": "c2ed2884fd16330dd1b5523017084c4954632abbb8c156ec30487d8d21feb716",
+      "corrected": "c2ed2884fd16330dd1b5523017084c4954632abbb8c156ec30487d8d21feb716",
+      "changed_by_correction": false
+    },
+    {
+      "path": "v12/python/tools/work_command.py",
+      "base_d8f77700": null,
+      "parent_04648e1b": "4ce8cf24bdaf5411982d4ec2fb5792e96216ca6b8644b275584568e55ee596d6",
+      "corrected": "0605f37f1339806c06feed2dceff360a05fbcde081f0968db1374fbc6d002ad1",
+      "changed_by_correction": true
+    }
+  ],
+  "correction_patch_sha256": "a6cce455b737284a6e0235aef0e2ce06621dcc775c0b8953ca13a7bbf55901bd",
+  "candidate_from_base_patch_sha256": "8569eaeed5948b4a9e629f411b231c64d069be508e242b936be80e614c9e2a98",
+  "changed_paths": [
+    "v12/STACK.md",
+    "v12/python/src/baton_v12/job_manager/creation.py",
+    "v12/python/tests/job_manager/test_creation.py",
+    "v12/python/tests/tools/test_connected_creation.py",
+    "v12/python/tests/tools/test_work_command.py",
+    "v12/python/tools/fresh_attempt_ports.py",
+    "v12/python/tools/job_manager.py",
+    "v12/python/tools/work_command.py"
+  ],
+  "new_paths_beyond_parent": []
+}

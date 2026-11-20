@@ -1,0 +1,1152 @@
+diff -ruN parent/v12/python/src/baton_v12/job_manager/creation.py corrected/v12/python/src/baton_v12/job_manager/creation.py
+--- parent/v12/python/src/baton_v12/job_manager/creation.py	2026-11-19 11:45:51.000000000 -0700
++++ corrected/v12/python/src/baton_v12/job_manager/creation.py	2026-11-19 17:55:32.287112858 -0700
+@@ -271,6 +271,14 @@
+     job_id = operands["job_id"]
+     document = resolution["submission"]
+     _task_agrees(resolution, derived)
++    # A LABELLED CREATION AGAINST WORK IT DID NOT MAKE REFUSES BEFORE THE
++    # RESERVATION (W385292 review): the identity is not spent on a request
++    # that can never succeed, and the refusal's own guidance -- add the
++    # labels as their own act, then repeat without --label -- stays runnable
++    # under this Job identity. An identity ALREADY reserved is left to the
++    # reservation and to `_authorized`, which report the reservation that
++    # exists rather than denying it.
++    _relabel_refused(store, authorization, operands)
+ 
+     # -- CUT A: the reservation, before any other owner is mutated.
+     _reserved(store, operands, resolution, document, derived)
+@@ -767,26 +775,54 @@
+     attributable actor and no label event anybody authorized. So it refuses
+     and names the verb that does it properly.
+ 
+-    THE ONE EXCEPTION IS NOT AN EXCEPTION: a Work that ALREADY CARRIES every
+-    requested label is already in the asked-for state, so there is nothing to
+-    mutate and nothing to refuse. That is the authority's own convergent
+-    reading of a label request, and it is what lets an INCOMPLETE creation --
+-    one that minted the Work and its labels and then refused at the binding --
+-    be fixed and run again, which `_incomplete` promises and a flat refusal
+-    here would have taken away.
++    THE ONE EXCEPTION IS PROVED, NOT ASSUMED (W385292 review). A creation
++    that minted the Work with its labels and then refused at the binding or
++    the selector leaves a Work that already carries exactly what this request
++    asks for -- and so does an UNRELATED Work somebody else stood up and
++    labelled by their own authorized act, when it happens to carry the same
++    set, or a superset of it. The first cut read both as "already in the
++    asked-for state" and reused either, which admitted a labelled creation
++    against Work it did not make. Now the Work's own creation record decides:
++    the act that mints the Work is named by `work_operation_id`, which is
++    derived from the Job id, so the Authority itself says WHICH creation made
++    the Work -- and only that creation, asking again for exactly the labels
++    it minted, reuses it with labels. Every other labelled creation against
++    an existing Work refuses, by name, before the reservation
++    (`_relabel_refused`), and the refusal names the verb that labels shared
++    Work as an authorized act of its own. A creation that states no labels
++    reuses the Work exactly as it always did.
++
++    PAST THE RESERVATION THERE ARE THREE ANSWERS, NOT ONE SENTENCE (W385292
++    correction review R2). The first correction sent every labelled reuse
++    that was not a plain finish through the pre-reservation sentence, which
++    told this creation's OWN Work that it "was not made by this creation" and
++    told a reserved identity to "repeat without --label" -- a retry the
++    reserved intent refuses as a collision. So:
++
++      * this creation's own minted Work, still carrying exactly the minted
++        set: the interrupted creation finishes, as `_incomplete` promised;
++      * this creation's own minted Work, relabelled since by an authorized
++        act: INCOMPLETE, by name -- `_own_work_changed` says what was minted,
++        what is carried now, the exact label/unlabel acts that restore the
++        minted set so the same request finishes, and that a new identity
++        without --label is the other way;
++      * Work another act made, found only now because it appeared between
++        the pre-reservation check and this authorization: the reservation
++        exists and CANNOT complete, and `_unrelated_after_reservation` says
++        so, names the recorded minting operation, and requires a new Job
++        identity without --label. It never claims nothing was reserved.
+     """
+     work_id = operands["work_id"]
+     wanted = operands.get("labels") or ()
+     held = authorization.work_of(work_id)
+     if held is None:
+         created = authorization.create_work(
+-            work_id, operation_id=f"{CREATE_KIND}.work:{work_id}",
+-            labels=wanted)
++            work_id, operation_id=_minting_act(operands), labels=wanted)
+         return {"work_id": work_id, "state": "created",
+                 # WHAT WAS ASKED FOR, under its own name. The labels the Work
+-                # actually CARRIES are `projection.labels`, and one member
+-                # meaning both would be unreadable on the reuse branch below,
+-                # where a request may name a subset of them.
++                # actually CARRIES are `projection.labels`; on the reuse
++                # branch below a non-empty `requested_labels` can only be this
++                # creation's own minted set, read back from the Work it made.
+                 "requested_labels": list(wanted), "projection": created}
+     state = held.get("state") if type(held) is dict else None
+     if state is not None and state != "open":
+@@ -795,23 +831,213 @@
+             f"ordinary Job is created under an OPEN Work; a closed Work "
+             f"cannot take a claim, so nothing would ever run this Job",
+             reserved=operands["job_id"])
+-    carried = held.get("labels") if type(held) is dict else None
+-    absent = [one for one in wanted if one not in (carried or ())]
+-    if absent:
+-        raise _incomplete(
+-            f"this creation asks for Work labels {sample_of(absent)} and "
+-            f"reuses the existing Work {name_value(work_id)}, which carries "
+-            f"{sample_of(sorted(carried or ())) or 'none'}; create-time "
+-            f"labels are applied by the act that MAKES a Work, and a "
+-            f"creation does not relabel Work it did not make. Add them as "
+-            f"their own authorized act -- `baton-v12-stack work label-work "
+-            f"--work {work_id} --label <value>` -- or repeat this creation "
+-            f"without --label",
+-            reserved=operands["job_id"])
++    carried = sorted(held.get("labels") or ()) if type(held) is dict else []
++    if wanted and not _minted_here(authorization, operands):
++        # THE PROVENANCE HALF, proved again past the reservation: the Work
++        # this creation runs under is proved at the moment it is reused, not
++        # only before the reservation, and a Work that appeared in between
++        # is somebody else's.
++        raise _unrelated_after_reservation(authorization, operands, held)
++    if wanted and carried != list(wanted):
++        # THE LABEL HALF: this creation's own minted Work carries something
++        # else by now -- an authorized act changed it since -- and a creation
++        # that reported `requested_labels` it did not leave on the Work would
++        # be claiming an act it did not perform. The repair is named exactly,
++        # and `_incomplete`'s promise holds once it is made.
++        raise _incomplete(_own_work_changed(operands, held),
++                          reserved=operands["job_id"])
+     return {"work_id": work_id, "state": "reused",
+             "requested_labels": list(wanted), "projection": held}
+ 
+ 
++def work_operation_id(job_id, work_id):
++    """The identity of the act that mints the deployment's derived Work.
++
++    IT NAMES THE JOB, AND THAT IS THE PROVENANCE. `Authority.work_creation`
++    answers the operation that made a Work, so a later creation asks the
++    Authority -- rather than inferring from a matching label set -- whether
++    it is the one that minted the Work it is about to reuse. Every Job bound
++    to the deployment runs under this one Work; the record names the creation
++    that got there first, and a Work minted before this identity carried the
++    Job (`<kind>.work:<work_id>` alone) is simply nobody's to relabel.
++
++    AND IT CARRIES THE JOB AS A DIGEST, NOT AS TEXT (W385292 correction
++    review R1). A Job id is durable text of any length and shape --
++    `boundaries.identity` -- while an Authority operation id is the frozen
++    opaque grammar: at most 160 characters of `[A-Za-z0-9._:-]`. The first
++    correction appended the raw Job id, so a 130-character id or
++    `job/segment` -- ids every creation had admitted before, labelled or not
++    -- was refused by the Authority at the minting act, past the
++    reservation. The canonical digest of the pair `{job_id, work_id}` is the
++    same 96 characters for every Job id and every Work id, is deterministic,
++    and is distinct for distinct pairs, so the record still answers "which
++    creation" to anyone holding the Job id, and no Job id the manager admits
++    can fail the Authority's grammar here.
++    """
++    return (f"{CREATE_KIND}.work:"
++            f"{digest({'job_id': job_id, 'work_id': work_id})}")
++
++
++def _minting_act(operands):
++    return work_operation_id(operands["job_id"], operands["work_id"])
++
++
++def _minted_by(authorization, work_id):
++    """The operation identity the Work's creation record carries, or `None`
++    for a Work this Authority does not attribute to any recorded creation."""
++    minted = authorization.minted_by(work_id)
++    return minted.get("operation_id") if type(minted) is dict else None
++
++
++def _minted_here(authorization, operands):
++    """Whether THIS creation is the one that minted the existing Work.
++
++    THE AUTHORITY'S RECORD, NOT A LABEL COMPARISON: a matching set proves
++    nothing about who made the Work, which is what the first cut got wrong.
++    The record's operation identity is derived from the Job id
++    (`work_operation_id`), so the question has exactly one honest answer.
++    """
++    return (_minted_by(authorization, operands["work_id"])
++            == _minting_act(operands))
++
++
++def _relabel_refused(store, authorization, operands):
++    """A labelled creation against Work it did not make, refused BEFORE the
++    reservation and before any owner is asked to publish anything.
++
++    NOTHING IS SPENT. `_incomplete`'s promise -- fix what is named and run the
++    same request again -- cannot hold for this refusal, because no repair
++    makes a creation the author of Work it did not make; so the Job identity
++    is left unreserved and the guidance (label the Work as its own act, then
++    repeat this creation without --label) is runnable as written. A closed
++    Work is left to `_authorized`, which refuses it on its own terms.
++
++    AND IT SPEAKS ONLY WHEN THERE IS NO RESERVATION (W385292 correction
++    review R2). An identity this store already holds a creation row for --
++    an earlier run of this creation that found the Work only after it had
++    reserved, or a different request under the same name -- is not "nothing
++    was reserved", so the reservation decides: `_reserved` refuses a changed
++    intent as the collision it is and `_authorized` reports the Work against
++    the reservation that exists.
++    """
++    if not operands.get("labels"):
++        return
++    if created_job_of(store, operands["job_id"]) is not None:
++        return
++    held = authorization.work_of(operands["work_id"])
++    if held is None:
++        return
++    state = held.get("state") if type(held) is dict else None
++    if state is not None and state != "open":
++        return
++    if _minted_here(authorization, operands):
++        # THIS CREATION'S OWN WORK: the reservation decides whether the
++        # request is the same intent, and `_authorized` whether the Work
++        # still carries what it minted.
++        return
++    _refuse(_relabel_sentence(operands, held,
++                              _minted_by(authorization, operands["work_id"]))
++            + ". Nothing was reserved by this request, no Work or binding "
++            "was touched and no submission was recorded",
++            category="refused", code="precondition")
++
++
++def _whose(recorded):
++    """How a Work's creation record reads in a refusal.
++
++    THE OPERATION IS SHOWN WHOLE when it is the frozen opaque grammar the
++    Authority records -- a 96-character minting identity is useless at
++    `name_value`'s sixty -- and named by the generic renderer otherwise.
++    """
++    if recorded is None:
++        return ("has no creation record this Authority attributes to a "
++                "creation")
++    if (type(recorded) is str and 0 < len(recorded) <= 160
++            and recorded.isascii() and recorded.isprintable()
++            and " " not in recorded):
++        return f"was made by the operation `{recorded}`"
++    return f"was made by the operation {name_value(recorded)}"
++
++
++def _relabel_sentence(operands, held, recorded):
++    """The pre-reservation refusal, naming the verb that does it."""
++    work_id = operands["work_id"]
++    carried = sorted(held.get("labels") or ()) if type(held) is dict else []
++    return (f"this creation asks for Work labels "
++            f"{sample_of(sorted(operands['labels']))} and would reuse the "
++            f"existing Work {name_value(work_id)}, which carries "
++            f"{sample_of(carried) or 'none'} and was not made by this "
++            f"creation: it {_whose(recorded)}; create-time labels are "
++            f"applied only by the act that MAKES a Work, and a creation "
++            f"neither relabels Work it did not make nor claims labels it did "
++            f"not apply -- whether the labels it names are new, already "
++            f"carried or carried among others. Add them as their own "
++            f"authorized act -- `baton-v12-stack work label-work --work "
++            f"{work_id} --label <value>` -- and repeat this creation without "
++            f"--label")
++
++
++def _own_work_changed(operands, held):
++    """This creation's own minted Work, relabelled since: what was minted,
++    what is carried, and the exact acts that make the same request finish."""
++    work_id = operands["work_id"]
++    wanted = sorted(operands["labels"])
++    carried = sorted(held.get("labels") or ()) if type(held) is dict else []
++    missing = [one for one in wanted if one not in carried]
++    extra = [one for one in carried if one not in wanted]
++    acts = []
++    if missing:
++        acts.append(f"`baton-v12-stack work label-work --work {work_id}"
++                    + "".join(f" --label {one}" for one in missing) + "`")
++    if extra:
++        acts.append(f"`baton-v12-stack work unlabel-work --work {work_id}"
++                    + "".join(f" --label {one}" for one in extra) + "`")
++    return (f"this creation minted the Work {name_value(work_id)} carrying "
++            f"exactly {sample_of(wanted)}, which its reserved request names, "
++            f"and an authorized label act has changed the Work since: it now "
++            f"carries {sample_of(carried) or 'none'}. Create-time labels are "
++            f"applied only in the act that MAKES a Work, so this creation "
++            f"neither relabels its Work now nor reports labels it did not "
++            f"leave there. Either restore exactly the minted set -- "
++            f"{' and then '.join(acts)} -- and run the same request again, "
++            f"which finishes this creation, or create the Job under a new "
++            f"Job identity without --label")
++
++
++def _unrelated_after_reservation(authorization, operands, held):
++    """Work another act made, found past this creation's reservation.
++
++    THE RESERVATION IS REAL AND IT CANNOT COMPLETE. The reserved intent names
++    the labels, so the one retry that could reuse this Work -- without
++    --label -- is a different intent and collides; and no repair makes this
++    creation the author of Work it did not make. So the refusal says both,
++    names the operation that did make the Work, and requires a new Job
++    identity. It is durable: running the same request again changes nothing.
++    """
++    work_id = operands["work_id"]
++    job_id = operands["job_id"]
++    carried = sorted(held.get("labels") or ()) if type(held) is dict else []
++    recorded = _minted_by(authorization, work_id)
++    return ContractRefusal(
++        "refused", "precondition",
++        f"this creation asks for Work labels "
++        f"{sample_of(sorted(operands['labels']))}, and the Work "
++        f"{name_value(work_id)} it runs under {_whose(recorded)}, not by "
++        f"this creation, and carries {sample_of(carried) or 'none'}: it "
++        f"appeared between this creation's check and its authorization. The "
++        f"Job identity {name_value(job_id)} is RESERVED for exactly this "
++        f"labelled request and that reservation CANNOT complete: create-time "
++        f"labels are applied only by the act that MAKES a Work, no repair "
++        f"makes this creation the author of Work it did not make, and "
++        f"repeating this request without --label is a different intent that "
++        f"the reservation refuses as a collision. Create the Job under a NEW "
++        f"Job identity without --label; labels for an existing Work are "
++        f"their own authorized act -- `baton-v12-stack work label-work "
++        f"--work {work_id} --label <value>`. The reservation of "
++        f"{name_value(job_id)} stays recorded and incomplete: no binding "
++        f"and no submission was recorded for it", durable=True)
++
++
+ def _bound(binding, operands, *, resolution):
+     """This Job's deployment binding, published through its owner.
+ 
+diff -ruN parent/v12/python/tests/job_manager/test_creation.py corrected/v12/python/tests/job_manager/test_creation.py
+--- parent/v12/python/tests/job_manager/test_creation.py	2026-11-19 11:45:51.000000000 -0700
++++ corrected/v12/python/tests/job_manager/test_creation.py	2026-11-19 17:55:32.297278357 -0700
+@@ -121,11 +121,16 @@
+     was asked for, because the operand reaching the port is the point.
+     """
+ 
+-    def __init__(self, state="open", known=True, identity=None, labels=()):
++    def __init__(self, state="open", known=True, identity=None, labels=(),
++                 minted=None):
+         self.state = state
+         self.known = known
+         self.created = []
+         self.labels = list(labels)
++        # THE PROVENANCE (W385292): the operation identity the Work's creation
++        # record carries, as `Authority.work_creation` answers it. `None` is a
++        # Work this fake was handed as somebody else's, whatever it carries.
++        self.minted = minted
+         self._identity = identity
+ 
+     def instance(self):
+@@ -141,9 +146,34 @@
+         self.created.append((work_id, operation_id, tuple(labels)))
+         self.known = True
+         self.labels = sorted(labels)
++        self.minted = operation_id
+         return {"work_id": work_id, "state": "open", "phase": "queued",
+                 "labels": list(self.labels)}
+ 
++    def minted_by(self, work_id):
++        """The creation record, shaped as `Authority.work_creation` shapes it."""
++        if not self.known or self.minted is None:
++            return None
++        return {"work_id": work_id, "operation_id": self.minted,
++                "kind": "trusted-bootstrap", "scope": "scope:deployment",
++                "at": "2026-11-19T00:00:00.000Z"}
++
++
++class RacingAuthorization(FakeAuthorization):
++    """A Work that appears BETWEEN this creation's pre-reservation check and
++    its authorization: absent on the first read, somebody's on every read
++    after. The interleaving is simulated at the port, not raced live."""
++
++    def __init__(self, minted=None, labels=("v12",)):
++        super().__init__(labels=labels, minted=minted)
++        self.reads = 0
++
++    def work_of(self, work_id):
++        self.reads += 1
++        if self.reads == 1:
++            return None
++        return super().work_of(work_id)
++
+ 
+ class FakeBinding:
+     """The deployment, with the new-Job bind recorded rather than performed."""
+@@ -403,7 +433,7 @@
+         self.assertEqual(held["work"]["state"], "created")
+         self.assertEqual(
+             self.authorization.created,
+-            [(WORK_A, f"{creation.CREATE_KIND}.work:{WORK_A}", ())])
++            [(WORK_A, creation.work_operation_id(JOB, WORK_A), ())])
+ 
+     def test_the_binding_is_published_through_its_owner(self):
+         held = self.created()
+@@ -1475,7 +1505,8 @@
+         held = self.created()
+         self.assertEqual(self.recorded_digest(), self.digest_of())
+         self.assertEqual(self.authorization.created,
+-                         [(WORK_A, f"{creation.CREATE_KIND}.work:{WORK_A}",
++                         [(WORK_A,
++                           creation.work_operation_id(JOB, WORK_A),
+                            ())])
+         self.assertEqual(held["work"]["requested_labels"], [])
+ 
+@@ -1559,17 +1590,29 @@
+         self.assertEqual(len(self.authorization.created), 1)
+ 
+     def test_a_creation_that_reuses_a_work_refuses_to_relabel_it(self):
++        """AND RESERVES NOTHING (W385292 review). No repair makes this
++        creation the author of Work it did not make, so the Job identity is
++        left for the request the guidance names: label the Work as its own
++        act, then create without --label."""
+         self.authorization = FakeAuthorization(labels=["v12"])
+         caught = self.refused(authorization=self.authorization,
+                               request=request(labels=["hot"]))
+-        self.assertIn("reuses the existing Work", caught.message)
++        self.assertIn("would reuse the existing Work", caught.message)
++        self.assertIn("was not made by this creation", caught.message)
++        self.assertIn("has no creation record this Authority attributes to "
++                      "a creation", caught.message)
+         self.assertIn("work label-work", caught.message)
++        self.assertIn("Nothing was reserved by this request", caught.message)
++        self.assertNotIn("is RESERVED", caught.message)
+         self.assertEqual(self.authorization.created, [])
+-        # NOTHING WAS MUTATED, and the refusal says the identity is reserved
+-        # rather than pretending the creation never started.
+         self.assertEqual(self.authorization.labels, ["v12"])
+-        self.assertIn("is RESERVED", caught.message)
+-        self.assertEqual(self.rows()[0]["state"], "intended")
++        self.assertEqual(self.rows(), [])
++        # AND THE GUIDANCE IS RUNNABLE AS WRITTEN, under this same identity.
++        held = self.created(authorization=self.authorization,
++                            request=request())
++        self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(held["work"]["requested_labels"], [])
++        self.assertEqual(self.authorization.labels, ["v12"])
+ 
+     def test_an_unlabelled_creation_still_reuses_an_existing_work(self):
+         """THE PRESERVED BEHAVIOUR. A request that says nothing about labels
+@@ -1581,21 +1624,294 @@
+         self.assertEqual(held["work"]["requested_labels"], [])
+         self.assertEqual(self.authorization.labels, ["v12"])
+ 
+-    def test_a_work_already_carrying_the_asked_for_labels_is_reused(self):
+-        """WHICH IS WHAT LETS AN INCOMPLETE CREATION BE RUN AGAIN.
++    def test_a_work_already_carrying_the_asked_for_labels_still_refuses(self):
++        """EQUAL OR SUBSET, STILL NOT THIS CREATION'S WORK (W385292 review).
+ 
+-        A creation that minted the Work with its labels and then refused at
+-        the binding leaves exactly this state. The Work is already in the
+-        asked-for state, so there is nothing to mutate and nothing to refuse,
+-        and the one way forward `_incomplete` names -- fix what is named and
+-        run the same request again -- stays open.
+-        """
+-        self.authorization = FakeAuthorization(labels=["hot", "v12"])
++        A matching set proves nothing about who made the Work. The first cut
++        read "already carries every requested label" as "already in the
++        asked-for state" and reused it, which admitted a labelled creation
++        against Work another authorized act had labelled.
++        """
++        for carried, asked in ((["hot", "v12"], ["v12"]),
++                               (["hot", "v12"], ["v12", "hot"]),
++                               (["v12"], ["v12"])):
++            with self.subTest(carried=carried, asked=asked):
++                self.authorization = FakeAuthorization(labels=carried)
++                caught = self.refused(authorization=self.authorization,
++                                      request=request(labels=asked))
++                self.assertIn("was not made by this creation",
++                              caught.message)
++                self.assertIn("work label-work", caught.message)
++                self.assertEqual(self.authorization.created, [])
++                self.assertEqual(self.authorization.labels, carried)
++                self.assertEqual(self.rows(), [])
++
++    def test_a_work_another_creation_minted_refuses_even_with_equal_labels(
++            self):
++        """Two Jobs on one deployment share its derived Work. The second
++        creation naming the labels the first one minted is a creation
++        claiming labels it did not apply, and the record says whose act
++        they were."""
++        self.authorization.known = False
++        first = self.created(request=request(labels=["v12"]))
++        self.assertEqual(first["work"]["state"], "created")
++        self.assertEqual(self.authorization.minted,
++                         creation.work_operation_id(JOB, WORK_A))
++        second = {"task_id": "second-job", "statement": STATEMENT}
++        caught = self.refused(request=request(labels=["v12"], task=second))
++        self.assertIn("was not made by this creation", caught.message)
++        # AND THE RECORD IS NAMED WHOLE, not at the generic renderer's sixty.
++        self.assertIn(f"was made by the operation "
++                      f"`{creation.work_operation_id(JOB, WORK_A)}`",
++                      caught.message)
++        self.assertIn("Nothing was reserved by this request", caught.message)
++        self.assertEqual(len(self.authorization.created), 1)
++        self.assertEqual(len(self.rows()), 1)
++        # WITHOUT LABELS THE SECOND JOB REUSES IT, as every creation has.
++        held = self.created(request=request(task=second))
++        self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(held["work"]["requested_labels"], [])
++        self.assertEqual(len(self.rows()), 2)
++
++    def stopped_at_the_binding(self):
++        """A deployment whose binding refuses, leaving a creation INCOMPLETE
++        past the reservation and past the Work's minting."""
++        return FakeBinding(refusal=ContractRefusal(
++            "refused", "precondition", "the binding stopped this creation"))
++
++    def test_an_incomplete_creation_that_minted_the_work_finishes_on_the_same_request(
++            self):
++        """THE PROVED EXCEPTION. The Work's creation record names this Job,
++        so the Authority -- not a matching label set -- says this creation
++        made it, and `_incomplete`'s promise holds: run the same request
++        again and it finishes."""
++        self.authorization.known = False
++        self.refused(binding=self.stopped_at_the_binding(),
++                     request=request(labels=["hot", "v12"]))
++        self.assertEqual(
++            self.authorization.created,
++            [(WORK_A, creation.work_operation_id(JOB, WORK_A),
++              ("hot", "v12"))])
++        self.assertEqual(self.rows()[0]["state"], "intended")
++        held = self.created(request=request(labels=["v12", "hot"]))
++        self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(held["work"]["requested_labels"], ["hot", "v12"])
++        # ONE MINTING ACT, and the Work carries what it was minted with.
++        self.assertEqual(len(self.authorization.created), 1)
++        self.assertEqual(self.authorization.labels, ["hot", "v12"])
++        self.assertNotEqual(self.rows()[0]["state"], "intended")
++
++    def test_the_minting_creation_naming_other_labels_is_a_different_creation(
++            self):
++        """The labels are in the reserved intent, so this is the existing
++        changed-operands refusal of the journalled intent operation and not
++        a relabelling question."""
++        self.authorization.known = False
++        self.refused(binding=self.stopped_at_the_binding(),
++                     request=request(labels=["v12"]))
++        caught = self.refused(request=request(labels=["hot"]))
++        self.assertIn("already recorded with a different kind or signature",
++                      caught.message)
++        self.assertNotIn("work label-work", caught.message)
++        self.assertEqual(self.authorization.labels, ["v12"])
++        self.assertEqual(len(self.authorization.created), 1)
++
++    def test_the_minting_creations_work_relabelled_since_refuses_by_name(
++            self):
++        """An authorized act changed this creation's own Work between the
++        interrupted run and the repeat. The request is the same intent and
++        the provenance is this creation's, so the refusal SAYS SO (W385292
++        correction review R2): what was minted, what is carried now, the
++        exact act that restores the minted set, and the reservation. It
++        never calls this creation's own Work somebody else's and never tells
++        a reserved identity to retry without --label -- the retry the
++        reserved intent refuses as a collision."""
++        self.authorization.known = False
++        self.refused(binding=self.stopped_at_the_binding(),
++                     request=request(labels=["v12"]))
++        self.authorization.labels = ["hot", "v12"]
++        for attempt in (1, 2):
++            with self.subTest(attempt=attempt):
++                caught = self.refused(request=request(labels=["v12"]))
++                self.assertIn("this creation minted the Work", caught.message)
++                self.assertIn("carrying exactly 'v12'", caught.message)
++                self.assertIn("it now carries 'hot', 'v12'", caught.message)
++                self.assertIn(f"`baton-v12-stack work unlabel-work --work "
++                              f"{WORK_A} --label hot` -- and run the same "
++                              f"request again", caught.message)
++                self.assertIn("new Job identity without --label",
++                              caught.message)
++                self.assertIn("is RESERVED", caught.message)
++                self.assertIn("INCOMPLETE rather than undone", caught.message)
++                self.assertNotIn("was not made by this creation",
++                                 caught.message)
++                self.assertNotIn("Nothing was reserved", caught.message)
++                self.assertNotIn("repeat this creation without --label",
++                                 caught.message)
++                self.assertFalse(caught.durable)
++        self.assertEqual(len(self.authorization.created), 1)
++        self.assertEqual(self.authorization.labels, ["hot", "v12"])
++        self.assertEqual([one["state"] for one in self.rows()], ["intended"])
++        # THE RETRY THE FIRST CORRECTION SUGGESTED COLLIDES: the reserved
++        # intent names the labels, and that protection is untouched.
++        caught = self.refused(request=request())
++        self.assertIn("already recorded with a different kind or signature",
++                      caught.message)
++        self.assertEqual([one["state"] for one in self.rows()], ["intended"])
++        # FOLLOWING THE GUIDANCE FINISHES IT: the act it names, then the
++        # same request -- `_incomplete`'s promise, kept.
++        self.authorization.labels = ["v12"]
++        held = self.created(request=request(labels=["v12"]))
++        self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(held["work"]["requested_labels"], ["v12"])
++        self.assertEqual(len(self.authorization.created), 1)
++        self.assertNotEqual(self.rows()[0]["state"], "intended")
++
++    def test_the_restoring_acts_name_exactly_what_is_missing_and_what_is_extra(
++            self):
++        """One `label-work` for the minted labels the Work lost, one
++        `unlabel-work` for the labels it gained, in that order, and only
++        the ones needed."""
++        self.authorization.known = False
++        self.refused(binding=self.stopped_at_the_binding(),
++                     request=request(labels=["v12"]))
++        self.authorization.labels = ["hot"]
++        caught = self.refused(request=request(labels=["v12"]))
++        self.assertIn(f"`baton-v12-stack work label-work --work {WORK_A} "
++                      f"--label v12` and then `baton-v12-stack work "
++                      f"unlabel-work --work {WORK_A} --label hot`",
++                      caught.message)
++        self.authorization.labels = []
++        caught = self.refused(request=request(labels=["v12"]))
++        self.assertIn("it now carries none", caught.message)
++        self.assertIn(f"`baton-v12-stack work label-work --work {WORK_A} "
++                      f"--label v12` -- and run the same request again",
++                      caught.message)
++        self.assertNotIn("unlabel-work", caught.message)
++        self.assertEqual(len(self.authorization.created), 1)
++
++    def test_work_found_only_after_the_reservation_names_it_and_requires_a_new_identity(
++            self):
++        """THE INTERLEAVING (W385292 correction review R2): no Work at the
++        pre-reservation check, somebody's Work by the authorization. The
++        reservation exists and cannot complete, so the refusal says exactly
++        that -- it never claims nothing was reserved -- names the Work's
++        record, and requires a new Job identity. Repeated attempts say the
++        same thing; the no-label retry collides as the refusal warns; and
++        the guidance it gives actually works."""
++        self.authorization = RacingAuthorization()
++        first = self.refused(authorization=self.authorization,
++                             request=request(labels=["v12"]))
++        self.assertIn("appeared between this creation's check and its "
++                      "authorization", first.message)
++        self.assertIn("has no creation record this Authority attributes to "
++                      "a creation", first.message)
++        self.assertIn(f"The Job identity '{JOB}' is RESERVED for exactly "
++                      f"this labelled request and that reservation CANNOT "
++                      f"complete", first.message)
++        self.assertIn("NEW Job identity without --label", first.message)
++        self.assertIn("stays recorded and incomplete", first.message)
++        self.assertNotIn("Nothing was reserved", first.message)
++        self.assertNotIn("repeat this creation without --label",
++                         first.message)
++        self.assertNotIn("running the same request again finishes it",
++                         first.message)
++        self.assertTrue(first.durable)
++        self.assertEqual(self.authorization.created, [])
++        self.assertEqual(self.authorization.labels, ["v12"])
++        self.assertEqual([one["state"] for one in self.rows()], ["intended"])
++        for attempt in (2, 3):
++            with self.subTest(attempt=attempt):
++                again = self.refused(authorization=self.authorization,
++                                     request=request(labels=["v12"]))
++                self.assertEqual(again.message, first.message)
++        self.assertEqual([one["state"] for one in self.rows()], ["intended"])
++        caught = self.refused(authorization=self.authorization,
++                              request=request())
++        self.assertIn("already recorded with a different kind or signature",
++                      caught.message)
++        second = {"task_id": "second-job", "statement": STATEMENT}
+         held = self.created(authorization=self.authorization,
+-                            request=request(labels=["v12"]))
++                            request=request(task=second))
+         self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(held["work"]["requested_labels"], [])
+         self.assertEqual(self.authorization.created, [])
+-        self.assertEqual(self.authorization.labels, ["hot", "v12"])
++        self.assertEqual(len(self.rows()), 2)
++
++    def test_work_another_creation_minted_in_between_is_named_by_its_record(
++            self):
++        other = creation.work_operation_id("job-other", WORK_A)
++        self.authorization = RacingAuthorization(minted=other)
++        caught = self.refused(authorization=self.authorization,
++                              request=request(labels=["v12"]))
++        self.assertIn(f"was made by the operation `{other}`, not by this "
++                      f"creation", caught.message)
++        self.assertIn("is RESERVED for exactly this labelled request",
++                      caught.message)
++        self.assertNotIn("Nothing was reserved", caught.message)
++        self.assertEqual([one["state"] for one in self.rows()], ["intended"])
++
++    def test_the_minting_identity_is_bounded_and_distinct_across_the_job_id_domain(
++            self):
++        """R1 (W385292 correction review): a Job id is any durable text, an
++        Authority operation id is the frozen opaque grammar at 160. The
++        minting identity is the same 96 characters of that grammar for every
++        Job id, deterministic, distinct per Job and per Work, and its
++        spelling is stated so a reader holding the Job id can recompute it.
++        """
++        from baton_v12.authority import identity as grammar
++
++        ids = ["job-short", "j" * 130, "j" * 160, "job-" + "x" * 400,
++               "job/segment", "job with space", "job-\u00fc \U0001f680",
++               "job:colon", "job\twith\ttabs"]
++        minted = [creation.work_operation_id(one, WORK_A) for one in ids]
++        for job_id, one in zip(ids, minted):
++            with self.subTest(job_id=job_id[:24]):
++                self.assertIsNone(grammar.opaque_id_fault(one))
++                self.assertEqual(len(one), 96)
++                self.assertTrue(one.startswith(
++                    f"{creation.CREATE_KIND}.work:sha256:"))
++                self.assertEqual(one, creation.work_operation_id(job_id,
++                                                                  WORK_A))
++        self.assertEqual(len(set(minted)), len(ids))
++        self.assertNotEqual(creation.work_operation_id(JOB, WORK_A),
++                            creation.work_operation_id(JOB, "0000000a-W2"))
++        self.assertEqual(creation.work_operation_id(JOB, WORK_A),
++                         f"{creation.CREATE_KIND}.work:"
++                         + digest({"job_id": JOB, "work_id": WORK_A}))
++
++    def test_a_long_or_non_opaque_job_id_still_mints_the_work(self):
++        """THE REGRESSION ITSELF, at the port: ids every creation admitted
++        before the first correction, labelled or not, mint the Work under
++        an identity the Authority's grammar accepts, and an exact retry
++        replays rather than minting again."""
++        from baton_v12.authority import identity as grammar
++
++        for job_id in ("j" * 130, "job/segment", "job-" + "x" * 300):
++            for labels in ((), ("v12",)):
++                with self.subTest(job_id=job_id[:16], labels=labels):
++                    named = job_id + ("-labelled" if labels else "")
++                    task = {"task_id": TASK, "statement": STATEMENT,
++                            "job_id": named}
++                    asked = request(task=task, **({"labels": list(labels)}
++                                                  if labels else {}))
++                    authorization = FakeAuthorization(known=False)
++                    binding = FakeBinding(bound=[named])
++                    held = self.created(authorization=authorization,
++                                        binding=binding, request=asked)
++                    self.assertEqual(held["work"]["state"], "created")
++                    self.assertEqual(held["work"]["requested_labels"],
++                                     list(labels))
++                    (_, operation, applied), = authorization.created
++                    self.assertEqual(operation,
++                                     creation.work_operation_id(named,
++                                                                WORK_A))
++                    self.assertIsNone(grammar.opaque_id_fault(operation))
++                    self.assertEqual(applied, labels)
++                    again = self.created(authorization=authorization,
++                                         binding=binding, request=asked)
++                    self.assertEqual(again, held)
++                    self.assertEqual(len(authorization.created), 1)
+ 
+     def test_a_closed_work_still_refuses_on_its_own_terms(self):
+         """The order of the two refusals matters: a Job under a closed Work is
+diff -ruN parent/v12/python/tests/tools/test_connected_creation.py corrected/v12/python/tests/tools/test_connected_creation.py
+--- parent/v12/python/tests/tools/test_connected_creation.py	2026-11-19 11:45:51.000000000 -0700
++++ corrected/v12/python/tests/tools/test_connected_creation.py	2026-11-19 17:55:32.302272853 -0700
+@@ -1227,6 +1227,13 @@
+             [("release-foo", "work-create"), ("v12", "work-create")])
+         self.assertEqual(authority.works_with_labels(all_of=["v12"]),
+                          [self.work])
++        # AND THE RECORD NAMES THIS CREATION (W385292): the Authority says
++        # which creation minted the Work, which is what lets the same request
++        # -- and only it -- reuse the Work with its labels.
++        from baton_v12.job_manager import creation as creating
++        self.assertEqual(
++            authority.work_creation(self.work)["operation_id"],
++            creating.work_operation_id("job-cli-first", self.work))
+         # AND THE SAME REQUEST AGAIN REACHES THE SAME PLACE rather than
+         # refusing about labels the Work already carries.
+         again = self.stopped(self.labelled("Release-Foo", "V12"))
+@@ -1238,8 +1245,16 @@
+     def test_a_creation_that_reuses_a_work_refuses_to_relabel_it(self):
+         self.installed()
+         refusal = self.stopped(self.labelled("v12"))
+-        self.assertIn("reuses the existing Work", str(refusal))
++        self.assertIn("would reuse the existing Work", str(refusal))
++        self.assertIn("was not made by this creation", str(refusal))
++        # AND WHOSE IT IS: the bootstrap's own creation record, by name.
++        self.assertIn("it was made by the operation `bootstrap-job-a`",
++                      str(refusal))
+         self.assertIn("work label-work", str(refusal))
++        # AND NOTHING WAS RESERVED (W385292): the identity stays free for the
++        # creation the guidance names.
++        self.assertIn("Nothing was reserved by this request", str(refusal))
++        self.assertNotIn("is RESERVED", str(refusal))
+         # NOTHING WAS MUTATED ON THE SHARED WORK, and no Job was submitted.
+         authority = self.authority()
+         self.assertEqual(authority.labels_of(self.work), [])
+@@ -1262,16 +1277,117 @@
+         self.assertEqual(answer["changed"], ["v12"])
+         self.assertEqual(answer["acts"][0]["decision"]["role"],
+                          "manage-work-labels")
+-        # AND NOW THE SAME CREATION CONVERGES: the Work is already in the
+-        # asked-for state, so there is nothing to mutate and nothing to
+-        # refuse.
+-        held = self.made(self.labelled("v12"))
++        # AND THE SAME LABELLED CREATION STILL REFUSES (W385292): the Work
++        # now carries exactly what it asks for, and it is still not the Work
++        # this creation made. Without --label it reuses the Work as always,
++        # and the label the authorized act added is what `list` finds.
++        again = self.stopped(self.labelled("v12"))
++        self.assertIn("was not made by this creation", str(again))
++        self.assertEqual(self.authority().labels_of(self.work), ["v12"])
++        held = self.made(self.argv())
+         self.assertEqual(held["work"]["state"], "reused")
+-        self.assertEqual(held["work"]["requested_labels"], ["v12"])
++        self.assertEqual(held["work"]["requested_labels"], [])
+         self.assertIn("job-cli-first", self.bindings())
+         code, said = self.work_verb("list", "--label", "v12")
+         self.assertEqual(json.loads(said)["work"], [self.work])
+ 
++    def minted_under(self, job_id, *labels):
++        """A Job-less install and one creation under `job_id` that mints the
++        Work and stops at its binding: the real command, the real Authority,
++        and the Authority's own record of the minting act (W385292
++        correction review R1). Each install is one instance, so each Job id
++        under test is its own case."""
++        from baton_v12.authority import identity as grammar
++        from baton_v12.job_manager import creation as creating
++
++        self.installed(jobs=[], line_declared_base="a" * 40,
++                       canonical_target_id="target-1")
++        refusal = self.stopped(self.labelled(*labels, job_id=job_id))
++        self.assertIn("is RESERVED", str(refusal))
++        self.assertIn("reported no binding", str(refusal))
++        authority = self.authority()
++        self.assertEqual(authority.labels_of(self.work), sorted(labels))
++        record = authority.work_creation(self.work)
++        self.assertEqual(record["operation_id"],
++                         creating.work_operation_id(job_id, self.work))
++        self.assertIsNone(grammar.opaque_id_fault(record["operation_id"]))
++        store, module = self.rows()
++        self.assertEqual([one["state"] for one
++                          in module.created_job_rows(store)], ["intended"])
++        # AND THE SAME REQUEST AGAIN REACHES THE SAME PLACE: the record names
++        # this creation, however the Job is spelled.
++        again = self.stopped(self.labelled(*labels, job_id=job_id))
++        self.assertIn("reported no binding", str(again))
++        self.assertNotIn("label-work", str(again))
++        self.assertEqual(authority.labels_of(self.work), sorted(labels))
++        return record
++
++    def test_a_130_character_job_id_mints_the_work_with_labels(self):
++        self.minted_under("j" * 130, "v12")
++
++    def test_a_160_character_job_id_mints_the_work_without_labels(self):
++        self.minted_under("j" * 160)
++
++    def test_a_job_id_longer_than_the_opaque_limit_mints_the_work(self):
++        self.minted_under("job-" + "x" * 300, "hot", "v12")
++
++    def test_a_job_id_outside_the_opaque_grammar_mints_the_work(self):
++        self.minted_under("job/segment", "v12")
++
++    def test_a_job_id_with_a_space_mints_the_work_without_labels(self):
++        self.minted_under("job with space")
++
++    def test_distinct_job_ids_mint_under_distinct_identities(self):
++        from baton_v12.job_manager import creation as creating
++
++        record = self.minted_under("j" * 130, "v12")
++        self.assertNotEqual(record["operation_id"],
++                            creating.work_operation_id("j" * 131, self.work))
++        self.assertNotEqual(record["operation_id"],
++                            creating.work_operation_id("j" * 130,
++                                                       "0000000a-W2"))
++
++    def test_the_minting_creations_work_relabelled_since_is_restored_by_the_named_act(
++            self):
++        """R2 through the real command and the real Authority: the own
++        minted Work relabelled by an authorized act, the honest refusal, the
++        no-label retry colliding as it warns, and the named act bringing the
++        same request back to where it was interrupted."""
++        self.installed(jobs=[], line_declared_base="a" * 40,
++                       canonical_target_id="target-1")
++        self.stopped(self.labelled("v12"))
++        self.authority(writable=True).grant_capability(
++            "baton.slaw", "manage-work-labels")
++        code, said = self.work_verb(
++            "label-work", "--participant", "baton.slaw",
++            "--work", self.work, "--operation-id", "labels-1",
++            "--label", "hot")
++        self.assertEqual(code, 0, said)
++        again = self.stopped(self.labelled("v12"))
++        self.assertIn("this creation minted the Work", str(again))
++        self.assertIn("carrying exactly 'v12'", str(again))
++        self.assertIn("it now carries 'hot', 'v12'", str(again))
++        self.assertIn(f"`baton-v12-stack work unlabel-work --work "
++                      f"{self.work} --label hot`", str(again))
++        self.assertIn("is RESERVED", str(again))
++        self.assertNotIn("was not made by this creation", str(again))
++        self.assertNotIn("Nothing was reserved", str(again))
++        self.assertNotIn("repeat this creation without --label", str(again))
++        collided = self.stopped(self.argv())
++        self.assertIn("already recorded with a different kind or signature",
++                      str(collided))
++        code, said = self.work_verb(
++            "unlabel-work", "--participant", "baton.slaw",
++            "--work", self.work, "--operation-id", "labels-2",
++            "--label", "hot")
++        self.assertEqual(code, 0, said)
++        self.assertEqual(self.authority().labels_of(self.work), ["v12"])
++        third = self.stopped(self.labelled("v12"))
++        self.assertIn("reported no binding", str(third))
++        self.assertNotIn("label-work", str(third))
++        self.assertNotIn("minted the Work", str(third))
++        self.assertEqual(self.submitted("job-cli-first"), [])
++
+     def test_two_operands_that_are_one_key_refuse_before_any_effect(self):
+         self.installed()
+         refusal = self.stopped(self.labelled("v12", "V12"))
+diff -ruN parent/v12/python/tests/tools/test_work_command.py corrected/v12/python/tests/tools/test_work_command.py
+--- parent/v12/python/tests/tools/test_work_command.py	2026-11-19 11:45:51.000000000 -0700
++++ corrected/v12/python/tests/tools/test_work_command.py	2026-11-19 17:55:32.307471919 -0700
+@@ -480,6 +480,94 @@
+                              operation_id="op-exact", labels=["v12"]),
+             first)
+ 
++    def test_an_exact_retry_after_an_intervening_removal_prints_the_committed_result(
++            self):
++        """W385292 review: the first cut read the LIVE set into the replay
++        answer, so a retry after the label was removed again printed the
++        original acts beside an empty set -- neither the committed outcome
++        nor the byte-identical replay promised."""
++        first = self.run_command("label-work", participant=SLAW, work=WORK,
++                                 operation_id="op-exact", labels=["v12"])
++        self.answered("unlabel-work", participant=SLAW, work=WORK,
++                      operation_id="op-undo", labels=["v12"])
++        self.assertEqual(self.live(), [])
++        again = self.run_command("label-work", participant=SLAW, work=WORK,
++                                 operation_id="op-exact", labels=["v12"])
++        self.assertEqual(again, first)
++        self.assertEqual(json.loads(again[1])["labels"], ["v12"])
++        self.assertEqual(json.loads(again[1])["changed"], ["v12"])
++        # NO SECOND EFFECT: the Work still carries nothing, and the journal
++        # holds the two acts that happened.
++        self.assertEqual(self.live(), [])
++        self.assertEqual(len(self.events()), 2)
++        # WHAT THE WORK CARRIES NOW IS THE READ VERB'S ANSWER, as itself.
++        self.assertEqual(
++            self.answered("labels", work=WORK)["labels"], [])
++
++    def test_an_exact_retry_after_an_intervening_addition_reports_its_own_set(
++            self):
++        first = self.answered("label-work", participant=SLAW, work=WORK,
++                              operation_id="op-exact", labels=["v12"])
++        self.assertEqual(first["labels"], ["v12"])
++        self.answered("label-work", participant=SLAW, work=WORK,
++                      operation_id="op-more", labels=["hot"])
++        self.assertEqual(self.live(), ["hot", "v12"])
++        again = self.answered("label-work", participant=SLAW, work=WORK,
++                              operation_id="op-exact", labels=["v12"])
++        self.assertEqual(again, first)
++        self.assertEqual(again["labels"], ["v12"])
++        self.assertEqual(len(self.events()), 2)
++
++    def test_a_retry_after_revocation_and_an_intervening_change_still_replays(
++            self):
++        first = self.run_command("label-work", participant=SLAW, work=WORK,
++                                 operation_id="op-exact",
++                                 labels=["hot", "v12"])
++        self.answered("unlabel-work", participant=SLAW, work=WORK,
++                      operation_id="op-undo", labels=["hot"])
++        self.authority.revoke_capability(SLAW, "manage-work-labels")
++        again = self.run_command("label-work", participant=SLAW, work=WORK,
++                                 operation_id="op-exact",
++                                 labels=["v12", "hot"])
++        self.assertEqual(again, first)
++        self.assertEqual(json.loads(again[1])["labels"], ["hot", "v12"])
++        self.assertEqual(self.live(), ["v12"])
++        self.assertEqual(len(self.events()), 3)
++
++    def test_a_multi_label_request_completes_per_label_and_a_retry_finishes_it(
++            self):
++        """PER-LABEL ACTS, STATED AS SUCH. A request refused part-way keeps
++        the acts before the refusal, says so with exit 2 and no summary, and
++        an exact retry under the same identity replays the completed acts and
++        performs the rest -- no second effect, no atomic batch."""
++        from baton_v12.authority.labels import MAX_LABELS
++
++        self.work(OTHER,
++                  labels=[f"label-{index:02d}" for index in range(MAX_LABELS - 1)])
++        minted = len(self.events(OTHER))
++        code, said, err = self.run_command(
++            "label-work", participant=SLAW, work=OTHER,
++            operation_id="op-overflow", labels=["z-last-slot", "zz-overflow"])
++        self.assertEqual(code, 2)
++        self.assertEqual(said, "")
++        self.assertIn(f"maximum {MAX_LABELS} labels", err)
++        self.assertIn("z-last-slot", self.live(OTHER))
++        self.assertNotIn("zz-overflow", self.live(OTHER))
++        self.assertEqual(len(self.events(OTHER)), minted + 1)
++        # THE REPAIR THE REFUSAL NAMES, then the same request again.
++        self.answered("unlabel-work", participant=SLAW, work=OTHER,
++                      operation_id="op-make-room", labels=["label-00"])
++        answer = self.answered("label-work", participant=SLAW, work=OTHER,
++                               operation_id="op-overflow",
++                               labels=["z-last-slot", "zz-overflow"])
++        self.assertEqual([one["label"] for one in answer["acts"]],
++                         ["z-last-slot", "zz-overflow"])
++        self.assertTrue(all(one["changed"] for one in answer["acts"]))
++        self.assertEqual(answer["changed"], ["z-last-slot", "zz-overflow"])
++        self.assertIn("zz-overflow", answer["labels"])
++        # ONE EVENT PER LABEL THAT MOVED: the replayed act added none.
++        self.assertEqual(len(self.events(OTHER)), minted + 3)
++
+     def test_a_convergent_request_succeeds_as_changed_false(self):
+         self.answered("label-work", participant=SLAW, work=WORK,
+                       operation_id=self.op(), labels=["v12"])
+diff -ruN parent/v12/python/tools/fresh_attempt_ports.py corrected/v12/python/tools/fresh_attempt_ports.py
+--- parent/v12/python/tools/fresh_attempt_ports.py	2026-11-19 11:45:51.000000000 -0700
++++ corrected/v12/python/tools/fresh_attempt_ports.py	2026-11-19 17:55:32.312440818 -0700
+@@ -368,6 +368,17 @@
+                 return None
+             raise
+ 
++    def minted_by(self, work_id):
++        """The Authority's own record of the act that made this Work, or None.
++
++        W385292: a creation that reuses an existing Work with labels has to
++        PROVE it is the creation that minted it, and the proof is read from
++        the Authority's creation record -- the operation identity the minting
++        act was performed under -- rather than inferred from a label set that
++        any authorized act could have produced on anybody's Work.
++        """
++        return self._authority.work_creation(work_id)
++
+     def create_work(self, work_id, *, operation_id, labels=()):
+         """W29401: and the create-time Work labels the caller asked for.
+ 
+diff -ruN parent/v12/python/tools/job_manager.py corrected/v12/python/tools/job_manager.py
+--- parent/v12/python/tools/job_manager.py	2026-11-19 11:45:51.000000000 -0700
++++ corrected/v12/python/tools/job_manager.py	2026-11-19 17:55:32.317517586 -0700
+@@ -1476,11 +1476,19 @@
+                                "(W29401/W29400). A label is one opaque "
+                                "lower-case value and never a name=value tag; "
+                                "if the deployment's derived Work already "
+-                               "exists and does not carry these, the "
+-                               "creation refuses by name rather than "
+-                               "mutating it -- use `baton-v12-stack work "
+-                               "label-work` for that, which is an "
+-                               "attributable authorized act of its own")
++                               "exists, a creation naming labels refuses by "
++                               "name -- whether or not the Work carries them "
++                               "-- rather than mutating or claiming it, and "
++                               "reserves nothing; the one creation that "
++                               "reuses it with labels is the creation that "
++                               "minted it, run again with the Work still "
++                               "carrying exactly what it minted (a refusal "
++                               "past the reservation names the exact acts "
++                               "that restore that, or requires a new Job "
++                               "identity). Use `baton-v12-stack work "
++                               "label-work` for an existing Work, which is "
++                               "an attributable authorized act of its own, "
++                               "then create without --label")
+     creating.add_argument("--control-profile", default=None,
+                           help="the finite control profile this Job is "
+                                "admitted under (LIM-5), for example "
+diff -ruN parent/v12/python/tools/work_command.py corrected/v12/python/tools/work_command.py
+--- parent/v12/python/tools/work_command.py	2026-11-19 11:45:51.000000000 -0700
++++ corrected/v12/python/tools/work_command.py	2026-11-19 17:55:32.332287728 -0700
+@@ -207,18 +207,21 @@
+         bound = _bind(authority, taken, _request(taken, verb, wanted))
+         session = authority.session(taken.participant)
+         performed = []
++        committed = None
+         for label, operation_id in acts:
+             said = (session.label_work if adding else session.unlabel_work)(
+                 {"work_id": taken.work, "label": label,
+                  "operation_id": operation_id})
+             # THE AUTHORITY'S OWN ANSWER, minus its intermediate set. `said`
+-            # carries the live labels AS OF THAT ACT, and reporting a set
+-            # observed between two acts beside the one observed after all of
+-            # them would be two answers to "what does this Work carry".
++            # carries the labels AS OF THAT ACT, committed with the act and
++            # replayed with it, and reporting a set observed between two acts
++            # beside the one after all of them would be two answers to "what
++            # does this Work carry" -- so the last act's set is the request's.
+             performed.append({"label": said["label"], "action": said["action"],
+                               "changed": said["changed"],
+                               "operation_id": operation_id,
+                               "decision": said["decision"]})
++            committed = list(said["labels"])
+         _say({"authority_uuid": authority.authority_uuid,
+               "work_id": taken.work, "verb": verb, "actor": taken.participant,
+               "operation_id": taken.operation_id, "request": bound,
+@@ -229,7 +232,14 @@
+               # happened that did not.
+               "changed": sorted(one["label"] for one in performed
+                                 if one["changed"]),
+-              "labels": authority.labels_of(taken.work)})
++              # THE SET THIS REQUEST LEFT, AS ITS LAST ACT COMMITTED IT -- not
++              # a fresh read. W385292 review: the first cut read the live set
++              # here, so an exact replay after an intervening act printed the
++              # original acts beside somebody else's labels, which is neither
++              # the committed outcome nor the byte-identical replay promised.
++              # The committed results replay as they were; what the Work
++              # carries NOW is `work labels`'s answer, as itself.
++              "labels": committed})
+     return 0
+ 
+ 
+diff -ruN parent/v12/STACK.md corrected/v12/STACK.md
+--- parent/v12/STACK.md	2026-11-19 11:45:51.000000000 -0700
++++ corrected/v12/STACK.md	2026-11-19 17:55:32.281835046 -0700
+@@ -1043,10 +1043,19 @@
+   own scope**; holding the Work, handling its route or being its claimant
+   authorizes nothing.
+ - `--operation-id` is the operator's one handle on the whole request. An exact
+-  retry replays and prints the same bytes; the same identity with a different
+-  verb, Work, participant or label set is refused, and nothing is done.
+-  Repeated labels are separate authority acts under identities derived from
+-  that one.
++  retry replays and prints the same bytes — after an intervening change or a
++  revoked grant too, because the answer is the committed result of the
++  request's own acts: its `labels` member is the set the request's last act
++  left, as committed, never a fresh read. What the Work carries *now* is
++  `work labels`'s answer. The same identity with a different verb, Work,
++  participant or label set is refused, and nothing is done.
++- Repeated labels are **separate authority acts** under identities derived
++  from that one, performed in sorted order. A request refused part-way — at
++  the 32-label bound, say — has completed the acts before the refusal and
++  keeps them: it exits 2 with the refusal and no JSON summary, and `work
++  labels` shows what landed. An exact retry under the same identity replays
++  the completed acts and performs the rest, so repairing what the refusal
++  names and repeating the request finishes it with no second effect.
+ - A label a Work already carries (or a removal of one it does not) **succeeds**
+   and reports `changed: false`. That is agreement, not a conflict, and it
+   writes no event.
+@@ -1076,13 +1085,40 @@
+ is refused as the different creation it is.
+ 
+ If the deployment's derived Work **already exists**, a creation that states
+-labels it does not carry is **refused by name**, and the refusal says to use
+-`work label-work` instead: that Work is shared by every Job bound to it, and
+-relabelling it from a creation would change its metadata with no
+-`manage-work-labels` decision and no attributable actor. A Work that already
+-carries exactly the requested labels is reused as usual — it is already in the
+-asked-for state. A creation that states no `--label` behaves exactly as it did
+-before this option existed.
++labels is **refused by name** — whether the Work carries none of them, some,
++all of them or more — and the refusal says to use `work label-work` instead
++and then to repeat the creation without `--label`: that Work is shared by
++every Job bound to it, and a creation neither relabels Work it did not make
++nor reports labels it did not apply. The refusal reserves nothing, so the same
++Job identity stays free for the creation the guidance names. The one creation
++that reuses an existing Work *with* labels is the creation that minted it: the
++Work's creation record names the minting act, so a creation interrupted after
++it made the Work (at its binding, say) is finished by running the same request
++again, exactly as its refusal promises. A creation that states no `--label`
++behaves exactly as it did before this option existed.
++
++The minting act's operation identity is `template_job.create.work:` followed
++by the canonical digest of `{"job_id": …, "work_id": …}` — 96 characters of
++the Authority's opaque grammar for *every* Job id, so a Job id of any length
++or spelling mints exactly as it did before labels existed, and a reader holding
++the Job id can recompute which creation made the Work.
++
++Past the reservation there are three distinct answers, and each refusal says
++which it is and what actually works next:
++
++- the creation's own minted Work still carrying exactly what it minted: the
++  interrupted creation finishes;
++- the creation's own minted Work relabelled since by an authorized act: the
++  refusal says so, names the minted and the carried sets and the exact
++  `work label-work` / `work unlabel-work` acts that restore the minted set,
++  after which the same request finishes — or create under a new Job identity
++  without `--label`. Repeating without `--label` under the *reserved* identity
++  is a different intent and collides, as it must;
++- Work another act made, found only after this creation reserved (it appeared
++  between the pre-reservation check and the authorization): the reservation
++  exists and cannot complete, the refusal names the Work's recorded minting
++  operation, and a **new Job identity** without `--label` is required. It never
++  claims that nothing was reserved.
+ 
+ ## Boundaries
+ 

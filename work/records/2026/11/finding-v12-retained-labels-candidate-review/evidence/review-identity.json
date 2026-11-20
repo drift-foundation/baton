@@ -1,0 +1,7 @@
+{
+  "review": "work/records/2026/11/finding-v12-retained-labels-candidate-review/review-2026-11-19T21-52-09Z.md",
+  "sha256": "50dfe22bd279268b98412e9fb7e2a4f28c276c6637814542b60aca5a681f97ec",
+  "candidate": "04648e1b21b98aa0b3efad1b57fc3264c4a566ba",
+  "verdict": "changes-requested",
+  "blocking_findings": 2
+}

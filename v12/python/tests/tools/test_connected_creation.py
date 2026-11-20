@@ -1119,5 +1119,369 @@ class TheRefusalsAreTruthful(ConnectedCreationCase):
         self.assertFalse(os.path.exists(elsewhere))
 
 
+class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
+    """W29401: `manager create --label`, against a really installed instance.
+
+    THE TWO DIRECTIONS THIS INSTALL MAKES REAL. The ordinary fixture's
+    bootstrap already created this deployment's Work (for `job-a`), so an
+    ordinary creation REUSES it -- which is the case that must refuse rather
+    than relabel somebody else's Work. An install that names no Job has no
+    Work yet, so the creation MAKES it, and that is where create-time labels
+    are applied.
+
+    AND THE TWO COMMANDS COMPOSE. The labels a reused Work is missing are
+    added by `baton-v12-stack work label-work` against this instance's own
+    Authority store -- the real command, the real deployment -- after which
+    the same creation converges. That is the workflow the refusal's own
+    sentence tells an operator to use.
+    """
+
+    def labelled(self, *labels, **named):
+        """One creation that also states Work labels, as argv."""
+        argv = self.argv(**named)
+        for one in labels:
+            argv += ["--label", one]
+        return argv
+
+    def made(self, argv):
+        """One creation this command performs, as its parsed answer.
+
+        ITS OWN ENTRY RATHER THAN THE BASE HELPER'S, because `created`
+        composes the argument list from keywords and `--label` is repeatable:
+        a keyword cannot carry two of them.
+        """
+        said = io.StringIO()
+        code = job_manager.main(argv, stream=said)
+        self.assertEqual(code, 0, said.getvalue())
+        return json.loads(said.getvalue())
+
+    def stopped(self, argv):
+        """One creation this command refuses, as the typed refusal it is.
+
+        A `ContractRefusal` reaches the caller rather than becoming an exit
+        code, which is this CLI's shape for every command -- see `refused` on
+        the base case.
+        """
+        with self.assertRaises(ContractRefusal) as caught:
+            job_manager.main(argv, stream=io.StringIO())
+        return caught.exception
+
+    def authority(self, *, writable=False):
+        """This instance's OWN Authority, read the way a verb reads it."""
+        from baton_v12.authority import Authority
+
+        opener = Authority.open if writable else Authority.open_readonly
+        held = opener(self.owned["authority_store"],
+                      expected_authority_uuid=self.owned["authority_uuid"])
+        self.addCleanup(held.dispose)
+        return held
+
+    def work_verb(self, *operands):
+        """The installed `work` subcommand, over this instance's own
+        Authority: the real command against the real deployment."""
+        from tools import work_command
+
+        said = io.StringIO()
+        with mock.patch("sys.stdout", said):
+            code = work_command.main(
+                list(operands) + ["--authority-store",
+                                  self.owned["authority_store"],
+                                  "--authority-uuid",
+                                  self.owned["authority_uuid"]])
+        return code, said.getvalue()
+
+    def test_an_unlabelled_creation_is_exactly_what_it_was(self):
+        """THE PRESERVED PATH, and the additive member in the answer."""
+        self.installed()
+        held = self.made(self.argv())
+        self.assertEqual(held["work"]["state"], "reused")
+        self.assertEqual(held["work"]["requested_labels"], [])
+        self.assertEqual(self.authority().labels_of(self.work), [])
+        self.assertEqual(self.authority().work_label_events(self.work), [])
+        code, said = self.work_verb("labels", "--work", self.work)
+        self.assertEqual(code, 0, said)
+        self.assertEqual(json.loads(said)["labels"], [])
+
+    def test_a_creation_that_makes_the_work_applies_its_labels(self):
+        """An install that names no Job has no Work, so this creation makes
+        it -- and it is created carrying the normalized labels, in the act
+        that made it.
+
+        THIS FIXTURE'S CREATION THEN STOPS AT ITS BINDING, because an install
+        with no Job emits no `job_bindings` for `prepare` to publish into.
+        That is a property of a Job-less install and not of this option: what
+        it demonstrates is the thing `_incomplete` promises, since the Work
+        and its labels are what the creation had already published.
+        """
+        self.installed(jobs=[], line_declared_base="a" * 40,
+                       canonical_target_id="target-1")
+        refusal = self.stopped(self.labelled("Release-Foo", "V12"))
+        self.assertIn("is RESERVED", str(refusal))
+        authority = self.authority()
+        self.assertEqual(authority.labels_of(self.work),
+                         ["release-foo", "v12"])
+        # ONE INSTANT AND ONE ACT: every label event is the creation's own.
+        self.assertEqual(
+            [(one["label"], one["act"]) for one
+             in authority.work_label_events(self.work)],
+            [("release-foo", "work-create"), ("v12", "work-create")])
+        self.assertEqual(authority.works_with_labels(all_of=["v12"]),
+                         [self.work])
+        # AND THE RECORD NAMES THIS CREATION (W385292): the Authority says
+        # which creation minted the Work, which is what lets the same request
+        # -- and only it -- reuse the Work with its labels.
+        from baton_v12.job_manager import creation as creating
+        self.assertEqual(
+            authority.work_creation(self.work)["operation_id"],
+            creating.work_operation_id("job-cli-first", self.work))
+        # AND THE SAME REQUEST AGAIN REACHES THE SAME PLACE rather than
+        # refusing about labels the Work already carries.
+        again = self.stopped(self.labelled("Release-Foo", "V12"))
+        self.assertIn("is RESERVED", str(again))
+        self.assertNotIn("work label-work", str(again))
+        self.assertEqual(authority.labels_of(self.work),
+                         ["release-foo", "v12"])
+
+    def test_a_creation_that_reuses_a_work_refuses_to_relabel_it(self):
+        self.installed()
+        refusal = self.stopped(self.labelled("v12"))
+        self.assertIn("would reuse the existing Work", str(refusal))
+        self.assertIn("was not made by this creation", str(refusal))
+        # AND WHOSE IT IS: the bootstrap's own creation record, by name.
+        self.assertIn("it was made by the operation `bootstrap-job-a`",
+                      str(refusal))
+        self.assertIn("work label-work", str(refusal))
+        # AND NOTHING WAS RESERVED (W385292): the identity stays free for the
+        # creation the guidance names.
+        self.assertIn("Nothing was reserved by this request", str(refusal))
+        self.assertNotIn("is RESERVED", str(refusal))
+        # NOTHING WAS MUTATED ON THE SHARED WORK, and no Job was submitted.
+        authority = self.authority()
+        self.assertEqual(authority.labels_of(self.work), [])
+        self.assertEqual(authority.work_label_events(self.work), [])
+        self.assertNotIn("job-cli-first", self.bindings())
+        self.assertEqual(self.submitted("job-cli-first"), [])
+
+    def test_the_work_verb_is_how_a_reused_works_labels_are_added(self):
+        """The refusal's own guidance, carried out through the real command."""
+        self.installed()
+        self.stopped(self.labelled("v12"))
+        self.authority(writable=True).grant_capability(
+            "baton.slaw", "manage-work-labels")
+        code, said = self.work_verb(
+            "label-work", "--participant", "baton.slaw",
+            "--work", self.work, "--operation-id", "labels-1",
+            "--label", "V12")
+        self.assertEqual(code, 0, said)
+        answer = json.loads(said)
+        self.assertEqual(answer["changed"], ["v12"])
+        self.assertEqual(answer["acts"][0]["decision"]["role"],
+                         "manage-work-labels")
+        # AND THE SAME LABELLED CREATION STILL REFUSES (W385292): the Work
+        # now carries exactly what it asks for, and it is still not the Work
+        # this creation made. Without --label it reuses the Work as always,
+        # and the label the authorized act added is what `list` finds.
+        again = self.stopped(self.labelled("v12"))
+        self.assertIn("was not made by this creation", str(again))
+        self.assertEqual(self.authority().labels_of(self.work), ["v12"])
+        held = self.made(self.argv())
+        self.assertEqual(held["work"]["state"], "reused")
+        self.assertEqual(held["work"]["requested_labels"], [])
+        self.assertIn("job-cli-first", self.bindings())
+        code, said = self.work_verb("list", "--label", "v12")
+        self.assertEqual(json.loads(said)["work"], [self.work])
+
+    def minted_under(self, job_id, *labels):
+        """A Job-less install and one creation under `job_id` that mints the
+        Work and stops at its binding: the real command, the real Authority,
+        and the Authority's own record of the minting act (W385292
+        correction review R1). Each install is one instance, so each Job id
+        under test is its own case."""
+        from baton_v12.authority import identity as grammar
+        from baton_v12.job_manager import creation as creating
+
+        self.installed(jobs=[], line_declared_base="a" * 40,
+                       canonical_target_id="target-1")
+        refusal = self.stopped(self.labelled(*labels, job_id=job_id))
+        self.assertIn("is RESERVED", str(refusal))
+        self.assertIn("reported no binding", str(refusal))
+        authority = self.authority()
+        self.assertEqual(authority.labels_of(self.work), sorted(labels))
+        record = authority.work_creation(self.work)
+        self.assertEqual(record["operation_id"],
+                         creating.work_operation_id(job_id, self.work))
+        self.assertIsNone(grammar.opaque_id_fault(record["operation_id"]))
+        store, module = self.rows()
+        self.assertEqual([one["state"] for one
+                          in module.created_job_rows(store)], ["intended"])
+        # AND THE SAME REQUEST AGAIN REACHES THE SAME PLACE: the record names
+        # this creation, however the Job is spelled.
+        again = self.stopped(self.labelled(*labels, job_id=job_id))
+        self.assertIn("reported no binding", str(again))
+        self.assertNotIn("label-work", str(again))
+        self.assertEqual(authority.labels_of(self.work), sorted(labels))
+        return record
+
+    def test_a_130_character_job_id_mints_the_work_with_labels(self):
+        self.minted_under("j" * 130, "v12")
+
+    def test_a_160_character_job_id_mints_the_work_without_labels(self):
+        self.minted_under("j" * 160)
+
+    def test_a_job_id_longer_than_the_opaque_limit_mints_the_work(self):
+        self.minted_under("job-" + "x" * 300, "hot", "v12")
+
+    def test_a_job_id_outside_the_opaque_grammar_mints_the_work(self):
+        self.minted_under("job/segment", "v12")
+
+    def test_a_job_id_with_a_space_mints_the_work_without_labels(self):
+        self.minted_under("job with space")
+
+    def test_distinct_job_ids_mint_under_distinct_identities(self):
+        from baton_v12.job_manager import creation as creating
+
+        record = self.minted_under("j" * 130, "v12")
+        self.assertNotEqual(record["operation_id"],
+                            creating.work_operation_id("j" * 131, self.work))
+        self.assertNotEqual(record["operation_id"],
+                            creating.work_operation_id("j" * 130,
+                                                       "0000000a-W2"))
+
+    def test_the_minting_creations_work_relabelled_since_is_restored_by_the_named_act(
+            self):
+        """R2 through the real command and the real Authority: the own
+        minted Work relabelled by an authorized act, the honest refusal, the
+        no-label retry colliding as it warns, and the named act bringing the
+        same request back to where it was interrupted."""
+        self.installed(jobs=[], line_declared_base="a" * 40,
+                       canonical_target_id="target-1")
+        self.stopped(self.labelled("v12"))
+        self.authority(writable=True).grant_capability(
+            "baton.slaw", "manage-work-labels")
+        code, said = self.work_verb(
+            "label-work", "--participant", "baton.slaw",
+            "--work", self.work, "--operation-id", "labels-1",
+            "--label", "hot")
+        self.assertEqual(code, 0, said)
+        again = self.stopped(self.labelled("v12"))
+        self.assertIn("this creation minted the Work", str(again))
+        self.assertIn("carrying exactly 'v12'", str(again))
+        self.assertIn("it now carries 'hot', 'v12'", str(again))
+        self.assertIn(f"`baton-v12-stack work unlabel-work --work "
+                      f"{self.work} --label hot`", str(again))
+        self.assertIn("is RESERVED", str(again))
+        self.assertNotIn("was not made by this creation", str(again))
+        self.assertNotIn("Nothing was reserved", str(again))
+        self.assertNotIn("repeat this creation without --label", str(again))
+        collided = self.stopped(self.argv())
+        self.assertIn("already recorded with a different kind or signature",
+                      str(collided))
+        code, said = self.work_verb(
+            "unlabel-work", "--participant", "baton.slaw",
+            "--work", self.work, "--operation-id", "labels-2",
+            "--label", "hot")
+        self.assertEqual(code, 0, said)
+        self.assertEqual(self.authority().labels_of(self.work), ["v12"])
+        third = self.stopped(self.labelled("v12"))
+        self.assertIn("reported no binding", str(third))
+        self.assertNotIn("label-work", str(third))
+        self.assertNotIn("minted the Work", str(third))
+        self.assertEqual(self.submitted("job-cli-first"), [])
+
+    def test_the_restoring_acts_at_full_capacity_run_in_the_named_order(
+            self):
+        """R2 at the Authority's label capacity, through the real command
+        and the real Authority (W385292 correction review of M385307): a
+        minted set of the full MAX_LABELS lost one label and gained another
+        by authorized acts, so it still holds MAX_LABELS. The refusal names
+        the removing act BEFORE the adding act; the adding act alone is what
+        the Authority refuses at capacity; following the named acts in the
+        named order restores exactly the minted set, after which the same
+        request is back at the fixture's binding boundary -- its original
+        interruption, not a submission -- with nothing relabelled by the
+        creation itself."""
+        import re
+
+        from baton_v12.authority.labels import MAX_LABELS
+
+        minted = [f"label-{index:02}" for index in range(MAX_LABELS)]
+        self.installed(jobs=[], line_declared_base="a" * 40,
+                       canonical_target_id="target-1")
+        first = self.stopped(self.labelled(*minted))
+        self.assertIn("reported no binding", str(first))
+        self.assertEqual(self.authority().labels_of(self.work), minted)
+        self.authority(writable=True).grant_capability(
+            "baton.slaw", "manage-work-labels")
+
+        def act(verb, operation_id, *labels):
+            operands = [verb, "--participant", "baton.slaw",
+                        "--work", self.work, "--operation-id", operation_id]
+            for one in labels:
+                operands += ["--label", one]
+            return self.work_verb(*operands)
+
+        code, said = act("unlabel-work", "drift-1", "label-00")
+        self.assertEqual(code, 0, said)
+        code, said = act("label-work", "drift-2", "extra")
+        self.assertEqual(code, 0, said)
+        drifted = sorted(minted[1:] + ["extra"])
+        self.assertEqual(self.authority().labels_of(self.work), drifted)
+        self.assertEqual(len(drifted), MAX_LABELS)
+        again = self.stopped(self.labelled(*minted))
+        self.assertIn("this creation minted the Work", str(again))
+        self.assertIn("is RESERVED", str(again))
+        named = re.findall(r"`(baton-v12-stack work [^`]+)`", str(again))
+        self.assertEqual(named, [
+            f"baton-v12-stack work unlabel-work --work {self.work} "
+            f"--label extra",
+            f"baton-v12-stack work label-work --work {self.work} "
+            f"--label label-00"])
+        # THE OTHER ORDER IS WHAT THE AUTHORITY REFUSES: an addition to a
+        # Work at capacity, leaving the set exactly as it was.
+        code, said = act("label-work", "wrong-order", "label-00")
+        self.assertEqual(code, 2, said)
+        self.assertEqual(self.authority().labels_of(self.work), drifted)
+        # FOLLOWING THE NAMED ACTS, AS NAMED, IN ORDER.
+        for index, command in enumerate(named):
+            operands = command.split()[2:]
+            code, said = self.work_verb(
+                *operands, "--participant", "baton.slaw",
+                "--operation-id", f"restore-{index}")
+            self.assertEqual(code, 0, (command, said))
+        self.assertEqual(self.authority().labels_of(self.work), minted)
+        third = self.stopped(self.labelled(*minted))
+        self.assertIn("reported no binding", str(third))
+        self.assertNotIn("minted the Work", str(third))
+        self.assertNotIn("label-work", str(third))
+        self.assertEqual(self.authority().labels_of(self.work), minted)
+        self.assertEqual(self.submitted("job-cli-first"), [])
+        record = self.authority().work_creation(self.work)
+        self.assertEqual(len(self.authority().work_label_events(self.work)),
+                         MAX_LABELS + 4)
+        self.assertIsNotNone(record)
+
+    def test_two_operands_that_are_one_key_refuse_before_any_effect(self):
+        self.installed()
+        refusal = self.stopped(self.labelled("v12", "V12"))
+        self.assertIn("one label after normalization", str(refusal))
+        self.assertEqual(self.authority().labels_of(self.work), [])
+        self.assertNotIn("job-cli-first", self.bindings())
+        self.assertEqual(
+            [one["job_id"] for one in self.install_document()["jobs"]],
+            ["job-a"])
+
+    def test_a_malformed_label_refuses_before_any_effect(self):
+        self.installed()
+        for bad in ("team=core", "v12,hot", "has space", "a" * 65):
+            with self.subTest(bad=bad):
+                refusal = self.stopped(self.labelled(bad))
+                self.assertIn("a Work label is 1 to 64 characters",
+                              str(refusal))
+        self.assertNotIn("job-cli-first", self.bindings())
+        self.assertEqual(
+            [one["job_id"] for one in self.install_document()["jobs"]],
+            ["job-a"])
+
+
 if __name__ == "__main__":
     unittest.main()

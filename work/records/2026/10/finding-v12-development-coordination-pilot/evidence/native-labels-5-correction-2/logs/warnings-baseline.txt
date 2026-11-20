@@ -1,0 +1,3 @@
+ResourceWarning 'unclosed database in <sqlite3.Connection>' lines: M385299 log 30 (30 connected cases); this correction 44 (37 connected cases); the 7 added cases run alone emit 10, the pre-existing Work-making case alone emits 0.
+Same pre-existing kind (the parent 04648e1b host log carried it too), emitted at garbage-collection points inside real-install test_connected_creation cases; the count moves with the number of real-install cases, not with product code. No new warning kind. The added cases use only the existing fixture helpers (installed/stopped/authority/work_verb/rows, all with cleanups); the leaking connection is not attributed to a specific helper here.
+tracemalloc companion lines: 30 -> 44

@@ -192,3 +192,33 @@ Owner image/access restriction model is pinned in FINDING and DESIGN RUN-4. Curr
 ## Current continuation — W385292 retained labels candidate review
 
 Codexpc reviews exact04648e1b through W385292. K diagnosis complete; hold product edits. No new live rerun selected. After review, assess candidate integration/packaged gate separately from native end-to-end pilot acceptance.
+
+
+## Current continuation — K corrects retained labels candidate
+
+K owns isolated correction per CORRECTION-K-LABELS-20261119.md. After handoff, W385292 independent delta review; only then assess joined integration and packaged gates. Monitoring checkpoint86c1c22b stays intact.
+
+
+## Current continuation — K addresses M385303
+
+Follow CORRECTION-K-LABELS-20261120.md: bounded identity encoding and truthful recovery correction, then W385292 independent delta review. Prior fixed behaviors stay protected; no host integration.
+
+
+## Current continuation — one labels recovery-order correction
+
+K follows CORRECTION-K-LABELS-CAPACITY-20261120.md; then W385292 delta review. No new product decision, live retry or integration.
+
+
+## Current continuation — prepare joined accepted source
+
+K composes labels correction-3 with monitoring checkpoint86c1c22b in isolation, preserves both registrations, returns digest-bound packet/preflight and focused evidence. Narrow independent composition review next; then host import/package gate/human checkpoint. Native end-to-end remains separate.
+
+
+## Current continuation — exact import and packaged CLI gate
+
+K follows IMPORT-AND-PACKAGE-LABELS-20261120.md. Exact11reviewed paths only; full preflight before writes, postflight hashes/modes, one rebuilt packaging gate plus new CLI verification. Then human Git checkpoint; native acceptance remains separate.
+
+
+## Current milestone — human labels checkpoint ready
+
+Reviewed joined bytes imported and package evidence verified. Slawomir checkpoints11source paths plus pilot/review evidence. No additional implementation correction pending. Native pilot continuation/deployment is separate and not selected.

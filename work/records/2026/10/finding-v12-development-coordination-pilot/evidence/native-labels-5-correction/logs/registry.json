@@ -1,0 +1,12 @@
+{
+  "registry_complete": true,
+  "groups_consistent": true,
+  "modules_registered": 188,
+  "groups": {
+    "tests.tools.test_work_command": "tools-pure",
+    "tests.job_manager.test_creation": "job_manager",
+    "tests.tools.test_connected_creation": "tools-pure",
+    "tests.authority.test_work_labels": "authority",
+    "tests.authority.test_work_label_exposure": "authority"
+  }
+}

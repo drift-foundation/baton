@@ -1,0 +1,22 @@
+revalidation at 2026-11-20T04:42:46Z
+HEAD 86c1c22b9125176b0127fc4a86fa00855ed6d127
+git status --porcelain -- v12: 0 lines
+ce1cb5aa41c3add9a12fea7713ac39f37b9e20c1239f64fa5ec27afe2d265cba  work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/manifest.json
+1d7bbdedd69df2568de80228c4e1f96c1f51befeef64d813921f95a8257f509b  work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/joined.patch
+92605e24f4b77e0a72310f33c64a7915c9e4c09e7e92f8b9aa7fb98ec5c7f06d  work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/preflight/import_preflight.py
+review binds manifest ce1cb5aa…: 1
+review binds helper 92605e24…: 1
+manifest schema k.labels-joined-manifest/1 checkpoint 86c1c22b9125176b0127fc4a86fa00855ed6d127 paths 11
+ok  v12/STACK.md candidate=f1a3445b58be manifest=f1a3445b58be in-review=True new=False
+ok  v12/python/src/baton_v12/job_manager/creation.py candidate=d85631d06ca2 manifest=d85631d06ca2 in-review=True new=False
+ok  v12/python/tests/authority/test_work_label_exposure.py candidate=0d37e424ca49 manifest=0d37e424ca49 in-review=True new=False
+ok  v12/python/tests/job_manager/test_creation.py candidate=bb35896a080f manifest=bb35896a080f in-review=True new=False
+ok  v12/python/tests/tools/test_connected_creation.py candidate=483fe49c7bf3 manifest=483fe49c7bf3 in-review=True new=False
+ok  v12/python/tests/tools/test_work_command.py candidate=1d1755acffe5 manifest=1d1755acffe5 in-review=True new=True
+ok  v12/python/tools/fresh_attempt_ports.py candidate=6a3dc27a0c14 manifest=6a3dc27a0c14 in-review=True new=False
+ok  v12/python/tools/job_manager.py candidate=71f74d15eea4 manifest=71f74d15eea4 in-review=True new=False
+ok  v12/python/tools/parallel_test.py candidate=059ff5fb1a31 manifest=059ff5fb1a31 in-review=True new=False
+ok  v12/python/tools/stack_command.py candidate=c2ed2884fd16 manifest=c2ed2884fd16 in-review=True new=False
+ok  v12/python/tools/work_command.py candidate=0605f37f1339 manifest=0605f37f1339 in-review=True new=True
+ancestor directories beneath checkout: all real dirs
+candidate/review hash mismatches: 0

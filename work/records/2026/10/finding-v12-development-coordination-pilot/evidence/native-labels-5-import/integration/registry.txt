@@ -1,0 +1,8 @@
+check_registry: None
+check_groups: None
+registered modules: 189
+tests.tools.test_job_observation -> tools-pure
+tests.tools.test_work_command -> tools-pure
+tests.tools.test_connected_creation -> tools-pure
+tests.job_manager.test_creation -> job_manager
+tests.authority.test_work_labels -> authority

@@ -183,6 +183,25 @@ def _disposition(operands):
     return disposition_command.main(operands)
 
 
+def _work(operands):
+    """W29401: this deployment's Work LABELS -- plain cross-cutting values.
+
+    PART OF THE INSTALLED COMMAND for the reason `record` and `disposition`
+    are: W29400's label API has been accepted authority behaviour, and this
+    table exposed none of it -- so "which Work here carries this label", and
+    every mutation of one, was reachable only by writing Python against the
+    package. W29401 was parked because v12 had no CLI; this is the Work-label
+    part of that remainder.
+
+    AND IT IS ITS OWN VOCABULARY. `work label-work` is not v11's `baton
+    label`, which binds a THREAD to a Work, and not the Worker Manager's OCI
+    runtime labels, which are container execution identity. The spelling of
+    the verb is what keeps the three apart at this table.
+    """
+    from tools import work_command
+    return work_command.main(operands)
+
+
 def _identity(operands):
     """What this build IS, so an instance can record it rather than assume it.
 
@@ -268,6 +287,10 @@ COMMANDS = {
     # read`, and the three acts open the authority writably and perform every
     # durable transition through a participant-bound session.
     "disposition": _disposition,
+    # W29401: THE WORK-LABEL SURFACE. `labels` and `list` are read-only like
+    # `record read` and take a read-only authority handle; the two mutations
+    # perform every durable act through a participant-bound session.
+    "work": _work,
     "identity": _identity,
     # W321608: THE POOL VERBS -- composing a worker document for THIS
     # instance and admitting one -- are installation tooling (OBS-0a), so an

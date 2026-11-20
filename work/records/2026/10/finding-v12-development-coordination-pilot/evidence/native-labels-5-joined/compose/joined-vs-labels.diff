@@ -1,0 +1,13 @@
+--- work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-correction-3/candidate/v12/python/tools/parallel_test.py	2026-11-19 20:15:54.661311288 -0700
++++ work/scratch/w383217/labels5-joined/compose/parallel_test.joined.py	2026-11-19 20:36:50.535077990 -0700
+@@ -422,6 +422,10 @@
+     "tests.manager.test_runtime_deadline_engine_budget",
+     "tests.manager.test_runtime_deadlines",
+     "tests.tools.test_execution_limits",
++    # W385263: pure shared observations and case-owned TemporaryDirectory
++    # snapshots; no engine, provider, network or shared process/resource.
++    # The tests.tools package assigns this module to tools-pure.
++    "tests.tools.test_job_observation",
+     "tests.tools.test_job_viewer",
+     "tests.tools.test_live_ab",
+     "tests.tools.test_managed_integration",

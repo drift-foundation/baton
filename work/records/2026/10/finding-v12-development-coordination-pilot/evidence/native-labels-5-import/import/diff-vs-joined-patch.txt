@@ -1,0 +1,31 @@
+host working-tree diff vs reviewed joined.patch (read-only), 2026-11-20T04:50:19Z
+Authoritative proof of exact bytes is import/postflight.txt (final sha256 == manifest joined for all 11). This file compares the diff bodies as a cross-check.
+host diff paths: 9 joined.patch paths: 11
+same body+ranges           v12/STACK.md (136 body lines, 1 hunks)
+same body+ranges           v12/python/src/baton_v12/job_manager/creation.py (429 body lines, 8 hunks)
+same body+ranges           v12/python/tests/authority/test_work_label_exposure.py (353 body lines, 2 hunks)
+same body+ranges           v12/python/tests/job_manager/test_creation.py (645 body lines, 7 hunks)
+same body+ranges           v12/python/tests/tools/test_connected_creation.py (369 body lines, 1 hunks)
+new file (untracked; cmp below): v12/python/tests/tools/test_work_command.py
+same body+ranges           v12/python/tools/fresh_attempt_ports.py (38 body lines, 2 hunks)
+same body+ranges           v12/python/tools/job_manager.py (41 body lines, 2 hunks)
+same body+ranges           v12/python/tools/parallel_test.py (27 body lines, 2 hunks)
+same body+ranges           v12/python/tools/stack_command.py (35 body lines, 2 hunks)
+new file (untracked; cmp below): v12/python/tools/work_command.py
+tracked paths differing from joined.patch in body or hunk ranges: 0
+--- new files vs candidate
+identical v12/python/tests/tools/test_work_command.py
+identical v12/python/tools/work_command.py
+--- git status --porcelain -- v12
+ M v12/STACK.md
+ M v12/python/src/baton_v12/job_manager/creation.py
+ M v12/python/tests/authority/test_work_label_exposure.py
+ M v12/python/tests/job_manager/test_creation.py
+ M v12/python/tests/tools/test_connected_creation.py
+ M v12/python/tools/fresh_attempt_ports.py
+ M v12/python/tools/job_manager.py
+ M v12/python/tools/parallel_test.py
+ M v12/python/tools/stack_command.py
+?? v12/python/tests/tools/test_work_command.py
+?? v12/python/tools/work_command.py
+--- HEAD 86c1c22b9125176b0127fc4a86fa00855ed6d127

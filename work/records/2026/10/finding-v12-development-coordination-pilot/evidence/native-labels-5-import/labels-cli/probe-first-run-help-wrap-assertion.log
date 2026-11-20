@@ -1,0 +1,23 @@
+labels CLI probe through the fresh bundle started 2026-11-20T04:48:22Z
+bundle sha256 1265b1ff4c014cf9149bbdeeec8dc91163c0f41b5c3a35484e7dfbc135f9cb25
+roots BATON_V12_STACK_TEST_ROOT=BATON_V12_DISK_ROOT=/var/tmp/baton-v12-labels5-import/cli TMPDIR=/home/sl/src/baton/work/scratch/w383217/labels5-import/tmp
+test_a_creation_that_makes_the_work_applies_its_labels (packaged_work_labels_probe.PackagedWorkLabels.test_a_creation_that_makes_the_work_applies_its_labels) ... ok
+test_a_reused_work_refuses_relabel_and_the_work_verb_adds_the_label (packaged_work_labels_probe.PackagedWorkLabels.test_a_reused_work_refuses_relabel_and_the_work_verb_adds_the_label) ... ok
+test_full_capacity_restoring_acts_run_in_the_named_order (packaged_work_labels_probe.PackagedWorkLabels.test_full_capacity_restoring_acts_run_in_the_named_order) ... ok
+test_malformed_and_duplicate_labels_refuse_before_any_effect (packaged_work_labels_probe.PackagedWorkLabels.test_malformed_and_duplicate_labels_refuse_before_any_effect) ... ok
+test_the_work_subcommand_is_offered_with_its_four_verbs (packaged_work_labels_probe.PackagedWorkLabels.test_the_work_subcommand_is_offered_with_its_four_verbs) ... FAIL
+
+======================================================================
+FAIL: test_the_work_subcommand_is_offered_with_its_four_verbs (packaged_work_labels_probe.PackagedWorkLabels.test_the_work_subcommand_is_offered_with_its_four_verbs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-import/labels-cli/packaged_work_labels_probe.py", line 69, in test_the_work_subcommand_is_offered_with_its_four_verbs
+    self.assertIn("not v11's thread label/unlabel", done.stdout)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "not v11's thread label/unlabel" not found in "usage: baton-v12-stack work [-h] {label-work,unlabel-work,labels,list} ...\n\nThis deployment's Work labels: plain cross-cutting values carried by a Work. A\nlabel is one opaque key, never a name=value tag; these verbs are not v11's\nthread label/unlabel and not the Worker Manager's OCI runtime labels.\n\npositional arguments:\n  {label-work,unlabel-work,labels,list}\n    label-work          add labels to one Work\n    unlabel-work        remove labels from one Work\n    labels              one Work's live labels and their mutation history\n    list                the Work a label filter selects\n\noptions:\n  -h, --help            show this help message and exit\n"
+
+----------------------------------------------------------------------
+Ran 5 tests in 8.520s
+
+FAILED (failures=1)
+exit=1 wall_seconds=8.806005998

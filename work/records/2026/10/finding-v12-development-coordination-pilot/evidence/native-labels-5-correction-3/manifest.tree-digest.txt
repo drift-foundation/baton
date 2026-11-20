@@ -1,0 +1,8 @@
+# parent reference bytes: ref/parent = GIT_OPTIONAL_LOCKS=0 git archive 04648e1b <11 paths> (read-only) from the retained review-line checkout, as recorded for M385299/M385307 (sha256 per path in manifest.json, identical to the M385307 manifest's parent_04648e1b column; asserted while building this manifest)
+# base reference bytes: ref/base = git show d8f77700:<path> from the host checkout (read-only), identical to the M385307 manifest's base_d8f77700 column; absent at base: tests/tools/test_work_command.py, tools/work_command.py
+# M385307 reference bytes: evidence/native-labels-5-correction-2/candidate/<path> (the prior packet), identical to its manifest's corrected column (asserted)
+# this candidate before editing: byte-identical to the M385307 packet's candidate/ on all 11 paths (cmp, 2026-11-20 before edit_product5.py)
+# tree digests, rule: cd candidate && find . -type f -not -path '*/__pycache__/*' -print0 | sort -z | xargs -0 sha256sum | sha256sum
+corrected candidate tree: f6b03d58461e4e31bf74d524cb190c9d9b7ee8b5beb88b3b8aad94cf2af109bb
+M385307 corrected tree as recorded in ../native-labels-5-correction-2/manifest.tree-digest.txt: aecab5ab6534c0c8f8021697faecd86b236c76cb316dccf3987a254e807c55d5 (that file's rule is stated there; the authoritative comparison is diff -rq and the per-path sha256 columns in manifest.json, not the two tree figures)
+diff -rq ref/m385307 vs ref/corrected3: the 4 paths in delta_paths_from_m385307; diff -rq ref/parent vs ref/corrected3: the 8 changed_paths

@@ -1,0 +1,5 @@
+patching file v12/python/src/baton_v12/job_manager/creation.py
+patching file v12/python/tests/job_manager/test_creation.py
+patching file v12/python/tests/tools/test_connected_creation.py
+patching file v12/python/tools/job_manager.py
+patching file v12/STACK.md

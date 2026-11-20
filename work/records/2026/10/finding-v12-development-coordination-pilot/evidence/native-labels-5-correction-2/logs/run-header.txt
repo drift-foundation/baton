@@ -1,0 +1,7 @@
+start 2026-11-20T00:54:39Z
+interpreter /home/sl/.local/state/baton-v12-venv/bin/python (Python 3.13.7)
+cwd /home/sl/src/baton/work/scratch/w383217/labels5-correction/candidate/v12/python (disposable candidate copy: git archive 04648e1b + K correction edits M385299 + this correction)
+BATON_V12_STACK_TEST_ROOT=/home/sl/src/baton/work/scratch/w383217/labels5-host-verification/roots BATON_V12_DISK_ROOT=/home/sl/src/baton/work/scratch/w383217/labels5-host-verification/roots
+/dev/nvme0n1p2   959218776 334711512 575707932      37% /
+task argv: exit 0 elapsed 5 s end 2026-11-20T00:54:44Z
+just test-one: exit 0 elapsed 4 s

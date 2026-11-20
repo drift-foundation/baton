@@ -788,3 +788,33 @@ Owner clarification 2026-11-19: Docker is the execution confinement boundary. Do
 ## 2026-11-19 — retained candidate verification consumed; independent review allocated
 
 M385291 correction withdraws create-on-running and records246 tests OK/no skips on retained04648e1b. Coordinator checked log/provenance. W385292 now owns independent host review, preserving existing implementation without new live run. Native end-to-end review remains unproved; no integration/acceptance asserted.
+
+
+## 2026-11-19 — independent labels review requests two bounded corrections
+
+M385295/E385296 and work/records/2026/11/finding-v12-retained-labels-candidate-review/review-2026-11-19T21-52-09Z.md reproduce explicit-label pre-existing Work reuse and inconsistent replay JSON. Original scope already requires both behaviors. K assigned isolated candidate corrections through CORRECTION-K-LABELS-20261119.md; no host import, live retry or new semantics selected. Candidate04648e1b remains unaccepted.
+
+
+## 2026-11-20 — correction review narrows remaining labels defects
+
+M385303 confirms both original blockers fixed, but identifies a raw Job-ID encoding compatibility regression and false/unusable reserved-creation recovery guidance. work/records/2026/11/finding-v12-retained-labels-candidate-review/review-2026-11-20T00-27-34Z.md is the current verdict. K continuation in CORRECTION-K-LABELS-20261120.md preserves original scope and candidate isolation; no product decision or new live run selected.
+
+
+## 2026-11-20 — labels review converges to one capacity-order defect
+
+M385311 resolves Job-ID compatibility and preserves original fixes. work/records/2026/11/finding-v12-retained-labels-candidate-review/review-2026-11-20T01-53-26Z.md identifies only recovery instructions adding before removal at the32label bound. K receives CORRECTION-K-LABELS-CAPACITY-20261120.md for bounded correction. Fresh-attempt raw-ID observation is separate/pre-existing, not a labels gate.
+
+
+## 2026-11-20 — labels source accepted; joined integration preparation
+
+M385319/E385320 accepts correction-3 manifest d52ebd7e… with268 independent tests passing. All labels source findings resolved. Current host86c1c22b contains accepted monitoring registration absent from the older labels packet. K assigned JOINED-LABELS-PREPARATION-20261120.md for isolated composition and complete preflight; no host import or deployment selected by this preparation.
+
+
+## 2026-11-20 — joined candidate accepted for exact import
+
+M385326/E385327 and review-2026-11-20T04-14-36Z.md accept joined manifest ce1cb5aa… at86c1c22b. Coordinator releases bounded K import and deterministic local package verification in IMPORT-AND-PACKAGE-LABELS-20261120.md. No Git, live instance, Docker or native execution selected.
+
+
+## 2026-11-20 — import/package evidence verified; checkpoint ready
+
+Coordinator checked M385329 import: all11host file hashes equal reviewed joined manifest ce1cb5aa…, regular owner-writable modes, new files0644. Built executable SHA2561265b1ff4c014cf9149bbdeeec8dc91163c0f41b5c3a35484e7dfbc135f9cb25 matches package evidence. Read final logs:428 focused OK28.695s,24 packaged OK14.155s,5 bundled-label probes OK8.667s. Earlier fixture-root/help-wrap failures retained, no source change concealed. git diff --check passes. Accepted import and local package evidence for human checkpoint; tests reused from K, not claimed independently rerun. Installed runtime/native pilot unchanged and unaccepted by these checks.

@@ -1,0 +1,30 @@
+[
+  {
+    "path": "v12/python/tools/job_observation.py",
+    "match": true
+  },
+  {
+    "path": "v12/python/tools/job_viewer.py",
+    "match": true
+  },
+  {
+    "path": "v12/python/tools/stack.py",
+    "match": true
+  },
+  {
+    "path": "v12/python/tests/tools/test_job_observation.py",
+    "match": true
+  },
+  {
+    "path": "v12/python/tests/tools/test_job_viewer.py",
+    "match": true
+  },
+  {
+    "path": "v12/python/JOB-VIEWER.md",
+    "match": true
+  },
+  {
+    "path": "v12/python/tools/parallel_test.py",
+    "match": true
+  }
+]

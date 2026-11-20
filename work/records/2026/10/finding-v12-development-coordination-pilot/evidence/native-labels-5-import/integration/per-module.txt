@@ -1,0 +1,8 @@
+tests.tools.test_work_command 49
+tests.job_manager.test_creation 102
+tests.tools.test_connected_creation 38
+tests.authority.test_work_labels 52
+tests.authority.test_work_label_exposure 27
+tests.tools.test_job_observation 7
+tests.tools.test_job_viewer 81
+tests.tools.test_parallel_runner 72

@@ -1,0 +1,8 @@
+start 2026-11-20T03:11:32Z
+interpreter /home/sl/.local/state/baton-v12-venv/bin/python (Python 3.13.7)
+cwd /home/sl/src/baton/work/scratch/w383217/labels5-correction/candidate/v12/python (disposable candidate copy: git archive 04648e1b + K correction edits M385299 + M385307 + this correction 3)
+BATON_V12_STACK_TEST_ROOT=/home/sl/src/baton/work/scratch/w383217/labels5-host-verification/roots BATON_V12_DISK_ROOT=/home/sl/src/baton/work/scratch/w383217/labels5-host-verification/roots
+/dev/nvme0n1p2  915G  320G  549G  37% /
+task argv: exit 0 elapsed 32 s end 2026-11-20T03:12:04Z
+task argv (no tracemalloc, like M385307's log): exit 0 elapsed 4 s end 2026-11-20T03:12:46Z; the earlier -X tracemalloc=5 run is unittest-corrected-tracemalloc.log (exit 0, 268 OK, 32 s wall)
+just test-one: exit 0 elapsed 4 s

@@ -1,0 +1,118 @@
+{
+  "verdict": "ok",
+  "host": "/home/sl/src/baton",
+  "head": "86c1c22b9125176b0127fc4a86fa00855ed6d127",
+  "checkpoint": "86c1c22b9125176b0127fc4a86fa00855ed6d127",
+  "manifest": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/manifest.json",
+  "refusals": [],
+  "paths": [
+    {
+      "path": "v12/STACK.md",
+      "new": false,
+      "present": true,
+      "mode": "0o664",
+      "host_sha256": "8f117f0f30b0b4d8c73f4dc7fd51f9109b68e5b9feefc71058896ecac88cf4e0",
+      "check": "base bytes match",
+      "candidate_sha256": "f1a3445b58be923e3fb698476cd085a184a7f706470ddf174097236de7167b2c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/creation.py",
+      "new": false,
+      "present": true,
+      "mode": "0o644",
+      "host_sha256": "a9aa278be615ab3ee5726eeb6dcd1952ffe942eff19b29309a57626012aa994e",
+      "check": "base bytes match",
+      "candidate_sha256": "d85631d06ca20a18b97d0a56e7277eac7a2ada1447c4342d6898904bf7372d16"
+    },
+    {
+      "path": "v12/python/tests/authority/test_work_label_exposure.py",
+      "new": false,
+      "present": true,
+      "mode": "0o664",
+      "host_sha256": "81c302ec7177243eeb03f8f090f3c6162e5cdfb9e8bab883b138fa5ae6d58cac",
+      "check": "base bytes match",
+      "candidate_sha256": "0d37e424ca49ca92fc9809eaff194fb02d9375e7f46cf9303eceff424d5e5d4e"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_creation.py",
+      "new": false,
+      "present": true,
+      "mode": "0o644",
+      "host_sha256": "c432ea651be95c2421d3abbe33b9eacab368a61162d4a4cb4382e4604bf9f29a",
+      "check": "base bytes match",
+      "candidate_sha256": "bb35896a080f70b88e0fc763253c07977e7c3635a630d34bca075e935c382e8c"
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "new": false,
+      "present": true,
+      "mode": "0o644",
+      "host_sha256": "cfa1ea0d7974ac94eebb858a76514bf8ffe8a2e85336d40799a369ddbd174e5f",
+      "check": "base bytes match",
+      "candidate_sha256": "483fe49c7bf3b1ab02414e8011e3892eb91723ae56b3d7757386e97d82fb59ff"
+    },
+    {
+      "path": "v12/python/tests/tools/test_work_command.py",
+      "new": true,
+      "present": false,
+      "check": "absent as expected",
+      "candidate_sha256": "1d1755acffe5d4777b5d3cd1e9c55bb55c2ecb466b85d2a7e94da55a9d3ab5c1"
+    },
+    {
+      "path": "v12/python/tools/fresh_attempt_ports.py",
+      "new": false,
+      "present": true,
+      "mode": "0o644",
+      "host_sha256": "153c6bc1c2084e023ac8ca13115d6db3b8a04dc3dc369a9d5336572697193914",
+      "check": "base bytes match",
+      "candidate_sha256": "6a3dc27a0c1409d60ef2840980623d2566710ba4a6d22b135c99c2ec282bee93"
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "new": false,
+      "present": true,
+      "mode": "0o664",
+      "host_sha256": "5116b6773f35c9f3831a4d25d7aa03731f7ab5edb84635a2b03e8426287958f2",
+      "check": "base bytes match",
+      "candidate_sha256": "71f74d15eea461e56dbcf6d5ab24dc4b0a52a07b18ea20c97fca5105bd417392"
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "new": false,
+      "present": true,
+      "mode": "0o644",
+      "host_sha256": "a808786507fb4d06e4b9d407f73f81b8e9e256794ef58e58f187f9cf17711042",
+      "check": "base bytes match",
+      "candidate_sha256": "059ff5fb1a319d176121cd6cd1ca25e6904bfd64b9bcb200d8267a1c996251a8"
+    },
+    {
+      "path": "v12/python/tools/stack_command.py",
+      "new": false,
+      "present": true,
+      "mode": "0o664",
+      "host_sha256": "38b6d0c539adaa380e989616013b40d839a3e93d7e85bc8e489b66d8ed49cfe6",
+      "check": "base bytes match",
+      "candidate_sha256": "c2ed2884fd16330dd1b5523017084c4954632abbb8c156ec30487d8d21feb716"
+    },
+    {
+      "path": "v12/python/tools/work_command.py",
+      "new": true,
+      "present": false,
+      "check": "absent as expected",
+      "candidate_sha256": "0605f37f1339806c06feed2dceff360a05fbcde081f0968db1374fbc6d002ad1"
+    }
+  ],
+  "apply_plan": [
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/STACK.md -> /home/sl/src/baton/v12/STACK.md (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/src/baton_v12/job_manager/creation.py -> /home/sl/src/baton/v12/python/src/baton_v12/job_manager/creation.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/tests/authority/test_work_label_exposure.py -> /home/sl/src/baton/v12/python/tests/authority/test_work_label_exposure.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/tests/job_manager/test_creation.py -> /home/sl/src/baton/v12/python/tests/job_manager/test_creation.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/tests/tools/test_connected_creation.py -> /home/sl/src/baton/v12/python/tests/tools/test_connected_creation.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/tests/tools/test_work_command.py -> /home/sl/src/baton/v12/python/tests/tools/test_work_command.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/tools/fresh_attempt_ports.py -> /home/sl/src/baton/v12/python/tools/fresh_attempt_ports.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/tools/job_manager.py -> /home/sl/src/baton/v12/python/tools/job_manager.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/tools/parallel_test.py -> /home/sl/src/baton/v12/python/tools/parallel_test.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/tools/stack_command.py -> /home/sl/src/baton/v12/python/tools/stack_command.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)",
+    "copy bytes work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined/candidate/v12/python/tools/work_command.py -> /home/sl/src/baton/v12/python/tools/work_command.py (ordinary mode 0644 for a new file; existing mode kept; no chmod, no install)"
+  ]
+}

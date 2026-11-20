@@ -1,0 +1,13 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "included": [],
+    "kind": "post_message",
+    "operation": null,
+    "seq": 385303
+  },
+  "snapshot_seq": 385303
+}

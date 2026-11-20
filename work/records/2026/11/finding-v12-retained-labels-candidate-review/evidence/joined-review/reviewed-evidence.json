@@ -1,0 +1,41 @@
+{
+  "packet_artifact_sha256": {
+    "manifest.json": "ce1cb5aa41c3add9a12fea7713ac39f37b9e20c1239f64fa5ec27afe2d265cba",
+    "joined.patch": "1d7bbdedd69df2568de80228c4e1f96c1f51befeef64d813921f95a8257f509b",
+    "preflight/import_preflight.py": "92605e24f4b77e0a72310f33c64a7915c9e4c09e7e92f8b9aa7fb98ec5c7f06d",
+    "logs/unittest-joined.log": "d4bb6e4673c4fd1f5e79b849efadae55c7ded9daf6ede547865ca05311c4b0b2",
+    "logs/just-test-one.log": "fc68343fbfc82af13bfaf880a1de8f33d3d6da3685250e0a446ce4aa23bf5221",
+    "logs/unittest-joined-first-v12-only-export.log": "cb89e745abf6c94812fbd79af7557ad6cd543ad5a851be6baed255a6efbe20a3",
+    "logs/run-header.txt": "adbac04d0e91e10a996e30de8aa655a1e3f2c2aad5862f76f1565049854395aa",
+    "logs/inputs-export.txt": "90ea757f9d32b1faad87aaa01ea82f9e5dd42283575802712bebaedb7ca13d26"
+  },
+  "host_parents_are_real_directories": [
+    "v12",
+    "v12/python",
+    "v12/python/src",
+    "v12/python/src/baton_v12",
+    "v12/python/src/baton_v12/job_manager",
+    "v12/python/tests",
+    "v12/python/tests/authority",
+    "v12/python/tests/job_manager",
+    "v12/python/tests/tools",
+    "v12/python/tools"
+  ],
+  "status_v12": "",
+  "author_results_reused": {
+    "task_argv": {
+      "passed": 428,
+      "seconds": 27.455
+    },
+    "just_test_one": {
+      "passed": 428,
+      "seconds": 27.626
+    },
+    "initial_missing_declared_input": {
+      "tests": 428,
+      "failures": 1,
+      "seconds": 27.802
+    }
+  },
+  "evidence_attribution": "428-test results are K-authored and reviewed/reused, not an independent rerun"
+}

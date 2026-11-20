@@ -1,0 +1,246 @@
+diff -ruN m385307/v12/python/src/baton_v12/job_manager/creation.py corrected/v12/python/src/baton_v12/job_manager/creation.py
+--- m385307/v12/python/src/baton_v12/job_manager/creation.py	2026-11-19 20:14:53.733717045 -0700
++++ corrected/v12/python/src/baton_v12/job_manager/creation.py	2026-11-19 20:14:36.782389877 -0700
+@@ -803,9 +803,10 @@
+         set: the interrupted creation finishes, as `_incomplete` promised;
+       * this creation's own minted Work, relabelled since by an authorized
+         act: INCOMPLETE, by name -- `_own_work_changed` says what was minted,
+-        what is carried now, the exact label/unlabel acts that restore the
+-        minted set so the same request finishes, and that a new identity
+-        without --label is the other way;
++        what is carried now, the exact unlabel-then-label acts that restore
++        the minted set within the Authority's label capacity so the same
++        request finishes, and that a new identity without --label is the
++        other way;
+       * Work another act made, found only now because it appeared between
+         the pre-reservation check and this authorization: the reservation
+         exists and CANNOT complete, and `_unrelated_after_reservation` says
+@@ -979,19 +980,29 @@
+ 
+ def _own_work_changed(operands, held):
+     """This creation's own minted Work, relabelled since: what was minted,
+-    what is carried, and the exact acts that make the same request finish."""
++    what is carried, and the exact acts that make the same request finish.
++
++    THE REMOVING ACT COMES FIRST. The Authority holds a Work to
++    `labels.MAX_LABELS` and refuses an addition at that limit until a label
++    is removed, so a minted set of the full 32 that lost one label and
++    gained another still holds 32: an `unlabel-work` of the extra labels
++    is viable at every size, and only after it is the `label-work` of the
++    missing ones (W385292 correction review, full-capacity recovery). The
++    acts are named in the order they are run; the same request finishes
++    once the Work carries exactly the minted set again, whichever size it
++    is."""
+     work_id = operands["work_id"]
+     wanted = sorted(operands["labels"])
+     carried = sorted(held.get("labels") or ()) if type(held) is dict else []
+     missing = [one for one in wanted if one not in carried]
+     extra = [one for one in carried if one not in wanted]
+     acts = []
+-    if missing:
+-        acts.append(f"`baton-v12-stack work label-work --work {work_id}"
+-                    + "".join(f" --label {one}" for one in missing) + "`")
+     if extra:
+         acts.append(f"`baton-v12-stack work unlabel-work --work {work_id}"
+                     + "".join(f" --label {one}" for one in extra) + "`")
++    if missing:
++        acts.append(f"`baton-v12-stack work label-work --work {work_id}"
++                    + "".join(f" --label {one}" for one in missing) + "`")
+     return (f"this creation minted the Work {name_value(work_id)} carrying "
+             f"exactly {sample_of(wanted)}, which its reserved request names, "
+             f"and an authorized label act has changed the Work since: it now "
+diff -ruN m385307/v12/python/tests/job_manager/test_creation.py corrected/v12/python/tests/job_manager/test_creation.py
+--- m385307/v12/python/tests/job_manager/test_creation.py	2026-11-19 20:14:53.733803817 -0700
++++ corrected/v12/python/tests/job_manager/test_creation.py	2026-11-19 20:14:36.786580259 -0700
+@@ -1769,18 +1769,20 @@
+ 
+     def test_the_restoring_acts_name_exactly_what_is_missing_and_what_is_extra(
+             self):
+-        """One `label-work` for the minted labels the Work lost, one
+-        `unlabel-work` for the labels it gained, in that order, and only
+-        the ones needed."""
++        """One `unlabel-work` for the labels the Work gained, THEN one
++        `label-work` for the minted labels it lost -- removal first, because
++        the Authority refuses an addition to a Work at its label capacity
++        until a label is removed (W385292 correction review, full-capacity
++        recovery) -- and only the ones needed."""
+         self.authorization.known = False
+         self.refused(binding=self.stopped_at_the_binding(),
+                      request=request(labels=["v12"]))
+         self.authorization.labels = ["hot"]
+         caught = self.refused(request=request(labels=["v12"]))
+-        self.assertIn(f"`baton-v12-stack work label-work --work {WORK_A} "
+-                      f"--label v12` and then `baton-v12-stack work "
+-                      f"unlabel-work --work {WORK_A} --label hot`",
+-                      caught.message)
++        self.assertIn(f"`baton-v12-stack work unlabel-work --work {WORK_A} "
++                      f"--label hot` and then `baton-v12-stack work "
++                      f"label-work --work {WORK_A} --label v12` -- and run "
++                      f"the same request again", caught.message)
+         self.authorization.labels = []
+         caught = self.refused(request=request(labels=["v12"]))
+         self.assertIn("it now carries none", caught.message)
+@@ -1788,7 +1790,58 @@
+                       f"--label v12` -- and run the same request again",
+                       caught.message)
+         self.assertNotIn("unlabel-work", caught.message)
++        self.authorization.labels = ["hot", "v12"]
++        caught = self.refused(request=request(labels=["v12"]))
++        self.assertIn(f"`baton-v12-stack work unlabel-work --work {WORK_A} "
++                      f"--label hot` -- and run the same request again",
++                      caught.message)
++        self.assertNotIn("work label-work", caught.message)
++        self.assertEqual(len(self.authorization.created), 1)
++
++    def test_the_restoring_acts_at_full_capacity_remove_before_they_add(
++            self):
++        """A minted set of the full MAX_LABELS that lost one label and gained
++        another still holds MAX_LABELS, so the one viable order is the
++        removal first; the message names it so, and names every label in
++        each act."""
++        from baton_v12.authority.labels import MAX_LABELS
++
++        minted = [f"label-{index:02}" for index in range(MAX_LABELS)]
++        self.authorization.known = False
++        self.refused(binding=self.stopped_at_the_binding(),
++                     request=request(labels=minted))
++        self.assertEqual(self.authorization.labels, minted)
++        self.authorization.labels = sorted(minted[1:] + ["extra"])
++        self.assertEqual(len(self.authorization.labels), MAX_LABELS)
++        caught = self.refused(request=request(labels=minted))
++        removing = (f"`baton-v12-stack work unlabel-work --work {WORK_A} "
++                    f"--label extra`")
++        adding = (f"`baton-v12-stack work label-work --work {WORK_A} "
++                  f"--label label-00`")
++        self.assertIn(f"{removing} and then {adding} -- and run the same "
++                      f"request again, which finishes this creation",
++                      caught.message)
++        self.assertLess(caught.message.index(removing),
++                        caught.message.index(adding))
++        self.assertIn("is RESERVED", caught.message)
++        self.assertFalse(caught.durable)
++        self.assertEqual(len(self.authorization.created), 1)
++        self.assertEqual([one["state"] for one in self.rows()], ["intended"])
++        # TWO LOST, TWO GAINED: each act names all of its labels, still in
++        # the removal-first order.
++        self.authorization.labels = sorted(minted[2:] + ["extra", "more"])
++        caught = self.refused(request=request(labels=minted))
++        self.assertIn(f"`baton-v12-stack work unlabel-work --work {WORK_A} "
++                      f"--label extra --label more` and then "
++                      f"`baton-v12-stack work label-work --work {WORK_A} "
++                      f"--label label-00 --label label-01`", caught.message)
++        # FOLLOWING THE NAMED ORDER FINISHES IT.
++        self.authorization.labels = list(minted)
++        held = self.created(request=request(labels=minted))
++        self.assertEqual(held["work"]["state"], "reused")
++        self.assertEqual(held["work"]["requested_labels"], minted)
+         self.assertEqual(len(self.authorization.created), 1)
++        self.assertNotEqual(self.rows()[0]["state"], "intended")
+ 
+     def test_work_found_only_after_the_reservation_names_it_and_requires_a_new_identity(
+             self):
+diff -ruN m385307/v12/python/tests/tools/test_connected_creation.py corrected/v12/python/tests/tools/test_connected_creation.py
+--- m385307/v12/python/tests/tools/test_connected_creation.py	2026-11-19 20:14:53.733836127 -0700
++++ corrected/v12/python/tests/tools/test_connected_creation.py	2026-11-19 20:14:36.788709894 -0700
+@@ -1388,6 +1388,78 @@
+         self.assertNotIn("minted the Work", str(third))
+         self.assertEqual(self.submitted("job-cli-first"), [])
+ 
++    def test_the_restoring_acts_at_full_capacity_run_in_the_named_order(
++            self):
++        """R2 at the Authority's label capacity, through the real command
++        and the real Authority (W385292 correction review of M385307): a
++        minted set of the full MAX_LABELS lost one label and gained another
++        by authorized acts, so it still holds MAX_LABELS. The refusal names
++        the removing act BEFORE the adding act; the adding act alone is what
++        the Authority refuses at capacity; following the named acts in the
++        named order restores exactly the minted set, after which the same
++        request is back at the fixture's binding boundary -- its original
++        interruption, not a submission -- with nothing relabelled by the
++        creation itself."""
++        import re
++
++        from baton_v12.authority.labels import MAX_LABELS
++
++        minted = [f"label-{index:02}" for index in range(MAX_LABELS)]
++        self.installed(jobs=[], line_declared_base="a" * 40,
++                       canonical_target_id="target-1")
++        first = self.stopped(self.labelled(*minted))
++        self.assertIn("reported no binding", str(first))
++        self.assertEqual(self.authority().labels_of(self.work), minted)
++        self.authority(writable=True).grant_capability(
++            "baton.slaw", "manage-work-labels")
++
++        def act(verb, operation_id, *labels):
++            operands = [verb, "--participant", "baton.slaw",
++                        "--work", self.work, "--operation-id", operation_id]
++            for one in labels:
++                operands += ["--label", one]
++            return self.work_verb(*operands)
++
++        code, said = act("unlabel-work", "drift-1", "label-00")
++        self.assertEqual(code, 0, said)
++        code, said = act("label-work", "drift-2", "extra")
++        self.assertEqual(code, 0, said)
++        drifted = sorted(minted[1:] + ["extra"])
++        self.assertEqual(self.authority().labels_of(self.work), drifted)
++        self.assertEqual(len(drifted), MAX_LABELS)
++        again = self.stopped(self.labelled(*minted))
++        self.assertIn("this creation minted the Work", str(again))
++        self.assertIn("is RESERVED", str(again))
++        named = re.findall(r"`(baton-v12-stack work [^`]+)`", str(again))
++        self.assertEqual(named, [
++            f"baton-v12-stack work unlabel-work --work {self.work} "
++            f"--label extra",
++            f"baton-v12-stack work label-work --work {self.work} "
++            f"--label label-00"])
++        # THE OTHER ORDER IS WHAT THE AUTHORITY REFUSES: an addition to a
++        # Work at capacity, leaving the set exactly as it was.
++        code, said = act("label-work", "wrong-order", "label-00")
++        self.assertEqual(code, 2, said)
++        self.assertEqual(self.authority().labels_of(self.work), drifted)
++        # FOLLOWING THE NAMED ACTS, AS NAMED, IN ORDER.
++        for index, command in enumerate(named):
++            operands = command.split()[2:]
++            code, said = self.work_verb(
++                *operands, "--participant", "baton.slaw",
++                "--operation-id", f"restore-{index}")
++            self.assertEqual(code, 0, (command, said))
++        self.assertEqual(self.authority().labels_of(self.work), minted)
++        third = self.stopped(self.labelled(*minted))
++        self.assertIn("reported no binding", str(third))
++        self.assertNotIn("minted the Work", str(third))
++        self.assertNotIn("label-work", str(third))
++        self.assertEqual(self.authority().labels_of(self.work), minted)
++        self.assertEqual(self.submitted("job-cli-first"), [])
++        record = self.authority().work_creation(self.work)
++        self.assertEqual(len(self.authority().work_label_events(self.work)),
++                         MAX_LABELS + 4)
++        self.assertIsNotNone(record)
++
+     def test_two_operands_that_are_one_key_refuse_before_any_effect(self):
+         self.installed()
+         refusal = self.stopped(self.labelled("v12", "V12"))
+diff -ruN m385307/v12/STACK.md corrected/v12/STACK.md
+--- m385307/v12/STACK.md	2026-11-19 20:14:53.733632739 -0700
++++ corrected/v12/STACK.md	2026-11-19 20:14:36.780319662 -0700
+@@ -1109,11 +1109,14 @@
+ - the creation's own minted Work still carrying exactly what it minted: the
+   interrupted creation finishes;
+ - the creation's own minted Work relabelled since by an authorized act: the
+-  refusal says so, names the minted and the carried sets and the exact
+-  `work label-work` / `work unlabel-work` acts that restore the minted set,
+-  after which the same request finishes — or create under a new Job identity
+-  without `--label`. Repeating without `--label` under the *reserved* identity
+-  is a different intent and collides, as it must;
++  refusal says so, names the minted and the carried sets and the exact acts
++  that restore the minted set — the `work unlabel-work` of the extra labels
++  first, then the `work label-work` of the missing ones, in that order
++  because a Work holds at most 32 labels and the Authority refuses an
++  addition at that limit until a label is removed — after which the same
++  request finishes; or create under a new Job identity without `--label`.
++  Repeating without `--label` under the *reserved* identity is a different
++  intent and collides, as it must;
+ - Work another act made, found only after this creation reserved (it appeared
+   between the pre-reservation check and the authorization): the reservation
+   exists and cannot complete, the refusal names the Work's recorded minting

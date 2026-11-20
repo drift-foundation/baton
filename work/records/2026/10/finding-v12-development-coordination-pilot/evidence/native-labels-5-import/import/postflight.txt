@@ -1,0 +1,66 @@
+postflight at 2026-11-20T04:43:38Z
+HEAD 86c1c22b9125176b0127fc4a86fa00855ed6d127
+--- git status --porcelain -- v12
+ M v12/STACK.md
+ M v12/python/src/baton_v12/job_manager/creation.py
+ M v12/python/tests/authority/test_work_label_exposure.py
+ M v12/python/tests/job_manager/test_creation.py
+ M v12/python/tests/tools/test_connected_creation.py
+ M v12/python/tools/fresh_attempt_ports.py
+ M v12/python/tools/job_manager.py
+ M v12/python/tools/parallel_test.py
+ M v12/python/tools/stack_command.py
+?? v12/python/tests/tools/test_work_command.py
+?? v12/python/tools/work_command.py
+--- git diff --stat (read-only)
+ v12/STACK.md                                       | 130 +++++
+ v12/python/src/baton_v12/job_manager/creation.py   | 370 ++++++++++++-
+ .../tests/authority/test_work_label_exposure.py    | 334 +++++++++++-
+ v12/python/tests/job_manager/test_creation.py      | 597 ++++++++++++++++++++-
+ v12/python/tests/tools/test_connected_creation.py  | 364 +++++++++++++
+ v12/python/tools/fresh_attempt_ports.py            |  26 +-
+ v12/python/tools/job_manager.py                    |  29 +
+ v12/python/tools/parallel_test.py                  |  15 +-
+ v12/python/tools/stack_command.py                  |  23 +
+ 9 files changed, 1867 insertions(+), 21 deletions(-)
+--- final sha256 / mode per manifest path
+ok  0o664 f1a3445b58be923e v12/STACK.md
+ok  0o644 d85631d06ca20a18 v12/python/src/baton_v12/job_manager/creation.py
+ok  0o664 0d37e424ca49ca92 v12/python/tests/authority/test_work_label_exposure.py
+ok  0o644 bb35896a080f70b8 v12/python/tests/job_manager/test_creation.py
+ok  0o644 483fe49c7bf3b1ab v12/python/tests/tools/test_connected_creation.py
+ok  0o644 1d1755acffe5d477 v12/python/tests/tools/test_work_command.py
+ok  0o644 6a3dc27a0c1409d6 v12/python/tools/fresh_attempt_ports.py
+ok  0o664 71f74d15eea461e5 v12/python/tools/job_manager.py
+ok  0o644 059ff5fb1a319d17 v12/python/tools/parallel_test.py
+ok  0o664 c2ed2884fd16330d v12/python/tools/stack_command.py
+ok  0o644 0605f37f1339806c v12/python/tools/work_command.py
+mismatches: 0
+import report verdict: imported written: 11
+  v12/STACK.md: new=False mode_before=0o664 mode_after=0o664 same_inode=True
+  v12/python/src/baton_v12/job_manager/creation.py: new=False mode_before=0o644 mode_after=0o644 same_inode=True
+  v12/python/tests/authority/test_work_label_exposure.py: new=False mode_before=0o664 mode_after=0o664 same_inode=True
+  v12/python/tests/job_manager/test_creation.py: new=False mode_before=0o644 mode_after=0o644 same_inode=True
+  v12/python/tests/tools/test_connected_creation.py: new=False mode_before=0o644 mode_after=0o644 same_inode=True
+  v12/python/tests/tools/test_work_command.py: new=True mode_before=None mode_after=0o644 same_inode=True
+  v12/python/tools/fresh_attempt_ports.py: new=False mode_before=0o644 mode_after=0o644 same_inode=True
+  v12/python/tools/job_manager.py: new=False mode_before=0o664 mode_after=0o664 same_inode=True
+  v12/python/tools/parallel_test.py: new=False mode_before=0o644 mode_after=0o644 same_inode=True
+  v12/python/tools/stack_command.py: new=False mode_before=0o664 mode_after=0o664 same_inode=True
+  v12/python/tools/work_command.py: new=True mode_before=None mode_after=0o644 same_inode=True
+--- git diff vs joined.patch (read-only): per-path diff of hunks
+git diff (tracked 9) hunk-line multiset vs joined.patch (11 incl. new files): 1177 differing lines (new-file lines expected since git diff excludes untracked)
+--- both registrations in tools/parallel_test.py
+124:                    # The command over it is `tests.tools.test_work_command`,
+428:    "tests.tools.test_job_observation",
+514:    "tests.tools.test_work_command",
+--- W385263 accepted monitoring manifest 7c1da2d2 vs host
+7c1da2d2acc6aea1b3fd3e65b02eb6ab8ec21379ddc9462d361c72ad4d52c16f  work/records/2026/11/finding-v12-shared-work-liveness/candidate-option-a-registry/manifest.json
+keys: ['work', 'claim', 'approval', 'ownership', 'base_commit', 'files', 'decision_files', 'normative_design_sha256']
+same v12/python/tools/job_observation.py host=2fa916f25c04 accepted=2fa916f25c04
+same v12/python/tools/job_viewer.py host=a55b476493ef accepted=a55b476493ef
+same v12/python/tools/stack.py host=3e213d1df945 accepted=3e213d1df945
+same v12/python/tests/tools/test_job_observation.py host=1c8c635b340b accepted=1c8c635b340b
+same v12/python/tests/tools/test_job_viewer.py host=1e83ed502a07 accepted=1e83ed502a07
+same v12/python/JOB-VIEWER.md host=b4704b93d308 accepted=b4704b93d308
+DIFF v12/python/tools/parallel_test.py host=059ff5fb1a31 accepted=a808786507fb

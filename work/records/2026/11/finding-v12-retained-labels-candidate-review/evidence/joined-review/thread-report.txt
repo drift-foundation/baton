@@ -1,0 +1,22 @@
+M385322 narrow composition review under E385325 complete: JOINED SOURCE ACCEPTED AND READY FOR IMPORT against current host86c1c22b9125176b0127fc4a86fa00855ed6d127. No actual blocker. No import performed.
+
+Candidate manifest ce1cb5aa41c3add9a12fea7713ac39f37b9e20c1239f64fa5ec27afe2d265cba; joined.patch1d7bbdedd69df2568de80228c4e1f96c1f51befeef64d813921f95a8257f509b; packet work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-labels-5-joined. Ten non-shared paths hash-match accepted correction-3. Shared parallel_test.py equals accepted labels bytes plus exactly the committed four-line observation registration, no other change. Independently reconstructed patch from checkpoint with fuzz0:all11hashes match. All7 monitoring host files unchanged; six non-shared monitoring files retained in joined export.
+
+Independent Suite registry/group checks account for all189modules, both registrations tools-pure. Observation smoke7passed,0failures/errors/skips,0.273723s; registry0.002463s. Reviewed/reused K's428pass eight-module log27.455s and just-test-one428pass27.626s (not independent reruns); initial428run/1missing-declared-input failure27.802s preserved and explained, subsequent complete-input runs pass with unchanged bytes. Prior accepted labels internals not reopened.
+
+Current host preflight:11checked,0refusals;9existing non-symlink regular owner-writable files match base;2new files absent; clean path status and correct HEAD; candidate hashes match; parent directories checked. Bounded read-only helper reviewed, SHA25692605e24f4b77e0a72310f33c64a7915c9e4c09e7e92f8b9aa7fb98ec5c7f06d; --apply-plan prints only, --json records evidence. Importer must rerun same preflight before copying and verify final bytes/modes, preserving existing modes and ordinary0644 for new files. No generic untrusted-manifest/import-tool approval implied.
+
+Exact-path/hash signoff in work/records/2026/11/finding-v12-retained-labels-candidate-review/review-2026-11-20T04-14-36Z.md (SHA256 e229f3868045667378a39d2588724173d1dd865d8eef58f0b073fdab07a20ba4), including all11 approved joined hashes and base binding. Evidence/handoff: work/records/2026/11/finding-v12-retained-labels-candidate-review/evidence/joined-review/ (composition, reconstruction, registry inventory, current preflight/apply-plan, test attribution). FINDING/PLAN updated; registry-overlap blocker resolved for this joined packet only. Source scope:
+v12/STACK.md f1a3445b58be923e3fb698476cd085a184a7f706470ddf174097236de7167b2c
+v12/python/src/baton_v12/job_manager/creation.py d85631d06ca20a18b97d0a56e7277eac7a2ada1447c4342d6898904bf7372d16
+v12/python/tests/authority/test_work_label_exposure.py 0d37e424ca49ca92fc9809eaff194fb02d9375e7f46cf9303eceff424d5e5d4e
+v12/python/tests/job_manager/test_creation.py bb35896a080f70b88e0fc763253c07977e7c3635a630d34bca075e935c382e8c
+v12/python/tests/tools/test_connected_creation.py 483fe49c7bf3b1ab02414e8011e3892eb91723ae56b3d7757386e97d82fb59ff
+v12/python/tests/tools/test_work_command.py 1d1755acffe5d4777b5d3cd1e9c55bb55c2ecb466b85d2a7e94da55a9d3ab5c1
+v12/python/tools/fresh_attempt_ports.py 6a3dc27a0c1409d60ef2840980623d2566710ba4a6d22b135c99c2ec282bee93
+v12/python/tools/job_manager.py 71f74d15eea461e56dbcf6d5ab24dc4b0a52a07b18ea20c97fca5105bd417392
+v12/python/tools/parallel_test.py 059ff5fb1a319d176121cd6cd1ca25e6904bfd64b9bcb200d8267a1c996251a8
+v12/python/tools/stack_command.py c2ed2884fd16330dd1b5523017084c4954632abbb8c156ec30487d8d21feb716
+v12/python/tools/work_command.py 0605f37f1339806c06feed2dceff360a05fbcde081f0968db1374fbc6d002ad1
+
+No host source edit/import, Git/custody/live change, build/provider/engine/deployment/native run. Host import and candidate-bound package/CLI gate may now be sequenced by coordinator/owner; human Git and native-pilot acceptance remain separate. No source correction or new owner product decision needed. Passing baton.decide and verifying release.

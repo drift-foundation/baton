@@ -1,0 +1,12 @@
+{
+  "manifest_sha256": "7c1da2d2acc6aea1b3fd3e65b02eb6ab8ec21379ddc9462d361c72ad4d52c16f",
+  "unchanged": {
+    "v12/python/tools/job_observation.py": true,
+    "v12/python/tools/job_viewer.py": true,
+    "v12/python/tools/stack.py": true,
+    "v12/python/tests/tools/test_job_observation.py": true,
+    "v12/python/tests/tools/test_job_viewer.py": true,
+    "v12/python/JOB-VIEWER.md": true,
+    "v12/python/tools/parallel_test.py": true
+  }
+}

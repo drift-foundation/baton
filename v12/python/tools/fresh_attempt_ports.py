@@ -368,7 +368,28 @@ class WorkAuthorization:
                 return None
             raise
 
-    def create_work(self, work_id, *, operation_id):
+    def minted_by(self, work_id):
+        """The Authority's own record of the act that made this Work, or None.
+
+        W385292: a creation that reuses an existing Work with labels has to
+        PROVE it is the creation that minted it, and the proof is read from
+        the Authority's creation record -- the operation identity the minting
+        act was performed under -- rather than inferred from a label set that
+        any authorized act could have produced on anybody's Work.
+        """
+        return self._authority.work_creation(work_id)
+
+    def create_work(self, work_id, *, operation_id, labels=()):
+        """W29401: and the create-time Work labels the caller asked for.
+
+        DEFAULTED TO NONE, so every existing caller -- `fresh_attempt`'s own
+        authorization among them -- creates exactly the Work it created
+        before. The labels travel to `Authority.create_work`, which validates
+        the grammar, enforces the cardinality against what the Work would then
+        hold and writes the row and its label events in ONE transaction at one
+        instant. Nothing is normalized, deduplicated or bounded here: a second
+        opinion about a label is a second grammar.
+        """
         if self._producers and not any(
                 self._authority.handles_route(self._route, one)
                 for one in self._producers):
@@ -387,7 +408,8 @@ class WorkAuthorization:
         # generation ... this is none" -- so the first Job never dispatches.
         self._authority.create_work(work_id, self._route,
                                     operation_id=operation_id,
-                                    contract=ASSIGNMENT_CONTRACT)
+                                    contract=ASSIGNMENT_CONTRACT,
+                                    labels=tuple(labels))
         return self._authority.project_work(work_id)
 
     @classmethod

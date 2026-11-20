@@ -1,0 +1,3 @@
+corrected candidate tree (all files, __pycache__ excluded): 4fe71cb30a251b7f99c33b974b1f9280607ca5a11f865a1971b361862e5594a2
+parent 04648e1b export tree, same rule: 829c54e66959aacf02c98800e54f3084306a79a0b48d32b132579f1f7a047bc6 (829c54e6… at export time, before any test run)
+diff -rq parent export vs candidate, __pycache__ excluded: exactly the 8 changed paths in manifest.json; no other path differs

@@ -1,0 +1,11 @@
+patching file v12/STACK.md
+patching file v12/python/src/baton_v12/job_manager/creation.py
+patching file v12/python/tests/authority/test_work_label_exposure.py
+patching file v12/python/tests/job_manager/test_creation.py
+patching file v12/python/tests/tools/test_connected_creation.py
+patching file v12/python/tests/tools/test_work_command.py
+patching file v12/python/tools/fresh_attempt_ports.py
+patching file v12/python/tools/job_manager.py
+patching file v12/python/tools/parallel_test.py
+patching file v12/python/tools/stack_command.py
+patching file v12/python/tools/work_command.py
