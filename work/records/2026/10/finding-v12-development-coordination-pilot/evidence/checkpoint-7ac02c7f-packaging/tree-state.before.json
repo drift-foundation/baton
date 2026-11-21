@@ -1,0 +1,337 @@
+{
+ "entries": [
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/PROGRESS.md",
+   "status": " M"
+  },
+  {
+   "class": "helper (reviewed bytes, bound by the sums file)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-handoffs-2-qualify.sh",
+   "status": " M"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/PACKET.md",
+   "status": " M"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py",
+   "status": " M"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/FINDING.md",
+   "status": " M"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/PLAN.md",
+   "status": " M"
+  },
+  {
+   "class": "generated (this qualification, this checkpoint)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-bound-2.json",
+   "status": "??"
+  },
+  {
+   "class": "helper (reviewed bytes, bound by the sums file)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-handoffs-2-reviewed.sha256",
+   "status": "??"
+  },
+  {
+   "class": "helper (reviewed bytes, bound by the sums file)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-handoffs-2-tree.py",
+   "status": "??"
+  },
+  {
+   "class": "generated (this qualification, this checkpoint)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-inputs-2-7ac02c7f.before-13b8a6b3.json",
+   "status": "??"
+  },
+  {
+   "class": "generated (this qualification, this checkpoint)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-inputs-2-7ac02c7f.before-b9185f02.json",
+   "status": "??"
+  },
+  {
+   "class": "generated (this qualification, this checkpoint)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-inputs-2-7ac02c7f.before-f968be92.json",
+   "status": "??"
+  },
+  {
+   "class": "generated (this qualification, this checkpoint)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-inputs-2-7ac02c7f.json",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (an earlier qualification record; retained, not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-inputs-2-7ac02c7f.superseded-r6-dev.json",
+   "status": "??"
+  },
+  {
+   "class": "generated (this qualification, this checkpoint)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-installed-task-2-7ac02c7f.json",
+   "status": "??"
+  },
+  {
+   "class": "generated (this qualification, this checkpoint)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-2-7ac02c7f.json",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/check-run-10.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/check-run-11.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/check-run-12.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/check-run-13.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/check-run-14.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/check-run-15.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/check-run-16.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/check-run-9.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/host-check-7ac02c7f-prereview.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/host-check-7ac02c7f-r6-drift.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/host-check-7ac02c7f-r6.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/host-check-7ac02c7f-r7-no-transition.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/host-check-7ac02c7f-r7.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/host-live-capture-7ac02c7f-r7.json",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/host-live-capture-7ac02c7f.json",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/host-source-identity-7ac02c7f.json",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/logs/reviewer-probes-385413-on-r7.log",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/PACKET-r4-reviewed-385396.md",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/PACKET-r4-to-r5.diff",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/PACKET-r5-reviewed-385406.md",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/PACKET-r5-to-r6.diff",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/PACKET-r6-reviewed-385413.md",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/PACKET-r6-to-r7.diff",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/qualify-r4-reviewed-385396.sh",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/qualify-r4-to-r5.diff",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/qualify-r5-reviewed-385406.sh",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/qualify-r5-to-r6.diff",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/qualify-r6-reviewed-385413.sh",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/qualify-r6-to-r7.diff",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/sums-r6-reviewed-385413.sha256",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/sums-r6-to-r7.diff",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/tree-r5-reviewed-385406.py",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/tree-r5-to-r6.diff",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/tree-r6-reviewed-385413.py",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/tree-r6-to-r7.diff",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385413/",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385420/",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/review-2026-11-21T02-34-34Z.md",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/review-2026-11-21T02-49-22Z.md",
+   "status": "??"
+  },
+  {
+   "class": "unrelated (not an input)",
+   "path": "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/review-2026-11-21T03-23-53Z.md",
+   "status": "??"
+  }
+ ],
+ "inputs": {
+  "consumed_count": 41,
+  "content_digest": "5665f3d6cb2c2f9171063062dc9bf6957f26fe639d32ee01ad84520395bbb318",
+  "declared_inputs": [
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py",
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+   "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+   "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
+   "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/bootstrap_inputs.json",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/install_inputs.json",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-records.json",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-terminal.json",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/EXPECTED.json",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/fixture.iid",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/compose_lifecycle.py",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/verify_lifecycle.py",
+   "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/CAPABILITY.synthetic.json",
+   "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/ROLE-CONTRACT.proposed.json"
+  ],
+  "excused_build_outputs": [],
+  "helper_sums_history": [
+   "13b8a6b3d8f384c678b57ac59f16cf1b82db261ef79ed3ffeea48b840ffd582d"
+  ],
+  "helper_sums_sha256": "13b8a6b3d8f384c678b57ac59f16cf1b82db261ef79ed3ffeea48b840ffd582d",
+  "inputs_digest": "5665f3d6cb2c2f9171063062dc9bf6957f26fe639d32ee01ad84520395bbb318",
+  "schema": "k.native-handoffs-2-inputs/2",
+  "sha": "7ac02c7f01cc59b43ade0c98b55be59ea750af41"
+ },
+ "inputs_stability": "stable since 2026-11-21T02:43:22Z",
+ "live_capture": {
+  "changed_entries": 57,
+  "commit": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+  "detail": null,
+  "dirty": true,
+  "excused_build_output": 0,
+  "schema": "baton.v12.build-stamp/1",
+  "source": "/home/sl/src/baton"
+ },
+ "observation": "git status --porcelain --untracked-files=normal (the build stamp's own); informational, not a gate",
+ "observed_at": "2026-11-21T03:28:29Z",
+ "schema": "k.native-handoffs-2-tree-state/2",
+ "sha": "7ac02c7f01cc59b43ade0c98b55be59ea750af41"
+}

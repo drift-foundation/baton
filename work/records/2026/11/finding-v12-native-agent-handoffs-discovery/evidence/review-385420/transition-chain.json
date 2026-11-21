@@ -1,0 +1,20 @@
+[
+  {
+    "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-inputs-2-7ac02c7f.before-f968be92.json",
+    "sha256": "0525ddb16605e0f47172d2a2456c5ab508eb50f7de733b7bf59f2695452ddbb0",
+    "from": "a8337f0a39a80fd3a6d6fba23e1682766f78b93cc86c81391d8a666ea006ce32",
+    "to": "f968be923b25d6bbc976b212690573bb23404f6e0f1da6b25ab87e5d463900a7"
+  },
+  {
+    "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-inputs-2-7ac02c7f.before-b9185f02.json",
+    "sha256": "1e8339685b950fb474e3c8d3ebb219921eba26ecc64346e6e0893371e4f81598",
+    "from": "f968be923b25d6bbc976b212690573bb23404f6e0f1da6b25ab87e5d463900a7",
+    "to": "b9185f02156c92da0ace13522f98328eb2aa70c7dd26d06a717a419f5f47860a"
+  },
+  {
+    "path": "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-inputs-2-7ac02c7f.before-13b8a6b3.json",
+    "sha256": "7702571174721d218137b317b35de5eb32fb1ab7fc88e0d6327aa2eb90276cf1",
+    "from": "b9185f02156c92da0ace13522f98328eb2aa70c7dd26d06a717a419f5f47860a",
+    "to": "13b8a6b3d8f384c678b57ac59f16cf1b82db261ef79ed3ffeea48b840ffd582d"
+  }
+]

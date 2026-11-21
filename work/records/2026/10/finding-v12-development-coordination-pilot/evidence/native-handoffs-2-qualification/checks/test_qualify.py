@@ -27,6 +27,8 @@ CONFIG = CHECKOUT / PILOT / "config"
 EVIDENCE = CHECKOUT / PILOT / "evidence"
 BIND = CONFIG / "native-handoffs-2-bind.py"
 HELPER = CONFIG / "native-handoffs-2-qualify.sh"
+TREE = CONFIG / "native-handoffs-2-tree.py"
+SUMS = CONFIG / "native-handoffs-2-reviewed.sha256"
 COMPOSER = EVIDENCE / "native-handoffs-composer"
 SLICE = EVIDENCE / "native-handoffs-1-correction-2"
 BASE_ARCHIVE = CHECKOUT / "work/scratch/w383217/composer/base"   # git archive 331dd737, read-only use
@@ -56,6 +58,10 @@ class Fixture(unittest.TestCase):
         # role contract out of the fixture checkout), then the joined bytes:
         # composer precedence on the overlap
         shutil.copytree(BASE_ARCHIVE / "v12/python/src/baton_v12", self.repo / "v12/python/src/baton_v12")
+        # and the base's own tools (tools/source_identity, tools/build_stamp): the
+        # helper runs the bound checkout's identity tool and the stamp check runs
+        # the real stamp capture over this fixture
+        shutil.copytree(BASE_ARCHIVE / "v12/python/tools", self.repo / "v12/python/tools")
         for manifest, packet in ((self.slice, SLICE), (self.composer, COMPOSER)):
             for one in manifest["paths"]:
                 target = self.repo / one["path"]
@@ -63,7 +69,8 @@ class Fixture(unittest.TestCase):
                 shutil.copyfile(packet / "candidate" / one["path"], target)
         # the packet's own inputs at their repository-relative places
         (self.repo / PILOT / "config").mkdir(parents=True)
-        for name in ("native-handoffs-2-bind.py", "native-handoffs-2-qualify.sh",
+        for name in ("native-handoffs-2-bind.py", "native-handoffs-2-qualify.sh", "native-handoffs-2-tree.py",
+                     "native-handoffs-2-reviewed.sha256",
                      "native-instance-handoffs-2.unbound.json",
                      "native-installed-task-handoffs-2.unbound.json"):
             shutil.copyfile(CONFIG / name, self.repo / PILOT / "config" / name)
@@ -100,12 +107,50 @@ class Fixture(unittest.TestCase):
         held = dict(GIT_ENV, QUALIFY_REPO=str(self.repo), QUALIFY_DEST=str(self.root / "dest"),
                     QUALIFY_PACKAGING_ROOT=str(self.root / "packaging"), QUALIFY_TMP=str(self.root / "tmp"),
                     QUALIFY_PYTHON="python3", QUALIFY_CREDENTIALS=str(self.root / "credentials.json"),
-                    QUALIFY_IMAGE_REF="baton-v12-worker:check")
+                    QUALIFY_IMAGE_REF="baton-v12-worker:check",
+                    # the fixture carries no declared consumed input of the test runner, so its
+                    # source identity is the v12/ scope alone (the real run passes --declared)
+                    QUALIFY_DECLARED="")
         if stubs is not None:
             held["PATH"] = str(stubs) + ":" + held["PATH"]
         held.update(env or {})
         return subprocess.run(["bash", str(self.cfg / "native-handoffs-2-qualify.sh"), step],
                               capture_output=True, text=True, env=held)
+
+    REAL_STAMP = ("cd %(repo)s && mkdir -p v12/python/packaging && PYTHONPATH=v12/python python3 -c "
+                  "\"import json; from tools import build_stamp; "
+                  "build_stamp.write('v12/python/packaging/build-stamp.json', build_stamp.capture(source='%(repo)s')); "
+                  "print(json.dumps(build_stamp.read('v12/python/packaging/build-stamp.json')))\" "
+                  "&& echo 'Ran 24 tests' && echo OK")
+
+    def real_stamp_just(self):
+        """A `just` stand-in whose test-packaging writes the REAL build stamp of
+        the fixture repository (tools/build_stamp.capture, whole-repository
+        observation)."""
+        return self.REAL_STAMP % {"repo": self.repo}
+
+    def stand_in_bundle(self):
+        """A one-folder runtime: the launcher, a dependency under _internal/ and an
+        internal link -- what `tools.instance.manifest` binds whole."""
+        bundle = self.repo / "v12/python/build/out/distro"; (bundle / "_internal").mkdir(parents=True, exist_ok=True)
+        exe = bundle / "baton-v12-stack"
+        exe.write_text("#!/usr/bin/env bash\ncase \"$*\" in *--version*) echo 'baton 12.0.0 (check)';; *identity*) echo '{}';; *compose-worker*) echo '--template VERSION';; esac\n")
+        exe.chmod(exe.stat().st_mode | stat.S_IEXEC)
+        (bundle / "_internal" / "library.so").write_bytes(b"qualified library bytes\n")
+        link = bundle / "_internal" / "library.so.1"
+        if not link.is_symlink():
+            link.symlink_to("library.so")
+        return exe
+
+    def bootstrap_stub(self, dest, installed_runtime_digest=None):
+        """A `just` stand-in whose bootstrap writes instance.json the way the
+        installer does: the bundle's own `identity` and the real
+        `tools.instance.manifest` of the runtime it copied."""
+        return ("case \"$*\" in *bootstrap*) env PYTHONPATH=%s/v12/python python3 -c \"import json,subprocess,sys; from tools import instance; "
+                "said=json.loads(subprocess.run(['%s/v12/python/build/out/distro/baton-v12-stack','identity'],capture_output=True,text=True).stdout); "
+                "run=instance.manifest('%s/v12/python/build/out/distro'); %s; "
+                "json.dump({'authority_uuid': '0000000a000000000000000000000000', 'identity': said, 'runtime': {'files': run['files'], 'digest': run['digest']}}, open('%s/instance.json', 'w'))\";; esac; exit 0"
+                % (self.repo, self.repo, self.repo, ("run['digest']='%s'" % installed_runtime_digest) if installed_runtime_digest else "pass", dest))
 
     def stubs(self, **programs):
         """Recording stand-ins for the engine and the recipe runner on PATH.
@@ -240,31 +285,301 @@ class TheHelperStopsAtTheFirstFailure(Fixture):
         self.assertIn("FAILED (failures=1)", log.read_text())
         self.assertFalse((log.parent / "build-stamp.json").exists())   # nothing after the failed gate ran
 
-    def test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate(self):
+    # -- round 6 (review 2026-11-21T02-34-34Z G1-G3) ------------------------------
+
+    def unrelated_records(self):
+        """Dirty paths that are NOT inputs: review evidence, an older checkpoint's
+        qualification records, a dossier note. None of them may gate a step."""
+        review = self.repo / "work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-999999"
+        review.mkdir(parents=True); (review / "probes.log").write_text("reviewer evidence\n")
+        (self.cfg / "native-instance-2-deadbeef.json").write_text("{}\n")
+        (self.cfg / "impl-a-2-deadbeef-compose.log").write_text("older\n")
+        (self.repo / "work/notes.txt").write_text("a note\n")
+        # (`--porcelain` collapses the wholly untracked `work/records/2026/11/` tree to its name)
+        return ["work/records/2026/11/", "native-instance-2-deadbeef.json", "impl-a-2-deadbeef-compose.log", "work/notes.txt"]
+
+    def test_a_stamp_naming_another_commit_fails_the_bundle_step_after_a_green_gate(self):
         self.assertEqual(self.helper("bind").returncode, 0)
-        stamp = self.repo / "v12/python/packaging"
-        stamp.mkdir(parents=True)
-        stamp.joinpath("build-stamp.json").write_text(json.dumps({"commit": self.sha, "dirty": True}))
-        stubs = self.stubs(just="echo 'Ran 24 tests'; echo OK; exit 0")
+        stubs = self.stubs(just="mkdir -p %s/v12/python/packaging; echo '{\"schema\": \"baton.v12.build-stamp/1\", \"commit\": \"%s\", \"dirty\": true, \"changed_entries\": 4, \"excused_build_output\": 0, \"detail\": null, \"source\": \"x\"}' > %s/v12/python/packaging/build-stamp.json; echo 'Ran 24 tests'; echo OK; exit 0"
+                           % (self.repo, "f" * 40, self.repo))
         out = self.helper("bundle", stubs=stubs)
-        self.assertNotEqual(out.returncode, 0)
-        self.assertIn("AssertionError", out.stderr)
+        self.assertEqual(out.returncode, 2, out.stdout + out.stderr)
+        self.assertIn("recorded stamp names commit " + "f" * 40, out.stderr)
         self.assertFalse((self.repo / PILOT / "evidence" / f"checkpoint-{self.sha[:8]}-packaging" / "version.txt").exists())
 
-    def test_a_green_gate_with_a_clean_stamp_and_bundle_passes(self):
+    def test_a_stamp_with_no_observation_is_refused(self):
         self.assertEqual(self.helper("bind").returncode, 0)
-        stamp = self.repo / "v12/python/packaging"; stamp.mkdir(parents=True)
-        stamp.joinpath("build-stamp.json").write_text(json.dumps({"commit": self.sha, "dirty": False}))
-        bundle = self.repo / "v12/python/build/out/distro"; bundle.mkdir(parents=True)
-        exe = bundle / "baton-v12-stack"
-        exe.write_text("#!/usr/bin/env bash\ncase \"$*\" in *--version*) echo 'baton 12.0.0 (check)';; *identity*) echo '{}';; *compose-worker*) echo '--template VERSION';; esac\n")
-        exe.chmod(exe.stat().st_mode | stat.S_IEXEC)
-        stubs = self.stubs(just="echo 'Ran 24 tests'; echo OK; exit 0")
+        stubs = self.stubs(just="mkdir -p %s/v12/python/packaging; echo '{\"schema\": \"baton.v12.build-stamp/1\", \"commit\": \"%s\", \"dirty\": null, \"detail\": \"the repository tool could not report the tree state\", \"source\": \"x\"}' > %s/v12/python/packaging/build-stamp.json; echo 'Ran 24 tests'; echo OK; exit 0"
+                           % (self.repo, self.sha, self.repo))
         out = self.helper("bundle", stubs=stubs)
+        self.assertEqual(out.returncode, 2, out.stdout + out.stderr)
+        self.assertIn("carries no observation of the tree", out.stderr)
+
+    def test_the_real_stamp_is_kept_as_captured_and_the_finite_sequence_needs_no_checkpoint(self):
+        """G1+G2: with unrelated records, this qualification's own records and
+        the gate's own evidence all dirty, check -> bundle pass on the SAME
+        commit; the real stamp is dirty, truthful, and recorded unchanged."""
+        self.assertEqual(self.helper("bind").returncode, 0)
+        unrelated = self.unrelated_records()
+        out = self.helper("check")
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        for name in unrelated:
+            self.assertIn(name, out.stdout)
+        self.assertIn("[unrelated", out.stdout)
+        self.assertTrue((self.cfg / f"native-inputs-2-{self.sha[:8]}.json").exists())   # the inputs record, first check
+        self.stand_in_bundle()
+        out = self.helper("bundle", stubs=self.stubs(just=self.real_stamp_just()))
         self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
         held = self.repo / PILOT / "evidence" / f"checkpoint-{self.sha[:8]}-packaging"
-        for name in ("build-and-gate.log", "build-stamp.json", "version.txt", "bundle-identity.json", "distro-sha256.txt"):
-            self.assertTrue((held / name).exists(), name)
+        stamp = json.loads((held / "build-stamp.json").read_text())
+        self.assertEqual(stamp["commit"], self.sha); self.assertTrue(stamp["dirty"]); self.assertEqual(stamp["excused_build_output"], 0)
+        # the stamp counted the whole repository at capture time: 3 bind records + inputs record
+        # + 4 unrelated entries + the evidence directory = 9, and is recorded exactly so
+        self.assertEqual(stamp["changed_entries"], 9)
+        after = json.loads((held / "tree-state.after.json").read_text())
+        self.assertEqual(after["recorded_stamp"], stamp)
+        self.assertEqual(after["inputs_stability"].split(" since")[0], "stable")
+        self.assertEqual(after["inputs"]["content_digest"], json.loads((held / "tree-state.before.json").read_text())["inputs"]["content_digest"])
+        self.assertIn("kept as captured", out.stdout)
+        self.assertEqual(self.helper("check").returncode, 0)   # and a later check still passes with the evidence present
+        self.assertEqual(self.git("rev-parse", "HEAD").strip(), self.sha)   # no commit anywhere in the sequence
+
+    def test_capture_excused_build_outputs_are_labelled_as_the_stamp_excuses_them(self):
+        """The reviewer's counterexample, at the tool's own boundary: given the
+        capture's observation lines, the three build outputs the real
+        `build_stamp.capture` excuses are labelled so, never `product`, and the
+        bind record is `generated`. (In the checkout those outputs are
+        gitignored, `v12/.gitignore`, so neither the stamp nor `git status --
+        v12` ever lists them; a checkout that un-ignored them would make the
+        v12/ guard refuse first, which is the product-scope rule, not drift
+        invented here.)"""
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("treeguard", TREE); tree = importlib.util.module_from_spec(spec); spec.loader.exec_module(tree)
+        lines = ["?? " + PILOT + "/config/native-bound-2.json", "?? v12/python/build/out/", "?? v12/python/build/work/",
+                 "?? v12/python/packaging/build-stamp.json", "?? v12/python/tools/stray.py",
+                 "?? work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/"]
+        held = {one["path"]: one["class"] for one in tree.classify(lines, "deadbeef", [])}
+        self.assertEqual(held["v12/python/build/out/"], "build-output (excused by the stamp)")
+        self.assertEqual(held["v12/python/build/work/"], "build-output (excused by the stamp)")
+        self.assertEqual(held["v12/python/packaging/build-stamp.json"], "build-output (excused by the stamp)")
+        self.assertEqual(held["v12/python/tools/stray.py"], "product")
+        self.assertEqual(held[PILOT + "/config/native-bound-2.json"], "generated (this qualification, this checkpoint)")
+        self.assertEqual(held["work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/"], "unrelated (not an input)")
+        # and the real capture over the same observation agrees on what it excuses
+        import sys
+        sys.path.insert(0, str(CHECKOUT / "v12/python"))
+        try:
+            from tools import build_stamp
+        finally:
+            sys.path.pop(0)
+        stamp = build_stamp.capture(source=self.repo, runner=lambda argv, cwd: (self.sha + "\n") if "rev-parse" in argv else "\n".join(lines) + "\n")
+        self.assertEqual((stamp["dirty"], stamp["changed_entries"], stamp["excused_build_output"]), (True, 3, 3))
+        self.assertTrue((self.repo / "v12/.gitignore").read_text().startswith("/python/build/\n"))
+
+    def test_a_dirty_product_input_refuses_every_consuming_step(self):
+        self.assertEqual(self.helper("bind").returncode, 0)
+        (self.repo / "v12/python/tools/stray.py").write_text("# an untracked product file\n")
+        out = self.helper("check")
+        self.assertEqual(out.returncode, 2)
+        self.assertIn("changed or untracked", out.stderr)   # the v12/ guard fires first
+
+    def test_a_changed_helper_byte_refuses_before_anything_else_runs(self):
+        self.assertEqual(self.helper("bind").returncode, 0)
+        tree = self.cfg / "native-handoffs-2-tree.py"
+        tree.write_text(tree.read_text() + "\n# not the reviewed bytes\n")
+        out = self.helper("check", stubs=self.stubs(just="exit 0"))
+        self.assertEqual(out.returncode, 2)
+        self.assertIn("not the reviewed ones", out.stderr)
+        self.assertEqual(self.calls("just"), [])
+
+    def test_a_declared_input_dirty_in_git_or_changed_in_content_refuses_as_input_drift(self):
+        """Declared inputs are hashed by content (collapsed untracked directories
+        expanded), so an untracked file inside one is drift, and an edited one
+        changes the recorded content digest across the gate."""
+        declared = self.repo / "work/records/declared/context"; declared.mkdir(parents=True)
+        (declared / "agent.py").write_text("tracked input\n")
+        self.git("add", "--all"); self.git("commit", "-q", "--message", "a declared input"); self.sha = self.git("rev-parse", "HEAD").strip()
+        self.assertEqual(self.helper("bind").returncode, 0)
+        env = {"QUALIFY_DECLARED": "--input work/records/declared/context"}
+        self.assertEqual(self.helper("check", env=env).returncode, 0)
+        (declared / "fresh.py").write_text("hidden inside a collapsed untracked directory? no: expanded\n")
+        out = self.helper("check", env=env)
+        self.assertEqual(out.returncode, 2)
+        self.assertIn("declared consumed input(s) changed or untracked in git", out.stderr)
+        self.assertIn("work/records/declared/context/fresh.py", out.stderr)
+        (declared / "fresh.py").unlink()
+        (declared / "agent.py").write_text("edited input\n")
+        self.git("commit", "-q", "-a", "--message", "edit the input")   # committed, so git is clean but the content moved
+        moved = self.git("rev-parse", "HEAD").strip()
+        out = self.helper("check", env=env)
+        self.assertEqual(out.returncode, 2)
+        self.assertIn("is not the bound checkpoint", out.stderr)   # HEAD moved first; and with the bound sha forced:
+        bound = json.loads(self.bound.read_text()); bound["sha"] = moved; self.bound.write_text(json.dumps(bound))
+        inputs = self.cfg / f"native-inputs-2-{self.sha[:8]}.json"; inputs.rename(self.cfg / f"native-inputs-2-{moved[:8]}.json")
+        out = self.helper("check", env=env)
+        self.assertEqual(out.returncode, 2)
+        self.assertTrue("drifted since" in out.stderr or "does not describe" in out.stderr, out.stderr)
+
+    def identity_bundle(self):
+        """The stand-in launcher answering `identity` with the real stamp and its own SHA256."""
+        exe = self.stand_in_bundle()
+        exe.write_text("#!/usr/bin/env bash\ncase \"$*\" in *--version*) echo 'baton 12.0.0 (check)';; *identity*) python3 -c \"import json,hashlib; s=json.load(open('%s/v12/python/packaging/build-stamp.json')); print(json.dumps({'command': 'baton-v12-stack', 'frozen': True, 'build_stamp': s, 'sha256': hashlib.sha256(open('%s', 'rb').read()).hexdigest()}, sort_keys=True))\";; *compose-worker*) echo '--template VERSION';; esac\n" % (self.repo, exe))
+        return exe
+
+    def test_install_verifies_the_qualified_bundle_before_bootstrap_has_any_effect(self):
+        """G3: missing evidence, other launcher bytes under the same stamp, and
+        another stamp all refuse BEFORE bootstrap; the installed identity must
+        be the verified artifact's."""
+        self.assertEqual(self.helper("bind").returncode, 0)
+        dest = self.root / "dest"; dest.mkdir(exist_ok=True)
+        (dest / "authority-identity.json").write_text(json.dumps({"authority_uuid": "0000000a000000000000000000000000"}))
+        stub = self.bootstrap_stub(dest)
+        # (1) no bundle evidence yet
+        out = self.helper("install", stubs=self.stubs(just=stub))
+        self.assertEqual(out.returncode, 2); self.assertIn("no qualification evidence", out.stderr)
+        self.assertFalse((dest / "instance.json").exists()); self.assertEqual([c for c in self.calls("just") if "bootstrap" in c], [])
+        exe = self.identity_bundle()
+        self.assertEqual(self.helper("bundle", stubs=self.stubs(just=self.real_stamp_just())).returncode, 0)
+        held = self.repo / PILOT / "evidence" / f"checkpoint-{self.sha[:8]}-packaging"
+        recorded = json.loads((held / "bundle-identity.json").read_text())
+        self.assertEqual(recorded["sha256"], (held / "distro-sha256.txt").read_text().split()[0])
+        manifest = json.loads((held / "runtime-manifest.json").read_text())
+        self.assertEqual(manifest["files"], 3); self.assertEqual(manifest["entries"]["_internal/library.so.1"], "link:library.so")
+        # (2) other launcher bytes under the SAME stamp
+        original = exe.read_text()
+        exe.write_text(original + "\n# rebuilt or replaced: same stamp, other bytes\n")
+        out = self.helper("install", stubs=self.stubs(just=stub))
+        self.assertEqual(out.returncode, 2, out.stdout + out.stderr); self.assertIn("is not the qualified one", out.stderr)   # the manifest sees it first
+        self.assertFalse((dest / "instance.json").exists()); self.assertEqual([c for c in self.calls("just") if "bootstrap" in c], [])
+        exe.write_text(original)
+        # (3) another stamp recorded against the same bytes
+        kept = (held / "bundle-identity.json").read_text()
+        other = dict(recorded); other["build_stamp"] = dict(recorded["build_stamp"], dirty=False, changed_entries=0)
+        (held / "bundle-identity.json").write_text(json.dumps(other, sort_keys=True))
+        out = self.helper("install", stubs=self.stubs(just=stub))
+        self.assertEqual(out.returncode, 1, out.stdout + out.stderr); self.assertIn("does not carry the recorded stamp", out.stderr)
+        self.assertFalse((dest / "instance.json").exists()); self.assertEqual([c for c in self.calls("just") if "bootstrap" in c], [])
+        (held / "bundle-identity.json").write_text(kept)
+        # (4) the verified bundle installs, and the installed identity and runtime are checked
+        out = self.helper("install", stubs=self.stubs(just=stub))
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        self.assertIn("qualified runtime verified before install: 3 files", out.stdout)
+        self.assertIn("qualified bundle verified before install:", out.stdout)
+        self.assertIn("instance 0000000a000000000000000000000000 bundle " + recorded["sha256"] + " runtime " + manifest["digest"][:16], out.stdout)
+        self.assertEqual(len([c for c in self.calls("just") if "bootstrap" in c]), 1)
+        # (5) an installed identity that is not the verified artifact's fails after the fact
+        instance = json.loads((dest / "instance.json").read_text()); instance["identity"]["sha256"] = "0" * 64
+        (dest / "instance.json").write_text(json.dumps(instance))
+        out = self.helper("install", stubs=self.stubs(just="case \"$*\" in *bootstrap*) :;; esac; exit 0"))
+        self.assertNotEqual(out.returncode, 0); self.assertIn("installed bundle sha256", out.stderr)
+
+    def test_install_refuses_any_dependency_or_link_drift_in_the_one_folder_runtime_before_bootstrap(self):
+        """G3, the reviewer's counterexample widened: the launcher and stamp are
+        unchanged, but a dependency changed, was added, was removed, or an
+        internal link now points elsewhere -- each is another runtime and refuses
+        before bootstrap; an installed runtime that is not the qualified one
+        fails afterward."""
+        self.assertEqual(self.helper("bind").returncode, 0)
+        dest = self.root / "dest"; dest.mkdir(exist_ok=True)
+        (dest / "authority-identity.json").write_text(json.dumps({"authority_uuid": "0000000a000000000000000000000000"}))
+        exe = self.identity_bundle()
+        self.assertEqual(self.helper("bundle", stubs=self.stubs(just=self.real_stamp_just())).returncode, 0)
+        internal = exe.parent / "_internal"; library = internal / "library.so"; link = internal / "library.so.1"
+        qualified = library.read_bytes()
+        held = self.repo / PILOT / "evidence" / f"checkpoint-{self.sha[:8]}-packaging"
+        recorded_distro = (held / "distro-sha256.txt").read_text().split()[0]
+        def refused(what):
+            self.assertEqual(hashlib.sha256(exe.read_bytes()).hexdigest(), recorded_distro, "the launcher must be unchanged in this case")
+            out = self.helper("install", stubs=self.stubs(just=self.bootstrap_stub(dest)))
+            self.assertEqual(out.returncode, 2, what + ": " + out.stdout + out.stderr)
+            self.assertTrue("is not the qualified one" in out.stderr or "cannot be bound as the qualified one" in out.stderr, what + ": " + out.stderr)
+            self.assertFalse((dest / "instance.json").exists(), what); self.assertEqual([c for c in self.calls("just") if "bootstrap" in c], [], what)
+            shutil.rmtree(self.root / "stubs")
+        library.write_bytes(b"changed library bytes\n"); refused("changed dependency"); library.write_bytes(qualified)
+        (internal / "extra.so").write_bytes(b"added\n"); refused("added dependency"); (internal / "extra.so").unlink()
+        library.unlink(); refused("removed dependency"); library.write_bytes(qualified)
+        link.unlink(); link.symlink_to("extra.so"); refused("internal link retargeted"); link.unlink(); link.symlink_to("library.so")
+        outside = self.root / "outside.so"; outside.write_bytes(qualified)
+        link.unlink(); link.symlink_to(outside)
+        out = self.helper("install", stubs=self.stubs(just=self.bootstrap_stub(dest)))
+        self.assertEqual(out.returncode, 2); self.assertIn("pointing outside it", out.stderr)   # the installer's own refusal, before bootstrap
+        self.assertFalse((dest / "instance.json").exists()); shutil.rmtree(self.root / "stubs")
+        link.unlink(); link.symlink_to("library.so")
+        # the restored qualified runtime installs; an installed runtime digest that is not the qualified one fails afterward
+        out = self.helper("install", stubs=self.stubs(just=self.bootstrap_stub(dest, installed_runtime_digest="f" * 64)))
+        self.assertNotEqual(out.returncode, 0, out.stdout + out.stderr); self.assertIn("installed runtime", out.stderr)
+        self.assertTrue((dest / "instance.json").exists())
+
+    def test_capture_excused_untracked_build_outputs_pass_the_outer_guard_while_tracked_and_product_drift_refuse(self):
+        """G2, the CONDITIONAL case proved as conditional: this fixture un-ignores
+        the build outputs (the selected checkout ignores them, v12/.gitignore), so
+        the stand-in runtime under build/out/ is UNTRACKED in git. check and bundle
+        pass, the real stamp excuses those outputs, the inputs digest is stable
+        across the build although the outputs changed; a tracked change under
+        v12/, an untracked product file, and a tracked change inside build/out/
+        still refuse."""
+        (self.repo / "v12/.gitignore").write_text("__pycache__/\n")
+        (self.repo / "v12/python/build/out/distro").mkdir(parents=True)
+        (self.repo / "v12/python/build/out/distro/tracked-note.txt").write_text("a tracked file inside the output directory\n")
+        self.git("add", "--all"); self.git("commit", "-q", "--message", "expose build output to git for this check")
+        self.sha = self.git("rev-parse", "HEAD").strip()
+        self.assertEqual(self.helper("bind").returncode, 0)
+        self.stand_in_bundle()                     # untracked launcher, library and link under build/out/
+        (self.repo / "v12/python/build/work").mkdir(parents=True); (self.repo / "v12/python/build/work/scratch.bin").write_bytes(b"x")
+        out = self.helper("check")
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        self.assertIn("but for 4 capture-excused untracked build output(s)", out.stdout)   # 3 files under out/ + 1 under work/
+        self.assertIn("[build-output (excused by the stamp)]", out.stdout)
+        record = json.loads((self.cfg / f"native-inputs-2-{self.sha[:8]}.json").read_text())
+        self.assertEqual(len(record["excused_build_outputs"]), 4)
+        self.assertNotEqual(record["inputs_digest"], record["content_digest"])   # the tool's digest includes them; the inputs digest does not
+        out = self.helper("bundle", stubs=self.stubs(just=self.real_stamp_just()))
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        stamp = json.loads((self.repo / PILOT / "evidence" / f"checkpoint-{self.sha[:8]}-packaging" / "build-stamp.json").read_text())
+        self.assertGreaterEqual(stamp["excused_build_output"], 3)   # out/ (collapsed), work/ (collapsed), the stamp file
+        after = json.loads((self.repo / PILOT / "evidence" / f"checkpoint-{self.sha[:8]}-packaging" / "tree-state.after.json").read_text())
+        self.assertEqual(after["inputs"]["inputs_digest"], record["inputs_digest"])   # stable across the build
+        self.assertTrue(after["inputs_stability"].startswith("stable since"))
+        # tracked change inside the output directory: never excused
+        (self.repo / "v12/python/build/out/distro/tracked-note.txt").write_text("edited\n")
+        out = self.helper("check"); self.assertEqual(out.returncode, 2); self.assertIn(" M v12/python/build/out/distro/tracked-note.txt", out.stderr)
+        self.git("checkout", "--", "v12/python/build/out/distro/tracked-note.txt")
+        # an untracked product file
+        (self.repo / "v12/python/tools/stray.py").write_text("# stray\n")
+        out = self.helper("check"); self.assertEqual(out.returncode, 2); self.assertIn("?? v12/python/tools/stray.py", out.stderr)
+        (self.repo / "v12/python/tools/stray.py").unlink()
+        # a tracked product change
+        (self.repo / "v12/STACK.md").write_text("edited\n")
+        out = self.helper("check"); self.assertEqual(out.returncode, 2); self.assertIn(" M v12/STACK.md", out.stderr)
+
+    def test_a_reviewed_helper_transition_is_explicit_and_keeps_the_prior_record(self):
+        """A helper correction changes the reviewed sums. The inputs record is not
+        reset: without the exact prior sums named, check refuses; with it, the
+        transition is appended and the prior record kept; source drift refuses
+        in the same step regardless."""
+        self.assertEqual(self.helper("bind").returncode, 0)
+        self.assertEqual(self.helper("check").returncode, 0)
+        record = self.cfg / f"native-inputs-2-{self.sha[:8]}.json"
+        first = json.loads(record.read_text()); old_sums = first["helper_sums_sha256"]
+        tree = self.cfg / "native-handoffs-2-tree.py"; tree.write_text(tree.read_text() + "\n# a reviewed correction\n")
+        sums = self.cfg / "native-handoffs-2-reviewed.sha256"
+        sums.write_text(subprocess.run(["sha256sum"] + [str(self.cfg / n) for n in ("native-handoffs-2-bind.py", "native-handoffs-2-tree.py", "native-handoffs-2-qualify.sh", "native-instance-handoffs-2.unbound.json", "native-installed-task-handoffs-2.unbound.json")], capture_output=True, text=True, cwd=self.repo).stdout.replace(str(self.repo) + "/", ""))
+        new_sums = hashlib.sha256(sums.read_bytes()).hexdigest()
+        out = self.helper("check")
+        self.assertEqual(out.returncode, 2); self.assertIn("reviewed helper bytes changed since", out.stderr); self.assertIn("--helper-transition", out.stderr)
+        self.assertEqual(json.loads(record.read_text()), first)   # not reset
+        out = self.helper("check", env={"QUALIFY_HELPER_TRANSITION": "0" * 64})
+        self.assertEqual(out.returncode, 2)                        # the wrong prior sums do not transition
+        out = self.helper("check", env={"QUALIFY_HELPER_TRANSITION": old_sums})
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        self.assertIn("reviewed-helper transition recorded", out.stdout)
+        now = json.loads(record.read_text())
+        self.assertEqual(now["helper_sums_history"], [old_sums, new_sums]); self.assertEqual(now["inputs_digest"], first["inputs_digest"]); self.assertEqual(now["recorded_at"], first["recorded_at"])
+        kept = self.cfg / f"native-inputs-2-{self.sha[:8]}.before-{new_sums[:8]}.json"
+        self.assertEqual(json.loads(kept.read_text()), first)      # the prior record, byte for byte
+        self.assertEqual(now["transitions"][0]["prior_record_kept_as"], kept.name)
+        self.assertEqual(self.helper("check").returncode, 0)       # and no transition is needed afterwards
+        self.assertIn(kept.name + "  [generated", self.helper("check").stdout)
 
     def test_a_failed_image_build_ends_the_image_step_before_inspection(self):
         self.assertEqual(self.helper("bind").returncode, 0)

@@ -1,0 +1,27 @@
+{
+  "canonical_target_id": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+  "checkpoint_profile": "git",
+  "integration_profile": {
+    "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+    "integrator_participant": "baton.integrator-native",
+    "profile_kind": "git",
+    "profile_version": 1
+  },
+  "line_declared_base": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+  "native_handoff_routing": {
+    "decision_recipient": "baton.slaw",
+    "reviewer": "baton.reviewer-native"
+  },
+  "owner_participant": "baton.slaw",
+  "policy_generation": 1,
+  "pool_generation": 1,
+  "receipt_participants": {
+    "approval": "baton.slaw",
+    "review": "baton.reviewer-receipt-native",
+    "verification": "baton.verifier-native"
+  },
+  "retention_disposition": "retain",
+  "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+  "schema": "baton.v12.stack-bootstrap/1",
+  "state_root": "/home/sl/baton-instances/native-handoffs-3"
+}

@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385331",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385331"
+      }
+    ],
+    "last_seq": 385405,
+    "local_id": "T385331",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Claim W385331 and review M385403 qualification guard correction. Pilot dossier config/native-handoffs-2-tree.py, qualify.sh delta, evidence/native-handoffs-2-qualification/PACKET.md delta and checks/test_qualify.py additions; historical round4 snapshots retained. Goal is truthful dirty stamp for generated records while preserving exact selected source, not a fresh generic release system. Check real build_stamp capture semantics, source_identity declared inputs, path enumeration/collapsed untracked dirs, generated path allowlist, stamp/inventory timing as gate writes its own evidence, install consumes the actual verified bundle, failure-before-effects. All accepted product bytes and 43-path binding must remain intact. K reports24 deterministic checks but actual checkout still refuses this correction's own uncommitted records and proposes commit/rebind. Explicitly assess a finite executable path: no recurring commit/rebind requirement caused solely by generated evidence; avoid making entire repository cleanliness an invented product-input gate. If one checkpoint for reviewed helper bytes is necessary, say so precisely and show subsequent bind/build/evidence generation requires no further checkpoint. Current selected source7ac02c7f; no rebind/build/image/install/live authorization. Preserve archive retirement boundary: all old instance folders removed, use dossier evidence. No product edits/Git mutation/live operations. Post exact verdict/evidence T385331, pass and verify release. K holds edits; no new owner design question presumed.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385405,
+        "ts": "2026-11-21 02:29:19"
+      }
+    ],
+    "new": 21,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 native messaging handoffs and reviewer-dispositioned discovery",
+    "total": 21
+  },
+  "snapshot_seq": 385406
+}

@@ -1,0 +1,11 @@
+{
+  "config/native-handoffs-2-tree.py": "adf11b40a83231dc14f6bfa91022e48a2b11d2f415648bca21a403c785228987",
+  "config/native-handoffs-2-bind.py": "4cc1469e222a300a582bacddb435e44ae2a842ee86570f8b75c213f9f40666d6",
+  "config/native-handoffs-2-qualify.sh": "160fae0dd2aea7eedc9e76f75350df7f2b937b123f85a6642fbb00f37befca7e",
+  "config/native-handoffs-2-reviewed.sha256": "a8337f0a39a80fd3a6d6fba23e1682766f78b93cc86c81391d8a666ea006ce32",
+  "config/native-inputs-2-7ac02c7f.json": "0525ddb16605e0f47172d2a2456c5ab508eb50f7de733b7bf59f2695452ddbb0",
+  "config/native-instance-handoffs-2.unbound.json": "795f4a06edbf4785ca0f9dad7d6639c43f2ca5f73e8b722fa00b3d8adcc1e54e",
+  "config/native-installed-task-handoffs-2.unbound.json": "5c3ae5a1187de1d7685407048e98509fc208a5c230fcac0c65f9bfb5f1b0f068",
+  "evidence/native-handoffs-2-qualification/PACKET.md": "cdeb61e2f5c2a40d6c65662170789b62744924134855bda0006fd25b8daa02c1",
+  "evidence/native-handoffs-2-qualification/checks/test_qualify.py": "2c5225449ccb5e67148530cb21a11957eede8db26c9a5317fa26a14cde96d874"
+}

@@ -346,3 +346,13 @@ own those corrections respectively. Full forest resolution, inherited grants,
 masks and Teams/Inbox UX remain deferred here. Approver obligation 16832 records
 the serial scheduler edges because the reviewer has no authority to mutate
 `impl`-routed Work.
+
+## Owner delivery-model clarification — 2026-11-21
+
+Owner confirmed this remains v12, not a renamed v13: multiple teams work concurrently across distinct Git repositories/root projects under one human operator, reusing agent capacity with explicit ownership and execution isolation. Work describes obligations and relationships; Jobs execute Work. A question can be Work without a coding Job. Advanced scheduling/hardening remains v13; migration is not a 1:1 copy or immediate dual-authority backlog.
+
+Teams have shared internal visibility of work, findings, decisions and dependency chains; this grants no cross-team mutation authority or implicit filesystem/credential access. Team A may file a defect/request with project B. B owns triage and may decompose it or discover other work recursively. Containment is a tree; prerequisites form a separate cross-project dependency graph. Filing or containment alone does not start execution or create a dependency. Explicit satisfaction conditions distinguish response, accepted implementation, integration and usable revision; rejection/cancellation never silently count as a successful fix.
+
+B may create clarification Work addressed to A and wait on its answer while A's feature waits on B's fix. The clarification must stay runnable independently of A's blocked feature: do not inherit the parent's blocker and deadlock the exchange. An answer satisfies only that clarification obligation, not the fix or feature. Routine answers route automatically to authorized participants; only unresolved decisions require the human.
+
+These are confirmed requirements, not permission to redesign the approved principal/scope forest or alter live claims/dependency edges. They supersede any interpretation that full team/cross-project coordination is merely optional post-v12 work, while preserving prior identity/grant decisions and the requirement to revalidate historical milestone ordering. Before dependent implementation, reconcile current DESIGN and code with this ruling, amend DESIGN explicitly and decompose bounded outcomes. W385331 owns current clarification and subsequent discovery/dependency mechanisms; this record owns the team/project operating model and migration mapping.

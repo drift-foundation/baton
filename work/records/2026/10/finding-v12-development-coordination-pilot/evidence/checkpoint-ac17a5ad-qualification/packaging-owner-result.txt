@@ -1,0 +1,2 @@
+Owner supplied terminal summary: Ran 24 tests in 14.501s; OK. Shell reported missing log destination afterward. Full log retention unconfirmed; no rerun required.
+Correction: full log recovered from accidentally split destination checkpoint-ac17a5ad- and moved byte-for-byte to packaging-gate.log. It records 24 tests in14.501s, OK.

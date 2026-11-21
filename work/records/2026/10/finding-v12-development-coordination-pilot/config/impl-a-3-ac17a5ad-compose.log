@@ -1,0 +1,10 @@
+worker    impl-a         implementation
+work      fd3e8b90-W1
+image     sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4
+layout    trusted 1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472
+profile   claude-fresh-implementation sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92
+template  baton.v12.job-template.implementation-review/3 declaring proposal, findings, logs, handoff, response
+task      /home/sl/baton-instances/native-handoffs-3/state/task/installed-task.json (native-development-default)
+manifest  sha256:ac612d79aca3d4338343af1171eb6fdf0bbcffca517f181fac3b954c04df8c32
+written   /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/config/impl-a-3-ac17a5ad.json
+no Job was prepared, nothing was submitted, no Work was created or touched, and the instance's configuration was not changed

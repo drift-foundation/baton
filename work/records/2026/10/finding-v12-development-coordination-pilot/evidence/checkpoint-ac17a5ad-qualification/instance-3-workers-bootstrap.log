@@ -1,0 +1,20 @@
+prerequisite  workspace_storage /home/sl/baton-instances/native-handoffs-3/state/workspaces
+prerequisite  launch_home /home/sl/baton-instances/native-handoffs-3/state/launch
+prerequisite  credential_home /home/sl/baton-instances/native-handoffs-3/state/credentials
+repositories  2 worker source(s) prepared from the instance's own target, 2 proved: source-impl-a, source-review-a
+authority fd3e8b90...    reused from this root's record
+route impl           -> baton.claude-native
+route rview          -> baton.reviewer-native
+routing               reviewer baton.reviewer-native, decisions to baton.slaw
+job   none; no Work, grant or placeholder was created
+configuration /home/sl/baton-instances/native-handoffs-3/deployment.json
+capacity      {"job_affinity": {}, "jobs": 0, "note": "this instance configures a pool and binds no Job; a Work, a declared base and a canonical target are supplied when a Job is created", "schema": "baton.v12.stage-execution-deployment/2", "targets": [], "workers_by_role": {"implementation": ["impl-a"], "integration": [], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/baton-instances/native-handoffs-3/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/baton-instances/native-handoffs-3/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="fd3e8b904bda4bf088bebda0082cf8b7"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/baton-instances/native-handoffs-3/deployment.json"
+install       /home/sl/baton-instances/native-handoffs-3/install-inputs.json (kept in step with the configuration)

@@ -1,0 +1,1 @@
+601ef8dff39522765a52a3dafaa8e23a94547735f1c3ef910627e89da8b85b12  v12/python/build/out/distro/baton-v12-stack

@@ -1,0 +1,34 @@
+test_an_invalid_file_still_fails_with_a_usable_diagnostic (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_an_invalid_file_still_fails_with_a_usable_diagnostic)
+The negative control for the floor case above. ... ok
+test_nothing_from_the_manager_travelled (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_nothing_from_the_manager_travelled)
+The image's whole isolation rule, asked of the artefact: a worker ... ok
+test_python_and_the_worker_program_travelled (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_python_and_the_worker_program_travelled) ... ok
+test_the_adapter_in_the_image_is_the_reviewed_file (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_adapter_in_the_image_is_the_reviewed_file)
+W85497 correction bytes must be in the artefact being certified. ... ok
+test_the_committed_v12_baseline_compiles_and_stays_byte_identical (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_committed_v12_baseline_compiles_and_stays_byte_identical)
+BOTH HALVES OF THE ACCEPTANCE, in one container. ... ok
+test_the_entrypoint_starts_the_worker_with_the_adapter_injected (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_entrypoint_starts_the_worker_with_the_adapter_injected)
+THE WHOLE INJECTION, asked of the artefact. ... ok
+test_the_image_carries_no_provider_credential (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_image_carries_no_provider_credential)
+THE NO-SECRET HALF, asked of the artefact rather than the recipe. ... ok
+test_the_image_sets_no_provider_environment_variable (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_image_sets_no_provider_environment_variable)
+An `ANTHROPIC_API_KEY` baked here would silently outrank the ... ok
+test_the_injected_agent_is_the_real_adapter (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_injected_agent_is_the_real_adapter) ... ok
+test_the_interpreter_meets_the_distributions_declared_floor (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_interpreter_meets_the_distributions_declared_floor)
+THE DEFECT W85497 EXISTS FOR, asked of the image rather than the ... ok
+test_the_provider_cli_is_installed_at_the_pinned_version (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_provider_cli_is_installed_at_the_pinned_version)
+THE FACT A RECIPE CANNOT ESTABLISH. `npm install -g` naming a ... ok
+test_the_runtime_identity_is_the_fixed_non_root_pair (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_runtime_identity_is_the_fixed_non_root_pair) ... ok
+test_the_scripted_default_did_not_travel (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_scripted_default_did_not_travel)
+THE STOPGAP IS GONE, and this is what keeps it gone. ... ok
+test_the_system_trust_store_is_present (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_system_trust_store_is_present)
+W17110 paid two review rounds for its absence: a native runtime ... ok
+test_the_worker_in_the_image_is_the_reviewed_file (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_the_worker_in_the_image_is_the_reviewed_file)
+Byte-for-byte, so an image built from a forked worker fails here ... ok
+test_there_is_exactly_one_python3_in_the_artefact (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed.test_there_is_exactly_one_python3_in_the_artefact)
+The suite was moved rather than a second interpreter installed. ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 2.653s
+
+OK

@@ -11,6 +11,35 @@ or delete unclassified dossier contents to make Git status clean.
 
 ## Git usage (strict)
 
+### Owner boundary clarification — 2026-11-21
+
+The Git restrictions below protect the main development line published to
+GitHub and its index, branches, tags and history. Slawomir alone stages,
+commits and publishes that line. Agent permission to edit product files does
+not grant permission to mutate its Git state.
+
+Within authorized work, agents may use Git and other necessary tools in
+disposable fixture repositories, isolated disposable staging copies and
+container execution repositories without separate per-command or per-test
+approval. This includes initialization, staging, commits, branches, merges,
+checkout/reset/clean, local fetches and proposal/bundle creation as needed.
+Here, staging copies means disposable working copies, not the protected
+development repository's Git index.
+
+The disposable boundary must be real: operations must not mutate the protected
+repository through shared Git metadata, linked worktrees, mounts, symlinks or
+remote pushes. Being inside Docker alone does not make a mounted development
+repository disposable. Preserve required candidates and evidence outside
+disposable storage before cleanup. This permission does not select a new live
+Job, deployment change or broader product scope.
+
+This ruling supersedes blanket no-Git-mutation interpretations for disposable
+repositories and earlier per-suite fixture-Git approval limits, including the
+two-viewer-test exception. No further owner approval is needed merely because
+an authorized test or isolated execution uses Git within this boundary.
+
+### Protected development repository
+
 - Use `git` only for reviewing history, status, and diffs (for example,
   `git status`, `git diff`, `git log`, `git show`, and `git blame`).
 - Slawomir alone owns the Git index, commits, branches, tags, and history.

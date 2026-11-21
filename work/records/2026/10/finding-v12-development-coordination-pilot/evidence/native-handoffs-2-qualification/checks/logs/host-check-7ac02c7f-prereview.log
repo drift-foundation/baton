@@ -1,0 +1,11 @@
+bound 7ac02c7f01cc59b43ade0c98b55be59ea750af41 verified: 43 paths, 5 overlap paths at native-handoffs-composer bytes
+refused: 5 entries not a generated record of this qualification for 7ac02c7f (unclassified); nothing after this runs
+   M work/records/2026/10/finding-v12-development-coordination-pilot/config/native-handoffs-2-qualify.sh  [unclassified]
+   M work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py  [unclassified]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-bound-2.json  [generated]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-handoffs-2-tree.py  [unclassified]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-installed-task-2-7ac02c7f.json  [generated]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-2-7ac02c7f.json  [generated]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/PACKET-r4-reviewed-385396.md  [unclassified]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/qualify-r4-reviewed-385396.sh  [unclassified]
+exit=2

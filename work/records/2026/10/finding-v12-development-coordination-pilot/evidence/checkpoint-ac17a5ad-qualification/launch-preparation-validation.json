@@ -1,0 +1,16 @@
+{
+  "prepared_at": "2026-11-21T16:40:04.069621+00:00",
+  "execution": "syntax and input checks only; no install, compose, create, start, build or tests executed",
+  "bash_syntax": "PASS",
+  "embedded_python_syntax": "PASS",
+  "statement_characters": 2033,
+  "source_head": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+  "product_status": "",
+  "destination_absent": true,
+  "files": {
+    "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-3-ac17a5ad.json": "61eb890c1f822455a051bdc842e1c46cd7dbbfb0b838418cbf99cb9ea1fd07ed",
+    "work/records/2026/10/finding-v12-development-coordination-pilot/config/native-installed-task-3-ac17a5ad.json": "7f1aae2a0b83307a272fa294c46c21d7f17b28688169e4332fb5f3a6c2835ac9",
+    "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/checkpoint-ac17a5ad-qualification/native-task-invocation-ended-wording-1.txt": "6e79468f1d8412c549795d7175aa2a5601174c7865d4544e88d8f0131233b734",
+    "work/records/2026/10/finding-v12-development-coordination-pilot/evidence/checkpoint-ac17a5ad-qualification/LAUNCH-COMMANDS.md": "077b14edf876b1c24d54c16b0849ade556c8140782f1a3c07815a005eebc2ec8"
+  }
+}

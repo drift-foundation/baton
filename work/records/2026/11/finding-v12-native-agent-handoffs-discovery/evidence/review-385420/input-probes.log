@@ -1,0 +1,8 @@
+test_real_digest_reconciliation_and_output_stability (__main__.Inputs.test_real_digest_reconciliation_and_output_stability) ... ok
+test_tracked_and_nearby_paths_refuse (__main__.Inputs.test_tracked_and_nearby_paths_refuse) ... ok
+test_transition_keeps_prior_and_refuses_source_or_declared_drift (__main__.Inputs.test_transition_keeps_prior_and_refuses_source_or_declared_drift) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.007s
+
+OK

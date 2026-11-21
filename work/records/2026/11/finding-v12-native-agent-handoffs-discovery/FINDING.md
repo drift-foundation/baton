@@ -66,3 +66,33 @@ Previous C3 overlap/order/control-flow defects resolved on helpers4cc1469e/8f4c2
 ## 2026-11-21T02-04-24Z — narrow create-readback acceptance E385396
 
 M385395/M385393 helper/document delta accepted. Direct-store read removed; supported create stdout/stderr captured and attributed to returned Work/bound routing. Five independent tests pass,0 failures/errors/skips,0.927917s wall, including real create and exact helper validator on accepted composer fixtures. Exact `review-2026-11-21T02-04-24Z.md` and evidence/review-385396/. Productbb5fa705/fa01b73d, binder and prior safeguards unchanged. Report is command-time evidence only; independent after-the-fact policy/grant read remains unproved, not a new feature gate. First author probe log overwrite and older custody limits retained. Current continuation: baton.decide for owner checkpoint/selected qualification; no actual build/install/live or Git action performed; larger discovery outcome remains open.
+
+
+## 2026-11-21T02-34-34Z — qualification-guard review E385406
+
+M385405/M385403 changes requested: G1 finite path must not gate unrelated/retained records on commits; G2 preserve truthful capture-time stamp semantics through evidence writes; G3 verify qualified bundle identity before bootstrap effects. Exact append-only `review-2026-11-21T02-34-34Z.md` and `evidence/review-385406/`. Independent 6 probes:1 pass,5 reproducing failures,0 errors/skips,0.113628021s wall. Selected7ac02c7f and accepted product/43-path binder preserved. This supersedes qualification-guard readiness only. Current action: K bounded helper correction then delta review; no new owner decision, checkpoint/rebind/build/install/live authority.
+
+
+## 2026-11-21T02-49-22Z — round6 delta review E385413
+
+G1 and historical stamp timing resolved; all five old failing probes now pass. Current7ac02c7f check passes with final inputs record unchanged. Remaining G3 complete runtime (not launcher only) identity and G2 capture-excused output through outer guard require correction. Exact `review-2026-11-21T02-49-22Z.md`, `evidence/review-385413/`. Final12 probes10pass/2reproductions,0errors/skips,0.204460898s; total measured verification0.952635274s including disclosed harness iteration and host check. Supersedes prior three wholly-open findings with these two narrow residuals. Accepted product/binder preserved; return implementation then delta review, no new owner decision or live/Git authority.
+
+
+## 2026-11-21T03-23-53Z — round7 delta acceptance E385420
+
+Round7 resolves remaining G2 outer/source-identity reconciliation and G3 complete-runtime qualification. Exact `review-2026-11-21T03-23-53Z.md`, `evidence/review-385420/`.17 final independent tests pass,0 failures/errors/skips; cumulative verification1.237948910s including disclosed reviewer fixture correction/strengthening and host check. Actual7ac02c7f check passes; original0525ddb1 preserved in verified3-transition chain, current inputs unchanged. Supersedes round6 changes-requested status for bounded helper only. Current action: baton.decide for accepted packet and separately selected qualification; no build/image/install/live/Git action by reviewer. Prior product acceptance and broader discovery limits remain.
+
+## Owner selection — deterministic clarification pipeline proof, 2026-11-21
+
+Following the successful useful native implementation/review cycle (checkpoint 939c7adf), owner explicitly selected a scripted scenario with fake providers at the normal provider boundary and real Baton coordination. Prove durable clarification plus retained checkpoint, automatic authorized reviewer answer, exact answer/checkpoint delivery to resumed implementation, mandatory verification and independent review completion without human/model courier. Also prove a genuinely unresolved design decision reaches the owner gate without fabricated approval; restart/retry boundaries must preserve attribution and avoid lost/duplicate messages or continuation. Label all scripted evidence deterministic, not live-model judgment proof.
+
+First inspect/reuse existing accepted coverage; extend only missing connected proofs. No live models, installed-instance changes, broad suite or activity-summary UX. Larger discovery/dependency delivery follows this bounded proof. No specification change selected; SCH-2a remains normative. Product fixes discovered here must remain bounded to this accepted outcome and independently reviewed; do not silently waive failed acceptance. Existing Git policy remains, with no expansion of the prior exact-two-viewer-test exception.
+
+
+## 2026-11-21 — E385503 partial deterministic proof (baton.codxpc)
+
+M385501: permitted baseline148 and candidate150 tests pass; two new durable Authority restart cases pass. Initial68 fixture-input errors retained and corrected by supplying exact dossier vectors. Two additive test paths preserved in evidence/clarification-proof-385503/candidate; tree ea6ffd7e395894adf1a0b7220b7439aa265572cae299098457a7591f42b21b8c, base 939c7adfe591cc413f29ab44d41392b583aaa5e5. No product/host import or Git mutation. Connected14existing+1new cases remain unexecuted because inherited fixture Git mutations are outside current exception. REPORT.md there contains coverage map, operation/target boundary, counts/durations and exact continuation. This is partial, not acceptance; next action is an explicit confined fixture-execution ruling, then unchanged connected baseline and candidate proofs. Claim returned through Baton; no broadened scope or invented product decision.
+
+## Owner standing disposable-repository authority — 2026-11-21
+
+Owner clarified that main development Git state/publication belongs exclusively to the human; agents may use necessary tools, including mutating Git, in authorized disposable staging/test/container repositories. AGENTS.md Git usage now pins the boundary and supersedes earlier exact-two-case fixture restrictions. Disposable operations must not reach protected Git state through shared metadata/mounts/remotes; required evidence survives cleanup. This resolves M385505 execution authority for the connected baseline and candidate tests; it is not broader live/engine/deployment authority.

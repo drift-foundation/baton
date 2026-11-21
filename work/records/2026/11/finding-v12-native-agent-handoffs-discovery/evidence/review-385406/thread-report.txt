@@ -1,0 +1,11 @@
+W385331 qualification-guard review: CHANGES REQUESTED. Product acceptance remains intact; selected source stays 7ac02c7f01cc59b43ade0c98b55be59ea750af41.
+
+- Outcome: reviewed M385403 under M385405, claim E385406; three bounded helper corrections remain.
+- Confirmed blockers: G1 tree.py:98-138/161-168 gates unrelated and retained evidence on commit/removal, recreating the prohibited checkpoint loop. G2 tree.py:104-105/151-153 differs from real build_stamp capture exclusions and labels capture-time truth false after later allowed evidence writes. G3 qualify.sh install:144ff runs bootstrap before stamp comparison and never compares the qualified bundle SHA256; a different bundle with the same stamp passes.
+- Required change: separate actual consumed source/helper identity from unrelated record dirtiness; preserve truthful historical stamp and validate input stability across evidence writes; verify qualified bundle before bootstrap and confirm installed identity. Retain current source selection and accepted safeguards. No generic release system or record deletion. No new owner decision needed.
+- Verification: six independent deterministic probes,1 pass/5 reproducing failures,0 errors/skips,0.113628021s wall. Real capture/tree helper with controlled observations, actual extracted install branch with recording stub/preflight stand-in; no actual install/build/live action. Author24 checks not independently rerun. Cover finite generated-evidence sequence, consumed-input drift/collapsed directories, missing/changed bundle and no effects on refusal.
+- Handoff condition: refreshed digest-bound bounded correction and focused evidence for delta review. K retains edits; no rebind/checkpoint authorized here.
+
+Exact review: work/records/2026/11/finding-v12-native-agent-handoffs-discovery/review-2026-11-21T02-34-34Z.md
+Evidence: work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/ (reviewed snapshots, reviewed-hashes.json, probes.py/log/json, review-identity.json).
+Candidate tree helper13d237e631718d4d792f0231caf77f9b0a797eebfec4e0b78c8f6e59ce597091; qualify helperc77783eb05ab0374b0490b1280a49f3c620573be778923f2be3b1f1d69278716. Binder unchanged4cc1469e. Prior custody/baseline/transient limitations preserved. Returning directly to baton.impl for G1-G3 correction.

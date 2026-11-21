@@ -1,0 +1,9 @@
+{
+  "checkpoint": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+  "image_tag": "baton-v12-worker:ac17a5ad",
+  "image_id": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4",
+  "configured_user": "65532:65532",
+  "evidence": "Owner reported successful build; coordinator independently inspected tag ID and user. Product tree clean.",
+  "packaging": "Owner reported command completed; final test summary not yet retained.",
+  "native_acceptance": false
+}

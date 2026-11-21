@@ -1,0 +1,19 @@
+authority fd3e8b90...    reused from this root's record
+route impl           -> baton.claude-native
+route rview          -> baton.reviewer-native
+routing               reviewer baton.reviewer-native, decisions to baton.slaw
+work  fd3e8b90-W1    already exists; left alone
+grant fd3e8b90-W1    approve/review/verify/integrate in its own scope
+owner fd3e8b90-W1    approve/integrate/close in its own scope; no verify or review grant
+answer               answer-handoff to baton.reviewer-native in its own scope; no review grant
+target                ac17a5add7a58fcd845a8eee7485a633ef917de3 established from line_declared_base
+configuration /home/sl/baton-instances/native-handoffs-3/deployment.json
+capacity      {"job_affinity": {"invocation-ended-wording-1": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["ac17a5add7a58fcd845a8eee7485a633ef917de3"], "workers_by_role": {"implementation": ["impl-a"], "integration": [], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/baton-instances/native-handoffs-3/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/baton-instances/native-handoffs-3/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="fd3e8b904bda4bf088bebda0082cf8b7"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/baton-instances/native-handoffs-3/deployment.json"

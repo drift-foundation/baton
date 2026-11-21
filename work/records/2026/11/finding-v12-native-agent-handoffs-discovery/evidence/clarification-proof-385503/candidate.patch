@@ -1,0 +1,108 @@
+--- a/v12/python/tests/authority/test_work_messages.py
++++ b/v12/python/tests/authority/test_work_messages.py
+@@ -631,6 +631,60 @@
+         self.assertIn("is already the", said)
+ 
+ 
++class DurableRestartPreservesCorrespondence(MessageCase):
++    """Close the database connection, then replay through fresh sessions.
++
++    These are Authority proofs only: no provider, worker or Git fixture is
++    involved. The composed pipeline remains covered separately.
++    """
++
++    def reopen(self):
++        self.authority.dispose()
++        self.authority = Authority.open(self.path, expected_authority_uuid=UUID)
++        self.addCleanup(self.authority.dispose)
++        self.implementer = self.authority.session(IMPLEMENTER)
++        self.reviewer = self.authority.session(REVIEWER)
++
++    def test_request_and_answer_survive_closed_connections_and_exact_retries(self):
++        request = self.asked()
++        self.reopen()
++        self.assertEqual(self.asked(), request)
++        first = self.answered(request)
++        before = self.authority.work_messages(WORK)
++        self.reopen()
++        self.assertEqual(self.answered(request), first)
++        self.assertEqual(self.authority.work_messages(WORK), before)
++        self.assertEqual(len(before), 2)
++        question, reply = before
++        self.assertEqual(question["author"], IMPLEMENTER)
++        self.assertEqual(reply["author"], REVIEWER)
++        self.assertEqual(reply["reply_to"], question["message_id"])
++        self.assertEqual(reply["task_digest"], question["task_digest"])
++        self.assertEqual(reply["checkpoint_ref"], question["checkpoint_ref"])
++        self.assertEqual(self.authority.work_message_transition(
++            reply["message_id"])["effect"], messages.CONTINUATION_EFFECT)
++        self.assertIn("different operands", self.refusal(lambda: self.asked(
++            document=request_document(body="changed after restart"))))
++        self.assertEqual(self.authority.work_messages(WORK), before)
++
++    def test_escalation_survives_restart_without_an_approval_or_second_effect(self):
++        request = self.asked()
++        first = self.answered(request, disposition="escalate")
++        before = self.authority.work_messages(WORK)
++        transition = self.authority.work_message_transition(
++            before[1]["message_id"])
++        self.reopen()
++        for _ in range(3):
++            self.assertEqual(self.answered(request, disposition="escalate"), first)
++        self.assertEqual(self.authority.work_messages(WORK), before)
++        self.assertEqual(len(self.authority.handoff_escalations(WORK)), 1)
++        self.assertEqual(before[1]["destination"], OWNER)
++        self.assertEqual(transition["effect"], messages.HELD_EFFECT)
++        self.assertEqual(self.authority.work_message_transition(
++            before[1]["message_id"]), transition)
++        self.assertEqual(self.authority.pending_handoff_requests(WORK), [])
++
++
+ class TheReadsAnswerHonestlyAndGateNothing(MessageCase):
+ 
+     def test_a_work_with_no_messages_reads_as_an_empty_list(self):
+--- a/v12/python/tests/tools/test_native_handoffs.py
++++ b/v12/python/tests/tools/test_native_handoffs.py
+@@ -735,6 +735,42 @@
+         self.assertIsNone(self.projected()["handler"])
+ 
+ 
++class AnEscalationSurvivesServingRestart(HandoffJobCase):
++    """Reconnect after the owner hold; ordinary ticks cannot approve it."""
++
++    def test_restarted_serving_preserves_the_exact_escalation_and_hold(self):
++        from baton_v12.job_manager import sweep as tick
++
++        held = self.answered(self.yielded(), response=ESCALATION)
++        self.drive(held.job, held.composed, "review",
++                   native_handoffs.ANSWERED_STATE, ticks=12)
++        before = self.messages()
++        episode = episodes.live_of(held.job, "job-a/implementation")["episode"]
++        hold = native_handoffs.hold_of(held.job, "job-a/implementation", episode)
++        self.reconnected(held)
++        for _ in range(5):
++            tick(held.job, held.composed, now=fixtures.NOW)
++        self.assertEqual(self.messages(), before)
++        self.assertEqual(len(before), 2)
++        self.assertEqual(before[1]["author"], REVIEWER)
++        self.assertEqual(before[1]["destination"], OWNER)
++        self.assertEqual(native_handoffs.hold_of(
++            held.job, "job-a/implementation", episode), hold)
++        self.assertEqual(episodes.live_of(
++            held.job, "job-a/implementation")["episode"], episode)
++        self.assertEqual(self.operations(held.job, native_handoffs.HOLD_KIND), 1)
++        self.assertEqual(self.operations(held.job, native_handoffs.CONTINUE_KIND), 0)
++        self.assertEqual(self.attempts_of(held, "implementation"), [])
++        self.assertEqual(self.attempts_of(held, "review"), [])
++        states = self.states(held.job, held.composed)
++        self.assertEqual(states["implementation"], native_handoffs.AWAITING_STATE)
++        self.assertEqual(states["review"], native_handoffs.ANSWERED_STATE)
++        self.assertEqual(states["integration"], "blocked")
++        self.assertIsNone(review_cycles.integration_checkpoint(
++            self.deployment_of(held).control, self.line(held)["line_id"]))
++        self.assertIsNone(self.projected()["handler"])
++
++
+ class AnUnsolicitedResponseAnswersNothing(HandoffJobCase):
+ 
+     def test_a_final_review_that_answers_a_question_nobody_asked_commits_no_reply(self):

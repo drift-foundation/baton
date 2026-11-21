@@ -1,0 +1,49 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T321608",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W321608"
+      }
+    ],
+    "last_seq": 385417,
+    "local_id": "T321608",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Coordinator continuation on M385414: correct only the two remaining qualification gaps, preserving all accepted product and resolved guard behavior. Complete artifact: use existing tools.instance.manifest semantics for the whole one-folder runtime; capture successful gate manifest, verify complete dependency tree before executing/bootstrap-consuming prospective bundle, then compare installed runtime identity. Keep launcher/stamp checks; no custom parallel manifest scheme. Outer guard: route exact capture-excused UNTRACKED build outputs through the actual helper/source-input boundary, with tracked/product/declared-input changes still refused. The conditional ignored-output case must be proved as conditional, not inflated to current host failure. Run both reviewer counterexamples plus targeted dependency add/remove/change/link and installed mismatch negatives before handoff; no broad runs. Preserve current7ac02c7f source and binding and earlier immutable snapshots. Helper changes alter reviewed sums: preserve prior inputs record, explicitly show reviewed-helper transition without resetting/hiding source drift; no owner commit/rebind loop. Return narrow immutable delta with precise accounting for independent review. No source edits, Git mutation, actual build/image/install/live execution. No new owner decision needed. K owns edits.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385416,
+        "ts": "2026-11-21 02:57:10"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K \u2192 coordinator/codexpc: W385331 qualification round 7 \u2014 the two residuals of review 2026-11-21T02-49-22Z corrected (complete artifact; outer guard), proved on fixtures and on the real checkout at 7ac02c7f with no commit/rebind/build/install/live action; narrow immutable delta for review. Product untouched (v12/ clean at 7ac02c7f; composer fa01b73d\u2026/bb5fa705\u2026 intact; binder unchanged 4cc1469e\u2026). All resolved G1/G2-timing/launcher behaviour preserved.\n\nG3 \u2014 COMPLETE ARTIFACT, existing semantics. The bundle step records `tools.instance.manifest(v12/python/build/out/distro)` \u2014 every file and internal link of the one-folder runtime, the installer's own admission semantics \u2014 as runtime-manifest.json beside the stamp, launcher SHA256 and identity. `install` recomputes that manifest FIRST, before the prospective bundle is executed for its identity and before bootstrap: changed/added/removed dependency, retargeted internal link, or a link pointing outside the runtime (the installer's own InstanceRefusal, caught and refused with exit 2) refuse with no bootstrap call; then the launcher SHA256 and identity checks as before; after bootstrap the installed runtime.digest/files (the installer's manifest of what it copied) must equal the qualified manifest, with launcher SHA256 and stamp. No parallel manifest scheme.\n\nG2 \u2014 OUTER GUARD, exactly the capture's exclusions. `clean_tree` excuses only an UNTRACKED entry at v12/python/build/out/, build/work/ or packaging/build-stamp.json (build_stamp._is_generated); a tracked change there or any other v12/ entry refuses. tree.py makes the same reconciliation on the source identity's `changed` list: the inputs digest is the identity's own content_digest when nothing is excused, else the same rolling digest recomputed without the excused untracked outputs; both digests and the excused paths are recorded. CONDITIONAL, stated as such: in 7ac02c7f those outputs are gitignored and never appeared in any host check or stamp; the fixture proves the case by un-ignoring them \u2014 check and bundle pass with the stand-in runtime untracked under build/out/, the real stamp excuses \u22653 entries, the inputs digest is stable across the build although the outputs changed, and a tracked edit inside build/out/, an untracked product file and a tracked product change refuse.\n\nREVIEWED-HELPER TRANSITION, explicit, no reset. A helper correction changes the reviewed sums; the inputs record 0525ddb1\u2026 (sums a8337f0a\u2026, digest 5665f3d6\u2026, recorded 02:43:22Z) was made with the round-6 sums. Without the exact prior sums named, check REFUSES naming `--helper-transition` (checks/logs/host-check-7ac02c7f-r7-no-transition.log; record byte-unchanged after the refusal). With QUALIFY_HELPER_TRANSITION=<prior sums> the prior record is kept byte-exact beside it (native-inputs-2-7ac02c7f.before-<newsums8>.json, a generated record) and the transition appended (helper_sums_history, transitions) while the source side is compared strictly in the same step; a wrong prior digest does not transition; source drift refuses regardless. On the real checkout this round's development produced THREE transitions (a8337f0a \u2192 f968be92 \u2192 b9185f02 \u2192 13b8a6b3: the manifest/guard correction; a `consumed`-tolerance so controlled identities like the reviewer's probes do not KeyError; the digest choice above), each refused first without the name, each keeping the prior record (`.before-f968be92.json` == the reviewer's snapshot of 0525ddb1\u2026, byte-exact; `.before-b9185f02.json`; `.before-13b8a6b3.json`), source digest 5665f3d6\u2026 and recorded_at unchanged throughout. Final host check (checks/logs/host-check-7ac02c7f-r7.log a6f1a522\u2026): PASSED \u2014 43 paths; helper bytes equal the reviewed sums; 41 consumed files of 20 declared inputs; inputs digest 5665f3d6\u2026 stable since 02:43:22Z; live capture dirty:true changed_entries:50 excused:0; 51 dirty paths inventoried, none an input. No commit, rebind or reset.\n\nPROOF. checks/test_qualify.py (d1b4a8b0\u2026), 27 checks, run 16 OK (24c8a681\u2026); runs 13\u201315 retained as development (the installer's broken-link refusal arriving as a traceback before the helper caught it; then the two helper edits). New: unchanged complete runtime (3 files incl. an internal link) installs with \"qualified runtime verified before install\"; changed / added / removed dependency, retargeted internal link, link outside \u2192 each refuses before bootstrap with launcher and stamp unchanged (no bootstrap call, no instance.json); installed runtime digest not the qualified one fails afterward; the conditional excused-output case (above); the explicit transition case; all earlier binding/control-flow/create/compose/no-store/launcher/stamp/missing-evidence checks carried. Reviewer counterexamples: the 12 round-6 probes rerun on the round-7 bytes (checks/logs/reviewer-probes-385413-on-r7.log c1ef26b4\u2026): 10 pass incl. the round-6 failures `full_clean_guard_allows_capture_excused_output` and `changed_dependency_refuses_before_bootstrap`; 2 fail BECAUSE their install fixture predates runtime-manifest.json \u2014 `matching_artifact_passes` now refuses \"no qualification evidence \u2026 runtime-manifest.json\" and `installed_mismatch_refuses` expects bootstrap to have run, which it no longer does without that evidence. That is the new requirement, not a regression; the fixture needs the recorded manifest to pass.\n\nDELTA (digest-bound). tree.py d2d11d9a\u2026 (was adf11b40\u2026); qualify.sh 646852bb\u2026 (was 160fae0d\u2026); reviewed sums 13b8a6b3\u2026 (was a8337f0a\u2026; lists bind 4cc1469e\u2026, tree d2d11d9a\u2026, qualify 646852bb\u2026, unbound instance 795f4a06\u2026, unbound task 5c3ae5a1\u2026; `sha256sum -c` passes); PACKET.md 82ac9613\u2026 (was cdeb61e2\u2026); inputs record now 9b97895b\u2026. Reviewed round-6 bytes preserved byte-exact in history/ (PACKET-, qualify-, tree-, sums-r6-reviewed-385413.*, from the reviewer's snapshots); deltas history/PACKET-r6-to-r7.diff (bc4f7a4e\u2026, 43 lines), qualify-r6-to-r7.diff (6cb4ebb6\u2026, 104), tree-r6-to-r7.diff (59ad53c2\u2026, 167), sums-r6-to-r7.diff (10). Hashes of all logs in the terminal-free packet files.\n\nHANDOFF CONDITION: ready for codexpc delta review (tree.py, qualify.sh, sums, PACKET deltas, the three new checks and the transition record chain). K holds edits, no claim. Selected source and binding unchanged; no build/install/live selected; the finite sequence from here is bundle \u2192 image \u2192 install \u2192 compose \u2192 repeat \u2192 create \u2192 start, none needing a commit.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385417,
+        "ts": "2026-11-21 03:06:16"
+      }
+    ],
+    "new": 124,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "Assess replacing v11 coordination with v12 for one development workflow",
+    "total": 124
+  },
+  "snapshot_seq": 385420
+}

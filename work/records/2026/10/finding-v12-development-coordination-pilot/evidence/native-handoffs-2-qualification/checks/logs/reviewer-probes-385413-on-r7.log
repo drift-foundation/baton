@@ -1,0 +1,36 @@
+test_capture_excused_build_outputs_are_not_counted_as_source_drift (__main__.Round6.test_capture_excused_build_outputs_are_not_counted_as_source_drift) ... ok
+test_changed_dependency_refuses_before_bootstrap (__main__.Round6.test_changed_dependency_refuses_before_bootstrap) ... ok
+test_different_stamp_refuses_before_install_effects (__main__.Round6.test_different_stamp_refuses_before_install_effects) ... ok
+test_full_clean_guard_allows_capture_excused_output (__main__.Round6.test_full_clean_guard_allows_capture_excused_output) ... ok
+test_generated_records_with_real_capture_are_accepted (__main__.Round6.test_generated_records_with_real_capture_are_accepted) ... ok
+test_installed_mismatch_refuses (__main__.Round6.test_installed_mismatch_refuses) ... FAIL
+test_matching_artifact_passes (__main__.Round6.test_matching_artifact_passes) ... FAIL
+test_missing_evidence_refuses_before_bootstrap (__main__.Round6.test_missing_evidence_refuses_before_bootstrap) ... ok
+test_recorded_stamp_not_rewritten_by_later_generated_evidence (__main__.Round6.test_recorded_stamp_not_rewritten_by_later_generated_evidence) ... ok
+test_same_stamp_different_bundle_is_not_accepted (__main__.Round6.test_same_stamp_different_bundle_is_not_accepted) ... ok
+test_stable_inputs_survive_evidence_then_refuse_content_drift (__main__.Round6.test_stable_inputs_survive_evidence_then_refuse_content_drift) ... ok
+test_unrelated_review_evidence_does_not_require_new_checkpoint (__main__.Round6.test_unrelated_review_evidence_does_not_require_new_checkpoint) ... ok
+
+======================================================================
+FAIL: test_installed_mismatch_refuses (__main__.Round6.test_installed_mismatch_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385413/probes.py", line 61, in test_installed_mismatch_refuses
+    out,dest=self.install(mode='installed-mismatch');self.assertNotEqual(out.returncode,0);self.assertTrue((dest/'instance.json').exists())
+                                                                                           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_matching_artifact_passes (__main__.Round6.test_matching_artifact_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385413/probes.py", line 59, in test_matching_artifact_passes
+    out,dest=self.install(mode='matching');self.assertEqual(out.returncode,0,out.stderr);self.assertTrue((dest/'instance.json').exists())
+                                           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : refused: no qualification evidence /home/sl/src/baton/work/scratch/codxpc-guard406-duqdea55/ev/checkpoint-aaaaaaaa-packaging/runtime-manifest.json; run the bundle step on this checkpoint first
+
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.013s
+
+FAILED (failures=2)

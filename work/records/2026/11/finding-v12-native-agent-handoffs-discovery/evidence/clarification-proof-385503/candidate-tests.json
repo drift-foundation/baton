@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.authority.test_work_messages",
+    "tests.job_manager.test_native_handoffs"
+  ],
+  "returncode": 0,
+  "seconds": 4.81814043095801
+}

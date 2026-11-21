@@ -1,0 +1,26 @@
+{
+  "image": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4",
+  "commit": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+  "entrypoint_executed": false,
+  "files": [
+    {
+      "file": "claude_agent.py",
+      "image_sha256": "6f8c37d526b11ded15fcadf8666c1659b4d6d58c49caba158cd378186ae18ef1",
+      "checkpoint_sha256": "6f8c37d526b11ded15fcadf8666c1659b4d6d58c49caba158cd378186ae18ef1",
+      "equal": true
+    },
+    {
+      "file": "baton_worker.py",
+      "image_sha256": "fbd9479753b0278551bc5580ec995180b0e8150b5aa6563185052a552bbfba11",
+      "checkpoint_sha256": "fbd9479753b0278551bc5580ec995180b0e8150b5aa6563185052a552bbfba11",
+      "equal": true
+    },
+    {
+      "file": "dogfood_entry.py",
+      "image_sha256": "2b36f68faa0512db428d87ae705c03468417ba7d5d752133d81522a88ae4e807",
+      "checkpoint_sha256": "2b36f68faa0512db428d87ae705c03468417ba7d5d752133d81522a88ae4e807",
+      "equal": true
+    }
+  ],
+  "temporary_container_removed": true
+}

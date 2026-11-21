@@ -1,0 +1,108 @@
+--- work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/qualify-r4-reviewed-385396.sh	2026-11-20 19:19:19.789229204 -0700
++++ work/records/2026/10/finding-v12-development-coordination-pilot/config/native-handoffs-2-qualify.sh	2026-11-20 19:22:20.843121649 -0700
+@@ -6,9 +6,13 @@
+ # ENDS the step with the status of that command and nothing after it runs; a
+ # log is written through `tee` without replacing the status. Every consuming
+ # step first re-verifies the ONE bound checkpoint: HEAD equals the bound SHA,
+-# the working tree is clean under v12/, and the bound file still describes
+-# that SHA with the pinned accepted manifests (`native-handoffs-2-bind.py
+-# --check`). Owner-reserved steps are marked (O) in PACKET.md; this helper
++# the working tree is clean under v12/, the bound file still describes that
++# SHA with the pinned accepted manifests (`native-handoffs-2-bind.py --check`),
++# and every dirty path of the WHOLE repository is a named generated record of
++# this qualification (`native-handoffs-2-tree.py`, M385402: the build stamp
++# observes the whole repository, so `bind`'s own untracked records make a
++# later bundle truthfully `dirty: true`; the stamp is held to that truth, never
++# demanded clean and never falsified). Owner-reserved steps are marked (O) in PACKET.md; this helper
+ # runs whatever step it is given and selects nothing.
+ #
+ #   bash native-handoffs-2-qualify.sh bind                 # K
+@@ -23,7 +27,10 @@
+ # Environment (defaults are the real deployment; the checks override them with
+ # disposable fixtures): QUALIFY_REPO (checkout), QUALIFY_DEST (instance
+ # destination), QUALIFY_PACKAGING_ROOT, QUALIFY_TMP, QUALIFY_PYTHON,
+-# QUALIFY_CREDENTIALS, QUALIFY_IMAGE_REF (the engine tag), JOB, STMT.
++# QUALIFY_CREDENTIALS, QUALIFY_IMAGE_REF (the engine tag), QUALIFY_DECLARED
++# (`--declared` by default: the source identity also binds the test runner's
++# declared consumed inputs; the checks pass an empty value on fixtures that do
++# not carry those inputs), JOB, STMT.
+ set -euo pipefail
+ 
+ REPO="${QUALIFY_REPO:-/home/sl/src/baton}"
+@@ -37,7 +44,9 @@
+ CFG="$REPO/$PILOT/config"
+ EV="$REPO/$PILOT/evidence"
+ BIND="$CFG/native-handoffs-2-bind.py"
++TREE="$CFG/native-handoffs-2-tree.py"
+ BOUND="$CFG/native-bound-2.json"
++DECLARED="${QUALIFY_DECLARED-"--declared"}"
+ MANIFESTS=("$EV/native-handoffs-composer/manifest.json" "$EV/native-handoffs-1-correction-2/manifest.json")
+ export GIT_OPTIONAL_LOCKS=0
+ 
+@@ -64,6 +73,23 @@
+     [ "$(git rev-parse HEAD)" = "$SHA" ] || { echo "refused: HEAD $(git rev-parse HEAD) is not the bound checkpoint $SHA" >&2; exit 2; }
+     python3 -I "$BIND" --repo "$REPO" --sha "$SHA" --manifests "${MANIFESTS[@]}" --check "$BOUND"
+     SHORT="${SHA:0:8}"
++    tree_state
++}
++
++identity() {
++    # THE CONTENT-BOUND SOURCE IDENTITY of the bound checkout (tools/source_identity):
++    # HEAD, every changed byte under v12/ (must be none) and the declared consumed
++    # inputs. Written outside the tree; the inventory records its digest.
++    mkdir -p "$TMP"
++    env PYTHONPATH=v12/python/src:v12/python "$PYTHON" -m tools.source_identity --repo "$REPO" $DECLARED v12 > "$TMP/source-identity-$SHORT.json"
++}
++
++tree_state() {
++    # EVERY DIRTY PATH OF THE WHOLE REPOSITORY, classified; only this
++    # qualification's own generated records for $SHORT may be present.
++    # $1 (optional): where to record the inventory; $2 (optional): a stamp to hold truthful.
++    identity
++    python3 -I "$TREE" --repo "$REPO" --sha "$SHA" --identity "$TMP/source-identity-$SHORT.json" ${1:+--out "$1"} ${2:+--stamp "$2"}
+ }
+ 
+ case "$step" in
+@@ -88,15 +114,14 @@
+ bundle)
+     check
+     G="$EV/checkpoint-$SHORT-packaging"; mkdir -p "$PACKAGING_ROOT" "$TMP" "$G"
++    tree_state "$G/tree-state.before.json"      # the evidence directory itself is now one generated record
+     env TMPDIR="$TMP" BATON_V12_STACK_TEST_ROOT="$PACKAGING_ROOT" BATON_V12_DISK_ROOT="$PACKAGING_ROOT" \
+         just --justfile v12/justfile test-packaging 2>&1 | tee "$G/build-and-gate.log"
+-    tee "$G/build-stamp.json" < v12/python/packaging/build-stamp.json
+-    python3 -I - "$SHA" v12/python/packaging/build-stamp.json <<'PY'
+-import json, sys
+-stamp = json.load(open(sys.argv[2]))
+-assert stamp["commit"] == sys.argv[1] and stamp["dirty"] is False, stamp
+-print("stamp", stamp["commit"], "clean")
+-PY
++    cp v12/python/packaging/build-stamp.json "$G/build-stamp.json"
++    # THE STAMP IS HELD TO THE TRUTH, NOT TO "CLEAN": it must name $SHA and its
++    # dirty/changed_entries must equal the inventory taken now, every entry a
++    # generated record of this qualification. (v12/ clean is already proved.)
++    tree_state "$G/tree-state.after.json" "$G/build-stamp.json"
+     v12/python/build/out/distro/baton-v12-stack --version | tee "$G/version.txt"
+     v12/python/build/out/distro/baton-v12-stack identity | tee "$G/bundle-identity.json"
+     sha256sum v12/python/build/out/distro/baton-v12-stack | tee "$G/distro-sha256.txt"
+@@ -120,12 +145,16 @@
+     check
+     just --justfile v12/justfile bootstrap "$CFG/native-instance-2-$SHORT.json" "$DEST" v12/python/build/out/distro
+     cat "$DEST/authority-identity.json"
+-    python3 -I - "$SHA" "$DEST" <<'PY'
++    python3 -I - "$SHA" "$DEST" "$EV/checkpoint-$SHORT-packaging/build-stamp.json" <<'PY'
+ import json, sys
+-sha, dest = sys.argv[1:3]
++sha, dest, recorded = sys.argv[1:4]
+ d = json.load(open(f"{dest}/instance.json"))
+-assert d["identity"]["build_stamp"]["commit"] == sha and d["identity"]["build_stamp"]["dirty"] is False, d["identity"]["build_stamp"]
+-print("instance", d["authority_uuid"], "bundle", d["identity"]["sha256"])
++stamp = d["identity"]["build_stamp"]; held = json.load(open(recorded))
++# THE INSTALLED BUNDLE CARRIES THE STAMP THE BUNDLE STEP RECORDED AND HELD TRUTHFUL:
++# same commit ($SHA), same dirty/changed_entries, the same document.
++assert stamp["commit"] == sha, (stamp, sha)
++assert stamp == held, ("the installed stamp is not the recorded bundle stamp", stamp, held)
++print("instance", d["authority_uuid"], "bundle", d["identity"]["sha256"], "stamp", stamp["commit"][:8], "dirty", stamp["dirty"], "changed_entries", stamp.get("changed_entries"))
+ PY
+     just --justfile "$DEST/justfile" status
+     just --justfile "$DEST/justfile" repository

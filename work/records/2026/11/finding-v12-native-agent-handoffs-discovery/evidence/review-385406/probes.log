@@ -1,0 +1,57 @@
+test_capture_excused_build_outputs_are_not_counted_as_source_drift (__main__.Guards.test_capture_excused_build_outputs_are_not_counted_as_source_drift) ... FAIL
+test_different_stamp_refuses_before_install_effects (__main__.Guards.test_different_stamp_refuses_before_install_effects) ... FAIL
+test_generated_records_with_real_capture_are_accepted (__main__.Guards.test_generated_records_with_real_capture_are_accepted) ... ok
+test_recorded_stamp_not_rewritten_by_later_generated_evidence (__main__.Guards.test_recorded_stamp_not_rewritten_by_later_generated_evidence) ... FAIL
+test_same_stamp_different_bundle_is_not_accepted (__main__.Guards.test_same_stamp_different_bundle_is_not_accepted) ... FAIL
+test_unrelated_review_evidence_does_not_require_new_checkpoint (__main__.Guards.test_unrelated_review_evidence_does_not_require_new_checkpoint) ... FAIL
+
+======================================================================
+FAIL: test_capture_excused_build_outputs_are_not_counted_as_source_drift (__main__.Guards.test_capture_excused_build_outputs_are_not_counted_as_source_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/probes.py", line 22, in test_capture_excused_build_outputs_are_not_counted_as_source_drift
+    lines=['?? '+str(P/'config/native-bound-2.json'),'?? v12/python/build/out/'];stamp=stampmod.capture(source=self.root,runner=lambda argv,cwd:SHA+'\n' if 'rev-parse' in argv else '\n'.join(lines)+'\n');self.assertEqual(stamp['changed_entries'],1);self.assertEqual(stamp['excused_build_output'],1);self.assertEqual(self.assess(lines,stamp),0)
+                                                                                                                                                                                                                                                                                                           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0
+
+======================================================================
+FAIL: test_different_stamp_refuses_before_install_effects (__main__.Guards.test_different_stamp_refuses_before_install_effects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/probes.py", line 33, in test_different_stamp_refuses_before_install_effects
+    out,dest=self.install(True);self.assertNotEqual(out.returncode,0);self.assertFalse((dest/'instance.json').exists(),'bootstrap already created the destination before stamp refusal')
+                                                                      ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : bootstrap already created the destination before stamp refusal
+
+======================================================================
+FAIL: test_recorded_stamp_not_rewritten_by_later_generated_evidence (__main__.Guards.test_recorded_stamp_not_rewritten_by_later_generated_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/probes.py", line 24, in test_recorded_stamp_not_rewritten_by_later_generated_evidence
+    before=['?? '+str(P/'config/native-bound-2.json')];stamp=stampmod.capture(source=self.root,runner=lambda argv,cwd:SHA+'\n' if 'rev-parse' in argv else '\n'.join(before)+'\n');after=before+['?? '+str(P/('evidence/checkpoint-'+SHA[:8]+'-packaging/'))];self.assertEqual(self.assess(after,stamp),0)
+                                                                                                                                                                                                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0
+
+======================================================================
+FAIL: test_same_stamp_different_bundle_is_not_accepted (__main__.Guards.test_same_stamp_different_bundle_is_not_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/probes.py", line 35, in test_same_stamp_different_bundle_is_not_accepted
+    out,dest=self.install(False);self.assertNotEqual(out.returncode,0,'unverified bundle accepted solely because its stamp matches: '+out.stdout)
+                                 ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : unverified bundle accepted solely because its stamp matches: {}instance fixture bundle different-unverified-bundle stamp aaaaaaaa dirty True changed_entries 4
+
+
+======================================================================
+FAIL: test_unrelated_review_evidence_does_not_require_new_checkpoint (__main__.Guards.test_unrelated_review_evidence_does_not_require_new_checkpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/probes.py", line 20, in test_unrelated_review_evidence_does_not_require_new_checkpoint
+    self.assertEqual(self.assess(['?? work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385406/']),0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.061s
+
+FAILED (failures=5)

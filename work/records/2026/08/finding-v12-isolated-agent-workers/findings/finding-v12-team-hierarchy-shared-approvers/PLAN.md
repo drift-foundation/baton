@@ -58,3 +58,7 @@ to W10.
    provider Work; approver obligation 16832 owns the serial dependency edges.
 3. [still deferred to M6] Implement the complete hierarchy resolver, grants,
    masks, approval policy, projections and Teams/Inbox UX.
+
+## Next planning action — owner clarification 2026-11-21
+
+Capture complete; W9901 remains parked pending explicit scheduling, not executing. Revalidate existing principal/scope decisions and historical milestone references against current code and DESIGN. Map the confirmed multi-project/team operating model, cross-team filing and clarification dependencies, shared visibility, resource reuse and operator view to current capabilities; identify concrete gaps and update normative DESIGN before dependent implementation. Reuse W385331 rather than duplicate its clarification/discovery work. Prepare a read-only v11 migration inventory and bounded two-project pilot; no backlog copy, new authority, broad implementation, advanced scheduling or automatic launch selected. Current clarification proof remains the active priority.

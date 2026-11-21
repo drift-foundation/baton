@@ -64,3 +64,36 @@ Previous C3 overlap/order/control-flow defects resolved on helpers4cc1469e/8f4c2
 ## 2026-11-21T02-04-24Z — narrow create-readback acceptance E385396
 
 M385395/M385393 helper/document delta accepted. Direct-store read removed; supported create stdout/stderr captured and attributed to returned Work/bound routing. Five independent tests pass,0 failures/errors/skips,0.927917s wall, including real create and exact helper validator on accepted composer fixtures. Exact `review-2026-11-21T02-04-24Z.md` and evidence/review-385396/. Productbb5fa705/fa01b73d, binder and prior safeguards unchanged. Report is command-time evidence only; independent after-the-fact policy/grant read remains unproved, not a new feature gate. First author probe log overwrite and older custody limits retained. Current continuation: baton.decide for owner checkpoint/selected qualification; no actual build/install/live or Git action performed; larger discovery outcome remains open.
+
+
+## 2026-11-21T02-34-34Z — qualification-guard review E385406
+
+M385405/M385403 changes requested: G1 finite path must not gate unrelated/retained records on commits; G2 preserve truthful capture-time stamp semantics through evidence writes; G3 verify qualified bundle identity before bootstrap effects. Exact append-only `review-2026-11-21T02-34-34Z.md` and `evidence/review-385406/`. Independent 6 probes:1 pass,5 reproducing failures,0 errors/skips,0.113628021s wall. Selected7ac02c7f and accepted product/43-path binder preserved. This supersedes qualification-guard readiness only. Current action: K bounded helper correction then delta review; no new owner decision, checkpoint/rebind/build/install/live authority.
+
+
+## 2026-11-21T02-49-22Z — round6 delta review E385413
+
+G1 and historical stamp timing resolved; all five old failing probes now pass. Current7ac02c7f check passes with final inputs record unchanged. Remaining G3 complete runtime (not launcher only) identity and G2 capture-excused output through outer guard require correction. Exact `review-2026-11-21T02-49-22Z.md`, `evidence/review-385413/`. Final12 probes10pass/2reproductions,0errors/skips,0.204460898s; total measured verification0.952635274s including disclosed harness iteration and host check. Supersedes prior three wholly-open findings with these two narrow residuals. Accepted product/binder preserved; return implementation then delta review, no new owner decision or live/Git authority.
+
+
+## 2026-11-21T03-23-53Z — round7 delta acceptance E385420
+
+Round7 resolves remaining G2 outer/source-identity reconciliation and G3 complete-runtime qualification. Exact `review-2026-11-21T03-23-53Z.md`, `evidence/review-385420/`.17 final independent tests pass,0 failures/errors/skips; cumulative verification1.237948910s including disclosed reviewer fixture correction/strengthening and host check. Actual7ac02c7f check passes; original0525ddb1 preserved in verified3-transition chain, current inputs unchanged. Supersedes round6 changes-requested status for bounded helper only. Current action: baton.decide for accepted packet and separately selected qualification; no build/image/install/live/Git action by reviewer. Prior product acceptance and broader discovery limits remain.
+
+## Current actionable step — deterministic clarification proof (2026-11-21)
+
+Supersedes earlier qualification preparation as the next action. At checkpoint 939c7adf, codexpc claims W385331 and audits existing handoff tests, then implements only missing focused proofs in an isolated candidate. Outcome: automatic request/reviewer-answer/retained-continuation/completion plus honest owner escalation and restart/retry safety, through real coordination with scripted provider behavior. No host product import, live/engine execution or Git mutations; if required fixtures need additional execution authority, identify exact operations before running them and continue independent permitted work. Preserve initial source baseline, map existing versus new evidence, enumerate changed paths/registry entries, and return digest-bound candidate plus concise results for independent review. No redundant bespoke launcher or broad test campaign.
+
+
+## 2026-11-21 — E385503 bounded proof implementation
+
+Codxpc owns isolated candidate work/scratch/w385331-385503/candidate; no host product import. Existing connected 14-case tools.native_handoffs suite is Git-execution blocked under M385501 (M385504 reports boundary). Continue permitted authority/host-state tests. Missing explicit durable-close/reopen request/reply and escalation replay proofs will be added to existing tests/authority/test_work_messages.py; missing connected escalation restart proof to existing tests/tools/test_native_handoffs.py, retaining real provider/coordination fixture and marking execution blocked. No registry additions needed. Preserve all existing assertions. Exact base939c7adfe591cc413f29ab44d41392b583aaa5e5 and baseline evidence at evidence/clarification-proof-385503/. This is partial verification until connected Git-fixture execution is selected; no substitute fake Git acceptance.
+
+
+## 2026-11-21 — E385503 partial deterministic proof (baton.codxpc)
+
+M385501: permitted baseline148 and candidate150 tests pass; two new durable Authority restart cases pass. Initial68 fixture-input errors retained and corrected by supplying exact dossier vectors. Two additive test paths preserved in evidence/clarification-proof-385503/candidate; tree ea6ffd7e395894adf1a0b7220b7439aa265572cae299098457a7591f42b21b8c, base 939c7adfe591cc413f29ab44d41392b583aaa5e5. No product/host import or Git mutation. Connected14existing+1new cases remain unexecuted because inherited fixture Git mutations are outside current exception. REPORT.md there contains coverage map, operation/target boundary, counts/durations and exact continuation. This is partial, not acceptance; next action is an explicit confined fixture-execution ruling, then unchanged connected baseline and candidate proofs. Claim returned through Baton; no broadened scope or invented product decision.
+
+## Continuation — disposable Git blocker resolved, 2026-11-21
+
+M385505 partial packet is not acceptance. Owner standing rule in AGENTS.md now permits its connected tests in isolated disposable repositories without further fixture-specific approval. Resume from evidence/clarification-proof-385503/REPORT.md and exact candidate identity; include pinned fixture inputs, run existing14-case baseline and candidate15-case connected coverage, address in-scope defects and return complete evidence for independent review. Main development Git state, installed instances and live execution remain untouched.

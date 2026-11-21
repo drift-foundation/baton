@@ -1,0 +1,104 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "events": [
+      {
+        "actor": "baton.prompt",
+        "kind": "reroute",
+        "payload": {
+          "from": {
+            "endpoint": "baton.impl",
+            "route": "impl"
+          },
+          "phase": "queued",
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W385331"
+            }
+          ],
+          "reason": "M385410 G1-G3 helper correction ready for independent delta review on unchanged 7ac02c7f",
+          "resolution": {
+            "endpoint": "baton.codx",
+            "generation": 15,
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "route_selected": null,
+          "to": "baton.codx",
+          "work": "2b077949-W385331"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385411,
+        "ts": "2026-11-21T02:45:50Z"
+      },
+      {
+        "actor": "baton.codxpc",
+        "claim_interval": {
+          "claim_seq": 385413,
+          "claimant": "baton.codxpc",
+          "elapsed_seconds": 6,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "started_at": "2026-11-21T02:46:23Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.codxpc",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W385331"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.codx",
+            "generation": 15,
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "work": "2b077949-W385331"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 7,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "open": true,
+          "phase": "active",
+          "start_seq": 385413,
+          "started_at": "2026-11-21T02:46:23Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385413,
+        "ts": "2026-11-21T02:46:23Z"
+      }
+    ],
+    "local_id": "W385331",
+    "next_after": null,
+    "next_before": null,
+    "title": "V12 native messaging handoffs and reviewer-dispositioned discovery",
+    "work": "2b077949-W385331"
+  },
+  "snapshot_seq": 385413
+}

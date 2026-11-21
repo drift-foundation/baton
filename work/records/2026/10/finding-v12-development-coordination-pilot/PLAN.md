@@ -232,3 +232,8 @@ Owner selects 2b077949-W385331 at work/records/2026/11/finding-v12-native-agent-
 ## Current continuation — artifact build and packaging gate
 
 K runs one step-C build/gate on3d05430f-bound source, preserving truthful stamp and input provenance. Return exact install command and artifact identity; no live instance or Job operation in this step.
+
+
+## 2026-11-21 — current preparation checkpoint, M385496
+
+Done: instance-3 and installed-task documents, proposed bounded statement, and absolute-path bootstrap/compose/create/start commands at evidence/checkpoint-ac17a5ad-qualification/LAUNCH-COMMANDS.md; syntax and input identities retained in launch-preparation-validation.json. Reuses owner packaging summary and coordinator image-byte evidence. Pending: owner selection of task and install/live-run authority. No instance operation performed; native-handoffs-2 preserved. This supersedes the older artifact-build next step for this checkpoint; do not rebuild or rerun packaging merely for this preparation.

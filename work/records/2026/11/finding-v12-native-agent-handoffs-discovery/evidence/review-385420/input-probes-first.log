@@ -1,0 +1,38 @@
+test_real_digest_reconciliation_and_output_stability (__main__.Inputs.test_real_digest_reconciliation_and_output_stability) ... ERROR
+test_tracked_and_nearby_paths_refuse (__main__.Inputs.test_tracked_and_nearby_paths_refuse) ... ok
+test_transition_keeps_prior_and_refuses_source_or_declared_drift (__main__.Inputs.test_transition_keeps_prior_and_refuses_source_or_declared_drift) ... ERROR
+
+======================================================================
+ERROR: test_real_digest_reconciliation_and_output_stability (__main__.Inputs.test_real_digest_reconciliation_and_output_stability)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385420/input_probes.py", line 18, in test_real_digest_reconciliation_and_output_stability
+    clean=self.real_identity([]);self.assertEqual(base.tree.inputs_digest(clean,[]),clean['content_digest']);self.assertEqual(self.invoke(clean),0)
+                                                                                                                              ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385420/input_probes.py", line 15, in invoke
+    try:return base.tree.main(args)
+               ~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/config/native-handoffs-2-tree.py", line 243, in main
+    helper = [one.split(maxsplit=1)[1].lstrip("*") for one in open(taken.helper_sums).read().splitlines() if one.strip()]
+              ~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+======================================================================
+ERROR: test_transition_keeps_prior_and_refuses_source_or_declared_drift (__main__.Inputs.test_transition_keeps_prior_and_refuses_source_or_declared_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385420/input_probes.py", line 24, in test_transition_keeps_prior_and_refuses_source_or_declared_drift
+    clean=self.real_identity([]);self.assertEqual(self.invoke(clean),0);stable=self.root/'stable.json';prior=stable.read_bytes();old=json.loads(prior)['helper_sums_sha256'];(self.root/'sums').write_text('new')
+                                                  ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385420/input_probes.py", line 15, in invoke
+    try:return base.tree.main(args)
+               ~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/config/native-handoffs-2-tree.py", line 243, in main
+    helper = [one.split(maxsplit=1)[1].lstrip("*") for one in open(taken.helper_sums).read().splitlines() if one.strip()]
+              ~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.005s
+
+FAILED (errors=2)

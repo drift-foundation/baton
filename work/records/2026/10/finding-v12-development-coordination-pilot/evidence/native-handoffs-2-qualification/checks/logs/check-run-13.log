@@ -1,0 +1,86 @@
+test_a_manifest_that_is_not_the_pinned_one_is_refused_before_anything (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_a_manifest_that_is_not_the_pinned_one_is_refused_before_anything) ... ok
+test_a_stale_binding_is_refused_by_the_check (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_a_stale_binding_is_refused_by_the_check) ... ok
+test_one_drifted_slice_path_refuses_and_writes_nothing (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_one_drifted_slice_path_refuses_and_writes_nothing) ... ok
+test_the_checkpoint_before_the_correction_refuses_naming_every_composer_path (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_the_checkpoint_before_the_correction_refuses_naming_every_composer_path)
+Base-only / missing-correction: a tree at 331dd737 carries the ... ok
+test_the_joined_candidate_binds_and_names_both_manifests (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_the_joined_candidate_binds_and_names_both_manifests) ... ok
+test_a_changed_helper_byte_refuses_before_anything_else_runs (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_changed_helper_byte_refuses_before_anything_else_runs) ... ok
+test_a_composition_declaring_another_order_fails_the_compose_step (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_composition_declaring_another_order_fails_the_compose_step)
+Review C3.2: the expected declaration order is read from the bound ... ok
+test_a_create_answering_another_template_fails_before_the_report_is_read (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_create_answering_another_template_fails_before_the_report_is_read) ... ok
+test_a_create_whose_report_lacks_the_answering_grant_fails_after_the_command (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_create_whose_report_lacks_the_answering_grant_fails_after_the_command) ... ok
+test_a_create_whose_report_names_routing_and_the_grant_passes (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_create_whose_report_names_routing_and_the_grant_passes) ... ok
+test_a_declared_input_dirty_in_git_or_changed_in_content_refuses_as_input_drift (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_declared_input_dirty_in_git_or_changed_in_content_refuses_as_input_drift)
+Declared inputs are hashed by content (collapsed untracked directories ... ok
+test_a_dirty_product_input_refuses_every_consuming_step (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_dirty_product_input_refuses_every_consuming_step) ... ok
+test_a_dirty_tree_refuses_before_binding (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_dirty_tree_refuses_before_binding) ... ok
+test_a_failed_gate_pipeline_ends_the_bundle_step_with_its_status (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_failed_gate_pipeline_ends_the_bundle_step_with_its_status) ... ok
+test_a_failed_image_build_ends_the_image_step_before_inspection (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_failed_image_build_ends_the_image_step_before_inspection) ... ok
+test_a_moved_head_refuses_every_consuming_step_before_any_action (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_moved_head_refuses_every_consuming_step_before_any_action) ... ok
+test_a_pending_selection_refuses_the_create_step_before_the_command (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_pending_selection_refuses_the_create_step_before_the_command) ... ok
+test_a_reviewed_helper_transition_is_explicit_and_keeps_the_prior_record (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_reviewed_helper_transition_is_explicit_and_keeps_the_prior_record)
+A helper correction changes the reviewed sums. The inputs record is not ... ok
+test_a_stamp_naming_another_commit_fails_the_bundle_step_after_a_green_gate (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_stamp_naming_another_commit_fails_the_bundle_step_after_a_green_gate) ... ok
+test_a_stamp_with_no_observation_is_refused (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_stamp_with_no_observation_is_refused) ... ok
+test_bind_then_check_pass_and_write_the_bound_documents (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_bind_then_check_pass_and_write_the_bound_documents) ... ok
+test_capture_excused_build_outputs_are_labelled_as_the_stamp_excuses_them (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_capture_excused_build_outputs_are_labelled_as_the_stamp_excuses_them)
+The reviewer's counterexample, at the tool's own boundary: given the ... ok
+test_capture_excused_untracked_build_outputs_pass_the_outer_guard_while_tracked_and_product_drift_refuse (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_capture_excused_untracked_build_outputs_pass_the_outer_guard_while_tracked_and_product_drift_refuse)
+G2, the CONDITIONAL case proved as conditional: this fixture un-ignores ... ok
+test_install_refuses_any_dependency_or_link_drift_in_the_one_folder_runtime_before_bootstrap (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_install_refuses_any_dependency_or_link_drift_in_the_one_folder_runtime_before_bootstrap)
+G3, the reviewer's counterexample widened: the launcher and stamp are ... FAIL
+test_install_verifies_the_qualified_bundle_before_bootstrap_has_any_effect (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_install_verifies_the_qualified_bundle_before_bootstrap_has_any_effect)
+G3: missing evidence, other launcher bytes under the same stamp, and ... ok
+test_the_helper_opens_no_coordination_store (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_the_helper_opens_no_coordination_store)
+Review 2026-11-21T01-49-15Z: dossier code never opens the Authority, ... ok
+test_the_real_stamp_is_kept_as_captured_and_the_finite_sequence_needs_no_checkpoint (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_the_real_stamp_is_kept_as_captured_and_the_finite_sequence_needs_no_checkpoint)
+G1+G2: with unrelated records, this qualification's own records and ... ok
+
+======================================================================
+FAIL: test_install_refuses_any_dependency_or_link_drift_in_the_one_folder_runtime_before_bootstrap (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_install_refuses_any_dependency_or_link_drift_in_the_one_folder_runtime_before_bootstrap)
+G3, the reviewer's counterexample widened: the launcher and stamp are
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 500, in test_install_refuses_any_dependency_or_link_drift_in_the_one_folder_runtime_before_bootstrap
+    library.unlink(); refused("removed dependency"); library.write_bytes(qualified)
+                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 494, in refused
+    self.assertEqual(out.returncode, 2, what + ": " + out.stdout + out.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2 : removed dependency: bound 7c1d21fa6cfbdc414db9cadfb4147fc3f750a904 verified: 43 paths, 5 overlap paths at native-handoffs-composer bytes
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-bound-2.json  [generated (this qualification, this checkpoint)]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-inputs-2-7c1d21fa.json  [generated (this qualification, this checkpoint)]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-installed-task-2-7c1d21fa.json  [generated (this qualification, this checkpoint)]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-2-7c1d21fa.json  [generated (this qualification, this checkpoint)]
+  ?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/checkpoint-7c1d21fa-packaging/  [generated (this qualification, this checkpoint)]
+inputs ok at 7c1d21fa: v12/ clean, 0 consumed file(s) of 0 declared input(s) committed, inputs digest 62c249dfcda62048 (stable since 2026-11-21T03:01:48Z); live capture dirty=True changed_entries=5 excused=0; 5 dirty path(s) inventoried, none an input
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+  File "/var/tmp/baton-v12-handoffs-2/tmp/qualify-check-dob0k4iv/repo/v12/python/tools/instance.py", line 152, in manifest
+    raise InstanceRefusal(
+    ...<2 lines>...
+        "established")
+tools.instance.InstanceRefusal: the bundled runtime at v12/python/build/out/distro carries a broken link at _internal/library.so.1; what it would load cannot be established
+Error in sys.excepthook:
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/apport_python_hook.py", line 238, in partial_apport_excepthook
+    return apport_excepthook(binary, exc_type, exc_obj, exc_tb)
+  File "/usr/lib/python3/dist-packages/apport_python_hook.py", line 122, in apport_excepthook
+    report["ExecutableTimestamp"] = str(int(os.stat(binary).st_mtime))
+                                            ~~~~~~~^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-v12-handoffs-2/tmp/qualify-check-dob0k4iv/repo/-'
+
+Original exception was:
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+  File "/var/tmp/baton-v12-handoffs-2/tmp/qualify-check-dob0k4iv/repo/v12/python/tools/instance.py", line 152, in manifest
+    raise InstanceRefusal(
+    ...<2 lines>...
+        "established")
+tools.instance.InstanceRefusal: the bundled runtime at v12/python/build/out/distro carries a broken link at _internal/library.so.1; what it would load cannot be established
+
+
+----------------------------------------------------------------------
+Ran 27 tests in 12.367s
+
+FAILED (failures=1)

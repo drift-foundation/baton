@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.authority.test_work_messages",
+    "tests.job_manager.test_native_handoffs"
+  ],
+  "returncode": 1,
+  "seconds": 3.9665716139716096,
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "TMPDIR": "/home/sl/src/baton/work/scratch/w385331-385503/tmp",
+    "BATON_V12_STACK_TEST_ROOT": "/home/sl/src/baton/work/scratch/w385331-385503/disk",
+    "BATON_V12_DISK_ROOT": "/home/sl/src/baton/work/scratch/w385331-385503/disk"
+  }
+}

@@ -1,0 +1,14 @@
+W385331 round7 independent delta review: ACCEPTED for bounded qualification helper/document correction. M385419 / M385417, claimE385420. Both residual G2/G3 findings resolved; source/composer acceptance and selected7ac02c7f remain intact.
+
+Full runtime uses existing instance.manifest before prospective executable/bootstrap; dependency add/remove/change, internal-link retarget and external-link refusals, matching runtime and installed mismatch independently exercised. All12 prior probes now pass with corrected positive install fixtures supplying runtime-manifest and installed runtime fields. Source-identity digest reconciliation matches owned semantics; exact excused untracked paths pass while tracked/nearby/product paths refuse. Explicit helper transition refuses source/declared-input drift; original0525ddb1 record verified byte-identical in3-transition chain. Host check passes all43paths/helper sums/41consumed files; current inputs unchanged. No evidence-driven checkpoint/rebind needed.
+
+Final17 tests pass,0 failures/errors/skips; cumulative measured verification1.237948910s including host check and retained reviewer fixture iterations. First input-probe attempt had2 fixture-format errors; corrected and preserved, not product defects. Author27-test suite not rerun (fixture Git mutation). No actual build/image/install/live/product/Git operation.
+
+Accepted exact identities (pilot-relative):
+- `config/native-handoffs-2-tree.py`: `d2d11d9afb415bd158b535a8a54f7d79574c28de8615dbc28152669f5d3f4f43`
+- `config/native-handoffs-2-bind.py`: `4cc1469e222a300a582bacddb435e44ae2a842ee86570f8b75c213f9f40666d6`
+- `config/native-handoffs-2-qualify.sh`: `646852bbb8fa96e401dbbaddb5d1530996d3e203b4ea6ca03f8f0124a72f0abc`
+- `config/native-handoffs-2-reviewed.sha256`: `13b8a6b3d8f384c678b57ac59f16cf1b82db261ef79ed3ffeea48b840ffd582d`
+PACKET 82ac9613a83e631d1e5d693ceea8badb2db7f084612dba7968e2c486ee28c913.
+
+Exact review work/records/2026/11/finding-v12-native-agent-handoffs-discovery/review-2026-11-21T03-23-53Z.md; evidence work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385420/ (snapshots/hashes, probes, input probes, transition-chain, host-check, review-identity). No remaining bounded correction/owner decision. Prior custody/baseline/transient/live coverage limits remain. Passing baton.decide; actual qualification steps still require their separate selection.
