@@ -115,16 +115,15 @@ class Fixture(unittest.TestCase):
         return records
 
     def publish_snapshot(self, jobs=(), *, document=None, **members):
-        """A valid snapshot with a DISTINCT, increasing mtime.
+        """Publish with the real write time, never a fabricated future mtime.
 
-        `start` compares the snapshot's mtime against a mark taken before
-        spawning, so a fixture that wrote the same timestamp twice would be
-        testing the clock rather than the gate.
+        Startup compares this write with its earlier mark; freshness also
+        requires that publication is not in the observer's future.
         """
         place = stack.snapshot_path(self.root)
         place.write_text(json.dumps(self.status_document(jobs, **members)
                                     if document is None else document))
-        self.published = getattr(self, "published", time.time()) + 1
+        self.published = time.time()
         os.utime(place, (self.published, self.published))
         return place
 
@@ -375,11 +374,21 @@ class Status(Fixture):
         self.assertEqual(answer["snapshot"]["state"], "absent")
         now = time.time()
         self.publish_snapshot(observed=now)
-        self.assertEqual(stack.observe(self.root, now=now, environ=self.environ)["snapshot"]["state"],
+        self.assertEqual(stack.observe(self.root, now=time.time(), environ=self.environ)["snapshot"]["state"],
                          "fresh")
         later = now + stack.PUBLISH_SECONDS * 10
         self.assertEqual(stack.observe(self.root, now=later, environ=self.environ)["snapshot"]["state"],
                          "stale")
+
+    def test_a_future_write_time_remains_stale_and_cannot_claim_idle(self):
+        self.publish_snapshot()
+        now = time.time()
+        os.utime(stack.snapshot_path(self.root), (now + 1, now + 1))
+        answer = stack.observe(self.root, now=now, environ=self.environ)
+        self.assertEqual(answer["snapshot"]["state"], "stale")
+        self.assertLess(answer["snapshot"]["published_age_seconds"], 0)
+        self.assertEqual(stack.runtime_boundary(self.root, now=now)["state"],
+                         stack.UNKNOWN)
 
     def test_a_freshly_written_document_can_still_be_stalely_observed(self):
         """C4. `observed_at` is the MANAGER'S reading of the store; the file's

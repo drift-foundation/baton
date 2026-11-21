@@ -1,0 +1,27 @@
+{
+  "run": "recovered",
+  "returncode": 1,
+  "inner_state": "settled",
+  "inner_stages": {
+    "implementation": "completed"
+  },
+  "outer": {
+    "state": "held",
+    "child_status": -15,
+    "child_exited": true,
+    "elapsed_seconds": 3.253609074978158,
+    "operator_signals": [],
+    "shutdown_progress": {
+      "deadline": 349906.535627748,
+      "faults": [],
+      "job_id": "job-recovered",
+      "run_id": "recovered",
+      "step": "final enforcement publication",
+      "step_deadline": 349906.485628837
+    },
+    "faults": []
+  },
+  "candidate_verification": [
+    "passed"
+  ]
+}

@@ -1,0 +1,20 @@
+test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation) ... ok
+test_absent_unreadable_and_empty_are_not_conflated (tests.tools.test_stack.JobOutcomesFirst.test_absent_unreadable_and_empty_are_not_conflated) ... ok
+test_a_non_canonical_snapshot_cannot_say_what_is_not_executing (tests.tools.test_stack.MalformedSnapshots.test_a_non_canonical_snapshot_cannot_say_what_is_not_executing)
+It does not describe every Job, so it cannot support the one claim ... ok
+test_an_absent_nested_member_is_absence_rather_than_malformation (tests.tools.test_stack.MalformedSnapshots.test_an_absent_nested_member_is_absence_rather_than_malformation)
+`null` where a list would go is "there are none", which is the same ... ok
+test_open_episodes_and_recorded_runtimes_are_counted (tests.tools.test_stack.RuntimeBoundary.test_open_episodes_and_recorded_runtimes_are_counted) ... ok
+test_stop_reports_what_it_did_not_resolve (tests.tools.test_stack.RuntimeBoundary.test_stop_reports_what_it_did_not_resolve) ... ok
+test_snapshot_freshness_and_absence_are_distinguished (tests.tools.test_stack.Status.test_snapshot_freshness_and_absence_are_distinguished) ... ok
+test_a_retained_run_resolves_and_leaves_a_reviewable_candidate (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_a_retained_run_resolves_and_leaves_a_reviewable_candidate)
+W51473's acceptance, against a real daemon and no live provider. ... ok
+test_an_explicit_discard_is_CHOSEN_and_still_ends_retained (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_an_explicit_discard_is_CHOSEN_and_still_ends_retained)
+The same control, under the ending the owner ruled. ... ok
+test_the_public_retry_settles_a_handoff_the_command_failed (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_the_public_retry_settles_a_handoff_the_command_failed)
+The whole gate: a real failed handoff, and the documented retry. ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 104.857s
+
+OK

@@ -1,0 +1,21 @@
+test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status (tests.tools.test_next_run_flow.JoinedFlow.test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status)
+The exact second-full-run failure, made deterministic. ... FAIL
+
+======================================================================
+FAIL: test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status (tests.tools.test_next_run_flow.JoinedFlow.test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status)
+The exact second-full-run failure, made deterministic.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-v12-w385517/negctl/v12/python/tests/tools/test_next_run_flow.py", line 211, in test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status
+    self.assertEqual(linger['sigterm'], 'SIG_IGN', linger)  # survives interpreter signal-module teardown
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'SIG_DFL' != 'SIG_IGN'
+- SIG_DFL
++ SIG_IGN
+ : {'seconds': 1.5, 'monotonic': 352680.03083892, 'sigterm': 'SIG_DFL'}
+
+----------------------------------------------------------------------
+Ran 1 test in 4.616s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1

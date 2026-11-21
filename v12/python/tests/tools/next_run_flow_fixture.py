@@ -114,6 +114,13 @@ def main():
         exit_delay = float(exit_delay.partition('=')[2])
         if '--child-of' in args:
             def linger():
+                # Model signal-module teardown after child_main has returned:
+                # callable Python handlers become default dispositions, while
+                # SIG_IGN remains an OS disposition. The real controller then
+                # sends its late stop during this bounded exit delay.
+                handler = signal.getsignal(signal.SIGTERM)
+                if callable(handler):
+                    signal.signal(signal.SIGTERM, signal.SIG_DFL)
                 handler = signal.getsignal(signal.SIGTERM)
                 named = 'SIG_DFL' if handler is signal.SIG_DFL else 'SIG_IGN' if handler is signal.SIG_IGN else repr(handler)
                 record('manager-exit-delay', dict(seconds=exit_delay, monotonic=time.monotonic(), sigterm=named))

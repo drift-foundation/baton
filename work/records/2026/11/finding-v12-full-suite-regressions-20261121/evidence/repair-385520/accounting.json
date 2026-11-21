@@ -1,0 +1,40 @@
+{
+  "runs": [
+    {
+      "name": "baseline-ten",
+      "count": 10,
+      "pass": 1,
+      "fail": 6,
+      "errors": 3,
+      "seconds": 14.476637672982179
+    },
+    {
+      "name": "candidate-ten",
+      "count": 10,
+      "pass": 10,
+      "fail": 0,
+      "errors": 0,
+      "seconds": 105.10828929196578
+    },
+    {
+      "name": "baseline-finalization",
+      "count": 1,
+      "pass": 0,
+      "fail": 1,
+      "errors": 0,
+      "seconds": 5.067992613010574
+    },
+    {
+      "name": "candidate-adjacent",
+      "count": 222,
+      "pass": 222,
+      "fail": 0,
+      "errors": 0,
+      "seconds": 66.32233798102243
+    }
+  ],
+  "cumulative_seconds": 190.97525755898096,
+  "candidate_pass_executions": 232,
+  "candidate_distinct_passes": 225,
+  "ten_original_cases_all_passed": true
+}

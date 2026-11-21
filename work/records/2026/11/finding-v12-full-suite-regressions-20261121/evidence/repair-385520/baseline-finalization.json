@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.tools.test_next_run_flow.JoinedFlow.test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status"
+  ],
+  "returncode": 1,
+  "seconds": 5.067992613010574,
+  "source": "candidate test fixture with original c06befa8 authoring_enforcement.py"
+}

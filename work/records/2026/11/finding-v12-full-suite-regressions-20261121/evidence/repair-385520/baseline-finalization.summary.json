@@ -1,0 +1,18 @@
+{
+  "collected": [
+    "tests.tools.test_next_run_flow.JoinedFlow.test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status"
+  ],
+  "outcomes": {
+    "tests.tools.test_next_run_flow.JoinedFlow.test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status": "FAIL"
+  },
+  "passed": [],
+  "failed": [
+    "tests.tools.test_next_run_flow.JoinedFlow.test_a_late_controller_stop_during_the_managers_exit_keeps_its_completed_status"
+  ],
+  "errors": [],
+  "skips": [],
+  "unaccounted": [],
+  "duplicates": 0,
+  "method": "prepared interpreter unittest collection versus test-one verbose outcomes, not parallel_test --account",
+  "parser_note": "Handles unittest status on separate line after fixture stderr. First bookkeeping parse refused this format; no test rerun."
+}

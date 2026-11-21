@@ -177,7 +177,7 @@ class JoinedFlow(unittest.TestCase):
         (evidence/final-suite-20261118-r2/failed-scenario.json): the manager
         publishes its final enforcement snapshot, the controller's next poll
         sees `stopping`/`finished`, requests shutdown and SIGTERMs the manager's
-        process group; the manager is still exiting. The delay makes that
+        process group; the manager is still exiting. The delay and simulated callable-handler teardown make that
         interleaving certain instead of load-dependent. Returns the run's
         result row, the controller's parsed report, the stop request the
         controller wrote (`.shutdown.json`, absent when no stop was requested)
@@ -199,7 +199,7 @@ class JoinedFlow(unittest.TestCase):
         The controller's stop request must land AFTER the manager entered its
         exit (same host monotonic clock: the request is written at
         `deadline - tail`, tail 2 s for cleanup 4 s), and the manager must
-        still meet it with its cooperative disposition, never SIG_DFL. Before
+        still meet it with an ignored OS disposition, never SIG_DFL. Before
         the correction the manager died -15 there and the completed run was
         held; its inner outcome was already settled.
         """
@@ -208,7 +208,7 @@ class JoinedFlow(unittest.TestCase):
         linger = self.only(lingers, 'the manager entered its delayed exit')
         self.assertEqual(request['run_id'], 'first')
         self.assertLessEqual(linger['monotonic'], request['deadline'] - 2, (linger, request))
-        self.assertIn('child_main', linger['sigterm'], linger)  # the cooperative handler, never SIG_DFL (was 'SIG_DFL' before the correction)
+        self.assertEqual(linger['sigterm'], 'SIG_IGN', linger)  # survives interpreter signal-module teardown
         self.assertEqual(outer['operator_signals'], [])
         self.assertEqual((code, outer['child_status'], outer['state']), (0, 0, 'completed'), json.dumps(dict(linger=linger, request=request, outer=outer), indent=2))
         self.assertEqual(result['outcome']['state'], 'settled')

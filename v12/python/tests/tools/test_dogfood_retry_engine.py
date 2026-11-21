@@ -189,7 +189,7 @@ class ThePublicRetrySettlesAgainstARealEngine(W.Lifecycle):
         attempt = f"attempt-{uuid.uuid4().hex[:10]}"
         place = os.path.join(self.home, "authority.sqlite3")
         authority = Authority.create(place, authority_uuid=W.UUID,
-                                     clock=lambda: W.NOW)
+                                     clock=dogfood_operator._now)
         authority.create_work(W.WORK_ID, "baton.impl",
                               contract="v12-assignment-1",
                               operation_id=f"create-{attempt}")
@@ -212,7 +212,7 @@ class ThePublicRetrySettlesAgainstARealEngine(W.Lifecycle):
         authority.dispose()
         control = os.path.join(self.home, "control.sqlite3")
         store = ControlStore.open(control, incarnation="retry-setup",
-                                  clock=lambda: W.NOW)
+                                  clock=dogfood_operator._now)
         certify_profile(store, "runtime", "dogfood", W.PROFILE)
         group = input_roots.configured_group(store)
         configure_workspace_storage(store, self.storage)
@@ -261,7 +261,7 @@ class ThePublicRetrySettlesAgainstARealEngine(W.Lifecycle):
             # what the retained gate below varies.
             "retention_disposition": retention,
             "work_ref": {"authority_uuid": W.UUID, "work_id": W.WORK_ID},
-            "participant": W.WHO, "generation": 1, "now": W.NOW,
+            "participant": W.WHO, "generation": 1, "now": dogfood_operator._now(),
             "policies": policies,
             "record_binding": {"root": "baton-repository",
                                "path": "work/records",

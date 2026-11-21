@@ -549,6 +549,12 @@ def child_main(packet_path, parent, lock_fd, status_path):
             guard.report = dict(guard.report, state='held', faults=[*guard.report.get('faults', []), failure])
         if not guard.thread.is_alive():
             shutdown.call('guard-publication', 'final enforcement publication', lambda: publish_guard(status_path, guard))
+        # Python clears callable signal handlers during interpreter teardown.
+        # A late controller stop after final publication must not turn a
+        # completed child into -15. Ignored OS dispositions survive teardown;
+        # the outer watchdog still kills/reaps at its unchanged deadline.
+        for number in (signal.SIGTERM, signal.SIGINT):
+            signal.signal(number, signal.SIG_IGN)
 
 
 def main(argv=None):

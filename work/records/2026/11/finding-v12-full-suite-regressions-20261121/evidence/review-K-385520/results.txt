@@ -1,0 +1,5 @@
+baseline-ten exit=1 wall=14.41
+candidate-ten exit=0 wall=105.54
+negative-control exit=1 wall=5.11
+candidate-adjacent exit=0 wall=66.23
+done

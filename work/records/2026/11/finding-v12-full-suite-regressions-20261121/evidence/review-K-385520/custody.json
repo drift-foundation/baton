@@ -1,0 +1,42 @@
+{
+ "host_head": "c06befa89f557f2999a57ef0758bf6f6d7007bb9",
+ "host_v12_status_lines": 0,
+ "manifest_sha256": "ecf0cfbd205aed3e4ba1ed262f59aa90b0781b47c13b5b860e67a25f51a8bd5d",
+ "patch_manifest": "6640dad161682f99e57c82c172cedc6cabdc3cef12457a7bfb8ee72b93f6f95c",
+ "patch_sha256": "6640dad161682f99e57c82c172cedc6cabdc3cef12457a7bfb8ee72b93f6f95c",
+ "paths": [
+  {
+   "agree": true,
+   "base": "1e8cc903be0d37fa8b9923b1918029636154ad7ae8b47b7f0263f7cd9b2b98b4",
+   "candidate": "9b19a66b63254134e19ec3ab5b35fde64a922f460965b7237df0ea73f5dd54eb",
+   "path": "v12/python/tests/tools/next_run_flow_fixture.py"
+  },
+  {
+   "agree": true,
+   "base": "701f1a3852b1e8ce29a2a0365523ec7f7d30533445d092f19cef1ec5f88ca65d",
+   "candidate": "4f93f2ba2caa044d19ba1229a70fbf3070587cc976db9dcb81f1599f128f4682",
+   "path": "v12/python/tests/tools/test_dogfood_retry_engine.py"
+  },
+  {
+   "agree": true,
+   "base": "3ee7820b77770538abdd8a223811229ec8c6c5fc57a3848cad00eaa32d949f6d",
+   "candidate": "40a56e25ddb30e0a584baae8ef7637d889852c1d484b636e3013c55e03a0f036",
+   "path": "v12/python/tests/tools/test_next_run_flow.py"
+  },
+  {
+   "agree": true,
+   "base": "cb70b63d246c11f81d04dc6e2347f7579594686a5fb0c7a47eb749b80aaace97",
+   "candidate": "3ddd122d64b48be9c6680dcce4ed5f0dc3d5fd2d27d789251782dbf4342dfe18",
+   "path": "v12/python/tests/tools/test_stack.py"
+  },
+  {
+   "agree": true,
+   "base": "40539886d949d678e403bb6628f86e6faa60b1c921286ef44a3eef1cea4da75a",
+   "candidate": "8b15cc4ee85e126c3a3fa9e3cc7347e65be403dc3881a6d6dad6f52b1cbd2dd3",
+   "path": "v12/python/tools/authoring_enforcement.py"
+  }
+ ],
+ "ten_ids_equal_owner_ledger": true,
+ "tree_manifest": "c5ec0445e7215ce84188f3eb6884300fc67fcbd75dabbb922451f083123d9d15",
+ "tree_recomputed": "c5ec0445e7215ce84188f3eb6884300fc67fcbd75dabbb922451f083123d9d15"
+}

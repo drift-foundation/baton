@@ -1,0 +1,136 @@
+--- a/v12/python/tests/tools/next_run_flow_fixture.py
++++ b/v12/python/tests/tools/next_run_flow_fixture.py
+@@ -114,6 +114,13 @@
+         exit_delay = float(exit_delay.partition('=')[2])
+         if '--child-of' in args:
+             def linger():
++                # Model signal-module teardown after child_main has returned:
++                # callable Python handlers become default dispositions, while
++                # SIG_IGN remains an OS disposition. The real controller then
++                # sends its late stop during this bounded exit delay.
++                handler = signal.getsignal(signal.SIGTERM)
++                if callable(handler):
++                    signal.signal(signal.SIGTERM, signal.SIG_DFL)
+                 handler = signal.getsignal(signal.SIGTERM)
+                 named = 'SIG_DFL' if handler is signal.SIG_DFL else 'SIG_IGN' if handler is signal.SIG_IGN else repr(handler)
+                 record('manager-exit-delay', dict(seconds=exit_delay, monotonic=time.monotonic(), sigterm=named))
+--- a/v12/python/tests/tools/test_dogfood_retry_engine.py
++++ b/v12/python/tests/tools/test_dogfood_retry_engine.py
+@@ -189,7 +189,7 @@
+         attempt = f"attempt-{uuid.uuid4().hex[:10]}"
+         place = os.path.join(self.home, "authority.sqlite3")
+         authority = Authority.create(place, authority_uuid=W.UUID,
+-                                     clock=lambda: W.NOW)
++                                     clock=dogfood_operator._now)
+         authority.create_work(W.WORK_ID, "baton.impl",
+                               contract="v12-assignment-1",
+                               operation_id=f"create-{attempt}")
+@@ -212,7 +212,7 @@
+         authority.dispose()
+         control = os.path.join(self.home, "control.sqlite3")
+         store = ControlStore.open(control, incarnation="retry-setup",
+-                                  clock=lambda: W.NOW)
++                                  clock=dogfood_operator._now)
+         certify_profile(store, "runtime", "dogfood", W.PROFILE)
+         group = input_roots.configured_group(store)
+         configure_workspace_storage(store, self.storage)
+@@ -261,7 +261,7 @@
+             # what the retained gate below varies.
+             "retention_disposition": retention,
+             "work_ref": {"authority_uuid": W.UUID, "work_id": W.WORK_ID},
+-            "participant": W.WHO, "generation": 1, "now": W.NOW,
++            "participant": W.WHO, "generation": 1, "now": dogfood_operator._now(),
+             "policies": policies,
+             "record_binding": {"root": "baton-repository",
+                                "path": "work/records",
+--- a/v12/python/tests/tools/test_next_run_flow.py
++++ b/v12/python/tests/tools/test_next_run_flow.py
+@@ -177,7 +177,7 @@
+         (evidence/final-suite-20261118-r2/failed-scenario.json): the manager
+         publishes its final enforcement snapshot, the controller's next poll
+         sees `stopping`/`finished`, requests shutdown and SIGTERMs the manager's
+-        process group; the manager is still exiting. The delay makes that
++        process group; the manager is still exiting. The delay and simulated callable-handler teardown make that
+         interleaving certain instead of load-dependent. Returns the run's
+         result row, the controller's parsed report, the stop request the
+         controller wrote (`.shutdown.json`, absent when no stop was requested)
+@@ -199,7 +199,7 @@
+         The controller's stop request must land AFTER the manager entered its
+         exit (same host monotonic clock: the request is written at
+         `deadline - tail`, tail 2 s for cleanup 4 s), and the manager must
+-        still meet it with its cooperative disposition, never SIG_DFL. Before
++        still meet it with an ignored OS disposition, never SIG_DFL. Before
+         the correction the manager died -15 there and the completed run was
+         held; its inner outcome was already settled.
+         """
+@@ -208,7 +208,7 @@
+         linger = self.only(lingers, 'the manager entered its delayed exit')
+         self.assertEqual(request['run_id'], 'first')
+         self.assertLessEqual(linger['monotonic'], request['deadline'] - 2, (linger, request))
+-        self.assertIn('child_main', linger['sigterm'], linger)  # the cooperative handler, never SIG_DFL (was 'SIG_DFL' before the correction)
++        self.assertEqual(linger['sigterm'], 'SIG_IGN', linger)  # survives interpreter signal-module teardown
+         self.assertEqual(outer['operator_signals'], [])
+         self.assertEqual((code, outer['child_status'], outer['state']), (0, 0, 'completed'), json.dumps(dict(linger=linger, request=request, outer=outer), indent=2))
+         self.assertEqual(result['outcome']['state'], 'settled')
+--- a/v12/python/tests/tools/test_stack.py
++++ b/v12/python/tests/tools/test_stack.py
+@@ -115,16 +115,15 @@
+         return records
+ 
+     def publish_snapshot(self, jobs=(), *, document=None, **members):
+-        """A valid snapshot with a DISTINCT, increasing mtime.
+-
+-        `start` compares the snapshot's mtime against a mark taken before
+-        spawning, so a fixture that wrote the same timestamp twice would be
+-        testing the clock rather than the gate.
++        """Publish with the real write time, never a fabricated future mtime.
++
++        Startup compares this write with its earlier mark; freshness also
++        requires that publication is not in the observer's future.
+         """
+         place = stack.snapshot_path(self.root)
+         place.write_text(json.dumps(self.status_document(jobs, **members)
+                                     if document is None else document))
+-        self.published = getattr(self, "published", time.time()) + 1
++        self.published = time.time()
+         os.utime(place, (self.published, self.published))
+         return place
+ 
+@@ -375,11 +374,21 @@
+         self.assertEqual(answer["snapshot"]["state"], "absent")
+         now = time.time()
+         self.publish_snapshot(observed=now)
+-        self.assertEqual(stack.observe(self.root, now=now, environ=self.environ)["snapshot"]["state"],
++        self.assertEqual(stack.observe(self.root, now=time.time(), environ=self.environ)["snapshot"]["state"],
+                          "fresh")
+         later = now + stack.PUBLISH_SECONDS * 10
+         self.assertEqual(stack.observe(self.root, now=later, environ=self.environ)["snapshot"]["state"],
+                          "stale")
++
++    def test_a_future_write_time_remains_stale_and_cannot_claim_idle(self):
++        self.publish_snapshot()
++        now = time.time()
++        os.utime(stack.snapshot_path(self.root), (now + 1, now + 1))
++        answer = stack.observe(self.root, now=now, environ=self.environ)
++        self.assertEqual(answer["snapshot"]["state"], "stale")
++        self.assertLess(answer["snapshot"]["published_age_seconds"], 0)
++        self.assertEqual(stack.runtime_boundary(self.root, now=now)["state"],
++                         stack.UNKNOWN)
+ 
+     def test_a_freshly_written_document_can_still_be_stalely_observed(self):
+         """C4. `observed_at` is the MANAGER'S reading of the store; the file's
+--- a/v12/python/tools/authoring_enforcement.py
++++ b/v12/python/tools/authoring_enforcement.py
+@@ -549,6 +549,12 @@
+             guard.report = dict(guard.report, state='held', faults=[*guard.report.get('faults', []), failure])
+         if not guard.thread.is_alive():
+             shutdown.call('guard-publication', 'final enforcement publication', lambda: publish_guard(status_path, guard))
++        # Python clears callable signal handlers during interpreter teardown.
++        # A late controller stop after final publication must not turn a
++        # completed child into -15. Ignored OS dispositions survive teardown;
++        # the outer watchdog still kills/reaps at its unchanged deadline.
++        for number in (signal.SIGTERM, signal.SIGINT):
++            signal.signal(number, signal.SIG_IGN)
+ 
+ 
+ def main(argv=None):

@@ -1,0 +1,179 @@
+test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation) ... ok
+test_absent_unreadable_and_empty_are_not_conflated (tests.tools.test_stack.JobOutcomesFirst.test_absent_unreadable_and_empty_are_not_conflated) ... FAIL
+test_a_non_canonical_snapshot_cannot_say_what_is_not_executing (tests.tools.test_stack.MalformedSnapshots.test_a_non_canonical_snapshot_cannot_say_what_is_not_executing)
+It does not describe every Job, so it cannot support the one claim ... FAIL
+test_an_absent_nested_member_is_absence_rather_than_malformation (tests.tools.test_stack.MalformedSnapshots.test_an_absent_nested_member_is_absence_rather_than_malformation)
+`null` where a list would go is "there are none", which is the same ... FAIL
+test_open_episodes_and_recorded_runtimes_are_counted (tests.tools.test_stack.RuntimeBoundary.test_open_episodes_and_recorded_runtimes_are_counted) ... FAIL
+test_stop_reports_what_it_did_not_resolve (tests.tools.test_stack.RuntimeBoundary.test_stop_reports_what_it_did_not_resolve) ... FAIL
+test_snapshot_freshness_and_absence_are_distinguished (tests.tools.test_stack.Status.test_snapshot_freshness_and_absence_are_distinguished) ... FAIL
+test_a_retained_run_resolves_and_leaves_a_reviewable_candidate (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_a_retained_run_resolves_and_leaves_a_reviewable_candidate)
+W51473's acceptance, against a real daemon and no live provider. ... ERROR
+test_an_explicit_discard_is_CHOSEN_and_still_ends_retained (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_an_explicit_discard_is_CHOSEN_and_still_ends_retained)
+The same control, under the ending the owner ruled. ... ERROR
+test_the_public_retry_settles_a_handoff_the_command_failed (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_the_public_retry_settles_a_handoff_the_command_failed)
+The whole gate: a real failed handoff, and the documented retry. ... ERROR
+
+======================================================================
+ERROR: test_a_retained_run_resolves_and_leaves_a_reviewable_candidate (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_a_retained_run_resolves_and_leaves_a_reviewable_candidate)
+W51473's acceptance, against a real daemon and no live provider.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_dogfood_retry_engine.py", line 482, in test_a_retained_run_resolves_and_leaves_a_reviewable_candidate
+    status, written = self.commanded(given)
+                      ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_dogfood_retry_engine.py", line 456, in commanded
+    status = dogfood_operator.main(
+        ["--grants", grants, "--evidence", evidence],
+        capabilities=self.ordinary)
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tools/dogfood_operator.py", line 4759, in main
+    evidence = compose(given, **built)
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tools/dogfood_operator.py", line 4363, in compose
+    return run_dogfood_task(
+        engine=given["engine"], run=run, open_channel=open_channel,
+    ...<18 lines>...
+        retention_disposition=given["retention_disposition"],
+        bearer=bearer)
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tools/dogfood_operator.py", line 1262, in run_dogfood_task
+    activate_assignment(store, port, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expect=dict(expect))
+                        ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/src/baton_v12/worker_manager/attempts.py", line 847, in activate_assignment
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"attempt's offer claimed it")
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-8de254d486' has no committed claim; a live assignment elsewhere in the authority is not evidence that this attempt's offer claimed it
+
+======================================================================
+ERROR: test_an_explicit_discard_is_CHOSEN_and_still_ends_retained (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_an_explicit_discard_is_CHOSEN_and_still_ends_retained)
+The same control, under the ending the owner ruled.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_dogfood_retry_engine.py", line 554, in test_an_explicit_discard_is_CHOSEN_and_still_ends_retained
+    status, written = self.commanded(given)
+                      ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_dogfood_retry_engine.py", line 456, in commanded
+    status = dogfood_operator.main(
+        ["--grants", grants, "--evidence", evidence],
+        capabilities=self.ordinary)
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tools/dogfood_operator.py", line 4759, in main
+    evidence = compose(given, **built)
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tools/dogfood_operator.py", line 4363, in compose
+    return run_dogfood_task(
+        engine=given["engine"], run=run, open_channel=open_channel,
+    ...<18 lines>...
+        retention_disposition=given["retention_disposition"],
+        bearer=bearer)
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tools/dogfood_operator.py", line 1262, in run_dogfood_task
+    activate_assignment(store, port, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expect=dict(expect))
+                        ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/src/baton_v12/worker_manager/attempts.py", line 847, in activate_assignment
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"attempt's offer claimed it")
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-20567729b0' has no committed claim; a live assignment elsewhere in the authority is not evidence that this attempt's offer claimed it
+
+======================================================================
+ERROR: test_the_public_retry_settles_a_handoff_the_command_failed (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_the_public_retry_settles_a_handoff_the_command_failed)
+The whole gate: a real failed handoff, and the documented retry.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_dogfood_retry_engine.py", line 342, in test_the_public_retry_settles_a_handoff_the_command_failed
+    dogfood_operator.main(["--grants", grants, "--evidence", evidence],
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          capabilities=self.refusing_capabilities),
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tools/dogfood_operator.py", line 4759, in main
+    evidence = compose(given, **built)
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tools/dogfood_operator.py", line 4363, in compose
+    return run_dogfood_task(
+        engine=given["engine"], run=run, open_channel=open_channel,
+    ...<18 lines>...
+        retention_disposition=given["retention_disposition"],
+        bearer=bearer)
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tools/dogfood_operator.py", line 1262, in run_dogfood_task
+    activate_assignment(store, port, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expect=dict(expect))
+                        ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/src/baton_v12/worker_manager/attempts.py", line 847, in activate_assignment
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"attempt's offer claimed it")
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-eb24ab2bbd' has no committed claim; a live assignment elsewhere in the authority is not evidence that this attempt's offer claimed it
+
+======================================================================
+FAIL: test_absent_unreadable_and_empty_are_not_conflated (tests.tools.test_stack.JobOutcomesFirst.test_absent_unreadable_and_empty_are_not_conflated)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_stack.py", line 475, in test_absent_unreadable_and_empty_are_not_conflated
+    self.assertIn("No Jobs observed; idle", self.shown([]))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'No Jobs observed; idle' not found in 'Jobs (stale, canonical):\n  No Jobs observed; current workload unknown\nServices:\nmanager    absent\npublisher  absent\nsnapshot   stale (observed 0.0s ago, written -1.0s ago)\njobs       0 observed (canonical=True)\nruntime   unknown: the last snapshot was observed 0.0s ago and written -1.0s ago, so what is still executing was NOT resolved here\n'
+
+======================================================================
+FAIL: test_a_non_canonical_snapshot_cannot_say_what_is_not_executing (tests.tools.test_stack.MalformedSnapshots.test_a_non_canonical_snapshot_cannot_say_what_is_not_executing)
+It does not describe every Job, so it cannot support the one claim
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_stack.py", line 1774, in test_a_non_canonical_snapshot_cannot_say_what_is_not_executing
+    self.assertIn("not canonical", answer["detail"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'not canonical' not found in 'the last snapshot was observed 0.0s ago and written -1.0s ago'
+
+======================================================================
+FAIL: test_an_absent_nested_member_is_absence_rather_than_malformation (tests.tools.test_stack.MalformedSnapshots.test_an_absent_nested_member_is_absence_rather_than_malformation)
+`null` where a list would go is "there are none", which is the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_stack.py", line 1746, in test_an_absent_nested_member_is_absence_rather_than_malformation
+    self.assertEqual(answer["state"], "observed")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unknown' != 'observed'
+- unknown
++ observed
+
+
+======================================================================
+FAIL: test_open_episodes_and_recorded_runtimes_are_counted (tests.tools.test_stack.RuntimeBoundary.test_open_episodes_and_recorded_runtimes_are_counted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_stack.py", line 1381, in test_open_episodes_and_recorded_runtimes_are_counted
+    self.assertEqual(answer["state"], "observed")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unknown' != 'observed'
+- unknown
++ observed
+
+
+======================================================================
+FAIL: test_stop_reports_what_it_did_not_resolve (tests.tools.test_stack.RuntimeBoundary.test_stop_reports_what_it_did_not_resolve)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_stack.py", line 1391, in test_stop_reports_what_it_did_not_resolve
+    self.assertIn("1 open episode", text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '1 open episode' not found in 'stopped: manager pid 3772058\nstopped: publisher pid 3772059\nruntime   unknown: the last snapshot was observed 0.1s ago and written -0.9s ago, so what is still executing was NOT resolved here\nstores and evidence retained under the configured paths\n'
+
+======================================================================
+FAIL: test_snapshot_freshness_and_absence_are_distinguished (tests.tools.test_stack.Status.test_snapshot_freshness_and_absence_are_distinguished)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517/candidate/v12/python/tests/tools/test_stack.py", line 378, in test_snapshot_freshness_and_absence_are_distinguished
+    self.assertEqual(stack.observe(self.root, now=now, environ=self.environ)["snapshot"]["state"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "fresh")
+                     ^^^^^^^^
+AssertionError: 'stale' != 'fresh'
+- stale
++ fresh
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 13.808s
+
+FAILED (failures=6, errors=3)
+error: Recipe `test-one` failed with exit code 1

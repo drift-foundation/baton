@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.tools.test_stack",
+    "tests.tools.test_next_run_flow",
+    "tests.manager.test_authoring_enforcement",
+    "tests.manager.test_attempts.ActivationNeedsAllThreeToAgree",
+    "tests.tools.test_job_observation"
+  ],
+  "returncode": 0,
+  "seconds": 66.32233798102243
+}
