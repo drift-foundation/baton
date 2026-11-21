@@ -1,0 +1,14 @@
+{
+ "built_at": "2026-11-20T23:49:48Z",
+ "reproductions": [
+  {
+   "applied": true,
+   "mismatched": [],
+   "patch": "candidate-from-331dd737.patch",
+   "paths": 12,
+   "paths_changed_outside_the_set": []
+  }
+ ],
+ "schema": "k.composer-correction-provenance/1",
+ "tree_digest": "sha256:bb5fa7050da82902b87d07b6a21447fe1fc14963cddebf879b0456794375e365"
+}

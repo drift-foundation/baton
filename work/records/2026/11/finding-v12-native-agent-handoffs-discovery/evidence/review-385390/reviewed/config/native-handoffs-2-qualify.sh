@@ -1,0 +1,219 @@
+#!/usr/bin/env bash
+# W385331 runtime qualification of native-handoffs-2 -- the guarded steps.
+#
+# Review 2026-11-21T00-55-22Z C3.3: every step is one guarded block under
+# `set -euo pipefail`, so a failed guard, a failed pipeline or a failed command
+# ENDS the step with the status of that command and nothing after it runs; a
+# log is written through `tee` without replacing the status. Every consuming
+# step first re-verifies the ONE bound checkpoint: HEAD equals the bound SHA,
+# the working tree is clean under v12/, and the bound file still describes
+# that SHA with the pinned accepted manifests (`native-handoffs-2-bind.py
+# --check`). Owner-reserved steps are marked (O) in PACKET.md; this helper
+# runs whatever step it is given and selects nothing.
+#
+#   bash native-handoffs-2-qualify.sh bind                 # K
+#   bash native-handoffs-2-qualify.sh bundle               # K, on selection
+#   bash native-handoffs-2-qualify.sh image                # O (engine build)
+#   bash native-handoffs-2-qualify.sh install              # O
+#   bash native-handoffs-2-qualify.sh compose              # K
+#   bash native-handoffs-2-qualify.sh repeat               # O
+#   JOB=... STMT=... bash native-handoffs-2-qualify.sh create   # O
+#   bash native-handoffs-2-qualify.sh start                # O (the live selection)
+#
+# Environment (defaults are the real deployment; the checks override them with
+# disposable fixtures): QUALIFY_REPO (checkout), QUALIFY_DEST (instance
+# destination), QUALIFY_PACKAGING_ROOT, QUALIFY_TMP, QUALIFY_PYTHON,
+# QUALIFY_CREDENTIALS, QUALIFY_IMAGE_REF (the engine tag), JOB, STMT.
+set -euo pipefail
+
+REPO="${QUALIFY_REPO:-/home/sl/src/baton}"
+DEST="${QUALIFY_DEST:-/home/sl/baton-instances/native-handoffs-2}"
+PACKAGING_ROOT="${QUALIFY_PACKAGING_ROOT:-/var/tmp/baton-v12-handoffs-2/packaging}"
+TMP="${QUALIFY_TMP:-/var/tmp/baton-v12-handoffs-2/tmp}"
+PYTHON="${QUALIFY_PYTHON:-/home/sl/.local/state/baton-v12-venv/bin/python}"
+CREDENTIALS="${QUALIFY_CREDENTIALS:-/home/sl/.baton/credential-sources.json}"
+RECORD="work/records/2026/11/finding-v12-native-agent-handoffs-discovery"
+PILOT="work/records/2026/10/finding-v12-development-coordination-pilot"
+CFG="$REPO/$PILOT/config"
+EV="$REPO/$PILOT/evidence"
+BIND="$CFG/native-handoffs-2-bind.py"
+BOUND="$CFG/native-bound-2.json"
+MANIFESTS=("$EV/native-handoffs-composer/manifest.json" "$EV/native-handoffs-1-correction-2/manifest.json")
+export GIT_OPTIONAL_LOCKS=0
+
+step="${1:-}"
+[ -n "$step" ] || { echo "refused: name one step (bind|check|bundle|image|install|compose|repeat|create|start)" >&2; exit 2; }
+cd "$REPO"
+
+clean_tree() {
+    local lines
+    lines="$(git status --porcelain -- v12 | wc -l)"
+    [ "$lines" = 0 ] || { echo "refused: v12/ has $lines changed or untracked path(s); the qualification consumes a clean checkout only" >&2; exit 2; }
+}
+
+bound_sha() {
+    [ -f "$BOUND" ] || { echo "refused: no binding at $BOUND; run the bind step first" >&2; exit 2; }
+    python3 -I -c "import json,sys; print(json.load(open(sys.argv[1]))['sha'])" "$BOUND"
+}
+
+check() {
+    # THE GUARD EVERY CONSUMING STEP RUNS FIRST. Each test fails the step with
+    # its own status; nothing below a failed check executes.
+    clean_tree
+    SHA="$(bound_sha)"
+    [ "$(git rev-parse HEAD)" = "$SHA" ] || { echo "refused: HEAD $(git rev-parse HEAD) is not the bound checkpoint $SHA" >&2; exit 2; }
+    python3 -I "$BIND" --repo "$REPO" --sha "$SHA" --manifests "${MANIFESTS[@]}" --check "$BOUND"
+    SHORT="${SHA:0:8}"
+}
+
+case "$step" in
+bind)
+    clean_tree
+    SHA="$(git rev-parse HEAD)"
+    python3 -I "$BIND" --repo "$REPO" --sha "$SHA" --manifests "${MANIFESTS[@]}" --out "$BOUND"
+    python3 -I - "$SHA" "$CFG" <<'PY'
+import json, sys
+sha, cfg = sys.argv[1:3]
+d = json.load(open(f"{cfg}/native-instance-handoffs-2.unbound.json")); d["line_declared_base"] = d["canonical_target_id"] = sha
+json.dump(d, open(f"{cfg}/native-instance-2-{sha[:8]}.json", "x"), indent=2, sort_keys=True)
+t = json.load(open(f"{cfg}/native-installed-task-handoffs-2.unbound.json")); t["declared_base"] = sha
+json.dump(t, open(f"{cfg}/native-installed-task-2-{sha[:8]}.json", "x"), indent=2, sort_keys=True)
+print("bound documents written for", sha)
+PY
+    ;;
+check)
+    check
+    echo "ok: HEAD $SHA, v12/ clean, binding verified"
+    ;;
+bundle)
+    check
+    G="$EV/checkpoint-$SHORT-packaging"; mkdir -p "$PACKAGING_ROOT" "$TMP" "$G"
+    env TMPDIR="$TMP" BATON_V12_STACK_TEST_ROOT="$PACKAGING_ROOT" BATON_V12_DISK_ROOT="$PACKAGING_ROOT" \
+        just --justfile v12/justfile test-packaging 2>&1 | tee "$G/build-and-gate.log"
+    tee "$G/build-stamp.json" < v12/python/packaging/build-stamp.json
+    python3 -I - "$SHA" v12/python/packaging/build-stamp.json <<'PY'
+import json, sys
+stamp = json.load(open(sys.argv[2]))
+assert stamp["commit"] == sys.argv[1] and stamp["dirty"] is False, stamp
+print("stamp", stamp["commit"], "clean")
+PY
+    v12/python/build/out/distro/baton-v12-stack --version | tee "$G/version.txt"
+    v12/python/build/out/distro/baton-v12-stack identity | tee "$G/bundle-identity.json"
+    sha256sum v12/python/build/out/distro/baton-v12-stack | tee "$G/distro-sha256.txt"
+    [ "$(v12/python/build/out/distro/baton-v12-stack pool compose-worker --help | grep -c -- --template)" -ge 1 ]
+    ;;
+image)
+    check
+    R="$EV/worker-image-$SHORT"; mkdir -p "$R"; mkdir -p "$TMP"
+    timeout 1800s docker build --pull=false --memory 2g --cpu-period 100000 --cpu-quota 100000 \
+        --iidfile "$R/image.id" -t "${QUALIFY_IMAGE_REF:-baton-v12-worker:$SHORT}" -f v12/worker/Dockerfile.claude v12 2>&1 | tee "$R/build.log"
+    IMAGE="sha256:$(cut -d: -f2 "$R/image.id")"
+    docker image inspect "$IMAGE" --format '{{json .Id}} {{json .Config.Entrypoint}} {{json .Config.User}} {{json .Created}}' | tee "$R/inspect.json"
+    docker run --rm --network none --entrypoint sha256sum "$IMAGE" /opt/baton/claude_agent.py /opt/baton/baton_worker.py | tee "$R/adapter-in-image.sha256"
+    for f in v12/worker/claude_agent.py v12/worker/baton_worker.py; do
+        want="$(git show "$SHA:$f" | sha256sum | cut -d' ' -f1)"
+        grep -q "^$want " "$R/adapter-in-image.sha256" || { echo "refused: $f in the image is not the bytes of the checkpoint ($want)" >&2; exit 2; }
+    done
+    (cd v12/python && env TMPDIR="$TMP" PYTHONPATH=src "$PYTHON" -m unittest -v tests.manager.test_dogfood_image 2>&1 | tee "$R/image-gate.log")
+    ;;
+install)
+    check
+    just --justfile v12/justfile bootstrap "$CFG/native-instance-2-$SHORT.json" "$DEST" v12/python/build/out/distro
+    cat "$DEST/authority-identity.json"
+    python3 -I - "$SHA" "$DEST" <<'PY'
+import json, sys
+sha, dest = sys.argv[1:3]
+d = json.load(open(f"{dest}/instance.json"))
+assert d["identity"]["build_stamp"]["commit"] == sha and d["identity"]["build_stamp"]["dirty"] is False, d["identity"]["build_stamp"]
+print("instance", d["authority_uuid"], "bundle", d["identity"]["sha256"])
+PY
+    just --justfile "$DEST/justfile" status
+    just --justfile "$DEST/justfile" repository
+    ;;
+compose)
+    check
+    R="$EV/worker-image-$SHORT"; IMAGE="sha256:$(cut -d: -f2 "$R/image.id")"
+    mkdir -p "$DEST/state/task"; [ -e "$DEST/state/task/installed-task.json" ] || cp "$CFG/native-installed-task-2-$SHORT.json" "$DEST/state/task/installed-task.json"
+    # THE CANONICAL DECLARATION ORDER, read from the bound checkout
+    # product rather than typed (review C3.2).
+    EXPECTED="$(env PYTHONPATH=v12/python/src "$PYTHON" -c 'import json; from baton_v12.job_manager import role_contract as r; print(json.dumps([o["name"] for o in r.contract_for(r.HANDOFF_TEMPLATE)["outputs"]]))')"
+    for W in "impl-a implementation baton.claude-native" "review-a review baton.reviewer-native"; do set -- $W
+        "$DEST/distro/baton-v12-stack" pool compose-worker --deployment "$DEST/deployment.json" --worker-id "$1" --role "$2" --participant "$3" \
+            --template baton.v12.job-template.implementation-review/3 \
+            --image-reference "${QUALIFY_IMAGE_REF:-baton-v12-worker:$SHORT}" --image-digest "$IMAGE" --cli-build 2.1.247 --network bridge \
+            --credential-sources "$CREDENTIALS" --credential claude=operator-file:w202663-development \
+            --workspace-group 1001 --task-document "$DEST/state/task/installed-task.json" \
+            --record "$RECORD" --checkout "$REPO" \
+            --verifier-layout "$REPO/v12/worker/verifier-layout-marker.json" --into "$CFG/$1-2-$SHORT.json" 2>&1 | tee "$CFG/$1-2-$SHORT-compose.log"
+    done
+    python3 -I - "$SHA" "$CFG" "$DEST" "$IMAGE" "$EXPECTED" <<'PY'
+import json, sys
+sha, cfg, dest, image, expected = sys.argv[1:6]
+expected = json.loads(expected)
+d = json.load(open(f"{cfg}/native-instance-2-{sha[:8]}.json"))
+dep = json.load(open(f"{dest}/deployment.json"))
+for k in ("integration_target", "integration_workspace"): d[k] = dep[k]
+uuid = json.load(open(f"{dest}/authority-identity.json"))["authority_uuid"]
+d["workers"] = []
+for w in ("impl-a", "review-a"):
+    held = json.load(open(f"{cfg}/{w}-2-{sha[:8]}.json")); m = held["deployment"]["input_manifest"]
+    assert held["deployment"]["schema"] == "baton.v12.single-worker-deployment/6", held["deployment"]["schema"]
+    assert [o["name"] for o in m["outputs"]] == expected, (m["outputs"], expected)
+    assert all(o["required"] is False for o in m["outputs"])
+    assert held["deployment"]["image_digest"] == image and m["work_ref"]["authority_uuid"] == uuid
+    log = open(f"{cfg}/{w}-2-{sha[:8]}-compose.log").read()
+    assert "declaring " + ", ".join(expected) in log, log
+    d["workers"].append(held)
+assert "native_handoff_routing" in d
+json.dump(d, open(f"{cfg}/native-workers-2-{sha[:8]}.json", "x"), indent=2, sort_keys=True)
+print("wrote", f"{cfg}/native-workers-2-{sha[:8]}.json", "declaring", expected)
+PY
+    ;;
+repeat)
+    check
+    just --justfile v12/justfile bootstrap "$CFG/native-workers-2-$SHORT.json"
+    just --justfile "$DEST/justfile" status
+    ;;
+create)
+    check
+    JOB="${JOB:-}"; STMT="${STMT:-}"
+    [ -n "$JOB" ] && [ "$JOB" != PENDING-SELECTION ] || { echo "refused: JOB is a pending selection; the coordinator names the Job before this step runs" >&2; exit 2; }
+    [ -n "$STMT" ] && [ -f "$STMT" ] || { echo "refused: STMT is a pending selection; name the byte-exact statement file" >&2; exit 2; }
+    BIN="$DEST/distro/baton-v12-stack"
+    UUID="$(python3 -I -c 'import json,sys; print(json.load(open(sys.argv[1]))["authority_uuid"])' "$DEST/authority-identity.json")"
+    just --justfile "$DEST/justfile" status
+    "$BIN" manager --store "$DEST/db/jobs.sqlite3" --incarnation slaw-create-handoffs-2 --authority-uuid "$UUID" \
+        create --instance "$DEST" --control "$DEST/db/control.sqlite3" --authority "$DEST/db/authority.sqlite3" \
+        --task "$JOB" --job-id "$JOB" --template baton.v12.job-template.implementation-review/3 --control-profile native-handoff/1 \
+        --statement "$(cat "$STMT")" \
+        --acceptance "${ACCEPTANCE:-The acceptance criterion of the Job as stated.}" \
+        --work-scope v12/python --test-scope v12/python/tests \
+        --verification env --verification BATON_V12_STACK_TEST_ROOT=/scratch --verification BATON_V12_DISK_ROOT=/scratch \
+        --verification PYTHONPATH=v12/python/src:v12/python --verification python3 --verification=-m --verification unittest --verification=-v \
+        --verification tests.job_manager.test_job_control | tee "$EV/native-handoffs-2-qualification/create-$JOB.json"
+    env PYTHONPATH=v12/python/src "$PYTHON" - "$DEST" "$UUID" "$EV/native-handoffs-2-qualification/create-$JOB.json" <<'PY'
+import json, sys
+from baton_v12.authority import Authority, messages
+dest, uuid, answer = sys.argv[1:4]
+held = json.loads(open(answer).read())
+assert held["template"]["version"] == "baton.v12.job-template.implementation-review/3", held["template"]
+assert held["control"]["profile"] == "native-handoff/1", held["control"]
+a = Authority.open_readonly(f"{dest}/db/authority.sqlite3", expected_authority_uuid=uuid)
+try:
+    routing = a.native_routing(); print("routing", json.dumps(routing))
+    scope = a.project_work(held["work_id"])["scope"]
+    assert a.holds_capability(routing["reviewer"], messages.ANSWER_CAPABILITY, scope=scope), "the reviewer lacks answer-handoff in the Work scope"
+    assert not a.holds_capability(routing["reviewer"], "review", scope=scope), "the reviewer must not hold review"
+    print("grants ok:", held["work_id"], "answer-handoff to", routing["reviewer"], "and no review")
+finally:
+    a.dispose()
+PY
+    ;;
+start)
+    check
+    just --justfile "$DEST/justfile" start
+    just --justfile "$DEST/justfile" status
+    ;;
+*)
+    echo "refused: unknown step $step" >&2; exit 2 ;;
+esac

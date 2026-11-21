@@ -44,3 +44,23 @@ M385363/M385361 tree766f97f2e49809c5a2ebedece65d3ebd6f6d4d933b795efd2490b4726368
 ## 2026-11-20T21-32-47Z — R4a independent delta acceptance, E385370
 
 Supersedes the prior R4a changes-requested state: tree f62bbaab53c7d6a7f9730b726d68fac8cefe48a92130cdc176924acd1ec64028 (36 paths; manifest 4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24) is accepted for the first native handoff source slice. Both addresses use shared Authority validation before installer effects; refused repeats preserve policy/input. R1–R3 bytes unchanged. Independent 538 focused tests +2 reviewer probes pass, 0 failures/errors/skips, 49.771687 s measured wall. Exact review `review-2026-11-20T21-32-47Z.md` and `evidence/review-385370/`. One existing refusal-text assertion changed correctly despite packet wording claiming no expectation changes. Prior baseline/copy/hazard/transient limitations remain; no live qualification or blanket green suite. Return baton.decide; owner integration/runtime selection and later discovery/dependency outcome remain open. No product edits or Git mutations.
+
+
+## 2026-11-20T23-15-20Z — composer review E385378, changes requested
+
+M385377/M385375 tree77ca513b409e9fc18caeeb2fdb1e27e9a27efed315a09d730bee9202b3739aeb over331dd737: supported composer positive path proved, but C1 actual-input native admission, C2 canonical output constraints, and C3 qualification checkpoint/evidence commands require correction. Independent842 passes and2 reproducing failures,0 errors/skips,98.894690s wall. Exact `review-2026-11-20T23-15-20Z.md`; `evidence/review-385378/`. DESIGN706–718 already decides admission; no new owner ambiguity. Return bounded correction to implementation. Earlier accepted first-slice product bytes remain intact; this does not revoke R1–R4a acceptance or authorize live qualification. Current next step is corrected digest-bound composer/admission packet for delta review; later discovery/dependency outcome remains open.
+
+
+## 2026-11-21T00-55-22Z — C1–C3 delta review E385384
+
+C1 bounded direct /3 declaration admission/dispatch and C2 canonical descriptors resolved on treebb5fa7050da82902b87d07b6a21447fe1fc14963cddebf879b0456794375e365 (manifestfa01b73d811ffabee510d333f18a97153ab197a21bf16ea32f92736be8ce1e77). C3 remains: contradictory hashes on five overlaps, stale output order and non-stopping shell guards/pipelines. Earlier composer packet was overwritten; reviewer recovered exact round1 manifest and five candidate files into evidence/review-385384/recovered-round-1; current complete packet snapshot in reviewed-packet. Exact review `review-2026-11-21T00-55-22Z.md`.417 passes plus1 disclosed harness-only failed assertion,0 errors/skips,23.088384s. No queued/serving creation proof claimed for this direct-only checkpoint. Current action: correct qualification/evidence packet, preserve product candidate and existing passes, then delta review. Prior messaging acceptance/coverage limits stand; no live/build/import/Git action.
+
+
+## 2026-11-21T01-49-15Z — C3 helper review E385390
+
+Previous C3 overlap/order/control-flow defects resolved on helpers4cc1469e/8f4c2663 and packetf009ba6a; productbb5fa705/fa01b73d unchanged. Six independent deterministic checks pass in1.264641s, including synthetic binding refusal through actual committed-byte checks. Remaining blocker: qualify.sh create branch directly opens Authority store; require supported readback or explicit missing observation, not dossier store access. Exact `review-2026-11-21T01-49-15Z.md`, evidence/review-385390/. Custody history/partial recovery limits verified. Current action is bounded helper/document correction to implementation; no product/live/build/Git change authorized.
+
+
+## 2026-11-21T02-04-24Z — narrow create-readback acceptance E385396
+
+M385395/M385393 helper/document delta accepted. Direct-store read removed; supported create stdout/stderr captured and attributed to returned Work/bound routing. Five independent tests pass,0 failures/errors/skips,0.927917s wall, including real create and exact helper validator on accepted composer fixtures. Exact `review-2026-11-21T02-04-24Z.md` and evidence/review-385396/. Productbb5fa705/fa01b73d, binder and prior safeguards unchanged. Report is command-time evidence only; independent after-the-fact policy/grant read remains unproved, not a new feature gate. First author probe log overwrite and older custody limits retained. Current continuation: baton.decide for owner checkpoint/selected qualification; no actual build/install/live or Git action performed; larger discovery outcome remains open.

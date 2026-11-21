@@ -1,0 +1,5 @@
+paths 5 added 0
+tree_digest sha256:77ca513b409e9fc18caeeb2fdb1e27e9a27efed315a09d730bee9202b3739aeb
+manifest.json sha256:ae8c09af29fab8dc902d88e436fbd21606183573b6ae136fcbe9eb7e9469dc71
+candidate-from-331dd737.patch sha256:0ec0bc809965db29fcb37121fd65550771681ce745b7c7869a5f8b4ab3bfa486
+provenance [{"patch": "candidate-from-331dd737.patch", "applied": true, "paths": 5, "mismatched": [], "paths_changed_outside_the_set": []}]

@@ -1,0 +1,11 @@
+test_dirty_and_moved_head_stop_all_actions (__main__.Helpers.test_dirty_and_moved_head_stop_all_actions) ... ok
+test_joined_map_and_tree_recheck (__main__.Helpers.test_joined_map_and_tree_recheck) ... ok
+test_manifest_pin_and_byte_drift_refuse_without_binding (__main__.Helpers.test_manifest_pin_and_byte_drift_refuse_without_binding) ... ok
+test_missing_selections_refuse_before_commands (__main__.Helpers.test_missing_selections_refuse_before_commands) ... ok
+test_pipeline_failure_preserves_exit_and_stops_later_calls (__main__.Helpers.test_pipeline_failure_preserves_exit_and_stops_later_calls) ... ok
+test_tree_binding_cannot_bypass_actual_committed_provenance (__main__.Helpers.test_tree_binding_cannot_bypass_actual_committed_provenance) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.220s
+
+OK

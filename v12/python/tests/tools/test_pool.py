@@ -887,6 +887,142 @@ class ComposingAWorkerForThisInstance(ComposingCase):
         self.assertIn("pool", stack_command.COMMANDS)
 
 
+class ComposingAWorkerForASelectedTemplate(ComposingCase):
+    """W385331 (T321608 M385374, the composer gap): the template is a
+    selection of this verb. Omitted, nothing changes; a handoff-capable one
+    derives the declared outputs and the role-instructions identity from the
+    template that owns them; one this build does not carry is refused."""
+
+    HANDOFF = "baton.v12.job-template.implementation-review/3"
+    SECOND = "baton.v12.job-template.implementation-review/2"
+    UNKNOWN = "baton.v12.job-template.implementation-review/9"
+
+    def outputs_of(self, answer):
+        return [(one["name"], one["type"], one["required"])
+                for one in answer["worker"]["deployment"]["input_manifest"]
+                ["outputs"]]
+
+    def instructions_of(self, answer):
+        return answer["worker"]["deployment"]["input_manifest"][
+            "role_instructions_digest"]
+
+    def test_the_default_is_byte_identical_whether_omitted_or_named(self):
+        omitted = self.composing()
+        named = self.composing(template_version=pool.TEMPLATE_VERSION)
+        self.assertEqual(omitted["worker"], named["worker"])
+        self.assertEqual(self.outputs_of(omitted),
+                         [("proposal", "git-change-proposal", True)])
+        self.assertEqual(omitted["template"], pool.TEMPLATE_VERSION)
+        self.assertEqual(omitted["declared"], ["proposal"])
+
+    def test_a_handoff_capable_template_declares_its_contracts_descriptors(self):
+        """Review 2026-11-20T23-15-20Z C2: every declared descriptor IS the
+        selected role contract's -- name, type, path, optionality and
+        constraints, in the contract's order -- not a clone of the generic
+        proposal specimen."""
+        from baton_v12.contracts import job_input_identity
+        from baton_v12.contracts.manifest import check_manifest_structure
+        from baton_v12.job_manager import role_contract
+
+        legacy = self.composing()
+        answer = self.composing(template_version=self.HANDOFF)
+        self.assertEqual(answer["template"], self.HANDOFF)
+        manifest = answer["worker"]["deployment"]["input_manifest"]
+        contract = role_contract.contract_for(self.HANDOFF)
+        self.assertEqual(manifest["outputs"], contract["outputs"])
+        self.assertEqual(self.outputs_of(answer), [
+            ("proposal", "git-change-proposal", False),
+            ("findings", "directory-result", False),
+            ("logs", "directory-result", False),
+            ("handoff", "directory-result", False),
+            ("response", "directory-result", False)])
+        for one in manifest["outputs"][1:]:
+            self.assertEqual(one["constraints"]["allowed_media_types"],
+                             ["application/octet-stream"])
+        check_manifest_structure(manifest, "inputManifest",
+                                 what="the composed /3 manifest")
+        # THE ROLE-INSTRUCTIONS IDENTITY IS THE SELECTED TEMPLATE'S, so a /3
+        # worker and a /1 worker are two different declarations, and so are
+        # their Job input identities.
+        self.assertNotEqual(self.instructions_of(answer),
+                            self.instructions_of(legacy))
+        self.assertNotEqual(
+            job_input_identity(manifest),
+            job_input_identity(
+                legacy["worker"]["deployment"]["input_manifest"]))
+        # AND THE REVIEW ROLE OF THE SAME TEMPLATE DECLARES THE SAME UNION.
+        review = self.composing(template_version=self.HANDOFF,
+                                worker_id="review-c", role="review",
+                                participant="baton.review-c")
+        self.assertEqual([one[0] for one in self.outputs_of(review)],
+                         [one[0] for one in self.outputs_of(answer)])
+        self.assertNotEqual(self.instructions_of(review),
+                            self.instructions_of(answer))
+
+    def test_a_baseline_template_other_than_the_default_keeps_the_legacy_declaration(self):
+        """`/2` is bound to the baseline contract: the proven one-output
+        declaration stands, and only the role-instructions identity names
+        the selected version."""
+        legacy = self.composing()
+        second = self.composing(template_version=self.SECOND)
+        self.assertEqual(self.outputs_of(second), self.outputs_of(legacy))
+        self.assertEqual(second["template"], self.SECOND)
+        self.assertNotEqual(self.instructions_of(second),
+                            self.instructions_of(legacy))
+
+    def test_an_unsupported_template_is_refused_by_name_before_anything(self):
+        with self.assertRaises(pool.PoolRefusal) as caught:
+            self.composing(template_version=self.UNKNOWN)
+        self.assertIn("carries the job templates", str(caught.exception))
+        self.assertIn(self.UNKNOWN.rsplit("/", 1)[0] + "/9",
+                      str(caught.exception))
+        with self.assertRaises(pool.PoolRefusal):
+            self.composing(template_version="")
+        self.unchanged()
+
+    def argv(self, into, *extra):
+        return [pool.VERB_COMPOSE, "--deployment", self.place,
+                "--worker-id", "impl-c", "--role", "implementation",
+                "--participant", "baton.impl-c",
+                "--image-reference", "baton-v12-worker:test",
+                "--image-digest", self.IMAGE, "--cli-build", "2.1.247",
+                "--network", self.config["network"],
+                "--credential-sources",
+                os.path.join(self.root, "credential-sources.json"),
+                "--credential", "claude=operator-file:w202663-development",
+                "--workspace-group", str(self.config["workspace_group"]),
+                "--task-document", self.task_file(),
+                "--record", self.RECORD, "--checkout", self.checkout,
+                "--into", into, "--legacy-verifier-layout", *extra]
+
+    def test_the_command_line_selects_the_template_and_says_so(self):
+        self.record_in(self.checkout)
+        into = os.path.join(self.root, "composed", "impl-c-3.json")
+        said = io.StringIO()
+        self.assertEqual(pool.main(self.argv(into, "--template", self.HANDOFF),
+                                   stream=said), 0, said.getvalue())
+        written = json.loads(Path(into).read_text())
+        self.assertEqual(
+            [one["name"] for one in
+             written["deployment"]["input_manifest"]["outputs"]],
+            ["proposal", "findings", "logs", "handoff", "response"])
+        self.assertIn("template  " + self.HANDOFF, said.getvalue())
+        self.assertIn("declaring proposal, findings, logs, handoff, response",
+                      said.getvalue())
+        self.unchanged()
+
+    def test_the_command_line_refuses_an_unsupported_template_and_writes_nothing(self):
+        self.record_in(self.checkout)
+        into = os.path.join(self.root, "composed", "impl-c-9.json")
+        said = io.StringIO()
+        self.assertEqual(pool.main(self.argv(into, "--template", self.UNKNOWN),
+                                   stream=said), 2)
+        self.assertIn("refused:", said.getvalue())
+        self.assertIn("carries the job templates", said.getvalue())
+        self.assertFalse(os.path.lexists(into))
+        self.unchanged()
+
+
 class ComposingAWorkerThatSelectsTheVerifierLayout(ComposingCase):
     """W321608 native-labels-4 (T321608 M385233, M385234): the worker image
     built from e670e624 carries W325695's verifier-layout marker, and this verb

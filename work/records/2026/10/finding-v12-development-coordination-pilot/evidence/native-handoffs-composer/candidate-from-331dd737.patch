@@ -1,0 +1,1225 @@
+diff -ruN -x __pycache__ base/v12/python/src/baton_v12/job_manager/creation.py candidate/v12/python/src/baton_v12/job_manager/creation.py
+--- base/v12/python/src/baton_v12/job_manager/creation.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/src/baton_v12/job_manager/creation.py	2026-11-20 16:38:40.957999829 -0700
+@@ -88,7 +88,8 @@
+ from ..contracts import ContractRefusal, digest
+ from ..contracts.errors import name_value, sample_of
+ from ..worker_manager import boundaries
+-from . import documents, execution_limits, submission, templates
++from . import (documents, execution_limits, role_capability, role_contract,
++               submission, templates)
+ from .store import job_signature
+ 
+ __all__ = ["ACQUIRE_KIND", "CREATE_KIND", "DERIVATION_MEMBERS",
+@@ -109,6 +110,12 @@
+ # installed task, which is the behaviour every Job had before this and is
+ # preserved rather than broken.
+ TASK_MEMBERS = ("task_document", "input_manifest")
++# W385331 (review 2026-11-20T23-15-20Z C1): what each configured lane DECLARES,
++# `{role: {worker_id: outputs}}`, as the deployment's own actual composed
++# inputs. Optional in the derivation's shape, because a derivation port that
++# predates this member still answers for the baseline workflow; a template that
++# binds a result contract REQUIRES it, below.
++DECLARATION_MEMBERS = ("declarations",)
+ PROFILE_MEMBERS = ("profile_name", "profile_digest")
+ 
+ # The one source a creation may select: the one this instance installed. An
+@@ -231,6 +238,10 @@
+         # twice and compared them, which is how R2's replay came to depend on
+         # a fact the caller never stated.
+         derived, resolution = _resolved(asked, derivation)
++        # BEFORE THE FIRST EFFECT: no reservation, no Work, no binding has
++        # been made yet, and a Job the configured lanes cannot serve under the
++        # selected result contract is refused right here (W385331 C1).
++        _declared_contract(derived, resolution["template"]["version"])
+         # W29401: THE LABELS TRAVEL WITH THE DERIVED MEMBERS and deliberately
+         # NOT with the three in `operands` above: `_intent_of` is what the
+         # replay signature is taken over, and the labels are already inside
+@@ -629,7 +640,7 @@
+     taken = boundaries.document(answered,
+                                 "this deployment's derived Job facts",
+                                 required=DERIVATION_MEMBERS,
+-                                optional=TASK_MEMBERS)
++                                optional=TASK_MEMBERS + DECLARATION_MEMBERS)
+     present = [one for one in TASK_MEMBERS if one in taken]
+     if present and len(present) != len(TASK_MEMBERS):
+         _refuse(f"this deployment derived {', '.join(present)} without "
+@@ -661,6 +672,52 @@
+     return taken
+ 
+ 
++def _declared_contract(derived, version):
++    """DESIGN, development role-contract admission (owner 2026-10-28):
++    "Before fresh creation effects, the Job manager MUST validate that
++    contract against ... the actual composed inputs."
++
++    W385331, review 2026-11-20T23-15-20Z C1. The first composer cut let an
++    ordinary `/3` creation succeed against workers that declared the legacy
++    single output; the adapter then refused at the first turn, after the
++    reservation, the Work and the binding were durable. The actual composed
++    inputs are the deployment's own declarations (`derived["declarations"]`,
++    `{role: {worker_id: outputs}}`), and the rule they are held to is
++    `role_capability.declared_result_contract`, the one owned exactness --
++    never a comparison written here.
++
++    THE BASELINE WORKFLOW IS UNCHANGED. A template bound to no descriptor, or
++    to the baseline one (`/1`, `/2`), asks nothing: every installed instance
++    declares the proven legacy shape for it, and `_servable` still asks the
++    selector the question it always asked. A handoff-capable template REQUIRES
++    the declarations and refuses, naming the lane, when a deployment states
++    none or states different ones.
++    """
++    contract = role_contract.contract_for(version)
++    if contract is None or not role_contract.is_handoff_capable(version):
++        return None
++    declarations = derived.get("declarations")
++    if type(declarations) is not dict:
++        _refuse(f"template {name_value(version)} binds the result contract "
++                f"{name_value(contract['schema'])} and this deployment states "
++                f"no worker declarations to hold to it; a Job is admitted "
++                f"against the actual composed inputs or not at all",
++                category="refused", code="precondition")
++    for declared in contract["roles"]:
++        role = declared["role"]
++        lanes = declarations.get(role)
++        if type(lanes) is not dict or not lanes:
++            _refuse(f"template {name_value(version)} declares the {role} "
++                    f"role and this deployment states no {role} worker "
++                    f"declarations; a required role with no lane cannot be "
++                    f"served", category="refused", code="precondition")
++        for worker_id in sorted(lanes):
++            role_capability.declared_result_contract(
++                contract, lanes[worker_id],
++                what=f"the configured {role} worker {name_value(worker_id)}")
++    return contract
++
++
+ def _servable(binding, resolution, *, reserved, task=None):
+     """Every resolved stage can be served by a worker this deployment holds.
+ 
+@@ -701,9 +758,16 @@
+     entry = resolution["submission"]["jobs"][0]
+     answered = {}
+     empty = []
++    version = resolution["template"]["version"]
+     for stage in entry["stages"]:
++        # THE SELECTED TEMPLATE TRAVELS WITH THE QUESTION for a handoff-capable
++        # workflow, so the selector holds each lane's declarations to the
++        # contract (W385331 C1); a baseline template asks exactly what it
++        # always asked.
++        selection = ({"template": version}
++                     if role_contract.is_handoff_capable(version) else {})
+         held = binding.serving(entry["job_id"], stage=stage, job=entry,
+-                               task=task)
++                               task=task, **selection)
+         answered[stage["kind"]] = sorted(held or ())
+         if not held:
+             empty.append(stage["kind"])
+diff -ruN -x __pycache__ base/v12/python/src/baton_v12/job_manager/role_capability.py candidate/v12/python/src/baton_v12/job_manager/role_capability.py
+--- base/v12/python/src/baton_v12/job_manager/role_capability.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/src/baton_v12/job_manager/role_capability.py	2026-11-20 16:36:22.818902386 -0700
+@@ -46,6 +46,7 @@
+            "capability_digest",
+            "check_role_capability", "role_capability_of_bytes",
+            "compatible_capability", "admissible_roles",
++           "declared_result_contract",
+            # W385331: the handoff-capable synthetic vector, for the same
+            # reason `SYNTHETIC_DIGEST` is exported -- a shape, never a grant.
+            "HANDOFF_SYNTHETIC"]
+@@ -744,6 +745,38 @@
+             "job_input_identity": identity, "task_digest": task}
+ 
+ 
++def declared_result_contract(contract, outputs, *, what="this deployment"):
++    """One lane's DECLARED outputs, held EXACTLY to the selected contract's.
++
++    W385331 (review 2026-11-20T23-15-20Z C1; DESIGN "development role-contract
++    admission"). THE ONE ADMISSION RULE FOR DECLARATIONS, and it is the same
++    exactness `_admissible_lane` applies to a whole lane: the actual composed
++    input's `outputs` list must equal the contract's own descriptors -- names,
++    types, paths, optionality and constraints, in the contract's order. It is
++    asked by the Job manager BEFORE any creation effect and by the deployment
++    at dispatch, from closed data, so a `/3` Job cannot be admitted against
++    workers that declared the legacy single output and then refused by the
++    adapter at its first turn.
++
++    SHARED OPTIONAL DECLARATIONS WAIVE NOTHING a role owes: what a role must
++    publish for a successful stage is the contract's `required_for_success`,
++    read by the endings, and this compares declarations only.
++    """
++    agreed = role_contract.check_any_role_contract(
++        contract, what=f"{what}'s role contract")
++    held = own(outputs, what=f"{what}'s declared outputs")
++    if type(held) is not list:
++        _refuse(f"{what}'s declared outputs are one list of output "
++                f"descriptors; this is {name_value(held)}")
++    for index, one in enumerate(held):
++        validate_fragment(one, "outputDescriptor",
++                          what=f"{what}'s declared output {index}")
++    _exact(held, agreed["outputs"], "its declared outputs",
++           f"{what} declares a different result contract than template "
++           f"{name_value(agreed['template'])} binds")
++    return [dict(one) for one in agreed["outputs"]]
++
++
+ def admissible_roles(contract, *, candidates, what="this deployment"):
+     """The roles this deployment may serve, ALL of them, or the exact refusal.
+ 
+diff -ruN -x __pycache__ base/v12/python/tests/job_manager/test_creation.py candidate/v12/python/tests/job_manager/test_creation.py
+--- base/v12/python/tests/job_manager/test_creation.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/tests/job_manager/test_creation.py	2026-11-20 16:43:16.765052482 -0700
+@@ -207,7 +207,7 @@
+                               "source_worker_id": PRODUCER}
+         return self.bound[job_id]
+ 
+-    def serving(self, job_id, *, stage, job, task=None):
++    def serving(self, job_id, *, stage, job, task=None, template=None):
+         # THE FAKE RECORDS WHAT IT WAS ASKED, because the operands are the
+         # point: a case asserts the DERIVED digests and each stage's OWN
+         # profile reached this port rather than the implementation's twice.
+@@ -219,6 +219,7 @@
+         # used: what this fake decides is still only the configured answer.
+         self.asked.append((job_id, dict(stage), dict(job)))
+         self.tasks.append(task)
++        self.templates = getattr(self, "templates", []) + [template]
+         return list(self._serving.get(stage["kind"], ()))
+ 
+ 
+@@ -486,6 +487,81 @@
+         self.assertEqual(self.ownership.held_count, 1)
+ 
+ 
++class TheSelectedResultContractIsAdmittedBeforeAnyEffect(CreationCase):
++    """W385331, review 2026-11-20T23-15-20Z C1 (DESIGN, development
++    role-contract admission): a handoff-capable template holds every
++    configured lane's ACTUAL declarations to the selected contract BEFORE the
++    reservation, the Work and the binding; the baseline workflow asks nothing
++    new."""
++
++    HANDOFF = "baton.v12.job-template.implementation-review/3"
++
++    def contract_declarations(self):
++        from baton_v12.job_manager import role_contract
++
++        outputs = role_contract.contract_for(self.HANDOFF)["outputs"]
++        return {"implementation": {PRODUCER: [dict(one) for one in outputs]},
++                "review": {REVIEWER: [dict(one) for one in outputs]}}
++
++    def legacy_declarations(self):
++        from baton_v12.job_manager import role_contract
++
++        proposal = dict(role_contract.contract_for(self.HANDOFF)["outputs"][0],
++                        required=True)
++        return {"implementation": {PRODUCER: [proposal]},
++                "review": {REVIEWER: [proposal]}}
++
++    def stating(self, declarations):
++        derivation = FakeDerivation()
++        if declarations is not None:
++            derivation.answer["declarations"] = declarations
++        return derivation
++
++    def nothing_happened(self):
++        self.assertEqual(self.rows(), [])
++        self.assertEqual(self.jobs._connection.execute(
++            "SELECT count(*) FROM template_jobs").fetchone()[0], 0)
++        self.assertEqual(self.authorization.created, [])
++        self.assertEqual(self.binding.created, [])
++        self.assertEqual(self.binding.asked, [])
++
++    def test_a_3_creation_is_refused_before_any_effect_when_the_lanes_declare_the_legacy_output(self):
++        caught = self.refused(
++            request=request(template=self.HANDOFF),
++            derivation=self.stating(self.legacy_declarations()))
++        self.assertIn("declares a different result contract", str(caught))
++        self.assertIn("implementation", str(caught))
++        self.nothing_happened()
++
++    def test_a_3_creation_is_refused_when_the_deployment_states_no_declarations(self):
++        caught = self.refused(request=request(template=self.HANDOFF),
++                              derivation=self.stating(None))
++        self.assertIn("states no worker declarations", str(caught))
++        self.nothing_happened()
++
++    def test_a_3_creation_against_the_contracts_own_declarations_proceeds(self):
++        held = self.created(request=request(template=self.HANDOFF),
++                            derivation=self.stating(
++                                self.contract_declarations()))
++        self.assertEqual(held["template"]["version"], self.HANDOFF)
++        # AND THE SELECTOR WAS ASKED WITH THE SELECTED TEMPLATE, for every
++        # stage, so the same compatibility is held at selection and dispatch.
++        self.assertEqual(set(self.binding.templates), {self.HANDOFF})
++        self.assertEqual(len(self.rows()), 1)
++
++    def test_the_default_template_asks_nothing_new(self):
++        held = self.created(derivation=self.stating(None))
++        self.assertEqual(held["template"]["origin"], "configured-default")
++        self.assertEqual(set(self.binding.templates), {None})
++        # AND LEGACY DECLARATIONS ARE NOT HELD TO THE BASELINE DESCRIPTOR:
++        # every installed instance declares the proven single output.
++        self.created(request=request(task={"task_id": "second-task",
++                                           "statement": STATEMENT},
++                                     template="baton.v12.job-template."
++                                              "implementation-review/2"),
++                     derivation=self.stating(self.legacy_declarations()))
++
++
+ class ReplayAndIdentity(CreationCase):
+     """One identity, one creation, and what a second request is told."""
+ 
+diff -ruN -x __pycache__ base/v12/python/tests/tools/test_connected_creation.py candidate/v12/python/tests/tools/test_connected_creation.py
+--- base/v12/python/tests/tools/test_connected_creation.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/tests/tools/test_connected_creation.py	2026-11-20 16:43:53.296799625 -0700
+@@ -184,42 +184,17 @@
+ 
+ 
+ class TheNativeRoutingThroughTheRealInstaller(ConnectedCreationCase):
+-    """W385331 R4/R4a (reviews 2026-11-20T19-39-15Z, 20-53-37Z): the native
+-    handoff routing through the REAL installer and the REAL command.
+-
+-    A two-role pool (the native template's implementation/review), each
+-    worker's manifest declaring the `/3` outputs: `bootstrap.main` installs
+-    the instance with a `native_handoff_routing` selection, `job_manager.main`
+-    creates an ordinary `/3` Job under the native-handoff profile, and the
+-    Authority holds the policy and the reviewer's scoped `answer-handoff`
+-    grant -- and no `review` grant for that worker. A malformed address is
+-    refused by the installer before anything durable exists.
++    """W385331 R4a (review 2026-11-20T20-53-37Z): a malformed routing
++    address is refused by the REAL installer before anything durable exists,
++    and a refused repeat leaves the installed selection unchanged. The
++    positive path -- install, supported composition, ordinary `/3` creation
++    -- is `TheReusableInstanceComposesHandoffCapableWorkers` below, which
++    composes its workers through `pool compose-worker --template` rather than
++    patching a fixture's manifests.
+     """
+ 
+     ROUTING = {"reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"}
+ 
+-    def workers(self):
+-        import copy
+-
+-        from baton_v12.contracts import digest
+-
+-        held = [one for one in super().workers()
+-                if one["role"] in ("implementation", "review")]
+-        for worker in held:
+-            manifest = copy.deepcopy(worker["deployment"]["input_manifest"])
+-            prototype = manifest["outputs"][0]
+-            manifest["outputs"] = [
+-                dict(prototype, name=name, type=kind, path=name, required=False)
+-                for name, kind in (("proposal", "git-change-proposal"),
+-                                   ("findings", "directory-result"),
+-                                   ("logs", "directory-result"),
+-                                   ("handoff", "directory-result"),
+-                                   ("response", "directory-result"))]
+-            manifest.pop("manifest_digest")
+-            manifest["manifest_digest"] = digest(manifest)
+-            worker["deployment"]["input_manifest"] = manifest
+-        return held
+-
+     def authority(self):
+         from baton_v12.authority import Authority
+ 
+@@ -228,32 +203,6 @@
+         self.addCleanup(held.dispose)
+         return held
+ 
+-    def test_a_fresh_install_and_an_ordinary_creation_install_the_scoped_grant(self):
+-        from baton_v12.authority import messages
+-        from baton_v12.job_manager import native_handoffs, role_contract
+-
+-        self.installed(jobs=[], line_declared_base="a" * 40,
+-                       canonical_target_id="target-1",
+-                       native_handoff_routing=dict(self.ROUTING))
+-        self.assertEqual(self.authority().native_routing(),
+-                         dict(self.ROUTING, schema=messages.ROUTING_SCHEMA))
+-        held = self.answered(template=role_contract.HANDOFF_TEMPLATE,
+-                             control_profile="native-handoff/1")
+-        authority = self.authority()
+-        scope = authority.project_work(held["work_id"])["scope"]
+-        self.assertTrue(authority.holds_capability(
+-            self.ROUTING["reviewer"], messages.ANSWER_CAPABILITY, scope=scope))
+-        self.assertFalse(authority.holds_capability(
+-            self.ROUTING["reviewer"], "review", scope=scope))
+-        self.assertFalse(authority.holds_capability(
+-            self.ROUTING["decision_recipient"], messages.ANSWER_CAPABILITY,
+-            scope=scope))
+-        store, _creation = self.rows()
+-        self.assertTrue(native_handoffs.handoff_capable(store, held["job_id"]))
+-        self.assertEqual(self.install_document()["native_handoff_routing"],
+-                         self.ROUTING)
+-        self.assertNotIn("native_handoff_routing", self.configuration())
+-
+     def refused_install(self, routing):
+         """The real installer, refusing: exit 2, the refusal said, and
+         nothing durable at the destination -- no selector, no record, no
+@@ -707,7 +656,7 @@
+             return SimpleNamespace(returncode=0, stdout="", stderr="")
+         return runner
+ 
+-    def installed_with_repositories(self, issued):
++    def installed_with_repositories(self, issued, **members):
+         # THE CHECKPOINT PROFILE IS THE DETERMINISTIC SEAM every connected
+         # serving case uses (`test_connected_startup`, `test_job_task_delivery`):
+         # the line is materialized without version control, so dispatch is
+@@ -717,7 +666,8 @@
+         document = self.document(workers=[], jobs=[],
+                                  line_declared_base=self.BASE,
+                                  canonical_target_id=self.BASE,
+-                                 checkpoint_profile=self.profile_seam.name)
++                                 checkpoint_profile=self.profile_seam.name,
++                                 **members)
+         document.pop("state_root", None)
+         inputs = os.path.join(self.root, "operator-inputs.json")
+         Path(inputs).write_text(json.dumps(document))
+@@ -1046,6 +996,320 @@
+         self.assertEqual(engine.vectors, [])
+ 
+ 
++class TheReusableInstanceComposesHandoffCapableWorkers(
++        TheReusableInstanceServesDefinedJobs):
++    """W385331 (T321608 M385374): install -> SUPPORTED composition for the
++    handoff-capable template -> repeat -> ordinary `/3` creation, with no
++    hand-patched manifest anywhere.
++
++    Everything `TheReusableInstanceServesDefinedJobs` keeps real stays real:
++    the real installer with the routing selection, `pool compose-worker
++    --template …/3` through its own command line, the one-operand repeat
++    that clones the composed workers' sources, and `job_manager.main create
++    --template …/3 --control-profile native-handoff/1`. What the proof then
++    reads back is the Authority's routing policy and scoped grant, the
++    creation record's template, and the composed workers' declarations.
++    """
++
++    HANDOFF = "baton.v12.job-template.implementation-review/3"
++    ROUTING = {"reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"}
++
++    def installed_task(self):
++        place = os.path.join(self.state, "state", "task", "installed-task.json")
++        os.makedirs(os.path.dirname(place), exist_ok=True)
++        held = json.loads(Path(self.config["task_document"]).read_bytes())
++        held["task_id"] = "installed-task"
++        Path(place).write_bytes(json.dumps(held, sort_keys=True).encode())
++        record_path = ("work/records/2026/08/finding-v12-work-tags/findings/"
++                       "finding-v12-work-label-protocol-cli")
++        record = Path(self.checkout, record_path)
++        record.mkdir(parents=True, exist_ok=True)
++        (record / "FINDING.md").write_text("# Finding\n")
++        (record / "PLAN.md").write_text("# Plan\n")
++        return place, record_path
++
++    def authority(self):
++        from baton_v12.authority import Authority
++
++        held = Authority.open(self.owned["authority_store"],
++                              expected_authority_uuid=self.owned["authority_uuid"])
++        self.addCleanup(held.dispose)
++        return held
++
++    def composed_by_command(self, worker_id, role, participant, *extra):
++        """One worker composed by the REAL `pool compose-worker` command."""
++        from tools import pool
++        from baton_v12.worker_manager import source_boundary
++
++        task, record_path = self.installed_task()
++        marker = os.path.join(self.root, "verifier-layout-marker.json")
++        Path(marker).write_text(json.dumps(
++            source_boundary.image_layout_marker()))
++        into = os.path.join(self.root, "composed", worker_id + ".json")
++        argv = [pool.VERB_COMPOSE,
++                "--deployment", os.path.join(self.state, "deployment.json"),
++                "--worker-id", worker_id, "--role", role,
++                "--participant", participant,
++                "--image-reference", "baton-v12-worker:test",
++                "--image-digest", self.config["image_digest"],
++                "--cli-build", "2.1.247", "--network", self.config["network"],
++                "--credential-sources",
++                os.path.join(self.root, "credential-sources.json"),
++                "--credential", "claude=operator-file:w202663-development",
++                "--workspace-group", str(self.config["workspace_group"]),
++                "--task-document", task, "--record", record_path,
++                "--checkout", self.checkout, "--verifier-layout", marker,
++                "--into", into, *extra]
++        said = io.StringIO()
++        code = pool.main(argv, stream=said)
++        return code, said.getvalue(), into
++
++    def repeated(self, issued, workers, routing):
++        before = self.configuration()
++        carried = {name: before[name]
++                   for name in ("integration_target", "integration_workspace")
++                   if before.get(name)}
++        selection = ({} if routing is None
++                     else {"native_handoff_routing": dict(routing)})
++        document = self.document(workers=workers, jobs=[],
++                                 checkpoint_profile=self.profile_seam.name,
++                                 line_declared_base=self.BASE,
++                                 canonical_target_id=self.BASE,
++                                 **selection, **carried)
++        updated = os.path.join(self.root, "updated-inputs.json")
++        Path(updated).write_text(json.dumps(document))
++        said = io.StringIO()
++        code = bootstrap.main(["--inputs", updated,
++                               "--repository-source", self.SOURCE],
++                              stream=said, runner=self.git(issued))
++        return code, said.getvalue()
++
++    def test_install_supported_composition_repeat_and_an_ordinary_3_creation(self):
++        from baton_v12.authority import messages
++        from baton_v12.job_manager import native_handoffs, role_contract
++
++        issued = []
++        self.installed_with_repositories(
++            issued, native_handoff_routing=dict(self.ROUTING))
++        self.assertEqual(self.configuration()["workers"], [])
++        self.assertEqual(self.authority().native_routing(),
++                         dict(self.ROUTING, schema=messages.ROUTING_SCHEMA))
++        workers = []
++        for worker_id, role, participant in (
++                ("impl-a", "implementation", "baton.impl-a"),
++                ("review-a", "review", "baton.reviewer")):
++            code, said, into = self.composed_by_command(
++                worker_id, role, participant, "--template", self.HANDOFF)
++            self.assertEqual(code, 0, said)
++            self.assertIn("template  " + self.HANDOFF, said)
++            worker = json.loads(Path(into).read_text())
++            manifest = worker["deployment"]["input_manifest"]
++            # THE DECLARATION IS THE TEMPLATE'S UNION, none required, and
++            # the role-instructions identity names the selected template.
++            self.assertEqual(
++                [one["name"] for one in manifest["outputs"]],
++                ["proposal", "findings", "logs", "handoff", "response"])
++            self.assertTrue(all(one["required"] is False
++                                for one in manifest["outputs"]))
++            self.assertEqual(worker["deployment"]["schema"],
++                             "baton.v12.single-worker-deployment/6")
++            workers.append(worker)
++        self.assertNotEqual(
++            workers[0]["deployment"]["input_manifest"]["role_instructions_digest"],
++            workers[1]["deployment"]["input_manifest"]["role_instructions_digest"])
++        code, said = self.repeated(issued, workers, self.ROUTING)
++        self.assertEqual(code, 0, said)
++        self.assertIn("routing", said)
++        self.assertEqual(
++            [one["worker_id"] for one in self.configuration()["workers"]],
++            ["impl-a", "review-a"])
++        for worker in workers:
++            self.assertTrue(os.path.isdir(
++                worker["deployment"]["nominated_source"]))
++        # THE ORDINARY CREATION, through the real command, selecting the
++        # handoff-capable template and the one-continuation profile.
++        held = self.answered(template=self.HANDOFF,
++                             control_profile="native-handoff/1")
++        self.assertEqual(held["template"]["version"], self.HANDOFF)
++        self.assertEqual(held["servable"],
++                         {"implementation": ["impl-a"], "review": ["review-a"]})
++        store, _creation = self.rows()
++        self.assertTrue(native_handoffs.handoff_capable(store, held["job_id"]))
++        self.assertEqual(native_handoffs.template_of(store, held["job_id"]),
++                         role_contract.HANDOFF_TEMPLATE)
++        authority = self.authority()
++        scope = authority.project_work(held["work_id"])["scope"]
++        self.assertTrue(authority.holds_capability(
++            self.ROUTING["reviewer"], messages.ANSWER_CAPABILITY, scope=scope))
++        self.assertFalse(authority.holds_capability(
++            self.ROUTING["reviewer"], "review", scope=scope))
++        self.assertFalse(authority.holds_capability(
++            self.ROUTING["decision_recipient"], messages.ANSWER_CAPABILITY,
++            scope=scope))
++        self.assertEqual(self.install_document()["native_handoff_routing"],
++                         self.ROUTING)
++        self.assertNotIn("native_handoff_routing", self.configuration())
++
++    def default_lanes(self, issued):
++        """Both workers composed WITHOUT the template selection (the proven
++        legacy declaration) and configured by the repeat."""
++        workers = []
++        for worker_id, role, participant in (
++                ("impl-a", "implementation", "baton.impl-a"),
++                ("review-a", "review", "baton.reviewer")):
++            code, said, into = self.composed_by_command(worker_id, role,
++                                                        participant)
++            self.assertEqual(code, 0, said)
++            worker = json.loads(Path(into).read_text())
++            self.assertEqual(
++                [one["name"] for one in
++                 worker["deployment"]["input_manifest"]["outputs"]],
++                ["proposal"])
++            workers.append(worker)
++        code, said = self.repeated(issued, workers, self.ROUTING)
++        self.assertEqual(code, 0, said)
++        return workers
++
++    def test_a_3_creation_against_legacy_declarations_is_refused_before_any_effect(self):
++        """The reviewer's admission probe (review 2026-11-20T23-15-20Z C1),
++        inverted: default-declared workers cannot be given a `/3` Job, and
++        the refusal leaves no Work, no reservation, no Job and no binding."""
++        issued = []
++        self.installed_with_repositories(
++            issued, native_handoff_routing=dict(self.ROUTING))
++        self.default_lanes(issued)
++        inputs_before = Path(os.path.join(self.state, "install-inputs.json")).read_bytes()
++        configuration_before = Path(os.path.join(self.state, "deployment.json")).read_bytes()
++        caught, _said = self.refused(expected=ContractRefusal,
++                                     template=self.HANDOFF,
++                                     control_profile="native-handoff/1")
++        self.assertIn("declares a different result contract", str(caught))
++        store, _creation = self.rows()
++        self.assertEqual(store._connection.execute(
++            "SELECT count(*) FROM template_jobs").fetchone()[0], 0)
++        self.assertEqual(self.bindings(), {})
++        self.assertEqual(
++            Path(os.path.join(self.state, "install-inputs.json")).read_bytes(),
++            inputs_before)
++        self.assertEqual(
++            Path(os.path.join(self.state, "deployment.json")).read_bytes(),
++            configuration_before)
++        authority = self.authority()
++        for work_id in (self.owned["authority_uuid"][:8] + "-W1", self.work):
++            with self.assertRaises(Exception):
++                authority.project_work(work_id)
++        # AND THE SAME LANES STILL SERVE AN ORDINARY DEFAULT-TEMPLATE JOB.
++        held = self.answered()
++        self.assertEqual(held["template"]["origin"], "configured-default")
++
++    def test_the_declared_contract_is_held_again_at_dispatch(self):
++        """The selector's own rule, from documents: a `/3` Job's stage is
++        served only by a lane whose declarations are the contract's, and a
++        lane whose declarations are the legacy single output is not."""
++        from baton_v12.contracts import job_input_identity
++        from tools import stage_execution
++
++        issued = []
++        self.installed_with_repositories(
++            issued, native_handoff_routing=dict(self.ROUTING))
++        workers = []
++        for worker_id, role, participant in (
++                ("impl-a", "implementation", "baton.impl-a"),
++                ("review-a", "review", "baton.reviewer")):
++            code, said, into = self.composed_by_command(
++                worker_id, role, participant, "--template", self.HANDOFF)
++            self.assertEqual(code, 0, said)
++            workers.append(json.loads(Path(into).read_text()))
++        code, said = self.repeated(issued, workers, self.ROUTING)
++        self.assertEqual(code, 0, said)
++        raw = self.configuration()
++        given = stage_execution.held_configuration(raw)
++        producer = given["workers"][0]["deployment"]
++        binding = {"job_id": "job-x", "job_work_id": self.work,
++                   "review_work_id": self.work,
++                   "line_declared_base": self.BASE,
++                   "canonical_target_id": self.BASE,
++                   "source_worker_id": "impl-a"}
++        job = {"input_digest": job_input_identity(
++                   producer["input_manifest"],
++                   what="a configured worker's input"),
++               "policy_digest": producer["policy_digest"]}
++
++        def stage(kind):
++            held = [one for one in given["workers"] if one["role"] == kind][0]
++            return {"kind": kind, "job_id": "job-x",
++                    "stage_id": f"job-x/{kind}",
++                    "profile_name": held["deployment"]["profile_name"],
++                    "profile_digest": held["deployment"]["profile_digest"]}
++
++        for kind in ("implementation", "review"):
++            served = stage_execution.servable_workers(
++                given, binding, stage(kind), job, None,
++                template_version=self.HANDOFF)
++            self.assertEqual([one["worker_id"] for one in served],
++                             ["impl-a" if kind == "implementation"
++                              else "review-a"])
++        from baton_v12.contracts import digest
++
++        altered = json.loads(json.dumps(raw))
++        for one in altered["workers"]:
++            manifest = one["deployment"]["input_manifest"]
++            manifest["outputs"] = manifest["outputs"][:1]
++            manifest.pop("manifest_digest")
++            manifest["manifest_digest"] = digest(manifest)
++        changed = stage_execution.held_configuration(altered)
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.servable_workers(
++                changed, binding, stage("implementation"), job, None,
++                template_version=self.HANDOFF)
++        self.assertIn("the declared result contract", str(caught.exception))
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.servable_workers(
++                changed, binding, stage("implementation"), job, None)
++        self.assertNotIn("the declared result contract",
++                         str(caught.exception))
++
++    def test_an_unsupported_template_is_refused_by_the_command_and_nothing_changes(self):
++        issued = []
++        self.installed_with_repositories(
++            issued, native_handoff_routing=dict(self.ROUTING))
++        before = Path(os.path.join(self.state, "deployment.json")).read_bytes()
++        code, said, into = self.composed_by_command(
++            "impl-a", "implementation", "baton.impl-a",
++            "--template", "baton.v12.job-template.implementation-review/9")
++        self.assertEqual(code, 2, said)
++        self.assertIn("refused:", said)
++        self.assertIn("carries the job templates", said)
++        self.assertFalse(os.path.lexists(into))
++        self.assertEqual(
++            Path(os.path.join(self.state, "deployment.json")).read_bytes(),
++            before)
++
++    def test_the_default_composition_is_what_it_always_was(self):
++        """A worker composed without `--template` declares exactly the legacy
++        one output, and an ordinary default-template creation still serves."""
++        issued = []
++        self.installed_with_repositories(issued)
++        workers = []
++        for worker_id, role, participant in (
++                ("impl-a", "implementation", "baton.impl-a"),
++                ("review-a", "review", "baton.reviewer")):
++            code, said, into = self.composed_by_command(worker_id, role,
++                                                        participant)
++            self.assertEqual(code, 0, said)
++            worker = json.loads(Path(into).read_text())
++            self.assertEqual(
++                [(one["name"], one["required"]) for one in
++                 worker["deployment"]["input_manifest"]["outputs"]],
++                [("proposal", True)])
++            workers.append(worker)
++        code, said = self.repeated(issued, workers, None)
++        self.assertEqual(code, 0, said)
++        held = self.answered()
++        self.assertEqual(held["template"]["origin"], "configured-default")
++        self.assertIsNone(self.authority().native_routing())
++
++
+ class ThePackagedResourcesResolve(ConnectedCreationCase):
+     """What the command reads that an operator did not supply.
+ 
+diff -ruN -x __pycache__ base/v12/python/tests/tools/test_native_handoffs.py candidate/v12/python/tests/tools/test_native_handoffs.py
+--- base/v12/python/tests/tools/test_native_handoffs.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/tests/tools/test_native_handoffs.py	2026-11-20 16:46:44.001848299 -0700
+@@ -124,10 +124,16 @@
+         # composes the shared three: each role writes its own half and answers
+         # the rest `missing-optional`, and none is required.
+         manifest = copy.deepcopy(self.config["input_manifest"])
+-        held = manifest["outputs"][0]
+-        manifest["outputs"] = [dict(held, name=name, type=kind, path=name,
+-                                    required=False)
+-                               for name, kind in HANDOFF_OUTPUTS]
++        # THE `/3` CONTRACT'S OWN DESCRIPTORS, verbatim (review
++        # 2026-11-20T23-15-20Z C1/C2): a `/3` Job is admitted and dispatched
++        # only to lanes whose declarations ARE the selected contract's, so the
++        # fixture declares exactly what `pool compose-worker --template …/3`
++        # composes -- never a clone of the stage fixture's proposal specimen.
++        manifest["outputs"] = copy.deepcopy(
++            role_contract.contract_for(role_contract.HANDOFF_TEMPLATE)
++            ["outputs"])
++        assert [one["name"] for one in manifest["outputs"]] == \
++            [name for name, _kind in HANDOFF_OUTPUTS]
+         manifest.pop("manifest_digest")
+         manifest["manifest_digest"] = digest(manifest)
+         self.config["input_manifest"] = manifest
+diff -ruN -x __pycache__ base/v12/python/tests/tools/test_pool.py candidate/v12/python/tests/tools/test_pool.py
+--- base/v12/python/tests/tools/test_pool.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/tests/tools/test_pool.py	2026-11-20 16:41:35.219546789 -0700
+@@ -887,6 +887,142 @@
+         self.assertIn("pool", stack_command.COMMANDS)
+ 
+ 
++class ComposingAWorkerForASelectedTemplate(ComposingCase):
++    """W385331 (T321608 M385374, the composer gap): the template is a
++    selection of this verb. Omitted, nothing changes; a handoff-capable one
++    derives the declared outputs and the role-instructions identity from the
++    template that owns them; one this build does not carry is refused."""
++
++    HANDOFF = "baton.v12.job-template.implementation-review/3"
++    SECOND = "baton.v12.job-template.implementation-review/2"
++    UNKNOWN = "baton.v12.job-template.implementation-review/9"
++
++    def outputs_of(self, answer):
++        return [(one["name"], one["type"], one["required"])
++                for one in answer["worker"]["deployment"]["input_manifest"]
++                ["outputs"]]
++
++    def instructions_of(self, answer):
++        return answer["worker"]["deployment"]["input_manifest"][
++            "role_instructions_digest"]
++
++    def test_the_default_is_byte_identical_whether_omitted_or_named(self):
++        omitted = self.composing()
++        named = self.composing(template_version=pool.TEMPLATE_VERSION)
++        self.assertEqual(omitted["worker"], named["worker"])
++        self.assertEqual(self.outputs_of(omitted),
++                         [("proposal", "git-change-proposal", True)])
++        self.assertEqual(omitted["template"], pool.TEMPLATE_VERSION)
++        self.assertEqual(omitted["declared"], ["proposal"])
++
++    def test_a_handoff_capable_template_declares_its_contracts_descriptors(self):
++        """Review 2026-11-20T23-15-20Z C2: every declared descriptor IS the
++        selected role contract's -- name, type, path, optionality and
++        constraints, in the contract's order -- not a clone of the generic
++        proposal specimen."""
++        from baton_v12.contracts import job_input_identity
++        from baton_v12.contracts.manifest import check_manifest_structure
++        from baton_v12.job_manager import role_contract
++
++        legacy = self.composing()
++        answer = self.composing(template_version=self.HANDOFF)
++        self.assertEqual(answer["template"], self.HANDOFF)
++        manifest = answer["worker"]["deployment"]["input_manifest"]
++        contract = role_contract.contract_for(self.HANDOFF)
++        self.assertEqual(manifest["outputs"], contract["outputs"])
++        self.assertEqual(self.outputs_of(answer), [
++            ("proposal", "git-change-proposal", False),
++            ("findings", "directory-result", False),
++            ("logs", "directory-result", False),
++            ("handoff", "directory-result", False),
++            ("response", "directory-result", False)])
++        for one in manifest["outputs"][1:]:
++            self.assertEqual(one["constraints"]["allowed_media_types"],
++                             ["application/octet-stream"])
++        check_manifest_structure(manifest, "inputManifest",
++                                 what="the composed /3 manifest")
++        # THE ROLE-INSTRUCTIONS IDENTITY IS THE SELECTED TEMPLATE'S, so a /3
++        # worker and a /1 worker are two different declarations, and so are
++        # their Job input identities.
++        self.assertNotEqual(self.instructions_of(answer),
++                            self.instructions_of(legacy))
++        self.assertNotEqual(
++            job_input_identity(manifest),
++            job_input_identity(
++                legacy["worker"]["deployment"]["input_manifest"]))
++        # AND THE REVIEW ROLE OF THE SAME TEMPLATE DECLARES THE SAME UNION.
++        review = self.composing(template_version=self.HANDOFF,
++                                worker_id="review-c", role="review",
++                                participant="baton.review-c")
++        self.assertEqual([one[0] for one in self.outputs_of(review)],
++                         [one[0] for one in self.outputs_of(answer)])
++        self.assertNotEqual(self.instructions_of(review),
++                            self.instructions_of(answer))
++
++    def test_a_baseline_template_other_than_the_default_keeps_the_legacy_declaration(self):
++        """`/2` is bound to the baseline contract: the proven one-output
++        declaration stands, and only the role-instructions identity names
++        the selected version."""
++        legacy = self.composing()
++        second = self.composing(template_version=self.SECOND)
++        self.assertEqual(self.outputs_of(second), self.outputs_of(legacy))
++        self.assertEqual(second["template"], self.SECOND)
++        self.assertNotEqual(self.instructions_of(second),
++                            self.instructions_of(legacy))
++
++    def test_an_unsupported_template_is_refused_by_name_before_anything(self):
++        with self.assertRaises(pool.PoolRefusal) as caught:
++            self.composing(template_version=self.UNKNOWN)
++        self.assertIn("carries the job templates", str(caught.exception))
++        self.assertIn(self.UNKNOWN.rsplit("/", 1)[0] + "/9",
++                      str(caught.exception))
++        with self.assertRaises(pool.PoolRefusal):
++            self.composing(template_version="")
++        self.unchanged()
++
++    def argv(self, into, *extra):
++        return [pool.VERB_COMPOSE, "--deployment", self.place,
++                "--worker-id", "impl-c", "--role", "implementation",
++                "--participant", "baton.impl-c",
++                "--image-reference", "baton-v12-worker:test",
++                "--image-digest", self.IMAGE, "--cli-build", "2.1.247",
++                "--network", self.config["network"],
++                "--credential-sources",
++                os.path.join(self.root, "credential-sources.json"),
++                "--credential", "claude=operator-file:w202663-development",
++                "--workspace-group", str(self.config["workspace_group"]),
++                "--task-document", self.task_file(),
++                "--record", self.RECORD, "--checkout", self.checkout,
++                "--into", into, "--legacy-verifier-layout", *extra]
++
++    def test_the_command_line_selects_the_template_and_says_so(self):
++        self.record_in(self.checkout)
++        into = os.path.join(self.root, "composed", "impl-c-3.json")
++        said = io.StringIO()
++        self.assertEqual(pool.main(self.argv(into, "--template", self.HANDOFF),
++                                   stream=said), 0, said.getvalue())
++        written = json.loads(Path(into).read_text())
++        self.assertEqual(
++            [one["name"] for one in
++             written["deployment"]["input_manifest"]["outputs"]],
++            ["proposal", "findings", "logs", "handoff", "response"])
++        self.assertIn("template  " + self.HANDOFF, said.getvalue())
++        self.assertIn("declaring proposal, findings, logs, handoff, response",
++                      said.getvalue())
++        self.unchanged()
++
++    def test_the_command_line_refuses_an_unsupported_template_and_writes_nothing(self):
++        self.record_in(self.checkout)
++        into = os.path.join(self.root, "composed", "impl-c-9.json")
++        said = io.StringIO()
++        self.assertEqual(pool.main(self.argv(into, "--template", self.UNKNOWN),
++                                   stream=said), 2)
++        self.assertIn("refused:", said.getvalue())
++        self.assertIn("carries the job templates", said.getvalue())
++        self.assertFalse(os.path.lexists(into))
++        self.unchanged()
++
++
+ class ComposingAWorkerThatSelectsTheVerifierLayout(ComposingCase):
+     """W321608 native-labels-4 (T321608 M385233, M385234): the worker image
+     built from e670e624 carries W325695's verifier-layout marker, and this verb
+diff -ruN -x __pycache__ base/v12/python/tools/creation_ports.py candidate/v12/python/tools/creation_ports.py
+--- base/v12/python/tools/creation_ports.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/tools/creation_ports.py	2026-11-20 16:38:40.958090147 -0700
+@@ -117,7 +117,16 @@
+                   "policy_digest": self._agreed(lanes, self._policy_of,
+                                                 "the submitted policy"),
+                   "profiles": {kind: self._profile(kind, found)
+-                               for kind, found in lanes.items()}}
++                               for kind, found in lanes.items()},
++                  # W385331 C1: WHAT EACH LANE ACTUALLY DECLARES, the
++                  # installed manifest's own outputs per worker, so the Job
++                  # manager can hold them to the selected template's result
++                  # contract before anything durable happens.
++                  "declarations": {
++                      kind: {one["worker_id"]: json.loads(json.dumps(
++                          one["deployment"]["input_manifest"]["outputs"]))
++                             for one in found}
++                      for kind, found in lanes.items()}}
+         if selection is None:
+             return answer
+         return dict(answer, **self._for_task(lanes, selection))
+diff -ruN -x __pycache__ base/v12/python/tools/fresh_attempt_ports.py candidate/v12/python/tools/fresh_attempt_ports.py
+--- base/v12/python/tools/fresh_attempt_ports.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/tools/fresh_attempt_ports.py	2026-11-20 16:38:40.958214999 -0700
+@@ -637,7 +637,7 @@
+ 
+         return bootstrap.jobs_of(document)
+ 
+-    def serving(self, job_id, *, stage, job, task=None):
++    def serving(self, job_id, *, stage, job, task=None, template=None):
+         """Which configured workers can serve THIS stage of THIS Job.
+ 
+         THE OPERANDS ARE THE SUBMITTED ONES. The first cut of this adapter
+@@ -665,7 +665,8 @@
+             return []
+         try:
+             compatible = stage_execution.servable_workers(
+-                configured, binding, dict(stage, job_id=job_id), job, task)
++                configured, binding, dict(stage, job_id=job_id), job, task,
++                template_version=template)
+         except ContractRefusal:
+             # THE SELECTOR'S OWN REFUSAL IS AN ANSWER HERE, not a failure.
+             # `_job_workers` refuses when nothing can serve the stage, and
+diff -ruN -x __pycache__ base/v12/python/tools/next_run_bindings.py candidate/v12/python/tools/next_run_bindings.py
+--- base/v12/python/tools/next_run_bindings.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/tools/next_run_bindings.py	2026-11-20 16:38:40.964533766 -0700
+@@ -387,7 +387,7 @@
+ 
+ def input_manifest(vectors, *, authority_uuid, work_id, policy_digest,
+                    profile_digest, image_digest, task_bytes, artifact_id,
+-                   contextual, bound=None):
++                   contextual, bound=None, declared=None):
+     """The frozen input manifest, from the published conformance vector, bound
+     to one Authority, Work, policy, profile, image and task artifact, and
+     resealed. Moved verbatim from `compose` (W321608) for the same reason as
+@@ -438,6 +438,15 @@
+     manifest["outputs"] = [dict(held, name="proposal",
+                                 type="git-change-proposal", path="proposal",
+                                 required=True)]
++    # W385331 (M385374, the composer gap; review 2026-11-20T23-15-20Z C2): A
++    # SELECTED TEMPLATE'S OWN DECLARATION, when the composer names one.
++    # `declared` is the selected role contract's `outputs` -- complete output
++    # descriptors, the contract's own types, media and limits, every one
++    # optional -- and they are written VERBATIM: the generic specimen above is
++    # the legacy single declaration's and describes nothing else. Absent, the
++    # document is byte for byte what it always was.
++    if declared is not None:
++        manifest["outputs"] = [dict(one) for one in declared]
+     # AND THE RESERVED RECEIPT DECLARATION the contextual worker answers.
+     if contextual:
+         manifest["outputs"].append({
+diff -ruN -x __pycache__ base/v12/python/tools/pool.py candidate/v12/python/tools/pool.py
+--- base/v12/python/tools/pool.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/tools/pool.py	2026-11-20 16:38:40.964485997 -0700
+@@ -466,11 +466,64 @@
+     return raw, held["task_id"]
+ 
+ 
+-# The one template this deployment serves; the role declaration the
+-# role-instructions identity is bound to is read from it.
++# THE DEFAULT TEMPLATE, and the one every instance composed before W385331
++# was composed for; the role declaration the role-instructions identity is
++# bound to is read from the SELECTED template, which is this one unless
++# `--template` names another this build carries.
+ TEMPLATE_VERSION = "baton.v12.job-template.implementation-review/1"
+ 
+ 
++def _template_selection(version):
++    """The selected template, THIS BUILD'S OWN, or a refusal naming what
++    this build holds. `templates.template_of` is the owner of that answer and
++    its refusal is carried in its own words."""
++    from baton_v12.contracts import ContractRefusal
++    from baton_v12.job_manager import templates
++
++    if type(version) is not str or not version:
++        raise PoolRefusal("a template is one exact version; this is "
++                          + repr(version) + ". Nothing was changed.")
++    try:
++        return templates.template_of(version)
++    except ContractRefusal as refusal:
++        raise PoolRefusal("the template " + repr(version) + " cannot be "
++                          "composed for: " + str(refusal) + ". Nothing was "
++                          "changed.")
++
++
++def _declared_outputs(version, template):
++    """What the composed manifest DECLARES, derived from the selected template.
++
++    THE BASELINE SHAPE IS THE PROVEN LEGACY ONE. A template bound to the
++    baseline development role contract (`/1`, `/2`) keeps the one-output
++    declaration every installed instance carries today -- `proposal`,
++    required -- byte for byte: it is the deployment shape the native-labels
++    runs proved, and nothing here reinterprets it. `None` says so, and the
++    manifest composer then writes exactly what it always wrote.
++
++    A HANDOFF-CAPABLE TEMPLATE DECLARES ITS CONTRACT'S OWN DESCRIPTORS. The
++    adapter learns which outputs it may write from this declaration
++    (`/input/input.json`), the Job manager holds a `/3` Job's lanes to the
++    selected contract before any creation effect, and the deployment checks
++    it again at dispatch -- all against `role_contract.contract_for(version)
++    ["outputs"]`, exactly: names, types, paths, optionality, constraints and
++    order (review 2026-11-20T23-15-20Z C2). So the descriptors are COPIED from
++    the contract that owns them, never derived from a name table or cloned
++    from the generic specimen, and the declaration and the contract it serves
++    cannot drift apart.
++    """
++    from baton_v12.job_manager import role_contract
++
++    if not role_contract.is_handoff_capable(version):
++        return None
++    contract = role_contract.contract_for(version)
++    if contract is None or contract["template"] != template["version"]:
++        raise PoolRefusal("the template " + repr(version) + " binds no result "
++                          "contract this build can declare for. Nothing was "
++                          "changed.")
++    return [dict(one) for one in contract["outputs"]]
++
++
+ def _record_binding(record_path, checkout):
+     """The Work's durable record: a repository-relative dossier path the
+     operator SELECTS, with the digests of its FINDING and PLAN read from the
+@@ -608,9 +661,17 @@
+              image_digest, cli_build, network, credential_sources,
+              credentials, workspace_group, task_document, record_path,
+              checkout=None, work_id=None, runtime_uid=None, now=None,
+-             verifier_layout=None, legacy_layout=False):
++             verifier_layout=None, legacy_layout=False,
++             template_version=TEMPLATE_VERSION):
+     """One worker document for the instance `held` describes. READS ONLY.
+ 
++    `template_version` SELECTS THE TEMPLATE THE WORKER IS COMPOSED FOR
++    (W385331, M385374): its role declaration binds `role_instructions_digest`
++    and, for a handoff-capable template, the declared outputs. Omitted, it is
++    `TEMPLATE_VERSION` and the document is byte for byte what this verb has
++    always written; a version this build does not carry refuses before
++    anything is composed.
++
+     Every member the instance binds is derived from the instance; every
+     deployment fact is this build's own (`next_run_bindings`); what the
+     operator named is ordinary configuration. The manifest is resealed by
+@@ -656,6 +717,8 @@
+                               "this is " + repr(place) + ". Nothing was "
+                               "changed.")
+     layout = _layout_selection(verifier_layout, legacy_layout)
++    template = _template_selection(template_version)
++    declared = _declared_outputs(template_version, template)
+     destination = Path(held["state_root"]).parent
+     places = instance.layout(destination)
+     if places["authority_store"] != held["authority_store"]:
+@@ -684,7 +747,7 @@
+             identities=identities, provider_network=network,
+             image_reference=image_reference, image_digest=image_digest,
+             cli_build=cli_build, credential_profile=profile,
+-            template_version=TEMPLATE_VERSION, role=role)
++            template_version=template_version, role=role)
+         bound = dict(bounds,
+                      retention_policy_digest=held["retention_policy_digest"],
+                      record_binding=record,
+@@ -696,7 +759,7 @@
+             policy_digest=identities["policy_digest"],
+             profile_digest=identities["profile_digest"],
+             image_digest=image_digest, task_bytes=raw, artifact_id=task_id,
+-            contextual=False, bound=bound)
++            contextual=False, bound=bound, declared=declared)
+         manifest = check_manifest_structure(manifest, "inputManifest",
+                                             what="the composed input manifest")
+         _no_specimen(manifest)
+@@ -747,6 +810,8 @@
+                           "participant": participant,
+                           "deployment": deployment})
+     return {"worker": worker, "work_id": work,
++            "template": template_version,
++            "declared": [one["name"] for one in manifest["outputs"]],
+             "manifest_digest": manifest["manifest_digest"],
+             "human_contract": manifest["human_contract"],
+             "layout": ({"selection": "legacy", "layout_digest": None}
+@@ -807,6 +872,9 @@
+     print("profile   %s %s" % (worker["deployment"]["profile_name"],
+                                worker["deployment"]["profile_digest"]),
+           file=stream)
++    print("template  %s declaring %s" % (answer["template"],
++                                         ", ".join(answer["declared"])),
++          file=stream)
+     print("task      %s (%s)" % (worker["deployment"]["task_document"],
+                                  answer["human_contract"]["artifact_id"]),
+           file=stream)
+@@ -879,6 +947,16 @@
+     composing.add_argument("--work-id", default=None,
+                            help="the Work this worker serves; omitted, the "
+                                 "instance's own Work")
++    composing.add_argument("--template", default=TEMPLATE_VERSION,
++                           metavar="VERSION",
++                           help="the job template this worker is composed "
++                                "for: its role declaration binds the "
++                                "role-instructions identity and, for a "
++                                "handoff-capable template, the declared "
++                                "outputs (W385331). Omitted, "
++                                + TEMPLATE_VERSION + ", byte for byte what "
++                                "this verb has always written; a version "
++                                "this build does not carry is refused")
+     composing.add_argument("--into", required=True,
+                            help="the fresh file to write the worker document "
+                                 "to; an existing entry is refused")
+@@ -914,7 +992,7 @@
+                     workspace_group=taken.workspace_group,
+                     task_document=taken.task_document,
+                     record_path=taken.record, checkout=taken.checkout,
+-                    work_id=taken.work_id,
++                    work_id=taken.work_id, template_version=taken.template,
+                     verifier_layout=(
+                         None if taken.verifier_layout is None else
+                         _read(taken.verifier_layout, _MAX_MARKER_BYTES,
+diff -ruN -x __pycache__ base/v12/python/tools/stage_execution.py candidate/v12/python/tools/stage_execution.py
+--- base/v12/python/tools/stage_execution.py	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/python/tools/stage_execution.py	2026-11-20 16:38:40.964241994 -0700
+@@ -64,7 +64,7 @@
+ from baton_v12.integration.git_profile import GitIntegrationProfile
+ from baton_v12.job_manager import (ending, execution_limits,
+                                    native_handoffs, review_driver,
+-                                   scheduler)
++                                   role_capability, role_contract, scheduler)
+ from baton_v12.job_manager.delegation import INTEGRATION_OBSERVATION_SCHEMA
+ from baton_v12.job_manager.scheduler import allocation_of
+ from baton_v12.job_manager.submission import job_of
+@@ -5877,16 +5877,44 @@
+                 task_bytes=producer["task_bytes"])
+ 
+ 
+-def _disagreements(given, stage, job, binding):
++def _declared_contract_disagreement(manifest, template_version):
++    """The declared-result-contract pair when the selected template binds one
++    and this worker's declarations are not it, else `None`.
++
++    W385331 (review 2026-11-20T23-15-20Z C1): the compatibility the Job
++    manager proved before creation is checked again here, at selection and at
++    dispatch, through the same owned rule
++    (`role_capability.declared_result_contract`) -- so a worker whose
++    declarations changed since, or a Job whose template a configured lane never
++    declared for, is not handed to an adapter that must then refuse. A
++    baseline template (`/1`, `/2`) or a Job with no created template asks
++    nothing, which keeps every existing deployment's selection exactly as it
++    was.
++    """
++    if template_version is None \
++            or not role_contract.is_handoff_capable(template_version):
++        return None
++    contract = role_contract.contract_for(template_version)
++    try:
++        role_capability.declared_result_contract(
++            contract, manifest["outputs"], what="this configured worker")
++    except ContractRefusal:
++        return (digest(manifest["outputs"]), digest(contract["outputs"]))
++    return None
++
++
++def _disagreements(given, stage, job, binding, template_version=None):
+     """Every operand of this deployment that disagrees with this Job and stage.
+ 
+     THESE ARE `single_worker._matches`'S OWN OPERANDS, in its own order, read
+     from the held deployment the stage is actually SERVED under rather than
+     restated. That provider still holds every one of them after allocation and
+     is not weakened; assembly's part is to stop handing it a worker that must
+-    then refuse.
++    then refuse. `template_version` adds the one declared-contract operand a
++    handoff-capable Job carries (W385331 C1).
+     """
+     manifest = given["input_manifest"]
++    declared = _declared_contract_disagreement(manifest, template_version)
+     named = {"the stage kind": (given["launch_role"], stage.get("kind")),
+              "the Work": (manifest["work_ref"]["work_id"],
+                           binding["job_work_id"]),
+@@ -5906,6 +5934,8 @@
+                                      job["input_digest"]),
+              "the submitted policy": (given["policy_digest"],
+                                       job["policy_digest"])}
++    if declared is not None:
++        named["the declared result contract"] = declared
+     return {what: pair for what, pair in named.items() if pair[0] != pair[1]}
+ 
+ 
+@@ -5937,10 +5967,15 @@
+     return binding, servable_workers(
+         deployment.given, binding, stage, job,
+         single_worker.job_task_reader(deployment.jobs)(
+-            job_id=stage["job_id"]))
++            job_id=stage["job_id"]),
++        # THE CREATED TEMPLATE, read from the Job store's own creation
++        # record; `None` for a legacy or hand-submitted Job (W385331 C1).
++        template_version=native_handoffs.template_of(deployment.jobs,
++                                                     stage["job_id"]))
+ 
+ 
+-def servable_workers(given, binding, stage, job, job_task=None):
++def servable_workers(given, binding, stage, job, job_task=None,
++                     template_version=None):
+     """The same rule, from DOCUMENTS alone. W358969.
+ 
+     SPLIT OUT RATHER THAN COPIED, and the split is the point. A caller that
+@@ -5969,7 +6004,7 @@
+               for one in lane}
+     compatible = [one for one in lane
+                   if not _disagreements(served[one["worker_id"]], stage, job,
+-                                        binding)]
++                                        binding, template_version)]
+     # THE IMPLEMENTATION KIND IS ALSO BOUND BY IDENTITY. A Job names its
+     # producer, and another worker that merely agrees on every digest is still
+     # some other Job's source.
+@@ -5990,7 +6025,7 @@
+     if not compatible:
+         disagreeing = {one["worker_id"]:
+                        sorted(_disagreements(served[one["worker_id"]], stage,
+-                                             job, binding))
++                                             job, binding, template_version))
+                        for one in lane}
+         _refuse(f"no worker this deployment configures for the "
+                 f"{stage.get('kind')!r} stage can serve Job "
+diff -ruN -x __pycache__ base/v12/STACK.md candidate/v12/STACK.md
+--- base/v12/STACK.md	2026-11-20 15:20:07.000000000 -0700
++++ candidate/v12/STACK.md	2026-11-20 16:44:25.833503392 -0700
+@@ -1211,6 +1211,20 @@
+ per yielding episode (`native.hold`) and reread on every later tick rather than
+ raised again, and leaves the execution held.
+ 
++**Composing the workers.** `pool compose-worker --template
++baton.v12.job-template.implementation-review/3` composes a worker whose input
++manifest declares exactly the `/3` role contract's own output descriptors —
++`proposal`, `findings`, `logs`, `handoff`, `response`, each with the contract's
++type, media and limits, none required — and whose role-instructions identity
++names `/3`. A worker composed without the selection (the default, `/1`, byte
++for byte what the verb has always written: `proposal` alone) cannot be given a
++`/3` Job: `manager create --template …/3` holds every configured lane's
++declarations to the selected contract BEFORE the reservation, the Work and the
++binding, and refuses with nothing durable left behind; the deployment holds the
++same compatibility again when it selects a worker for a `/3` stage. `/1` and
++`/2` Jobs ask nothing new. A template this build does not carry is refused by
++name before anything is written.
++
+ **Configuration.** The bootstrap input selects the routing once, as the
+ optional object `native_handoff_routing` with `reviewer` (a configured review
+ worker's own participant, never an implementation participant) and

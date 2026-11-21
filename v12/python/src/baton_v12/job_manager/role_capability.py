@@ -46,6 +46,7 @@ __all__ = ["CAPABILITY_SCHEMA", "CAPABILITY_MEMBERS", "CAPABILITY_DIGESTS",
            "capability_digest",
            "check_role_capability", "role_capability_of_bytes",
            "compatible_capability", "admissible_roles",
+           "declared_result_contract",
            # W385331: the handoff-capable synthetic vector, for the same
            # reason `SYNTHETIC_DIGEST` is exported -- a shape, never a grant.
            "HANDOFF_SYNTHETIC"]
@@ -742,6 +743,38 @@ def _admissible_lane(role, candidate, contract, *, what):
     return {"worker_id": candidate["worker_id"],
             "principal": candidate["principal"],
             "job_input_identity": identity, "task_digest": task}
+
+
+def declared_result_contract(contract, outputs, *, what="this deployment"):
+    """One lane's DECLARED outputs, held EXACTLY to the selected contract's.
+
+    W385331 (review 2026-11-20T23-15-20Z C1; DESIGN "development role-contract
+    admission"). THE ONE ADMISSION RULE FOR DECLARATIONS, and it is the same
+    exactness `_admissible_lane` applies to a whole lane: the actual composed
+    input's `outputs` list must equal the contract's own descriptors -- names,
+    types, paths, optionality and constraints, in the contract's order. It is
+    asked by the Job manager BEFORE any creation effect and by the deployment
+    at dispatch, from closed data, so a `/3` Job cannot be admitted against
+    workers that declared the legacy single output and then refused by the
+    adapter at its first turn.
+
+    SHARED OPTIONAL DECLARATIONS WAIVE NOTHING a role owes: what a role must
+    publish for a successful stage is the contract's `required_for_success`,
+    read by the endings, and this compares declarations only.
+    """
+    agreed = role_contract.check_any_role_contract(
+        contract, what=f"{what}'s role contract")
+    held = own(outputs, what=f"{what}'s declared outputs")
+    if type(held) is not list:
+        _refuse(f"{what}'s declared outputs are one list of output "
+                f"descriptors; this is {name_value(held)}")
+    for index, one in enumerate(held):
+        validate_fragment(one, "outputDescriptor",
+                          what=f"{what}'s declared output {index}")
+    _exact(held, agreed["outputs"], "its declared outputs",
+           f"{what} declares a different result contract than template "
+           f"{name_value(agreed['template'])} binds")
+    return [dict(one) for one in agreed["outputs"]]
 
 
 def admissible_roles(contract, *, candidates, what="this deployment"):

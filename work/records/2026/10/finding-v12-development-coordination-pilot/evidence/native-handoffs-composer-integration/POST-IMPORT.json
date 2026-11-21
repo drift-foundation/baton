@@ -1,0 +1,99 @@
+{
+ "head_after": "331dd7379b492ac0ad6c742ded032643ad17ce9c",
+ "imported": [
+  "v12/STACK.md",
+  "v12/python/src/baton_v12/job_manager/creation.py",
+  "v12/python/src/baton_v12/job_manager/role_capability.py",
+  "v12/python/tests/job_manager/test_creation.py",
+  "v12/python/tests/tools/test_connected_creation.py",
+  "v12/python/tests/tools/test_native_handoffs.py",
+  "v12/python/tests/tools/test_pool.py",
+  "v12/python/tools/creation_ports.py",
+  "v12/python/tools/fresh_attempt_ports.py",
+  "v12/python/tools/next_run_bindings.py",
+  "v12/python/tools/pool.py",
+  "v12/python/tools/stage_execution.py"
+ ],
+ "index_lock": false,
+ "paths": [
+  {
+   "mode": "0o664",
+   "path": "v12/STACK.md",
+   "sha256": "sha256:39e26a3cca45d639c1dc28c961bb8f57db41cdc4d2220859cc826e4b16a89e1f"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/src/baton_v12/job_manager/creation.py",
+   "sha256": "sha256:7281a5096edc44eef658f3c161288403bbb5aade028793a9d89182733dc6051e"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/src/baton_v12/job_manager/role_capability.py",
+   "sha256": "sha256:199b1696fdb501da757cb33ba3e6893b2981a840e15316cf0073caf0b425401b"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/job_manager/test_creation.py",
+   "sha256": "sha256:7da1f36af88127c14df8b806b12a9be833833aabc499d786de3df099b7133e87"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/tools/test_connected_creation.py",
+   "sha256": "sha256:58e806a730237b95bdb78b5bfa0cc22ef34eddb459ed48a2912ab66ef71011c2"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/tools/test_native_handoffs.py",
+   "sha256": "sha256:3dd82c2287f5068aaa8d801a920745d9f021d7ae0926cdc7ee575baeb1a860db"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/tools/test_pool.py",
+   "sha256": "sha256:d8c6658be64684541da591952993beab1f0c22bd4efa04b857871d506bb5fe4c"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tools/creation_ports.py",
+   "sha256": "sha256:398543c80a306037f3d36bcd8b6c55f6b57fb7a05c05fd1878b7b18f09619f8b"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tools/fresh_attempt_ports.py",
+   "sha256": "sha256:eddae5f2292a85a8c64b7eabc2d2380f476c4ebed48942e6faa1997c2c80cda4"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tools/next_run_bindings.py",
+   "sha256": "sha256:f352cec20d82a9d14aaf9186c1be930f66cb98b38e1bd31b62c06f86a8612296"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tools/pool.py",
+   "sha256": "sha256:0d64da6fc8f3edc83b192450951966f94d3f8b72d900a465af5eac4b16d86eaf"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tools/stage_execution.py",
+   "sha256": "sha256:b39d8a23be170574ceb2c023115e16d6ca272d133666e11bf997d1ac3085d5b7"
+  }
+ ],
+ "status_after": [
+  " M v12/STACK.md",
+  " M v12/python/src/baton_v12/job_manager/creation.py",
+  " M v12/python/src/baton_v12/job_manager/role_capability.py",
+  " M v12/python/tests/job_manager/test_creation.py",
+  " M v12/python/tests/tools/test_connected_creation.py",
+  " M v12/python/tests/tools/test_native_handoffs.py",
+  " M v12/python/tests/tools/test_pool.py",
+  " M v12/python/tools/creation_ports.py",
+  " M v12/python/tools/fresh_attempt_ports.py",
+  " M v12/python/tools/next_run_bindings.py",
+  " M v12/python/tools/pool.py",
+  " M v12/python/tools/stage_execution.py"
+ ],
+ "status_check_note": "the first computation stripped the leading space of the first porcelain line and reported False; recomputed here from unstripped output after import, no file changed",
+ "status_exactly_imported": true,
+ "tree_digest": "sha256:bb5fa7050da82902b87d07b6a21447fe1fc14963cddebf879b0456794375e365",
+ "tree_expected": "sha256:bb5fa7050da82902b87d07b6a21447fe1fc14963cddebf879b0456794375e365",
+ "tree_ok": true
+}

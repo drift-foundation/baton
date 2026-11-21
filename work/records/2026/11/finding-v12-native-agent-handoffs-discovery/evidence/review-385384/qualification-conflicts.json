@@ -1,0 +1,27 @@
+[
+  {
+    "path": "v12/STACK.md",
+    "old": "sha256:bf94056797cba54e8df6b393a43d75cc51ad94e4831ff1049c1212d3db1eac70",
+    "new": "sha256:39e26a3cca45d639c1dc28c961bb8f57db41cdc4d2220859cc826e4b16a89e1f"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/role_capability.py",
+    "old": "sha256:ebc104844a4eb28bd479af0fb284e8185c10ef5ed8c44b7941a62563f498ba2a",
+    "new": "sha256:199b1696fdb501da757cb33ba3e6893b2981a840e15316cf0073caf0b425401b"
+  },
+  {
+    "path": "v12/python/tests/tools/test_connected_creation.py",
+    "old": "sha256:9ca4a660a110d508a2836b72f87ed11cf3e82dca3b2570a7e1c2f8aa07be395c",
+    "new": "sha256:58e806a730237b95bdb78b5bfa0cc22ef34eddb459ed48a2912ab66ef71011c2"
+  },
+  {
+    "path": "v12/python/tests/tools/test_native_handoffs.py",
+    "old": "sha256:f39e3dd0be8ea97717e1c2cc49d8202a1f6264f7f6e195b9ed04de4b8c911e4f",
+    "new": "sha256:3dd82c2287f5068aaa8d801a920745d9f021d7ae0926cdc7ee575baeb1a860db"
+  },
+  {
+    "path": "v12/python/tools/stage_execution.py",
+    "old": "sha256:43c7921aca3ce03f2a27dddd5d9d698b1581c361673126cbf11ab9308c98a117",
+    "new": "sha256:b39d8a23be170574ceb2c023115e16d6ca272d133666e11bf997d1ac3085d5b7"
+  }
+]

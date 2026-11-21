@@ -1,0 +1,15 @@
+v12: compose handoff-capable workers from the selected template (W385331 composer)
+
+`pool compose-worker --template VERSION` (default `/1`, byte-identical when
+omitted): a handoff-capable template declares its roles' output union from the
+role contract, `role_instructions_digest` binds the selected version, and an
+unsupported version is refused by name before anything is written. Ordinary
+`/3` creation admits only lanes whose declared result contract is the
+template's (`role_capability.declared_result_contract`, checked before any
+creation effect) and the selector re-checks that compatibility at dispatch.
+
+Accepted composer candidate tree bb5fa7050da82902b87d07b6a21447fe1fc14963c
+ddebf879b0456794375e365 (manifest fa01b73d…) over 331dd737; reviews
+2026-11-21T00-55-22Z (C1/C2 resolved) and 2026-11-21T02-04-24Z (product
+unchanged, accepted). Integration evidence:
+work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer-integration/

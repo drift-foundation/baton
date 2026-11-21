@@ -1,0 +1,9 @@
+test_success_captures_both_streams_without_store (__main__.Create.test_success_captures_both_streams_without_store) ... ok
+test_missing_grant_report_fails (__main__.Create.test_missing_grant_report_fails) ... ok
+test_foreign_work_report_fails (__main__.Create.test_foreign_work_report_fails) ... ok
+test_failed_create_preserves_status_and_evidence (__main__.Create.test_failed_create_preserves_status_and_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.575s
+
+OK

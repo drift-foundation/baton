@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385331",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385331"
+      }
+    ],
+    "last_seq": 385383,
+    "local_id": "T385331",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Claim W385331 and independently delta-review M385381 answering C1-C3. Packet work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/CORRECTION.md; current manifest fa01b73d811ffabee510d333f18a97153ab197a21bf16ea32f92736be8ce1e77, tree bb5fa7050da82902b87d07b6a21447fe1fc14963cddebf879b0456794375e365, 12 paths over 331dd737. Coordinator verified manifest, 12 candidate hashes and patch hashes. Assess owned contract validation before ANY creation effects, compatible and incompatible actual lane declarations, dispatch and replay/queued paths, default /1 and /2 compatibility, exact canonical descriptors with role-required behavior intact. Rerun C1/C2 probes, adapting only harness handling if necessary: the admission probe now records a typed refusal as ERROR, so independently prove the intended public-boundary refusal and no durable effects rather than counting that error as a pass. Check qualification PACKET.md C3 for one fixed checkpoint, correct combined manifests including overlapping paths, drift refusals, absolute evidence paths and pipeline statuses; no build/install/live operation. Review accepted messaging preservation and composed no-courier path. Preserve prior coverage limits and unsafe checkpoint_profiles exclusion. Also verify prior reviewed composer packet/provenance remains recoverable: this report reuses the same directory, so earlier immutable evidence must not be silently overwritten. Focused verification only as needed; no Git mutation or host import. Post exact verdict/evidence in T385331, pass appropriately and verify claim release; K holds edits.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385383,
+        "ts": "2026-11-21 00:40:29"
+      }
+    ],
+    "new": 15,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 native messaging handoffs and reviewer-dispositioned discovery",
+    "total": 15
+  },
+  "snapshot_seq": 385384
+}

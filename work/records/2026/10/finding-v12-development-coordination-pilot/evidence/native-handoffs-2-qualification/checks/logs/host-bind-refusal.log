@@ -1,0 +1,14 @@
+  v12/STACK.md: found sha256:bf94056797cba54e8df6b393a43d75cc51ad94e4831ff1049c1212d3db1eac70, accepted sha256:39e26a3cca45d639c1dc28c961bb8f57db41cdc4d2220859cc826e4b16a89e1f (native-handoffs-composer)
+  v12/python/src/baton_v12/job_manager/creation.py: found sha256:d85631d06ca20a18b97d0a56e7277eac7a2ada1447c4342d6898904bf7372d16, accepted sha256:7281a5096edc44eef658f3c161288403bbb5aade028793a9d89182733dc6051e (native-handoffs-composer)
+  v12/python/src/baton_v12/job_manager/role_capability.py: found sha256:ebc104844a4eb28bd479af0fb284e8185c10ef5ed8c44b7941a62563f498ba2a, accepted sha256:199b1696fdb501da757cb33ba3e6893b2981a840e15316cf0073caf0b425401b (native-handoffs-composer)
+  v12/python/tests/job_manager/test_creation.py: found sha256:bb35896a080f70b88e0fc763253c07977e7c3635a630d34bca075e935c382e8c, accepted sha256:7da1f36af88127c14df8b806b12a9be833833aabc499d786de3df099b7133e87 (native-handoffs-composer)
+  v12/python/tests/tools/test_connected_creation.py: found sha256:9ca4a660a110d508a2836b72f87ed11cf3e82dca3b2570a7e1c2f8aa07be395c, accepted sha256:58e806a730237b95bdb78b5bfa0cc22ef34eddb459ed48a2912ab66ef71011c2 (native-handoffs-composer)
+  v12/python/tests/tools/test_native_handoffs.py: found sha256:f39e3dd0be8ea97717e1c2cc49d8202a1f6264f7f6e195b9ed04de4b8c911e4f, accepted sha256:3dd82c2287f5068aaa8d801a920745d9f021d7ae0926cdc7ee575baeb1a860db (native-handoffs-composer)
+  v12/python/tests/tools/test_pool.py: found sha256:616ec16577b27d97aff013b4a2eb6ecf580f3334303dd4581ffcf009faa88564, accepted sha256:d8c6658be64684541da591952993beab1f0c22bd4efa04b857871d506bb5fe4c (native-handoffs-composer)
+  v12/python/tools/creation_ports.py: found sha256:765e1a63a6966207585c389e6bbe76e19bfacc820265fe65f1da9187234c54b2, accepted sha256:398543c80a306037f3d36bcd8b6c55f6b57fb7a05c05fd1878b7b18f09619f8b (native-handoffs-composer)
+  v12/python/tools/fresh_attempt_ports.py: found sha256:6a3dc27a0c1409d60ef2840980623d2566710ba4a6d22b135c99c2ec282bee93, accepted sha256:eddae5f2292a85a8c64b7eabc2d2380f476c4ebed48942e6faa1997c2c80cda4 (native-handoffs-composer)
+  v12/python/tools/next_run_bindings.py: found sha256:576bd5750a4468a17a5690cebeba1732f6901e905c0c2aa9dc56902da47d938f, accepted sha256:f352cec20d82a9d14aaf9186c1be930f66cb98b38e1bd31b62c06f86a8612296 (native-handoffs-composer)
+  v12/python/tools/pool.py: found sha256:45d0f72d342c594cea081d8fb0dedce8d63698cf6d9e9c21270b4c54214df4ba, accepted sha256:0d64da6fc8f3edc83b192450951966f94d3f8b72d900a465af5eac4b16d86eaf (native-handoffs-composer)
+  v12/python/tools/stage_execution.py: found sha256:43c7921aca3ce03f2a27dddd5d9d698b1581c361673126cbf11ab9308c98a117, accepted sha256:b39d8a23be170574ceb2c023115e16d6ca272d133666e11bf997d1ac3085d5b7 (native-handoffs-composer)
+refused: 331dd7379b492ac0ad6c742ded032643ad17ce9c does not carry the accepted bytes of 12 path(s) above; this is not the accepted checkpoint and nothing was bound
+exit=2

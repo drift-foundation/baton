@@ -117,7 +117,16 @@ class DeploymentDerivation:
                   "policy_digest": self._agreed(lanes, self._policy_of,
                                                 "the submitted policy"),
                   "profiles": {kind: self._profile(kind, found)
-                               for kind, found in lanes.items()}}
+                               for kind, found in lanes.items()},
+                  # W385331 C1: WHAT EACH LANE ACTUALLY DECLARES, the
+                  # installed manifest's own outputs per worker, so the Job
+                  # manager can hold them to the selected template's result
+                  # contract before anything durable happens.
+                  "declarations": {
+                      kind: {one["worker_id"]: json.loads(json.dumps(
+                          one["deployment"]["input_manifest"]["outputs"]))
+                             for one in found}
+                      for kind, found in lanes.items()}}
         if selection is None:
             return answer
         return dict(answer, **self._for_task(lanes, selection))

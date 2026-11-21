@@ -1,0 +1,5 @@
+{
+  "applies": true,
+  "exact_current_packet": true,
+  "prior_snapshot_matches": true
+}

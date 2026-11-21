@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_creation",
+    "tests.job_manager.test_role_capability",
+    "tests.job_manager.test_role_contract",
+    "tests.tools.test_pool",
+    "tests.tools.test_connected_creation",
+    "tests.tools.test_creation_ports",
+    "tests.tools.test_native_handoffs",
+    "tests.manager.test_adapter_declaration"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/codxpc-w385331-c123/v12/python",
+  "exit_code": 0,
+  "wall_seconds": 22.133381264982745
+}

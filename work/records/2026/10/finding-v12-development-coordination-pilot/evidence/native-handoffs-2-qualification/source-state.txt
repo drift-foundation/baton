@@ -1,0 +1,33 @@
+captured 2026-11-20T22:27:18Z
+HEAD 331dd7379b492ac0ad6c742ded032643ad17ce9c
+331dd7379b492ac0ad6c742ded032643ad17ce9c v12: native handoffs — a question is not a candidate (W385331 slice 1)
+v12 status lines: 0
+--- image inputs changed e670e624..331dd737 (Dockerfile.claude COPY set + ARG):
+ v12/worker/claude_agent.py | 630 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 614 insertions(+), 16 deletions(-)
+--- sha256 of image inputs at HEAD:
+368eae7ad5342703d76720c96b092f53037bf86c82ce187be4bbf31986eacd23  v12/worker/claude_agent.py
+9596a1292da3f55fba118e4aecff5af3e5ddf545c7d47c0167e9455abf0cdd4e  v12/worker/baton_worker.py
+97f6d9f5edee922017ead4c6d6b116382e56a398c59aa9262f959033d45a3e35  v12/worker/adapter_refusal.py
+2b36f68faa0512db428d87ae705c03468417ba7d5d752133d81522a88ae4e807  v12/worker/dogfood_entry.py
+3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648  v12/worker/verifier-layout-marker.json
+22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc  v12/worker/worker-control-1.0.schema.json
+a5ef0783770ba44f206a68c71c9570685294f62bde338b69722aada0326f18d0  v12/worker/Dockerfile.claude
+--- current image (read-only inspect):
+sha256:f2b86df0422a508bcf6603866fbf31b27828fd36b1dc3d88d9318f0225ffb380 created 2026-11-19T05:16:19.452607842Z
+--- current local bundle (built from the pre-commit dirty tree during integration; NOT the artifact this packet selects):
+{
+ "changed_entries": 65,
+ "commit": "3d05430f97ca9d4a516b51d15eb940840a6f0eff",
+ "detail": null,
+ "dirty": true,
+ "excused_build_output": 0,
+ "schema": "baton.v12.build-stamp/1",
+ "source": "/home/sl/src/baton"
+}
+
+baton 12.0.0 (3d05430f, dirty)
+--- destinations:
+/home/sl/baton-instances/native-handoffs-1
+native-handoffs-2 absent
+/dev/nvme0n1p2  915G  338G  531G  39% /

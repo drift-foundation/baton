@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385378/admission-probe.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/codxpc-w385331-composer/v12/python",
+  "exit_code": 1,
+  "wall_seconds": 0.31379127502441406
+}

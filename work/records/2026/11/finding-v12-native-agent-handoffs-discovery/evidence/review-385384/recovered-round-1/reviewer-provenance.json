@@ -1,0 +1,90 @@
+{
+  "base": "331dd7379b492ac0ad6c742ded032643ad17ce9c",
+  "manifest": "sha256:ae8c09af29fab8dc902d88e436fbd21606183573b6ae136fcbe9eb7e9469dc71",
+  "tree": "sha256:77ca513b409e9fc18caeeb2fdb1e27e9a27efed315a09d730bee9202b3739aeb",
+  "patches": {
+    "candidate-from-331dd737.patch": "sha256:0ec0bc809965db29fcb37121fd65550771681ce745b7c7869a5f8b4ab3bfa486"
+  },
+  "paths": [
+    {
+      "base_331dd737": "sha256:bf94056797cba54e8df6b393a43d75cc51ad94e4831ff1049c1212d3db1eac70",
+      "base_blob": "7ef4ca5c458713a69be525cd136d2835f8278b4a",
+      "candidate": "sha256:047bf229eab24d0541df271aefad1a3963ca03d6c2f13c71c6ba53f6f2684a26",
+      "candidate_blob": "9ec82af96408deeb92416a2c586be6d910470171",
+      "path": "v12/STACK.md",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:9ca4a660a110d508a2836b72f87ed11cf3e82dca3b2570a7e1c2f8aa07be395c",
+      "base_blob": "0f7ce013a681ebcbf50f207fe0fef45788db143f",
+      "candidate": "sha256:317ed95521df43a7bf537e42c00fb09ff6627b6186005f6ee266c831d97e1430",
+      "candidate_blob": "8792e9997538823395b59d61d56738e55d4b8624",
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:616ec16577b27d97aff013b4a2eb6ecf580f3334303dd4581ffcf009faa88564",
+      "base_blob": "7546ba250027383a75e21090768eb7c6b4a5e0b9",
+      "candidate": "sha256:2ce15228aa4ff9b41b70228913b514bec99a4d5228ea1b4f8a18157af2e37e79",
+      "candidate_blob": "4727625ba4a1ccca9f44b1dd2b1c266676347ec2",
+      "path": "v12/python/tests/tools/test_pool.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:576bd5750a4468a17a5690cebeba1732f6901e905c0c2aa9dc56902da47d938f",
+      "base_blob": "8163be5b0816fe5a6d7f92b87e254994b3b4ee27",
+      "candidate": "sha256:0e0fb0853936963fcdb3296f4fa4825d4642028ed78dd237f96789864a8ffc83",
+      "candidate_blob": "27338407199b150fe9eaa63c2566925ca13ec659",
+      "path": "v12/python/tools/next_run_bindings.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:45d0f72d342c594cea081d8fb0dedce8d63698cf6d9e9c21270b4c54214df4ba",
+      "base_blob": "4e6c272d4b55f9df30726e48220531587645bcab",
+      "candidate": "sha256:d37c7c0e00eff675beca8f6582e052db804da9e658720099e706875879ab5cbf",
+      "candidate_blob": "d4b82f78e6b7fe25df8642636ed3feac6696bb9d",
+      "path": "v12/python/tools/pool.py",
+      "state": "modified"
+    }
+  ],
+  "prior_slice_preserved": [
+    "v12/python/src/baton_v12/authority/api.py",
+    "v12/python/src/baton_v12/authority/core.py",
+    "v12/python/src/baton_v12/authority/messages.py",
+    "v12/python/src/baton_v12/authority/schema.py",
+    "v12/python/src/baton_v12/authority/session.py",
+    "v12/python/src/baton_v12/job_manager/documents.py",
+    "v12/python/src/baton_v12/job_manager/job_control.py",
+    "v12/python/src/baton_v12/job_manager/native_handoffs.py",
+    "v12/python/src/baton_v12/job_manager/projection.py",
+    "v12/python/src/baton_v12/job_manager/review_driver.py",
+    "v12/python/src/baton_v12/job_manager/role_capability.py",
+    "v12/python/src/baton_v12/job_manager/role_contract.py",
+    "v12/python/src/baton_v12/job_manager/templates.py",
+    "v12/python/src/baton_v12/native_handoff.py",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+    "v12/python/tests/authority/test_boundary.py",
+    "v12/python/tests/authority/test_catalog.py",
+    "v12/python/tests/authority/test_dossier.py",
+    "v12/python/tests/authority/test_session.py",
+    "v12/python/tests/authority/test_work_messages.py",
+    "v12/python/tests/job_manager/test_native_handoffs.py",
+    "v12/python/tests/job_manager/test_review_driver.py",
+    "v12/python/tests/job_manager/test_role_contract.py",
+    "v12/python/tests/job_manager/test_templates.py",
+    "v12/python/tests/manager/test_boundary_inventory.py",
+    "v12/python/tests/manager/test_dependencies.py",
+    "v12/python/tests/manager/test_secrets.py",
+    "v12/python/tests/tools/test_bootstrap.py",
+    "v12/python/tests/tools/test_native_handoffs.py",
+    "v12/python/tools/bootstrap.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tools/single_worker.py",
+    "v12/python/tools/stage_execution.py",
+    "v12/worker/claude_agent.py"
+  ],
+  "prior_slice_changed": [
+    "v12/STACK.md",
+    "v12/python/tests/tools/test_connected_creation.py"
+  ]
+}

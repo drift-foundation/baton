@@ -1,0 +1,5 @@
+patching file v12/python/tests/tools/test_connected_creation.py
+patching file v12/python/tests/tools/test_pool.py
+patching file v12/python/tools/next_run_bindings.py
+patching file v12/python/tools/pool.py
+patching file v12/STACK.md

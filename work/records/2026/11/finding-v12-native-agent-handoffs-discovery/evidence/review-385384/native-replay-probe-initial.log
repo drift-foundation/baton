@@ -1,0 +1,15 @@
+test_native_replay_preserves_admitted_declarations (__main__.NativeReplay.test_native_replay_preserves_admitted_declarations) ... FAIL
+
+======================================================================
+FAIL: test_native_replay_preserves_admitted_declarations (__main__.NativeReplay.test_native_replay_preserves_admitted_declarations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385384/native-replay-probe.py", line 11, in test_native_replay_preserves_admitted_declarations
+    self.assertEqual(len(self.authorization.created),1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.015s
+
+FAILED (failures=1)

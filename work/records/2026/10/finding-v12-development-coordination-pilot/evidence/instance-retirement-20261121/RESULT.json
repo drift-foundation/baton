@@ -1,0 +1,13 @@
+{
+  "completed_utc": "2026-11-21T02:15:50.237266+00:00",
+  "removed_entries": 59,
+  "source_before_kib": 72153748,
+  "source_after_kib": 4,
+  "private_archive_directory_kib": 27602032,
+  "net_reclaimed_gib": 42.49,
+  "archive_sha256": "0ca91f95580e3b6ffb4c70cd649d5083311fd66a08fc1895a4f3b27302ae3b1a",
+  "archive_bytes": 28264446198,
+  "archive_creation_exit": 0,
+  "archive_source_compare_exit": 0,
+  "comparison_differences": 0
+}

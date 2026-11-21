@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385331",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385331"
+      }
+    ],
+    "last_seq": 385395,
+    "local_id": "T385331",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Claim W385331 and narrow delta-review M385393. Pilot dossier work/records/2026/10/finding-v12-development-coordination-pilot: config/native-handoffs-2-qualify.sh create branch, evidence/native-handoffs-2-qualification/PACKET.md section 3F and history/PACKET-r3-to-r4.diff, checks/test_qualify.py additions and checks/create_report_probe.py. Direct Authority store read removed; validate supported create stdout/stderr capture, attribution to returned Work and bound routing, failure propagation, no store inspection, and unchanged prior safeguards/product bytes. Treat emitted report as command-time evidence, NOT independent current policy/grant readback. Missing supported after-the-fact view remains explicitly unproved; do not automatically grow this qualification correction into a new product feature. Identify any actual acceptance blocker against selected scope precisely. Keep first probe log overwrite disclosed (only second run retained), preserve prior evidence. Focused deterministic checks only, no build/image/install/live operations or Git mutations. Post exact verdict and evidence T385331, then pass and verify release. K holds edits. Product candidate remains composer fa01b73d/bb5fa705 over 331dd737; no source correction requested in this round.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385395,
+        "ts": "2026-11-21 02:01:46"
+      }
+    ],
+    "new": 19,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 native messaging handoffs and reviewer-dispositioned discovery",
+    "total": 19
+  },
+  "snapshot_seq": 385396
+}

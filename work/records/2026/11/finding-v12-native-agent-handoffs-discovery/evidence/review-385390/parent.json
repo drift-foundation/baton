@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T321608",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W321608"
+      }
+    ],
+    "last_seq": 385387,
+    "local_id": "T321608",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K \u2192 coordinator/codexpc: W385331 qualification packet round 3 \u2014 C3 corrected (review 2026-11-21T00-55-22Z, E385384), product bytes unchanged, for independent delta review.\n\nOUTCOME THIS TURN. The qualification commands are corrected and PROVED on disposable fixtures without building, installing or launching. No product byte changed: `git status --porcelain -- v12` is empty at HEAD 331dd737; the accepted composer candidate (tree bb5fa705\u2026, manifest fa01b73d\u2026) is untouched and its locator is now declared immutable. K holds no claim.\n\nC3.1 CONTRADICTORY MANIFESTS \u2192 joined, precedence-bound binding. New `config/native-handoffs-2-bind.py` (sha256 4cc1469e\u2026): admits each manifest ONLY at its pinned SHA256 (composer fa01b73d\u2026, slice 4925897d\u2026); computes the overlap and holds it to the review's five paths; builds the JOINED 43-path map \u2014 the composer's digest on its 12 paths incl. the 5 overlaps, the slice's on its 31 untouched paths \u2014 and reads every path at SHA through `git show`; writes `native-bound-2.json` (schema k.native-handoffs-2-binding/2, with both manifest digests, the overlap, precedence and every path's owner) only when all 43 agree, else names every disagreeing path (found/accepted/owner) and exits 2 writing nothing; `--check` re-verifies an existing binding (the consuming steps' guard). Real-byte proofs: run against the HOST checkout at HEAD 331dd737 it REFUSES naming exactly the 12 composer paths, nothing written (`checks/logs/host-bind-refusal.log`) \u2014 the correct answer today; run with `--tree` over the isolated composer candidate directory it binds 43 paths with composer precedence (`checks/logs/candidate-tree-bind.log`, `checks/candidate-tree-bind.example.json`).\n\nC3.2 STALE ORDER \u2192 read from the product. The compose step takes the expected declaration order from `role_contract.contract_for(HANDOFF_TEMPLATE)[\"outputs\"]` of the bound checkout and asserts per worker: outputs == that order, none required, image digest, Authority UUID, and the `declaring \u2026` report line in the compose log, before writing the workers document. The typed `proposal, handoff, findings, logs, response` is gone from the packet.\n\nC3.3 CONTROL FLOW \u2192 one guarded helper. New `config/native-handoffs-2-qualify.sh` (sha256 8f4c2663\u2026), `set -euo pipefail`, steps bind|check|bundle|image|install|compose|repeat|create|start, each a single `bash file STEP` (safe to paste: `set -e` cannot leak into the caller). No `echo exit=$? | tee` anywhere; each gate's own status ends the step. Every consuming step runs `check` first: v12/ clean, HEAD == bound SHA, `bind.py --check`. `create` refuses (exit 2, before anything) unless JOB and STMT are real selections passed in the environment; its readback uses the create answer's `work_id` and `Authority.open_readonly` to assert `template.version` /3, `control.profile` native-handoff/1, the routing pair, `answer-handoff` held and `review` not held by the reviewer in the Work scope \u2014 the accepted connected-creation assertion. The former `manager view` readback is withdrawn (the bundle has no `view` verb).\n\nVERIFICATION: `evidence/native-handoffs-2-qualification/checks/test_qualify.py` (sha256 bbf35136\u2026), 14 checks, run 6 OK (`checks/logs/check-run-6.log`, sha256 7592549a\u2026). Each check runs the REAL bind script and REAL helper against a disposable git repository under /var/tmp carrying the joined accepted bytes copied from the two packets (plus the base product package so the contract imports), with recording stand-ins for just/docker/bundle on PATH. Positive: joined candidate binds and re-checks; bind+check write the bound instance/task documents; green gate + clean stamp + bundle pass with all captures; the contract's order composes through. Refusals: base-only tree (12 composer paths named, nothing written); one drifted slice path; unpinned manifest; stale binding; dirty tree before bind; moved HEAD refuses all seven consuming steps with zero just/docker calls; failing gate ends `bundle` with status 7 and nothing after the log; dirty stamp after a green gate; failed image build ends `image` at the build (status 3, no inspect); three pending-selection variants refuse `create`. Honest accounting: runs 1\u20135 are the check's own development (wrong checkout depth; stand-in build output dirtying the fixture until it carried the checkout's own ignore rules; missing product package) and are retained. The checks stand in just/docker/bundle: they prove control flow, byte logic and the contract read, not the gate/image/installer themselves. No just, docker, install or instance touched; no store opened; no credential read; nothing under /home/sl/baton-instances changed.\n\nDOCUMENT DELTA FOR REVIEW: `evidence/native-handoffs-2-qualification/PACKET.md` (sha256 f009ba6a\u2026); exact diff from the reviewed round-2 text `history/PACKET-r2-reviewed-385384.md` (sha256 bc2f6368\u2026, byte-identical to review-385384/reviewed-qualification.md) is `history/PACKET-r2-to-r3.diff` (sha256 9bb9df05\u2026, 196 lines). Changes: Binding header; \u00a73 rewritten around the helper (A\u2013G, \"how the helper guards\", \"what the checks do not prove\"); \u00a75 files; new \u00a76 packet history with distinct immutable locators. \u00a70\u2013\u00a72 and \u00a74 unchanged.\n\nPROVENANCE OVERWRITE RECORDED: `evidence/native-handoffs-composer/HISTORY.md` (sha256 e4ecc532\u2026) records that round 1 (tree 77ca513b\u2026, manifest ae8c09af\u2026, patch 0ec0bc80\u2026) was overwritten in place by round 2 (bb5fa705\u2026/fa01b73d\u2026/aa0df772\u2026) on 2026-11-20 ~23:49Z, that K does not hold the original round-1 patch or CORRECTION.md bytes, that round-1 logs remain under logs/round-1/, and points to the reviewer's recovery (review-385384/recovered-round-1/: five files verified, manifest reconstructed at the exact ae8c09af\u2026, patch and CORRECTION.md not recovered) and the round-2 snapshot (review-385384/reviewed-packet/). Rule recorded: that locator is immutable at round 2; any later product candidate goes to a new `native-handoffs-composer-r<N>/`; this round changed no byte there (manifest still fa01b73d\u2026).\n\nCORRECTION TO PRIOR TEXT: the previous packet's step A verified both manifests independently and could never pass on any checkpoint (five paths differ); its step E order was wrong; its `manager view` readback named a verb the bundle lacks. All three withdrawn above.\n\nHANDOFF CONDITION: ready for codexpc delta review of PACKET.md (via the diff), bind.py, qualify.sh and test_qualify.py. Owner acts pending and unchanged: the composer candidate's checkpoint (then `bind` passes), image build, install, repeat, create (JOB/STMT selection), start. No live run selected.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385387,
+        "ts": "2026-11-21 01:39:12"
+      }
+    ],
+    "new": 114,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "Assess replacing v11 coordination with v12 for one development workflow",
+    "total": 114
+  },
+  "snapshot_seq": 385390
+}

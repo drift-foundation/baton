@@ -64,7 +64,7 @@ from baton_v12.integration.driver import admit_authorized_result
 from baton_v12.integration.git_profile import GitIntegrationProfile
 from baton_v12.job_manager import (ending, execution_limits,
                                    native_handoffs, review_driver,
-                                   scheduler)
+                                   role_capability, role_contract, scheduler)
 from baton_v12.job_manager.delegation import INTEGRATION_OBSERVATION_SCHEMA
 from baton_v12.job_manager.scheduler import allocation_of
 from baton_v12.job_manager.submission import job_of
@@ -5877,16 +5877,44 @@ def _served_deployment(given, worker, binding, job_task=None):
                 task_bytes=producer["task_bytes"])
 
 
-def _disagreements(given, stage, job, binding):
+def _declared_contract_disagreement(manifest, template_version):
+    """The declared-result-contract pair when the selected template binds one
+    and this worker's declarations are not it, else `None`.
+
+    W385331 (review 2026-11-20T23-15-20Z C1): the compatibility the Job
+    manager proved before creation is checked again here, at selection and at
+    dispatch, through the same owned rule
+    (`role_capability.declared_result_contract`) -- so a worker whose
+    declarations changed since, or a Job whose template a configured lane never
+    declared for, is not handed to an adapter that must then refuse. A
+    baseline template (`/1`, `/2`) or a Job with no created template asks
+    nothing, which keeps every existing deployment's selection exactly as it
+    was.
+    """
+    if template_version is None \
+            or not role_contract.is_handoff_capable(template_version):
+        return None
+    contract = role_contract.contract_for(template_version)
+    try:
+        role_capability.declared_result_contract(
+            contract, manifest["outputs"], what="this configured worker")
+    except ContractRefusal:
+        return (digest(manifest["outputs"]), digest(contract["outputs"]))
+    return None
+
+
+def _disagreements(given, stage, job, binding, template_version=None):
     """Every operand of this deployment that disagrees with this Job and stage.
 
     THESE ARE `single_worker._matches`'S OWN OPERANDS, in its own order, read
     from the held deployment the stage is actually SERVED under rather than
     restated. That provider still holds every one of them after allocation and
     is not weakened; assembly's part is to stop handing it a worker that must
-    then refuse.
+    then refuse. `template_version` adds the one declared-contract operand a
+    handoff-capable Job carries (W385331 C1).
     """
     manifest = given["input_manifest"]
+    declared = _declared_contract_disagreement(manifest, template_version)
     named = {"the stage kind": (given["launch_role"], stage.get("kind")),
              "the Work": (manifest["work_ref"]["work_id"],
                           binding["job_work_id"]),
@@ -5906,6 +5934,8 @@ def _disagreements(given, stage, job, binding):
                                      job["input_digest"]),
              "the submitted policy": (given["policy_digest"],
                                       job["policy_digest"])}
+    if declared is not None:
+        named["the declared result contract"] = declared
     return {what: pair for what, pair in named.items() if pair[0] != pair[1]}
 
 
@@ -5937,10 +5967,15 @@ def _job_workers(deployment, stage, job=None):
     return binding, servable_workers(
         deployment.given, binding, stage, job,
         single_worker.job_task_reader(deployment.jobs)(
-            job_id=stage["job_id"]))
+            job_id=stage["job_id"]),
+        # THE CREATED TEMPLATE, read from the Job store's own creation
+        # record; `None` for a legacy or hand-submitted Job (W385331 C1).
+        template_version=native_handoffs.template_of(deployment.jobs,
+                                                     stage["job_id"]))
 
 
-def servable_workers(given, binding, stage, job, job_task=None):
+def servable_workers(given, binding, stage, job, job_task=None,
+                     template_version=None):
     """The same rule, from DOCUMENTS alone. W358969.
 
     SPLIT OUT RATHER THAN COPIED, and the split is the point. A caller that
@@ -5969,7 +6004,7 @@ def servable_workers(given, binding, stage, job, job_task=None):
               for one in lane}
     compatible = [one for one in lane
                   if not _disagreements(served[one["worker_id"]], stage, job,
-                                        binding)]
+                                        binding, template_version)]
     # THE IMPLEMENTATION KIND IS ALSO BOUND BY IDENTITY. A Job names its
     # producer, and another worker that merely agrees on every digest is still
     # some other Job's source.
@@ -5990,7 +6025,7 @@ def servable_workers(given, binding, stage, job, job_task=None):
     if not compatible:
         disagreeing = {one["worker_id"]:
                        sorted(_disagreements(served[one["worker_id"]], stage,
-                                             job, binding))
+                                             job, binding, template_version))
                        for one in lane}
         _refuse(f"no worker this deployment configures for the "
                 f"{stage.get('kind')!r} stage can serve Job "

@@ -466,9 +466,62 @@ def _task_artifact(place):
     return raw, held["task_id"]
 
 
-# The one template this deployment serves; the role declaration the
-# role-instructions identity is bound to is read from it.
+# THE DEFAULT TEMPLATE, and the one every instance composed before W385331
+# was composed for; the role declaration the role-instructions identity is
+# bound to is read from the SELECTED template, which is this one unless
+# `--template` names another this build carries.
 TEMPLATE_VERSION = "baton.v12.job-template.implementation-review/1"
+
+
+def _template_selection(version):
+    """The selected template, THIS BUILD'S OWN, or a refusal naming what
+    this build holds. `templates.template_of` is the owner of that answer and
+    its refusal is carried in its own words."""
+    from baton_v12.contracts import ContractRefusal
+    from baton_v12.job_manager import templates
+
+    if type(version) is not str or not version:
+        raise PoolRefusal("a template is one exact version; this is "
+                          + repr(version) + ". Nothing was changed.")
+    try:
+        return templates.template_of(version)
+    except ContractRefusal as refusal:
+        raise PoolRefusal("the template " + repr(version) + " cannot be "
+                          "composed for: " + str(refusal) + ". Nothing was "
+                          "changed.")
+
+
+def _declared_outputs(version, template):
+    """What the composed manifest DECLARES, derived from the selected template.
+
+    THE BASELINE SHAPE IS THE PROVEN LEGACY ONE. A template bound to the
+    baseline development role contract (`/1`, `/2`) keeps the one-output
+    declaration every installed instance carries today -- `proposal`,
+    required -- byte for byte: it is the deployment shape the native-labels
+    runs proved, and nothing here reinterprets it. `None` says so, and the
+    manifest composer then writes exactly what it always wrote.
+
+    A HANDOFF-CAPABLE TEMPLATE DECLARES ITS CONTRACT'S OWN DESCRIPTORS. The
+    adapter learns which outputs it may write from this declaration
+    (`/input/input.json`), the Job manager holds a `/3` Job's lanes to the
+    selected contract before any creation effect, and the deployment checks
+    it again at dispatch -- all against `role_contract.contract_for(version)
+    ["outputs"]`, exactly: names, types, paths, optionality, constraints and
+    order (review 2026-11-20T23-15-20Z C2). So the descriptors are COPIED from
+    the contract that owns them, never derived from a name table or cloned
+    from the generic specimen, and the declaration and the contract it serves
+    cannot drift apart.
+    """
+    from baton_v12.job_manager import role_contract
+
+    if not role_contract.is_handoff_capable(version):
+        return None
+    contract = role_contract.contract_for(version)
+    if contract is None or contract["template"] != template["version"]:
+        raise PoolRefusal("the template " + repr(version) + " binds no result "
+                          "contract this build can declare for. Nothing was "
+                          "changed.")
+    return [dict(one) for one in contract["outputs"]]
 
 
 def _record_binding(record_path, checkout):
@@ -608,8 +661,16 @@ def composed(held, *, worker_id, role, participant, image_reference,
              image_digest, cli_build, network, credential_sources,
              credentials, workspace_group, task_document, record_path,
              checkout=None, work_id=None, runtime_uid=None, now=None,
-             verifier_layout=None, legacy_layout=False):
+             verifier_layout=None, legacy_layout=False,
+             template_version=TEMPLATE_VERSION):
     """One worker document for the instance `held` describes. READS ONLY.
+
+    `template_version` SELECTS THE TEMPLATE THE WORKER IS COMPOSED FOR
+    (W385331, M385374): its role declaration binds `role_instructions_digest`
+    and, for a handoff-capable template, the declared outputs. Omitted, it is
+    `TEMPLATE_VERSION` and the document is byte for byte what this verb has
+    always written; a version this build does not carry refuses before
+    anything is composed.
 
     Every member the instance binds is derived from the instance; every
     deployment fact is this build's own (`next_run_bindings`); what the
@@ -656,6 +717,8 @@ def composed(held, *, worker_id, role, participant, image_reference,
                               "this is " + repr(place) + ". Nothing was "
                               "changed.")
     layout = _layout_selection(verifier_layout, legacy_layout)
+    template = _template_selection(template_version)
+    declared = _declared_outputs(template_version, template)
     destination = Path(held["state_root"]).parent
     places = instance.layout(destination)
     if places["authority_store"] != held["authority_store"]:
@@ -684,7 +747,7 @@ def composed(held, *, worker_id, role, participant, image_reference,
             identities=identities, provider_network=network,
             image_reference=image_reference, image_digest=image_digest,
             cli_build=cli_build, credential_profile=profile,
-            template_version=TEMPLATE_VERSION, role=role)
+            template_version=template_version, role=role)
         bound = dict(bounds,
                      retention_policy_digest=held["retention_policy_digest"],
                      record_binding=record,
@@ -696,7 +759,7 @@ def composed(held, *, worker_id, role, participant, image_reference,
             policy_digest=identities["policy_digest"],
             profile_digest=identities["profile_digest"],
             image_digest=image_digest, task_bytes=raw, artifact_id=task_id,
-            contextual=False, bound=bound)
+            contextual=False, bound=bound, declared=declared)
         manifest = check_manifest_structure(manifest, "inputManifest",
                                             what="the composed input manifest")
         _no_specimen(manifest)
@@ -747,6 +810,8 @@ def composed(held, *, worker_id, role, participant, image_reference,
                           "participant": participant,
                           "deployment": deployment})
     return {"worker": worker, "work_id": work,
+            "template": template_version,
+            "declared": [one["name"] for one in manifest["outputs"]],
             "manifest_digest": manifest["manifest_digest"],
             "human_contract": manifest["human_contract"],
             "layout": ({"selection": "legacy", "layout_digest": None}
@@ -806,6 +871,9 @@ def compose(place, *, into, stream=sys.stdout, admit_into_pool=False,
              "verifier-layout marker)"), file=stream)
     print("profile   %s %s" % (worker["deployment"]["profile_name"],
                                worker["deployment"]["profile_digest"]),
+          file=stream)
+    print("template  %s declaring %s" % (answer["template"],
+                                         ", ".join(answer["declared"])),
           file=stream)
     print("task      %s (%s)" % (worker["deployment"]["task_document"],
                                  answer["human_contract"]["artifact_id"]),
@@ -879,6 +947,16 @@ def main(argv=None, *, stream=sys.stdout):
     composing.add_argument("--work-id", default=None,
                            help="the Work this worker serves; omitted, the "
                                 "instance's own Work")
+    composing.add_argument("--template", default=TEMPLATE_VERSION,
+                           metavar="VERSION",
+                           help="the job template this worker is composed "
+                                "for: its role declaration binds the "
+                                "role-instructions identity and, for a "
+                                "handoff-capable template, the declared "
+                                "outputs (W385331). Omitted, "
+                                + TEMPLATE_VERSION + ", byte for byte what "
+                                "this verb has always written; a version "
+                                "this build does not carry is refused")
     composing.add_argument("--into", required=True,
                            help="the fresh file to write the worker document "
                                 "to; an existing entry is refused")
@@ -914,7 +992,7 @@ def main(argv=None, *, stream=sys.stdout):
                     workspace_group=taken.workspace_group,
                     task_document=taken.task_document,
                     record_path=taken.record, checkout=taken.checkout,
-                    work_id=taken.work_id,
+                    work_id=taken.work_id, template_version=taken.template,
                     verifier_layout=(
                         None if taken.verifier_layout is None else
                         _read(taken.verifier_layout, _MAX_MARKER_BYTES,

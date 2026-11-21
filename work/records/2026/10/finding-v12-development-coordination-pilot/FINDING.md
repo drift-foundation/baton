@@ -833,3 +833,8 @@ M385347/M385348 bind the next ordinary native development run to3d05430f. Coordi
 ## 2026-11-20 — handoffs instance installed and worker inputs composed
 
 Owner installation readback verified: native-handoffs-1 authority daec1190ac0c48329cf41937f7e2073d, checkpoint3d05430f, runtime ea772e90867c32a8f1125201f3e2c7bbd699ebac17f6c6ce7a7fa1eaff7d3d7b/82files, no workers. Coordinator completed ordinary step E directly to avoid another manual relay: delivered exact bound task and composed impl-a/review-a through installed pool CLI; both exit0, layout1423c3aa…, current image, no Job/Work/config mutation. Prepared config/native-workers-3d05430f.json. K do not duplicate E. Owner worker-admission bootstrap is next; no model start/create done.
+
+
+## Owner-selected old-instance retirement — 2026-11-21
+
+Owner requested removal of retired instance folders rather than indefinite retention of source copies. The 59 explicit entries under the external baton-instances root are selected for retirement after a private archive is verified against the stopped sources. Preserve live v11 authority, repository work and candidate/review evidence. Full inventory, recovery locator and disposition: evidence/instance-retirement-20261121/RETIREMENT.md. Old native instances are thereafter historical evidence, not runnable destinations; native-handoffs-2 remains the proposed fresh destination.

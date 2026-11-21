@@ -1,0 +1,57 @@
+--- review385390
++++ review385396
+@@ -182,6 +182,7 @@
+     BIN="$DEST/distro/baton-v12-stack"
+     UUID="$(python3 -I -c 'import json,sys; print(json.load(open(sys.argv[1]))["authority_uuid"])' "$DEST/authority-identity.json")"
+     just --justfile "$DEST/justfile" status
++    mkdir -p "$EV/native-handoffs-2-qualification"
+     "$BIN" manager --store "$DEST/db/jobs.sqlite3" --incarnation slaw-create-handoffs-2 --authority-uuid "$UUID" \
+         create --instance "$DEST" --control "$DEST/db/control.sqlite3" --authority "$DEST/db/authority.sqlite3" \
+         --task "$JOB" --job-id "$JOB" --template baton.v12.job-template.implementation-review/3 --control-profile native-handoff/1 \
+@@ -190,23 +191,32 @@
+         --work-scope v12/python --test-scope v12/python/tests \
+         --verification env --verification BATON_V12_STACK_TEST_ROOT=/scratch --verification BATON_V12_DISK_ROOT=/scratch \
+         --verification PYTHONPATH=v12/python/src:v12/python --verification python3 --verification=-m --verification unittest --verification=-v \
+-        --verification tests.job_manager.test_job_control | tee "$EV/native-handoffs-2-qualification/create-$JOB.json"
+-    env PYTHONPATH=v12/python/src "$PYTHON" - "$DEST" "$UUID" "$EV/native-handoffs-2-qualification/create-$JOB.json" <<'PY'
+-import json, sys
+-from baton_v12.authority import Authority, messages
+-dest, uuid, answer = sys.argv[1:4]
++        --verification tests.job_manager.test_job_control > "$EV/native-handoffs-2-qualification/create-$JOB.json" 2> "$EV/native-handoffs-2-qualification/create-$JOB.report.log"
++    cat "$EV/native-handoffs-2-qualification/create-$JOB.report.log"
++    # THE READBACK IS THE COMMAND'S OWN SUPPORTED OUTPUT: the create answer on
++    # stdout and the installer report on stderr (`bootstrap.prepare` through
++    # the creation binding), which states the routing selection and the
++    # answering grant it made in the new Work's own scope. No store is opened
++    # here (review 2026-11-21T01-49-15Z); the routing expected is read from the
++    # BOUND INSTANCE DOCUMENT, an input of this qualification.
++    python3 -I - "$SHA" "$CFG" "$EV/native-handoffs-2-qualification/create-$JOB.json" "$EV/native-handoffs-2-qualification/create-$JOB.report.log" <<'PY'
++import json, sys
++sha, cfg, answer, report = sys.argv[1:5]
+ held = json.loads(open(answer).read())
+ assert held["template"]["version"] == "baton.v12.job-template.implementation-review/3", held["template"]
+ assert held["control"]["profile"] == "native-handoff/1", held["control"]
+-a = Authority.open_readonly(f"{dest}/db/authority.sqlite3", expected_authority_uuid=uuid)
+-try:
+-    routing = a.native_routing(); print("routing", json.dumps(routing))
+-    scope = a.project_work(held["work_id"])["scope"]
+-    assert a.holds_capability(routing["reviewer"], messages.ANSWER_CAPABILITY, scope=scope), "the reviewer lacks answer-handoff in the Work scope"
+-    assert not a.holds_capability(routing["reviewer"], "review", scope=scope), "the reviewer must not hold review"
+-    print("grants ok:", held["work_id"], "answer-handoff to", routing["reviewer"], "and no review")
+-finally:
+-    a.dispose()
++routing = json.loads(open(f"{cfg}/native-instance-2-{sha[:8]}.json").read())["native_handoff_routing"]
++lines = open(report).read().splitlines()
++# the report's own formats (`bootstrap._compose`): "routing%-14s reviewer %s, decisions to %s" % ("", …),
++# "work  %-14s already exists; left alone" (the command reserved the Work before its installer
++# preparation ran, so the installer finds it) and "answer%-14s %s to %s in its own scope; no review grant".
++for wanted in ("routing%-14s reviewer %s, decisions to %s" % ("", routing["reviewer"], routing["decision_recipient"]),
++               "work  %-14s already exists; left alone" % held["work_id"],
++               "grant %-14s approve/review/verify/integrate in its own scope" % held["work_id"],
++               "answer%-14s answer-handoff to %s in its own scope; no review grant" % ("", routing["reviewer"])):
++    assert wanted in lines, "the create report lacks the line %r; it said:\n%s" % (wanted, "\n".join(lines))
++print("created", held["work_id"], "template", held["template"]["version"], "profile", held["control"]["profile"])
++print("reported by the command: routing", json.dumps(routing), "and answer-handoff to", routing["reviewer"], "in the Work scope")
+ PY
+     ;;
+ start)

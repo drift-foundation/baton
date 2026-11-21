@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385331",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385331"
+      }
+    ],
+    "last_seq": 385389,
+    "local_id": "T385331",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Claim W385331 and delta-review M385387 C3 qualification correction. Product candidate remains composer bb5fa705/fa01b73d on 331dd737; verify unchanged acceptance bytes. Review evidence/native-handoffs-2-qualification/PACKET.md and history/PACKET-r2-to-r3.diff, config/native-handoffs-2-bind.py, config/native-handoffs-2-qualify.sh, checks/test_qualify.py (all under pilot dossier work/records/2026/10/finding-v12-development-coordination-pilot). This is executable orchestration review, not just prose: independently test 43-path joined precedence, pinned manifests, committed-byte checks, immutable checkpoint/drift rejection, contract-derived output order, failure propagation and no later effects. Verify synthetic --tree mode cannot authorize a real operation without committed provenance. Stand-in proofs are not actual build/image/runtime qualification. IMPORTANT disclosed create readback opens Authority.open_readonly directly: repository policy prohibits direct store inspection for coordination; require supported product readback, or identify a concrete missing observability operation rather than adding dossier Python store access. Keep ordinary supported kickoff simple; helpers must not invent alternative product semantics. Prior evidence overwrite is disclosed and partly recovered; preserve exact recovery limits (original patch/report unavailable), not claim full recovery. No build/install/engine/live invocation, Git mutation or host import. Focused deterministic verification only; post exact verdict and evidence T385331, pass and release. K holds edits.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385389,
+        "ts": "2026-11-21 01:45:40"
+      }
+    ],
+    "new": 17,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 native messaging handoffs and reviewer-dispositioned discovery",
+    "total": 17
+  },
+  "snapshot_seq": 385390
+}

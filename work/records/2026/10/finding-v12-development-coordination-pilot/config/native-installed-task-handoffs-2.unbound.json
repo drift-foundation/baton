@@ -1,0 +1,13 @@
+{
+  "declared_base": "UNBOUND-CHECKPOINT",
+  "instructions": "Execute the ordinary Job instructions supplied by manager create. This installed task is the reusable delivery template, not an assigned Job.",
+  "schema": "baton.dogfood-task/2",
+  "source_profile": "git-line",
+  "source_root": "source",
+  "task_id": "native-development-default",
+  "verification": [
+    "python3",
+    "-c",
+    "raise SystemExit(\"This Job must supply an explicit focused verification command\")"
+  ]
+}

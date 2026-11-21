@@ -1,0 +1,6 @@
+test_native_replay_preserves_admitted_declarations (__main__.NativeReplay.test_native_replay_preserves_admitted_declarations) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.015s
+
+OK

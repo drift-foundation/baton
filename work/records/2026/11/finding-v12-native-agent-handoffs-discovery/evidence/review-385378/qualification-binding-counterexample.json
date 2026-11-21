@@ -1,0 +1,28 @@
+[
+  {
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "331dd7379b492ac0ad6c742ded032643ad17ce9c",
+      "331dd7379b492ac0ad6c742ded032643ad17ce9c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "--stat",
+      "--format=%H %s",
+      "331dd7379b492ac0ad6c742ded032643ad17ce9c",
+      "--",
+      "v12/python/tools/pool.py"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

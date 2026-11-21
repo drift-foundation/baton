@@ -637,7 +637,7 @@ class DeploymentBinding:
 
         return bootstrap.jobs_of(document)
 
-    def serving(self, job_id, *, stage, job, task=None):
+    def serving(self, job_id, *, stage, job, task=None, template=None):
         """Which configured workers can serve THIS stage of THIS Job.
 
         THE OPERANDS ARE THE SUBMITTED ONES. The first cut of this adapter
@@ -665,7 +665,8 @@ class DeploymentBinding:
             return []
         try:
             compatible = stage_execution.servable_workers(
-                configured, binding, dict(stage, job_id=job_id), job, task)
+                configured, binding, dict(stage, job_id=job_id), job, task,
+                template_version=template)
         except ContractRefusal:
             # THE SELECTOR'S OWN REFUSAL IS AN ANSWER HERE, not a failure.
             # `_job_workers` refuses when nothing can serve the stage, and

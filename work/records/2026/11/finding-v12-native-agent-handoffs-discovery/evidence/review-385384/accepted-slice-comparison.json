@@ -1,0 +1,42 @@
+{
+  "identical": [
+    "v12/python/src/baton_v12/authority/api.py",
+    "v12/python/src/baton_v12/authority/core.py",
+    "v12/python/src/baton_v12/authority/messages.py",
+    "v12/python/src/baton_v12/authority/schema.py",
+    "v12/python/src/baton_v12/authority/session.py",
+    "v12/python/src/baton_v12/job_manager/documents.py",
+    "v12/python/src/baton_v12/job_manager/job_control.py",
+    "v12/python/src/baton_v12/job_manager/native_handoffs.py",
+    "v12/python/src/baton_v12/job_manager/projection.py",
+    "v12/python/src/baton_v12/job_manager/review_driver.py",
+    "v12/python/src/baton_v12/job_manager/role_contract.py",
+    "v12/python/src/baton_v12/job_manager/templates.py",
+    "v12/python/src/baton_v12/native_handoff.py",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+    "v12/python/tests/authority/test_boundary.py",
+    "v12/python/tests/authority/test_catalog.py",
+    "v12/python/tests/authority/test_dossier.py",
+    "v12/python/tests/authority/test_session.py",
+    "v12/python/tests/authority/test_work_messages.py",
+    "v12/python/tests/job_manager/test_native_handoffs.py",
+    "v12/python/tests/job_manager/test_review_driver.py",
+    "v12/python/tests/job_manager/test_role_contract.py",
+    "v12/python/tests/job_manager/test_templates.py",
+    "v12/python/tests/manager/test_boundary_inventory.py",
+    "v12/python/tests/manager/test_dependencies.py",
+    "v12/python/tests/manager/test_secrets.py",
+    "v12/python/tests/tools/test_bootstrap.py",
+    "v12/python/tools/bootstrap.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tools/single_worker.py",
+    "v12/worker/claude_agent.py"
+  ],
+  "changed": [
+    "v12/STACK.md",
+    "v12/python/src/baton_v12/job_manager/role_capability.py",
+    "v12/python/tests/tools/test_connected_creation.py",
+    "v12/python/tests/tools/test_native_handoffs.py",
+    "v12/python/tools/stage_execution.py"
+  ]
+}

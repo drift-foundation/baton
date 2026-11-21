@@ -1,0 +1,54 @@
+test_native_job_refuses_default_workers_before_creation (__main__.AdmissionProbe.test_native_job_refuses_default_workers_before_creation) ... ERROR
+
+======================================================================
+ERROR: test_native_job_refuses_default_workers_before_creation (__main__.AdmissionProbe.test_native_job_refuses_default_workers_before_creation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w383217/composer/probes/admission-probe.py", line 19, in test_native_job_refuses_default_workers_before_creation
+    code,said=self.created(template=self.HANDOFF,control_profile='native-handoff/1')
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w383217/composer/candidate/v12/python/tests/tools/test_connected_creation.py", line 130, in created
+    code = job_manager.main(self.argv(**named), stream=said)
+  File "/home/sl/src/baton/work/scratch/w383217/composer/candidate/v12/python/tools/job_manager.py", line 1548, in main
+    return taken.run(taken, clock or _utc_clock(),
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stream if stream is not None else sys.stdout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w383217/composer/candidate/v12/python/tools/job_manager.py", line 862, in _create
+    return _emit(create_template_job(
+                 ~~~~~~~~~~~~~~~~~~~^
+        store, _ReadOnly(control), request=request,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+                                       deployment.configuration(),
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                       identity=identity)), stream)
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w383217/composer/candidate/v12/python/src/baton_v12/job_manager/creation.py", line 244, in create_template_job
+    _declared_contract(derived, resolution["template"]["version"])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w383217/composer/candidate/v12/python/src/baton_v12/job_manager/creation.py", line 715, in _declared_contract
+    role_capability.declared_result_contract(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        contract, lanes[worker_id],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        what=f"the configured {role} worker {name_value(worker_id)}")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w383217/composer/candidate/v12/python/src/baton_v12/job_manager/role_capability.py", line 774, in declared_result_contract
+    _exact(held, agreed["outputs"], "its declared outputs",
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           f"{what} declares a different result contract than template "
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           f"{name_value(agreed['template'])} binds")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w383217/composer/candidate/v12/python/src/baton_v12/job_manager/role_capability.py", line 547, in _exact
+    _denied(f"{what}: {_disagreement(mine, theirs, where)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w383217/composer/candidate/v12/python/src/baton_v12/job_manager/role_capability.py", line 79, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the configured implementation worker 'impl-a' declares a different result contract than template 'baton.v12.job-template.implementation-review/3' binds: its declared outputs holds 1 entries and this contract fixes 5
+
+----------------------------------------------------------------------
+Ran 1 test in 0.055s
+
+FAILED (errors=1)

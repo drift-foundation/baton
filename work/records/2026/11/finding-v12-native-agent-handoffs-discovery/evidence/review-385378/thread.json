@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385331",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385331"
+      }
+    ],
+    "last_seq": 385377,
+    "local_id": "T385331",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Claim W385331 and independently review M385375 composer correction. Packet work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/CORRECTION.md, manifest.json ae8c09af29fab8dc902d88e436fbd21606183573b6ae136fcbe9eb7e9469dc71; tree 77ca513b409e9fc18caeeb2fdb1e27e9a27efed315a09d730bee9202b3739aeb; 5 paths over 331dd737. Coordinator checked manifest and all five candidate file hashes. Review supported template selection, template-derived output types/constraints/requiredness and instruction identity, unchanged omitted/default /1 behavior and /2 compatibility, unknown version refusal before writes, real install -> compose -> repeat -> /3 create without patched manifests. Assess disclosed /3 Job on /1 workers late adapter refusal against accepted admission requirements; classify concretely rather than treating disclosure as acceptance. Verify optional union declarations do not weaken role-required output validation. Review focused test accounting honestly: 2 erroneous module names and 13 accidental packaged skips are not successful verification; seek needed valid focused proof, no ceremonial broad reruns. Review refreshed qualification commands for actual checkpoint binding and executable operands; no build/install/live selection. Preserve accepted first-slice bytes. No Git mutations, host import or hazardous checkpoint_profiles. Post verdict and evidence in T385331 then pass/release; corrections to implementation, acceptance to owner. K holds edits. Message transport remains fully automatic with no human/model courier.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385377,
+        "ts": "2026-11-20 23:09:43"
+      }
+    ],
+    "new": 13,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 native messaging handoffs and reviewer-dispositioned discovery",
+    "total": 13
+  },
+  "snapshot_seq": 385378
+}

@@ -1,0 +1,137 @@
+test_a_manifest_that_is_not_the_pinned_one_is_refused_before_anything (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_a_manifest_that_is_not_the_pinned_one_is_refused_before_anything) ... ERROR
+test_a_stale_binding_is_refused_by_the_check (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_a_stale_binding_is_refused_by_the_check) ... ERROR
+test_one_drifted_slice_path_refuses_and_writes_nothing (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_one_drifted_slice_path_refuses_and_writes_nothing) ... ERROR
+test_the_checkpoint_before_the_correction_refuses_naming_every_composer_path (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_the_checkpoint_before_the_correction_refuses_naming_every_composer_path)
+Base-only / missing-correction: a tree at 331dd737 carries the ... ERROR
+test_the_joined_candidate_binds_and_names_both_manifests (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_the_joined_candidate_binds_and_names_both_manifests) ... ERROR
+test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate) ... ERROR
+test_a_dirty_tree_refuses_before_binding (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_dirty_tree_refuses_before_binding) ... ERROR
+test_a_failed_gate_pipeline_ends_the_bundle_step_with_its_status (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_failed_gate_pipeline_ends_the_bundle_step_with_its_status) ... ERROR
+test_a_failed_image_build_ends_the_image_step_before_inspection (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_failed_image_build_ends_the_image_step_before_inspection) ... ERROR
+test_a_green_gate_with_a_clean_stamp_and_bundle_passes (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_green_gate_with_a_clean_stamp_and_bundle_passes) ... ERROR
+test_a_moved_head_refuses_every_consuming_step_before_any_action (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_moved_head_refuses_every_consuming_step_before_any_action) ... ERROR
+test_a_pending_selection_refuses_the_create_step_before_the_command (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_pending_selection_refuses_the_create_step_before_the_command) ... ERROR
+test_bind_then_check_pass_and_write_the_bound_documents (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_bind_then_check_pass_and_write_the_bound_documents) ... ERROR
+
+======================================================================
+ERROR: test_a_manifest_that_is_not_the_pinned_one_is_refused_before_anything (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_a_manifest_that_is_not_the_pinned_one_is_refused_before_anything)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_a_stale_binding_is_refused_by_the_check (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_a_stale_binding_is_refused_by_the_check)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_one_drifted_slice_path_refuses_and_writes_nothing (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_one_drifted_slice_path_refuses_and_writes_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_the_checkpoint_before_the_correction_refuses_naming_every_composer_path (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_the_checkpoint_before_the_correction_refuses_naming_every_composer_path)
+Base-only / missing-correction: a tree at 331dd737 carries the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_the_joined_candidate_binds_and_names_both_manifests (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_the_joined_candidate_binds_and_names_both_manifests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_a_dirty_tree_refuses_before_binding (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_dirty_tree_refuses_before_binding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_a_failed_gate_pipeline_ends_the_bundle_step_with_its_status (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_failed_gate_pipeline_ends_the_bundle_step_with_its_status)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_a_failed_image_build_ends_the_image_step_before_inspection (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_failed_image_build_ends_the_image_step_before_inspection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_a_green_gate_with_a_clean_stamp_and_bundle_passes (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_green_gate_with_a_clean_stamp_and_bundle_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_a_moved_head_refuses_every_consuming_step_before_any_action (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_moved_head_refuses_every_consuming_step_before_any_action)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_a_pending_selection_refuses_the_create_step_before_the_command (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_pending_selection_refuses_the_create_step_before_the_command)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+======================================================================
+ERROR: test_bind_then_check_pass_and_write_the_bound_documents (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_bind_then_check_pass_and_write_the_bound_documents)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 53, in setUp
+    self.composer = json.load(open(COMPOSER / "manifest.json"))
+                              ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/records/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json'
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.002s
+
+FAILED (errors=13)

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.tools.test_pool",
+    "tests.tools.test_connected_creation",
+    "tests.tools.test_bootstrap",
+    "tests.tools.test_next_run_managed",
+    "tests.tools.test_next_run_flow",
+    "tests.tools.test_dogfood_operator",
+    "tests.tools.test_native_handoffs",
+    "tests.job_manager.test_role_contract"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/codxpc-w385331-composer/v12/python",
+  "exit_code": 0,
+  "wall_seconds": 96.95236653997563
+}

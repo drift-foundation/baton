@@ -1,0 +1,5 @@
+{
+  "returncode": 0,
+  "stdout": "continued after failed guard\nexit=1\ncontinued after failed gate\n",
+  "note": "Harmless shell analogue only; no qualification commands executed."
+}

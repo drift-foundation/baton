@@ -1,0 +1,6 @@
+test_initial_partial_preparation_continues_to_real_work (tests.tools.test_next_run_flow.JoinedFlow.test_initial_partial_preparation_continues_to_real_work) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.669s
+
+OK

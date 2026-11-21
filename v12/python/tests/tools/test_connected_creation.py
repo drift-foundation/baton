@@ -184,41 +184,16 @@ class ConnectedCreationCase(test_bootstrap.ValidFixture):
 
 
 class TheNativeRoutingThroughTheRealInstaller(ConnectedCreationCase):
-    """W385331 R4/R4a (reviews 2026-11-20T19-39-15Z, 20-53-37Z): the native
-    handoff routing through the REAL installer and the REAL command.
-
-    A two-role pool (the native template's implementation/review), each
-    worker's manifest declaring the `/3` outputs: `bootstrap.main` installs
-    the instance with a `native_handoff_routing` selection, `job_manager.main`
-    creates an ordinary `/3` Job under the native-handoff profile, and the
-    Authority holds the policy and the reviewer's scoped `answer-handoff`
-    grant -- and no `review` grant for that worker. A malformed address is
-    refused by the installer before anything durable exists.
+    """W385331 R4a (review 2026-11-20T20-53-37Z): a malformed routing
+    address is refused by the REAL installer before anything durable exists,
+    and a refused repeat leaves the installed selection unchanged. The
+    positive path -- install, supported composition, ordinary `/3` creation
+    -- is `TheReusableInstanceComposesHandoffCapableWorkers` below, which
+    composes its workers through `pool compose-worker --template` rather than
+    patching a fixture's manifests.
     """
 
     ROUTING = {"reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"}
-
-    def workers(self):
-        import copy
-
-        from baton_v12.contracts import digest
-
-        held = [one for one in super().workers()
-                if one["role"] in ("implementation", "review")]
-        for worker in held:
-            manifest = copy.deepcopy(worker["deployment"]["input_manifest"])
-            prototype = manifest["outputs"][0]
-            manifest["outputs"] = [
-                dict(prototype, name=name, type=kind, path=name, required=False)
-                for name, kind in (("proposal", "git-change-proposal"),
-                                   ("findings", "directory-result"),
-                                   ("logs", "directory-result"),
-                                   ("handoff", "directory-result"),
-                                   ("response", "directory-result"))]
-            manifest.pop("manifest_digest")
-            manifest["manifest_digest"] = digest(manifest)
-            worker["deployment"]["input_manifest"] = manifest
-        return held
 
     def authority(self):
         from baton_v12.authority import Authority
@@ -227,32 +202,6 @@ class TheNativeRoutingThroughTheRealInstaller(ConnectedCreationCase):
                               expected_authority_uuid=self.owned["authority_uuid"])
         self.addCleanup(held.dispose)
         return held
-
-    def test_a_fresh_install_and_an_ordinary_creation_install_the_scoped_grant(self):
-        from baton_v12.authority import messages
-        from baton_v12.job_manager import native_handoffs, role_contract
-
-        self.installed(jobs=[], line_declared_base="a" * 40,
-                       canonical_target_id="target-1",
-                       native_handoff_routing=dict(self.ROUTING))
-        self.assertEqual(self.authority().native_routing(),
-                         dict(self.ROUTING, schema=messages.ROUTING_SCHEMA))
-        held = self.answered(template=role_contract.HANDOFF_TEMPLATE,
-                             control_profile="native-handoff/1")
-        authority = self.authority()
-        scope = authority.project_work(held["work_id"])["scope"]
-        self.assertTrue(authority.holds_capability(
-            self.ROUTING["reviewer"], messages.ANSWER_CAPABILITY, scope=scope))
-        self.assertFalse(authority.holds_capability(
-            self.ROUTING["reviewer"], "review", scope=scope))
-        self.assertFalse(authority.holds_capability(
-            self.ROUTING["decision_recipient"], messages.ANSWER_CAPABILITY,
-            scope=scope))
-        store, _creation = self.rows()
-        self.assertTrue(native_handoffs.handoff_capable(store, held["job_id"]))
-        self.assertEqual(self.install_document()["native_handoff_routing"],
-                         self.ROUTING)
-        self.assertNotIn("native_handoff_routing", self.configuration())
 
     def refused_install(self, routing):
         """The real installer, refusing: exit 2, the refusal said, and
@@ -707,7 +656,7 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
             return SimpleNamespace(returncode=0, stdout="", stderr="")
         return runner
 
-    def installed_with_repositories(self, issued):
+    def installed_with_repositories(self, issued, **members):
         # THE CHECKPOINT PROFILE IS THE DETERMINISTIC SEAM every connected
         # serving case uses (`test_connected_startup`, `test_job_task_delivery`):
         # the line is materialized without version control, so dispatch is
@@ -717,7 +666,8 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         document = self.document(workers=[], jobs=[],
                                  line_declared_base=self.BASE,
                                  canonical_target_id=self.BASE,
-                                 checkpoint_profile=self.profile_seam.name)
+                                 checkpoint_profile=self.profile_seam.name,
+                                 **members)
         document.pop("state_root", None)
         inputs = os.path.join(self.root, "operator-inputs.json")
         Path(inputs).write_text(json.dumps(document))
@@ -1044,6 +994,320 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         self.assertIn("verify", caught.exception.message)
         self.assertIn("baton.impl-a", caught.exception.message)
         self.assertEqual(engine.vectors, [])
+
+
+class TheReusableInstanceComposesHandoffCapableWorkers(
+        TheReusableInstanceServesDefinedJobs):
+    """W385331 (T321608 M385374): install -> SUPPORTED composition for the
+    handoff-capable template -> repeat -> ordinary `/3` creation, with no
+    hand-patched manifest anywhere.
+
+    Everything `TheReusableInstanceServesDefinedJobs` keeps real stays real:
+    the real installer with the routing selection, `pool compose-worker
+    --template …/3` through its own command line, the one-operand repeat
+    that clones the composed workers' sources, and `job_manager.main create
+    --template …/3 --control-profile native-handoff/1`. What the proof then
+    reads back is the Authority's routing policy and scoped grant, the
+    creation record's template, and the composed workers' declarations.
+    """
+
+    HANDOFF = "baton.v12.job-template.implementation-review/3"
+    ROUTING = {"reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"}
+
+    def installed_task(self):
+        place = os.path.join(self.state, "state", "task", "installed-task.json")
+        os.makedirs(os.path.dirname(place), exist_ok=True)
+        held = json.loads(Path(self.config["task_document"]).read_bytes())
+        held["task_id"] = "installed-task"
+        Path(place).write_bytes(json.dumps(held, sort_keys=True).encode())
+        record_path = ("work/records/2026/08/finding-v12-work-tags/findings/"
+                       "finding-v12-work-label-protocol-cli")
+        record = Path(self.checkout, record_path)
+        record.mkdir(parents=True, exist_ok=True)
+        (record / "FINDING.md").write_text("# Finding\n")
+        (record / "PLAN.md").write_text("# Plan\n")
+        return place, record_path
+
+    def authority(self):
+        from baton_v12.authority import Authority
+
+        held = Authority.open(self.owned["authority_store"],
+                              expected_authority_uuid=self.owned["authority_uuid"])
+        self.addCleanup(held.dispose)
+        return held
+
+    def composed_by_command(self, worker_id, role, participant, *extra):
+        """One worker composed by the REAL `pool compose-worker` command."""
+        from tools import pool
+        from baton_v12.worker_manager import source_boundary
+
+        task, record_path = self.installed_task()
+        marker = os.path.join(self.root, "verifier-layout-marker.json")
+        Path(marker).write_text(json.dumps(
+            source_boundary.image_layout_marker()))
+        into = os.path.join(self.root, "composed", worker_id + ".json")
+        argv = [pool.VERB_COMPOSE,
+                "--deployment", os.path.join(self.state, "deployment.json"),
+                "--worker-id", worker_id, "--role", role,
+                "--participant", participant,
+                "--image-reference", "baton-v12-worker:test",
+                "--image-digest", self.config["image_digest"],
+                "--cli-build", "2.1.247", "--network", self.config["network"],
+                "--credential-sources",
+                os.path.join(self.root, "credential-sources.json"),
+                "--credential", "claude=operator-file:w202663-development",
+                "--workspace-group", str(self.config["workspace_group"]),
+                "--task-document", task, "--record", record_path,
+                "--checkout", self.checkout, "--verifier-layout", marker,
+                "--into", into, *extra]
+        said = io.StringIO()
+        code = pool.main(argv, stream=said)
+        return code, said.getvalue(), into
+
+    def repeated(self, issued, workers, routing):
+        before = self.configuration()
+        carried = {name: before[name]
+                   for name in ("integration_target", "integration_workspace")
+                   if before.get(name)}
+        selection = ({} if routing is None
+                     else {"native_handoff_routing": dict(routing)})
+        document = self.document(workers=workers, jobs=[],
+                                 checkpoint_profile=self.profile_seam.name,
+                                 line_declared_base=self.BASE,
+                                 canonical_target_id=self.BASE,
+                                 **selection, **carried)
+        updated = os.path.join(self.root, "updated-inputs.json")
+        Path(updated).write_text(json.dumps(document))
+        said = io.StringIO()
+        code = bootstrap.main(["--inputs", updated,
+                               "--repository-source", self.SOURCE],
+                              stream=said, runner=self.git(issued))
+        return code, said.getvalue()
+
+    def test_install_supported_composition_repeat_and_an_ordinary_3_creation(self):
+        from baton_v12.authority import messages
+        from baton_v12.job_manager import native_handoffs, role_contract
+
+        issued = []
+        self.installed_with_repositories(
+            issued, native_handoff_routing=dict(self.ROUTING))
+        self.assertEqual(self.configuration()["workers"], [])
+        self.assertEqual(self.authority().native_routing(),
+                         dict(self.ROUTING, schema=messages.ROUTING_SCHEMA))
+        workers = []
+        for worker_id, role, participant in (
+                ("impl-a", "implementation", "baton.impl-a"),
+                ("review-a", "review", "baton.reviewer")):
+            code, said, into = self.composed_by_command(
+                worker_id, role, participant, "--template", self.HANDOFF)
+            self.assertEqual(code, 0, said)
+            self.assertIn("template  " + self.HANDOFF, said)
+            worker = json.loads(Path(into).read_text())
+            manifest = worker["deployment"]["input_manifest"]
+            # THE DECLARATION IS THE TEMPLATE'S UNION, none required, and
+            # the role-instructions identity names the selected template.
+            self.assertEqual(
+                [one["name"] for one in manifest["outputs"]],
+                ["proposal", "findings", "logs", "handoff", "response"])
+            self.assertTrue(all(one["required"] is False
+                                for one in manifest["outputs"]))
+            self.assertEqual(worker["deployment"]["schema"],
+                             "baton.v12.single-worker-deployment/6")
+            workers.append(worker)
+        self.assertNotEqual(
+            workers[0]["deployment"]["input_manifest"]["role_instructions_digest"],
+            workers[1]["deployment"]["input_manifest"]["role_instructions_digest"])
+        code, said = self.repeated(issued, workers, self.ROUTING)
+        self.assertEqual(code, 0, said)
+        self.assertIn("routing", said)
+        self.assertEqual(
+            [one["worker_id"] for one in self.configuration()["workers"]],
+            ["impl-a", "review-a"])
+        for worker in workers:
+            self.assertTrue(os.path.isdir(
+                worker["deployment"]["nominated_source"]))
+        # THE ORDINARY CREATION, through the real command, selecting the
+        # handoff-capable template and the one-continuation profile.
+        held = self.answered(template=self.HANDOFF,
+                             control_profile="native-handoff/1")
+        self.assertEqual(held["template"]["version"], self.HANDOFF)
+        self.assertEqual(held["servable"],
+                         {"implementation": ["impl-a"], "review": ["review-a"]})
+        store, _creation = self.rows()
+        self.assertTrue(native_handoffs.handoff_capable(store, held["job_id"]))
+        self.assertEqual(native_handoffs.template_of(store, held["job_id"]),
+                         role_contract.HANDOFF_TEMPLATE)
+        authority = self.authority()
+        scope = authority.project_work(held["work_id"])["scope"]
+        self.assertTrue(authority.holds_capability(
+            self.ROUTING["reviewer"], messages.ANSWER_CAPABILITY, scope=scope))
+        self.assertFalse(authority.holds_capability(
+            self.ROUTING["reviewer"], "review", scope=scope))
+        self.assertFalse(authority.holds_capability(
+            self.ROUTING["decision_recipient"], messages.ANSWER_CAPABILITY,
+            scope=scope))
+        self.assertEqual(self.install_document()["native_handoff_routing"],
+                         self.ROUTING)
+        self.assertNotIn("native_handoff_routing", self.configuration())
+
+    def default_lanes(self, issued):
+        """Both workers composed WITHOUT the template selection (the proven
+        legacy declaration) and configured by the repeat."""
+        workers = []
+        for worker_id, role, participant in (
+                ("impl-a", "implementation", "baton.impl-a"),
+                ("review-a", "review", "baton.reviewer")):
+            code, said, into = self.composed_by_command(worker_id, role,
+                                                        participant)
+            self.assertEqual(code, 0, said)
+            worker = json.loads(Path(into).read_text())
+            self.assertEqual(
+                [one["name"] for one in
+                 worker["deployment"]["input_manifest"]["outputs"]],
+                ["proposal"])
+            workers.append(worker)
+        code, said = self.repeated(issued, workers, self.ROUTING)
+        self.assertEqual(code, 0, said)
+        return workers
+
+    def test_a_3_creation_against_legacy_declarations_is_refused_before_any_effect(self):
+        """The reviewer's admission probe (review 2026-11-20T23-15-20Z C1),
+        inverted: default-declared workers cannot be given a `/3` Job, and
+        the refusal leaves no Work, no reservation, no Job and no binding."""
+        issued = []
+        self.installed_with_repositories(
+            issued, native_handoff_routing=dict(self.ROUTING))
+        self.default_lanes(issued)
+        inputs_before = Path(os.path.join(self.state, "install-inputs.json")).read_bytes()
+        configuration_before = Path(os.path.join(self.state, "deployment.json")).read_bytes()
+        caught, _said = self.refused(expected=ContractRefusal,
+                                     template=self.HANDOFF,
+                                     control_profile="native-handoff/1")
+        self.assertIn("declares a different result contract", str(caught))
+        store, _creation = self.rows()
+        self.assertEqual(store._connection.execute(
+            "SELECT count(*) FROM template_jobs").fetchone()[0], 0)
+        self.assertEqual(self.bindings(), {})
+        self.assertEqual(
+            Path(os.path.join(self.state, "install-inputs.json")).read_bytes(),
+            inputs_before)
+        self.assertEqual(
+            Path(os.path.join(self.state, "deployment.json")).read_bytes(),
+            configuration_before)
+        authority = self.authority()
+        for work_id in (self.owned["authority_uuid"][:8] + "-W1", self.work):
+            with self.assertRaises(Exception):
+                authority.project_work(work_id)
+        # AND THE SAME LANES STILL SERVE AN ORDINARY DEFAULT-TEMPLATE JOB.
+        held = self.answered()
+        self.assertEqual(held["template"]["origin"], "configured-default")
+
+    def test_the_declared_contract_is_held_again_at_dispatch(self):
+        """The selector's own rule, from documents: a `/3` Job's stage is
+        served only by a lane whose declarations are the contract's, and a
+        lane whose declarations are the legacy single output is not."""
+        from baton_v12.contracts import job_input_identity
+        from tools import stage_execution
+
+        issued = []
+        self.installed_with_repositories(
+            issued, native_handoff_routing=dict(self.ROUTING))
+        workers = []
+        for worker_id, role, participant in (
+                ("impl-a", "implementation", "baton.impl-a"),
+                ("review-a", "review", "baton.reviewer")):
+            code, said, into = self.composed_by_command(
+                worker_id, role, participant, "--template", self.HANDOFF)
+            self.assertEqual(code, 0, said)
+            workers.append(json.loads(Path(into).read_text()))
+        code, said = self.repeated(issued, workers, self.ROUTING)
+        self.assertEqual(code, 0, said)
+        raw = self.configuration()
+        given = stage_execution.held_configuration(raw)
+        producer = given["workers"][0]["deployment"]
+        binding = {"job_id": "job-x", "job_work_id": self.work,
+                   "review_work_id": self.work,
+                   "line_declared_base": self.BASE,
+                   "canonical_target_id": self.BASE,
+                   "source_worker_id": "impl-a"}
+        job = {"input_digest": job_input_identity(
+                   producer["input_manifest"],
+                   what="a configured worker's input"),
+               "policy_digest": producer["policy_digest"]}
+
+        def stage(kind):
+            held = [one for one in given["workers"] if one["role"] == kind][0]
+            return {"kind": kind, "job_id": "job-x",
+                    "stage_id": f"job-x/{kind}",
+                    "profile_name": held["deployment"]["profile_name"],
+                    "profile_digest": held["deployment"]["profile_digest"]}
+
+        for kind in ("implementation", "review"):
+            served = stage_execution.servable_workers(
+                given, binding, stage(kind), job, None,
+                template_version=self.HANDOFF)
+            self.assertEqual([one["worker_id"] for one in served],
+                             ["impl-a" if kind == "implementation"
+                              else "review-a"])
+        from baton_v12.contracts import digest
+
+        altered = json.loads(json.dumps(raw))
+        for one in altered["workers"]:
+            manifest = one["deployment"]["input_manifest"]
+            manifest["outputs"] = manifest["outputs"][:1]
+            manifest.pop("manifest_digest")
+            manifest["manifest_digest"] = digest(manifest)
+        changed = stage_execution.held_configuration(altered)
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.servable_workers(
+                changed, binding, stage("implementation"), job, None,
+                template_version=self.HANDOFF)
+        self.assertIn("the declared result contract", str(caught.exception))
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.servable_workers(
+                changed, binding, stage("implementation"), job, None)
+        self.assertNotIn("the declared result contract",
+                         str(caught.exception))
+
+    def test_an_unsupported_template_is_refused_by_the_command_and_nothing_changes(self):
+        issued = []
+        self.installed_with_repositories(
+            issued, native_handoff_routing=dict(self.ROUTING))
+        before = Path(os.path.join(self.state, "deployment.json")).read_bytes()
+        code, said, into = self.composed_by_command(
+            "impl-a", "implementation", "baton.impl-a",
+            "--template", "baton.v12.job-template.implementation-review/9")
+        self.assertEqual(code, 2, said)
+        self.assertIn("refused:", said)
+        self.assertIn("carries the job templates", said)
+        self.assertFalse(os.path.lexists(into))
+        self.assertEqual(
+            Path(os.path.join(self.state, "deployment.json")).read_bytes(),
+            before)
+
+    def test_the_default_composition_is_what_it_always_was(self):
+        """A worker composed without `--template` declares exactly the legacy
+        one output, and an ordinary default-template creation still serves."""
+        issued = []
+        self.installed_with_repositories(issued)
+        workers = []
+        for worker_id, role, participant in (
+                ("impl-a", "implementation", "baton.impl-a"),
+                ("review-a", "review", "baton.reviewer")):
+            code, said, into = self.composed_by_command(worker_id, role,
+                                                        participant)
+            self.assertEqual(code, 0, said)
+            worker = json.loads(Path(into).read_text())
+            self.assertEqual(
+                [(one["name"], one["required"]) for one in
+                 worker["deployment"]["input_manifest"]["outputs"]],
+                [("proposal", True)])
+            workers.append(worker)
+        code, said = self.repeated(issued, workers, None)
+        self.assertEqual(code, 0, said)
+        held = self.answered()
+        self.assertEqual(held["template"]["origin"], "configured-default")
+        self.assertIsNone(self.authority().native_routing())
 
 
 class ThePackagedResourcesResolve(ConnectedCreationCase):

@@ -1,0 +1,106 @@
+{
+  "base": "331dd7379b492ac0ad6c742ded032643ad17ce9c",
+  "manifest": "sha256:fa01b73d811ffabee510d333f18a97153ab197a21bf16ea32f92736be8ce1e77",
+  "tree": "sha256:bb5fa7050da82902b87d07b6a21447fe1fc14963cddebf879b0456794375e365",
+  "patches": {
+    "candidate-from-331dd737.patch": "sha256:aa0df7727cbf622f7e314cc79cbe5315d40c88891cfb983f542006869c27a779"
+  },
+  "paths": [
+    {
+      "base_331dd737": "sha256:bf94056797cba54e8df6b393a43d75cc51ad94e4831ff1049c1212d3db1eac70",
+      "base_blob": "7ef4ca5c458713a69be525cd136d2835f8278b4a",
+      "candidate": "sha256:39e26a3cca45d639c1dc28c961bb8f57db41cdc4d2220859cc826e4b16a89e1f",
+      "candidate_blob": "640cc7d81edd063c94a6381f00cea0fcb73c0bfa",
+      "path": "v12/STACK.md",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:d85631d06ca20a18b97d0a56e7277eac7a2ada1447c4342d6898904bf7372d16",
+      "base_blob": "06581d72dc5784aa18d9cea3ce20bb5196923c43",
+      "candidate": "sha256:7281a5096edc44eef658f3c161288403bbb5aade028793a9d89182733dc6051e",
+      "candidate_blob": "2ae785332f71622bc285e5571519e934df22d69b",
+      "path": "v12/python/src/baton_v12/job_manager/creation.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:ebc104844a4eb28bd479af0fb284e8185c10ef5ed8c44b7941a62563f498ba2a",
+      "base_blob": "73782b205dd972b04e401ea684f98cda368d1160",
+      "candidate": "sha256:199b1696fdb501da757cb33ba3e6893b2981a840e15316cf0073caf0b425401b",
+      "candidate_blob": "0944bf2b37c6b8eafeeb3145557e1806e75e5744",
+      "path": "v12/python/src/baton_v12/job_manager/role_capability.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:bb35896a080f70b88e0fc763253c07977e7c3635a630d34bca075e935c382e8c",
+      "base_blob": "45540167a715147cd9425c04b11441e71b81b865",
+      "candidate": "sha256:7da1f36af88127c14df8b806b12a9be833833aabc499d786de3df099b7133e87",
+      "candidate_blob": "e360282424765f1e854b8c01b0d7bc0df998544c",
+      "path": "v12/python/tests/job_manager/test_creation.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:9ca4a660a110d508a2836b72f87ed11cf3e82dca3b2570a7e1c2f8aa07be395c",
+      "base_blob": "0f7ce013a681ebcbf50f207fe0fef45788db143f",
+      "candidate": "sha256:58e806a730237b95bdb78b5bfa0cc22ef34eddb459ed48a2912ab66ef71011c2",
+      "candidate_blob": "bf99adfe2bdbd49ab350778326f6b99f05208c05",
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:f39e3dd0be8ea97717e1c2cc49d8202a1f6264f7f6e195b9ed04de4b8c911e4f",
+      "base_blob": "9a1409bf16d9c282d67817ce17f8333fd4076c01",
+      "candidate": "sha256:3dd82c2287f5068aaa8d801a920745d9f021d7ae0926cdc7ee575baeb1a860db",
+      "candidate_blob": "7afab89f458ccfd95f4e15249f5909c2ee74ad5c",
+      "path": "v12/python/tests/tools/test_native_handoffs.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:616ec16577b27d97aff013b4a2eb6ecf580f3334303dd4581ffcf009faa88564",
+      "base_blob": "7546ba250027383a75e21090768eb7c6b4a5e0b9",
+      "candidate": "sha256:d8c6658be64684541da591952993beab1f0c22bd4efa04b857871d506bb5fe4c",
+      "candidate_blob": "20f46c4c44c7738b256facf6be3bbc788a23dcb8",
+      "path": "v12/python/tests/tools/test_pool.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:765e1a63a6966207585c389e6bbe76e19bfacc820265fe65f1da9187234c54b2",
+      "base_blob": "c164cdc052a4f016284122a0fb8fdb6ec9d30834",
+      "candidate": "sha256:398543c80a306037f3d36bcd8b6c55f6b57fb7a05c05fd1878b7b18f09619f8b",
+      "candidate_blob": "44218370e3e7d6198106ca684009f08c81be88f8",
+      "path": "v12/python/tools/creation_ports.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:6a3dc27a0c1409d60ef2840980623d2566710ba4a6d22b135c99c2ec282bee93",
+      "base_blob": "c2626e75ae594ccc09794fe1242569990795e6f9",
+      "candidate": "sha256:eddae5f2292a85a8c64b7eabc2d2380f476c4ebed48942e6faa1997c2c80cda4",
+      "candidate_blob": "653bf7f0f0f6b668c771c9018c3ad1e4c608713b",
+      "path": "v12/python/tools/fresh_attempt_ports.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:576bd5750a4468a17a5690cebeba1732f6901e905c0c2aa9dc56902da47d938f",
+      "base_blob": "8163be5b0816fe5a6d7f92b87e254994b3b4ee27",
+      "candidate": "sha256:f352cec20d82a9d14aaf9186c1be930f66cb98b38e1bd31b62c06f86a8612296",
+      "candidate_blob": "3f695c0424700e8568c89b7ffbcc09e83efce74a",
+      "path": "v12/python/tools/next_run_bindings.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:45d0f72d342c594cea081d8fb0dedce8d63698cf6d9e9c21270b4c54214df4ba",
+      "base_blob": "4e6c272d4b55f9df30726e48220531587645bcab",
+      "candidate": "sha256:0d64da6fc8f3edc83b192450951966f94d3f8b72d900a465af5eac4b16d86eaf",
+      "candidate_blob": "c1539962300c35026af924b40e8cdb5e30b8d6ec",
+      "path": "v12/python/tools/pool.py",
+      "state": "modified"
+    },
+    {
+      "base_331dd737": "sha256:43c7921aca3ce03f2a27dddd5d9d698b1581c361673126cbf11ab9308c98a117",
+      "base_blob": "56b1d0f4e4e1ddf8b0fb24acb7d0a615c1b0ec79",
+      "candidate": "sha256:b39d8a23be170574ceb2c023115e16d6ca272d133666e11bf997d1ac3085d5b7",
+      "candidate_blob": "968185827be686fe1a7a26d1a4fbb3d8daa5f214",
+      "path": "v12/python/tools/stage_execution.py",
+      "state": "modified"
+    }
+  ]
+}

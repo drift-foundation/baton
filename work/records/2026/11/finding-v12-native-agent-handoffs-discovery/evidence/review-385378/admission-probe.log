@@ -1,0 +1,279 @@
+test_native_job_refuses_default_workers_before_creation (__main__.AdmissionProbe.test_native_job_refuses_default_workers_before_creation) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+routing               reviewer baton.reviewer, decisions to baton.slaw
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+answer               answer-handoff to baton.reviewer in its own scope; no review grant
+target                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa established from line_declared_base
+configuration /home/sl/src/baton/work/scratch/codxpc-w385331-composer-probe/v12-w71917-1mf_2bo5/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-cli-first": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"], "workers_by_role": {"implementation": ["impl-a"], "integration": [], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/src/baton/work/scratch/codxpc-w385331-composer-probe/v12-w71917-1mf_2bo5/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/src/baton/work/scratch/codxpc-w385331-composer-probe/v12-w71917-1mf_2bo5/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/src/baton/work/scratch/codxpc-w385331-composer-probe/v12-w71917-1mf_2bo5/bootstrap-deployment/deployment.json"
+FAIL
+
+======================================================================
+FAIL: test_native_job_refuses_default_workers_before_creation (__main__.AdmissionProbe.test_native_job_refuses_default_workers_before_creation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/review-385378/admission-probe.py", line 20, in test_native_job_refuses_default_workers_before_creation
+    self.assertNotEqual(code,0,'Unsupported /3 Job admitted against default /1 workers: '+said)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : Unsupported /3 Job admitted against default /1 workers: {
+  "job_id": "job-cli-first",
+  "work_id": "0000000a-W1",
+  "submission_id": "sub-job-cli-first",
+  "resolution_digest": "sha256:7b7c59dbd22e6b8188b3a1ba408b8724ed198a979dea04dc0738b7c9ee6fdc11",
+  "template": {
+    "version": "baton.v12.job-template.implementation-review/3",
+    "origin": "request",
+    "permitted_overrides": [
+      "execution_limits"
+    ]
+  },
+  "task": {
+    "job_id": "job-cli-first",
+    "work_id": "0000000a-W1",
+    "submission_id": "sub-job-cli-first",
+    "statement": "The first CLI task."
+  },
+  "source": {
+    "input_digest": "sha256:0d7d131576c3d31eeeab3c4f75789f717eb860fef4c9e693e520693bbc851695",
+    "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917"
+  },
+  "scope": {
+    "work": [
+      "v12/python/tools/job_manager.py"
+    ],
+    "tests": []
+  },
+  "acceptance": [
+    "The CLI creates a bound, servable Job."
+  ],
+  "overrides": {},
+  "rules": {
+    "completion": {
+      "outcome": "accepted",
+      "deciding_role": "review",
+      "verdict_output": "findings",
+      "delivers": "proposal"
+    },
+    "correction": {
+      "outcome": "correction",
+      "episode_ending": "superseded-by-correction",
+      "repeats": [
+        "implementation",
+        "review"
+      ]
+    },
+    "failure": {
+      "outcome": "held",
+      "terminal_policy": "report-and-hold",
+      "stage_state": "exceptional",
+      "recovery_operation": "fresh_attempt.admit"
+    }
+  },
+  "execution_limits": {
+    "units": "seconds",
+    "scope": "per-invocation",
+    "compatibility_generation": 1,
+    "requested": {},
+    "boundaries": {
+      "host_verification": {
+        "seconds": 300,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 300
+      },
+      "integration_verification": {
+        "seconds": 1800,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 1800
+      },
+      "ordinary_verification": {
+        "seconds": 900,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 900
+      },
+      "provider_turn": {
+        "seconds": 3600,
+        "origin": "compatibility",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      }
+    }
+  },
+  "derivation": {
+    "work_id": "0000000a-W1",
+    "input_digest": "sha256:0d7d131576c3d31eeeab3c4f75789f717eb860fef4c9e693e520693bbc851695",
+    "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+    "profiles": {
+      "implementation": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:aee0b16f2b845fb6153aaab3b73710a6fb3408ac2cd9f7ceae6cc59b1bae1696"
+      },
+      "review": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:aee0b16f2b845fb6153aaab3b73710a6fb3408ac2cd9f7ceae6cc59b1bae1696"
+      }
+    },
+    "task_document": "{\"declared_base\":null,\"instructions\":\"The first CLI task.\\n\\nAcceptance criteria:\\n  - The CLI creates a bound, servable Job.\\n\\nSelected work scope (the paths this task covers):\\n  - v12/python/tools/job_manager.py\\n\\nBounded test-change scope: none. This task changes no test.\\n\\nTemplate: baton.v12.job-template.implementation-review/3\\nWork: 0000000a-W1\\n\",\"schema\":\"baton.dogfood-task/2\",\"source_profile\":\"generic\",\"source_root\":\"source\",\"task_id\":\"job-cli-first\",\"verification\":[\"python3\",\"-c\",\"raise SystemExit(0)\"]}",
+    "input_manifest": {
+      "assignment_contract": "v12-assignment-1",
+      "created_at": "2026-11-20T23:12:32.000Z",
+      "credential_policy_digest": "sha256:b192d53c96e1611b035f95c7f2d27ea3a6a48e2cd9499bfc45ba6b2ec6e6779c",
+      "extensions": {},
+      "human_contract": {
+        "artifact_id": "installed-task",
+        "bytes": 523,
+        "content_digest": "sha256:591475220308516d0617ebfbf6740346b15860b1ab6a469e761839280bc95236",
+        "locator": "artifact://contracts/installed-task",
+        "media_type": "application/json"
+      },
+      "manifest_digest": "sha256:9c6315c3373df12670806409c1ef6538af258936a5b0dffe6f58e18250e31c69",
+      "manifest_id": "input-manifest-impl-a",
+      "mount_policy_digest": "sha256:e82b23a50fae74fc9d28201d3032dbcc8f2d838e80e050c90cd66abfb9c98b37",
+      "network_policy_digest": "sha256:a7a77a5c5e8a35d5f76a416c11baa7ea788bca68f9141cc663128d89810a9997",
+      "outputs": [
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream",
+              "text/plain"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "proposal",
+          "path": "proposal",
+          "required": true,
+          "type": "git-change-proposal"
+        }
+      ],
+      "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+      "record_binding": {
+        "finding_digest": "sha256:5431d82a80ffb506e52ac2e3595d11277c5446426b5648c355dc04a282d26318",
+        "path": "work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli",
+        "plan_digest": "sha256:c3964bb3b70a957ec9b233c7dd3653f6ba17701ab00facf88ae1393dc6155577",
+        "root": "baton-repository"
+      },
+      "resource_policy_digest": "sha256:7205e02e37db76ba642de3a041bffeb435cf5985ac6a460290cc746d7858db97",
+      "retention_policy_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "role_instructions_digest": "sha256:f41ec6cae6db564e239654c3d25e871ea468853eeec9fb9c2ee6a9d0c51af386",
+      "runtime_profile_digest": "sha256:aee0b16f2b845fb6153aaab3b73710a6fb3408ac2cd9f7ceae6cc59b1bae1696",
+      "schema": "baton.worker-manifest/input",
+      "sources": [
+        {
+          "consumption": {
+            "baton.source-boundary/1": {
+              "delivery": "nominated-mount",
+              "profile": "git-line",
+              "workspace": "disk"
+            }
+          },
+          "content_manifest": {
+            "entries": [],
+            "entry_count": 0,
+            "total_bytes": 0,
+            "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "destination": "source",
+          "name": "source",
+          "required": true
+        }
+      ],
+      "tool_policy_digest": "sha256:f9549df6179c2d19dbc8f9966264e711d5f831ef2646b01bb569f80556dac186",
+      "toolchain_digest": "sha256:bd0f472c7ee0fcd6b96172d61b89a3009687c4cb37038c25f304bbf3510087cc",
+      "version": {
+        "major": 1,
+        "minor": 0
+      },
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "worker_image_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    }
+  },
+  "work": {
+    "work_id": "0000000a-W1",
+    "state": "created",
+    "requested_labels": [],
+    "projection": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "route": "impl",
+      "status": "open",
+      "phase": "queued",
+      "outcome": null,
+      "rationale": null,
+      "handler": null,
+      "contract": "v12-assignment-1",
+      "scope": "scope:deployment",
+      "labels": [],
+      "creation": {
+        "work_id": "0000000a-W1",
+        "operation_id": "template_job.create.work:sha256:fc58a1fc220c31f24808af4a5335d99576a0d074774a1033a51c9a68b6456349",
+        "kind": "trusted-bootstrap",
+        "scope": "scope:deployment",
+        "at": "2026-11-20T23:12:32.315Z"
+      },
+      "close_decision": null,
+      "generation_counter": 0,
+      "live_generation": null,
+      "assignment": null,
+      "gate": null,
+      "fenced_generations": [],
+      "ready": true
+    }
+  },
+  "binding": {
+    "canonical_target_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "job_id": "job-cli-first",
+    "job_work_id": "0000000a-W1",
+    "line_declared_base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "review_work_id": "0000000a-W1",
+    "source_worker_id": "impl-a"
+  },
+  "stages": [
+    "job-cli-first/implementation",
+    "job-cli-first/review"
+  ],
+  "servable": {
+    "implementation": [
+      "impl-a"
+    ],
+    "review": [
+      "review-a"
+    ]
+  },
+  "recorded_at": "2026-11-20T23:12:32.334Z",
+  "control": {
+    "profile": "native-handoff/1",
+    "resolved": {
+      "profile": "native-handoff/1",
+      "units": "seconds",
+      "correction_rounds": 0,
+      "stage_seconds": 4800,
+      "job_seconds": 9960,
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 900
+    }
+  }
+}
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.084s
+
+FAILED (failures=1)

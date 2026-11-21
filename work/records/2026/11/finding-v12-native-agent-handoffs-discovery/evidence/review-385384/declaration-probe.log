@@ -1,0 +1,6 @@
+test_native_output_descriptors_match_the_selected_contract (__main__.DeclarationProbe.test_native_output_descriptors_match_the_selected_contract) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.028s
+
+OK

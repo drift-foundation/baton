@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T321608",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W321608"
+      }
+    ],
+    "last_seq": 385381,
+    "local_id": "T321608",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K: W385331 composer correction round 2 \u2014 C1\u2013C3 of review-2026-11-20T23-15-20Z (M385379) corrected in isolation under the owner-held arrangement; accepted messaging bytes (authority/*, native_handoffs.py, claude_agent.py) untouched; /1\u2013/2 behaviour preserved. Refreshed digest-bound candidate for codexpc delta review at work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/ (CORRECTION.md, manifest.json sha256 fa01b73d811ffabee510d333f18a97153ab197a21bf16ea32f92736be8ce1e77). Candidate: 12 paths over 331dd737, tree digest sha256:bb5fa7050da82902b87d07b6a21447fe1fc14963cddebf879b0456794375e365, patch candidate-from-331dd737 aa0df772\u2026, reproduction verified byte for byte (provenance.json). Host tree, instances, stores and Git untouched (HEAD 331dd737, v12 clean); K holds no claim; no import, build, installation or live launch.\n\nC1: role_capability.declared_result_contract(contract, outputs) \u2014 the one owned exactness (names, types, paths, optionality, constraints, order; shared optional declarations waive nothing a role owes). creation_ports.DeploymentDerivation.derived states each lane's actual declarations ({role: {worker_id: outputs}}, optional in the derivation's closed shape); creation._declared_contract runs right after _resolved and BEFORE _reserved/_acquired/_authorized/_bound: a handoff-capable template requires the declarations and holds every lane of every contract role to the rule; /1, /2 and legacy templates ask nothing. creation._servable passes the selected template to binding.serving(\u2026, template=) for handoff-capable templates; stage_execution.servable_workers(\u2026, template_version=) adds \"the declared result contract\" to _disagreements through the same rule, and _job_workers passes the created template from the Job store, so compatibility is held at selection and dispatch too. C2: pool._declared_outputs copies role_contract.contract_for(/3)[\"outputs\"] verbatim (name table and specimen clone removed); input_manifest(declared=) writes them verbatim; /1\u2013/2 keep [proposal required]; the composed proof's fixture (tests/tools/test_native_handoffs.HandoffJobCase) now declares the same contract descriptors instead of a proposal-specimen clone, which the dispatch check requires \u2014 the accepted protocol bytes it exercises are unchanged and all 14 cases pass. C3: PACKET.md step A binds ONE checkpoint identity to the reviewed candidate BYTES (git show SHA:path digested against both accepted manifests, refused on mismatch, written to config/native-bound-2.json); every later block reads SHA from that file and re-checks HEAD and a clean v12 before consuming; set -o pipefail and explicit exit lines before tee; absolute image evidence root; adapter-in-image bytes compared to git show SHA:\u2026 digests; the \"create refuses while serving\" claim replaced by an explicit stopped-instance selection; \u00a72 marked historical; JOB/STMT explicit pending selections the block refuses to run without. STACK.md paragraph updated.\n\nProofs: test_creation.TheSelectedResultContractIsAdmittedBeforeAnyEffect (4: legacy declarations refused with no row/Work/binding/selector question; missing declarations refused; contract declarations proceed with the template asked for every stage; default and /2 unchanged). test_connected_creation.TheReusableInstanceComposesHandoffCapableWorkers (6): real install \u2192 real pool compose-worker --template /3 \u2192 repeat \u2192 real create --template /3 --control-profile native-handoff/1 (unchanged positive); the reviewer's admission probe inverted through the real CLI: ContractRefusal, template_jobs empty, no binding, install-inputs.json and deployment.json byte-identical, no Work in the Authority, and the same lanes still create a default Job; dispatch: servable_workers selects /3-declared lanes for a /3 Job and refuses resealed legacy lanes naming \"the declared result contract\", unchanged question without a handoff-capable template; unsupported template refused by the command; default composition unchanged. test_pool.ComposingAWorkerForASelectedTemplate (6): manifest outputs == contract_for(/3)[\"outputs\"] (octet-stream only for the four directory results), order the contract's, plus the earlier cases. Reviewer probes reproduced (logs/reviewer-*.log): declaration-probe PASSES; admission-probe now meets a ContractRefusal raised before any effect \u2014 recorded by the probe as ERROR because its criterion was a non-zero exit code while job_manager.main raises typed refusals (the fixture's own documented shape); the candidate's case asserts the raise and no effects.\n\nVerification: focused modules 1310 OK (test_creation, test_pool, test_connected_creation, test_fresh_attempt, test_creation_ports, test_role_capability, test_role_contract, test_dogfood_operator, next_run_managed/flow, test_bootstrap, both test_native_handoffs, test_job_task_delivery, test_connected_startup, test_adapter_declaration); six-module argv 342 OK; just test-group scans 492+2/494; job_manager 1719/1722 (+4 cases; same 3 store-readonly/tool identities); tools-pure 3529/3531 (+2 cases; only the two test_source_identity copy artifacts). Not run: authority/manager-pure groups (no file of theirs changed), checkpoint_profiles (hazard). PROGRESS.md appended. Holding for codexpc delta review.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385381,
+        "ts": "2026-11-20 23:55:31"
+      }
+    ],
+    "new": 113,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "Assess replacing v11 coordination with v12 for one development workflow",
+    "total": 113
+  },
+  "snapshot_seq": 385384
+}

@@ -1,0 +1,190 @@
+{
+  "manifests": {
+    "native-handoffs-1-correction-2": "4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24",
+    "native-handoffs-composer": "fa01b73d811ffabee510d333f18a97153ab197a21bf16ea32f92736be8ce1e77"
+  },
+  "overlap": [
+    "v12/STACK.md",
+    "v12/python/src/baton_v12/job_manager/role_capability.py",
+    "v12/python/tests/tools/test_connected_creation.py",
+    "v12/python/tests/tools/test_native_handoffs.py",
+    "v12/python/tools/stage_execution.py"
+  ],
+  "overlap_precedence": "native-handoffs-composer",
+  "paths": {
+    "v12/STACK.md": {
+      "digest": "sha256:39e26a3cca45d639c1dc28c961bb8f57db41cdc4d2220859cc826e4b16a89e1f",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/src/baton_v12/authority/api.py": {
+      "digest": "sha256:5bc4c0bb6cf536673292018df23fcf09d6f74729db49e332af25ec08c29cf851",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/authority/core.py": {
+      "digest": "sha256:b537fb94e97628af3f7509ad28046e1cdd6ccac089f9d9c4a412fa2860518d2c",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/authority/messages.py": {
+      "digest": "sha256:61f7be5f7fedafc097b2afa3ba115e7d6f9a6fe8d5e572c1fc949992130e8f4e",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/authority/schema.py": {
+      "digest": "sha256:51932ce57b0c25e9f2f52211b47e66988d489a509e728ceb3f4f6713b53152e1",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/authority/session.py": {
+      "digest": "sha256:98a36309afc7590dfc15f981edd04edc91784450709eae4056e24a00913e8346",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/job_manager/creation.py": {
+      "digest": "sha256:7281a5096edc44eef658f3c161288403bbb5aade028793a9d89182733dc6051e",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "digest": "sha256:96919273f74d407fa6a2a583886d53a7243786574da7a609b256665232af073a",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/job_manager/job_control.py": {
+      "digest": "sha256:74e6f0f8a7e7a1617ee45b663c7531dddb087ac037c3118fd5a270c561349df7",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/job_manager/native_handoffs.py": {
+      "digest": "sha256:d45ea69b5fddf8c353abdc318b4f6cccfb1f26462c79e846ddaf8a1adcbd9708",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/job_manager/projection.py": {
+      "digest": "sha256:211eb4cff7326957ae15fc8e709463cf326aa82fe896907268d0f0bf2be3665b",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "digest": "sha256:c78d538849292e78c3927c2bbf2812e41ab3b930b6fc81c4344dbb2e6a8cf367",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/job_manager/role_capability.py": {
+      "digest": "sha256:199b1696fdb501da757cb33ba3e6893b2981a840e15316cf0073caf0b425401b",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/src/baton_v12/job_manager/role_contract.py": {
+      "digest": "sha256:122e8b9c5b874b19597015c89b50727826dc06ede344f4cbb6f86dbab96fb47d",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/job_manager/templates.py": {
+      "digest": "sha256:cd168ef65143a379200753cecc201b36b69d5987398d8ac6f6c502bea44cab7b",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/native_handoff.py": {
+      "digest": "sha256:5d264c1f240a6e8342cf79a9a89784c2f8c846547cc352f9324907fd009764df",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "digest": "sha256:54fd49a22b650e8d648f6c3b328a0802971b59fd132a0d15edec349ca1481874",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/authority/test_boundary.py": {
+      "digest": "sha256:c7a00e8d5426cac6ac4b3ff016c0324148cf608ecd240a67f7715772a7df52a1",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/authority/test_catalog.py": {
+      "digest": "sha256:2a54f7aae9e95ec5adea3a601603d5d67e249e6bd7009713e1a1804126c1f409",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/authority/test_dossier.py": {
+      "digest": "sha256:8f1a0ecf47f93a6c322ead764c3ae628e8497870f40db9dc05d87b75d8285760",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/authority/test_session.py": {
+      "digest": "sha256:f98e16b0d252146881d271687103835f53a6ab024ce0b12f87c006c52ba02041",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/authority/test_work_messages.py": {
+      "digest": "sha256:f64e56e87c3e07748c7ba92586f7f36276ffeb7041bd7a0a98d3047814fa31f8",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/job_manager/test_creation.py": {
+      "digest": "sha256:7da1f36af88127c14df8b806b12a9be833833aabc499d786de3df099b7133e87",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/tests/job_manager/test_native_handoffs.py": {
+      "digest": "sha256:09fdb908731a8cfc018eb4302ac4657a43e3f7664dc1a4a7870d49e17e284064",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "digest": "sha256:65869356b789db4ca39cc939efaaf62c7a729f60c3464008e4eb8e70419ae7a7",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/job_manager/test_role_contract.py": {
+      "digest": "sha256:7d7c1c6b2929f238da9ea8ed75fcb757183629ad3bae997247a72cc9e0f336fd",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/job_manager/test_templates.py": {
+      "digest": "sha256:eb723d88ddc5112e7b77dee613b9bc4811f6fa74ca595f0900e3c258579d1d3f",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/manager/test_boundary_inventory.py": {
+      "digest": "sha256:7da1a6010369191bc7ab22bbe94f786c330c4dc2730d0bab2a5214bd5a594323",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/manager/test_dependencies.py": {
+      "digest": "sha256:f080e464b4e8e2ca3b285b71cacc04e355b87517b192605ade747958be5a65ab",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/manager/test_secrets.py": {
+      "digest": "sha256:c1ddb9e4fb63ba8f9ae37bc08919d10cfe192524e600be3e8c33237687142d4b",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/tools/test_bootstrap.py": {
+      "digest": "sha256:6466670fea8fd2de97fb6ec9731d1c800839a5a855084442bae2e5367cbe664a",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tests/tools/test_connected_creation.py": {
+      "digest": "sha256:58e806a730237b95bdb78b5bfa0cc22ef34eddb459ed48a2912ab66ef71011c2",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/tests/tools/test_native_handoffs.py": {
+      "digest": "sha256:3dd82c2287f5068aaa8d801a920745d9f021d7ae0926cdc7ee575baeb1a860db",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/tests/tools/test_pool.py": {
+      "digest": "sha256:d8c6658be64684541da591952993beab1f0c22bd4efa04b857871d506bb5fe4c",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/tools/bootstrap.py": {
+      "digest": "sha256:75c462593f2780670d816ed8746188dd7fa2388b3d6db64be958083a838d8d22",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tools/creation_ports.py": {
+      "digest": "sha256:398543c80a306037f3d36bcd8b6c55f6b57fb7a05c05fd1878b7b18f09619f8b",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/tools/fresh_attempt_ports.py": {
+      "digest": "sha256:eddae5f2292a85a8c64b7eabc2d2380f476c4ebed48942e6faa1997c2c80cda4",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/tools/next_run_bindings.py": {
+      "digest": "sha256:f352cec20d82a9d14aaf9186c1be930f66cb98b38e1bd31b62c06f86a8612296",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/tools/parallel_test.py": {
+      "digest": "sha256:1c4eeda8755612f6a5942c3ad549b11df68540646f45ad009d62aa94f42df6b5",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tools/pool.py": {
+      "digest": "sha256:0d64da6fc8f3edc83b192450951966f94d3f8b72d900a465af5eac4b16d86eaf",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/python/tools/single_worker.py": {
+      "digest": "sha256:ebaa89b4229c9be3ef0a552dc7e84ef9e0e71976ff1b41e26040819d236721c3",
+      "owner": "native-handoffs-1-correction-2"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "digest": "sha256:b39d8a23be170574ceb2c023115e16d6ca272d133666e11bf997d1ac3085d5b7",
+      "owner": "native-handoffs-composer"
+    },
+    "v12/worker/claude_agent.py": {
+      "digest": "sha256:368eae7ad5342703d76720c96b092f53037bf86c82ce187be4bbf31986eacd23",
+      "owner": "native-handoffs-1-correction-2"
+    }
+  },
+  "schema": "k.native-handoffs-2-binding/2",
+  "sha": "331dd7379b492ac0ad6c742ded032643ad17ce9c"
+}

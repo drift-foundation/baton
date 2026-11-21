@@ -1211,6 +1211,20 @@ the configured decision recipient (never the same reviewer), is journalled once
 per yielding episode (`native.hold`) and reread on every later tick rather than
 raised again, and leaves the execution held.
 
+**Composing the workers.** `pool compose-worker --template
+baton.v12.job-template.implementation-review/3` composes a worker whose input
+manifest declares exactly the `/3` role contract's own output descriptors —
+`proposal`, `findings`, `logs`, `handoff`, `response`, each with the contract's
+type, media and limits, none required — and whose role-instructions identity
+names `/3`. A worker composed without the selection (the default, `/1`, byte
+for byte what the verb has always written: `proposal` alone) cannot be given a
+`/3` Job: `manager create --template …/3` holds every configured lane's
+declarations to the selected contract BEFORE the reservation, the Work and the
+binding, and refuses with nothing durable left behind; the deployment holds the
+same compatibility again when it selects a worker for a `/3` stage. `/1` and
+`/2` Jobs ask nothing new. A template this build does not carry is refused by
+name before anything is written.
+
 **Configuration.** The bootstrap input selects the routing once, as the
 optional object `native_handoff_routing` with `reviewer` (a configured review
 worker's own participant, never an implementation participant) and

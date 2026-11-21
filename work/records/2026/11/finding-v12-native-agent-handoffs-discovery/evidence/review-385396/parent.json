@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T321608",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W321608"
+      }
+    ],
+    "last_seq": 385393,
+    "local_id": "T321608",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K \u2192 coordinator/codexpc: W385331 qualification packet round 4 \u2014 direct store readback removed; the create readback is the command's own supported output; the missing after-the-fact observation is recorded as a gap, not bypassed. Product bytes unchanged, for independent review (review 2026-11-21T01-49-15Z, E385390).\n\nOUTCOME THIS TURN. Removed `Authority.open_readonly` and every store call from `config/native-handoffs-2-qualify.sh`'s create branch. The helper now captures the create command's TWO streams separately (answer on stdout \u2192 `create-<JOB>.json`; the command's own report on stderr \u2192 `create-<JOB>.report.log`), echoes the report, and checks only those captured files plus the bound instance document. No product byte changed (`git status --porcelain -- v12` empty at 331dd737; composer manifest still fa01b73d\u2026). bind.py unchanged (4cc1469e\u2026). K holds no claim.\n\nTHE SUPPORTED SURFACE, DEMONSTRATED. `manager create` binds the Job through `creation_ports.NewJobBinding`, which runs the installer's `bootstrap.prepare` on the command's stderr (`job_manager._create` passes `stream=sys.stderr`); `bootstrap._compose` SAYS there what it set and granted: `routing               reviewer <R>, decisions to <D>`, `work  <work_id>    already exists; left alone` (the command reserved the Work before its installer preparation ran), `grant <work_id>    approve/review/verify/integrate in its own scope`, and `answer               answer-handoff to <R> in its own scope; no review grant`. Proved on the REAL command through the accepted connected-creation fixture (real installer, real `job_manager.main`, stand-in runtime; no engine, no live provider): `checks/create_report_probe.py` (sha256 6a79f148\u2026), run `checks/logs/create-report-probe-run-2.log` OK (1 test, -k selected), captures `checks/logs/create-report-probe.stdout.json` / `.stderr.log` (sha256 b5b5f6a8\u2026 / fd7d7c96\u2026). Honest accounting: the probe's first run failed on wrongly typed line formats and its log was overwritten by the second; only run 2 is retained. The probe ties the printed `answer` line to the fact once with the accepted test's own Authority assertion \u2014 in the probe (a test), not in the helper. The probe's stand-in instance lives under /var/tmp, nothing under /home/sl/baton-instances touched.\n\nTHE HELPER'S CHECK (no store): answer `template.version` == \u2026/3 and `control.profile` == native-handoff/1; the report carries the four lines above with <R>/<D> read from the BOUND instance document's `native_handoff_routing` and <work_id> from the answer; a missing line fails the step naming it.\n\nTHE PRECISE OBSERVABILITY GAP (recorded in PACKET \u00a73 F). There is NO supported installed-CLI surface that reads back, after the fact and independently of the command's report, the native routing policy or which capabilities a participant holds in a Work's scope: `work` exposes labels/list; `disposition pending` reports approve/integrate/close due for a participant, not answer-handoff/review; `manager status`/`status`/`view` project Jobs; `manager create`'s answer carries template/control, not grants; `manager view` does not exist. So the live routing/grant readback after creation remains UNPROVED by this packet; the facts rest on the command's captured report at creation and the accepted deterministic grant evidence (`TheNativeRoutingThroughTheRealInstaller.test_a_fresh_install_and_an_ordinary_creation_install_the_scoped_grant`). Whether a read-only grant/routing view is required is a separate bounded product decision; this packet implements none, invents no operand, adds no coordinator.\n\nVERIFICATION. `checks/test_qualify.py` (sha256 e37d13a0\u2026) now 18 checks, run 8 OK (`checks/logs/check-run-8.log`, sha256 12dd6b6c\u2026). New: the helper and binder contain no store access tokens (`open_readonly`, `Authority.open`, `sqlite3`, `baton_v12.authority` imports); a stand-in bundle answering on stdout and reporting on stderr as the real command does passes `create` with both captures written and exactly one `just status` call; a report lacking the `answer` line fails after the command naming that line; an answer naming template /1 fails before the report is read; the three pending-selection refusals stand. Run 7 (retained) failed on the check's own development \u2014 the fixture lacked the evidence directory the create step writes into (the helper now `mkdir -p`s it; the real checkout already has it) and the token scan matched `src/baton_v12/...` path names in bind.py's OVERLAP list. The 14 prior checks unchanged and passing. Stand-ins only: no build, install, engine, live provider, instance or store operation; no Git mutation by K (the checks create disposable commits under /var/tmp, as before \u2014 author evidence).\n\nDELTA FOR REVIEW. `config/native-handoffs-2-qualify.sh` sha256 d2404e16\u2026 (was 8f4c2663\u2026; only the create branch changed: separate stream captures, `mkdir -p` of the evidence dir, the report check replacing the store readback). `PACKET.md` sha256 0e4c8c94\u2026 (was f009ba6a\u2026); round-3 text preserved byte-identically at `history/PACKET-r3-reviewed-385390.md` (f009ba6a\u2026); exact delta `history/PACKET-r3-to-r4.diff` (sha256 5abfec40\u2026, 48 lines: header round-4 clause, \u00a73 F rewritten, \"what the checks do not prove\", \u00a75 files/run accounting, \u00a76 history rows 3\u20134). Round-2 snapshot intact (bc2f6368\u2026). Composer HISTORY.md unchanged (e4ecc532\u2026).\n\nHANDOFF CONDITION: ready for codexpc review of the narrow delta (qualify.sh create branch, PACKET \u00a73 F and the gap record, test_qualify additions, create_report_probe). Owner acts pending and unchanged: composer checkpoint (then `bind` passes), image build, install, repeat, create (JOB/STMT selection), start. No live run selected.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385393,
+        "ts": "2026-11-21 02:00:48"
+      }
+    ],
+    "new": 115,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "Assess replacing v11 coordination with v12 for one development workflow",
+    "total": 115
+  },
+  "snapshot_seq": 385396
+}

@@ -1,0 +1,125 @@
+test_a_manifest_that_is_not_the_pinned_one_is_refused_before_anything (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_a_manifest_that_is_not_the_pinned_one_is_refused_before_anything) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:173: ResourceWarning: unclosed file <_io.TextIOWrapper name='/var/tmp/baton-v12-handoffs-2/tmp/qualify-check-v3ydcc_v/repo/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  document = json.load(open(place))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_stale_binding_is_refused_by_the_check (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_a_stale_binding_is_refused_by_the_check) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_one_drifted_slice_path_refuses_and_writes_nothing (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_one_drifted_slice_path_refuses_and_writes_nothing) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_checkpoint_before_the_correction_refuses_naming_every_composer_path (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_the_checkpoint_before_the_correction_refuses_naming_every_composer_path)
+Base-only / missing-correction: a tree at 331dd737 carries the ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_joined_candidate_binds_and_names_both_manifests (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheBindingHoldsOneCheckpointToTheAcceptedBytes.test_the_joined_candidate_binds_and_names_both_manifests) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:125: ResourceWarning: unclosed file <_io.TextIOWrapper name='/var/tmp/baton-v12-handoffs-2/tmp/qualify-check-sbbioz_1/repo/work/records/2026/10/finding-v12-development-coordination-pilot/config/native-bound-2.json' mode='r' encoding='UTF-8'>
+  bound = json.load(open(self.bound))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FAIL
+test_a_dirty_tree_refuses_before_binding (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_dirty_tree_refuses_before_binding) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_failed_gate_pipeline_ends_the_bundle_step_with_its_status (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_failed_gate_pipeline_ends_the_bundle_step_with_its_status) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_failed_image_build_ends_the_image_step_before_inspection (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_failed_image_build_ends_the_image_step_before_inspection) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_green_gate_with_a_clean_stamp_and_bundle_passes (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_green_gate_with_a_clean_stamp_and_bundle_passes) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FAIL
+test_a_moved_head_refuses_every_consuming_step_before_any_action (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_moved_head_refuses_every_consuming_step_before_any_action) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_pending_selection_refuses_the_create_step_before_the_command (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_pending_selection_refuses_the_create_step_before_the_command) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_bind_then_check_pass_and_write_the_bound_documents (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_bind_then_check_pass_and_write_the_bound_documents) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:53: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-composer/manifest.json' mode='r' encoding='UTF-8'>
+  self.composer = json.load(open(COMPOSER / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:54: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-correction-2/manifest.json' mode='r' encoding='UTF-8'>
+  self.slice = json.load(open(SLICE / "manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py:201: ResourceWarning: unclosed file <_io.TextIOWrapper name='/var/tmp/baton-v12-handoffs-2/tmp/qualify-check-jc1oac3d/repo/work/records/2026/10/finding-v12-development-coordination-pilot/config/native-instance-2-523aa5c1.json' mode='r' encoding='UTF-8'>
+  instance = json.load(open(self.cfg / f"native-instance-2-{self.sha[:8]}.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+======================================================================
+FAIL: test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 245, in test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate
+    self.assertIn("AssertionError", out.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'AssertionError' not found in 'refused: v12/ has 1 changed or untracked path(s); the qualification consumes a clean checkout only\n'
+
+======================================================================
+FAIL: test_a_green_gate_with_a_clean_stamp_and_bundle_passes (work.records.2026.10.finding-v12-development-coordination-pilot.evidence.native-handoffs-2-qualification.checks.test_qualify.TheHelperStopsAtTheFirstFailure.test_a_green_gate_with_a_clean_stamp_and_bundle_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/checks/test_qualify.py", line 258, in test_a_green_gate_with_a_clean_stamp_and_bundle_passes
+    self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : refused: v12/ has 2 changed or untracked path(s); the qualification consumes a clean checkout only
+
+
+----------------------------------------------------------------------
+Ran 13 tests in 2.307s
+
+FAILED (failures=2)

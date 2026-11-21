@@ -207,7 +207,7 @@ class FakeBinding:
                               "source_worker_id": PRODUCER}
         return self.bound[job_id]
 
-    def serving(self, job_id, *, stage, job, task=None):
+    def serving(self, job_id, *, stage, job, task=None, template=None):
         # THE FAKE RECORDS WHAT IT WAS ASKED, because the operands are the
         # point: a case asserts the DERIVED digests and each stage's OWN
         # profile reached this port rather than the implementation's twice.
@@ -219,6 +219,7 @@ class FakeBinding:
         # used: what this fake decides is still only the configured answer.
         self.asked.append((job_id, dict(stage), dict(job)))
         self.tasks.append(task)
+        self.templates = getattr(self, "templates", []) + [template]
         return list(self._serving.get(stage["kind"], ()))
 
 
@@ -484,6 +485,81 @@ class TheCreation(CreationCase):
         self.created()
         self.assertEqual(self.derivation.calls, 1)
         self.assertEqual(self.ownership.held_count, 1)
+
+
+class TheSelectedResultContractIsAdmittedBeforeAnyEffect(CreationCase):
+    """W385331, review 2026-11-20T23-15-20Z C1 (DESIGN, development
+    role-contract admission): a handoff-capable template holds every
+    configured lane's ACTUAL declarations to the selected contract BEFORE the
+    reservation, the Work and the binding; the baseline workflow asks nothing
+    new."""
+
+    HANDOFF = "baton.v12.job-template.implementation-review/3"
+
+    def contract_declarations(self):
+        from baton_v12.job_manager import role_contract
+
+        outputs = role_contract.contract_for(self.HANDOFF)["outputs"]
+        return {"implementation": {PRODUCER: [dict(one) for one in outputs]},
+                "review": {REVIEWER: [dict(one) for one in outputs]}}
+
+    def legacy_declarations(self):
+        from baton_v12.job_manager import role_contract
+
+        proposal = dict(role_contract.contract_for(self.HANDOFF)["outputs"][0],
+                        required=True)
+        return {"implementation": {PRODUCER: [proposal]},
+                "review": {REVIEWER: [proposal]}}
+
+    def stating(self, declarations):
+        derivation = FakeDerivation()
+        if declarations is not None:
+            derivation.answer["declarations"] = declarations
+        return derivation
+
+    def nothing_happened(self):
+        self.assertEqual(self.rows(), [])
+        self.assertEqual(self.jobs._connection.execute(
+            "SELECT count(*) FROM template_jobs").fetchone()[0], 0)
+        self.assertEqual(self.authorization.created, [])
+        self.assertEqual(self.binding.created, [])
+        self.assertEqual(self.binding.asked, [])
+
+    def test_a_3_creation_is_refused_before_any_effect_when_the_lanes_declare_the_legacy_output(self):
+        caught = self.refused(
+            request=request(template=self.HANDOFF),
+            derivation=self.stating(self.legacy_declarations()))
+        self.assertIn("declares a different result contract", str(caught))
+        self.assertIn("implementation", str(caught))
+        self.nothing_happened()
+
+    def test_a_3_creation_is_refused_when_the_deployment_states_no_declarations(self):
+        caught = self.refused(request=request(template=self.HANDOFF),
+                              derivation=self.stating(None))
+        self.assertIn("states no worker declarations", str(caught))
+        self.nothing_happened()
+
+    def test_a_3_creation_against_the_contracts_own_declarations_proceeds(self):
+        held = self.created(request=request(template=self.HANDOFF),
+                            derivation=self.stating(
+                                self.contract_declarations()))
+        self.assertEqual(held["template"]["version"], self.HANDOFF)
+        # AND THE SELECTOR WAS ASKED WITH THE SELECTED TEMPLATE, for every
+        # stage, so the same compatibility is held at selection and dispatch.
+        self.assertEqual(set(self.binding.templates), {self.HANDOFF})
+        self.assertEqual(len(self.rows()), 1)
+
+    def test_the_default_template_asks_nothing_new(self):
+        held = self.created(derivation=self.stating(None))
+        self.assertEqual(held["template"]["origin"], "configured-default")
+        self.assertEqual(set(self.binding.templates), {None})
+        # AND LEGACY DECLARATIONS ARE NOT HELD TO THE BASELINE DESCRIPTOR:
+        # every installed instance declares the proven single output.
+        self.created(request=request(task={"task_id": "second-task",
+                                           "statement": STATEMENT},
+                                     template="baton.v12.job-template."
+                                              "implementation-review/2"),
+                     derivation=self.stating(self.legacy_declarations()))
 
 
 class ReplayAndIdentity(CreationCase):

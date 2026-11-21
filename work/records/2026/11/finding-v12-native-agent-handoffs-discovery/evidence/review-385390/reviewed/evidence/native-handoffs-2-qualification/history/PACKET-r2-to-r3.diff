@@ -1,0 +1,196 @@
+--- work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/history/PACKET-r2-reviewed-385384.md	2026-11-20 18:33:32.037226604 -0700
++++ work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-2-qualification/PACKET.md	2026-11-20 18:38:14.412510312 -0700
+@@ -1,6 +1,6 @@
+ # W385331 slice 1 — runtime-qualification packet (K, preparation only)
+ 
+-**Binding.** First cut bound to `331dd737` (the slice checkpoint). Refreshed 2026-11-20 after the composer correction candidate (`evidence/native-handoffs-composer/`, §2 below): the commands now bind to **the eventual accepted checkpoint that carries that correction**, read as `SHA=$(git rev-parse HEAD)` at step A after the owner commits it, and every placeholder is replaced by an executable form. The one input this packet deliberately leaves to the coordinator is the live Job's statement and identity (§3 F: `JOB`, `STMT`), which is a selection and not a command.
++**Binding.** First cut bound to `331dd737` (the slice checkpoint). Refreshed 2026-11-20 after the composer correction candidate (`evidence/native-handoffs-composer/`, §2 below), and corrected 2026-11-21 (round 3, review 2026-11-21T00-55-22Z C3): the commands bind to **the eventual accepted checkpoint that carries the composer correction**, read ONCE as `git rev-parse HEAD` by the `bind` step after the owner commits it and proved against the exact accepted bytes of BOTH reviewed candidates joined with the later candidate's precedence on the five overlapping paths (§3 A). Every placeholder is an executable form; the one input left to the coordinator is the live Job's statement and identity (§3 F: `JOB`, `STMT`), a selection the `create` step refuses to run without. The commands live in two files beside this packet and are the ones the checks in `checks/` exercise: `config/native-handoffs-2-bind.py` (the byte binding) and `config/native-handoffs-2-qualify.sh` (every guarded step).
+ 
+ Prepared by `baton.prompt` under the owner-held W321608 arrangement after the owner's checkpoint `331dd7379b492ac0ad6c742ded032643ad17ce9c` ("v12: native handoffs — a question is not a candidate (W385331 slice 1)"), which carries the accepted 36-path candidate `f62bbaab…` (review-2026-11-20T21-32-47Z). Nothing was built, installed, started or probed live: the only engine call was a read-only `docker image inspect` of the existing image; the only reads of retained instances were `deployment.json` (read-only). K holds no claim. Captures: `source-state.txt`.
+ 
+@@ -37,136 +37,49 @@
+ 
+ **Corrected by the composer candidate** (`evidence/native-handoffs-composer/`, for codexpc review; owner checkpoint after acceptance): `pool compose-worker --template <version>` (default `/1`, byte-identical when omitted; `/1`/`/2` keep the legacy one-output declaration; a handoff-capable template declares its roles' union `proposal, handoff, findings, logs, response`, none required; `role_instructions_digest` from the selected version; an unsupported version refused by name before anything is written). Proofs: `tests.tools.test_pool.ComposingAWorkerForASelectedTemplate` and `tests.tools.test_connected_creation.TheReusableInstanceComposesHandoffCapableWorkers` (real install with the routing selection → real `pool compose-worker --template …/3` → repeat → real `manager create --template …/3 --control-profile native-handoff/1`, no manifest patched). Step E below assumes that checkpoint is HEAD.
+ 
+-## 3. Consolidated commands, in order (none executed here)
++## 3. Consolidated commands, in order (none executed here against a real destination)
+ 
+-`SHA=331dd7379b492ac0ad6c742ded032643ad17ce9c`; `DEST=/home/sl/baton-instances/native-handoffs-2`; `CFG=work/records/2026/10/finding-v12-development-coordination-pilot/config`; `Q=…/evidence/native-handoffs-2-qualification`. Owner-reserved acts are marked **O**.
++`DEST=/home/sl/baton-instances/native-handoffs-2`; `CFG=work/records/2026/10/finding-v12-development-coordination-pilot/config`; `Q=…/evidence/native-handoffs-2-qualification`. Owner-reserved acts are marked **O**. Every step is one invocation of the guarded helper, and every step after `bind` re-verifies the ONE bound checkpoint before it does anything:
+ 
+-**A. Bind (K, read-only).** ONE owner-checkpoint identity, bound to the reviewed candidate BYTES and written down once; every later step reads it from the bound file and never re-derives it from `HEAD` (review 2026-11-20T23-15-20Z C3). The accepted composer candidate is identified by its packet (`evidence/native-handoffs-composer/manifest.json`, the one codexpc accepts); the check below proves that every path of that candidate AND every path of the accepted slice (`evidence/native-handoffs-1-correction-2/manifest.json`) is committed in `SHA` at exactly the accepted bytes, and that the working tree is clean at `SHA`.
+ ```sh
+-cd /home/sl/src/baton && export GIT_OPTIONAL_LOCKS=0 && set -o pipefail
+-SHA=$(git rev-parse HEAD); CFG=work/records/2026/10/finding-v12-development-coordination-pilot/config; EV=work/records/2026/10/finding-v12-development-coordination-pilot/evidence
+-test "$(git status --porcelain -- v12 | wc -l)" = 0
+-python3 -I - "$SHA" "$CFG" "$EV" <<'PY'
+-import hashlib, json, subprocess, sys
+-sha, cfg, ev = sys.argv[1:4]
+-def committed(path):
+-    out = subprocess.run(["git", "show", f"{sha}:{path}"], capture_output=True, check=True).stdout
+-    return "sha256:" + hashlib.sha256(out).hexdigest()
+-bound = {"schema": "k.native-handoffs-2-binding/1", "sha": sha, "candidates": {}}
+-for name in ("native-handoffs-composer", "native-handoffs-1-correction-2"):
+-    m = json.load(open(f"{ev}/{name}/manifest.json"))
+-    bad = [one["path"] for one in m["paths"] if committed(one["path"]) != one["candidate"]]
+-    if bad:
+-        raise SystemExit(f"{name}: {sha} does not carry the accepted bytes of {bad}; stop, this is not the accepted checkpoint")
+-    bound["candidates"][name] = {"tree_digest": m["tree_digest"], "paths": len(m["paths"]),
+-                                 "manifest_sha256": hashlib.sha256(open(f"{ev}/{name}/manifest.json", "rb").read()).hexdigest()}
+-json.dump(bound, open(f"{cfg}/native-bound-2.json", "x"), indent=2, sort_keys=True)
+-d = json.load(open(f"{cfg}/native-instance-handoffs-2.unbound.json")); d["line_declared_base"] = d["canonical_target_id"] = sha
+-json.dump(d, open(f"{cfg}/native-instance-2-{sha[:8]}.json", "x"), indent=2, sort_keys=True)
+-t = json.load(open(f"{cfg}/native-installed-task-handoffs-2.unbound.json")); t["declared_base"] = sha
+-json.dump(t, open(f"{cfg}/native-installed-task-2-{sha[:8]}.json", "x"), indent=2, sort_keys=True)
+-print("bound", sha, json.dumps(bound["candidates"]))
+-PY
+-```
+-Expected: `bound <SHA> {...}` naming both accepted trees; three new files (`native-bound-2.json`, the bound instance and task documents). A mismatch stops here: nothing after A runs against a checkpoint that does not carry the accepted bytes. Every later block begins by reading `SHA` from the bound file:
+-```sh
+-cd /home/sl/src/baton && export GIT_OPTIONAL_LOCKS=0 && set -o pipefail
+-CFG=work/records/2026/10/finding-v12-development-coordination-pilot/config; EV=work/records/2026/10/finding-v12-development-coordination-pilot/evidence
+-SHA=$(python3 -I -c "import json;print(json.load(open('$CFG/native-bound-2.json'))['sha'])"); test "$(git rev-parse HEAD)" = "$SHA" && test "$(git status --porcelain -- v12 | wc -l)" = 0   # unchanged source before consuming it
++cd /home/sl/src/baton && bash work/records/2026/10/finding-v12-development-coordination-pilot/config/native-handoffs-2-qualify.sh STEP
+ ```
+ 
+-**B. Prerequisite correction (§2):** the composer candidate's independent review (codexpc) and the owner's checkpoint; step A's byte check is what proves it is in `SHA`.
++**How the helper guards (review 2026-11-21T00-55-22Z C3.3).** `set -euo pipefail` for the whole file: a failed guard, a failed pipeline (the gate's own status, not `tee`'s) or a failed command ends the step with that command's status and nothing after it runs; there is no `echo "exit=$?" | tee` anywhere, so a status is never reported and then discarded. Every consuming step begins with `check`: `v12/` clean (`git status --porcelain -- v12` empty), `HEAD` equal to the SHA in `config/native-bound-2.json`, and `native-handoffs-2-bind.py --check` re-proving that the binding describes that SHA with the pinned accepted manifests. A failed `check` refuses with exit 2 before `just`, `docker`, the bundle or the instance is touched (`checks/test_qualify.py::TheHelperStopsAtTheFirstFailure.test_a_moved_head_refuses_every_consuming_step_before_any_action`: all seven consuming steps refuse on a moved `HEAD` with zero stub calls). Pasting any single step is safe: the file is run as a script (`bash file STEP`), so its `set -e` never leaks into the caller's shell, and it `cd`s to the checkout itself.
+ 
+-**C. Host bundle and packaging gate (K, on selection).** Roots outside the checkout (the integration run showed in-checkout `TMPDIR` refuses deployment-composing tests).
+-```sh
+-# (the A-prefix block: cd, pipefail, CFG/EV, SHA from native-bound-2.json, HEAD and clean checks)
+-G=$EV/checkpoint-${SHA:0:8}-packaging; mkdir -p /var/tmp/baton-v12-handoffs-2/packaging /var/tmp/baton-v12-handoffs-2/tmp "$G"
+-env TMPDIR=/var/tmp/baton-v12-handoffs-2/tmp BATON_V12_STACK_TEST_ROOT=/var/tmp/baton-v12-handoffs-2/packaging BATON_V12_DISK_ROOT=/var/tmp/baton-v12-handoffs-2/packaging \
+-  just --justfile v12/justfile test-packaging 2>&1 | tee "$G/build-and-gate.log"; echo "exit=$?" | tee -a "$G/build-and-gate.log"   # pipefail: the gate's own status, not tee's
+-cat v12/python/packaging/build-stamp.json | tee "$G/build-stamp.json"     # expect "commit": "$SHA", "dirty": false
+-v12/python/build/out/distro/baton-v12-stack --version | tee "$G/version.txt"   # expect: baton 12.0.0 (${SHA:0:8})
+-v12/python/build/out/distro/baton-v12-stack identity | tee "$G/bundle-identity.json"; sha256sum v12/python/build/out/distro/baton-v12-stack | tee "$G/distro-sha256.txt"
+-v12/python/build/out/distro/baton-v12-stack pool compose-worker --help | grep -c -- --template   # expect 1
+-```
+-Expected: `Ran 24 tests … OK`, no skips (the pre-commit integration gate ran 24 OK in 22 s on the same bytes).
++**A. `bind` (K, read-only on Git).** ONE owner-checkpoint identity, written down once, bound to the accepted BYTES of both reviewed candidates. The two accepted packets describe overlapping path sets — the composer correction (`evidence/native-handoffs-composer/manifest.json`, sha256 `fa01b73d811ffabee510d333f18a97153ab197a21bf16ea32f92736be8ce1e77`, 12 paths, tree `bb5fa705…`) and the first slice (`evidence/native-handoffs-1-correction-2/manifest.json`, sha256 `4925897d2bdf6e343d6eac229544b7c2c308f31fbf59ce01ec8b70b9c2aafd24`, 36 paths, tree `f62bbaab…`) — and they DISAGREE on five paths (`v12/STACK.md`, `job_manager/role_capability.py`, `tools/stage_execution.py`, `tests/tools/test_connected_creation.py`, `tests/tools/test_native_handoffs.py`: the review's `qualification-conflicts.json`), because the composer candidate was built on the slice and changed them. The previous packet text checked both manifests independently and could therefore never pass. `native-handoffs-2-bind.py` instead:
+ 
+-**D. Worker image rebuild and image gate (O: engine build; K may run the gate on selection).** The accepted W325695 build form with the tag that names the checkpoint:
+-```sh
+-# (the A-prefix block)
+-R=/home/sl/src/baton/$EV/worker-image-${SHA:0:8}; mkdir -p "$R"    # ABSOLUTE evidence root, so a later `cd` cannot move the log
+-timeout 1800s docker build --pull=false --memory 2g --cpu-period 100000 --cpu-quota 100000 --iidfile "$R/image.id" -t baton-v12-worker:${SHA:0:8} -f v12/worker/Dockerfile.claude v12 > "$R/build.log" 2>&1; echo "exit=$?" | tee "$R/build-exit.txt"
+-IMAGE="sha256:$(cut -d: -f2 "$R/image.id")"; docker image inspect "$IMAGE" --format '{{json .Id}} {{json .Config.Entrypoint}} {{json .Config.User}} {{json .Created}}' | tee "$R/inspect.json"
+-docker run --rm --network none --entrypoint sha256sum "$IMAGE" /opt/baton/claude_agent.py /opt/baton/baton_worker.py | tee "$R/adapter-in-image.sha256"
+-git show "$SHA:v12/worker/claude_agent.py" | sha256sum; git show "$SHA:v12/worker/baton_worker.py" | sha256sum   # expect: equal to the two digests above, the checkpoint's own bytes
+-(cd v12/python && env TMPDIR=/var/tmp/baton-v12-handoffs-2/tmp PYTHONPATH=src /home/sl/.local/state/baton-v12-venv/bin/python -m unittest -v tests.manager.test_dogfood_image 2>&1 | tee "$R/image-gate.log"; echo "exit=$?" | tee -a "$R/image-gate.log")   # builds its own copy from the same recipe and probes it; needs network for the build
+-```
+-Expected: a new image id (not `f2b86df0…`), entrypoint `python3 /opt/baton/dogfood_entry.py`, non-root user, adapter bytes equal the checkpoint's, image gate OK. The `-t` tag is the operator's handle; the DIGEST is what the worker documents bind.
++1. admits each manifest ONLY at its pinned SHA256 above (a changed manifest refuses before any path is read);
++2. computes the overlap and holds it to the review's five-path enumeration (a different overlap refuses: nobody reviewed precedence over it);
++3. builds the JOINED map of 43 paths — the composer's digest on all 12 of its paths including the 5 overlaps, the slice's digest on its 31 untouched paths — and reads each path's bytes at `SHA` through `git show SHA:path`;
++4. writes `config/native-bound-2.json` (schema `k.native-handoffs-2-binding/2`: the SHA, both manifest digests, the overlap and its precedence, every path's digest and owner) ONLY when all 43 agree; any disagreement names every disagreeing path with found/accepted/owner and exits 2 with nothing written.
+ 
+-**E. Install, task, workers, repeat (O: install and repeat; K: task and composition).** The native-handoffs-1 flow (`evidence/native-handoffs-kickoff-20261120/PACKET.md` §3 D–F) with: destination `native-handoffs-2`; the instance document carrying `native_handoff_routing`; the new image reference/digest from D; `pool compose-worker --template baton.v12.job-template.implementation-review/3`; participants unchanged (`impl-a`=`baton.claude-native`, `review-a`=`baton.reviewer-native`), verifier layout `1423c3aa…`, credential `claude=operator-file:w202663-development` by reference, network `bridge`, group `1001`, record `work/records/2026/11/finding-v12-native-agent-handoffs-discovery`.
+-```sh
+-# (the A-prefix block)
+-DEST=/home/sl/baton-instances/native-handoffs-2; CFG=/home/sl/src/baton/$CFG
+-IMAGE="sha256:$(cut -d: -f2 $EV/worker-image-${SHA:0:8}/image.id)"
+-just --justfile v12/justfile bootstrap $CFG/native-instance-2-${SHA:0:8}.json $DEST v12/python/build/out/distro   # O
+-cat $DEST/authority-identity.json; python3 -I -c "import json;d=json.load(open('$DEST/instance.json'));print(d['authority_uuid'],d['identity']['build_stamp'],d['identity']['sha256'])"
+-just --justfile $DEST/justfile status; just --justfile $DEST/justfile repository   # expect: not serving, 0 workers, 0 Jobs; target holds $SHA; install output carried "routing  reviewer baton.reviewer-native, decisions to baton.slaw"
+-mkdir -p $DEST/state/task && cp -n $CFG/native-installed-task-2-${SHA:0:8}.json $DEST/state/task/installed-task.json
+-for W in "impl-a implementation baton.claude-native" "review-a review baton.reviewer-native"; do set -- $W
+-"$DEST/distro/baton-v12-stack" pool compose-worker --deployment $DEST/deployment.json --worker-id $1 --role $2 --participant $3 \
+-  --template baton.v12.job-template.implementation-review/3 \
+-  --image-reference baton-v12-worker:${SHA:0:8} --image-digest "$IMAGE" --cli-build 2.1.247 --network bridge \
+-  --credential-sources /home/sl/.baton/credential-sources.json --credential claude=operator-file:w202663-development \
+-  --workspace-group 1001 --task-document $DEST/state/task/installed-task.json \
+-  --record work/records/2026/11/finding-v12-native-agent-handoffs-discovery --checkout /home/sl/src/baton \
+-  --verifier-layout /home/sl/src/baton/v12/worker/verifier-layout-marker.json --into $CFG/$1-2-${SHA:0:8}.json | tee $CFG/$1-2-${SHA:0:8}-compose.log; done
+-# expect per worker a "template  baton.v12.job-template.implementation-review/3 declaring proposal, handoff, findings, logs, response" line
+-python3 -I - "$SHA" "$CFG" "$DEST" "$IMAGE" <<'PY'
+-import json, sys
+-sha, cfg, dest, image = sys.argv[1:5]
+-d = json.load(open(f"{cfg}/native-instance-2-{sha[:8]}.json"))
+-dep = json.load(open(f"{dest}/deployment.json"))
+-for k in ("integration_target", "integration_workspace"): d[k] = dep[k]
+-uuid = json.load(open(f"{dest}/authority-identity.json"))["authority_uuid"]
+-d["workers"] = []
+-for w in ("impl-a", "review-a"):
+-    held = json.load(open(f"{cfg}/{w}-2-{sha[:8]}.json")); m = held["deployment"]["input_manifest"]
+-    assert held["deployment"]["schema"] == "baton.v12.single-worker-deployment/6", held["deployment"]["schema"]
+-    assert [o["name"] for o in m["outputs"]] == ["proposal", "handoff", "findings", "logs", "response"], m["outputs"]
+-    assert all(o["required"] is False for o in m["outputs"])
+-    assert held["deployment"]["image_digest"] == image and m["work_ref"]["authority_uuid"] == uuid
+-    d["workers"].append(held)
+-assert "native_handoff_routing" in d
+-json.dump(d, open(f"{cfg}/native-workers-2-{sha[:8]}.json", "x"), indent=2, sort_keys=True); print("wrote", f"{cfg}/native-workers-2-{sha[:8]}.json")
+-PY
+-just --justfile v12/justfile bootstrap $CFG/native-workers-2-${SHA:0:8}.json   # O: the repeat; expect "routing  reviewer baton.reviewer-native, decisions to baton.slaw", two sources cloned and proved, "answer   answer-handoff to baton.reviewer-native" once a Job binds a Work
+-just --justfile $DEST/justfile status   # expect: 2 workers, 0 Jobs, not serving
+-```
++Then the `bind` step derives the bound instance and task documents (`native-instance-2-<sha8>.json` with `line_declared_base`/`canonical_target_id` = SHA, `native-installed-task-2-<sha8>.json` with `declared_base` = SHA) from the prepared unbound documents, with `open(…, "x")` so a second `bind` cannot overwrite a binding.
+ 
+-**F. Ordinary `/3` creation (O).** Same operand provenance as the handoffs-1 packet §3 G, with the native template and profile. This packet SELECTS creation on the stopped instance (so the first start observes the Job from its first tick); ordinary creation while serving is DESIGN's contract and is not claimed impossible here. `JOB` and `STMT` are the two PENDING SELECTIONS — the Job identity (also the task name) and the statement file (a SMALL useful development task that can plausibly raise one in-scope clarification) — set by the coordinator before this block runs; they are not bound by this packet.
+-```sh
+-DEST=/home/sl/baton-instances/native-handoffs-2; BIN="$DEST/distro/baton-v12-stack"
+-UUID=$(python3 -I -c "import json;print(json.load(open('$DEST/authority-identity.json'))['authority_uuid'])")
+-JOB=PENDING-SELECTION             # the coordinator's selection; the block refuses to run until set
+-STMT=/PENDING/statement.txt       # the coordinator's selection, byte-exact statement
+-test "$JOB" != PENDING-SELECTION && test -f "$STMT"
+-just --justfile $DEST/justfile status          # expect: not serving (this packet's selection, not a requirement of creation)
+-"$BIN" manager --store $DEST/db/jobs.sqlite3 --incarnation slaw-create-handoffs-2 --authority-uuid "$UUID" \
+-  create --instance $DEST --control $DEST/db/control.sqlite3 --authority $DEST/db/authority.sqlite3 \
+-  --task "$JOB" --job-id "$JOB" --template baton.v12.job-template.implementation-review/3 --control-profile native-handoff/1 \
+-  --statement "$(cat "$STMT")" \
+-  --acceptance "The Job's own acceptance criterion as stated." \
+-  --work-scope v12/python --test-scope v12/python/tests \
+-  --verification env --verification BATON_V12_STACK_TEST_ROOT=/scratch --verification BATON_V12_DISK_ROOT=/scratch \
+-  --verification PYTHONPATH=v12/python/src:v12/python --verification python3 --verification=-m --verification unittest --verification=-v \
+-  --verification tests.job_manager.test_job_control
+-```
+-Expected readback (the create answer): `template.version` `…/3`, `control.profile` `native-handoff/1` (one continuation), `servable` `{implementation: [impl-a], review: [review-a]}`. Then, read-only: `"$BIN" manager --store $DEST/db/jobs.sqlite3 --incarnation slaw-view --authority-uuid "$UUID" view --job "$JOB"` shows the Job handoff-capable; the Authority holds `answer-handoff` for `baton.reviewer-native` in the Work's scope and NOT `review` for it (`"$BIN" work --authority $DEST/db/authority.sqlite3 …` grants listing, or the bootstrap repeat's own "answer" line). The acceptance, scopes and verification above are the executable minimum; the coordinator widens them with the selected statement.
++Proved without building, installing or launching (`checks/test_qualify.py`, 14 checks, `checks/logs/check-run-6.log` OK; each check runs the REAL `native-handoffs-2-bind.py` and the REAL `native-handoffs-2-qualify.sh` against a disposable git repository under `/var/tmp` that carries the joined accepted bytes copied from the two packets, with recording stand-ins for `just`, `docker` and the bundle on `PATH`):
++- the joined candidate binds, with the five overlaps at the composer's digests and the 31 slice-only paths at the slice's, and the re-check passes (`test_the_joined_candidate_binds_and_names_both_manifests`);
++- a tree at `331dd737` bytes (the slice without the composer correction) refuses naming all 12 composer paths and writes nothing (`test_the_checkpoint_before_the_correction_refuses_naming_every_composer_path`); the same refusal, on the REAL host checkout at `HEAD = 331dd737`, is captured verbatim in `checks/logs/host-bind-refusal.log` (12 paths, exit 2, no bound file written) — the correct answer today, since the composer candidate is not yet committed;
++- one drifted slice path refuses naming it alone (`test_one_drifted_slice_path_refuses_and_writes_nothing`); a manifest that is not the pinned one refuses before any path (`test_a_manifest_that_is_not_the_pinned_one_is_refused_before_anything`); a binding whose SHA moved on is refused by `--check` (`test_a_stale_binding_is_refused_by_the_check`);
++- the REAL bind script run with `--tree` over the isolated composer candidate directory (the bytes codexpc reviewed, `work/scratch/w383217/composer/candidate`) binds 43 paths with the composer's precedence (`checks/logs/candidate-tree-bind.log`, `checks/candidate-tree-bind.example.json`) — the positive proof on real bytes, at `--sha 331dd737` as a label only.
+ 
+-**G. Live run (O: start; the live selection of §4).**
+-```sh
+-just --justfile $DEST/justfile start; just --justfile $DEST/justfile status; just --justfile $DEST/justfile monitor 10
+-```
+-Observation is read-only through `status`, `monitor`, `$DEST/state/status.json` and the retained outputs; K reports on T321608. Expected native evidence: the implementation stage reaching `awaiting-answer` (if the provider asks) with one `clarification-request` message in the Authority addressed to `baton.reviewer-native`, the review stage ending in `answered` with one reply, the resumed attempt's `handoff.json` carrying the continuation text, then an ordinary final submission and review — or a straight final submission if the provider never asks (which qualifies the runtime for the final-submission branch only; see §4).
++Expected on the accepted checkpoint: `bound <SHA>: 43 paths (12 composer incl. 5 overlap at composer bytes, 31 slice-only) -> …/native-bound-2.json`, `bound documents written for <SHA>`.
++
++**B. Prerequisite correction (§2):** the composer candidate's independent review (codexpc) and the owner's checkpoint; step A's byte check is what proves it is in `SHA`. Until then, `bind` refuses exactly as `host-bind-refusal.log` shows.
++
++**C. `bundle` (K, on selection).** After `check`: `just --justfile v12/justfile test-packaging` with roots outside the checkout (`TMPDIR`, `BATON_V12_STACK_TEST_ROOT`, `BATON_V12_DISK_ROOT` under `/var/tmp/baton-v12-handoffs-2/`), logged to `evidence/checkpoint-<sha8>-packaging/build-and-gate.log`; then the stamp is asserted `commit == SHA, dirty == false` by a Python check (not a comment); `--version`, `identity`, the distro sha256 and `pool compose-worker --help | grep -c -- --template >= 1` are captured. Checks: a failing gate ends the step with the gate's own status 7 and writes nothing after the log (`test_a_failed_gate_pipeline_ends_the_bundle_step_with_its_status`); a green gate with a dirty stamp fails before the version capture (`test_a_dirty_or_foreign_stamp_fails_the_bundle_step_after_a_green_gate`); a green gate, clean stamp and bundle pass with all five captures (`test_a_green_gate_with_a_clean_stamp_and_bundle_passes`). Expected live: `Ran 24 tests … OK`, no skips.
++
++**D. `image` (O: engine build; K may run the gate on selection).** After `check`: the accepted W325695 build form (`docker build --pull=false --memory 2g --cpu-period 100000 --cpu-quota 100000 --iidfile … -t baton-v12-worker:<sha8> -f v12/worker/Dockerfile.claude v12`) logged under the absolute `evidence/worker-image-<sha8>/`; `docker image inspect` of the DIGEST; `sha256sum` of `claude_agent.py` and `baton_worker.py` inside the image compared by the helper against `git show SHA:…` (a mismatch refuses); then `tests.manager.test_dogfood_image`. Check: a failed build ends the step at the build with its status 3 and no inspection (`test_a_failed_image_build_ends_the_image_step_before_inspection`). Expected: a new image id (not `f2b86df0…`), entrypoint `python3 /opt/baton/dogfood_entry.py`, non-root user, adapter bytes equal the checkpoint's, image gate OK. The `-t` tag is the operator's handle; the DIGEST is what the worker documents bind.
++
++**E. `install` (O), `compose` (K), `repeat` (O).** The native-handoffs-1 flow (`evidence/native-handoffs-kickoff-20261120/PACKET.md` §3 D–F) with: destination `native-handoffs-2`; the bound instance document carrying `native_handoff_routing`; the image digest from D; `pool compose-worker --template baton.v12.job-template.implementation-review/3`; participants unchanged (`impl-a`=`baton.claude-native`, `review-a`=`baton.reviewer-native`), credential `claude=operator-file:w202663-development` by reference, network `bridge`, group `1001`, record `work/records/2026/11/finding-v12-native-agent-handoffs-discovery`.
++- `install`: `just --justfile v12/justfile bootstrap $CFG/native-instance-2-<sha8>.json $DEST v12/python/build/out/distro`, then the instance's `build_stamp` asserted `commit == SHA, dirty == false`, then `status` and `repository` (expect: not serving, 0 workers, 0 Jobs; install output carried `routing  reviewer baton.reviewer-native, decisions to baton.slaw`).
++- `compose`: the EXPECTED declaration order is read from the bound checkout's own product — `role_contract.contract_for(role_contract.HANDOFF_TEMPLATE)["outputs"]` names — never typed (review C3.2; the previous text typed `proposal, handoff, findings, logs, response`, which is not the contract's order `proposal, findings, logs, handoff, response`). Each worker is composed with `--template …/3` into `$CFG/<worker>-2-<sha8>.json` with its compose log; the Python check then asserts, per worker, schema `single-worker-deployment/6`, outputs == the contract's names in the contract's order, none required, the image digest from D, the Authority UUID, and the report line `declaring <the contract's names>` in the compose log, and only then writes `native-workers-2-<sha8>.json` (with `native_handoff_routing`). Check: a stand-in bundle declaring the stale order fails the step with the contract's order named and writes no workers document; the contract's order composes through (`test_a_composition_declaring_another_order_fails_the_compose_step`).
++- `repeat`: `just --justfile v12/justfile bootstrap $CFG/native-workers-2-<sha8>.json`, then `status` (expect: `routing …`, two sources cloned and proved, 2 workers, 0 Jobs, not serving; the `answer   answer-handoff to baton.reviewer-native` line appears once a Job binds a Work).
++
++**F. `create` (O).** Same operand provenance as the handoffs-1 packet §3 G with the native template and profile. This packet SELECTS creation on the stopped instance (so the first start observes the Job from its first tick); ordinary creation while serving is DESIGN's contract and is not claimed impossible here. `JOB` and `STMT` are the two PENDING SELECTIONS, passed as environment: `JOB=<job id> STMT=<statement file> bash … create`. The step REFUSES (exit 2, before `status` or the command) when `JOB` is unset or `PENDING-SELECTION`, or `STMT` is unset or not a file (`test_a_pending_selection_refuses_the_create_step_before_the_command`: three variants, zero stub calls). Then after `check`: `status`; `manager … create --template …/3 --control-profile native-handoff/1 --statement "$(cat "$STMT")" …` with the answer captured to `$Q/create-<JOB>.json`; then a read-only readback through the product's own API (`Authority.open_readonly` with the expected UUID): the answer's `template.version` is `…/3` and `control.profile` is `native-handoff/1`, `native_routing()` is the configured pair, and in `project_work(answer["work_id"])["scope"]` the reviewer holds `answer-handoff` and NOT `review` — the exact assertion the accepted connected-creation test makes (`TheNativeRoutingThroughTheRealInstaller.test_a_fresh_install_and_an_ordinary_creation_install_the_scoped_grant`). `ACCEPTANCE` may be passed in the environment; the acceptance, scopes and verification are the executable minimum the coordinator widens with the selected statement. (The former `manager view` readback is withdrawn: the installed bundle has no `view` verb — `submit, fresh-attempt, create, status, serve`.)
++
++**G. `start` (O: the live selection of §4).** After `check`: `just --justfile $DEST/justfile start`, then `status`. Observation is read-only through `status`, `monitor`, `$DEST/state/status.json` and the retained outputs; K reports on T321608. Expected native evidence: the implementation stage reaching `awaiting-answer` (if the provider asks) with one `clarification-request` message in the Authority addressed to `baton.reviewer-native`, the review stage ending in `answered` with one reply, the resumed attempt's `handoff.json` carrying the continuation text, then an ordinary final submission and review — or a straight final submission if the provider never asks (which qualifies the runtime for the final-submission branch only; see §4).
++
++**What the checks do not prove.** They stand in `just`, `docker` and the bundle; they prove the helper's control flow, the binding's byte logic on the real accepted manifests and candidate bytes, and the compose check's reading of the real contract. They do not prove the gate, the image or the installer themselves — those are what the steps run, on selection, on the accepted checkpoint.
+ 
+ ## 4. The specific question that requires a live provider, stated separately
+ 
+@@ -174,4 +87,14 @@
+ 
+ ## 5. Preserved and not done
+ 
+-`native-handoffs-1` (its failed Job and retained candidate), `native-labels-{1..5}` and every other destination untouched; no image built, no bundle built, no install, no instance started, no store opened; no credential read (reference only); the status-timeout finding stands. Files: `PACKET.md`, `source-state.txt`, `config/native-instance-handoffs-2.unbound.json` (with `native_handoff_routing`, accepted by `bootstrap.held`), `config/native-installed-task-handoffs-2.unbound.json`.
++`native-handoffs-1` (its failed Job and retained candidate), `native-labels-{1..5}` and every other destination untouched; no image built, no bundle built, no install, no instance started, no store opened; no credential read (reference only); the status-timeout finding stands. The `bind` step was run against the real checkout ONLY to capture its refusal (`checks/logs/host-bind-refusal.log`; `HEAD = 331dd737` does not carry the composer bytes); it wrote no bound file. Files: `PACKET.md`, `source-state.txt`, `config/native-instance-handoffs-2.unbound.json` (with `native_handoff_routing`, accepted by `bootstrap.held`), `config/native-installed-task-handoffs-2.unbound.json`, `config/native-handoffs-2-bind.py`, `config/native-handoffs-2-qualify.sh`, `checks/test_qualify.py`, `checks/logs/` (`check-run-1..6.log`: the first three runs are the check's own development — a wrong checkout depth, then stand-in build output dirtying the fixture tree until it carried the checkout's own ignore rules; run 6 is the 14-check OK), `checks/candidate-tree-bind.example.json`.
++
++## 6. Packet history (distinct immutable locators)
++
++| Round | Text | Reviewed as |
++|---|---|---|
++| 1 | `history/PACKET-r1-331dd737.md` is NOT held: the first cut (M385374) was refreshed in place into round 2 before the reviewer's snapshot; the refresh is described in the round-2 header | M385374 → M385379 (indirect) |
++| 2 | `history/PACKET-r2-reviewed-385384.md` (sha256 `bc2f6368…`), byte-identical to the reviewer's `evidence/review-385384/reviewed-qualification.md` | M385381 → review 2026-11-21T00-55-22Z (C3 open) |
++| 3 | this file; exact delta from round 2: `history/PACKET-r2-to-r3.diff` | this handoff |
++
++The composer product packet's own overwrite (round 1 replaced by round 2 at `evidence/native-handoffs-composer/`) and the reviewer's recovery are recorded in `evidence/native-handoffs-composer/HISTORY.md`; that locator is immutable at round 2 from now on, and this round changes no product byte.

@@ -124,10 +124,16 @@ class HandoffJobCase(composed.ComposedOneJobCase):
         # composes the shared three: each role writes its own half and answers
         # the rest `missing-optional`, and none is required.
         manifest = copy.deepcopy(self.config["input_manifest"])
-        held = manifest["outputs"][0]
-        manifest["outputs"] = [dict(held, name=name, type=kind, path=name,
-                                    required=False)
-                               for name, kind in HANDOFF_OUTPUTS]
+        # THE `/3` CONTRACT'S OWN DESCRIPTORS, verbatim (review
+        # 2026-11-20T23-15-20Z C1/C2): a `/3` Job is admitted and dispatched
+        # only to lanes whose declarations ARE the selected contract's, so the
+        # fixture declares exactly what `pool compose-worker --template …/3`
+        # composes -- never a clone of the stage fixture's proposal specimen.
+        manifest["outputs"] = copy.deepcopy(
+            role_contract.contract_for(role_contract.HANDOFF_TEMPLATE)
+            ["outputs"])
+        assert [one["name"] for one in manifest["outputs"]] == \
+            [name for name, _kind in HANDOFF_OUTPUTS]
         manifest.pop("manifest_digest")
         manifest["manifest_digest"] = digest(manifest)
         self.config["input_manifest"] = manifest

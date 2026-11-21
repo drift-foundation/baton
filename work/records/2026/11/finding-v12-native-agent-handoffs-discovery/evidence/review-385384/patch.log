@@ -1,0 +1,12 @@
+patching file v12/python/src/baton_v12/job_manager/creation.py
+patching file v12/python/src/baton_v12/job_manager/role_capability.py
+patching file v12/python/tests/job_manager/test_creation.py
+patching file v12/python/tests/tools/test_connected_creation.py
+patching file v12/python/tests/tools/test_native_handoffs.py
+patching file v12/python/tests/tools/test_pool.py
+patching file v12/python/tools/creation_ports.py
+patching file v12/python/tools/fresh_attempt_ports.py
+patching file v12/python/tools/next_run_bindings.py
+patching file v12/python/tools/pool.py
+patching file v12/python/tools/stage_execution.py
+patching file v12/STACK.md

@@ -88,7 +88,8 @@ import sqlite3
 from ..contracts import ContractRefusal, digest
 from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
-from . import documents, execution_limits, submission, templates
+from . import (documents, execution_limits, role_capability, role_contract,
+               submission, templates)
 from .store import job_signature
 
 __all__ = ["ACQUIRE_KIND", "CREATE_KIND", "DERIVATION_MEMBERS",
@@ -109,6 +110,12 @@ DERIVATION_MEMBERS = ("work_id", "input_digest", "policy_digest", "profiles")
 # installed task, which is the behaviour every Job had before this and is
 # preserved rather than broken.
 TASK_MEMBERS = ("task_document", "input_manifest")
+# W385331 (review 2026-11-20T23-15-20Z C1): what each configured lane DECLARES,
+# `{role: {worker_id: outputs}}`, as the deployment's own actual composed
+# inputs. Optional in the derivation's shape, because a derivation port that
+# predates this member still answers for the baseline workflow; a template that
+# binds a result contract REQUIRES it, below.
+DECLARATION_MEMBERS = ("declarations",)
 PROFILE_MEMBERS = ("profile_name", "profile_digest")
 
 # The one source a creation may select: the one this instance installed. An
@@ -231,6 +238,10 @@ def create_template_job(store, operations, *, request, derivation,
         # twice and compared them, which is how R2's replay came to depend on
         # a fact the caller never stated.
         derived, resolution = _resolved(asked, derivation)
+        # BEFORE THE FIRST EFFECT: no reservation, no Work, no binding has
+        # been made yet, and a Job the configured lanes cannot serve under the
+        # selected result contract is refused right here (W385331 C1).
+        _declared_contract(derived, resolution["template"]["version"])
         # W29401: THE LABELS TRAVEL WITH THE DERIVED MEMBERS and deliberately
         # NOT with the three in `operands` above: `_intent_of` is what the
         # replay signature is taken over, and the labels are already inside
@@ -629,7 +640,7 @@ def _derived(derivation, selection=None):
     taken = boundaries.document(answered,
                                 "this deployment's derived Job facts",
                                 required=DERIVATION_MEMBERS,
-                                optional=TASK_MEMBERS)
+                                optional=TASK_MEMBERS + DECLARATION_MEMBERS)
     present = [one for one in TASK_MEMBERS if one in taken]
     if present and len(present) != len(TASK_MEMBERS):
         _refuse(f"this deployment derived {', '.join(present)} without "
@@ -659,6 +670,52 @@ def _derived(derivation, selection=None):
         boundaries.document(taken["input_manifest"],
                             "a derived per-Job input manifest")
     return taken
+
+
+def _declared_contract(derived, version):
+    """DESIGN, development role-contract admission (owner 2026-10-28):
+    "Before fresh creation effects, the Job manager MUST validate that
+    contract against ... the actual composed inputs."
+
+    W385331, review 2026-11-20T23-15-20Z C1. The first composer cut let an
+    ordinary `/3` creation succeed against workers that declared the legacy
+    single output; the adapter then refused at the first turn, after the
+    reservation, the Work and the binding were durable. The actual composed
+    inputs are the deployment's own declarations (`derived["declarations"]`,
+    `{role: {worker_id: outputs}}`), and the rule they are held to is
+    `role_capability.declared_result_contract`, the one owned exactness --
+    never a comparison written here.
+
+    THE BASELINE WORKFLOW IS UNCHANGED. A template bound to no descriptor, or
+    to the baseline one (`/1`, `/2`), asks nothing: every installed instance
+    declares the proven legacy shape for it, and `_servable` still asks the
+    selector the question it always asked. A handoff-capable template REQUIRES
+    the declarations and refuses, naming the lane, when a deployment states
+    none or states different ones.
+    """
+    contract = role_contract.contract_for(version)
+    if contract is None or not role_contract.is_handoff_capable(version):
+        return None
+    declarations = derived.get("declarations")
+    if type(declarations) is not dict:
+        _refuse(f"template {name_value(version)} binds the result contract "
+                f"{name_value(contract['schema'])} and this deployment states "
+                f"no worker declarations to hold to it; a Job is admitted "
+                f"against the actual composed inputs or not at all",
+                category="refused", code="precondition")
+    for declared in contract["roles"]:
+        role = declared["role"]
+        lanes = declarations.get(role)
+        if type(lanes) is not dict or not lanes:
+            _refuse(f"template {name_value(version)} declares the {role} "
+                    f"role and this deployment states no {role} worker "
+                    f"declarations; a required role with no lane cannot be "
+                    f"served", category="refused", code="precondition")
+        for worker_id in sorted(lanes):
+            role_capability.declared_result_contract(
+                contract, lanes[worker_id],
+                what=f"the configured {role} worker {name_value(worker_id)}")
+    return contract
 
 
 def _servable(binding, resolution, *, reserved, task=None):
@@ -701,9 +758,16 @@ def _servable(binding, resolution, *, reserved, task=None):
     entry = resolution["submission"]["jobs"][0]
     answered = {}
     empty = []
+    version = resolution["template"]["version"]
     for stage in entry["stages"]:
+        # THE SELECTED TEMPLATE TRAVELS WITH THE QUESTION for a handoff-capable
+        # workflow, so the selector holds each lane's declarations to the
+        # contract (W385331 C1); a baseline template asks exactly what it
+        # always asked.
+        selection = ({"template": version}
+                     if role_contract.is_handoff_capable(version) else {})
         held = binding.serving(entry["job_id"], stage=stage, job=entry,
-                               task=task)
+                               task=task, **selection)
         answered[stage["kind"]] = sorted(held or ())
         if not held:
             empty.append(stage["kind"])

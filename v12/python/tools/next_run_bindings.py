@@ -387,7 +387,7 @@ def deployment_identities(*, image_reference, image_digest, cli_build,
 
 def input_manifest(vectors, *, authority_uuid, work_id, policy_digest,
                    profile_digest, image_digest, task_bytes, artifact_id,
-                   contextual, bound=None):
+                   contextual, bound=None, declared=None):
     """The frozen input manifest, from the published conformance vector, bound
     to one Authority, Work, policy, profile, image and task artifact, and
     resealed. Moved verbatim from `compose` (W321608) for the same reason as
@@ -438,6 +438,15 @@ def input_manifest(vectors, *, authority_uuid, work_id, policy_digest,
     manifest["outputs"] = [dict(held, name="proposal",
                                 type="git-change-proposal", path="proposal",
                                 required=True)]
+    # W385331 (M385374, the composer gap; review 2026-11-20T23-15-20Z C2): A
+    # SELECTED TEMPLATE'S OWN DECLARATION, when the composer names one.
+    # `declared` is the selected role contract's `outputs` -- complete output
+    # descriptors, the contract's own types, media and limits, every one
+    # optional -- and they are written VERBATIM: the generic specimen above is
+    # the legacy single declaration's and describes nothing else. Absent, the
+    # document is byte for byte what it always was.
+    if declared is not None:
+        manifest["outputs"] = [dict(one) for one in declared]
     # AND THE RESERVED RECEIPT DECLARATION the contextual worker answers.
     if contextual:
         manifest["outputs"].append({
