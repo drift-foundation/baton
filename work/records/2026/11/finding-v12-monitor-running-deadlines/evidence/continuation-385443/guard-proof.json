@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "argv": [
+        "-C",
+        "/home/sl/src/baton/work/scratch/w385427/verification-git/run-mqcme7j7/fixtures/v12-w71917-proof/source",
+        "init"
+      ],
+      "accepted": true
+    },
+    {
+      "argv": [
+        "-C",
+        "/home/sl/src/baton",
+        "add",
+        "."
+      ],
+      "accepted": false
+    },
+    {
+      "argv": [
+        "clone",
+        "/home/sl/src/baton",
+        "/home/sl/src/baton/work/scratch/w385427/verification-git/run-mqcme7j7/fixtures/v12-w71917-proof/clone"
+      ],
+      "accepted": false
+    },
+    {
+      "argv": [
+        "-C",
+        "/home/sl/src/baton/work/scratch/w385427/verification-git/run-mqcme7j7/fixtures/v12-w71917-proof/source",
+        "push",
+        "origin",
+        "main"
+      ],
+      "accepted": false
+    },
+    {
+      "argv": [
+        "-C",
+        "/home/sl/src/baton/work/scratch/w385427/verification-git/run-mqcme7j7/fixtures/v12-w71917-proof/source",
+        "config",
+        "-z",
+        "core.hooksPath",
+        "/evil"
+      ],
+      "accepted": false
+    }
+  ],
+  "sandbox": "readonly refusal proved\n",
+  "fixture_run": "/home/sl/src/baton/work/scratch/w385427/verification-git/run-mqcme7j7"
+}

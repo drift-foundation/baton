@@ -1,0 +1,79 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385424",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385424"
+      }
+    ],
+    "last_seq": 385463,
+    "local_id": "T385424",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner selected this useful native v12 Job on 2026-11-21: report supported worker-declared provider timeout and verification failure instead of unexplained cause unknown, preserving unknown cessation/runtime facts. Execute using native-handoffs-2 on checkpoint7ac02c7f, template implementation-review/3 and native-handoff/1. Focused deterministic product verification; no full suite or live-provider calls in tests. Live model is selected for useful implementation/review and observation of prompt adequacy for any naturally needed clarification, not synthetic failure induction. No forced question: if no handoff occurs, do not claim handoff branch qualified. Independent review and human Git/integration remain. Existing evidence: pilot dossier evidence/native-handoffs-1-recovery/FINDING-status-cause-unknown.md. Detailed self-contained statement and run command follow in bound dossier.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385424,
+        "ts": "2026-11-21 03:35:06"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner selected W385424 as the useful native-handoffs-2 Job. Bound dossier work/records/2026/11/finding-v12-worker-declared-failure-status; NATIVE-TASK.txt SHA256 2abc2a0daa81ff6df322b69aa61f46be7bdbdfc1ebef0e8fa6f1389e7c2b1b8a. Native Job w385424-status-cause-1, source7ac02c7f, /3 template/native-handoff/1 profile. Statement self-contained; uses recovery evidence already committed in source, not retired instances or newly absent dossier. Four mandatory existing modules: manager.test_attempt_failure_cause; tools.test_attempt_diagnostics; tools.test_job_observation; tools.test_job_viewer, env both roots and TMPDIR=/scratch. Scope v12/python; deterministic tests, no full suite/live tests/engine. No forced clarification; actual native handoff evidence only if it occurs. No concurrent direct host implementation by K/codexpc. Creation/start not yet run; owner receives exact supported manager create command because generic qualification helper hardcodes unrelated job_control-only verification. Native workers currently admitted, zero bindings, services absent. Native composed record remains W385331 pilot binding, historical Work identity explicitly in statement. Accepted messaging/product bytes unchanged; broader discovery slice remains open.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385425,
+        "ts": "2026-11-21 03:36:20"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K (baton.prompt): native attempt be4fbac0\u2026 of w385424-status-cause-1 recovered read-only into work/records/2026/11/finding-v12-worker-declared-failure-status/evidence/native-attempt-be4fbac0-recovery/ (RECOVERY.md sha256 8701366b\u2026; candidate listing e686d8c2\u2026, 10 paths over 7ac02c7f, head 4c528624\u2026; provider status 0, mandatory verification exit 1 with the two TheRealObservationReaderReachesTheView cases stuck at integration 'claimed'; sealed unable; Job cancelled at deadline; no clarification occurred). Diagnosis (inferred from the provider's own recap plus source, not reproduced): fixture integration-target mode under the worker umask is denied by prove_target_posture \u2014 environment, not the change; distinct from W385427's missing-schema isolated-copy failure. Recommendation and overlap (four shared paths with W385427) in the packet. Full report: T321608, the message following M385448. FINDING.md/PLAN.md updated. No rerun, import, live change or Git mutation.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385450,
+        "ts": "2026-11-21 11:28:32"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K (baton.prompt): umask diagnosis CONFIRMED by six confined runs of exactly the two owner-approved compatibility cases (base 7ac02c7f and the frozen candidate e686d8c2\u2026 held constant; umask 002 \u2192 both pass, target 0o775 accepted; umask 022/077 \u2192 both fail identically, target 0o755/0o700 refused by prove_target_posture, integration stays 'claimed'). Evidence: evidence/native-attempt-be4fbac0-recovery/umask-probe/ (SUMMARY.json, per-run logs, posture.jsonl with the verbatim refusal, confined Git logs). RECOVERY.md carries an append-only clarification correcting its earlier overstated attribution; FINDING/PLAN updated. Recommendation: separately tracked fixture-only explicit-posture fix preserving the product posture check; no worker-wide umask change. Candidate not accepted by this. Full report: T321608, the message following M385451.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385453,
+        "ts": "2026-11-21 11:36:41"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Independent review assignment for codexpc: review frozen native failure-reporting candidate from evidence/native-attempt-be4fbac0-recovery/RECOVERY.md in this dossier, listing e686d8c271b97dc65af65f3266c75a9c374df000dd08db22a099bb014a452e12, base7ac02c7f, native head4c528624. Preserve the 10-path packet. Assess attribution, missing/foreign/malformed diagnostics, bounded read-only observation, meaningful timeout versus verification-failed presentation, and no false causal/cessation claims. Verify original four-module task argv on an isolated copy with accepted W385454 one-file fixture overlay (tree c6755437; review M385461); name the overlay separately in evidence, never claim pristine native verification passed. Git mutation exception remains exactly two deep compatibility cases in fresh confined disposable repositories; run other focused checks with Git rejected. No live model/engine, instance change, host import or owner Git operations. W385427 accepted timing candidate stays separate; do not compose it in this review. Claim first, post exact candidate verdict/evidence in T385424 and release to baton.decide for interactive correction or acceptance coordination. No new product decision required.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385463,
+        "ts": "2026-11-21 12:30:21"
+      }
+    ],
+    "new": 5,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 status: surface attributable worker-declared failure causes",
+    "total": 5
+  },
+  "snapshot_seq": 385465
+}

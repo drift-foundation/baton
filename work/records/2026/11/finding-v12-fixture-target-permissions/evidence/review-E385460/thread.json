@@ -1,0 +1,59 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385454",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385454"
+      }
+    ],
+    "last_seq": 385458,
+    "local_id": "T385454",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Confirmed by M385452: two real-reader compatibility tests pass at umask002 and fail at022/077 on both pristine7ac02c7f and frozen W385424 candidate. Fixture canonical target lacks group write/traversal. Bounded fixture-only correction: establish required target posture explicitly, preserve product posture refusal, no worker-wide umask change. Prove both exact cases under002/022/077 using approved fresh confined disposable Git fixtures; retain negative posture coverage. Keep W385424/W385427 immutable. Independent review and subsequent joined composition required; no host import, live execution or Git checkpoint authorized.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385454,
+        "ts": "2026-11-21 12:01:22"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K (baton.prompt, owner-held arrangement, no claim) \u2192 W385454: isolated FIXTURE-ONLY candidate ready for independent review; both approved cases pass under umasks 002, 022 and 077 under the established confinement; product posture checks and both feature candidates untouched; no host import.\n\nCANDIDATE. Base 7ac02c7f; ONE path, v12/python/tests/tools/test_stage_execution.py (base 25964738\u2026 \u2192 candidate 03a7710e\u2026); tree c6755437f3effa6f5ddc2fcc69e6235e46dd02a66428cdb844570fa09d94cc99; patch candidate-from-7ac02c7f.patch 0c752249\u2026 (107 lines). Packet: work/records/2026/11/finding-v12-fixture-target-permissions/evidence/candidate-K-20261121/ (HANDOFF.md b4260da6\u2026, manifest.json, base/, candidate/, candidate.sha256, logs/, umask-runs/, evidence.sha256 c659fbf2\u2026). Overlap with W385427 (tree 5348d4b3\u2026, manifest e29153d8\u2026) and W385424 (listing e686d8c2\u2026): none \u2014 neither touches this file; both pinned in manifest.json and unchanged.\n\nTHE CORRECTION. `establish_target_posture(case, place, gid)`: asserts the target directory's group IS the configured workspace group (never chowns; a foreign gid is a test failure, not a repair) and sets exactly S_IWGRP|S_IXGRP \u2014 the two bits oci_delivery.prove_target_posture requires \u2014 on top of the existing mode; idempotent. Called in `traversing()` right where the scenario nominates the fixture source repository as the canonical target, with os.getgid() (the gid the fixture configures as the workspace group). Four focused unit cases (run under umask 077): restrictive umask leaves the bits out and the helper puts exactly them back; only those bits change (0o2700\u21920o2730; 0o775 stays), idempotent; the product predicate's terms hold; foreign gid fails. `import stat` added. No product byte changed; prove_target_posture/compatible_target/the integration runtime's refusal untouched; negative coverage tests.manager.test_oci_integration.TheTargetPostureIsProvedAndNeverRepaired unchanged and passing. Not touched: the bare integration-workspace and the two other scenarios that hand self.source to integration_worker directly (not the confirmed path; noted).\n\nPROOF. (1) Exactly the two owner-approved cases on the corrected tree under the confinement (bubblewrap read-only host except one fresh run dir, no net, PID ns, caps dropped; W385427's fixture Git guard 28e29e31\u2026 first on PATH logging every invocation/target; TMPDIR+roots in the run's fresh fixtures/; prepared interpreter; harness = W385427's fixture_runner + process umask + a retention wrapper on prove_target_posture): fix-002 2/2 OK (target 0o775 accepted \u00d74), fix-022 2/2 OK (0o775 accepted \u00d74), fix-077 2/2 OK (0o730 accepted \u00d74); 442 confined Git invocations each, 0 refused, none outside the fixture roots (umask-runs/SUMMARY.json). Control: the same harness on the uncorrected base and the frozen W385424 candidate fails both under 022/077 (M385452 probe). (2) Focused: new class 4/4 + untouched negative posture class 3/3 = Ran 7 OK (Git shimmed out; logs/focused-posture-run2.log). Honest accounting: run 1 failed one NEW case on my own expectation (0o2770 where the helper correctly yields 0o2730 \u2014 write+traversal, not read); expectation corrected, helper unchanged; both logs retained. Not run: the whole test_stage_execution module / tools-pure group (their fixtures use disposable Git beyond the two approved cases; outside the exception) \u2014 reviewer's selection. Affected group: tools-pure.\n\nBOUNDARIES. No host import, live run, worker-wide umask/policy change, or Git mutation outside the fresh confined fixture roots under /var/tmp/baton-v12-w385454/. PROGRESS.md/PLAN.md in the W385454 dossier updated. Handoff condition: independent review of the one-path delta and the retained runs; after acceptance, serial composition W385427 + W385424 + this with joined review before any host import and human checkpoint. Cross-reference on T321608.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385456,
+        "ts": "2026-11-21 12:07:23"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Independent review assignment for codexpc: review K candidate tree c6755437f3effa6f5ddc2fcc69e6235e46dd02a66428cdb844570fa09d94cc99 over7ac02c7f, packet evidence/candidate-K-20261121 under this Work dossier. One changed file tests/tools/test_stage_execution.py. Verify exact custody, narrow setup boundary, group mismatch refusal, only required mode bits changed, no product checks weakened, and umask002/022/077 evidence. Use focused deterministic verification; the owner-approved Git exception remains exactly the two named compatibility cases in fresh confined disposable repositories, not the whole module. Retain both feature packets unchanged; no host import, live instance or Git changes beyond approved fixtures. Claim before review; post outcome and evidence in T385454, then pass corrections to the coordinator for interactive K or accepted result to baton.decide; verify claim release. This reviews the fixture correction only, not native acceptance or the W385424 feature.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385458,
+        "ts": "2026-11-21 12:08:19"
+      }
+    ],
+    "new": 3,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 compatibility fixtures: explicit integration target permissions",
+    "total": 3
+  },
+  "snapshot_seq": 385460
+}

@@ -167,16 +167,15 @@ class NothingIsInvented(ViewerCase):
             for episode in stage.get("episodes") or []:
                 episode["opened_at"] = None
         shown = self.listed(self.snapshot(document))
-        self.assertIn("elapsed unknown", shown)
+        self.assertIn("running unknown", shown)
 
-    def test_a_known_start_produces_a_real_elapsed(self):
-        """And the reversal of the case above: when the source time IS there,
-        it is used -- so `unknown` means missing rather than unimplemented."""
+    def test_episode_opening_is_not_an_invocation_start(self):
+        """An episode is opened before admission/launch and cannot time a turn."""
         document = self.document()
         document["observed_at"] = "2026-09-02T00:05:00.000Z"
         shown = self.listed(self.snapshot(document))
-        self.assertIn("elapsed 5m00s", shown)
-        self.assertNotIn("elapsed unknown", shown)
+        self.assertIn("running unknown", shown)
+        self.assertNotIn("running 5m00s", shown)
 
     def test_an_unread_manager_says_nobody_looked(self):
         """`canonical: false` is the difference between "nothing is running"
@@ -804,11 +803,10 @@ class TheViewerPerformsNoAct(ViewerCase):
         viewer = JobViewer(lambda: held.pop(), clock=lambda: self.now,
                            interval=1.0, sleeper=lambda _: None)
         viewer.refresh()
-        self.assertNotIn("running",
-                         "\n".join(render_list(viewer.snapshot, now=self.now)))
+        self.assertNotRegex("\n".join(render_list(viewer.snapshot, now=self.now)), r"implementation\s+running\s+running")
         viewer.refresh()
         shown = "\n".join(render_list(viewer.snapshot, now=self.now))
-        self.assertIn("running", shown)
+        self.assertRegex(shown, r"implementation\s+running\s+running")
         self.assertIn("2026-09-02T00:00:05.000Z", shown)
         # ONE tick, not two: at a 1s interval that is a 1s worst case.
         self.assertEqual(viewer.reads, 2)
@@ -1476,3 +1474,106 @@ class AnInvalidCountIsUnknownAndNeverAnException(ViewerCase):
 
         self.assertEqual(job_viewer.MAX_ACTIVITY_BYTES,
                          exchange.MAX_ACTIVITY_BYTES)
+
+
+class TheWorkerDeclaredEndingIsRenderedFromTheRealProjection(ViewerCase):
+    """W385424 -- a sealed worker declaration, through `projection.status`.
+
+    THE DOCUMENT IS NOT WRITTEN HERE. The stage reaches `exceptional` through
+    the projection's own `_DISPOSITIONS` mapping of a frozen `unable` result,
+    and the declaration axis travels on the composed diagnostic exactly as
+    `delegation.ManagerOperations.observe` publishes it -- including the
+    binding checks that refuse a diagnostic about another attempt. What these
+    cases assert is what an operator actually sees on both the list and the
+    detail line.
+
+    THE PRODUCER'S OWN MEMBER NAMES drive the fixture, so a rename in
+    `failure_cause` fails this case rather than quietly emptying a line.
+    """
+
+    def declaration(self, **members):
+        from baton_v12.worker_manager import failure_cause
+
+        held = {name: {"known": False, "value": None, "why": "fixture"}
+                for name in failure_cause.WORKER_DECLARATION_MEMBERS}
+        for name, value in members.items():
+            held[name] = {"known": True, "value": value, "source": "fixture"}
+        return held
+
+    def failing(self, stage_id="job-a/implementation", declaration=None):
+        from baton_v12.job_manager.episodes import identities
+        from baton_v12.worker_manager.failure_cause import DIAGNOSTIC_SCHEMA
+
+        operations = FakeOperations()
+        operations.frozen(stage_id, "unable")
+        _offer, attempt_id = identities(UUID, stage_id, 1)
+        if declaration is not None:
+            operations.observations[stage_id]["diagnostics"] = {
+                "schema": DIAGNOSTIC_SCHEMA, "attempt_id": attempt_id,
+                "cause": None, "unknown": {"why": "fixture", "absent": []},
+                "absent_records": [], "worker_declaration": declaration}
+        held = status(self.store, operations, observed_at=NOW)
+        states = {one["stage_id"]: one["state"]
+                  for job in held["jobs"] for one in job["stages"]}
+        self.assertEqual(states[stage_id], "exceptional")
+        return held
+
+    def shown(self, held):
+        snapshot = read_snapshot(held, received_at=self.now)
+        return ("\n".join(render_list(snapshot, now=self.now)),
+                "\n".join(render_detail(snapshot, "job-a", now=self.now)))
+
+    def test_a_PROVIDER_TIMEOUT_is_rendered_on_the_LIST_and_the_DETAIL(self):
+        held = self.failing(declaration=self.declaration(
+            disposition="unable", declared_ending="provider-failed",
+            failure_reason="timeout", seconds_bound=3600,
+            seconds_bound_source="job-default",
+            verification_attempted=False))
+        for rendered in self.shown(held):
+            self.assertIn("worker declared unable: the provider did not "
+                          "finish (provider timed out)", rendered)
+            self.assertIn("1h00m provider bound (job-default)", rendered)
+            self.assertIn("verification not attempted", rendered)
+            self.assertNotIn("cause unknown", rendered)
+
+    def test_a_FAILED_VERIFICATION_renders_DIFFERENTLY(self):
+        held = self.failing(declaration=self.declaration(
+            disposition="unable", declared_ending="verification-failed",
+            verification_attempted=True, verification_status=1))
+        for rendered in self.shown(held):
+            self.assertIn("worker declared unable: its own verification "
+                          "command failed", rendered)
+            self.assertIn("verification ended 1", rendered)
+            self.assertNotIn("provider timed out", rendered)
+
+    def test_an_UNDECLARED_ending_renders_EXACTLY_as_it_did_before(self):
+        for rendered in self.shown(self.failing()):
+            self.assertIn("stage ended exceptionally", rendered)
+            self.assertIn("cause unknown", rendered)
+            self.assertNotIn("worker declared", rendered)
+
+    def test_a_FOREIGN_ATTEMPTS_diagnostic_never_reaches_a_LINE(self):
+        """`delegation` refuses a diagnostic about another attempt, so the
+        declaration cannot arrive on this stage's row at all."""
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager.failure_cause import DIAGNOSTIC_SCHEMA
+
+        operations = FakeOperations()
+        operations.frozen("job-a/implementation", "unable")
+        operations.observations["job-a/implementation"]["diagnostics"] = {
+            "schema": DIAGNOSTIC_SCHEMA, "attempt_id": "attempt-somebody-else",
+            "cause": None, "worker_declaration": self.declaration(
+                disposition="unable", declared_ending="provider-failed")}
+        with self.assertRaises(ContractRefusal) as caught:
+            status(self.store, operations, observed_at=NOW)
+        self.assertIn("another attempt", str(caught.exception))
+
+    def test_the_VIEW_PERFORMS_NO_ACT_while_rendering_a_declaration(self):
+        operations = FakeOperations()
+        operations.frozen("job-a/implementation", "unable")
+        operations.observations["job-a/implementation"]["diagnostics"] = None
+        held = status(self.store, operations, observed_at=NOW)
+        before = list(operations.calls)
+        self.shown(held)
+        self.shown(held)
+        self.assertEqual(operations.calls, before)

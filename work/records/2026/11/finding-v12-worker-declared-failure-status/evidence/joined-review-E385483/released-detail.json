@@ -1,0 +1,128 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "agent": null,
+    "available_transitions": [
+      "prioritize",
+      "reroute"
+    ],
+    "binding": {
+      "actor": "baton.prompt",
+      "created_ts": "2026-11-21T03:35:06Z",
+      "git_provenance": null,
+      "path": "work/records/2026/11/finding-v12-worker-declared-failure-status",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 385424
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.prompt",
+        "created_ts": "2026-11-21T03:35:06Z",
+        "git_provenance": null,
+        "path": "work/records/2026/11/finding-v12-worker-declared-failure-status",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 385424
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W385424",
+        "title": "V12 status: surface attributable worker-declared failure causes"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "confirmed-defect",
+    "duplicate_of": null,
+    "episode_seq": 385485,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-11-21T16:18:25Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W385424",
+    "last_change_seq": 385485,
+    "last_changed_at": "2026-11-21T16:18:25.929Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W385424",
+      "parent": null
+    },
+    "local_id": "W385424",
+    "message_count": 12,
+    "my_pending_obligations": 0,
+    "new": 12,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W385424",
+      "overlap": 0,
+      "own": 12,
+      "snapshot_seq": 385485,
+      "subtree_total": 12
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "external-report",
+    "outcome": null,
+    "phase": "queued",
+    "pickup": "pending",
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": null,
+    "ready": true,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": {
+      "endpoint": "baton.decide",
+      "handlers": [
+        "slaw"
+      ],
+      "role": "approv",
+      "route": "approv"
+    },
+    "status": "open",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 385424,
+        "id": "2b077949-T385424",
+        "last_seq": 385484,
+        "new": 12,
+        "subject": "V12 status: surface attributable worker-declared failure causes"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "V12 status: surface attributable worker-declared failure causes",
+    "trials": []
+  },
+  "snapshot_seq": 385485
+}

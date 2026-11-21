@@ -1,0 +1,33 @@
+{
+  "label": "overlay-077",
+  "tree": "/var/tmp/baton-v12-w385424-fix/overlay",
+  "umask": "077",
+  "argv": [
+    "bwrap",
+    "--ro-bind",
+    "/",
+    "/",
+    "--bind",
+    "/var/tmp/baton-v12-w385424-fix/verification-git/run-overlay-077-i3om6wyt",
+    "/var/tmp/baton-v12-w385424-fix/verification-git/run-overlay-077-i3om6wyt",
+    "--unshare-net",
+    "--unshare-pid",
+    "--die-with-parent",
+    "--new-session",
+    "--cap-drop",
+    "ALL",
+    "--proc",
+    "/proc",
+    "--dev",
+    "/dev",
+    "--chdir",
+    "/var/tmp/baton-v12-w385424-fix/overlay/v12/python",
+    "--",
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/var/tmp/baton-v12-w385424-fix/umask_fixture_runner.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 13.038935539021622,
+  "run_root": "/var/tmp/baton-v12-w385424-fix/verification-git/run-overlay-077-i3om6wyt",
+  "guard_sha256": "28e29e312461f88425d101b4ed4882484da59a5a4a361369879c3a105ba9ef1c"
+}

@@ -1,0 +1,15 @@
+test_a_foreign_group_is_a_failure_not_a_repair (tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit.test_a_foreign_group_is_a_failure_not_a_repair) ... ok
+test_a_restrictive_umask_leaves_the_group_out_and_the_helper_puts_it_back (tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit.test_a_restrictive_umask_leaves_the_group_out_and_the_helper_puts_it_back) ... ok
+test_only_the_two_group_bits_change_and_the_call_is_idempotent (tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit.test_only_the_two_group_bits_change_and_the_call_is_idempotent) ... ok
+test_the_product_proof_accepts_what_the_helper_established (tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit.test_the_product_proof_accepts_what_the_helper_established)
+The same predicate `oci_delivery.prove_target_posture` applies, ... ok
+test_a_target_in_the_configured_group_and_group_writable_is_held (tests.manager.test_oci_integration.TheTargetPostureIsProvedAndNeverRepaired.test_a_target_in_the_configured_group_and_group_writable_is_held) ... ok
+test_composition_itself_refuses_an_incompatible_target (tests.manager.test_oci_integration.TheTargetPostureIsProvedAndNeverRepaired.test_composition_itself_refuses_an_incompatible_target)
+The proof has a production caller now: a start never reaches the ... ok
+test_group_write_without_traversal_is_not_access (tests.manager.test_oci_integration.TheTargetPostureIsProvedAndNeverRepaired.test_group_write_without_traversal_is_not_access)
+A directory the group cannot enter is one whose write bit describes ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.050s
+
+OK

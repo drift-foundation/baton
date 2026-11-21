@@ -1955,6 +1955,45 @@ class ClaudeAgent:
         # from the main thread immediately before the launch.
         self._activity_lock = threading.Lock()
         self._activity = None
+        self._invocation = None
+
+    def observed_invocation(self):
+        """Process-start/exit evidence, never dispatch or activity-derived."""
+        with self._activity_lock:
+            return dict(self._invocation) if self._invocation is not None else None
+
+    def _run_provider(self, argv, **options):
+        # Injected runners do not prove process creation; keep timing unknown.
+        with self._activity_lock:
+            self._invocation = None
+        if self._run is not subprocess.run:
+            return self._run(argv, **options)
+        import datetime
+        seconds = options.pop("timeout")
+        # Popen success is the first evidence that this provider process exists.
+        # Missing executable/fork failures leave no fabricated start or deadline.
+        with subprocess.Popen(argv, **options) as child:
+            started = datetime.datetime.now(datetime.timezone.utc)
+            with self._activity_lock:
+                self._invocation = {"started_at": started.isoformat(timespec="milliseconds").replace("+00:00", "Z"),
+                                    "deadline_at": (started + datetime.timedelta(seconds=seconds)).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
+                                    "ended_at": None, "scope": "provider-process"}
+            try:
+                stdout, stderr = child.communicate(timeout=seconds)
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.wait()
+                raise
+            except BaseException:
+                child.kill()
+                child.wait()
+                raise
+            finally:
+                # Direct-child cessation only; never claims descendants stopped.
+                with self._activity_lock:
+                    if child.poll() is not None:
+                        self._invocation["ended_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+            return subprocess.CompletedProcess(argv, child.returncode, stdout, stderr)
 
     # -- the provider turn, for a workload this adapter does not own ---------
 
@@ -4897,7 +4936,7 @@ class ClaudeAgent:
                 # already runs beside the reader thread above, and
                 # `preexec_fn` is documented as unsafe in the presence of
                 # threads. See `PROVIDER_UMASK`.
-                return_code = self._run(argv, cwd=cwd, env=env,
+                return_code = self._run_provider(argv, cwd=cwd, env=env,
                                         timeout=seconds, stdout=write_fd,
                                         stderr=complaint.fileno_or_devnull,
                                         umask=umask

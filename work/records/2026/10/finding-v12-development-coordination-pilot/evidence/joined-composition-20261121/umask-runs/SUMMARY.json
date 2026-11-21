@@ -1,0 +1,59 @@
+{
+ "joined-002": {
+  "errors": [],
+  "exit": 0,
+  "failures": [],
+  "git": {
+   "invocations": 442,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "posture": [
+   [
+    "accepted",
+    "0o775"
+   ]
+  ],
+  "tests": 2,
+  "umask": "002",
+  "wall": 13.1
+ },
+ "joined-022": {
+  "errors": [],
+  "exit": 0,
+  "failures": [],
+  "git": {
+   "invocations": 442,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "posture": [
+   [
+    "accepted",
+    "0o775"
+   ]
+  ],
+  "tests": 2,
+  "umask": "022",
+  "wall": 13.0
+ },
+ "joined-077": {
+  "errors": [],
+  "exit": 0,
+  "failures": [],
+  "git": {
+   "invocations": 442,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "posture": [
+   [
+    "accepted",
+    "0o730"
+   ]
+  ],
+  "tests": 2,
+  "umask": "077",
+  "wall": 13.0
+ }
+}

@@ -609,6 +609,7 @@ def materialized(store, stages=None):
                 # deadlines, the trusted-clock timing and the first reached
                 # deadline. A pure read; the watermark is advanced only by
                 # the passes and guards that write.
+                "job_origins": {job["job_id"]: job_control.job_origin_in(store._connection, job["job_id"]) for job in jobs},
                 "controls": {job["job_id"]: job_control.evaluate(
                     store._connection, job["job_id"], store._now())
                     for job in jobs},
@@ -1027,6 +1028,7 @@ def status(store, operations, *, observed_at):
             stages.append(_stage_status(entry, held))
         jobs.append(documents.job_status(
             job_id=job["job_id"], submission_id=job["submission_id"],
+            created_at=snapshot["job_origins"][job["job_id"]],
             input_digest=job["input_digest"],
             policy_digest=job["policy_digest"],
             test_scope=json.loads(job["test_scope"]),
@@ -1157,5 +1159,12 @@ def _stage_status(entry, held):
         # back `unknown`. The stage state above is what the existing axes
         # decided and this member does not touch it: a diagnostic cause is not
         # an acceptance and must not become a second route to `exceptional`.
+        #
+        # W385424: THE SAME RULE COVERS THE WORKER-DECLARED AXIS the producer
+        # now carries beside the cause. The whole composed document travels,
+        # unread and unedited here, because this leaf answers no question the
+        # Worker Manager owns -- and a worker's own account of its ending must
+        # not decide a stage state either. `exceptional` keeps coming from the
+        # frozen disposition through `_DISPOSITIONS` and from nowhere else.
         attempt_diagnostics=observed.get("diagnostics"),
         diagnostic_degradation=observed.get("diagnostic_degradation"))

@@ -1,0 +1,34 @@
+# W385424 — attributable worker-declared failure status
+
+## Owner selection — 2026-11-21
+
+The owner selected this useful development Job for native-handoffs-2 after the coordinator proposed fixing `cause unknown` when retained worker output identifies a provider timeout or verification failure. W385424/T385424 is its v11 coordination identity; W321608 coordinates the native pilot. W385331's later discovery/dependency outcome remains separate.
+
+Selected source: 7ac02c7f01cc59b43ade0c98b55be59ea750af41. Instance: native-handoffs-2. Native Job: w385424-status-cause-1. Use implementation-review/3 and native-handoff/1, with existing configured implementer/reviewer routes. No model or human acts as message courier. A naturally needed in-scope clarification uses the declared protocol; no fabricated question is required to manufacture coverage. A run without clarification proves no live handoff branch.
+
+Evidence already in the selected source: `work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-handoffs-1-recovery/`, especially FINDING-status-cause-unknown.md, status-17h15.json, worker-output.json and proposal/result.json. Original instance paths were retired; use these preserved copies, not the private archive or retired paths.
+
+Observed: an unable/provider-timeout result recorded a 3600-second bound, while operator status displayed an exceptional stage with unknown cause. Earlier native labels verification failure received the same generic description. A worker-declared ending is evidence of what the worker reported, not proof of which component stopped the runtime. DESIGN OBS-3, REC-1 and DB-1/DB-4 govern attribution, truthful unknowns and read-only composition.
+
+Scope: bounded host status/diagnostic composition and affected tests under v12/python. Existing typed result contracts and owner APIs are preferred. Preserve runtime/cessation, freshness, unknown and acceptance distinctions. No scheduler/lifecycle redesign, worker protocol expansion, store migration, deployment, automatic integration, broad test repair or new monitoring framework.
+
+Live execution is useful implementation and independent native review. Product tests use deterministic sealed-result/provider fixtures; no live model or Docker calls in verification. Human creation/start are explicit operator actions. Source acceptance still requires independent review and human integration/Git.
+
+The self-contained NATIVE-TASK.txt is delivered as the statement: this new dossier is not assumed present in the already installed source checkpoint. The installed workers retain the pilot's previously composed record binding; the statement explicitly names this Work and its evidence.
+
+
+## Statement-length correction — 2026-11-21
+
+Initial create refused in template resolution: statement 4693 characters exceeds 4096, before Work/reservation/binding effects. Original text preserved as NATIVE-TASK-rejected-overlength.txt. NATIVE-TASK.txt compacted without changing outcome or acceptance; 4021 characters including trailing newline, SHA256 0d020caa0d0218aeb07e7499e54b717bde86cdb4e5875f33d8fe6d5a145f5e9b. Same unspent Job identity may be retried.
+
+## Native attempt recovered and diagnosed — 2026-11-21 (K, M385448)
+
+The native Job's single implementation attempt `be4fbac0…` ended with provider status 0 and mandatory verification exit 1 (268 tests, 2 failures in `TheRealObservationReaderReachesTheView`), sealed `unable`/`verification-failed`; the Job was cancelled at its deadline and the review never admitted. The exact candidate (10 paths over `7ac02c7f`, head `4c528624…`, listing sha256 `e686d8c2…`), its custody, logs and supported views are retained in `evidence/native-attempt-be4fbac0-recovery/` (RECOVERY.md). Diagnosis: the two failures are the fixture's integration-target mode under the worker's umask (`prove_target_posture` denies a target without group write/traversal; the provider reproduced the same failures on the unmodified tree inside the worker and passes under `umask 002`) — inferred from the provider's report and source, not reproduced by K; distinct from W385427's missing-schema isolated-copy failure. Recommendation: file the fixture-umask finding as its own Work, review the frozen candidate from the dossier, then serial composition with W385427 (four shared paths) and joined review. No rerun, import or Git mutation.
+
+## Umask diagnosis confirmed — 2026-11-21 (K, M385451)
+
+Six confined runs of exactly the two owner-approved compatibility cases (bubblewrap read-only host, W385427's fixture Git guard, fresh fixture roots only; base `7ac02c7f` and the frozen candidate `e686d8c2…` held constant; umasks 002/022/077) confirm the earlier inferred diagnosis: under 002 both trees pass (target `0o775`, posture accepted); under 022 and 077 both trees fail identically (target `0o755`/`0o700`, `prove_target_posture` refuses "… an integration runtime holds that group as its only share in the target …", integration stays `claimed`). The candidate behaves exactly as the base. The native `verification-failed` is therefore the verification environment's umask, not the change. Evidence: `evidence/native-attempt-be4fbac0-recovery/umask-probe/` (SUMMARY.json, per-run logs, posture.jsonl, Git logs; all targets inside the fresh fixture roots). RECOVERY.md carries an append-only clarification correcting its earlier overstated "What this means". Recommendation: a separately tracked fixture-only explicit-posture correction preserving the product posture check; no worker-wide umask change. Candidate not accepted by this; no import or checkpoint.
+
+## R1/R2 correction prepared — 2026-11-21 (K, M385468)
+
+Review 2026-11-21T12-34-16Z (E385465) found two defects in the frozen native candidate: a blocking open of the retained result let a FIFO hang public observation (R1) and a missing verification member was reported as not attempted (R2). Corrected in isolation over the frozen native bytes: nonblocking open with descriptor type validation (measured size/digest and symlink refusal unchanged); absent verification is unknown, explicit `null` stays not attempted, malformed stays unknown. Three paths changed (`failure_cause.py`, `test_attempt_failure_cause.py`, `test_job_observation.py`); new listing `10f3d809254c3da937b4dc0761c9ec5971ea55ec2c0ed1fe6b21d50d3511eae0` over the native `e686d8c2…`. Proof: new public-path cases (FIFO bounded, missing/null/malformed/valid), the reviewer's probes rerun (FIFO returns in 0.4 s; missing → unknown), 271 no-Git required cases OK with and without the W385454 overlay, and the two deep cases 2/2 under 077 and 022 on the overlay tree under confinement (overlay named separately; not pristine-native verification). Packet: `evidence/correction-K-20261121/HANDOFF.md`. Native packet and W385427/W385454 bytes untouched; no composition, import or Git mutation.

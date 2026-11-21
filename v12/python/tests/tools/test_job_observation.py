@@ -119,5 +119,283 @@ class SharedObservation(unittest.TestCase):
             self.assertNotIn("private-command", rendered)
 
 
+class TheWorkerDeclaredEndingReachesBothSurfaces(unittest.TestCase):
+    """W385424 -- an ending the worker declared, said in both views.
+
+    THE MEASURED DEFECT: `just status` and `view` both printed "failed: stage
+    ended exceptionally; cause unknown" for an ending whose sealed result
+    named a provider timeout, a 3600-second bound and a verification that was
+    never attempted -- and printed the same sentence for an earlier ending
+    whose cause was a FAILED VERIFICATION. Distinct, host-known endings
+    reported as one unknown.
+
+    EVERY CASE RENDERS THROUGH `views`, so what is asserted is the two
+    operator surfaces rather than the helper between them.
+    """
+
+    TIMEOUT = {"disposition": "unable", "declared_ending": "provider-failed",
+               "failure_reason": "timeout", "seconds_bound": 3600,
+               "seconds_bound_source": "job-default",
+               "verification_attempted": False}
+    FAILED = {"disposition": "unable",
+              "declared_ending": "verification-failed",
+              "verification_attempted": True, "verification_status": 1}
+
+    @staticmethod
+    def wrapped(members):
+        return {name: ({"known": False, "value": None, "why": "fixture"}
+                       if value is None else
+                       {"known": True, "value": value, "source": "fixture"})
+                for name, value in members.items()}
+
+    def failing(self, declaration=None, **stage):
+        doc = document()
+        held = doc["jobs"][0]["stages"][0]
+        held["state"] = "exceptional"
+        held.update(stage)
+        if declaration is not None:
+            held["attempt_diagnostics"] = {
+                "schema": "baton.v12.attempt-failure-cause/1",
+                "attempt_id": held["attempt_id"],
+                "worker_declaration": self.wrapped(declaration)}
+        return doc
+
+    def test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views(self):
+        doc = self.failing(self.TIMEOUT)
+        for rendered in views(doc):
+            self.assertIn("worker declared unable: the provider did not "
+                          "finish (provider timed out)", rendered)
+            self.assertIn("1h00m provider bound (job-default)", rendered)
+            self.assertIn("verification not attempted", rendered)
+            self.assertNotIn("cause unknown", rendered)
+
+    def test_an_UNKNOWN_verification_axis_renders_as_UNKNOWN_not_NOT_ATTEMPTED(self):
+        """Review 2026-11-21T12-34-16Z [R2]: a result with no verification
+        member reaches the views as an unknown axis, and the sentence says
+        so rather than claiming nothing was attempted."""
+        doc = self.failing(dict(self.TIMEOUT, verification_attempted=None,
+                                verification_status=None))
+        for rendered in views(doc):
+            self.assertIn("whether verification ran is unknown", rendered)
+            self.assertNotIn("verification not attempted", rendered)
+            self.assertNotIn("cause unknown", rendered)
+
+    def test_a_FAILED_VERIFICATION_reads_DIFFERENTLY_from_a_timeout(self):
+        timeout = views(self.failing(self.TIMEOUT))
+        failed = views(self.failing(self.FAILED))
+        for rendered in failed:
+            self.assertIn("worker declared unable: its own verification "
+                          "command failed", rendered)
+            self.assertIn("verification ended 1", rendered)
+            self.assertNotIn("cause unknown", rendered)
+            self.assertNotIn("provider timed out", rendered)
+        self.assertNotEqual(timeout, failed)
+
+    def test_NO_DECLARATION_keeps_the_HONEST_cause_unknown(self):
+        for declaration in (None, {}, {"disposition": None}):
+            for rendered in views(self.failing(declaration)):
+                self.assertIn("cause unknown", rendered)
+                self.assertNotIn("worker declared", rendered)
+
+    def test_a_MANAGER_CANCELLED_or_COMPLETED_seal_SAYS_NOTHING_here(self):
+        """A cancellation is the manager's own act and its facts are reported
+        by the cancellation axis; this view does not speak for it."""
+        for disposition in ("cancelled", "completed", "plan-rejected"):
+            doc = self.failing(dict(self.TIMEOUT, disposition=disposition))
+            for rendered in views(doc):
+                self.assertIn("cause unknown", rendered)
+                self.assertNotIn("worker declared", rendered)
+
+    def test_an_UNKNOWN_DECLARED_ENDING_is_still_more_than_cause_unknown(self):
+        doc = self.failing({"disposition": "unable", "declared_ending": None})
+        for rendered in views(doc):
+            self.assertIn("worker declared unable; its declared ending is "
+                          "unknown", rendered)
+            self.assertNotIn("cause unknown", rendered)
+
+    def test_an_UNOWNED_WORD_or_a_SECRET_never_reaches_a_LINE(self):
+        canary = "canary-" + "q" * 32
+        doc = self.failing({"disposition": "unable",
+                            "declared_ending": canary,
+                            "failure_reason": canary,
+                            "seconds_bound": canary,
+                            "seconds_bound_source": canary,
+                            "verification_attempted": canary,
+                            "verification_status": canary})
+        for rendered in views(doc):
+            self.assertNotIn(canary, rendered)
+            self.assertIn("its declared ending is unknown", rendered)
+
+    def test_an_OUT_OF_RANGE_BOUND_or_STATUS_is_simply_not_rendered(self):
+        doc = self.failing(dict(self.TIMEOUT, seconds_bound=10 ** 400))
+        for rendered in views(doc):
+            self.assertIn("provider timed out", rendered)
+            self.assertNotIn("provider bound", rendered)
+
+    def test_an_EXCHANGE_FAULT_KEEPS_ITS_PLACE_beside_the_declaration(self):
+        doc = self.failing(self.TIMEOUT)
+        doc["jobs"][0]["stages"][0]["exchange"]["terminal"] = {
+            "ending": "faulted", "fault_code": "agent",
+            "adapter_failure": {"component": "role-adapter",
+                                "code": "role-output-missing"}}
+        for rendered in views(doc):
+            self.assertIn("agent fault; role-output-missing", rendered)
+            self.assertIn("worker declared unable", rendered)
+
+    def test_a_SUCCESSFUL_or_UNRELATED_STAGE_reads_EXACTLY_as_before(self):
+        for state in ("running", "completed", "queued", "changes-requested"):
+            plain = views(self.failing(None, state=state))
+            declared = views(self.failing(self.TIMEOUT, state=state))
+            self.assertEqual(plain, declared)
+            for rendered in declared:
+                self.assertNotIn("worker declared", rendered)
+
+    def test_REPEATED_RENDERING_mutates_NOTHING(self):
+        doc = self.failing(self.TIMEOUT)
+        before = copy.deepcopy(doc)
+        first, second = views(doc), views(doc)
+        self.assertEqual(first, second)
+        self.assertEqual(doc, before)
+
+    def test_the_MIRRORED_DECLARATION_VOCABULARY_does_not_drift(self):
+        from baton_v12.worker_manager import failure_cause
+        from baton_v12.worker_manager import schema as manager_schema
+
+        self.assertEqual(sorted(model._DECLARED_ENDINGS),
+                         sorted(failure_cause.DECLARED_ENDINGS))
+        self.assertEqual(sorted(model._DECLARED_FAILURE_REASONS),
+                         sorted(failure_cause.DECLARED_FAILURE_REASONS))
+        self.assertEqual(sorted(model._DECLARED_BOUND_SOURCES),
+                         sorted(failure_cause.DECLARED_BOUND_SOURCES))
+        self.assertIn(model._DECLARED_UNABLE, manager_schema.DISPOSITIONS)
+        self.assertEqual(model._DECLARATION_MEMBER, "worker_declaration")
+
+
 if __name__ == "__main__":
     unittest.main()
+
+
+class Timing(unittest.TestCase):
+    def job(self):
+        return {"created_at": "2026-11-19T17:00:00Z", "control": {
+            "timing": "trusted", "observed_at": NOW,
+            "job": {"origin": "2026-11-19T17:00:00Z", "deadline_at": "2026-11-19T18:05:00Z"},
+            "stages": [{"stage_id": "implementation", "origin": "2026-11-19T17:50:00Z", "deadline_at": "2026-11-19T18:01:00Z"}]}}
+
+    def test_separate_age_unknown_runtime_and_partial_named_limit_in_all_views(self):
+        doc = document(); job = doc["jobs"][0]; job.update(self.job())
+        stage = job["stages"][0]; stage["episode"] = 0
+        stage["episodes"] = [{"episode": 0, "opened_at": "2026-11-19T17:50:00Z"}]
+        before = copy.deepcopy(doc)
+        for rendered in views(doc):
+            self.assertIn("Job age 1h00m", rendered)
+            self.assertRegex(rendered, r"running\s+unknown")
+            self.assertIn("stage timeout in 1m00s", rendered)
+            self.assertIn("provider timing unknown (earliest known only)", rendered)
+        self.assertEqual(doc, before)
+
+    def test_blocked_episode_has_not_started(self):
+        stage = {"state": "blocked", "stage_id": "review", "attempt_id": "future", "episode": 0,
+                 "episodes": [{"episode": 0, "opened_at": "2026-11-19T17:00:00Z", "ended_at": None}]}
+        view = model.stage_timing(stage, self.job(), NOW)
+        self.assertEqual(view["running"], "not started")
+        self.assertEqual(view["timeout"], "Job timeout in 5m00s")
+        stage["episodes"][0]["ended_at"] = NOW
+        self.assertEqual(model.stage_timing(stage, self.job(), NOW)["running"], "unknown")
+
+    def test_ties_and_deadline_boundary_are_not_cessation(self):
+        job = self.job(); job["control"]["job"]["deadline_at"] = "2026-11-19T18:01:00Z"
+        stage = {"stage_id": "implementation", "state": "running"}
+        for seconds in (59,60,61):
+            observed = datetime.datetime.fromtimestamp(EPOCH+seconds, datetime.timezone.utc).isoformat()
+            job["control"]["observed_at"] = observed
+            view = model.stage_timing(stage, job, observed)
+            self.assertEqual(view["limiting"], ["Job", "stage"])
+            self.assertEqual(view["remaining_seconds"], max(0,60-seconds))
+            if seconds >= 60:self.assertIn("cessation unconfirmed", view["timeout"])
+
+    def test_unknown_future_stale_control_and_terminal(self):
+        job = self.job(); stage = {"stage_id": "implementation", "state": "running"}
+        for instant in ("bad", "2026-11-19T18:00:01Z", "2026-11-19T17:59:45Z"):
+            job["control"]["observed_at"] = instant
+            self.assertEqual(model.stage_timing(stage, job, NOW)["timeout"], "timeout unknown")
+        self.assertIsNone(model._elapsed("2026-11-19T18:00:01Z", None, NOW))
+        self.assertTrue(model.stale_ages(-1))
+        stage["state"] = "completed"
+        self.assertEqual(model.stage_timing(stage, job, NOW)["timeout"], "timeout not applicable (stage ended)")
+
+    def test_retry_never_rebases_job_deadline_on_new_episode(self):
+        job = self.job(); stage = {"state": "running", "stage_id": "implementation", "episode": 2,
+                                  "episodes": [{"episode": 2, "opened_at": NOW}]}
+        view = model.stage_timing(stage, job, NOW)
+        self.assertEqual(view["running"], "unknown")
+        self.assertEqual(view["remaining_seconds"], 60)
+        self.assertEqual(view["job_age"], "1h00m")
+
+
+class InvocationClocks(unittest.TestCase):
+    job = Timing.job
+    def stage(self):
+        return {"stage_id":"implementation","state":"running","attempt_id":"new-attempt","exchange":{"command":{"sequence_id":"seq","command_digest":"digest"},"invocation":{"attempt_id":"new-attempt","operation":"work","scope":"provider-process","sequence_id":"seq","command_digest":"digest","started_at":"2026-11-19T17:59:30Z","deadline_at":"2026-11-19T18:00:30Z","ended_at":None}}}
+
+    def test_provider_origin_and_continuation_do_not_rebase_job_limits(self):
+        stage=self.stage();job=self.job();view=model.stage_timing(stage,job,NOW)
+        self.assertEqual(view["running_seconds"],30);self.assertEqual(view["limiting"],["provider"]);self.assertEqual(view["remaining_seconds"],30);self.assertTrue(view["complete"])
+        stage["exchange"]["invocation"].update(started_at="2026-11-19T17:59:50Z",deadline_at="2026-11-19T18:02:00Z")
+        view=model.stage_timing(stage,job,NOW);self.assertEqual(view["running_seconds"],10);self.assertEqual(view["limiting"],["stage"]);self.assertEqual(view["remaining_seconds"],60)
+
+    def test_terminal_duration_is_frozen_and_missing_end_unknown(self):
+        stage=self.stage();stage["state"]="completed";fact=stage["exchange"]["invocation"]
+        self.assertIsNone(model.stage_timing(stage,self.job(),NOW)["running_seconds"])
+        fact["ended_at"]="2026-11-19T17:59:45Z"
+        self.assertEqual(model.stage_timing(stage,self.job(),NOW)["running_seconds"],15)
+        self.assertEqual(model.stage_timing(stage,self.job(),"2026-11-20T18:00:00Z")["running_seconds"],15)
+
+    def test_wrong_attempt_future_start_and_malformed_end_are_unknown(self):
+        for key,value in (("attempt_id","old-attempt"),("started_at","2026-11-19T18:00:01Z"),("ended_at","bad")):
+            stage=self.stage();stage["exchange"]["invocation"][key]=value
+            view=model.stage_timing(stage,self.job(),NOW);self.assertIsNone(view["running_seconds"]);self.assertIn("provider timing unknown",view["timeout"])
+
+    def test_expired_provider_is_not_termination_and_partial_control_stays_qualified(self):
+        stage=self.stage();stage["exchange"]["invocation"]["deadline_at"]=NOW
+        view=model.stage_timing(stage,self.job(),NOW);self.assertEqual(view["remaining_seconds"],0);self.assertIn("cessation unconfirmed",view["timeout"])
+        view=model.stage_timing(self.stage(),{},NOW);self.assertEqual(view["limiting"],["provider"]);self.assertFalse(view["complete"]);self.assertIn("Job/stage timing unknown",view["timeout"])
+
+
+class TheFailureCauseAndTimingShareOneStageLine(unittest.TestCase):
+    """Joined composition (W385427 + W385424 over 7ac02c7f): one stage line
+    carries BOTH the worker-declared ending and the attributed invocation
+    timing on every shared surface, each in its own words, neither displacing
+    the other."""
+
+    def test_a_declared_timeout_and_its_frozen_invocation_render_together(self):
+        declared = TheWorkerDeclaredEndingReachesBothSurfaces(
+            "test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views")
+        doc = declared.failing(declared.TIMEOUT)
+        job = doc["jobs"][0]; job.update(Timing.job(None))
+        stage = job["stages"][0]
+        fact = InvocationClocks.stage(None)
+        stage["attempt_id"] = fact["attempt_id"]
+        stage.setdefault("exchange", {}).update(fact["exchange"])
+        stage["exchange"]["invocation"]["ended_at"] = "2026-11-19T17:59:45Z"
+        before = copy.deepcopy(doc)
+        for rendered in views(doc):
+            self.assertIn("worker declared unable: the provider did not finish (provider timed out)", rendered)
+            self.assertIn("verification not attempted", rendered)
+            self.assertNotIn("cause unknown", rendered)
+            self.assertRegex(rendered, r"running\s+15s")
+            self.assertIn("timeout not applicable (stage ended)", rendered)
+            self.assertIn("Job age 1h00m", rendered)
+        self.assertEqual(doc, before)
+
+    def test_an_unknown_declaration_and_unknown_timing_stay_two_unknowns(self):
+        declared = TheWorkerDeclaredEndingReachesBothSurfaces(
+            "test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views")
+        doc = declared.failing(dict(declared.TIMEOUT, verification_attempted=None,
+                                    verification_status=None))
+        doc["jobs"][0].update(Timing.job(None))
+        for rendered in views(doc):
+            self.assertIn("whether verification ran is unknown", rendered)
+            self.assertRegex(rendered, r"running\s+unknown")
+            self.assertIn("timeout not applicable (stage ended)", rendered)
+

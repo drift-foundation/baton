@@ -1,0 +1,135 @@
+--- base
++++ B
+@@ -276,15 +276,130 @@
+     return taken
+ 
+ 
++# W385424: THE WORKER'S OWN DECLARED ENDING, as the diagnostic producer
++# publishes it. Every name and value below is mirrored BY VALUE from
++# `baton_v12.worker_manager.failure_cause`, for the reason this whole module
++# imports nothing: it is the shared interpretation of a document, and a
++# dependency on the producer would make it a reader of its own subject.
++# `tests/tools/test_job_observation.py` holds the mirror against the owner.
++#
++# A DECLARATION IS NOT A CESSATION, AND THIS RENDERING SAYS SO IN WORDS. It
++# reports what the worker DECLARED and what this manager SEALED of it; it
++# never says a container died, a candidate is good, verification passed or
++# anybody reviewed anything. The exchange fault and the manager's own
++# cancellation facts keep their place ahead of it and are not replaced.
++_DECLARATION_MEMBER = "worker_declaration"
++# ONLY `unable` SPEAKS HERE. `cancelled` is the manager's own act and its
++# facts are reported by the cancellation axis; `completed` and `plan-rejected`
++# are not failures and have no business explaining one.
++_DECLARED_UNABLE = "unable"
++_DECLARED_ENDINGS = {
++    "provider-failed": "the provider did not finish",
++    "verification-failed": "its own verification command failed",
++    "no-candidate": "it produced no candidate",
++    "candidate": "it produced a candidate",
++    "yielded": "it yielded a checkpoint",
++}
++_DECLARED_FAILURE_REASONS = {
++    "timeout": "provider timed out",
++    "start-error": "provider would not start",
++    "api-error": "provider reported an api error",
++    "unclassified": "provider failure unclassified",
++}
++_DECLARED_BOUND_SOURCES = ("job-default", "job-selected", "unstated",
++                           "worker-default")
++# The widest a declared provider bound or exit status may be before this view
++# declines to render it. The producer already bounds both; this is what a
++# CONSUMER must survive, exactly as MAX_ACTIVITY_BYTES is.
++MAX_DECLARED_SECONDS = 7 * 24 * 60 * 60
++DECLARED_STATUS_RANGE = (-256, 65535)
++
++
++def _declared_fact(held, name):
++    """One wrapped producer leaf as its value, or `None`.
++
++    THE ONE SHAPE, READ THE WAY ITS OWNER WRITES IT: `{"known": true,
++    "value": ...}` or `{"known": false, ...}`. A bare scalar, a missing
++    member or a non-boolean `known` is not an established fact and answers
++    `None` -- this view never reads an unknown as a known.
++    """
++    if type(held) is not dict:
++        return None
++    wrapper = held.get(name)
++    if type(wrapper) is not dict or wrapper.get("known") is not True:
++        return None
++    return wrapper.get("value")
++
++
++def _declared_word(held, name, owned):
++    value = _declared_fact(held, name)
++    return value if type(value) is str and value in owned else None
++
++
++def _declared_number(held, name, low, high):
++    value = _declared_fact(held, name)
++    if type(value) is not int or type(value) is bool or not low <= value <= high:
++        return None
++    return value
++
++
++def _declared_ending(stage):
++    """What the worker said about its own ending, in bounded words, or `None`.
++
++    `None` keeps `cause unknown` exactly as it was: no frozen result, a
++    disposition this view does not speak for, evidence that did not bind, or
++    a producer that carries no declaration at all are all "nobody established
++    this", and inventing a sentence for them is the thing this model refuses
++    everywhere else.
++    """
++    diagnostic = stage.get("attempt_diagnostics")
++    if type(diagnostic) is not dict:
++        return None
++    held = diagnostic.get(_DECLARATION_MEMBER)
++    if _declared_fact(held, "disposition") != _DECLARED_UNABLE:
++        return None
++    said = "worker declared unable"
++    ending = _declared_word(held, "declared_ending", _DECLARED_ENDINGS)
++    if ending is None:
++        return said + "; its declared ending is unknown"
++    said = said + ": " + _DECLARED_ENDINGS[ending]
++    reason = _declared_word(held, "failure_reason", _DECLARED_FAILURE_REASONS)
++    if reason is not None:
++        said = said + " (" + _DECLARED_FAILURE_REASONS[reason] + ")"
++    bound = _declared_number(held, "seconds_bound", 1, MAX_DECLARED_SECONDS)
++    if bound is not None:
++        source = _declared_word(held, "seconds_bound_source",
++                                _DECLARED_BOUND_SOURCES)
++        said = (said + " at a " + _duration(bound) + " provider bound"
++                + ("" if source is None else " (" + source + ")"))
++    attempted = _declared_fact(held, "verification_attempted")
++    if attempted is False:
++        return said + "; verification not attempted"
++    if attempted is True:
++        status = _declared_number(held, "verification_status",
++                                  DECLARED_STATUS_RANGE[0],
++                                  DECLARED_STATUS_RANGE[1])
++        return (said + "; verification "
++                + ("status unknown" if status is None
++                   else "ended " + str(status)))
++    return said + "; whether verification ran is unknown"
++
++
+ def _reason(stage, state):
+     if state == "exceptional":
+         exchange = stage.get("exchange")
+         terminal = exchange.get("terminal") if type(exchange) is dict else None
+         fault = terminal.get("fault_code") if type(terminal) is dict and terminal.get("ending") == "faulted" else None
+-        detail = fault + " fault; cause unknown" if fault in _STATUS_FAULT_CODES else "cause unknown"
++        # W385424: THE WORKER'S DECLARATION REPLACES `cause unknown` AND
++        # NOTHING ELSE. A recorded fault code and a role-adapter failure are
++        # facts other owners established about this ending; they keep their
++        # place and the declaration is reported after them.
++        declared = _declared_ending(stage)
++        detail = fault + " fault; " if fault in _STATUS_FAULT_CODES else ""
++        detail = detail + (declared if declared is not None else "cause unknown")
+         adapter = terminal.get("adapter_failure") if type(terminal) is dict else None
+         if fault == "agent" and type(adapter) is dict and adapter.get("component") == "role-adapter" and adapter.get("code") in _STATUS_ADAPTER_CODES:
+-            detail = "agent fault; " + adapter["code"]
++            detail = "agent fault; " + adapter["code"] + ("" if declared is None else "; " + declared)
+         return "failed: stage ended exceptionally; " + detail
+     if state in OPERATOR_ACTION_STATES:
+         return "operator action: changes requested"

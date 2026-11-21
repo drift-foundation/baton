@@ -1,0 +1,3 @@
+# Import verified; human checkpoint ready
+
+Current 20 host files independently rehashed after owner import: exact accepted joined tree 959f9524c94138325c724db84262dd009fa0eacedc3370e7142cc49904ed752b, file modes match postflight and owner-write preserved. Import report has exact changed-path set, unchanged HEAD 7ac02c7f and no index lock. Source and helper independently accepted in M385484/M385491. No source bytes changed since focused joined review; tests not repeated for byte-identical import. Packaging/image/native acceptance remain pending. Historical inventory exclusions remain as recorded in the joined review. No agent Git mutation.

@@ -1,0 +1,30 @@
+[
+  {
+    "mode": "preflight",
+    "dispatch": [
+      "preflight"
+    ],
+    "code": 0
+  },
+  {
+    "mode": "import",
+    "dispatch": [
+      "import"
+    ],
+    "code": 0
+  },
+  {
+    "mode": "prefight",
+    "dispatch": [
+      "import"
+    ],
+    "code": 0
+  },
+  {
+    "mode": "--help",
+    "dispatch": [
+      "import"
+    ],
+    "code": 0
+  }
+]

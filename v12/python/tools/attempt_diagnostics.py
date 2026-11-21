@@ -11,6 +11,14 @@ WHAT IT IS NOT, and each of these is a line somebody has crossed before:
 * IT IS NOT AN ACCEPTANCE. A diagnostic cause says which component ordered a
   runtime stopped. It does not accept a candidate, settle a stage, clear a
   gate or authorize a cleanup, and nothing in the projection branches on it.
+* AND A WORKER-DECLARED ENDING IS NOT A CAUSE. W385424 adds the producer's
+  `worker_declaration` axis -- what the worker answered about its own turn
+  and what the manager sealed of it -- as its OWN row member. It is reported
+  beside the cause, never folded into it and never read as a cessation: a
+  worker declaring itself unable did not stop a container, and `completeness`
+  is still decided on the cause alone. `verification_status` is what the
+  worker's own command said about itself; it is not a review and not a
+  verdict.
 * IT IS NOT A FRESHNESS VERDICT. No freshness policy has been selected for
   these facts, so this reports the instants it was given and declines to say
   whether they are recent. Inventing a staleness rule here would be this
@@ -158,6 +166,50 @@ WORKSPACE_MEMBERS = (
     ("device", (int,)),
     ("inode", (int,)),
 )
+
+# W385424: WHAT THE WORKER ITSELF DECLARED AND THIS MANAGER SEALED, and it is
+# a SEPARATE AXIS from the cause. A cause says which component ordered a
+# runtime stopped; this says what the worker answered about its own turn.
+# NEITHER IS THE OTHER, and reading a declaration as a cessation is exactly
+# the retrospective cause the producer refuses to manufacture -- so the two
+# travel side by side here and `completeness` is still decided on the cause
+# alone. A declaration is also NOT AN ACCEPTANCE: `verification_status: 0` is
+# what the worker's own command reported about itself, not a review, not a
+# verdict and not a merge.
+WORKER_DECLARATION_MEMBERS = (
+    ("disposition", (str,)),
+    ("result_id", (str,)),
+    ("frozen_at", (str, int, float)),
+    ("declared_ending", (str,)),
+    ("failure_reason", (str,)),
+    ("seconds_bound", (int,)),
+    ("seconds_bound_source", (str,)),
+    ("verification_attempted", (bool,)),
+    ("verification_status", (int,)),
+)
+
+# THE CLOSED VALUES, NOT ONLY THE CLOSED NAMES -- the same rule
+# `SOURCE_LIMIT_ORIGINS` exists for, applied to this axis. Four of these nine
+# members carry a vocabulary, and an unsupported value is a BOUNDED UNKNOWN
+# THAT DOES NOT ECHO WHAT IT SAW. The names are mirrored BY VALUE from
+# `baton_v12.worker_manager.failure_cause` and `...worker_manager.schema`,
+# like `SOURCE_DIAGNOSTIC_SCHEMA`, because this report is a projection OVER
+# the manager; `tests/tools/test_attempt_diagnostics.py` holds every one of
+# them against its owner so a rename fails a case instead of emptying a row.
+SOURCE_DISPOSITIONS = ("cancelled", "completed", "plan-rejected", "unable")
+SOURCE_DECLARED_ENDINGS = ("candidate", "no-candidate", "provider-failed",
+                           "verification-failed", "yielded")
+SOURCE_DECLARED_FAILURE_REASONS = ("api-error", "start-error", "timeout",
+                                   "unclassified")
+SOURCE_DECLARED_BOUND_SOURCES = ("job-default", "job-selected", "unstated",
+                                 "worker-default")
+_CLOSED_DECLARATION = {
+    "disposition": SOURCE_DISPOSITIONS,
+    "declared_ending": SOURCE_DECLARED_ENDINGS,
+    "failure_reason": SOURCE_DECLARED_FAILURE_REASONS,
+    "seconds_bound_source": SOURCE_DECLARED_BOUND_SOURCES,
+}
+_DECLARATION_SOURCE = "diagnostics.worker_declaration"
 
 # THE JOB'S OWN EXECUTION LIMITS, and the snapshot's own observation time.
 #
@@ -392,6 +444,41 @@ def _closed(held, name, owned, source):
                         + ", and the received one is omitted rather than "
                         + "echoed")
     return fact
+
+
+def _closed_fact(held, name, owned, source):
+    """One WRAPPED member whose value is owned, not merely whose name is.
+
+    `_closed` asks the same question of a raw scalar; everything inside the
+    diagnostic is a wrapper, so this asks it through `_fact`. The reason
+    never echoes the value, for `_closed`'s reason.
+    """
+    fact = _fact(held, name, tuple({type(one) for one in owned}), source)
+    if not fact["known"] or fact["value"] in owned:
+        return fact
+    return _unknown(name + " carries a value this report does not own; "
+                    + "the owned values are "
+                    + ", ".join(repr(one) for one in owned)
+                    + ", and the received one is omitted rather than echoed")
+
+
+def _worker_declaration(diagnostic):
+    """THE WORKER-DECLARED AXIS, or `None` when the producer carries none.
+
+    `None` is the compatible answer and means exactly "this diagnostic has no
+    declaration axis" -- an older producer, or a reader looking at a document
+    composed before this axis existed. It is not a claim that the worker
+    declared nothing, and nothing in this report branches on it.
+    """
+    held = (diagnostic or {}).get("worker_declaration") \
+        if isinstance(diagnostic, dict) else None
+    if not isinstance(held, dict):
+        return None
+    return {name: (_closed_fact(held, name, _CLOSED_DECLARATION[name],
+                                _DECLARATION_SOURCE)
+                   if name in _CLOSED_DECLARATION else
+                   _fact(held, name, kinds, _DECLARATION_SOURCE))
+            for name, kinds in WORKER_DECLARATION_MEMBERS}
 
 
 def _members(held, names, source):
@@ -724,13 +811,18 @@ def _row(stage, job=None):
         # PRE-EXECUTION ENDINGS, read off the diagnostic's top level.
         "axes": _facts(diagnostic, AXIS_MEMBERS, "diagnostics")
         if diagnostic is not None else None,
+        # W385424: WHAT THE WORKER DECLARED, BESIDE the cause and never
+        # instead of it. See WORKER_DECLARATION_MEMBERS.
+        "worker_declaration": _worker_declaration(diagnostic),
         "completeness": _completeness(cause, diagnostic, refused),
         # THIS ROW'S OWN JOB'S CEILINGS, requested beside effective, with the
         # units, the scope and the origin of each. See _execution_limits: the
         # Job is threaded in so a row can never answer with a sibling Job's.
         "execution_limits": _execution_limits(job),
-        "unrecognised": _unrecognised(
-            (diagnostic or {}).get("cause"), CAUSE_MEMBERS),
+        "unrecognised": tuple(dict.fromkeys(
+            _unrecognised((diagnostic or {}).get("cause"), CAUSE_MEMBERS)
+            + _unrecognised((diagnostic or {}).get("worker_declaration"),
+                            WORKER_DECLARATION_MEMBERS))),
         "locators": _locators(stage if isinstance(stage, dict) else {},
                               diagnostic),
     }

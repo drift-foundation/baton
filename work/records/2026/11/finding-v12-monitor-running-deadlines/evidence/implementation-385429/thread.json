@@ -1,0 +1,49 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385427",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385427"
+      }
+    ],
+    "last_seq": 385428,
+    "local_id": "T385427",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner selected and explicitly assigned codexpc: shared status/monitor timing showing Job age, actual invocation running duration, remaining time to earliest applicable provider/stage/Job deadline with named limiting cause, and activity age. Blocked reviewer must say not started rather than showing Job age as runtime. Unknown timing stays unknown; stale snapshot qualifications retained. Deadline reached is not confirmation of eviction/termination. Use shared read model for status, monitor and future TUI. Separate from running native W385424; do not modify its instance, inputs or execution. Research/revalidate actual timing fields then implement bounded source/tests in isolated candidate over current checkpoint; coordinate overlap with native status-cause candidate before any host import. No live models/engines/full suite/Git mutation. Independent review and human Git remain required. Read bound FINDING/PLAN for pinned scope and focused acceptance; claim before execution and begin work after claim.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385427,
+        "ts": "2026-11-21 03:59:03"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Assigned and ready: W385427/T385427, route baton.codx. Read work/records/2026/11/finding-v12-monitor-running-deadlines/FINDING.md and PLAN.md, claim then start bounded research+implementation (not a research-only hold). Owner selected Job age, actual invocation duration, earliest applicable named timeout countdown, activity age; blocked review not started, missing timing unknown, expiry not termination. Shared read model for status/monitor/TUI. IMPORTANT concurrent native W385424 is fixing failure status and may touch the same observation/view/projection tests. Work in an isolated candidate; no host product edits, native line/instance changes or import. Pin base and return digest-bound paths for coordinated joined review. No Git mutation/live model/engine/full suite. Focused deterministic validation. Post status and final handoff in T385427; pass/release and verify. Escalate only a concrete unresolved design/authority question; routine implementation is authorized.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385428,
+        "ts": "2026-11-21 03:59:45"
+      }
+    ],
+    "new": 2,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 monitor: actual running duration and named deadline countdown",
+    "total": 2
+  },
+  "snapshot_seq": 385429
+}

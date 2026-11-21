@@ -1,0 +1,65 @@
+{
+ "fix-002": {
+  "errors": [],
+  "exit": 0,
+  "failures": [],
+  "git": {
+   "invocations": 442,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "guard_sha256": "28e29e312461f88425d101b4ed4882484da59a5a4a361369879c3a105ba9ef1c",
+  "posture": [
+   [
+    "accepted",
+    "0o775",
+    1000
+   ]
+  ],
+  "tests": 2,
+  "umask": "002",
+  "wall": 12.0
+ },
+ "fix-022": {
+  "errors": [],
+  "exit": 0,
+  "failures": [],
+  "git": {
+   "invocations": 442,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "guard_sha256": "28e29e312461f88425d101b4ed4882484da59a5a4a361369879c3a105ba9ef1c",
+  "posture": [
+   [
+    "accepted",
+    "0o775",
+    1000
+   ]
+  ],
+  "tests": 2,
+  "umask": "022",
+  "wall": 12.0
+ },
+ "fix-077": {
+  "errors": [],
+  "exit": 0,
+  "failures": [],
+  "git": {
+   "invocations": 442,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "guard_sha256": "28e29e312461f88425d101b4ed4882484da59a5a4a361369879c3a105ba9ef1c",
+  "posture": [
+   [
+    "accepted",
+    "0o730",
+    1000
+   ]
+  ],
+  "tests": 2,
+  "umask": "077",
+  "wall": 12.1
+ }
+}

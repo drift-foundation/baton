@@ -1,0 +1,49 @@
+test_a_foreign_job_still_refuses_against_the_real_reader (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader) ... FAIL
+test_the_view_renders_the_real_model_free_completion (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion) ... FAIL
+
+======================================================================
+FAIL: test_a_foreign_job_still_refuses_against_the_real_reader (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-v12-w385424-recovery/tree/v12/python/tests/tools/test_job_viewer.py", line 997, in test_a_foreign_job_still_refuses_against_the_real_reader
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/var/tmp/baton-v12-w385424-recovery/tree/v12/python/tests/tools/test_stage_execution.py", line 9883, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/var/tmp/baton-v12-w385424-recovery/tree/v12/python/tests/tools/test_stage_execution.py", line 11631, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/var/tmp/baton-v12-w385424-recovery/tree/v12/python/tests/tools/test_stage_execution.py", line 9611, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed', 'integration': 'claimed'}
+
+======================================================================
+FAIL: test_the_view_renders_the_real_model_free_completion (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-v12-w385424-recovery/tree/v12/python/tests/tools/test_job_viewer.py", line 935, in test_the_view_renders_the_real_model_free_completion
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/var/tmp/baton-v12-w385424-recovery/tree/v12/python/tests/tools/test_stage_execution.py", line 9883, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/var/tmp/baton-v12-w385424-recovery/tree/v12/python/tests/tools/test_stage_execution.py", line 11631, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/var/tmp/baton-v12-w385424-recovery/tree/v12/python/tests/tools/test_stage_execution.py", line 9611, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed', 'integration': 'claimed'}
+
+----------------------------------------------------------------------
+Ran 2 tests in 16.091s
+
+FAILED (failures=2)

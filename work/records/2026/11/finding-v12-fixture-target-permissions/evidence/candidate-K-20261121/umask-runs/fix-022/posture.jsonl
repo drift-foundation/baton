@@ -1,0 +1,4 @@
+{"event": "prove_target_posture", "umask": "022", "target": {"place": "/var/tmp/baton-v12-w385454/verification-git/run-fix-022-ppnae7o7/fixtures/v12-w71917-ftxlam99/source", "gid": 1000, "mode": "0o775"}, "outcome": "accepted"}
+{"event": "prove_target_posture", "umask": "022", "target": {"place": "/var/tmp/baton-v12-w385454/verification-git/run-fix-022-ppnae7o7/fixtures/v12-w71917-ftxlam99/source", "gid": 1000, "mode": "0o775"}, "outcome": "accepted"}
+{"event": "prove_target_posture", "umask": "022", "target": {"place": "/var/tmp/baton-v12-w385454/verification-git/run-fix-022-ppnae7o7/fixtures/v12-w71917-1hg45pds/source", "gid": 1000, "mode": "0o775"}, "outcome": "accepted"}
+{"event": "prove_target_posture", "umask": "022", "target": {"place": "/var/tmp/baton-v12-w385454/verification-git/run-fix-022-ppnae7o7/fixtures/v12-w71917-1hg45pds/source", "gid": 1000, "mode": "0o775"}, "outcome": "accepted"}

@@ -1,0 +1,57 @@
+{
+  "base": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+  "tree_sha256": "78ad725b514ae851347ef8219d1e3db0d3a89d2672304588b7ba20e5b06ab77e",
+  "state": "incomplete-not-for-import",
+  "paths": [
+    {
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "sha256": "2e994e1fd9b1f9109129692a57eb829eded54d6b87ebb31a36c8d67d6fb341d4",
+      "base_sha256": "96919273f74d407fa6a2a583886d53a7243786574da7a609b256665232af073a"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "1309146258b8dd5416ed36fa94615471e184e434fddb2014ab83c1b4d5c53ac9",
+      "base_sha256": "211eb4cff7326957ae15fc8e709463cf326aa82fe896907268d0f0bf2be3665b"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_status.py",
+      "sha256": "50040bf0db41a3003a84a39a1aebf795db955c45badac9b8ac3ce4d01e0634f9",
+      "base_sha256": "74a669cd8c0869e17069752aef62dc8afa000890162360b1793aa9990b60aaaf"
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_observation.py",
+      "sha256": "d96391b200904ace8b6271813b42da7080cd073efb26ede4e311403d1eed3fc6",
+      "base_sha256": "1c8c635b340bac64c3ad59ea880349da94bf1e4a29d27983bfb5af628938caa8"
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_viewer.py",
+      "sha256": "66bf151005c5f3712b31fd92f439e4e323461fbe2ab62e42784c24cc27190235",
+      "base_sha256": "1e83ed502a076e3e9be54d914fb77a761665f57dde8c053730290fd7ee3d4b72"
+    },
+    {
+      "path": "v12/python/tools/job_observation.py",
+      "sha256": "4dea6177e9126d6620d2ef51eacb163a56dc0896fa0782c98a90b67c105e18e9",
+      "base_sha256": "2fa916f25c04381c0ef54406d95b9d3e13d9521047ba50c8ed5b1a3db203c57d"
+    },
+    {
+      "path": "v12/python/tools/job_viewer.py",
+      "sha256": "8aaec44c48e3fde4a0f88b1c7ee7b74d06ce0df25146fc53f16663ecbc9d8cf6",
+      "base_sha256": "a55b476493efc2d2ace546e15d8464e722d0fe54569c347e2c7b294c7e2fbebc"
+    },
+    {
+      "path": "v12/python/tools/stack.py",
+      "sha256": "3afd8d45d8e5a3b9dc84a39d5d231f146e84620aa269e670d55217c5b0371c98",
+      "base_sha256": "3e213d1df9452dce103528ac0edb78964e12329977c17c57d9c0da5f44f57610"
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "sha256": "fbd9479753b0278551bc5580ec995180b0e8150b5aa6563185052a552bbfba11",
+      "base_sha256": "9596a1292da3f55fba118e4aecff5af3e5ddf545c7d47c0167e9455abf0cdd4e"
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "6f8c37d526b11ded15fcadf8666c1659b4d6d58c49caba158cd378186ae18ef1",
+      "base_sha256": "368eae7ad5342703d76720c96b092f53037bf86c82ce187be4bbf31986eacd23"
+    }
+  ]
+}

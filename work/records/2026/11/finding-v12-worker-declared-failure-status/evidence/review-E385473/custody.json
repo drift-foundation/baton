@@ -1,0 +1,8 @@
+{
+  "verified_evidence_entries": 47,
+  "tree": "10f3d809254c3da937b4dc0761c9ec5971ea55ec2c0ed1fe6b21d50d3511eae0",
+  "manifest_sha256": "26cbd5d1ce92688c7ca5f316b3895901d8160d194a868c3267361f1974c70bda",
+  "all10_candidate_bytes_verified": true,
+  "overlay_applied": false,
+  "setup_note": "Initial copy script assumed all10 files in candidate/. Packet intentionally retains only3 corrected paths; resolved unchanged7 from hash-verified native copy before tests."
+}

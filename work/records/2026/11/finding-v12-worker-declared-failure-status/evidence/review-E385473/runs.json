@@ -1,0 +1,17 @@
+[
+  {
+    "label": "focused",
+    "exit_code": 0,
+    "wall_seconds": 2.7759779049665667
+  },
+  {
+    "label": "fifo",
+    "exit_code": 0,
+    "wall_seconds": 0.3543173419893719
+  },
+  {
+    "label": "missing-verification",
+    "exit_code": 0,
+    "wall_seconds": 0.3543741370085627
+  }
+]

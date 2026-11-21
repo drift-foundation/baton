@@ -1,0 +1,5 @@
+# W385454 progress
+
+## 2026-11-21 — isolated fixture-only candidate prepared (K, `baton.prompt`, owner-held arrangement, no claim)
+
+Candidate over `7ac02c7f`: one path, `v12/python/tests/tools/test_stage_execution.py` (`establish_target_posture` helper; `traversing` establishes group write+traversal on the nominated canonical target against the fixture-configured gid; four focused unit cases; `import stat`). Tree `c6755437f3effa6f5ddc2fcc69e6235e46dd02a66428cdb844570fa09d94cc99`, patch `0c752249…`. Proof: the two owner-approved cases pass under umasks 002/022/077 under the established confinement (posture accepted at `0o775`/`0o775`/`0o730`; 442 confined Git invocations each, 0 refused, none outside the fresh fixture roots); focused checks 7/7 incl. the untouched negative posture coverage. Packet: `evidence/candidate-K-20261121/HANDOFF.md`. Feature packets W385427/W385424 untouched (digests pinned in `manifest.json`). No host import, live run, policy change or Git mutation outside the confined fixture roots. Awaiting independent review.

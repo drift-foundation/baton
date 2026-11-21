@@ -1,0 +1,186 @@
+diff -ruN '--exclude=__pycache__' '--exclude=work' native/v12/python/src/baton_v12/worker_manager/failure_cause.py candidate/v12/python/src/baton_v12/worker_manager/failure_cause.py
+--- a/v12/python/src/baton_v12/worker_manager/failure_cause.py	2026-11-21 05:46:42.655290749 -0700
++++ b/v12/python/src/baton_v12/worker_manager/failure_cause.py	2026-11-21 05:47:28.258166245 -0700
+@@ -1387,13 +1387,22 @@
+     length, short, long, or recomputing to another digest. The caller turns
+     that into an unknown with a bounded reason; it never turns it into a
+     partial read.
++
++    AND THE OPEN ITSELF NEVER WAITS. Review 2026-11-21T12-34-16Z [R1]: a
++    blocking `open` of a FIFO left where the regular file was measured waits
++    for a writer that never comes, and a diagnostic read that can hang the
++    status projection is not bounded observation. `O_NONBLOCK` makes the open
++    of a special file return at once; the type is then judged on the OPENED
++    descriptor, where a regular file reads exactly as before (the flag has no
++    effect on it) and anything else is refused without a peer.
+     """
+     if not isinstance(size, int) or isinstance(size, bool) \
+             or not 0 < size <= RETAINED_RESULT_BYTES \
+             or not isinstance(expected, str):
+         return None
+     try:
+-        handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
++        handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC
++                         | os.O_NONBLOCK)
+     except (OSError, ValueError):
+         return None
+     try:
+@@ -1522,11 +1531,18 @@
+     return _unknown(why)
+ 
+ 
++_ABSENT = object()   # a member that is not there, as distinct from `null`
++
++
+ def _declared_members(document):
+     """The typed members of one retained result, each owned or unknown."""
+     provider = document.get("provider")
+     provider = provider if isinstance(provider, dict) else {}
+-    verification = document.get("verification")
++    # ABSENT IS NOT NULL. Review 2026-11-21T12-34-16Z [R2]: the worker encodes
++    # "no verification command ran" as an explicit `null`; a result that
++    # carries NO verification member says nothing about it, and a sealed
++    # digest authenticates the bytes, not their completeness.
++    verification = document.get("verification", _ABSENT)
+     answer = {
+         "declared_ending": _closed_member(
+             document.get("disposition"), DECLARED_ENDINGS,
+@@ -1548,7 +1564,12 @@
+             "the retained result says nobody this build owns chose the "
+             "provider bound"),
+     }
+-    if verification is None:
++    if verification is _ABSENT:
++        missing = ("the retained result carries no verification member, so "
++                   "whether a command ran is unknown")
++        answer["verification_attempted"] = _unknown(missing)
++        answer["verification_status"] = _unknown(missing)
++    elif verification is None:
+         # NOT ATTEMPTED IS AN ANSWER. The worker publishes `null` here exactly
+         # when no verification command ran, and that is a different fact from
+         # a command that ran and said nothing -- which is why the status
+diff -ruN '--exclude=__pycache__' '--exclude=work' native/v12/python/tests/manager/test_attempt_failure_cause.py candidate/v12/python/tests/manager/test_attempt_failure_cause.py
+--- a/v12/python/tests/manager/test_attempt_failure_cause.py	2026-11-21 05:46:42.657639300 -0700
++++ b/v12/python/tests/manager/test_attempt_failure_cause.py	2026-11-21 05:48:21.554465344 -0700
+@@ -2555,6 +2555,100 @@
+         with open(place, "rb") as reading:
+             self.assertEqual(reading.read(), bytes_before)
+ 
++    # -- review 2026-11-21T12-34-16Z: a bounded open, and absent is not null --
++
++    def test_a_FIFO_where_the_SEALED_RESULT_was_is_a_BOUNDED_UNKNOWN_not_a_wait(self):
++        """[R1] The public path over a special file returns promptly with every
++        typed member unknown; the sealed disposition and the cause axis are
++        untouched. A watchdog thread stands in for the hang the review
++        reproduced, so a regression fails here instead of hanging the suite."""
++        import threading
++
++        self.freeze(self.candidate(self.result_document()))
++        place = os.path.join(self.custody, "result.json")
++        os.unlink(place)
++        os.mkfifo(place)
++        self.addCleanup(os.unlink, place)
++        # THE WATCHDOG: if the observation is still inside the open after five
++        # seconds, it is waiting for a writer; supply one so the suite does
++        # not hang, and remember that it had to. (The store is thread-bound,
++        # so the observation itself runs here, on the main thread.)
++        waited = []
++
++        def release():
++            waited.append(True)
++            try:
++                os.close(os.open(place, os.O_WRONLY | os.O_NONBLOCK))
++            except OSError:
++                pass
++        watchdog = threading.Timer(5.0, release)
++        watchdog.daemon = True
++        watchdog.start()
++        try:
++            composed = self.composed()
++        finally:
++            watchdog.cancel()
++        self.assertEqual(waited, [], "the public observation waited on a FIFO "
++                         "with no writer; a diagnostic read must not")
++        held = self.values(failure_cause.declaration_of(composed))
++        self.assertEqual(held["disposition"], (True, "unable"))
++        self.assertEqual(held["result_id"], (True, "result-1"))
++        for name in ("declared_ending", "failure_reason", "seconds_bound",
++                     "seconds_bound_source", "verification_attempted",
++                     "verification_status"):
++            self.assertEqual(held[name], (False, None), name)
++            self.assertIn("does not recompute",
++                          failure_cause.declaration_of(composed)[name]["why"])
++        self.assertIsNone(composed["cause"])
++        self.assertEqual(failure_cause.answer_of(composed), "unknown")
++
++    def test_a_MISSING_verification_member_is_UNKNOWN_not_NOT_ATTEMPTED(self):
++        """[R2] A measured, supported-schema result with no `verification`
++        member says nothing about verification; only an explicit `null` says
++        it was not attempted."""
++        raw = json.loads(self.result_document())
++        del raw["verification"]
++        self.freeze(self.candidate(json.dumps(raw, sort_keys=True).encode("utf-8")))
++        declaration = failure_cause.declaration_of(self.composed())
++        held = self.values(declaration)
++        self.assertEqual(held["verification_attempted"], (False, None))
++        self.assertEqual(held["verification_status"], (False, None))
++        self.assertIn("no verification member",
++                      declaration["verification_attempted"]["why"])
++        # AND THE REST OF THE DECLARATION STILL STANDS on the members present.
++        self.assertEqual(held["declared_ending"], (True, "provider-failed"))
++        self.assertEqual(held["failure_reason"], (True, "timeout"))
++
++    def test_an_EXPLICIT_NULL_verification_is_NOT_ATTEMPTED_and_a_VALID_STATUS_is_KNOWN(self):
++        held = self.values(self.declared(verification=None))
++        self.assertEqual(held["verification_attempted"], (True, False))
++        self.assertEqual(held["verification_status"], (False, None))
++        case = type(self)(self._testMethodName)
++        case.setUp()
++        self.addCleanup(case.doCleanups)
++        held = case.values(case.declared(
++            disposition="verification-failed",
++            provider={"status": 0, "failure_reason": None,
++                      "seconds_bound": 3600, "seconds_bound_source": "job-default"},
++            verification={"status": 0, "argv": ["python3", "-m", "unittest"]}))
++        self.assertEqual(held["verification_attempted"], (True, True))
++        self.assertEqual(held["verification_status"], (True, 0))
++
++    def test_a_MALFORMED_verification_member_is_UNKNOWN_on_both_axes(self):
++        for spoiled in ("ran", 7, [], {"status": "one"}, {"status": 2 ** 40}):
++            with self.subTest(verification=spoiled):
++                case = type(self)(self._testMethodName)
++                case.setUp()
++                self.addCleanup(case.doCleanups)
++                held = case.values(case.declared(verification=spoiled))
++                if isinstance(spoiled, dict):
++                    # A DOCUMENT WITHOUT AN OWNED STATUS: a command ran, and
++                    # what it said is unknown.
++                    self.assertEqual(held["verification_attempted"], (True, True))
++                else:
++                    self.assertEqual(held["verification_attempted"], (False, None))
++                self.assertEqual(held["verification_status"], (False, None))
++
+     def test_the_DECLARATION_MEMBER_SET_is_CLOSED_and_every_leaf_is_a_WRAPPER(self):
+         declaration = self.declared()
+         self.assertEqual(sorted(declaration),
+diff -ruN '--exclude=__pycache__' '--exclude=work' native/v12/python/tests/tools/test_job_observation.py candidate/v12/python/tests/tools/test_job_observation.py
+--- a/v12/python/tests/tools/test_job_observation.py	2026-11-21 05:46:42.659036835 -0700
++++ b/v12/python/tests/tools/test_job_observation.py	2026-11-21 05:48:21.554571551 -0700
+@@ -169,6 +169,17 @@
+             self.assertIn("verification not attempted", rendered)
+             self.assertNotIn("cause unknown", rendered)
+ 
++    def test_an_UNKNOWN_verification_axis_renders_as_UNKNOWN_not_NOT_ATTEMPTED(self):
++        """Review 2026-11-21T12-34-16Z [R2]: a result with no verification
++        member reaches the views as an unknown axis, and the sentence says
++        so rather than claiming nothing was attempted."""
++        doc = self.failing(dict(self.TIMEOUT, verification_attempted=None,
++                                verification_status=None))
++        for rendered in views(doc):
++            self.assertIn("whether verification ran is unknown", rendered)
++            self.assertNotIn("verification not attempted", rendered)
++            self.assertNotIn("cause unknown", rendered)
++
+     def test_a_FAILED_VERIFICATION_reads_DIFFERENTLY_from_a_timeout(self):
+         timeout = views(self.failing(self.TIMEOUT))
+         failed = views(self.failing(self.FAILED))

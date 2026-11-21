@@ -1,0 +1,62 @@
+[
+ {
+  "path": "v12/python/JOB-VIEWER.md",
+  "candidate_sha256": "7b0ac7c8f1c4d2fe6f596f51738439ed61ff2101be288bd12a1d24baa5623e21",
+  "base_sha256": "b4704b93d308207649a859ab51c7ea5d90fb89b303916cf109ec83da490a43e1",
+  "state": "modified"
+ },
+ {
+  "path": "v12/python/src/baton_v12/job_manager/projection.py",
+  "candidate_sha256": "432e4b8ff53f35b38f7c6ef0e9afefb17f08672e9bb662eca0878c9211085d33",
+  "base_sha256": "211eb4cff7326957ae15fc8e709463cf326aa82fe896907268d0f0bf2be3665b",
+  "state": "modified"
+ },
+ {
+  "path": "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+  "candidate_sha256": "05f49b4a67fcc86ee5af61b91c518651561bbc8472f472df48747c412dc24dc2",
+  "base_sha256": "776f5932dc9c3d0f2df7ffed4e895078806def020d829a47563801da9621f1a3",
+  "state": "modified"
+ },
+ {
+  "path": "v12/python/tests/manager/test_attempt_failure_cause.py",
+  "candidate_sha256": "62b690e9a1a63c3f3c16cee5126c8be5f7b8de7a99b1e006a4361ec439603cde",
+  "base_sha256": "8371cbb8b28e16572defe0ef4c0a0efd09a4d41ea6ab22c92cdc1c6efcf94e30",
+  "state": "modified"
+ },
+ {
+  "path": "v12/python/tests/manager/test_boundary_inventory.py",
+  "candidate_sha256": "24c12076c2ef2cf5b7e98641154184bf43aa58cbc1564cb3aae4ada4c9977f73",
+  "base_sha256": "7da1a6010369191bc7ab22bbe94f786c330c4dc2730d0bab2a5214bd5a594323",
+  "state": "modified"
+ },
+ {
+  "path": "v12/python/tests/tools/test_attempt_diagnostics.py",
+  "candidate_sha256": "714c8524680d1e58dba9e98304f8621d2cb0008016af09300a8c2d9e3615801b",
+  "base_sha256": "212b946c648a2eede6f8f442bfba6666013263cd05ce5c1959dfa75e1766d829",
+  "state": "modified"
+ },
+ {
+  "path": "v12/python/tests/tools/test_job_observation.py",
+  "candidate_sha256": "813d9a37de72d147a2a9a6b46e3d4f558d6fc60afdea11beeeb27e7bbd35721e",
+  "base_sha256": "1c8c635b340bac64c3ad59ea880349da94bf1e4a29d27983bfb5af628938caa8",
+  "state": "modified"
+ },
+ {
+  "path": "v12/python/tests/tools/test_job_viewer.py",
+  "candidate_sha256": "fa940bbc867356889371c68ad3d1f08076237d8483e56349a6c2fc44875ae77a",
+  "base_sha256": "1e83ed502a076e3e9be54d914fb77a761665f57dde8c053730290fd7ee3d4b72",
+  "state": "modified"
+ },
+ {
+  "path": "v12/python/tools/attempt_diagnostics.py",
+  "candidate_sha256": "a89ee12110e8aa62c1f5c9bdd2c9f9411d86cff9d411d6ca48c39fe35cc1ae98",
+  "base_sha256": "6e02e22ef7ebd5cb4ae4725bc19a7c200b62897aba9f1f341435ceff2bb4fd12",
+  "state": "modified"
+ },
+ {
+  "path": "v12/python/tools/job_observation.py",
+  "candidate_sha256": "7631c74996990d1ee38891ef5c69fb23bb13b08da0ff255b3f1396f9925d0be5",
+  "base_sha256": "2fa916f25c04381c0ef54406d95b9d3e13d9521047ba50c8ed5b1a3db203c57d",
+  "state": "modified"
+ }
+]

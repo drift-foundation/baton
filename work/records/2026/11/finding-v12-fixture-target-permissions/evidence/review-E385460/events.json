@@ -1,0 +1,156 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "events": [
+      {
+        "actor": "baton.prompt",
+        "kind": "create_work",
+        "payload": {
+          "binding": {
+            "path": "work/records/2026/11/finding-v12-fixture-target-permissions",
+            "revision": 1,
+            "root": "baton"
+          },
+          "classification": "confirmed-defect",
+          "follow_up_of": null,
+          "kind": "decide",
+          "origin": "external-report",
+          "parent": null,
+          "phase": "queued",
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W385454"
+            }
+          ],
+          "priority": "normal",
+          "resolution": {
+            "endpoint": "baton.decide",
+            "generation": 15,
+            "handlers": [
+              "slaw"
+            ],
+            "role": "approv",
+            "route": "approv"
+          },
+          "team": "baton",
+          "title": "V12 compatibility fixtures: explicit integration target permissions"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 869,
+          "end_kind": "claim",
+          "end_seq": 385460,
+          "ended_at": "2026-11-21T12:15:51Z",
+          "open": false,
+          "phase": "queued",
+          "start_seq": 385454,
+          "started_at": "2026-11-21T12:01:22Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385454,
+        "ts": "2026-11-21T12:01:22Z"
+      },
+      {
+        "actor": "baton.prompt",
+        "kind": "reroute",
+        "payload": {
+          "from": {
+            "endpoint": "baton.decide",
+            "route": "approv"
+          },
+          "phase": "queued",
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W385454"
+            }
+          ],
+          "reason": "Independent review of K one-file fixture correction, M385456; exact assignment in thread. No import or native execution.",
+          "resolution": {
+            "endpoint": "baton.codx",
+            "generation": 15,
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "route_selected": null,
+          "to": "baton.codx",
+          "work": "2b077949-W385454"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385459,
+        "ts": "2026-11-21T12:08:20Z"
+      },
+      {
+        "actor": "baton.codxpc",
+        "claim_interval": {
+          "claim_seq": 385460,
+          "claimant": "baton.codxpc",
+          "elapsed_seconds": 137,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "started_at": "2026-11-21T12:15:51Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.codxpc",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W385454"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.codx",
+            "generation": 15,
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "work": "2b077949-W385454"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 138,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "open": true,
+          "phase": "active",
+          "start_seq": 385460,
+          "started_at": "2026-11-21T12:15:51Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385460,
+        "ts": "2026-11-21T12:15:51Z"
+      }
+    ],
+    "local_id": "W385454",
+    "next_after": null,
+    "next_before": null,
+    "title": "V12 compatibility fixtures: explicit integration target permissions",
+    "work": "2b077949-W385454"
+  },
+  "snapshot_seq": 385460
+}

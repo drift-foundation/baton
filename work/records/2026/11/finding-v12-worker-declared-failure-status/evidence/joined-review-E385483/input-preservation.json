@@ -1,0 +1,146 @@
+[
+  {
+    "path": "v12/python/JOB-VIEWER.md",
+    "inputs": [
+      "W385424"
+    ],
+    "joined_sha256": "7b0ac7c8f1c4d2fe6f596f51738439ed61ff2101be288bd12a1d24baa5623e21"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/documents.py",
+    "inputs": [
+      "W385427"
+    ],
+    "joined_sha256": "2e994e1fd9b1f9109129692a57eb829eded54d6b87ebb31a36c8d67d6fb341d4"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/projection.py",
+    "inputs": [
+      "W385427",
+      "W385424"
+    ],
+    "joined_sha256": "c5320624e7e94bdb2d25b5847ba2ff80b7a461b24ba07602d4b9ca524504b63b"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/exchange.py",
+    "inputs": [
+      "W385427"
+    ],
+    "joined_sha256": "88ebdd5add29dc17438d60ef864c7a2efd239db610bcd4e8370377eabaac217e"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+    "inputs": [
+      "W385424"
+    ],
+    "joined_sha256": "bcd53370a3cd6660a086b14d3f0aa6ca0ebaf32ff816adb3960cd6b574d48393"
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_status.py",
+    "inputs": [
+      "W385427"
+    ],
+    "joined_sha256": "50040bf0db41a3003a84a39a1aebf795db955c45badac9b8ac3ce4d01e0634f9"
+  },
+  {
+    "path": "v12/python/tests/manager/test_attempt_failure_cause.py",
+    "inputs": [
+      "W385424"
+    ],
+    "joined_sha256": "093db1a8ae9c8411a78fa41588bbf956aab51e45410199521697d5d263c84558"
+  },
+  {
+    "path": "v12/python/tests/manager/test_boundary_inventory.py",
+    "inputs": [
+      "W385424"
+    ],
+    "joined_sha256": "24c12076c2ef2cf5b7e98641154184bf43aa58cbc1564cb3aae4ada4c9977f73"
+  },
+  {
+    "path": "v12/python/tests/manager/test_claude_agent.py",
+    "inputs": [
+      "W385427"
+    ],
+    "joined_sha256": "6b32d3d8f6a63cc8b13a26aacf4f4c833e260d3104000885204f867ac0bf4ab8"
+  },
+  {
+    "path": "v12/python/tests/manager/test_exchange.py",
+    "inputs": [
+      "W385427"
+    ],
+    "joined_sha256": "eadcd4a89de287bd8ea8fe01d2fc9827242e6a1f9e3728bc573ecf97dabaf60a"
+  },
+  {
+    "path": "v12/python/tests/tools/test_attempt_diagnostics.py",
+    "inputs": [
+      "W385424"
+    ],
+    "joined_sha256": "714c8524680d1e58dba9e98304f8621d2cb0008016af09300a8c2d9e3615801b"
+  },
+  {
+    "path": "v12/python/tests/tools/test_job_observation.py",
+    "inputs": [
+      "W385427",
+      "W385424"
+    ],
+    "joined_sha256": "6d13d60c56cf0fa6270c16e73f66da75f2b16792914c6fd5ab3c30c54d21ef68"
+  },
+  {
+    "path": "v12/python/tests/tools/test_job_viewer.py",
+    "inputs": [
+      "W385427",
+      "W385424"
+    ],
+    "joined_sha256": "876aa5ef33fbdef3671ec35c772e84baf931f940846f72417231527a433cf8ee"
+  },
+  {
+    "path": "v12/python/tests/tools/test_stage_execution.py",
+    "inputs": [
+      "W385454"
+    ],
+    "joined_sha256": "03a7710ee7440e3c1c1aaa95ac40e9931dfcaedfe75391874ecd7b72079a99d2"
+  },
+  {
+    "path": "v12/python/tools/attempt_diagnostics.py",
+    "inputs": [
+      "W385424"
+    ],
+    "joined_sha256": "a89ee12110e8aa62c1f5c9bdd2c9f9411d86cff9d411d6ca48c39fe35cc1ae98"
+  },
+  {
+    "path": "v12/python/tools/job_observation.py",
+    "inputs": [
+      "W385427",
+      "W385424"
+    ],
+    "joined_sha256": "aae42fbc47fe4e8fd6a856bf4b4e59c5e5cdf3da73b9f4f46cb788c5b323eebb"
+  },
+  {
+    "path": "v12/python/tools/job_viewer.py",
+    "inputs": [
+      "W385427"
+    ],
+    "joined_sha256": "8aaec44c48e3fde4a0f88b1c7ee7b74d06ce0df25146fc53f16663ecbc9d8cf6"
+  },
+  {
+    "path": "v12/python/tools/stack.py",
+    "inputs": [
+      "W385427"
+    ],
+    "joined_sha256": "3afd8d45d8e5a3b9dc84a39d5d231f146e84620aa269e670d55217c5b0371c98"
+  },
+  {
+    "path": "v12/worker/baton_worker.py",
+    "inputs": [
+      "W385427"
+    ],
+    "joined_sha256": "fbd9479753b0278551bc5580ec995180b0e8150b5aa6563185052a552bbfba11"
+  },
+  {
+    "path": "v12/worker/claude_agent.py",
+    "inputs": [
+      "W385427"
+    ],
+    "joined_sha256": "6f8c37d526b11ded15fcadf8666c1659b4d6d58c49caba158cd378186ae18ef1"
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "bwrap",
+    "--ro-bind",
+    "/",
+    "/",
+    "--bind",
+    "/home/sl/src/baton/work/scratch/w385427/verification-git/run-mqcme7j7",
+    "/home/sl/src/baton/work/scratch/w385427/verification-git/run-mqcme7j7",
+    "--unshare-net",
+    "--unshare-pid",
+    "--die-with-parent",
+    "--new-session",
+    "--cap-drop",
+    "ALL",
+    "--proc",
+    "/proc",
+    "--dev",
+    "/dev",
+    "--chdir",
+    "/home/sl/src/baton/work/scratch/w385427/candidate/v12/python",
+    "--",
+    "/home/sl/src/baton/.venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-monitor-running-deadlines/evidence/continuation-385443/fixture_runner.py"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 1.0808974399697036,
+  "run_root": "/home/sl/src/baton/work/scratch/w385427/verification-git/run-mqcme7j7"
+}

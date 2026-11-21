@@ -16,7 +16,7 @@ STALE_SECONDS = 15.0
 
 def stale_ages(*ages):
     """Absent/invalid required age is unknown, never fresh."""
-    return any(age is None or not math.isfinite(age) or age >= STALE_SECONDS for age in ages)
+    return any(age is None or not math.isfinite(age) or age < 0 or age >= STALE_SECONDS for age in ages)
 
 
 def observation_age(observed_at, now):
@@ -73,8 +73,9 @@ def _elapsed(started, ended, observed_at):
     if not started or not finish:
         return None
     try:
-        return max(0.0, _instant(finish) - _instant(started))
-    except ValueError:
+        seconds = _instant(finish) - _instant(started)
+        return seconds if math.isfinite(seconds) and seconds >= 0 else None
+    except (ValueError, TypeError, OverflowError):
         return None
 
 
@@ -189,13 +190,104 @@ def _live_episode(stage):
     return None
 
 
-def _stage_line(stage, observed_at):
+def job_age(job, observed_at):
+    control = job.get("control") if type(job.get("control")) is dict else {}
+    held = control.get("job") if type(control.get("job")) is dict else {}
+    origin = job.get("created_at") or held.get("origin")
+    return _duration(_elapsed(origin, None, observed_at))
+
+
+def stage_timing(stage, job, observed_at):
+    """Interpret only attributed process facts and original admitted deadlines."""
+    state = stage.get("state")
+    never = (state in HELD_STATES and not stage.get("runtime") and not stage.get("exchange")
+             and not stage.get("receipts")
+             and not any(one.get("ended_at") for one in stage.get("episodes") or [])
+             and (not stage.get("attempt_id") or state == "blocked"))
+    result = {"running": "not started" if never else UNKNOWN, "running_seconds": None,
+              "started_at": None, "ended_at": None, "scope": "provider-process",
+              "job_age": job_age(job or {}, observed_at), "deadlines": [],
+              "limiting": [], "remaining_seconds": None, "complete": False,
+              "timeout": "timeout unknown", "observed_at": observed_at}
+    try:
+        clock = _instant(observed_at)
+    except (ValueError, TypeError, OverflowError):
+        return result
+    exchange = stage.get("exchange") if type(stage.get("exchange")) is dict else {}
+    invocation = exchange.get("invocation")
+    command = exchange.get("command") if type(exchange.get("command")) is dict else {}
+    provider = None
+    if type(invocation) is dict and stage.get("attempt_id") and invocation.get("attempt_id") == stage["attempt_id"] and invocation.get("scope") == "provider-process" and invocation.get("operation") == "work" and invocation.get("command_digest") and invocation.get("command_digest") == command.get("command_digest") and invocation.get("sequence_id") == command.get("sequence_id"):
+        try:
+            start = _instant(invocation.get("started_at"))
+            deadline = _instant(invocation.get("deadline_at"))
+            end = None if invocation.get("ended_at") is None else _instant(invocation["ended_at"])
+            if start > clock or deadline < start or (end is not None and not start <= end <= clock):
+                raise ValueError("invalid invocation chronology")
+            if end is not None or state not in TERMINAL_STATES:
+                seconds = (clock if end is None else end) - start
+                result.update(running=_duration(seconds), running_seconds=seconds,
+                              started_at=invocation["started_at"], ended_at=invocation.get("ended_at"))
+            # Once this process ended, its deadline no longer limits the stage.
+            provider = {"origin": invocation["started_at"], "deadline_at": invocation["deadline_at"]} if end is None else {}
+        except (ValueError, TypeError, OverflowError):
+            pass
+    if state in TERMINAL_STATES:
+        result["timeout"] = "timeout not applicable (stage ended)"
+        return result
+    control = (job or {}).get("control")
+    trusted = False
+    if type(control) is dict and control.get("timing") == "trusted":
+        try:
+            age = clock - _instant(control.get("observed_at"))
+            trusted = 0 <= age < STALE_SECONDS
+        except (ValueError, TypeError, OverflowError):
+            pass
+    control = control if trusted else {}
+    stages = control.get("stages") if type(control.get("stages")) is list else []
+    stage_control = next((one for one in stages if type(one) is dict and one.get("stage_id") == stage.get("stage_id")), {})
+    missing = []
+    limits = [("Job", control.get("job"))]
+    if not never:
+        limits.append(("stage", stage_control))
+        if provider != {}:
+            limits.append(("provider", provider))
+    for name, held in limits:
+        try:
+            origin = _instant(held.get("origin"))
+            deadline = _instant(held.get("deadline_at"))
+            if origin > clock or deadline < origin:
+                raise ValueError("invalid deadline chronology")
+        except (AttributeError, ValueError, TypeError, OverflowError):
+            missing.append(name)
+            continue
+        result["deadlines"].append({"cause": name, "deadline_at": held["deadline_at"],
+                                    "remaining_seconds": max(0.0, deadline - clock),
+                                    "reached": deadline <= clock})
+    if result["deadlines"]:
+        first = min(_instant(one["deadline_at"]) for one in result["deadlines"])
+        names = [one["cause"] for one in result["deadlines"] if _instant(one["deadline_at"]) == first]
+        remaining = max(0.0, first - clock)
+        result.update(limiting=names, remaining_seconds=remaining, complete=not missing)
+        label = "/".join(names)
+        result["timeout"] = (label + " deadline reached; cessation unconfirmed" if first <= clock
+                             else label + " timeout in " + _duration(remaining))
+        if missing:
+            result["timeout"] += "; " + "/".join(missing) + " timing unknown (earliest known only)"
+    return result
+
+
+def _stage_line(stage, observed_at, job=None):
     episode = _live_episode(stage)
     started = (episode or {}).get("opened_at")
     ended = (episode or {}).get("ended_at")
     state = stage.get("state")
     state = state if state in _STATUS_STAGE_STATES else UNKNOWN
+    timing = stage_timing(stage, job, observed_at)
     held = {
+        "timing": timing,
+        "running": timing["running"],
+        "timeout": timing["timeout"],
         "stage_id": stage.get("stage_id") or UNKNOWN,
         "kind": stage.get("kind") or UNKNOWN,
         "state": state,
@@ -207,8 +299,8 @@ def _stage_line(stage, observed_at):
         "offer_id": stage.get("offer_id") or UNKNOWN,
         "episode": stage.get("episode") if stage.get("episode") is not None
                    else UNKNOWN,
-        "elapsed": _duration(_elapsed(started, ended, observed_at)),
-        "started_at": started or UNKNOWN,
+        "elapsed": timing["running"],
+        "started_at": timing["started_at"] or UNKNOWN,
         # ACTIVITY COMES FROM THE SNAPSHOT AND FROM NOWHERE ELSE. W61599's
         # producer puts it on the attempt, `delegation` observes it and
         # `projection` publishes it at `runtime.activity`; this reads that and
@@ -276,15 +368,130 @@ def _allocated(held):
     return taken
 
 
+# W385424: THE WORKER'S OWN DECLARED ENDING, as the diagnostic producer
+# publishes it. Every name and value below is mirrored BY VALUE from
+# `baton_v12.worker_manager.failure_cause`, for the reason this whole module
+# imports nothing: it is the shared interpretation of a document, and a
+# dependency on the producer would make it a reader of its own subject.
+# `tests/tools/test_job_observation.py` holds the mirror against the owner.
+#
+# A DECLARATION IS NOT A CESSATION, AND THIS RENDERING SAYS SO IN WORDS. It
+# reports what the worker DECLARED and what this manager SEALED of it; it
+# never says a container died, a candidate is good, verification passed or
+# anybody reviewed anything. The exchange fault and the manager's own
+# cancellation facts keep their place ahead of it and are not replaced.
+_DECLARATION_MEMBER = "worker_declaration"
+# ONLY `unable` SPEAKS HERE. `cancelled` is the manager's own act and its
+# facts are reported by the cancellation axis; `completed` and `plan-rejected`
+# are not failures and have no business explaining one.
+_DECLARED_UNABLE = "unable"
+_DECLARED_ENDINGS = {
+    "provider-failed": "the provider did not finish",
+    "verification-failed": "its own verification command failed",
+    "no-candidate": "it produced no candidate",
+    "candidate": "it produced a candidate",
+    "yielded": "it yielded a checkpoint",
+}
+_DECLARED_FAILURE_REASONS = {
+    "timeout": "provider timed out",
+    "start-error": "provider would not start",
+    "api-error": "provider reported an api error",
+    "unclassified": "provider failure unclassified",
+}
+_DECLARED_BOUND_SOURCES = ("job-default", "job-selected", "unstated",
+                           "worker-default")
+# The widest a declared provider bound or exit status may be before this view
+# declines to render it. The producer already bounds both; this is what a
+# CONSUMER must survive, exactly as MAX_ACTIVITY_BYTES is.
+MAX_DECLARED_SECONDS = 7 * 24 * 60 * 60
+DECLARED_STATUS_RANGE = (-256, 65535)
+
+
+def _declared_fact(held, name):
+    """One wrapped producer leaf as its value, or `None`.
+
+    THE ONE SHAPE, READ THE WAY ITS OWNER WRITES IT: `{"known": true,
+    "value": ...}` or `{"known": false, ...}`. A bare scalar, a missing
+    member or a non-boolean `known` is not an established fact and answers
+    `None` -- this view never reads an unknown as a known.
+    """
+    if type(held) is not dict:
+        return None
+    wrapper = held.get(name)
+    if type(wrapper) is not dict or wrapper.get("known") is not True:
+        return None
+    return wrapper.get("value")
+
+
+def _declared_word(held, name, owned):
+    value = _declared_fact(held, name)
+    return value if type(value) is str and value in owned else None
+
+
+def _declared_number(held, name, low, high):
+    value = _declared_fact(held, name)
+    if type(value) is not int or type(value) is bool or not low <= value <= high:
+        return None
+    return value
+
+
+def _declared_ending(stage):
+    """What the worker said about its own ending, in bounded words, or `None`.
+
+    `None` keeps `cause unknown` exactly as it was: no frozen result, a
+    disposition this view does not speak for, evidence that did not bind, or
+    a producer that carries no declaration at all are all "nobody established
+    this", and inventing a sentence for them is the thing this model refuses
+    everywhere else.
+    """
+    diagnostic = stage.get("attempt_diagnostics")
+    if type(diagnostic) is not dict:
+        return None
+    held = diagnostic.get(_DECLARATION_MEMBER)
+    if _declared_fact(held, "disposition") != _DECLARED_UNABLE:
+        return None
+    said = "worker declared unable"
+    ending = _declared_word(held, "declared_ending", _DECLARED_ENDINGS)
+    if ending is None:
+        return said + "; its declared ending is unknown"
+    said = said + ": " + _DECLARED_ENDINGS[ending]
+    reason = _declared_word(held, "failure_reason", _DECLARED_FAILURE_REASONS)
+    if reason is not None:
+        said = said + " (" + _DECLARED_FAILURE_REASONS[reason] + ")"
+    bound = _declared_number(held, "seconds_bound", 1, MAX_DECLARED_SECONDS)
+    if bound is not None:
+        source = _declared_word(held, "seconds_bound_source",
+                                _DECLARED_BOUND_SOURCES)
+        said = (said + " at a " + _duration(bound) + " provider bound"
+                + ("" if source is None else " (" + source + ")"))
+    attempted = _declared_fact(held, "verification_attempted")
+    if attempted is False:
+        return said + "; verification not attempted"
+    if attempted is True:
+        status = _declared_number(held, "verification_status",
+                                  DECLARED_STATUS_RANGE[0],
+                                  DECLARED_STATUS_RANGE[1])
+        return (said + "; verification "
+                + ("status unknown" if status is None
+                   else "ended " + str(status)))
+    return said + "; whether verification ran is unknown"
+
+
 def _reason(stage, state):
     if state == "exceptional":
         exchange = stage.get("exchange")
         terminal = exchange.get("terminal") if type(exchange) is dict else None
         fault = terminal.get("fault_code") if type(terminal) is dict and terminal.get("ending") == "faulted" else None
-        detail = fault + " fault; cause unknown" if fault in _STATUS_FAULT_CODES else "cause unknown"
+        # W385424: THE WORKER'S DECLARATION REPLACES `cause unknown` AND
+        # NOTHING ELSE. A recorded fault code and a role-adapter failure are
+        # facts other owners established about this ending; they keep their
+        # place and the declaration is reported after them.
+        declared = _declared_ending(stage)
+        detail = fault + " fault; " if fault in _STATUS_FAULT_CODES else ""
+        detail = detail + (declared if declared is not None else "cause unknown")
         adapter = terminal.get("adapter_failure") if type(terminal) is dict else None
         if fault == "agent" and type(adapter) is dict and adapter.get("component") == "role-adapter" and adapter.get("code") in _STATUS_ADAPTER_CODES:
-            detail = "agent fault; " + adapter["code"]
+            detail = "agent fault; " + adapter["code"] + ("" if declared is None else "; " + declared)
         return "failed: stage ended exceptionally; " + detail
     if state in OPERATOR_ACTION_STATES:
         return "operator action: changes requested"

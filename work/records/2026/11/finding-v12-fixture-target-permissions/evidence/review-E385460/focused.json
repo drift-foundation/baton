@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit",
+    "tests.manager.test_oci_integration.TheTargetPostureIsProvedAndNeverRepaired"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385454-review/candidate/v12/python",
+  "exit_code": 0,
+  "wall_seconds": 0.5479373330017552,
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "TMPDIR": "/home/sl/src/baton/work/scratch/w385454-review/tmp",
+    "BATON_V12_DISK_ROOT": "/home/sl/src/baton/work/scratch/w385454-review/tmp",
+    "PATH": "/home/sl/src/baton/work/records/2026/11/finding-v12-fixture-target-permissions/evidence/review-E385460/no-git:/home/sl/.codex/packages/app-server-daemon/releases/0.171.0-x86_64-unknown-linux-musl/codex-path:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.codex/tmp/arg0-linux/codex-arg0VonXGj:/home/sl/.codex/packages/app-server-daemon/releases/0.171.0-x86_64-unknown-linux-musl/codex-path:/home/sl/.codex/tmp/arg0-linux/codex-arg0XG2b3N:/home/sl/.codex/packages/app-server-daemon/releases/0.170.0-x86_64-unknown-linux-musl/codex-path:/home/sl/.codex/tmp/arg0-linux/codex-arg0otFc5u:/home/sl/.codex/packages/app-server-daemon/releases/0.169.1-x86_64-unknown-linux-musl/codex-path:/home/sl/.codex/tmp/arg0-linux/codex-arg07Q1Qi0:/home/sl/.codex/packages/app-server-daemon/releases/0.169.0-x86_64-unknown-linux-musl/codex-path:/home/sl/.codex/tmp/arg0-linux/codex-arg0HKWWwW:/home/sl/.codex/packages/app-server-daemon/releases/0.166.0-x86_64-unknown-linux-musl/codex-path:/home/sl/.codex/tmp/arg0-linux/codex-arg06DNUkb:/home/sl/.nvm/versions/node/v24.14.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/codex-path:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.local/bin:/home/sl/.nvm/versions/node/v24.14.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+  }
+}

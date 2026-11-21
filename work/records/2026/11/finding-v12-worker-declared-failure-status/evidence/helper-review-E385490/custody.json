@@ -1,0 +1,8 @@
+{
+  "corrected_helper_sha256": "bad0b3cfbf003d336e75ab29723c6ab6cba6f020e8846da2264aa2d43743437d",
+  "source_manifest_sha256": "8fd5f3d21846a0308fa26c73a6b35270b85414b2ba6aa9abd51750ddad8b4e05",
+  "source_tree": "959f9524c94138325c724db84262dd009fa0eacedc3370e7142cc49904ed752b",
+  "all20_source_and_host_base_bytes_verified": true,
+  "do_import_body_unchanged": true,
+  "import_executed": false
+}

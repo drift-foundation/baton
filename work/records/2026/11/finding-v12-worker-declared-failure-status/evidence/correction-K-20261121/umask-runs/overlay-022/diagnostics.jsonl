@@ -1,0 +1,3 @@
+{"case": "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader", "fixture_root": "/var/tmp/baton-v12-w385424-fix/verification-git/run-overlay-022-8a8ua5qh/fixtures/v12-w71917-ybsmk3pm", "umask": "022"}
+{"case": "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion", "fixture_root": "/var/tmp/baton-v12-w385424-fix/verification-git/run-overlay-022-8a8ua5qh/fixtures/v12-w71917-e5et_t6d", "umask": "022"}
+{"event": "result", "umask": "022", "tests": 2, "failures": [], "errors": []}

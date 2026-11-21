@@ -1,0 +1,14 @@
+{
+ "job_bindings": [
+  {
+   "canonical_target_id": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+   "job_id": "w385424-status-cause-1",
+   "job_work_id": "b5f5d37f-W1",
+   "line_declared_base": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+   "review_work_id": "b5f5d37f-W1",
+   "source_worker_id": "impl-a"
+  }
+ ],
+ "line_declared_base": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+ "canonical_target_id": "7ac02c7f01cc59b43ade0c98b55be59ea750af41"
+}

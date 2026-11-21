@@ -1,0 +1,96 @@
+{
+ "base_commit": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+ "frozen_W385427": {
+  "composed_here": false,
+  "manifest_sha256": "e29153d8a92629863f8e7cbc10441bcf1ceb2dc500cbf1d50a07dd1a618a1f3f",
+  "tree": "5348d4b36c4ac36e7152c3f1a51731154a62c658f340658fb760190627f156e5"
+ },
+ "native_head": "4c528624da567548ec0f229b1ab8d546072ae7b9",
+ "native_listing_sha256": "e686d8c271b97dc65af65f3266c75a9c374df000dd08db22a099bb014a452e12",
+ "overlay_used_for_verification_only": {
+  "note": "not part of this candidate",
+  "path": "v12/python/tests/tools/test_stage_execution.py",
+  "review": "M385461",
+  "sha256": "03a7710ee7440e3c1c1aaa95ac40e9931dfcaedfe75391874ecd7b72079a99d2",
+  "tree": "c6755437f3effa6f5ddc2fcc69e6235e46dd02a66428cdb844570fa09d94cc99",
+  "work": "W385454"
+ },
+ "patch_sha256": "fb31d571ad85d840802c1d548e68fe6a87a614d1c931dfb95f7b5265d3bb30ed",
+ "paths": [
+  {
+   "base_7ac02c7f_sha256": "b4704b93d308207649a859ab51c7ea5d90fb89b303916cf109ec83da490a43e1",
+   "native_sha256": "7b0ac7c8f1c4d2fe6f596f51738439ed61ff2101be288bd12a1d24baa5623e21",
+   "path": "v12/python/JOB-VIEWER.md",
+   "sha256": "7b0ac7c8f1c4d2fe6f596f51738439ed61ff2101be288bd12a1d24baa5623e21",
+   "state": "unchanged-native"
+  },
+  {
+   "base_7ac02c7f_sha256": "211eb4cff7326957ae15fc8e709463cf326aa82fe896907268d0f0bf2be3665b",
+   "native_sha256": "432e4b8ff53f35b38f7c6ef0e9afefb17f08672e9bb662eca0878c9211085d33",
+   "path": "v12/python/src/baton_v12/job_manager/projection.py",
+   "sha256": "432e4b8ff53f35b38f7c6ef0e9afefb17f08672e9bb662eca0878c9211085d33",
+   "state": "unchanged-native"
+  },
+  {
+   "base_7ac02c7f_sha256": "776f5932dc9c3d0f2df7ffed4e895078806def020d829a47563801da9621f1a3",
+   "native_sha256": "05f49b4a67fcc86ee5af61b91c518651561bbc8472f472df48747c412dc24dc2",
+   "path": "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+   "sha256": "bcd53370a3cd6660a086b14d3f0aa6ca0ebaf32ff816adb3960cd6b574d48393",
+   "state": "corrected"
+  },
+  {
+   "base_7ac02c7f_sha256": "8371cbb8b28e16572defe0ef4c0a0efd09a4d41ea6ab22c92cdc1c6efcf94e30",
+   "native_sha256": "62b690e9a1a63c3f3c16cee5126c8be5f7b8de7a99b1e006a4361ec439603cde",
+   "path": "v12/python/tests/manager/test_attempt_failure_cause.py",
+   "sha256": "093db1a8ae9c8411a78fa41588bbf956aab51e45410199521697d5d263c84558",
+   "state": "corrected"
+  },
+  {
+   "base_7ac02c7f_sha256": "7da1a6010369191bc7ab22bbe94f786c330c4dc2730d0bab2a5214bd5a594323",
+   "native_sha256": "24c12076c2ef2cf5b7e98641154184bf43aa58cbc1564cb3aae4ada4c9977f73",
+   "path": "v12/python/tests/manager/test_boundary_inventory.py",
+   "sha256": "24c12076c2ef2cf5b7e98641154184bf43aa58cbc1564cb3aae4ada4c9977f73",
+   "state": "unchanged-native"
+  },
+  {
+   "base_7ac02c7f_sha256": "212b946c648a2eede6f8f442bfba6666013263cd05ce5c1959dfa75e1766d829",
+   "native_sha256": "714c8524680d1e58dba9e98304f8621d2cb0008016af09300a8c2d9e3615801b",
+   "path": "v12/python/tests/tools/test_attempt_diagnostics.py",
+   "sha256": "714c8524680d1e58dba9e98304f8621d2cb0008016af09300a8c2d9e3615801b",
+   "state": "unchanged-native"
+  },
+  {
+   "base_7ac02c7f_sha256": "1c8c635b340bac64c3ad59ea880349da94bf1e4a29d27983bfb5af628938caa8",
+   "native_sha256": "813d9a37de72d147a2a9a6b46e3d4f558d6fc60afdea11beeeb27e7bbd35721e",
+   "path": "v12/python/tests/tools/test_job_observation.py",
+   "sha256": "f1aa0b8b4ca3948fd4fd8a414705c8c1a1ba50a1d2f642a81bb9fe8bc6230620",
+   "state": "corrected"
+  },
+  {
+   "base_7ac02c7f_sha256": "1e83ed502a076e3e9be54d914fb77a761665f57dde8c053730290fd7ee3d4b72",
+   "native_sha256": "fa940bbc867356889371c68ad3d1f08076237d8483e56349a6c2fc44875ae77a",
+   "path": "v12/python/tests/tools/test_job_viewer.py",
+   "sha256": "fa940bbc867356889371c68ad3d1f08076237d8483e56349a6c2fc44875ae77a",
+   "state": "unchanged-native"
+  },
+  {
+   "base_7ac02c7f_sha256": "6e02e22ef7ebd5cb4ae4725bc19a7c200b62897aba9f1f341435ceff2bb4fd12",
+   "native_sha256": "a89ee12110e8aa62c1f5c9bdd2c9f9411d86cff9d411d6ca48c39fe35cc1ae98",
+   "path": "v12/python/tools/attempt_diagnostics.py",
+   "sha256": "a89ee12110e8aa62c1f5c9bdd2c9f9411d86cff9d411d6ca48c39fe35cc1ae98",
+   "state": "unchanged-native"
+  },
+  {
+   "base_7ac02c7f_sha256": "2fa916f25c04381c0ef54406d95b9d3e13d9521047ba50c8ed5b1a3db203c57d",
+   "native_sha256": "7631c74996990d1ee38891ef5c69fb23bb13b08da0ff255b3f1396f9925d0be5",
+   "path": "v12/python/tools/job_observation.py",
+   "sha256": "7631c74996990d1ee38891ef5c69fb23bb13b08da0ff255b3f1396f9925d0be5",
+   "state": "unchanged-native"
+  }
+ ],
+ "review": "review-2026-11-21T12-34-16Z (E385465) R1/R2",
+ "schema": "k.correction-candidate/1",
+ "state": "candidate-for-independent-delta-review-not-for-import",
+ "tree_sha256": "10f3d809254c3da937b4dc0761c9ec5971ea55ec2c0ed1fe6b21d50d3511eae0",
+ "work": "W385424"
+}

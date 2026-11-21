@@ -682,7 +682,7 @@ CONTRACTS = {
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",
                     "execution_limits", "stages"), ("cancellation",
-                                                    "control")),
+                                                    "control", "created_at")),
     # W383217: ONE JOB'S ADMITTED CONTROL, journalled inside its submission.
     "job.control": (("operation_id", "job_id", "profile", "resolved",
                      "admitted_at", "incarnation"), ()),

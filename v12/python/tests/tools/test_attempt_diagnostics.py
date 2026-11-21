@@ -28,7 +28,7 @@ def document(**stage):
     diagnostic = stage.get("attempt_diagnostics")
     if isinstance(diagnostic, dict):
         diagnostic = dict(diagnostic, schema=attempt_diagnostics.SOURCE_DIAGNOSTIC_SCHEMA, attempt_id="attempt-1")
-        for axis in ("cause", "workspace_object"):
+        for axis in ("cause", "workspace_object", "worker_declaration"):
             if isinstance(diagnostic.get(axis), dict):
                 diagnostic[axis] = {key: {"known": True, "value": value, "source": "fixture"} for key, value in diagnostic[axis].items()}
         stage["attempt_diagnostics"] = diagnostic
@@ -350,6 +350,29 @@ class RealStatusReportSeam(JobManagerCase):
         # The producer's OLD spelling is not owned by this build either.
         self.assertNotIn("attempt.start-failed", reported)
 
+    def test_the_REAL_composition_carries_the_declaration_axis_end_to_end(self):
+        """W385424: producer -> ordinary status -> report, with no fixture.
+
+        This attempt froze nothing, so every declared member is honestly
+        unknown -- which is the point: the axis reaches the report through
+        the real seam, and an absence travels as an absence rather than as
+        nothing at all.
+        """
+        before = (self.jobs._connection.total_changes,
+                  self.control_store._connection.total_changes)
+        snapshot = self.snapshot()
+        published = snapshot["jobs"][0]["stages"][0]["attempt_diagnostics"]
+        declared = published["worker_declaration"]
+        self.assertEqual(sorted(declared),
+                         sorted(failure_cause.WORKER_DECLARATION_MEMBERS))
+        row = self.row(snapshot)
+        for name, _kinds in attempt_diagnostics.WORKER_DECLARATION_MEMBERS:
+            self.assertFalse(row["worker_declaration"][name]["known"], name)
+            self.assertTrue(row["worker_declaration"][name]["why"], name)
+        # AND NOTHING WAS WRITTEN TO EITHER STORE BY LOOKING.
+        self.assertEqual(before, (self.jobs._connection.total_changes,
+                                  self.control_store._connection.total_changes))
+
     def test_owned_source_schema_does_not_drift(self):
         self.assertEqual(attempt_diagnostics.SOURCE_DIAGNOSTIC_SCHEMA, failure_cause.DIAGNOSTIC_SCHEMA)
 
@@ -629,3 +652,127 @@ class JobFactsAndObservationTimeReachTheReport(JobManagerCase):
                                  execution_limits.COMPATIBILITY)))
         self.assertEqual(sorted(attempt_diagnostics.SOURCE_LIMIT_GENERATIONS),
                          sorted(execution_limits.GENERATIONS))
+
+
+class TheWorkerDeclaredEndingIsItsOwnAxis(unittest.TestCase):
+    """W385424 -- what the worker said, reported BESIDE the cause.
+
+    The defect these cases are about is a reporting one: the manager held a
+    sealed `unable` result naming a provider timeout and a verification that
+    was never attempted, and this report could not say any of it. What is
+    added is an axis, not a cause -- so every case below also holds the line
+    the axis must not cross.
+    """
+
+    TIMEOUT = {"disposition": "unable", "result_id": "result-1",
+               "frozen_at": "2026-11-20T16:23:27.149Z",
+               "declared_ending": "provider-failed",
+               "failure_reason": "timeout", "seconds_bound": 3600,
+               "seconds_bound_source": "job-default",
+               "verification_attempted": False}
+
+    def row(self, declaration):
+        return attempt_diagnostics.report(json.dumps(document(
+            attempt_diagnostics={"worker_declaration": declaration}
+        )).encode())["rows"][0]
+
+    def test_a_PROVIDER_TIMEOUT_reaches_the_report_with_its_bound(self):
+        held = self.row(self.TIMEOUT)["worker_declaration"]
+        self.assertEqual(held["disposition"]["value"], "unable")
+        self.assertEqual(held["declared_ending"]["value"], "provider-failed")
+        self.assertEqual(held["failure_reason"]["value"], "timeout")
+        self.assertEqual(held["seconds_bound"]["value"], 3600)
+        self.assertEqual(held["seconds_bound_source"]["value"], "job-default")
+        self.assertIs(held["verification_attempted"]["value"], False)
+        # NOT ATTEMPTED IS AN ANSWER AND THE STATUS BESIDE IT IS NOT A ZERO.
+        self.assertFalse(held["verification_status"]["known"])
+        for name, _kinds in attempt_diagnostics.WORKER_DECLARATION_MEMBERS:
+            if held[name]["known"]:
+                self.assertTrue(held[name]["source"], name)
+
+    def test_a_FAILED_VERIFICATION_is_a_DIFFERENT_report(self):
+        held = self.row(dict(self.TIMEOUT,
+                             declared_ending="verification-failed",
+                             verification_attempted=True,
+                             verification_status=1))["worker_declaration"]
+        self.assertEqual(held["declared_ending"]["value"],
+                         "verification-failed")
+        self.assertIs(held["verification_attempted"]["value"], True)
+        self.assertEqual(held["verification_status"]["value"], 1)
+
+    def test_a_DECLARATION_IS_NOT_AN_ACCEPTANCE_AND_NOT_A_CESSATION(self):
+        """A passing worker-run verification is still not acceptance, and a
+        declaration still does not complete a cause."""
+        report = attempt_diagnostics.report(json.dumps(document(
+            attempt_diagnostics={"worker_declaration": dict(
+                self.TIMEOUT, declared_ending="candidate",
+                verification_attempted=True, verification_status=0)}
+        )).encode())
+        row = report["rows"][0]
+        self.assertIs(report["is_acceptance"], False)
+        self.assertIs(row["completeness"]["is_acceptance"], False)
+        self.assertIs(row["completeness"]["proves_cessation"], False)
+        # THE CAUSE AXIS IS UNTOUCHED: no component recorded a cessation, so
+        # the report still says exactly that.
+        self.assertIsNone(row["cause"])
+        self.assertEqual(row["completeness"]["state"], "incomplete")
+        self.assertIn("cause", row["completeness"]["missing"])
+
+    def test_an_ABSENT_declaration_axis_is_ABSENT_and_costs_nothing(self):
+        """An older producer composed no declaration. That is `None` -- not a
+        claim that the worker declared nothing -- and the rest of the row is
+        unaffected."""
+        row = attempt_diagnostics.report(json.dumps(document(
+            attempt_diagnostics={"cause": {
+                "component": "expiry-reclaim", "operation_id": "op-1",
+                "correlation_id": "c-1", "outcome": "ceased-absent",
+                "cessation": "absent", "runtime_id": "container-1",
+                "category": None, "code": None}})).encode())["rows"][0]
+        self.assertIsNone(row["worker_declaration"])
+        self.assertEqual(row["cause"]["cessation"]["value"], "absent")
+
+    def test_an_UNOWNED_CLOSED_VALUE_is_UNKNOWN_and_is_never_ECHOED(self):
+        held = self.row(dict(self.TIMEOUT, disposition=SECRET,
+                             declared_ending=SECRET, failure_reason=SECRET,
+                             seconds_bound_source=SECRET))
+        declaration = held["worker_declaration"]
+        for name in ("disposition", "declared_ending", "failure_reason",
+                     "seconds_bound_source"):
+            self.assertFalse(declaration[name]["known"], name)
+            self.assertIsNone(declaration[name]["value"], name)
+            self.assertIn("does not own", declaration[name]["why"], name)
+        self.assertNotIn(SECRET, json.dumps(held, default=list))
+        # AND AN UNOWNED VALUE DOES NOT COST THE VALID FACTS BESIDE IT.
+        self.assertEqual(declaration["seconds_bound"]["value"], 3600)
+
+    def test_a_NESTED_OBJECT_in_the_declaration_is_NOT_forwarded(self):
+        held = self.row(dict(self.TIMEOUT, seconds_bound={"leaked": SECRET}))
+        self.assertNotIn(SECRET, json.dumps(held, default=list))
+        self.assertFalse(held["worker_declaration"]["seconds_bound"]["known"])
+
+    def test_an_UNDECLARED_member_is_reported_by_NAME_ONLY(self):
+        held = self.row(dict(self.TIMEOUT, private_transcript=SECRET))
+        self.assertIn("undeclared members omitted", held["unrecognised"])
+        self.assertNotIn(SECRET, json.dumps(held, default=list))
+        # AND THE NOTICE IS NOT DUPLICATED when the cause carries one too.
+        self.assertEqual(len(held["unrecognised"]),
+                         len(set(held["unrecognised"])))
+
+    def test_the_OWNED_DECLARATION_VOCABULARY_does_not_drift(self):
+        from baton_v12.worker_manager import failure_cause as owner
+        from baton_v12.worker_manager import schema as manager_schema
+
+        self.assertEqual(
+            [name for name, _kinds
+             in attempt_diagnostics.WORKER_DECLARATION_MEMBERS],
+            list(owner.WORKER_DECLARATION_MEMBERS))
+        self.assertEqual(sorted(attempt_diagnostics.SOURCE_DISPOSITIONS),
+                         sorted(manager_schema.DISPOSITIONS))
+        self.assertEqual(sorted(attempt_diagnostics.SOURCE_DECLARED_ENDINGS),
+                         sorted(owner.DECLARED_ENDINGS))
+        self.assertEqual(
+            sorted(attempt_diagnostics.SOURCE_DECLARED_FAILURE_REASONS),
+            sorted(owner.DECLARED_FAILURE_REASONS))
+        self.assertEqual(
+            sorted(attempt_diagnostics.SOURCE_DECLARED_BOUND_SOURCES),
+            sorted(owner.DECLARED_BOUND_SOURCES))

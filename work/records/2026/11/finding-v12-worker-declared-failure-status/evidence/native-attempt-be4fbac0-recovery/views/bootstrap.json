@@ -1,0 +1,12 @@
+{
+  "authority_uuid": "b5f5d37f149d42e093dfbcb545605f33",
+  "bindings": {
+    "w385424-status-cause-1": {
+      "canonical_target_id": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+      "line_declared_base": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+      "source_worker_id": "impl-a",
+      "work_id": "b5f5d37f-W1"
+    }
+  },
+  "schema": "baton.v12.stack-bootstrap-record/1"
+}

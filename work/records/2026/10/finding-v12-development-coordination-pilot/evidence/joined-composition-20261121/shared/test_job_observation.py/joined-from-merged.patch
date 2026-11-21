@@ -1,0 +1,45 @@
+--- merged
++++ joined
+@@ -360,3 +360,42 @@
+         stage=self.stage();stage["exchange"]["invocation"]["deadline_at"]=NOW
+         view=model.stage_timing(stage,self.job(),NOW);self.assertEqual(view["remaining_seconds"],0);self.assertIn("cessation unconfirmed",view["timeout"])
+         view=model.stage_timing(self.stage(),{},NOW);self.assertEqual(view["limiting"],["provider"]);self.assertFalse(view["complete"]);self.assertIn("Job/stage timing unknown",view["timeout"])
++
++
++class TheFailureCauseAndTimingShareOneStageLine(unittest.TestCase):
++    """Joined composition (W385427 + W385424 over 7ac02c7f): one stage line
++    carries BOTH the worker-declared ending and the attributed invocation
++    timing on every shared surface, each in its own words, neither displacing
++    the other."""
++
++    def test_a_declared_timeout_and_its_frozen_invocation_render_together(self):
++        declared = TheWorkerDeclaredEndingReachesBothSurfaces(
++            "test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views")
++        doc = declared.failing(declared.TIMEOUT)
++        job = doc["jobs"][0]; job.update(Timing.job(None))
++        stage = job["stages"][0]
++        fact = InvocationClocks.stage(None)
++        stage["attempt_id"] = fact["attempt_id"]
++        stage.setdefault("exchange", {}).update(fact["exchange"])
++        stage["exchange"]["invocation"]["ended_at"] = "2026-11-19T17:59:45Z"
++        before = copy.deepcopy(doc)
++        for rendered in views(doc):
++            self.assertIn("worker declared unable: the provider did not finish (provider timed out)", rendered)
++            self.assertIn("verification not attempted", rendered)
++            self.assertNotIn("cause unknown", rendered)
++            self.assertRegex(rendered, r"running\s+15s")
++            self.assertIn("timeout not applicable (stage ended)", rendered)
++            self.assertIn("Job age 1h00m", rendered)
++        self.assertEqual(doc, before)
++
++    def test_an_unknown_declaration_and_unknown_timing_stay_two_unknowns(self):
++        declared = TheWorkerDeclaredEndingReachesBothSurfaces(
++            "test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views")
++        doc = declared.failing(dict(declared.TIMEOUT, verification_attempted=None,
++                                    verification_status=None))
++        doc["jobs"][0].update(Timing.job(None))
++        for rendered in views(doc):
++            self.assertIn("whether verification ran is unknown", rendered)
++            self.assertRegex(rendered, r"running\s+unknown")
++            self.assertIn("timeout not applicable (stage ended)", rendered)
++

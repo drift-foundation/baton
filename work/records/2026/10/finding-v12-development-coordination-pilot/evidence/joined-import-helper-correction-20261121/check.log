@@ -1,0 +1,41 @@
+test_help_is_inert (__main__.Checks.test_help_is_inert) ... ok
+test_invalid_dispatch_never_calls_operations (__main__.Checks.test_invalid_dispatch_never_calls_operations) ... usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR
+usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR
+usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR
+usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR
+usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR
+usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR
+usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR
+ok
+test_missing_malformed_pins_refuse_before_io (__main__.Checks.test_missing_malformed_pins_refuse_before_io) ... ok
+test_only_explicit_import_dispatches (__main__.Checks.test_only_explicit_import_dispatches) ... ok
+test_wrong_pins_refuse_before_target_access (__main__.Checks.test_wrong_pins_refuse_before_target_access) ... /home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/joined-import-helper-correction-20261121/integrate.py:51: ResourceWarning: unclosed file <_io.BufferedReader name='/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/joined-composition-20261121/manifest.json'>
+  raw = open(f"{packet}/manifest.json", "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.003s
+
+OK
+usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR
+refused: missing or malformed independent review pins
+refused: preflight faults; nothing written
+refused: missing or malformed independent review pins
+refused: preflight faults; nothing written
+refused: missing or malformed independent review pins
+refused: preflight faults; nothing written
+refused: missing or malformed independent review pins
+refused: preflight faults; nothing written
+refused: missing or malformed independent review pins
+refused: preflight faults; nothing written
+refused: missing or malformed independent review pins
+refused: preflight faults; nothing written
+refused: missing or malformed independent review pins
+refused: preflight faults; nothing written
+refused: missing or malformed independent review pins
+refused: preflight faults; nothing written
+refused: missing or malformed independent review pins
+refused: preflight faults; nothing written
+refused: preflight faults; nothing written
+refused: preflight faults; nothing written

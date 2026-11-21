@@ -1,0 +1,119 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "events": [
+      {
+        "actor": "baton.prompt",
+        "kind": "create_work",
+        "payload": {
+          "binding": {
+            "path": "work/records/2026/11/finding-v12-monitor-running-deadlines",
+            "revision": 1,
+            "root": "baton"
+          },
+          "classification": "design-choice",
+          "follow_up_of": null,
+          "kind": "codx",
+          "origin": "external-report",
+          "parent": null,
+          "phase": "queued",
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W385427"
+            }
+          ],
+          "priority": "normal",
+          "resolution": {
+            "endpoint": "baton.codx",
+            "generation": 15,
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "team": "baton",
+          "title": "V12 monitor: actual running duration and named deadline countdown"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 68,
+          "end_kind": "claim",
+          "end_seq": 385429,
+          "ended_at": "2026-11-21T04:00:11Z",
+          "open": false,
+          "phase": "queued",
+          "start_seq": 385427,
+          "started_at": "2026-11-21T03:59:03Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385427,
+        "ts": "2026-11-21T03:59:03Z"
+      },
+      {
+        "actor": "baton.codxpc",
+        "claim_interval": {
+          "claim_seq": 385429,
+          "claimant": "baton.codxpc",
+          "elapsed_seconds": 93,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "started_at": "2026-11-21T04:00:11Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.codxpc",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W385427"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.codx",
+            "generation": 15,
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "work": "2b077949-W385427"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 94,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "open": true,
+          "phase": "active",
+          "start_seq": 385429,
+          "started_at": "2026-11-21T04:00:11Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385429,
+        "ts": "2026-11-21T04:00:11Z"
+      }
+    ],
+    "local_id": "W385427",
+    "next_after": null,
+    "next_before": null,
+    "title": "V12 monitor: actual running duration and named deadline countdown",
+    "work": "2b077949-W385427"
+  },
+  "snapshot_seq": 385429
+}

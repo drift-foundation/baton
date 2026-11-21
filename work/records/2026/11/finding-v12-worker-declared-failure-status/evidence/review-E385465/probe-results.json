@@ -1,0 +1,20 @@
+[
+  {
+    "probe": "missing-verification",
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_seconds": 0.35201837099157274
+  },
+  {
+    "probe": "nested-json",
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_seconds": 0.35696147999260575
+  },
+  {
+    "probe": "fifo",
+    "exit_code": null,
+    "timed_out": true,
+    "wall_seconds": 3.005190604017116
+  }
+]

@@ -1,0 +1,676 @@
+--- a/v12/python/src/baton_v12/job_manager/documents.py
++++ b/v12/python/src/baton_v12/job_manager/documents.py
+@@ -682,7 +682,7 @@
+     "job.status": (("job_id", "submission_id", "input_digest",
+                     "policy_digest", "test_scope", "terminal_policy",
+                     "execution_limits", "stages"), ("cancellation",
+-                                                    "control")),
++                                                    "control", "created_at")),
+     # W383217: ONE JOB'S ADMITTED CONTROL, journalled inside its submission.
+     "job.control": (("operation_id", "job_id", "profile", "resolved",
+                      "admitted_at", "incarnation"), ()),
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -609,6 +609,7 @@
+                 # deadlines, the trusted-clock timing and the first reached
+                 # deadline. A pure read; the watermark is advanced only by
+                 # the passes and guards that write.
++                "job_origins": {job["job_id"]: job_control.job_origin_in(store._connection, job["job_id"]) for job in jobs},
+                 "controls": {job["job_id"]: job_control.evaluate(
+                     store._connection, job["job_id"], store._now())
+                     for job in jobs},
+@@ -1027,6 +1028,7 @@
+             stages.append(_stage_status(entry, held))
+         jobs.append(documents.job_status(
+             job_id=job["job_id"], submission_id=job["submission_id"],
++            created_at=snapshot["job_origins"][job["job_id"]],
+             input_digest=job["input_digest"],
+             policy_digest=job["policy_digest"],
+             test_scope=json.loads(job["test_scope"]),
+--- a/v12/python/src/baton_v12/worker_manager/exchange.py
++++ b/v12/python/src/baton_v12/worker_manager/exchange.py
+@@ -182,6 +182,9 @@
+ # bytes did not move.
+ ACTIVITY_DOCUMENT = "activity.json"
+ ACTIVITY_SCHEMA = "baton.worker-exchange.activity/1"
++INVOCATION_DOCUMENT = "invocation.json"
++INVOCATION_SCHEMA = "baton.worker-exchange.invocation/1"
++INVOCATION_MEMBERS = ("schema", "session", "attempt_id", "sequence_id", "command_digest", "operation", "operation_id", "scope", "started_at", "deadline_at", "ended_at")
+ 
+ # THE ONLY OPERATION AN ACTIVITY COUNT BELONGS TO. `describe` invokes no
+ # provider, so there is no native stream for it to be a count OF, and a
+@@ -209,7 +212,7 @@
+ # contract does not describe".
+ EVENT_DOCUMENTS = ((RECEIPT_DOCUMENT,)
+                    + tuple(f"state-{one}.json" for one in OPERATIONS)
+-                   + (TERMINAL_DOCUMENT, ACTIVITY_DOCUMENT))
++                   + (TERMINAL_DOCUMENT, ACTIVITY_DOCUMENT, INVOCATION_DOCUMENT, ".invocation.json.tmp"))
+ 
+ RECEIPT_MEMBERS = ("schema", "session", "attempt_id", "sequence_id",
+                    "command_digest", "accepted_at")
+@@ -280,8 +283,8 @@
+ MAX_ACTIVITY_BYTES = 2 ** 53 - 1
+ 
+ # AND THE ENTRY BUDGET THIS DOCUMENT CONSUMES, counted rather than assumed.
+-# Four lifecycle documents, plus `activity.json`, plus the ONE staging
+-# temporary its publisher is allowed -- six of `MAX_EVENT_ENTRIES`. Overrunning
++# Four lifecycle documents, activity and invocation documents, and their two
++# staging names -- eight of `MAX_EVENT_ENTRIES`. Overrunning
+ # that budget does not degrade one document: `_foreign` refuses to enumerate
+ # the namespace at all, which makes the whole exchange unreadable. That is why
+ # the worker's activity publisher may hold exactly one temporary.
+@@ -1078,6 +1081,26 @@
+         view["receipt"] = None
+         view["states"] = []
+         view["terminal"] = None
++    # Optional process timing cannot change the canonical exchange outcome.
++    if view["unreadable"] is None:
++        try:
++            timing = _event(delivery, command, INVOCATION_DOCUMENT, INVOCATION_MEMBERS,
++                            INVOCATION_SCHEMA, "provider invocation timing")
++            if timing is not None:
++                fact = timing[0]
++                if fact["operation"] != "work" or fact["operation_id"] != worker_operation_id(delivery.attempt_id, "work") or fact["scope"] != "provider-process":
++                    _untrusted("invocation timing is not this provider work operation")
++                if not any(one["operation"] == "work" for one in view["states"]):
++                    _untrusted("invocation timing has no corresponding work state")
++                start = _instant(fact["started_at"], "started_at", "provider invocation timing")
++                deadline = _instant(fact["deadline_at"], "deadline_at", "provider invocation timing")
++                end = None if fact["ended_at"] is None else _instant(fact["ended_at"], "ended_at", "provider invocation timing")
++                if deadline < start or (end is not None and end < start):
++                    _untrusted("provider invocation timing has reversed chronology")
++                check_no_durable_secret(fact, what="provider invocation timing")
++                view["invocation"] = fact
++        except ContractRefusal:
++            view["invocation"] = None
+     return view
+ 
+ 
+--- a/v12/python/tests/job_manager/test_status.py
++++ b/v12/python/tests/job_manager/test_status.py
+@@ -61,6 +61,7 @@
+         self.assertEqual(document["observed_at"], NOW)
+         self.assertEqual(document["incarnation"], "jobs-1")
+         self.assertTrue(document["canonical"])
++        self.assertEqual(document["jobs"][0]["created_at"], NOW)
+ 
+     def test_a_projection_with_no_control_store_says_nobody_looked(self):
+         submit(self.jobs, submission())
+--- a/v12/python/tests/manager/test_claude_agent.py
++++ b/v12/python/tests/manager/test_claude_agent.py
+@@ -5038,3 +5038,56 @@
+         with self.assertRaises(claude_agent.TaskRefusal) as caught:
+             claude_agent.ClaudeAgent._mount_facts("/nonexistent-mountinfo")
+         self.assertIn("mount table", str(caught.exception))
++
++
++import datetime
++import baton_worker
++class ProviderInvocationTiming(unittest.TestCase):
++    def setUp(self):
++        self.agent=claude_agent.ClaudeAgent()
++        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=pathlib.Path(self.temp.name)
++    def process(self,timeout=False):
++        agent=self.agent;owner=self
++        class Child:
++            returncode=None
++            def __enter__(self):return self
++            def __exit__(self,*args):pass
++            def communicate(self,timeout):
++                held=agent.observed_invocation();owner.assertIsNotNone(held);owner.assertIsNone(held['ended_at']);owner.assertEqual(held['scope'],'provider-process')
++                start=datetime.datetime.fromisoformat(held['started_at'].replace('Z','+00:00'));deadline=datetime.datetime.fromisoformat(held['deadline_at'].replace('Z','+00:00'));owner.assertEqual((deadline-start).total_seconds(),12)
++                pub=baton_worker._ActivityPublisher(str(owner.root),{'attempt_id':'a','operation':'work'},lambda:None,invocation=agent.observed_invocation);pub._tick();owner.assertTrue((owner.root/'invocation.json').exists());owner.assertFalse((owner.root/'activity.json').exists())
++                if timeout_flag:raise subprocess.TimeoutExpired('fixture-provider',timeout)
++                self.returncode=0;return None,None
++            def poll(self):return self.returncode
++            def kill(self):self.returncode=-9
++            def wait(self):return self.returncode
++        timeout_flag=timeout
++        return Child()
++    def test_real_start_deadline_end_and_quiet_publication(self):
++        self.assertIsNone(self.agent.observed_invocation())
++        with mock.patch.object(subprocess,'Popen',return_value=self.process()):
++            result=self.agent._run_provider(['fixture-provider'],timeout=12)
++        self.assertEqual(result.returncode,0);self.assertIsNotNone(self.agent.observed_invocation()['ended_at'])
++        pub=baton_worker._ActivityPublisher(str(self.root),{'attempt_id':'a','operation':'work'},lambda:None,invocation=self.agent.observed_invocation);pub._tick();self.assertIsNotNone(json.loads((self.root/'invocation.json').read_text())['ended_at'])
++    def test_timeout_records_direct_child_end_and_preserves_exception(self):
++        with mock.patch.object(subprocess,'Popen',return_value=self.process(True)):
++            with self.assertRaises(subprocess.TimeoutExpired):self.agent._run_provider(['fixture-provider'],timeout=12)
++        self.assertIsNotNone(self.agent.observed_invocation()['ended_at'])
++    def test_no_creation_no_invented_origin(self):
++        with mock.patch.object(subprocess,'Popen',side_effect=FileNotFoundError):
++            with self.assertRaises(FileNotFoundError):self.agent._run_provider(['missing'],timeout=12)
++        self.assertIsNone(self.agent.observed_invocation())
++    def test_injected_runner_is_not_process_start_evidence(self):
++        agent=claude_agent.ClaudeAgent(run=lambda *a,**kw:subprocess.CompletedProcess(a,0));agent._run_provider(['fake'],timeout=12);self.assertIsNone(agent.observed_invocation())
++    def test_publication_failure_does_not_change_provider_outcome(self):
++        pub=baton_worker._ActivityPublisher(str(self.root),{},lambda:None,invocation=lambda:(_ for _ in ()).throw(ValueError('fixture')));pub._tick();self.assertEqual(list(self.root.iterdir()),[])
++
++    def test_actual_local_process_has_recorded_start_and_end(self):
++        import sys
++        result = self.agent._run_provider([sys.executable, "-c", "pass"], timeout=12)
++        fact = self.agent.observed_invocation()
++        self.assertEqual(result.returncode, 0)
++        self.assertIsNotNone(fact["started_at"])
++        self.assertIsNotNone(fact["ended_at"])
++        self.assertLessEqual(fact["started_at"], fact["ended_at"])
++        self.assertEqual(fact["scope"], "provider-process")
+--- a/v12/python/tests/manager/test_exchange.py
++++ b/v12/python/tests/manager/test_exchange.py
+@@ -1733,6 +1733,8 @@
+         with open(os.path.join(held.event_root, ".activity.json.tmp"),
+                   "w", encoding="utf-8") as writing:
+             writing.write("{}")
++        self.wrote(held, exchange.INVOCATION_DOCUMENT, {})
++        self.wrote(held, ".invocation.json.tmp", {})
+         entries = sorted(os.listdir(held.event_root))
+         self.assertEqual(len(entries), exchange.ACTIVITY_NAMESPACE_ENTRIES)
+         self.assertLessEqual(len(entries), exchange.MAX_EVENT_ENTRIES)
+@@ -3498,3 +3500,46 @@
+         # AND IT WAS REACHED THROUGH THE REAL STARTUP, with the container's own
+         # session -- the member the wrapper moved.
+         self.assertEqual(served, [self.SESSION])
++
++
++class InvocationTiming(Home):
++    def timing(self):
++        delivery, command = self.one()
++        self.wrote(delivery, exchange.RECEIPT_DOCUMENT, self.receipt(command))
++        self.wrote(delivery, exchange.state_document("work"), self.state(command,"work","dispatched"))
++        fact = self.bound(command, schema=exchange.INVOCATION_SCHEMA, operation="work",
++                          operation_id=exchange.worker_operation_id(self.ATTEMPT,"work"),scope="provider-process",
++                          started_at="2026-09-04T00:00:02.000Z", deadline_at="2026-09-04T00:01:02.000Z", ended_at=None)
++        return delivery, fact
++
++    def test_correlated_start_and_end_survive_restart_read(self):
++        delivery, fact = self.timing()
++        self.wrote(delivery, exchange.INVOCATION_DOCUMENT, fact)
++        self.assertEqual(exchange.observation(self.adopted().exchange)["invocation"], fact)
++        fact["ended_at"]="2026-09-04T00:00:12.000Z"
++        self.wrote(delivery, exchange.INVOCATION_DOCUMENT, fact)
++        self.assertEqual(exchange.observation(delivery)["invocation"], fact)
++
++    def test_foreign_and_malformed_timing_never_change_exchange_state(self):
++        delivery, fact = self.timing()
++        for key,value in (("attempt_id","foreign"),("session","foreign"),("command_digest","sha256:"+"a"*64),("operation_id","wrong"),("scope","dispatch"),("started_at","bad"),("ended_at","2026-09-04T00:00:01.000Z"),("extra","bad")):
++            with self.subTest(key=key):
++                self.wrote(delivery,exchange.INVOCATION_DOCUMENT,dict(fact,**{key:value}))
++                view=exchange.observation(delivery)
++                self.assertEqual(view["state"],"working");self.assertIsNone(view["unreadable"]);self.assertIsNone(view["invocation"])
++
++    def test_real_publisher_to_shared_status_and_monitor(self):
++        import sys,pathlib,copy
++        sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[3]/"worker"))
++        import baton_worker
++        from tests.tools.test_job_observation import document, views
++        delivery,fact=self.timing()
++        timing={key:fact[key] for key in ("scope","started_at","ended_at","deadline_at")}
++        bound={key:fact[key] for key in ("session","attempt_id","sequence_id","command_digest","operation","operation_id")}
++        pub=baton_worker._ActivityPublisher(delivery.event_root,bound,lambda:None,invocation=lambda:timing);pub._tick()
++        observed=exchange.observation(delivery);doc=document();doc["observed_at"]="2026-09-04T00:00:12.000Z";job=doc["jobs"][0];stage=job["stages"][0];stage.update(attempt_id=self.ATTEMPT,exchange=observed)
++        job["control"]={"timing":"trusted","observed_at":doc["observed_at"],"job":{"origin":"2026-09-04T00:00:00.000Z","deadline_at":"2026-09-04T00:05:00.000Z"},"stages":[{"stage_id":stage["stage_id"],"origin":"2026-09-04T00:00:01.000Z","deadline_at":"2026-09-04T00:04:00.000Z"}]}
++        before=copy.deepcopy(doc)
++        for rendered in views(doc):
++            self.assertRegex(rendered,r"running\s+10s");self.assertIn("provider timeout in 50s",rendered)
++        self.assertEqual(doc,before)
+--- a/v12/python/tests/tools/test_job_observation.py
++++ b/v12/python/tests/tools/test_job_observation.py
+@@ -121,3 +121,90 @@
+ 
+ if __name__ == "__main__":
+     unittest.main()
++
++
++class Timing(unittest.TestCase):
++    def job(self):
++        return {"created_at": "2026-11-19T17:00:00Z", "control": {
++            "timing": "trusted", "observed_at": NOW,
++            "job": {"origin": "2026-11-19T17:00:00Z", "deadline_at": "2026-11-19T18:05:00Z"},
++            "stages": [{"stage_id": "implementation", "origin": "2026-11-19T17:50:00Z", "deadline_at": "2026-11-19T18:01:00Z"}]}}
++
++    def test_separate_age_unknown_runtime_and_partial_named_limit_in_all_views(self):
++        doc = document(); job = doc["jobs"][0]; job.update(self.job())
++        stage = job["stages"][0]; stage["episode"] = 0
++        stage["episodes"] = [{"episode": 0, "opened_at": "2026-11-19T17:50:00Z"}]
++        before = copy.deepcopy(doc)
++        for rendered in views(doc):
++            self.assertIn("Job age 1h00m", rendered)
++            self.assertRegex(rendered, r"running\s+unknown")
++            self.assertIn("stage timeout in 1m00s", rendered)
++            self.assertIn("provider timing unknown (earliest known only)", rendered)
++        self.assertEqual(doc, before)
++
++    def test_blocked_episode_has_not_started(self):
++        stage = {"state": "blocked", "stage_id": "review", "attempt_id": "future", "episode": 0,
++                 "episodes": [{"episode": 0, "opened_at": "2026-11-19T17:00:00Z", "ended_at": None}]}
++        view = model.stage_timing(stage, self.job(), NOW)
++        self.assertEqual(view["running"], "not started")
++        self.assertEqual(view["timeout"], "Job timeout in 5m00s")
++        stage["episodes"][0]["ended_at"] = NOW
++        self.assertEqual(model.stage_timing(stage, self.job(), NOW)["running"], "unknown")
++
++    def test_ties_and_deadline_boundary_are_not_cessation(self):
++        job = self.job(); job["control"]["job"]["deadline_at"] = "2026-11-19T18:01:00Z"
++        stage = {"stage_id": "implementation", "state": "running"}
++        for seconds in (59,60,61):
++            observed = datetime.datetime.fromtimestamp(EPOCH+seconds, datetime.timezone.utc).isoformat()
++            job["control"]["observed_at"] = observed
++            view = model.stage_timing(stage, job, observed)
++            self.assertEqual(view["limiting"], ["Job", "stage"])
++            self.assertEqual(view["remaining_seconds"], max(0,60-seconds))
++            if seconds >= 60:self.assertIn("cessation unconfirmed", view["timeout"])
++
++    def test_unknown_future_stale_control_and_terminal(self):
++        job = self.job(); stage = {"stage_id": "implementation", "state": "running"}
++        for instant in ("bad", "2026-11-19T18:00:01Z", "2026-11-19T17:59:45Z"):
++            job["control"]["observed_at"] = instant
++            self.assertEqual(model.stage_timing(stage, job, NOW)["timeout"], "timeout unknown")
++        self.assertIsNone(model._elapsed("2026-11-19T18:00:01Z", None, NOW))
++        self.assertTrue(model.stale_ages(-1))
++        stage["state"] = "completed"
++        self.assertEqual(model.stage_timing(stage, job, NOW)["timeout"], "timeout not applicable (stage ended)")
++
++    def test_retry_never_rebases_job_deadline_on_new_episode(self):
++        job = self.job(); stage = {"state": "running", "stage_id": "implementation", "episode": 2,
++                                  "episodes": [{"episode": 2, "opened_at": NOW}]}
++        view = model.stage_timing(stage, job, NOW)
++        self.assertEqual(view["running"], "unknown")
++        self.assertEqual(view["remaining_seconds"], 60)
++        self.assertEqual(view["job_age"], "1h00m")
++
++
++class InvocationClocks(unittest.TestCase):
++    job = Timing.job
++    def stage(self):
++        return {"stage_id":"implementation","state":"running","attempt_id":"new-attempt","exchange":{"command":{"sequence_id":"seq","command_digest":"digest"},"invocation":{"attempt_id":"new-attempt","operation":"work","scope":"provider-process","sequence_id":"seq","command_digest":"digest","started_at":"2026-11-19T17:59:30Z","deadline_at":"2026-11-19T18:00:30Z","ended_at":None}}}
++
++    def test_provider_origin_and_continuation_do_not_rebase_job_limits(self):
++        stage=self.stage();job=self.job();view=model.stage_timing(stage,job,NOW)
++        self.assertEqual(view["running_seconds"],30);self.assertEqual(view["limiting"],["provider"]);self.assertEqual(view["remaining_seconds"],30);self.assertTrue(view["complete"])
++        stage["exchange"]["invocation"].update(started_at="2026-11-19T17:59:50Z",deadline_at="2026-11-19T18:02:00Z")
++        view=model.stage_timing(stage,job,NOW);self.assertEqual(view["running_seconds"],10);self.assertEqual(view["limiting"],["stage"]);self.assertEqual(view["remaining_seconds"],60)
++
++    def test_terminal_duration_is_frozen_and_missing_end_unknown(self):
++        stage=self.stage();stage["state"]="completed";fact=stage["exchange"]["invocation"]
++        self.assertIsNone(model.stage_timing(stage,self.job(),NOW)["running_seconds"])
++        fact["ended_at"]="2026-11-19T17:59:45Z"
++        self.assertEqual(model.stage_timing(stage,self.job(),NOW)["running_seconds"],15)
++        self.assertEqual(model.stage_timing(stage,self.job(),"2026-11-20T18:00:00Z")["running_seconds"],15)
++
++    def test_wrong_attempt_future_start_and_malformed_end_are_unknown(self):
++        for key,value in (("attempt_id","old-attempt"),("started_at","2026-11-19T18:00:01Z"),("ended_at","bad")):
++            stage=self.stage();stage["exchange"]["invocation"][key]=value
++            view=model.stage_timing(stage,self.job(),NOW);self.assertIsNone(view["running_seconds"]);self.assertIn("provider timing unknown",view["timeout"])
++
++    def test_expired_provider_is_not_termination_and_partial_control_stays_qualified(self):
++        stage=self.stage();stage["exchange"]["invocation"]["deadline_at"]=NOW
++        view=model.stage_timing(stage,self.job(),NOW);self.assertEqual(view["remaining_seconds"],0);self.assertIn("cessation unconfirmed",view["timeout"])
++        view=model.stage_timing(self.stage(),{},NOW);self.assertEqual(view["limiting"],["provider"]);self.assertFalse(view["complete"]);self.assertIn("Job/stage timing unknown",view["timeout"])
+--- a/v12/python/tests/tools/test_job_viewer.py
++++ b/v12/python/tests/tools/test_job_viewer.py
+@@ -167,16 +167,15 @@
+             for episode in stage.get("episodes") or []:
+                 episode["opened_at"] = None
+         shown = self.listed(self.snapshot(document))
+-        self.assertIn("elapsed unknown", shown)
+-
+-    def test_a_known_start_produces_a_real_elapsed(self):
+-        """And the reversal of the case above: when the source time IS there,
+-        it is used -- so `unknown` means missing rather than unimplemented."""
++        self.assertIn("running unknown", shown)
++
++    def test_episode_opening_is_not_an_invocation_start(self):
++        """An episode is opened before admission/launch and cannot time a turn."""
+         document = self.document()
+         document["observed_at"] = "2026-09-02T00:05:00.000Z"
+         shown = self.listed(self.snapshot(document))
+-        self.assertIn("elapsed 5m00s", shown)
+-        self.assertNotIn("elapsed unknown", shown)
++        self.assertIn("running unknown", shown)
++        self.assertNotIn("running 5m00s", shown)
+ 
+     def test_an_unread_manager_says_nobody_looked(self):
+         """`canonical: false` is the difference between "nothing is running"
+@@ -804,11 +803,10 @@
+         viewer = JobViewer(lambda: held.pop(), clock=lambda: self.now,
+                            interval=1.0, sleeper=lambda _: None)
+         viewer.refresh()
+-        self.assertNotIn("running",
+-                         "\n".join(render_list(viewer.snapshot, now=self.now)))
++        self.assertNotRegex("\n".join(render_list(viewer.snapshot, now=self.now)), r"implementation\s+running\s+running")
+         viewer.refresh()
+         shown = "\n".join(render_list(viewer.snapshot, now=self.now))
+-        self.assertIn("running", shown)
++        self.assertRegex(shown, r"implementation\s+running\s+running")
+         self.assertIn("2026-09-02T00:00:05.000Z", shown)
+         # ONE tick, not two: at a 1s interval that is a 1s worst case.
+         self.assertEqual(viewer.reads, 2)
+--- a/v12/python/tools/job_observation.py
++++ b/v12/python/tools/job_observation.py
+@@ -16,7 +16,7 @@
+ 
+ def stale_ages(*ages):
+     """Absent/invalid required age is unknown, never fresh."""
+-    return any(age is None or not math.isfinite(age) or age >= STALE_SECONDS for age in ages)
++    return any(age is None or not math.isfinite(age) or age < 0 or age >= STALE_SECONDS for age in ages)
+ 
+ 
+ def observation_age(observed_at, now):
+@@ -73,8 +73,9 @@
+     if not started or not finish:
+         return None
+     try:
+-        return max(0.0, _instant(finish) - _instant(started))
+-    except ValueError:
++        seconds = _instant(finish) - _instant(started)
++        return seconds if math.isfinite(seconds) and seconds >= 0 else None
++    except (ValueError, TypeError, OverflowError):
+         return None
+ 
+ 
+@@ -189,13 +190,104 @@
+     return None
+ 
+ 
+-def _stage_line(stage, observed_at):
++def job_age(job, observed_at):
++    control = job.get("control") if type(job.get("control")) is dict else {}
++    held = control.get("job") if type(control.get("job")) is dict else {}
++    origin = job.get("created_at") or held.get("origin")
++    return _duration(_elapsed(origin, None, observed_at))
++
++
++def stage_timing(stage, job, observed_at):
++    """Interpret only attributed process facts and original admitted deadlines."""
++    state = stage.get("state")
++    never = (state in HELD_STATES and not stage.get("runtime") and not stage.get("exchange")
++             and not stage.get("receipts")
++             and not any(one.get("ended_at") for one in stage.get("episodes") or [])
++             and (not stage.get("attempt_id") or state == "blocked"))
++    result = {"running": "not started" if never else UNKNOWN, "running_seconds": None,
++              "started_at": None, "ended_at": None, "scope": "provider-process",
++              "job_age": job_age(job or {}, observed_at), "deadlines": [],
++              "limiting": [], "remaining_seconds": None, "complete": False,
++              "timeout": "timeout unknown", "observed_at": observed_at}
++    try:
++        clock = _instant(observed_at)
++    except (ValueError, TypeError, OverflowError):
++        return result
++    exchange = stage.get("exchange") if type(stage.get("exchange")) is dict else {}
++    invocation = exchange.get("invocation")
++    command = exchange.get("command") if type(exchange.get("command")) is dict else {}
++    provider = None
++    if type(invocation) is dict and stage.get("attempt_id") and invocation.get("attempt_id") == stage["attempt_id"] and invocation.get("scope") == "provider-process" and invocation.get("operation") == "work" and invocation.get("command_digest") and invocation.get("command_digest") == command.get("command_digest") and invocation.get("sequence_id") == command.get("sequence_id"):
++        try:
++            start = _instant(invocation.get("started_at"))
++            deadline = _instant(invocation.get("deadline_at"))
++            end = None if invocation.get("ended_at") is None else _instant(invocation["ended_at"])
++            if start > clock or deadline < start or (end is not None and not start <= end <= clock):
++                raise ValueError("invalid invocation chronology")
++            if end is not None or state not in TERMINAL_STATES:
++                seconds = (clock if end is None else end) - start
++                result.update(running=_duration(seconds), running_seconds=seconds,
++                              started_at=invocation["started_at"], ended_at=invocation.get("ended_at"))
++            # Once this process ended, its deadline no longer limits the stage.
++            provider = {"origin": invocation["started_at"], "deadline_at": invocation["deadline_at"]} if end is None else {}
++        except (ValueError, TypeError, OverflowError):
++            pass
++    if state in TERMINAL_STATES:
++        result["timeout"] = "timeout not applicable (stage ended)"
++        return result
++    control = (job or {}).get("control")
++    trusted = False
++    if type(control) is dict and control.get("timing") == "trusted":
++        try:
++            age = clock - _instant(control.get("observed_at"))
++            trusted = 0 <= age < STALE_SECONDS
++        except (ValueError, TypeError, OverflowError):
++            pass
++    control = control if trusted else {}
++    stages = control.get("stages") if type(control.get("stages")) is list else []
++    stage_control = next((one for one in stages if type(one) is dict and one.get("stage_id") == stage.get("stage_id")), {})
++    missing = []
++    limits = [("Job", control.get("job"))]
++    if not never:
++        limits.append(("stage", stage_control))
++        if provider != {}:
++            limits.append(("provider", provider))
++    for name, held in limits:
++        try:
++            origin = _instant(held.get("origin"))
++            deadline = _instant(held.get("deadline_at"))
++            if origin > clock or deadline < origin:
++                raise ValueError("invalid deadline chronology")
++        except (AttributeError, ValueError, TypeError, OverflowError):
++            missing.append(name)
++            continue
++        result["deadlines"].append({"cause": name, "deadline_at": held["deadline_at"],
++                                    "remaining_seconds": max(0.0, deadline - clock),
++                                    "reached": deadline <= clock})
++    if result["deadlines"]:
++        first = min(_instant(one["deadline_at"]) for one in result["deadlines"])
++        names = [one["cause"] for one in result["deadlines"] if _instant(one["deadline_at"]) == first]
++        remaining = max(0.0, first - clock)
++        result.update(limiting=names, remaining_seconds=remaining, complete=not missing)
++        label = "/".join(names)
++        result["timeout"] = (label + " deadline reached; cessation unconfirmed" if first <= clock
++                             else label + " timeout in " + _duration(remaining))
++        if missing:
++            result["timeout"] += "; " + "/".join(missing) + " timing unknown (earliest known only)"
++    return result
++
++
++def _stage_line(stage, observed_at, job=None):
+     episode = _live_episode(stage)
+     started = (episode or {}).get("opened_at")
+     ended = (episode or {}).get("ended_at")
+     state = stage.get("state")
+     state = state if state in _STATUS_STAGE_STATES else UNKNOWN
++    timing = stage_timing(stage, job, observed_at)
+     held = {
++        "timing": timing,
++        "running": timing["running"],
++        "timeout": timing["timeout"],
+         "stage_id": stage.get("stage_id") or UNKNOWN,
+         "kind": stage.get("kind") or UNKNOWN,
+         "state": state,
+@@ -207,8 +299,8 @@
+         "offer_id": stage.get("offer_id") or UNKNOWN,
+         "episode": stage.get("episode") if stage.get("episode") is not None
+                    else UNKNOWN,
+-        "elapsed": _duration(_elapsed(started, ended, observed_at)),
+-        "started_at": started or UNKNOWN,
++        "elapsed": timing["running"],
++        "started_at": timing["started_at"] or UNKNOWN,
+         # ACTIVITY COMES FROM THE SNAPSHOT AND FROM NOWHERE ELSE. W61599's
+         # producer puts it on the attempt, `delegation` observes it and
+         # `projection` publishes it at `runtime.activity`; this reads that and
+--- a/v12/python/tools/job_viewer.py
++++ b/v12/python/tools/job_viewer.py
+@@ -250,10 +250,11 @@
+         lines.append("JOB " + str(job.get("job_id") or UNKNOWN)
+                      + "   submission " + str(job.get("submission_id")
+                                               or UNKNOWN) + "   " + job_observation.job_outcome(job))
++        lines.append("  Job age " + job_observation.job_age(job, observed_at))
+         for stage in stages:
+-            one = _stage_line(stage, observed_at)
++            one = _stage_line(stage, observed_at, job)
+             lines.append(
+-                "  {kind:<16} {state:<16} elapsed {elapsed:<8} "
++                "  {kind:<16} {state:<16} running {running:<8} "
+                 "activity {activity:<8} {stage_id}".format(**one)[:width])
+             # BOUNDED, AND NOT CUT BY THE LINE WIDTH. Both of its parts are
+             # already bounded at their source -- the count by its domain, the
+@@ -262,6 +263,7 @@
+             # carry.
+             if one["activity_when"]:
+                 lines.append("      activity " + one["activity_when"])
++            lines.append("      " + one["timeout"])
+             lines.append("      attempt " + str(one["attempt_id"]))
+             lines.append("      operation " + one["operation"])
+             if one["reason"]:
+@@ -327,8 +329,9 @@
+              "  policy       " + str(job.get("policy_digest") or UNKNOWN),
+              "  terminal     " + str(job.get("terminal_policy") or UNKNOWN)]
+     observed_at = snapshot.observed_at
++    lines.append("  Job age " + job_observation.job_age(job, observed_at))
+     for stage in job.get("stages") or []:
+-        one = _stage_line(stage, observed_at)
++        one = _stage_line(stage, observed_at, job)
+         lines.append("")
+         lines.append("  STAGE " + one["stage_id"] + "  [" + one["state"] + "]")
+         for label, value in (("work", one["work_id"]),
+@@ -349,7 +352,8 @@
+                              ("pool generation", one["allocation_generation"]),
+                              ("selection", one["allocation_selection"]),
+                              ("started", one["started_at"]),
+-                             ("elapsed", one["elapsed"]),
++                             ("running", one["running"]),
++                             ("limit", one["timeout"]),
+                              ("activity", one["activity"]
+                               + ("" if not one["activity_when"]
+                                  else " " + one["activity_when"])),
+--- a/v12/python/tools/stack.py
++++ b/v12/python/tools/stack.py
+@@ -1153,13 +1153,15 @@
+         print("  No Jobs observed" + ("; idle" if published["state"] == "fresh" and published["canonical"] else "; current workload unknown"), file=stream)
+     for job in jobs:
+         print("Job " + _status_text(job.get("job_id")) + ": " + _job_outcome(job), file=stream)
++        print("  Job age " + job_observation.job_age(job, published["document"].get("observed_at")), file=stream)
+         for stage in job.get("stages") or []:
+             state = stage.get("state")
+             state = state if state in _STATUS_STAGE_STATES else "unknown"
+-            one = job_observation.stage_view(stage, published["document"].get("observed_at"))
++            one = job_observation.stage_view(stage, published["document"].get("observed_at"), job)
+             reason = one["reason"]
+             detail = reason.removeprefix("failed: stage ended exceptionally; ").removeprefix("held: ")
+             print("  " + _status_text(stage.get("stage_id") or stage.get("kind")) + ": " + state + ("; " + detail if detail else ""), file=stream)
++            print("    running " + one["running"] + "; " + one["timeout"], file=stream)
+             print("    attempt " + _status_text(one["attempt_id"]) + "; operation " + one["operation"], file=stream)
+             print("    activity " + one["activity"] + ("; " + one["activity_when"] if one["activity_when"] else ""), file=stream)
+         cancellation = job.get("cancellation")
+--- a/v12/worker/baton_worker.py
++++ b/v12/worker/baton_worker.py
+@@ -2094,7 +2094,7 @@
+             pass
+ 
+ 
+-def _publish_activity(root, document):
++def _publish_activity(root, document, *, name=ACTIVITY_DOCUMENT, staging=ACTIVITY_STAGING):
+     """The optional count, staged EXCLUSIVELY and renamed OVER the published
+     file. Answers whether this write happened.
+ 
+@@ -2119,7 +2119,7 @@
+     payload = canonical(document)
+     if len(payload) > MAX_EXCHANGE_BYTES:
+         return False
+-    staged = os.path.join(root, ACTIVITY_STAGING)
++    staged = os.path.join(root, staging)
+     try:
+         handle = os.open(staged,
+                          os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+@@ -2138,7 +2138,7 @@
+             os.fsync(handle)
+         finally:
+             os.close(handle)
+-        os.replace(staged, os.path.join(root, ACTIVITY_DOCUMENT))
++        os.replace(staged, os.path.join(root, name))
+         opened = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+         try:
+             os.fsync(opened)
+@@ -2177,10 +2177,11 @@
+     for a count to be a count of.
+     """
+ 
+-    def __init__(self, root, document, observe, *, seconds=ACTIVITY_SECONDS):
++    def __init__(self, root, document, observe, *, invocation=None, seconds=ACTIVITY_SECONDS):
+         self._root = root
+         self._document = document
+         self._observe = observe
++        self._invocation = invocation
+         self._seconds = seconds
+         self._stop = threading.Event()
+         self._thread = None
+@@ -2205,6 +2206,16 @@
+                 return
+ 
+     def _tick(self):
++        # Independent diagnostic: quiet native output must not hide a running
++        # provider, and terminal sampling retains its direct-child end time.
++        try:
++            timing = self._invocation() if callable(self._invocation) else None
++            if type(timing) is dict:
++                _publish_activity(self._root, {**self._document,
++                    "schema": "baton.worker-exchange.invocation/1", **timing},
++                    name="invocation.json", staging=".invocation.json.tmp")
++        except BaseException:
++            pass  # Optional timing must never change the worker outcome.
+         try:
+             total = self._observe()
+         except BaseException:                              # noqa: BLE001
+@@ -2638,7 +2649,7 @@
+         event_root,
+         _bound(command, digested, operation=operation,
+                operation_id=operation_id),
+-        observe).start()
++        observe, invocation=getattr(agent, "observed_invocation", None)).start()
+ 
+ 
+ def _stopped(publisher):
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -1955,6 +1955,45 @@
+         # from the main thread immediately before the launch.
+         self._activity_lock = threading.Lock()
+         self._activity = None
++        self._invocation = None
++
++    def observed_invocation(self):
++        """Process-start/exit evidence, never dispatch or activity-derived."""
++        with self._activity_lock:
++            return dict(self._invocation) if self._invocation is not None else None
++
++    def _run_provider(self, argv, **options):
++        # Injected runners do not prove process creation; keep timing unknown.
++        with self._activity_lock:
++            self._invocation = None
++        if self._run is not subprocess.run:
++            return self._run(argv, **options)
++        import datetime
++        seconds = options.pop("timeout")
++        # Popen success is the first evidence that this provider process exists.
++        # Missing executable/fork failures leave no fabricated start or deadline.
++        with subprocess.Popen(argv, **options) as child:
++            started = datetime.datetime.now(datetime.timezone.utc)
++            with self._activity_lock:
++                self._invocation = {"started_at": started.isoformat(timespec="milliseconds").replace("+00:00", "Z"),
++                                    "deadline_at": (started + datetime.timedelta(seconds=seconds)).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
++                                    "ended_at": None, "scope": "provider-process"}
++            try:
++                stdout, stderr = child.communicate(timeout=seconds)
++            except subprocess.TimeoutExpired:
++                child.kill()
++                child.wait()
++                raise
++            except BaseException:
++                child.kill()
++                child.wait()
++                raise
++            finally:
++                # Direct-child cessation only; never claims descendants stopped.
++                with self._activity_lock:
++                    if child.poll() is not None:
++                        self._invocation["ended_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
++            return subprocess.CompletedProcess(argv, child.returncode, stdout, stderr)
+ 
+     # -- the provider turn, for a workload this adapter does not own ---------
+ 
+@@ -4897,7 +4936,7 @@
+                 # already runs beside the reader thread above, and
+                 # `preexec_fn` is documented as unsafe in the presence of
+                 # threads. See `PROVIDER_UMASK`.
+-                return_code = self._run(argv, cwd=cwd, env=env,
++                return_code = self._run_provider(argv, cwd=cwd, env=env,
+                                         timeout=seconds, stdout=write_fd,
+                                         stderr=complaint.fileno_or_devnull,
+                                         umask=umask

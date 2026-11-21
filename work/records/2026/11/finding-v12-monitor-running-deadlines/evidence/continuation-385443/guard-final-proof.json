@@ -1,0 +1,61 @@
+{
+  "sha256": "28e29e312461f88425d101b4ed4882484da59a5a4a361369879c3a105ba9ef1c",
+  "checks": [
+    {
+      "argv": [
+        "--no-optional-locks",
+        "-C",
+        "/home/sl/src/baton/work/scratch/w385427/verification-git/run-e67wfxz9/fixtures/v12-w71917-proof/source",
+        "rev-parse",
+        "--verify",
+        "abc^{tree}"
+      ],
+      "accepted": true
+    },
+    {
+      "argv": [
+        "--no-optional-locks",
+        "-C",
+        "/home/sl/src/baton",
+        "add",
+        "."
+      ],
+      "accepted": false
+    },
+    {
+      "argv": [
+        "-C",
+        "/home/sl/src/baton/work/scratch/w385427/verification-git/run-e67wfxz9/fixtures/v12-w71917-proof/source",
+        "archive",
+        "--format=tar",
+        "-o",
+        "/home/sl/src/baton/work/scratch/w385427/verification-git/run-e67wfxz9/fixtures/v12-w71917-proof/output.tar",
+        "abc"
+      ],
+      "accepted": true
+    },
+    {
+      "argv": [
+        "-C",
+        "/home/sl/src/baton/work/scratch/w385427/verification-git/run-e67wfxz9/fixtures/v12-w71917-proof/source",
+        "archive",
+        "--format=tar",
+        "-o",
+        "/home/sl/src/baton/output.tar",
+        "abc"
+      ],
+      "accepted": false
+    },
+    {
+      "argv": [
+        "-C",
+        "/home/sl/src/baton/work/scratch/w385427/verification-git/run-e67wfxz9/fixtures/v12-w71917-proof/source",
+        "archive",
+        "--remote=elsewhere",
+        "abc"
+      ],
+      "accepted": false
+    }
+  ],
+  "note": "pure validator checks; no Git subprocess invoked. OS confinement proof remains guard-proof.json."
+}

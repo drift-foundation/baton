@@ -60,6 +60,11 @@ exactly this and must not re-derive any of it:
                the per-outcome mapping so no reader recomputes it.
   ABSENCES     `absent_of` -> which records this document positively says are
                not there, answerable beside a known cause as well.
+  DECLARED     `declaration_of` -> W385424's SEPARATE axis: what the WORKER
+               said its turn was and what this manager sealed of it. Not one
+               of the four answers and never folded into `cause`, because a
+               worker declaring itself unable is not a cessation anybody
+               ordered. See the section above `attempt_failure_cause_of`.
   BOUNDS       `CAUSE_MEMBERS` allowlists the composed cause; `FIELD_BOUND`
                bounds every emitted string. No credential, environment value,
                private transcript, provider text or exception repr is emitted,
@@ -72,10 +77,15 @@ none of these records reaches `unknown` and the reader NAMES which records are
 absent, because a cause is never manufactured retrospectively.
 """
 
-from ..contracts import ContractRefusal, digest
+import json
+import os
+import stat
+from urllib.parse import unquote, urlsplit
+
+from ..contracts import ContractRefusal, digest, digest_of_bytes
 from ..contracts.errors import name_value
 from . import attempts as _attempts
-from . import boundaries, documents, tokens
+from . import boundaries, documents, manifests, output, schema, tokens
 from .store import manager_signature
 
 __all__ = ["COMPONENTS", "OUTCOMES", "CESSATION", "EFFECTS",
@@ -100,7 +110,16 @@ __all__ = ["COMPONENTS", "OUTCOMES", "CESSATION", "EFFECTS",
            # known", which is the mistake the wrapper rule exists to stop.
            "READ_SCHEMAS", "ANSWERS", "ANSWER_OF_OUTCOME",
            "CAUSE_MEMBERS", "FIELD_BOUND",
-           "decode", "answer_of", "absent_of"]
+           "decode", "answer_of", "absent_of",
+           # W385424: THE WORKER'S OWN DECLARED ENDING, which is a DIFFERENT
+           # AXIS from the cessation the four answers are about. Exported for
+           # the same reason the cessation read API is: ordinary status and
+           # the operator report both read it, and a second decoder would be
+           # a second answer to "what did the worker say".
+           "WORKER_DECLARATION_MEMBERS", "DECLARED_ENDINGS",
+           "DECLARED_FAILURE_REASONS", "DECLARED_BOUND_SOURCES",
+           "RETAINED_RESULT_SCHEMAS", "RETAINED_RESULT_PATH",
+           "declaration_of"]
 
 # W333486 review340349 item 2: THE ONE OWNED, VERSIONED DIAGNOSTIC SHAPE, and
 # it is one shape on all THREE sides -- this producer, the ordinary versioned
@@ -1194,6 +1213,421 @@ def _returned(store, domain, generation):
                             tokens.RETURNED_KIND)
 
 
+# -- W385424: WHAT THE WORKER ITSELF DECLARED -------------------------------
+#
+# THE GAP THIS CLOSES, and it is the same KIND of gap as the one above: a
+# composition gap rather than a missing fact. The pilot ending recorded in
+# `work/records/2026/10/finding-v12-development-coordination-pilot/evidence/
+# native-handoffs-1-recovery/` reached every operator surface as "stage ended
+# exceptionally; cause unknown" while this manager held, sealed and measured a
+# worker result that said in typed members what had happened: `unable`, a
+# `provider-failed` ending, `timeout`, a 3600-second provider bound and a
+# verification that was never attempted. An earlier ending whose cause was a
+# FAILED VERIFICATION produced the identical sentence. Two different, host-known
+# endings reported as one unknown is the defect.
+#
+# IT IS A SEPARATE AXIS AND IT IS NOT A CESSATION, which is why nothing below
+# touches `cause`, `ANSWERS` or `answer_of`. The four answers say what THIS
+# MANAGER recorded about ordering a runtime stopped; a worker declaring how its
+# own turn ended says nothing about which component stopped the container, or
+# whether anything did. Folding the two would manufacture exactly the
+# retrospective cause rule 3 of this module exists to refuse -- and it would
+# also displace the cancellation and revocation facts, which stay where they
+# are and keep answering for themselves.
+#
+# AND IT IS NOT AN ACCEPTANCE, A REVIEW OR A PROOF OF ANYTHING THE WORKER DID.
+# `disposition` is what the worker ANSWERED and this manager SEALED;
+# `verification_attempted` and `verification_status` are what the worker's own
+# command reported about itself. None of them is evidence that a container
+# died, that a candidate is correct, that verification succeeded or that
+# anybody reviewed it.
+#
+# WHERE THE FACTS COME FROM, and the two things that are deliberately NOT read:
+#
+#   THE SEALED DISPOSITION comes off this manager's own `outputs` row, which
+#   `record_frozen_result` wrote only after proving the sealed result against
+#   the attempt's fixed assignment, its pinned input and policy digests, its
+#   recorded disposition axis and its own freeze operation and signature.
+#   THE TYPED ENDING comes from the worker's `result.json` inside the frozen
+#   candidate output -- read ONLY against the content manifest THIS MANAGER
+#   MEASURED when it sealed the tree. The entry's byte count and content
+#   digest are the binding: a missing, replaced, truncated or foreign file
+#   fails to recompute and the members stay unknown. An unbound filesystem
+#   read would be trusting whatever is at a path today.
+#   NOT `baton.git-proposal/1.recap`, which is PROSE. It says
+#   "provider-failed: the provider did not finish within 3600s" in this very
+#   ending, and parsing it would make a sentence the authoritative typed
+#   status -- the wider classifier this distribution has already declined to
+#   become, one layer up.
+#   NOT A PATH, A LOCATOR, A PROVIDER MESSAGE OR A `why` SENTENCE. Every
+#   member emitted below is a closed word from a vocabulary this build owns, a
+#   bounded identity this manager composed, an integer in a declared range or
+#   a boolean. The custody locator is used to READ and is never emitted.
+#
+# NOTHING HERE RAISES AND NOTHING HERE IS AN ACT. Every failure to establish a
+# member -- no frozen result, no retained manifest, a tree with no measured
+# `result.json`, an artifact that is another attempt's, a digest that does not
+# recompute, a generation this build does not read, a value outside a closed
+# vocabulary -- is an UNKNOWN WITH A BOUNDED REASON, because a diagnostic that
+# refused the whole document over unreadable evidence would lose the cessation
+# axis beside it. Repeated reads answer identically and write nothing.
+#
+# THE FILESYSTEM READ HAPPENS HERE, OUTSIDE EVERY TRANSACTION. `attempt_
+# failure_cause_of` holds no write lock and opens no read snapshot, and the
+# Job manager acquires its observations only AFTER releasing its own view
+# (`job_manager/projection.materialized`). DESIGN DB-1 and DB-4 are what that
+# ordering is for, and this read is placed to keep them.
+
+# THE CLOSED MEMBER SET OF THE DECLARATION AXIS, allowlisted exactly as
+# `CAUSE_MEMBERS` is, so a member grown here is caught by a case rather than
+# published.
+WORKER_DECLARATION_MEMBERS = ("disposition", "result_id", "frozen_at",
+                              "declared_ending", "failure_reason",
+                              "seconds_bound", "seconds_bound_source",
+                              "verification_attempted", "verification_status")
+
+# THE WORKER'S OWN TYPED ENDINGS. Mirrored by value rather than imported: the
+# producing vocabulary lives in the worker image, which carries no `baton_v12`
+# at all, so an import is not available in either direction and a case holds
+# the two spellings together instead.
+DECLARED_ENDINGS = ("candidate", "no-candidate", "provider-failed",
+                    "verification-failed", "yielded")
+
+# WHY A PROVIDER TURN DID NOT FINISH, mirrored for the same reason. `timeout`
+# is the one this ending carried; `api-error`, `start-error` and
+# `unclassified` are the rest of the adapter's closed set, and a word outside
+# it is reported unknown rather than echoed.
+DECLARED_FAILURE_REASONS = ("api-error", "start-error", "timeout",
+                            "unclassified")
+
+# WHO CHOSE THE BOUND the turn actually ran under. A bare number cannot say
+# whether an operator picked it or whether it is simply what the boundary
+# preserves, and an operator deciding whether a timeout is a configuration
+# problem needs the difference.
+DECLARED_BOUND_SOURCES = ("job-default", "job-selected", "unstated",
+                          "worker-default")
+
+# THE RESULT GENERATIONS THIS BUILD READS. An unrecognised one is reported
+# unknown rather than decoded against a shape nobody promised -- the same rule
+# `READ_SCHEMAS` applies to this module's own document.
+RETAINED_RESULT_SCHEMAS = ("baton.dogfood-proposal/2",
+                           "baton.dogfood-proposal/3")
+
+# WHERE THE TYPED RESULT SITS INSIDE THE FROZEN CANDIDATE TREE, and the most
+# of it this manager will ever hold in memory. The bound is on the MEASURED
+# entry: a tree whose `result.json` was measured larger than this is not read
+# at all, rather than read in part.
+RETAINED_RESULT_PATH = "result.json"
+RETAINED_RESULT_BYTES = 1 << 16
+
+# The ranges an integer member must be inside to be owned. A provider bound is
+# seconds and a week is already far past anything a turn is given; an exit
+# status is what a child supplied, which may be negative where a signal ended
+# it.
+SECONDS_BOUND_CEILING = 7 * 24 * 60 * 60
+EXIT_STATUS_RANGE = (-256, 65535)
+
+_NO_FROZEN_RESULT = ("this attempt froze no result, so this manager sealed no "
+                     "worker declaration about how its turn ended")
+
+
+def declaration_of(document):
+    """THE WORKER-DECLARED AXIS of a composed cause, with the version proved first.
+
+    Published beside `answer_of` and `absent_of` rather than left for each
+    reader to find, and deliberately NOT part of `answer_of`: the four answers
+    are about the cessation this manager ordered, and a worker's account of
+    its own ending is a different question with a different owner. A reader
+    that needs both asks both.
+
+    Always answerable, including beside a known cause: a cancellation this
+    manager ordered and a worker that had already declared itself unable are
+    two facts, and neither replaces the other.
+    """
+    _supported(document)
+    held = document.get("worker_declaration")
+    return held if isinstance(held, dict) else None
+
+
+def _custody_place(locator, name):
+    """One LOCAL custody path for a measured entry, or `None`.
+
+    The locator is this manager's OWN recorded one -- `sealing` composes it
+    from the custody directory it staged into -- so this is a reader of a
+    manager fact rather than of a caller operand. It is still proved rather
+    than trusted: a scheme, host, query or fragment that is not what sealing
+    writes means the artifact is somewhere this reader has no business
+    following, and a non-canonical path is one somebody composed.
+
+    THE RESULT IS USED TO OPEN AND IS NEVER EMITTED. No member of the
+    composed declaration carries it.
+    """
+    if not isinstance(locator, str) or len(locator) > FIELD_BOUND:
+        return None
+    held = urlsplit(locator)
+    if held.scheme != "file" or held.netloc or held.query or held.fragment:
+        return None
+    place = unquote(held.path)
+    if not place.startswith("/") or "\x00" in place \
+            or place != os.path.normpath(place):
+        return None
+    return os.path.join(place, name)
+
+
+def _bound_bytes(place, size, expected):
+    """A retained file read ONLY against the measurement that binds it.
+
+    THE DIGEST IS THE BINDING AND THE SIZE IS CHECKED FIRST, on the OPENED
+    descriptor rather than on the path, so nothing is swapped between the
+    check and the read. `O_NOFOLLOW` refuses a symbolic link where a regular
+    file was measured.
+
+    `None` means "this is not the bytes this manager measured", for every
+    reason there is: absent, unreadable, not a regular file, a different
+    length, short, long, or recomputing to another digest. The caller turns
+    that into an unknown with a bounded reason; it never turns it into a
+    partial read.
+
+    AND THE OPEN ITSELF NEVER WAITS. Review 2026-11-21T12-34-16Z [R1]: a
+    blocking `open` of a FIFO left where the regular file was measured waits
+    for a writer that never comes, and a diagnostic read that can hang the
+    status projection is not bounded observation. `O_NONBLOCK` makes the open
+    of a special file return at once; the type is then judged on the OPENED
+    descriptor, where a regular file reads exactly as before (the flag has no
+    effect on it) and anything else is refused without a peer.
+    """
+    if not isinstance(size, int) or isinstance(size, bool) \
+            or not 0 < size <= RETAINED_RESULT_BYTES \
+            or not isinstance(expected, str):
+        return None
+    try:
+        handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC
+                         | os.O_NONBLOCK)
+    except (OSError, ValueError):
+        return None
+    try:
+        found = os.fstat(handle)
+        if not stat.S_ISREG(found.st_mode) or found.st_size != size:
+            return None
+        raw = bytearray()
+        while len(raw) < size:
+            part = os.read(handle, size - len(raw))
+            if not part:
+                break
+            raw.extend(part)
+    except OSError:
+        return None
+    finally:
+        os.close(handle)
+    raw = bytes(raw)
+    if len(raw) != size or digest_of_bytes(raw) != expected:
+        return None
+    return raw
+
+
+def _retained_declaration(store, attempt_id, frozen):
+    """The worker's typed result document, or `(None, why)`.
+
+    EVERY STEP IS A BINDING AND NOT A LOOKUP. The retained manifest is the one
+    this attempt's frozen row names; the candidate output is the one the
+    manifest declares at the owned output type; the entry is the one the
+    manager MEASURED at `result.json`; the artifact is the one named for this
+    exact attempt, and this manager's own indexed artifact row must agree with
+    the manifest about its identity, its digest and where it is. Only then are
+    the bytes opened, and only the measured digest decides whether they are
+    the ones that were sealed.
+
+    A FOREIGN ATTEMPT'S EVIDENCE CANNOT ARRIVE HERE. The artifact identity
+    `sealing` composes is `<attempt-id>:<output-name>`, so a tree staged for
+    another attempt fails the identity test before anything is opened, and a
+    substituted file fails the digest after.
+    """
+    try:
+        manifest = manifests.load_manifest(store, frozen["manifest_digest"],
+                                           "resultManifest")
+    except ContractRefusal:
+        return None, ("this attempt's retained result manifest did not "
+                      "validate on the way out, so nothing in it is read as "
+                      "evidence about this ending")
+    if manifest is None:
+        return None, ("this manager retains no result manifest for the "
+                      "output this attempt froze")
+    named = [one for one in manifest["outputs"]
+             if one.get("type") == schema.OUTPUT_TYPES[0]
+             and one.get("status") == "present"]
+    if len(named) != 1:
+        return None, ("this attempt's frozen result carries no single present "
+                      "candidate output, so there is no typed worker result "
+                      "bound to it")
+    held = named[0]
+    # READ DEFENSIVELY RATHER THAN BY THE SCHEMA ALONE. `record_frozen_result`
+    # refuses a present output carrying no content manifest, so production
+    # cannot reach the `None` branch -- but this reader runs over a retained
+    # document and its job is to answer `unknown`, not to raise, whatever is
+    # in the store.
+    measured = held.get("content_manifest")
+    measured = measured.get("entries") if isinstance(measured, dict) else None
+    entries = [one for one in measured
+               if isinstance(one, dict)
+               and one.get("path") == RETAINED_RESULT_PATH] \
+        if isinstance(measured, list) else []
+    artifact = held.get("artifact")
+    if len(entries) != 1 or not isinstance(artifact, dict):
+        return None, ("this manager measured no single " + RETAINED_RESULT_PATH
+                      + " in the frozen candidate tree, so there is nothing "
+                      "a measurement binds")
+    if artifact.get("artifact_id") != f"{attempt_id}:{held['name']}":
+        return None, ("the frozen candidate artifact is not the one this "
+                      "attempt's own seal composed, so it is not evidence "
+                      "about this attempt")
+    rows = [one for one in frozen["artifacts"]
+            if one["output_name"] == held["name"]]
+    if len(rows) != 1 \
+            or rows[0]["artifact_id"] != artifact.get("artifact_id") \
+            or rows[0]["content_digest"] != artifact.get("content_digest") \
+            or rows[0]["locator"] != artifact.get("locator"):
+        return None, ("this manager's recorded artifact and its retained "
+                      "result manifest disagree about the frozen candidate, "
+                      "so neither is read")
+    place = _custody_place(rows[0]["locator"], RETAINED_RESULT_PATH)
+    if place is None:
+        return None, ("this attempt's frozen candidate is not in local "
+                      "custody this manager can open")
+    raw = _bound_bytes(place, entries[0].get("bytes"),
+                       entries[0].get("content_digest"))
+    if raw is None:
+        return None, ("the retained " + RETAINED_RESULT_PATH + " is absent, "
+                      "unreadable or does not recompute to the digest this "
+                      "manager measured when it sealed the tree")
+    try:
+        document = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        return None, ("the retained " + RETAINED_RESULT_PATH + " is not a "
+                      "readable document")
+    if not isinstance(document, dict) \
+            or document.get("schema") not in RETAINED_RESULT_SCHEMAS:
+        return None, ("the retained result declares a generation this build "
+                      "does not read; it is not decoded against a shape "
+                      "nobody promised, and what it declared is omitted "
+                      "rather than echoed")
+    return document, None
+
+
+def _closed_member(value, owned, source, why):
+    """One member whose VALUE is owned, not merely whose name is.
+
+    An unsupported value NAMES WHAT IS OWNED and never repeats what it saw:
+    echoing the thing that should not have travelled is how it travels.
+    """
+    if value in owned and isinstance(value, str):
+        return _known(value, source)
+    return _unknown(why + "; the owned values are " + ", ".join(owned))
+
+
+def _bounded_integer(value, low, high, source, why):
+    if isinstance(value, int) and not isinstance(value, bool) \
+            and low <= value <= high:
+        return _known(value, source)
+    return _unknown(why)
+
+
+_ABSENT = object()   # a member that is not there, as distinct from `null`
+
+
+def _declared_members(document):
+    """The typed members of one retained result, each owned or unknown."""
+    provider = document.get("provider")
+    provider = provider if isinstance(provider, dict) else {}
+    # ABSENT IS NOT NULL. Review 2026-11-21T12-34-16Z [R2]: the worker encodes
+    # "no verification command ran" as an explicit `null`; a result that
+    # carries NO verification member says nothing about it, and a sealed
+    # digest authenticates the bytes, not their completeness.
+    verification = document.get("verification", _ABSENT)
+    answer = {
+        "declared_ending": _closed_member(
+            document.get("disposition"), DECLARED_ENDINGS,
+            "retained result.disposition",
+            "the retained result declares an ending this build does not own"),
+        "failure_reason": _closed_member(
+            provider.get("failure_reason"), DECLARED_FAILURE_REASONS,
+            "retained result.provider.failure_reason",
+            "the retained result names no provider failure reason this build "
+            "owns"),
+        "seconds_bound": _bounded_integer(
+            provider.get("seconds_bound"), 1, SECONDS_BOUND_CEILING,
+            "retained result.provider.seconds_bound",
+            "the retained result states no provider-turn bound inside the "
+            "range this manager owns"),
+        "seconds_bound_source": _closed_member(
+            provider.get("seconds_bound_source"), DECLARED_BOUND_SOURCES,
+            "retained result.provider.seconds_bound_source",
+            "the retained result says nobody this build owns chose the "
+            "provider bound"),
+    }
+    if verification is _ABSENT:
+        missing = ("the retained result carries no verification member, so "
+                   "whether a command ran is unknown")
+        answer["verification_attempted"] = _unknown(missing)
+        answer["verification_status"] = _unknown(missing)
+    elif verification is None:
+        # NOT ATTEMPTED IS AN ANSWER. The worker publishes `null` here exactly
+        # when no verification command ran, and that is a different fact from
+        # a command that ran and said nothing -- which is why the status
+        # beside it stays unknown rather than becoming a zero.
+        answer["verification_attempted"] = _known(
+            False, "retained result.verification")
+        answer["verification_status"] = _unknown(
+            "no verification was attempted, so no command supplied a status")
+    elif isinstance(verification, dict):
+        answer["verification_attempted"] = _known(
+            True, "retained result.verification")
+        answer["verification_status"] = _bounded_integer(
+            verification.get("status"), EXIT_STATUS_RANGE[0],
+            EXIT_STATUS_RANGE[1], "retained result.verification.status",
+            "the retained result's verification names no exit status this "
+            "manager can own")
+    else:
+        unreadable = ("the retained result's verification member is not a "
+                      "document and is not absent, so whether a command ran "
+                      "is unknown")
+        answer["verification_attempted"] = _unknown(unreadable)
+        answer["verification_status"] = _unknown(unreadable)
+    return answer
+
+
+def _worker_declaration(store, attempt_id):
+    """WHAT THE WORKER DECLARED AND THIS MANAGER SEALED, member by member.
+
+    The sealed half is read from this manager's own frozen-output row; the
+    typed half is read from the retained result the same seal measured. An
+    attempt that froze nothing, or whose retained evidence does not bind,
+    answers every member unknown with a bounded reason -- which is an answer
+    about an absence and never a cause.
+    """
+    frozen = output.frozen_output_of(store, attempt_id)
+    if frozen is None:
+        return {name: _unknown(_NO_FROZEN_RESULT)
+                for name in WORKER_DECLARATION_MEMBERS}
+    answer = {
+        # THE DISPOSITION IS THE MANAGER'S RECORD OF THE WORKER'S ANSWER, and
+        # `record_frozen_result` proved it equal to the attempt's own terminal
+        # axis before this row existed. It is not a claim the caller supplied.
+        "disposition": _known(frozen["disposition"], "outputs.disposition"),
+        "result_id": _known(frozen["result_id"], "outputs.result_id"),
+        "frozen_at": (_known(frozen["frozen_at"], "outputs.frozen_at")
+                      if frozen["frozen_at"] is not None else
+                      _unknown("this manager stamped no instant on the "
+                               "freeze of this result")),
+    }
+    document, why = _retained_declaration(store, attempt_id, frozen)
+    if document is None:
+        answer.update({name: _unknown(why) for name in
+                       WORKER_DECLARATION_MEMBERS if name not in answer})
+        return answer
+    answer.update(_declared_members(document))
+    return answer
+
+
 def attempt_failure_cause_of(store, attempt_id):
     """THE COMPOSED TYPED CAUSE, and an explicit `unknown` that names what is absent.
 
@@ -1329,6 +1763,18 @@ def attempt_failure_cause_of(store, attempt_id):
         "cause": cause,
         "unknown": unknown,
         "absent_records": tuple(absent),
+        # W385424: AND WHAT THE WORKER ITSELF DECLARED, BESIDE the cessation
+        # axis and never instead of it. `cause` and `unknown` above are
+        # unchanged by anything here: a worker that declared itself unable
+        # did not order a runtime stopped, and this manager still does not
+        # know which component did. ADDITIVE AND VERSION-COMPATIBLE: the
+        # readers of this document are positive allowlists keyed by member
+        # name, so an older one reports exactly what it did before and a
+        # newer one gains an axis. Bumping the version instead would blind
+        # every already-installed reader to EVERY axis -- a larger loss than
+        # the gap this closes -- so the schema is deliberately unmoved and
+        # the choice is written down rather than left to be inferred.
+        "worker_declaration": _worker_declaration(store, attempt_id),
         # EVERY LEAF BELOW IS A WRAPPED SCALAR, which is what makes one shape
         # possible on all three sides. The owners' DOCUMENTS are deliberately
         # not forwarded: a status member that carried somebody else's whole

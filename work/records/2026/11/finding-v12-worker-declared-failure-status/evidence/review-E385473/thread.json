@@ -1,0 +1,49 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T385424",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W385424"
+      }
+    ],
+    "last_seq": 385471,
+    "local_id": "T385424",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K (baton.prompt, owner-held arrangement, no claim; M385468) \u2192 W385424: R1/R2 correction packet ready for independent delta review. Isolated over the FROZEN native candidate; not composed, not imported; native packet and the accepted W385427/W385454 bytes untouched.\n\nPACKET. work/records/2026/11/finding-v12-worker-declared-failure-status/evidence/correction-K-20261121/ (HANDOFF.md 955abca2\u2026, manifest.json, base/, candidate/, candidate.sha256, correction-from-native.patch, logs/, probes/, umask-runs/, narrative-current.sha256, evidence.sha256 58293e47\u2026, 47 entries). Starting bytes: native listing e686d8c2\u2026 (10 paths over 7ac02c7f, head 4c528624\u2026), re-verified path by path. Changed: 3 paths \u2014 src/baton_v12/worker_manager/failure_cause.py (05f49b4a\u2026 \u2192 bcd53370\u2026), tests/manager/test_attempt_failure_cause.py (62b690e9\u2026 \u2192 093db1a8\u2026), tests/tools/test_job_observation.py (813d9a37\u2026 \u2192 f1aa0b8b\u2026); the other 7 byte-identical. New 10-path listing 10f3d809254c3da937b4dc0761c9ec5971ea55ec2c0ed1fe6b21d50d3511eae0; patch fb31d571\u2026 (186 lines; reproduces the corrected tree from the native bytes, verified).\n\nR1 (bounded open). `_bound_bytes` opens the retained result with O_NONBLOCK beside O_RDONLY|O_NOFOLLOW|O_CLOEXEC; the type is judged on the opened descriptor (fstat, S_ISREG), size and measured digest still bind, symlinks still refused, identity/manifest binding unchanged. A FIFO where the regular file was measured now returns at once as \"not a regular file\"; a regular file reads exactly as before.\n\nR2 (absent \u2260 null). `_declared_members` reads verification through a sentinel: no member \u2192 attempted and status both unknown (\"carries no verification member, so whether a command ran is unknown\"); explicit null \u2192 not attempted (status unknown) as before; document \u2192 attempted, status owned only inside EXIT_STATUS_RANGE; anything else \u2192 both unknown. Other members, sealed disposition, cause/revocation/cancellation axes and lifecycle separation untouched; the renderers already say \"whether verification ran is unknown\" for an unknown axis \u2014 no renderer change.\n\nPROOF. New public-path cases in TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE: FIFO replacement \u2192 attempt_failure_cause_of returns promptly (5 s watchdog never fires), every typed member unknown with the \"does not recompute\" reason, disposition/result_id known, cause axis unmoved; missing member \u2192 both axes unknown, other members still stand; explicit null \u2192 not attempted; status 0 \u2192 known; malformed (\"ran\", 7, [], {\"status\":\"one\"}, {\"status\":2**40}) \u2192 status unknown. Rendering case in test_job_observation: unknown axis \u2192 \"whether verification ran is unknown\" in status/list/detail, never \"not attempted\". Class 20/20, module 39/39 (logs/declared-axis-2.log). Reviewer's own probe.py rerun on the corrected tree (byte-copied; 10 s limit): fifo returns in 0.4 s (was killed at 3 s); missing-verification \u2192 [false,null]/[false,null] (was [true,false]); nested-json unchanged. Required four-module coverage with the overlay named separately: run_focused.py selection (minus the two deep cases) on the corrected tree WITHOUT overlay Ran 271 OK (266 + 5 new; Git rejected), and on the overlay tree Ran 271 OK; the two deep cases on the overlay tree (W385454 c6755437\u2026/03a7710e\u2026, accepted M385461; not part of this candidate) under the established confinement: umask 077 2/2 OK (posture 0o730), umask 022 2/2 OK (0o775); 442 confined Git invocations each, 0 refused, none outside the fixture roots. Overlay verification, not pristine-native; the native exit 1 remains historical.\n\nHONEST ACCOUNTING. logs/declared-axis-1.log: first run of the new cases failed on two test-side errors (FIFO case on a worker thread vs the store's thread binding; malformed case expected -1 outside EXIT_STATUS_RANGE) \u2014 tests corrected, product correction unchanged. logs/stale/: first overlay runs made before the overlay copy was re-synced with the final test files (a packaging slip of mine; 270 tests, 1F/1E from stale test bytes), retained, superseded by the re-synced runs. narrative-current.sha256 supplies the current RECOVERY.md digest (7023f42d\u2026) beside the stale entry the review noted, which is left as recorded.\n\nBOUNDARIES. No W385427/W385454 composition, host import, live-instance access, or Git mutation outside the fresh confined fixture roots under /var/tmp/baton-v12-w385424-fix/. FINDING.md/PLAN.md of this dossier updated. Handoff: independent delta review of the three-path delta; then serial composition of the three deltas with joined review before any host import and human checkpoint. Cross-reference on T321608.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385469,
+        "ts": "2026-11-21 12:51:49"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Codexpc independent delta review: M385469 answers R1/R2. Review evidence/correction-K-20261121/HANDOFF.md under this dossier, corrected10-path listing10f3d809254c3da937b4dc0761c9ec5971ea55ec2c0ed1fe6b21d50d3511eae0; three changed paths relative to preserved native candidate. Verify FIFO/nonregular boundedness without losing measured descriptor identity, missing versus null verification and malformed/valid semantics, public rendering, and preservation of original accepted requirements. Re-run appropriate independent probes and focused checks; fixture overlay evidence remains separately identified, original native failure remains history. Existing exact-two-case confined Git exception only. No composition, host import, live change or other Git mutations. Claim first; post verdict/evidence and pass to baton.decide for interactive K corrections or composition coordination, then verify claim release.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385471,
+        "ts": "2026-11-21 12:52:16"
+      }
+    ],
+    "new": 8,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 status: surface attributable worker-declared failure causes",
+    "total": 8
+  },
+  "snapshot_seq": 385473
+}

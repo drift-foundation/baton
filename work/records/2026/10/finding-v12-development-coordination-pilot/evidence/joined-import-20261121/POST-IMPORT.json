@@ -1,0 +1,154 @@
+{
+ "head_after": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+ "imported": [
+  "v12/python/JOB-VIEWER.md",
+  "v12/python/src/baton_v12/job_manager/documents.py",
+  "v12/python/src/baton_v12/job_manager/projection.py",
+  "v12/python/src/baton_v12/worker_manager/exchange.py",
+  "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+  "v12/python/tests/job_manager/test_status.py",
+  "v12/python/tests/manager/test_attempt_failure_cause.py",
+  "v12/python/tests/manager/test_boundary_inventory.py",
+  "v12/python/tests/manager/test_claude_agent.py",
+  "v12/python/tests/manager/test_exchange.py",
+  "v12/python/tests/tools/test_attempt_diagnostics.py",
+  "v12/python/tests/tools/test_job_observation.py",
+  "v12/python/tests/tools/test_job_viewer.py",
+  "v12/python/tests/tools/test_stage_execution.py",
+  "v12/python/tools/attempt_diagnostics.py",
+  "v12/python/tools/job_observation.py",
+  "v12/python/tools/job_viewer.py",
+  "v12/python/tools/stack.py",
+  "v12/worker/baton_worker.py",
+  "v12/worker/claude_agent.py"
+ ],
+ "index_lock": false,
+ "paths": [
+  {
+   "mode": "0o644",
+   "path": "v12/python/JOB-VIEWER.md",
+   "sha256": "sha256:7b0ac7c8f1c4d2fe6f596f51738439ed61ff2101be288bd12a1d24baa5623e21"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/src/baton_v12/job_manager/documents.py",
+   "sha256": "sha256:2e994e1fd9b1f9109129692a57eb829eded54d6b87ebb31a36c8d67d6fb341d4"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/src/baton_v12/job_manager/projection.py",
+   "sha256": "sha256:c5320624e7e94bdb2d25b5847ba2ff80b7a461b24ba07602d4b9ca524504b63b"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/src/baton_v12/worker_manager/exchange.py",
+   "sha256": "sha256:88ebdd5add29dc17438d60ef864c7a2efd239db610bcd4e8370377eabaac217e"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+   "sha256": "sha256:bcd53370a3cd6660a086b14d3f0aa6ca0ebaf32ff816adb3960cd6b574d48393"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tests/job_manager/test_status.py",
+   "sha256": "sha256:50040bf0db41a3003a84a39a1aebf795db955c45badac9b8ac3ce4d01e0634f9"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/manager/test_attempt_failure_cause.py",
+   "sha256": "sha256:093db1a8ae9c8411a78fa41588bbf956aab51e45410199521697d5d263c84558"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/manager/test_boundary_inventory.py",
+   "sha256": "sha256:24c12076c2ef2cf5b7e98641154184bf43aa58cbc1564cb3aae4ada4c9977f73"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/manager/test_claude_agent.py",
+   "sha256": "sha256:6b32d3d8f6a63cc8b13a26aacf4f4c833e260d3104000885204f867ac0bf4ab8"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tests/manager/test_exchange.py",
+   "sha256": "sha256:eadcd4a89de287bd8ea8fe01d2fc9827242e6a1f9e3728bc573ecf97dabaf60a"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/tools/test_attempt_diagnostics.py",
+   "sha256": "sha256:714c8524680d1e58dba9e98304f8621d2cb0008016af09300a8c2d9e3615801b"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tests/tools/test_job_observation.py",
+   "sha256": "sha256:6d13d60c56cf0fa6270c16e73f66da75f2b16792914c6fd5ab3c30c54d21ef68"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/tools/test_job_viewer.py",
+   "sha256": "sha256:876aa5ef33fbdef3671ec35c772e84baf931f940846f72417231527a433cf8ee"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tests/tools/test_stage_execution.py",
+   "sha256": "sha256:03a7710ee7440e3c1c1aaa95ac40e9931dfcaedfe75391874ecd7b72079a99d2"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tools/attempt_diagnostics.py",
+   "sha256": "sha256:a89ee12110e8aa62c1f5c9bdd2c9f9411d86cff9d411d6ca48c39fe35cc1ae98"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tools/job_observation.py",
+   "sha256": "sha256:aae42fbc47fe4e8fd6a856bf4b4e59c5e5cdf3da73b9f4f46cb788c5b323eebb"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tools/job_viewer.py",
+   "sha256": "sha256:8aaec44c48e3fde4a0f88b1c7ee7b74d06ce0df25146fc53f16663ecbc9d8cf6"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tools/stack.py",
+   "sha256": "sha256:3afd8d45d8e5a3b9dc84a39d5d231f146e84620aa269e670d55217c5b0371c98"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/worker/baton_worker.py",
+   "sha256": "sha256:fbd9479753b0278551bc5580ec995180b0e8150b5aa6563185052a552bbfba11"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/worker/claude_agent.py",
+   "sha256": "sha256:6f8c37d526b11ded15fcadf8666c1659b4d6d58c49caba158cd378186ae18ef1"
+  }
+ ],
+ "status_after": [
+  " M v12/python/JOB-VIEWER.md",
+  " M v12/python/src/baton_v12/job_manager/documents.py",
+  " M v12/python/src/baton_v12/job_manager/projection.py",
+  " M v12/python/src/baton_v12/worker_manager/exchange.py",
+  " M v12/python/src/baton_v12/worker_manager/failure_cause.py",
+  " M v12/python/tests/job_manager/test_status.py",
+  " M v12/python/tests/manager/test_attempt_failure_cause.py",
+  " M v12/python/tests/manager/test_boundary_inventory.py",
+  " M v12/python/tests/manager/test_claude_agent.py",
+  " M v12/python/tests/manager/test_exchange.py",
+  " M v12/python/tests/tools/test_attempt_diagnostics.py",
+  " M v12/python/tests/tools/test_job_observation.py",
+  " M v12/python/tests/tools/test_job_viewer.py",
+  " M v12/python/tests/tools/test_stage_execution.py",
+  " M v12/python/tools/attempt_diagnostics.py",
+  " M v12/python/tools/job_observation.py",
+  " M v12/python/tools/job_viewer.py",
+  " M v12/python/tools/stack.py",
+  " M v12/worker/baton_worker.py",
+  " M v12/worker/claude_agent.py"
+ ],
+ "status_exactly_imported": true,
+ "tree_digest": "sha256:959f9524c94138325c724db84262dd009fa0eacedc3370e7142cc49904ed752b",
+ "tree_expected": "sha256:959f9524c94138325c724db84262dd009fa0eacedc3370e7142cc49904ed752b",
+ "tree_ok": true
+}

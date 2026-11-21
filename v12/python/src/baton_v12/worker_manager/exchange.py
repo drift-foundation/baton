@@ -182,6 +182,9 @@ TERMINAL_DOCUMENT = "terminal.json"
 # bytes did not move.
 ACTIVITY_DOCUMENT = "activity.json"
 ACTIVITY_SCHEMA = "baton.worker-exchange.activity/1"
+INVOCATION_DOCUMENT = "invocation.json"
+INVOCATION_SCHEMA = "baton.worker-exchange.invocation/1"
+INVOCATION_MEMBERS = ("schema", "session", "attempt_id", "sequence_id", "command_digest", "operation", "operation_id", "scope", "started_at", "deadline_at", "ended_at")
 
 # THE ONLY OPERATION AN ACTIVITY COUNT BELONGS TO. `describe` invokes no
 # provider, so there is no native stream for it to be a count OF, and a
@@ -209,7 +212,7 @@ def state_document(operation):
 # contract does not describe".
 EVENT_DOCUMENTS = ((RECEIPT_DOCUMENT,)
                    + tuple(f"state-{one}.json" for one in OPERATIONS)
-                   + (TERMINAL_DOCUMENT, ACTIVITY_DOCUMENT))
+                   + (TERMINAL_DOCUMENT, ACTIVITY_DOCUMENT, INVOCATION_DOCUMENT, ".invocation.json.tmp"))
 
 RECEIPT_MEMBERS = ("schema", "session", "attempt_id", "sequence_id",
                    "command_digest", "accepted_at")
@@ -280,8 +283,8 @@ MAX_EVENT_ENTRIES = 64
 MAX_ACTIVITY_BYTES = 2 ** 53 - 1
 
 # AND THE ENTRY BUDGET THIS DOCUMENT CONSUMES, counted rather than assumed.
-# Four lifecycle documents, plus `activity.json`, plus the ONE staging
-# temporary its publisher is allowed -- six of `MAX_EVENT_ENTRIES`. Overrunning
+# Four lifecycle documents, activity and invocation documents, and their two
+# staging names -- eight of `MAX_EVENT_ENTRIES`. Overrunning
 # that budget does not degrade one document: `_foreign` refuses to enumerate
 # the namespace at all, which makes the whole exchange unreadable. That is why
 # the worker's activity publisher may hold exactly one temporary.
@@ -1078,6 +1081,26 @@ def observation(delivery):
         view["receipt"] = None
         view["states"] = []
         view["terminal"] = None
+    # Optional process timing cannot change the canonical exchange outcome.
+    if view["unreadable"] is None:
+        try:
+            timing = _event(delivery, command, INVOCATION_DOCUMENT, INVOCATION_MEMBERS,
+                            INVOCATION_SCHEMA, "provider invocation timing")
+            if timing is not None:
+                fact = timing[0]
+                if fact["operation"] != "work" or fact["operation_id"] != worker_operation_id(delivery.attempt_id, "work") or fact["scope"] != "provider-process":
+                    _untrusted("invocation timing is not this provider work operation")
+                if not any(one["operation"] == "work" for one in view["states"]):
+                    _untrusted("invocation timing has no corresponding work state")
+                start = _instant(fact["started_at"], "started_at", "provider invocation timing")
+                deadline = _instant(fact["deadline_at"], "deadline_at", "provider invocation timing")
+                end = None if fact["ended_at"] is None else _instant(fact["ended_at"], "ended_at", "provider invocation timing")
+                if deadline < start or (end is not None and end < start):
+                    _untrusted("provider invocation timing has reversed chronology")
+                check_no_durable_secret(fact, what="provider invocation timing")
+                view["invocation"] = fact
+        except ContractRefusal:
+            view["invocation"] = None
     return view
 
 

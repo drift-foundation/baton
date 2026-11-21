@@ -15,16 +15,23 @@ handoff, and they are the next milestone rather than a thing this module
 quietly claims.
 """
 
+import json
 import os
 import sqlite3
 import unittest
 
-from baton_v12.contracts import ContractRefusal
+from baton_v12.contracts import ContractRefusal, digest, digest_of_bytes
 from baton_v12.worker_manager import documents, failure_cause
+from baton_v12.worker_manager import request_freeze
 
 from .test_attempts import (ADAPTER, ATTEMPT, NOW, Adapter, Agent,
                             AttemptCase, ControlStore, activate_assignment,
                             request_cancellation, request_runtime_start)
+# W385424: THE REAL SEAL, reused rather than respelled. `OutputCase` already
+# owns the published input-manifest vector, the offer/claim/activation path
+# and the freeze, so a case about what the composition reads OUT of a frozen
+# result is driven through the one that puts a frozen result in.
+from .test_output import Collector, OutputCase
 
 SECRET = "canary-" + "s" * 32
 
@@ -2265,3 +2272,516 @@ class THEREADCONTRACTISVERSIONEDBOUNDEDANDSECRETSAFE(AttemptCase):
             self.store, ATTEMPT, "settlement")
         self.assertEqual(settled["revision"], 0)
         self.assertEqual(settled["superseded"], ())
+
+
+# -- W385424: the worker's own declared ending -------------------------------
+
+
+class TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE(OutputCase):
+    """W385424 -- an ending the WORKER declared, read where the manager sealed it.
+
+    THE DEFECT THESE CASES ARE ABOUT, measured on a real pilot ending and
+    retained at `work/records/2026/10/finding-v12-development-coordination-
+    pilot/evidence/native-handoffs-1-recovery/`: the manager held a sealed
+    `unable` result whose typed members said `provider-failed`, `timeout`, a
+    3600-second provider bound and a verification that was never attempted --
+    and every operator surface printed "stage ended exceptionally; cause
+    unknown". An earlier ending whose cause was a FAILED VERIFICATION printed
+    the identical sentence. Two different, host-known endings reported as one
+    unknown.
+
+    THE FIXTURE IS THE REAL SEAL AND NOT A DICTIONARY. Every case below
+    freezes through `request_freeze`/`record_frozen_result`, so the outputs
+    row, the retained result manifest, the measured content manifest and the
+    custody tree are the ones the product writes; what a case spoils is one
+    thing in that evidence at a time.
+
+    AND A DECLARATION IS NEVER A CESSATION. The cause axis, the explicit
+    `unknown` and the records it names are asserted unchanged beside every
+    declaration, because the whole risk in reporting one is that it becomes a
+    retrospective answer to a question nobody recorded.
+    """
+
+    CANDIDATE = [{
+        "name": "proposal", "type": "git-change-proposal",
+        "path": "workspace/output", "required": False,
+        "constraints": {"max_bytes": 1 << 20, "max_entries": 100,
+                        "allowed_media_types": ["application/octet-stream"],
+                        "link_policy": "forbid", "validator_digest": None}}]
+
+    def setUp(self):
+        super().setUp()
+        self.custody = os.path.join(self._root.name, "custody", "proposal")
+        os.makedirs(self.custody)
+        self.redeclared(outputs=self.CANDIDATE)
+
+    # -- the retained typed result --------------------------------------
+
+    @staticmethod
+    def result_document(**members):
+        """One worker result in the generation the pilot ending actually
+        published, with the members a case needs replaced."""
+        held = {"schema": "baton.dogfood-proposal/2",
+                "base": "0" * 40, "head": "1" * 40,
+                "entry_head": "0" * 40, "collection": None,
+                "changed_paths": ["v12/python/tools/job_observation.py"],
+                "task_id": "w385424-1",
+                "disposition": "provider-failed",
+                "why": "the provider did not finish within 3600s",
+                "provider": {"status": None, "failure_reason": "timeout",
+                             "seconds_bound": 3600,
+                             "seconds_bound_source": "job-default"},
+                "verification": None}
+        held.update(members)
+        return json.dumps(held, sort_keys=True).encode("utf-8")
+
+    def candidate(self, raw, *, artifact_id=None, place=None, written=None):
+        """The frozen candidate output over a real custody tree.
+
+        `written` is what actually lands on disk when a case wants the bytes
+        to disagree with the measurement the seal records; `None` writes the
+        measured bytes, which is the ordinary case.
+        """
+        place = self.custody if place is None else place
+        if written is not False:
+            with open(os.path.join(place, "result.json"), "wb") as handle:
+                handle.write(raw if written is None else written)
+        entries = [{"path": "result.json", "bytes": len(raw),
+                    "content_digest": digest_of_bytes(raw)}]
+        manifest = {"entries": entries, "entry_count": len(entries),
+                    "total_bytes": len(raw), "tree_digest": digest(entries)}
+        return [{"name": "proposal", "type": "git-change-proposal",
+                 "status": "present", "result_metadata": {},
+                 "content_manifest": manifest,
+                 "artifact": {
+                     "artifact_id": (f"{ATTEMPT}:proposal"
+                                     if artifact_id is None else artifact_id),
+                     "media_type": "application/octet-stream",
+                     "bytes": manifest["total_bytes"],
+                     "content_digest": manifest["tree_digest"],
+                     "locator": "file://" + place}}]
+
+    def freeze(self, outputs, *, disposition="unable"):
+        """The whole real freeze, at a disposition a case chooses."""
+        self.attempt(disposition=disposition)
+        adapter = Collector(self.result(disposition=disposition,
+                                        outputs=outputs))
+        return request_freeze(self.store, self.port, adapter,
+                              attempt_id=ATTEMPT, disposition=disposition)
+
+    def composed(self):
+        return failure_cause.attempt_failure_cause_of(self.store, ATTEMPT)
+
+    def declared(self, **members):
+        self.freeze(self.candidate(self.result_document(**members)))
+        return failure_cause.declaration_of(self.composed())
+
+    def values(self, declaration):
+        """Every member decoded through the owner's one decoder."""
+        return {name: failure_cause.decode(declaration[name])
+                for name in failure_cause.WORKER_DECLARATION_MEMBERS}
+
+    # -- the two endings the finding names ------------------------------
+
+    def test_a_PROVIDER_TIMEOUT_is_attributable_with_its_bound_and_its_verification(self):
+        held = self.values(self.declared())
+        self.assertEqual(held["disposition"], (True, "unable"))
+        self.assertEqual(held["declared_ending"], (True, "provider-failed"))
+        self.assertEqual(held["failure_reason"], (True, "timeout"))
+        self.assertEqual(held["seconds_bound"], (True, 3600))
+        self.assertEqual(held["seconds_bound_source"], (True, "job-default"))
+        # VERIFICATION WAS NOT ATTEMPTED, which is an answer -- and the
+        # status beside it stays unknown rather than becoming a zero.
+        self.assertEqual(held["verification_attempted"], (True, False))
+        self.assertEqual(held["verification_status"], (False, None))
+        self.assertEqual(held["result_id"], (True, "result-1"))
+
+    def test_a_FAILED_VERIFICATION_is_a_DIFFERENT_attributable_ending(self):
+        """The prior occurrence's cause, which produced the identical
+        sentence before this axis existed."""
+        held = self.values(self.declared(
+            disposition="verification-failed",
+            why="the task's own command ended 1",
+            provider={"status": 0, "failure_reason": None,
+                      "seconds_bound": 3600,
+                      "seconds_bound_source": "job-default"},
+            verification={"status": 1, "argv": ["python3", "-m", "unittest"]}))
+        self.assertEqual(held["declared_ending"], (True, "verification-failed"))
+        self.assertEqual(held["verification_attempted"], (True, True))
+        self.assertEqual(held["verification_status"], (True, 1))
+        # AND NO PROVIDER FAILURE IS INVENTED for a provider that finished.
+        self.assertEqual(held["failure_reason"], (False, None))
+
+    def test_a_DECLARATION_IS_NOT_A_CESSATION_and_the_cause_axis_is_unmoved(self):
+        """The one thing a declaration must never become.
+
+        The pilot ending is exactly this shape: a worker that answered
+        `unable` and a manager that recorded NO component ordering a
+        cessation. The declaration below is fully established and the
+        cessation axis still says, in its own words, that which component
+        ended this attempt is unknown.
+        """
+        self.assertEqual(
+            failure_cause.decode(self.declared()["declared_ending"]),
+            (True, "provider-failed"))
+        after = self.composed()
+        self.assertIsNone(after["cause"])
+        self.assertIn("which component ended it",
+                      after["unknown"]["why"])
+        # The four answers are still FOUR, and this attempt is still an
+        # unknown cessation.
+        self.assertEqual(len(set(failure_cause.ANSWERS)), 4)
+        self.assertEqual(failure_cause.answer_of(after), "unknown")
+        for component in failure_cause.COMPONENTS:
+            self.assertIn("attempt.cessation-*:" + component,
+                          failure_cause.absent_of(after))
+        self.assertIn("runtime.start-failed", failure_cause.absent_of(after))
+        # AND THE REVOCATION AXIS STILL ANSWERS FOR ITSELF, beside the
+        # declaration rather than being displaced by it.
+        self.assertEqual(failure_cause.decode(after["revocation"]),
+                         (False, None))
+
+    def test_a_MANAGER_CANCELLED_ENDING_IS_REPORTED_AS_WHAT_IT_IS(self):
+        """A cancellation is the MANAGER's act. The declaration reports the
+        disposition the manager sealed and claims nothing about a provider;
+        who ordered the runtime stopped stays the cessation axis's question.
+        """
+        self.freeze(self.candidate(self.result_document()),
+                    disposition="cancelled")
+        composed = self.composed()
+        held = self.values(failure_cause.declaration_of(composed))
+        self.assertEqual(held["disposition"], (True, "cancelled"))
+        self.assertIsNone(composed["cause"])
+        self.assertEqual(failure_cause.answer_of(composed), "unknown")
+
+    # -- honest unknowns ------------------------------------------------
+
+    def test_an_attempt_that_FROZE_NOTHING_declares_NOTHING(self):
+        self.attempt(disposition="unable")
+        declaration = failure_cause.declaration_of(self.composed())
+        for name, (known, value) in self.values(declaration).items():
+            self.assertFalse(known, name)
+            self.assertIsNone(value, name)
+            self.assertIn("froze no result", declaration[name]["why"])
+
+    def test_TAMPERED_retained_bytes_establish_NOTHING(self):
+        """The measurement is the binding. Bytes that do not recompute to the
+        digest this manager measured are not evidence about this ending."""
+        raw = self.result_document()
+        self.freeze(self.candidate(raw))
+        with open(os.path.join(self.custody, "result.json"), "wb") as handle:
+            handle.write(self.result_document(disposition="candidate",
+                                              verification={"status": 0,
+                                                            "argv": ["x"]}))
+        declaration = failure_cause.declaration_of(self.composed())
+        held = self.values(declaration)
+        # The SEALED half still answers; the typed half does not.
+        self.assertEqual(held["disposition"], (True, "unable"))
+        self.assertEqual(held["declared_ending"], (False, None))
+        self.assertIn("recompute", declaration["declared_ending"]["why"])
+
+    def test_an_ABSENT_retained_result_establishes_NOTHING(self):
+        self.freeze(self.candidate(self.result_document(), written=False))
+        held = self.values(failure_cause.declaration_of(self.composed()))
+        self.assertEqual(held["disposition"], (True, "unable"))
+        self.assertEqual(held["declared_ending"], (False, None))
+
+    def test_a_FOREIGN_ATTEMPTS_artifact_is_NOT_attributed_here(self):
+        """`sealing` composes `<attempt-id>:<output-name>`, so a tree staged
+        for another attempt fails the identity before anything is opened."""
+        self.freeze(self.candidate(self.result_document(),
+                                   artifact_id="attempt-somebody-else:proposal"))
+        declaration = failure_cause.declaration_of(self.composed())
+        held = self.values(declaration)
+        self.assertEqual(held["disposition"], (True, "unable"))
+        self.assertEqual(held["declared_ending"], (False, None))
+        self.assertIn("this attempt", declaration["declared_ending"]["why"])
+
+    def test_an_UNSUPPORTED_RESULT_GENERATION_is_refused_rather_than_decoded(self):
+        declaration = self.declared(schema="baton.dogfood-proposal/99")
+        held = self.values(declaration)
+        self.assertEqual(held["declared_ending"], (False, None))
+        self.assertIn("does not read", declaration["declared_ending"]["why"])
+        self.assertNotIn("99", json.dumps(declaration, default=list))
+
+    def test_a_VALUE_OUTSIDE_THE_CLOSED_VOCABULARY_is_unknown_and_not_echoed(self):
+        declaration = self.declared(
+            disposition=SECRET,
+            provider={"status": None, "failure_reason": SECRET,
+                      "seconds_bound": SECRET,
+                      "seconds_bound_source": SECRET},
+            verification=SECRET)
+        held = self.values(declaration)
+        for name in ("declared_ending", "failure_reason", "seconds_bound",
+                     "seconds_bound_source", "verification_attempted",
+                     "verification_status"):
+            self.assertEqual(held[name], (False, None), name)
+        self.assertNotIn(SECRET, json.dumps(declaration, default=list))
+        self.assertNotIn(SECRET, json.dumps(self.composed(), default=list))
+
+    def test_a_PROSE_RECAP_IS_NEVER_READ_AS_A_TYPED_STATUS(self):
+        """`baton.git-proposal/1.recap` carries the sentence that names this
+        very ending. It is prose, it rides the output's own metadata, and no
+        member of the declaration comes from it."""
+        raw = self.result_document()
+        outputs = self.candidate(raw)
+        outputs[0]["result_metadata"] = {
+            "baton.git-proposal/1": {
+                "base": "0" * 40, "head": "1" * 40,
+                "transport": "objects.bundle",
+                "recap": "provider-failed: " + SECRET}}
+        self.freeze(outputs)
+        composed = self.composed()
+        self.assertNotIn(SECRET, json.dumps(composed, default=list))
+        self.assertEqual(
+            failure_cause.decode(
+                failure_cause.declaration_of(composed)["failure_reason"]),
+            (True, "timeout"))
+
+    # -- read-only, bounded, allowlisted --------------------------------
+
+    def test_REPEATED_OBSERVATION_HAS_NO_EFFECTS(self):
+        self.freeze(self.candidate(self.result_document()))
+        place = os.path.join(self.custody, "result.json")
+        before = self.store._connection.execute(
+            "SELECT count(*) FROM operations").fetchone()[0]
+        with open(place, "rb") as reading:
+            bytes_before = reading.read()
+        first = self.composed()
+        second = self.composed()
+        self.assertEqual(first, second)
+        self.assertEqual(self.store._connection.execute(
+            "SELECT count(*) FROM operations").fetchone()[0], before)
+        with open(place, "rb") as reading:
+            self.assertEqual(reading.read(), bytes_before)
+
+    # -- review 2026-11-21T12-34-16Z: a bounded open, and absent is not null --
+
+    def test_a_FIFO_where_the_SEALED_RESULT_was_is_a_BOUNDED_UNKNOWN_not_a_wait(self):
+        """[R1] The public path over a special file returns promptly with every
+        typed member unknown; the sealed disposition and the cause axis are
+        untouched. A watchdog thread stands in for the hang the review
+        reproduced, so a regression fails here instead of hanging the suite."""
+        import threading
+
+        self.freeze(self.candidate(self.result_document()))
+        place = os.path.join(self.custody, "result.json")
+        os.unlink(place)
+        os.mkfifo(place)
+        self.addCleanup(os.unlink, place)
+        # THE WATCHDOG: if the observation is still inside the open after five
+        # seconds, it is waiting for a writer; supply one so the suite does
+        # not hang, and remember that it had to. (The store is thread-bound,
+        # so the observation itself runs here, on the main thread.)
+        waited = []
+
+        def release():
+            waited.append(True)
+            try:
+                os.close(os.open(place, os.O_WRONLY | os.O_NONBLOCK))
+            except OSError:
+                pass
+        watchdog = threading.Timer(5.0, release)
+        watchdog.daemon = True
+        watchdog.start()
+        try:
+            composed = self.composed()
+        finally:
+            watchdog.cancel()
+        self.assertEqual(waited, [], "the public observation waited on a FIFO "
+                         "with no writer; a diagnostic read must not")
+        held = self.values(failure_cause.declaration_of(composed))
+        self.assertEqual(held["disposition"], (True, "unable"))
+        self.assertEqual(held["result_id"], (True, "result-1"))
+        for name in ("declared_ending", "failure_reason", "seconds_bound",
+                     "seconds_bound_source", "verification_attempted",
+                     "verification_status"):
+            self.assertEqual(held[name], (False, None), name)
+            self.assertIn("does not recompute",
+                          failure_cause.declaration_of(composed)[name]["why"])
+        self.assertIsNone(composed["cause"])
+        self.assertEqual(failure_cause.answer_of(composed), "unknown")
+
+    def test_a_MISSING_verification_member_is_UNKNOWN_not_NOT_ATTEMPTED(self):
+        """[R2] A measured, supported-schema result with no `verification`
+        member says nothing about verification; only an explicit `null` says
+        it was not attempted."""
+        raw = json.loads(self.result_document())
+        del raw["verification"]
+        self.freeze(self.candidate(json.dumps(raw, sort_keys=True).encode("utf-8")))
+        declaration = failure_cause.declaration_of(self.composed())
+        held = self.values(declaration)
+        self.assertEqual(held["verification_attempted"], (False, None))
+        self.assertEqual(held["verification_status"], (False, None))
+        self.assertIn("no verification member",
+                      declaration["verification_attempted"]["why"])
+        # AND THE REST OF THE DECLARATION STILL STANDS on the members present.
+        self.assertEqual(held["declared_ending"], (True, "provider-failed"))
+        self.assertEqual(held["failure_reason"], (True, "timeout"))
+
+    def test_an_EXPLICIT_NULL_verification_is_NOT_ATTEMPTED_and_a_VALID_STATUS_is_KNOWN(self):
+        held = self.values(self.declared(verification=None))
+        self.assertEqual(held["verification_attempted"], (True, False))
+        self.assertEqual(held["verification_status"], (False, None))
+        case = type(self)(self._testMethodName)
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        held = case.values(case.declared(
+            disposition="verification-failed",
+            provider={"status": 0, "failure_reason": None,
+                      "seconds_bound": 3600, "seconds_bound_source": "job-default"},
+            verification={"status": 0, "argv": ["python3", "-m", "unittest"]}))
+        self.assertEqual(held["verification_attempted"], (True, True))
+        self.assertEqual(held["verification_status"], (True, 0))
+
+    def test_a_MALFORMED_verification_member_is_UNKNOWN_on_both_axes(self):
+        for spoiled in ("ran", 7, [], {"status": "one"}, {"status": 2 ** 40}):
+            with self.subTest(verification=spoiled):
+                case = type(self)(self._testMethodName)
+                case.setUp()
+                self.addCleanup(case.doCleanups)
+                held = case.values(case.declared(verification=spoiled))
+                if isinstance(spoiled, dict):
+                    # A DOCUMENT WITHOUT AN OWNED STATUS: a command ran, and
+                    # what it said is unknown.
+                    self.assertEqual(held["verification_attempted"], (True, True))
+                else:
+                    self.assertEqual(held["verification_attempted"], (False, None))
+                self.assertEqual(held["verification_status"], (False, None))
+
+    def test_the_DECLARATION_MEMBER_SET_is_CLOSED_and_every_leaf_is_a_WRAPPER(self):
+        declaration = self.declared()
+        self.assertEqual(sorted(declaration),
+                         sorted(failure_cause.WORKER_DECLARATION_MEMBERS))
+        for name in declaration:
+            failure_cause.decode(declaration[name])
+
+    def test_NO_PATH_LOCATOR_OR_PROVIDER_PROSE_RIDES_THE_DECLARATION(self):
+        """The custody locator is used to OPEN and is never emitted."""
+        self.declared()
+        composed = self.composed()
+        rendered = json.dumps(composed, default=list)
+        self.assertNotIn(self.custody, rendered)
+        self.assertNotIn("file://", rendered)
+        self.assertNotIn("did not finish within", rendered)
+        for value in _leaf_strings(composed):
+            self.assertLessEqual(len(value), failure_cause.FIELD_BOUND, value)
+
+    def test_EVERY_UNKNOWN_REASON_ON_EVERY_PATH_IS_BOUNDED(self):
+        """`FIELD_BOUND` is the backstop for every emitted string, and the
+        reasons composed here are the longest ones this axis can produce."""
+        spoilings = (
+            {"schema": "baton.dogfood-proposal/99"},
+            {"disposition": SECRET},
+            {"provider": SECRET},
+            {"verification": SECRET},
+            {"provider": {"status": None, "failure_reason": SECRET,
+                          "seconds_bound": -1,
+                          "seconds_bound_source": SECRET}},
+        )
+        for spoiled in spoilings:
+            with self.subTest(spoiled=sorted(spoiled)):
+                case = type(self)(self._testMethodName)
+                case.setUp()
+                self.addCleanup(case.doCleanups)
+                declaration = case.declared(**spoiled)
+                for value in _leaf_strings(declaration):
+                    self.assertLessEqual(len(value),
+                                         failure_cause.FIELD_BOUND, value)
+                self.assertNotIn(SECRET, json.dumps(declaration, default=list))
+
+    def test_a_DECLARATION_IS_ABSENT_when_the_reader_is_given_no_document(self):
+        self.assertIsNone(failure_cause.declaration_of(
+            {"schema": failure_cause.DIAGNOSTIC_SCHEMA, "attempt_id": ATTEMPT}))
+        with self.assertRaises(ContractRefusal):
+            failure_cause.declaration_of({"schema": "somebody-elses/1"})
+
+
+def _leaf_strings(value):
+    """Every string in a composed document, however deeply nested."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for name, one in value.items():
+            yield name
+            yield from _leaf_strings(one)
+    elif isinstance(value, (list, tuple)):
+        for one in value:
+            yield from _leaf_strings(one)
+
+
+class TheDeclaredVOCABULARIESAreTheirOwnersOwn(unittest.TestCase):
+    """The words are spelled twice and held against their owners here.
+
+    THREE OWNERS, AND TWO OF THEM ARE IN THIS TREE. The result generations
+    and the retained document's name belong to `verification_context` and the
+    integration runtime, and they are imported. The ENDING, the provider
+    failure reasons and the bound sources belong to the worker image, which
+    carries no `baton_v12` at all -- so that mirror is taken from the image's
+    own source by reading it rather than by importing it, which is what keeps
+    this case deterministic, provider-free and engine-free.
+    """
+
+    @staticmethod
+    def worker_constants():
+        import ast
+        import pathlib
+
+        source = (pathlib.Path(__file__).resolve().parents[3] / "worker"
+                  / "claude_agent.py")
+        tree = ast.parse(source.read_text(encoding="utf-8"), str(source))
+        held = {}
+        for node in tree.body:
+            if isinstance(node, ast.Assign) and len(node.targets) == 1 \
+                    and isinstance(node.targets[0], ast.Name):
+                try:
+                    held[node.targets[0].id] = ast.literal_eval(node.value)
+                except (ValueError, SyntaxError, TypeError):
+                    continue
+        endings = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == "_disposition":
+                for one in ast.walk(node):
+                    if isinstance(one, ast.Return) \
+                            and isinstance(one.value, ast.Tuple) \
+                            and one.value.elts \
+                            and isinstance(one.value.elts[0], ast.Constant) \
+                            and isinstance(one.value.elts[0].value, str):
+                        endings.add(one.value.elts[0].value)
+            if isinstance(node, ast.Assign) and len(node.targets) == 1 \
+                    and isinstance(node.targets[0], ast.Name) \
+                    and node.targets[0].id == "disposition" \
+                    and isinstance(node.value, ast.Constant) \
+                    and isinstance(node.value.value, str):
+                endings.add(node.value.value)
+        return held, endings
+
+    def test_the_ENDINGS_are_the_ones_the_worker_actually_publishes(self):
+        _held, endings = self.worker_constants()
+        self.assertTrue(endings, "the worker source named no ending")
+        self.assertEqual(sorted(failure_cause.DECLARED_ENDINGS),
+                         sorted(endings))
+
+    def test_the_PROVIDER_FAILURE_REASONS_are_the_adapters_closed_set(self):
+        held, _endings = self.worker_constants()
+        owned = set(held["PROVIDER_FAILURE_REASONS"].values())
+        owned.update({held["PROVIDER_TIMED_OUT"],
+                      held["PROVIDER_START_ERROR"], held["UNCLASSIFIED"]})
+        self.assertEqual(sorted(failure_cause.DECLARED_FAILURE_REASONS),
+                         sorted(owned))
+
+    def test_the_BOUND_SOURCES_are_the_adapters_four_words(self):
+        held, _endings = self.worker_constants()
+        self.assertEqual(
+            sorted(failure_cause.DECLARED_BOUND_SOURCES),
+            sorted({held["WORKER_DEFAULT_BOUND"], held["JOB_SELECTED_BOUND"],
+                    held["JOB_DEFAULT_BOUND"], held["UNSTATED_BOUND_SOURCE"]}))
+
+    def test_the_RESULT_GENERATIONS_and_the_DOCUMENT_NAME_are_their_owners(self):
+        from baton_v12 import verification_context
+        from baton_v12.integration.runtime import RESULT_DOCUMENT
+
+        self.assertEqual(sorted(failure_cause.RETAINED_RESULT_SCHEMAS),
+                         sorted((verification_context.LEGACY_PROPOSAL,
+                                 verification_context.PROPOSAL_SCHEMA)))
+        self.assertEqual(failure_cause.RETAINED_RESULT_PATH, RESULT_DOCUMENT)

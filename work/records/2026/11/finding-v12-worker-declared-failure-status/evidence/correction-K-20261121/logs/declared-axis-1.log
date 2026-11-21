@@ -1,0 +1,86 @@
+test_EVERY_UNKNOWN_REASON_ON_EVERY_PATH_IS_BOUNDED (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_EVERY_UNKNOWN_REASON_ON_EVERY_PATH_IS_BOUNDED)
+`FIELD_BOUND` is the backstop for every emitted string, and the ... ok
+test_NO_PATH_LOCATOR_OR_PROVIDER_PROSE_RIDES_THE_DECLARATION (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_NO_PATH_LOCATOR_OR_PROVIDER_PROSE_RIDES_THE_DECLARATION)
+The custody locator is used to OPEN and is never emitted. ... ok
+test_REPEATED_OBSERVATION_HAS_NO_EFFECTS (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_REPEATED_OBSERVATION_HAS_NO_EFFECTS) ... ok
+test_TAMPERED_retained_bytes_establish_NOTHING (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_TAMPERED_retained_bytes_establish_NOTHING)
+The measurement is the binding. Bytes that do not recompute to the ... ok
+test_a_DECLARATION_IS_ABSENT_when_the_reader_is_given_no_document (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_DECLARATION_IS_ABSENT_when_the_reader_is_given_no_document) ... ok
+test_a_DECLARATION_IS_NOT_A_CESSATION_and_the_cause_axis_is_unmoved (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_DECLARATION_IS_NOT_A_CESSATION_and_the_cause_axis_is_unmoved)
+The one thing a declaration must never become. ... ok
+test_a_FAILED_VERIFICATION_is_a_DIFFERENT_attributable_ending (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_FAILED_VERIFICATION_is_a_DIFFERENT_attributable_ending)
+The prior occurrence's cause, which produced the identical ... ok
+test_a_FIFO_where_the_SEALED_RESULT_was_is_a_BOUNDED_UNKNOWN_not_a_wait (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_FIFO_where_the_SEALED_RESULT_was_is_a_BOUNDED_UNKNOWN_not_a_wait)
+[R1] The public path over a special file returns promptly with every ... Exception in thread Thread-1 (<lambda>):
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-v12-w385424-fix/candidate/v12/python/tests/manager/test_attempt_failure_cause.py", line 2574, in <lambda>
+    target=lambda: answer.update(composed=self.composed()), daemon=True)
+                                          ~~~~~~~~~~~~~^^
+  File "/var/tmp/baton-v12-w385424-fix/candidate/v12/python/tests/manager/test_attempt_failure_cause.py", line 2373, in composed
+    return failure_cause.attempt_failure_cause_of(self.store, ATTEMPT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-v12-w385424-fix/candidate/v12/python/src/baton_v12/worker_manager/failure_cause.py", line 1651, in attempt_failure_cause_of
+    found = _attempts._attempt_row(store, attempt_id)
+  File "/var/tmp/baton-v12-w385424-fix/candidate/v12/python/src/baton_v12/worker_manager/attempts.py", line 189, in _attempt_row
+    found = _attempts(store, "WHERE runtime_attempt_id = ?", (attempt_id,))
+  File "/var/tmp/baton-v12-w385424-fix/candidate/v12/python/src/baton_v12/worker_manager/attempts.py", line 177, in _attempts
+    for record in store._connection.execute(
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "SELECT * FROM attempts " + where, operands).fetchall()]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 138215989539136 and this is thread id 138215949362880.
+ERROR
+test_a_FOREIGN_ATTEMPTS_artifact_is_NOT_attributed_here (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_FOREIGN_ATTEMPTS_artifact_is_NOT_attributed_here)
+`sealing` composes `<attempt-id>:<output-name>`, so a tree staged ... ok
+test_a_MALFORMED_verification_member_is_UNKNOWN_on_both_axes (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_MALFORMED_verification_member_is_UNKNOWN_on_both_axes) ... 
+  test_a_MALFORMED_verification_member_is_UNKNOWN_on_both_axes (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_MALFORMED_verification_member_is_UNKNOWN_on_both_axes) (verification={'status': -1}) ... FAIL
+test_a_MANAGER_CANCELLED_ENDING_IS_REPORTED_AS_WHAT_IT_IS (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_MANAGER_CANCELLED_ENDING_IS_REPORTED_AS_WHAT_IT_IS)
+A cancellation is the MANAGER's act. The declaration reports the ... ok
+test_a_MISSING_verification_member_is_UNKNOWN_not_NOT_ATTEMPTED (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_MISSING_verification_member_is_UNKNOWN_not_NOT_ATTEMPTED)
+[R2] A measured, supported-schema result with no `verification` ... ok
+test_a_PROSE_RECAP_IS_NEVER_READ_AS_A_TYPED_STATUS (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_PROSE_RECAP_IS_NEVER_READ_AS_A_TYPED_STATUS)
+`baton.git-proposal/1.recap` carries the sentence that names this ... ok
+test_a_PROVIDER_TIMEOUT_is_attributable_with_its_bound_and_its_verification (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_PROVIDER_TIMEOUT_is_attributable_with_its_bound_and_its_verification) ... ok
+test_a_VALUE_OUTSIDE_THE_CLOSED_VOCABULARY_is_unknown_and_not_echoed (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_VALUE_OUTSIDE_THE_CLOSED_VOCABULARY_is_unknown_and_not_echoed) ... ok
+test_an_ABSENT_retained_result_establishes_NOTHING (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_an_ABSENT_retained_result_establishes_NOTHING) ... ok
+test_an_EXPLICIT_NULL_verification_is_NOT_ATTEMPTED_and_a_VALID_STATUS_is_KNOWN (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_an_EXPLICIT_NULL_verification_is_NOT_ATTEMPTED_and_a_VALID_STATUS_is_KNOWN) ... ok
+test_an_UNSUPPORTED_RESULT_GENERATION_is_refused_rather_than_decoded (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_an_UNSUPPORTED_RESULT_GENERATION_is_refused_rather_than_decoded) ... ok
+test_an_attempt_that_FROZE_NOTHING_declares_NOTHING (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_an_attempt_that_FROZE_NOTHING_declares_NOTHING) ... ok
+test_the_DECLARATION_MEMBER_SET_is_CLOSED_and_every_leaf_is_a_WRAPPER (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_the_DECLARATION_MEMBER_SET_is_CLOSED_and_every_leaf_is_a_WRAPPER) ... ok
+
+======================================================================
+ERROR: test_a_FIFO_where_the_SEALED_RESULT_was_is_a_BOUNDED_UNKNOWN_not_a_wait (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_FIFO_where_the_SEALED_RESULT_was_is_a_BOUNDED_UNKNOWN_not_a_wait)
+[R1] The public path over a special file returns promptly with every
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-v12-w385424-fix/candidate/v12/python/tests/manager/test_attempt_failure_cause.py", line 2579, in test_a_FIFO_where_the_SEALED_RESULT_was_is_a_BOUNDED_UNKNOWN_not_a_wait
+    composed = answer["composed"]
+               ~~~~~~^^^^^^^^^^^^
+KeyError: 'composed'
+
+======================================================================
+FAIL: test_a_MALFORMED_verification_member_is_UNKNOWN_on_both_axes (tests.manager.test_attempt_failure_cause.TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE.test_a_MALFORMED_verification_member_is_UNKNOWN_on_both_axes) (verification={'status': -1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-v12-w385424-fix/candidate/v12/python/tests/manager/test_attempt_failure_cause.py", line 2637, in test_a_MALFORMED_verification_member_is_UNKNOWN_on_both_axes
+    self.assertEqual(held["verification_status"], (False, None))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, -1) != (False, None)
+
+First differing element 0:
+True
+False
+
+- (True, -1)
++ (False, None)
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.564s
+
+FAILED (failures=1, errors=1)

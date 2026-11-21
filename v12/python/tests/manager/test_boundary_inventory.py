@@ -4740,6 +4740,14 @@ STAGE_C_STATED = {
     **{("caller", "failure_cause.py:answer_of", subject):
        "`_supported` (dict, schema in READ_SCHEMAS) then `decode(cause[\"outcome\"])`'s wrapper rule and the closed ANSWER_OF_OUTCOME map"
        for subject in ("document", "document.cause", "document.cause.outcome", "document.schema")},
+    # W385424: the worker-declared axis's reader, owned exactly as `absent_of`
+    # is and for the same reason -- it proves the document's version before it
+    # reads one member of it, and the member it reads is answered only when it
+    # is the shape this build owns.
+    **{("caller", "failure_cause.py:declaration_of", subject):
+       "`_supported`: a dict whose schema is in READ_SCHEMAS (refuses otherwise); `worker_declaration` is read with `.get` and answered only when it is a dict"
+       for subject in ("document", "document.schema",
+                       "document.worker_declaration")},
     **{("caller", f"failure_cause.py:{site}", "attempt_id"):
        "`_read`: `_attempt_row` answers absence for an unknown id before anything else; `_committed` then compares the record's attempt_id"
        for site in ("attempt_cessation_intent_of", "attempt_cessation_outcome_of")},

@@ -1,0 +1,1729 @@
+diff --git a/v12/python/JOB-VIEWER.md b/v12/python/JOB-VIEWER.md
+index 09373c16..425aced4 100644
+--- a/v12/python/JOB-VIEWER.md
++++ b/v12/python/JOB-VIEWER.md
+@@ -74,7 +74,8 @@ control store is not a read.
+   native session stream, and when it received them; `unknown` where it
+   has observed nothing. See below.
+ - Held, failed and operator-action reasons, including which stages a blocked
+-  stage is waiting on.
++  stage is waiting on, and — for a failed stage — the ending the **worker
++  itself declared**, when the manager sealed one. See below.
+ - Frozen output artifacts with their sizes and manager-supplied locators, or
+   an explicit `unavailable`.
+ 
+@@ -90,6 +91,51 @@ path. There is no SQL, no projection and no observer here. A viewer with its
+ own reader would be a second answer to "what is running", and the two would
+ disagree on the day it mattered.
+ 
++## Why a failed stage used to say only `cause unknown`
++
++A stage reads `failed: stage ended exceptionally; cause unknown` when nothing
++in the snapshot says what happened. That sentence used to cover two different,
++*host-known* endings: a provider turn that hit its bound, and a candidate whose
++own verification failed. Both were sealed in the frozen result and neither
++reached a line.
++
++The diagnostic producer now composes a **worker-declared axis** beside the
++cause (`attempt_diagnostics.worker_declaration`), and both views read it:
++
++```text
++  implementation: exceptional; worker declared unable: the provider did not
++    finish (provider timed out) at a 1h00m provider bound (job-default);
++    verification not attempted
++```
++
++Three rules hold that line honest, and they are the reason it is a separate
++axis rather than a cause:
++
++- **A declaration is not a cessation.** It says what the worker answered and
++  what this manager sealed of it. It never says a container stopped, who
++  stopped it, or that anything did; `cause`, the explicit `unknown` and the
++  absent-record list are unchanged beside it, and a manager cancellation or
++  revocation keeps reporting itself.
++- **A declaration is not an acceptance.** `verification ended 0` is the
++  worker's own command reporting on itself — not a review, not a verdict and
++  not a merge.
++- **Only evidence that binds is read.** The typed members come from the
++  worker's `result.json` *inside the frozen candidate tree*, read against the
++  byte count and content digest this manager measured when it sealed the tree,
++  and against an artifact identity that names this exact attempt. Missing,
++  changed, foreign or unreadable evidence leaves the members `unknown` with a
++  bounded reason — the sealed disposition beside them still answers. The
++  worker's prose `recap` is never parsed, and no path, locator or provider
++  message reaches a line: every rendered word is a closed vocabulary value, an
++  integer in a declared range or a boolean.
++
++Only a sealed `unable` disposition speaks here. `completed`, `plan-rejected`
++and `cancelled` render exactly as they did.
++
++`baton-v12-stack attempt-diagnostics <status.json>` reports the same axis
++member by member with its provenance, under the same positive allowlist as
++every other axis.
++
+ **It invents nothing.** Every value comes from the snapshot or is spelled
+ `unknown`. The tempting thing for a viewer is to compute a plausible number
+ when a real one is missing — elapsed from the wall clock, activity from the
+diff --git a/v12/python/src/baton_v12/job_manager/projection.py b/v12/python/src/baton_v12/job_manager/projection.py
+index 86822bbb..4046a5c3 100644
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -1157,5 +1157,12 @@ def _stage_status(entry, held):
+         # back `unknown`. The stage state above is what the existing axes
+         # decided and this member does not touch it: a diagnostic cause is not
+         # an acceptance and must not become a second route to `exceptional`.
++        #
++        # W385424: THE SAME RULE COVERS THE WORKER-DECLARED AXIS the producer
++        # now carries beside the cause. The whole composed document travels,
++        # unread and unedited here, because this leaf answers no question the
++        # Worker Manager owns -- and a worker's own account of its ending must
++        # not decide a stage state either. `exceptional` keeps coming from the
++        # frozen disposition through `_DISPOSITIONS` and from nowhere else.
+         attempt_diagnostics=observed.get("diagnostics"),
+         diagnostic_degradation=observed.get("diagnostic_degradation"))
+diff --git a/v12/python/src/baton_v12/worker_manager/failure_cause.py b/v12/python/src/baton_v12/worker_manager/failure_cause.py
+index 8ba1bd22..c95be637 100644
+--- a/v12/python/src/baton_v12/worker_manager/failure_cause.py
++++ b/v12/python/src/baton_v12/worker_manager/failure_cause.py
+@@ -60,6 +60,11 @@ exactly this and must not re-derive any of it:
+                the per-outcome mapping so no reader recomputes it.
+   ABSENCES     `absent_of` -> which records this document positively says are
+                not there, answerable beside a known cause as well.
++  DECLARED     `declaration_of` -> W385424's SEPARATE axis: what the WORKER
++               said its turn was and what this manager sealed of it. Not one
++               of the four answers and never folded into `cause`, because a
++               worker declaring itself unable is not a cessation anybody
++               ordered. See the section above `attempt_failure_cause_of`.
+   BOUNDS       `CAUSE_MEMBERS` allowlists the composed cause; `FIELD_BOUND`
+                bounds every emitted string. No credential, environment value,
+                private transcript, provider text or exception repr is emitted,
+@@ -72,10 +77,15 @@ none of these records reaches `unknown` and the reader NAMES which records are
+ absent, because a cause is never manufactured retrospectively.
+ """
+ 
+-from ..contracts import ContractRefusal, digest
++import json
++import os
++import stat
++from urllib.parse import unquote, urlsplit
++
++from ..contracts import ContractRefusal, digest, digest_of_bytes
+ from ..contracts.errors import name_value
+ from . import attempts as _attempts
+-from . import boundaries, documents, tokens
++from . import boundaries, documents, manifests, output, schema, tokens
+ from .store import manager_signature
+ 
+ __all__ = ["COMPONENTS", "OUTCOMES", "CESSATION", "EFFECTS",
+@@ -100,7 +110,16 @@ __all__ = ["COMPONENTS", "OUTCOMES", "CESSATION", "EFFECTS",
+            # known", which is the mistake the wrapper rule exists to stop.
+            "READ_SCHEMAS", "ANSWERS", "ANSWER_OF_OUTCOME",
+            "CAUSE_MEMBERS", "FIELD_BOUND",
+-           "decode", "answer_of", "absent_of"]
++           "decode", "answer_of", "absent_of",
++           # W385424: THE WORKER'S OWN DECLARED ENDING, which is a DIFFERENT
++           # AXIS from the cessation the four answers are about. Exported for
++           # the same reason the cessation read API is: ordinary status and
++           # the operator report both read it, and a second decoder would be
++           # a second answer to "what did the worker say".
++           "WORKER_DECLARATION_MEMBERS", "DECLARED_ENDINGS",
++           "DECLARED_FAILURE_REASONS", "DECLARED_BOUND_SOURCES",
++           "RETAINED_RESULT_SCHEMAS", "RETAINED_RESULT_PATH",
++           "declaration_of"]
+ 
+ # W333486 review340349 item 2: THE ONE OWNED, VERSIONED DIAGNOSTIC SHAPE, and
+ # it is one shape on all THREE sides -- this producer, the ordinary versioned
+@@ -1194,6 +1213,400 @@ def _returned(store, domain, generation):
+                             tokens.RETURNED_KIND)
+ 
+ 
++# -- W385424: WHAT THE WORKER ITSELF DECLARED -------------------------------
++#
++# THE GAP THIS CLOSES, and it is the same KIND of gap as the one above: a
++# composition gap rather than a missing fact. The pilot ending recorded in
++# `work/records/2026/10/finding-v12-development-coordination-pilot/evidence/
++# native-handoffs-1-recovery/` reached every operator surface as "stage ended
++# exceptionally; cause unknown" while this manager held, sealed and measured a
++# worker result that said in typed members what had happened: `unable`, a
++# `provider-failed` ending, `timeout`, a 3600-second provider bound and a
++# verification that was never attempted. An earlier ending whose cause was a
++# FAILED VERIFICATION produced the identical sentence. Two different, host-known
++# endings reported as one unknown is the defect.
++#
++# IT IS A SEPARATE AXIS AND IT IS NOT A CESSATION, which is why nothing below
++# touches `cause`, `ANSWERS` or `answer_of`. The four answers say what THIS
++# MANAGER recorded about ordering a runtime stopped; a worker declaring how its
++# own turn ended says nothing about which component stopped the container, or
++# whether anything did. Folding the two would manufacture exactly the
++# retrospective cause rule 3 of this module exists to refuse -- and it would
++# also displace the cancellation and revocation facts, which stay where they
++# are and keep answering for themselves.
++#
++# AND IT IS NOT AN ACCEPTANCE, A REVIEW OR A PROOF OF ANYTHING THE WORKER DID.
++# `disposition` is what the worker ANSWERED and this manager SEALED;
++# `verification_attempted` and `verification_status` are what the worker's own
++# command reported about itself. None of them is evidence that a container
++# died, that a candidate is correct, that verification succeeded or that
++# anybody reviewed it.
++#
++# WHERE THE FACTS COME FROM, and the two things that are deliberately NOT read:
++#
++#   THE SEALED DISPOSITION comes off this manager's own `outputs` row, which
++#   `record_frozen_result` wrote only after proving the sealed result against
++#   the attempt's fixed assignment, its pinned input and policy digests, its
++#   recorded disposition axis and its own freeze operation and signature.
++#   THE TYPED ENDING comes from the worker's `result.json` inside the frozen
++#   candidate output -- read ONLY against the content manifest THIS MANAGER
++#   MEASURED when it sealed the tree. The entry's byte count and content
++#   digest are the binding: a missing, replaced, truncated or foreign file
++#   fails to recompute and the members stay unknown. An unbound filesystem
++#   read would be trusting whatever is at a path today.
++#   NOT `baton.git-proposal/1.recap`, which is PROSE. It says
++#   "provider-failed: the provider did not finish within 3600s" in this very
++#   ending, and parsing it would make a sentence the authoritative typed
++#   status -- the wider classifier this distribution has already declined to
++#   become, one layer up.
++#   NOT A PATH, A LOCATOR, A PROVIDER MESSAGE OR A `why` SENTENCE. Every
++#   member emitted below is a closed word from a vocabulary this build owns, a
++#   bounded identity this manager composed, an integer in a declared range or
++#   a boolean. The custody locator is used to READ and is never emitted.
++#
++# NOTHING HERE RAISES AND NOTHING HERE IS AN ACT. Every failure to establish a
++# member -- no frozen result, no retained manifest, a tree with no measured
++# `result.json`, an artifact that is another attempt's, a digest that does not
++# recompute, a generation this build does not read, a value outside a closed
++# vocabulary -- is an UNKNOWN WITH A BOUNDED REASON, because a diagnostic that
++# refused the whole document over unreadable evidence would lose the cessation
++# axis beside it. Repeated reads answer identically and write nothing.
++#
++# THE FILESYSTEM READ HAPPENS HERE, OUTSIDE EVERY TRANSACTION. `attempt_
++# failure_cause_of` holds no write lock and opens no read snapshot, and the
++# Job manager acquires its observations only AFTER releasing its own view
++# (`job_manager/projection.materialized`). DESIGN DB-1 and DB-4 are what that
++# ordering is for, and this read is placed to keep them.
++
++# THE CLOSED MEMBER SET OF THE DECLARATION AXIS, allowlisted exactly as
++# `CAUSE_MEMBERS` is, so a member grown here is caught by a case rather than
++# published.
++WORKER_DECLARATION_MEMBERS = ("disposition", "result_id", "frozen_at",
++                              "declared_ending", "failure_reason",
++                              "seconds_bound", "seconds_bound_source",
++                              "verification_attempted", "verification_status")
++
++# THE WORKER'S OWN TYPED ENDINGS. Mirrored by value rather than imported: the
++# producing vocabulary lives in the worker image, which carries no `baton_v12`
++# at all, so an import is not available in either direction and a case holds
++# the two spellings together instead.
++DECLARED_ENDINGS = ("candidate", "no-candidate", "provider-failed",
++                    "verification-failed", "yielded")
++
++# WHY A PROVIDER TURN DID NOT FINISH, mirrored for the same reason. `timeout`
++# is the one this ending carried; `api-error`, `start-error` and
++# `unclassified` are the rest of the adapter's closed set, and a word outside
++# it is reported unknown rather than echoed.
++DECLARED_FAILURE_REASONS = ("api-error", "start-error", "timeout",
++                            "unclassified")
++
++# WHO CHOSE THE BOUND the turn actually ran under. A bare number cannot say
++# whether an operator picked it or whether it is simply what the boundary
++# preserves, and an operator deciding whether a timeout is a configuration
++# problem needs the difference.
++DECLARED_BOUND_SOURCES = ("job-default", "job-selected", "unstated",
++                          "worker-default")
++
++# THE RESULT GENERATIONS THIS BUILD READS. An unrecognised one is reported
++# unknown rather than decoded against a shape nobody promised -- the same rule
++# `READ_SCHEMAS` applies to this module's own document.
++RETAINED_RESULT_SCHEMAS = ("baton.dogfood-proposal/2",
++                           "baton.dogfood-proposal/3")
++
++# WHERE THE TYPED RESULT SITS INSIDE THE FROZEN CANDIDATE TREE, and the most
++# of it this manager will ever hold in memory. The bound is on the MEASURED
++# entry: a tree whose `result.json` was measured larger than this is not read
++# at all, rather than read in part.
++RETAINED_RESULT_PATH = "result.json"
++RETAINED_RESULT_BYTES = 1 << 16
++
++# The ranges an integer member must be inside to be owned. A provider bound is
++# seconds and a week is already far past anything a turn is given; an exit
++# status is what a child supplied, which may be negative where a signal ended
++# it.
++SECONDS_BOUND_CEILING = 7 * 24 * 60 * 60
++EXIT_STATUS_RANGE = (-256, 65535)
++
++_NO_FROZEN_RESULT = ("this attempt froze no result, so this manager sealed no "
++                     "worker declaration about how its turn ended")
++
++
++def declaration_of(document):
++    """THE WORKER-DECLARED AXIS of a composed cause, with the version proved first.
++
++    Published beside `answer_of` and `absent_of` rather than left for each
++    reader to find, and deliberately NOT part of `answer_of`: the four answers
++    are about the cessation this manager ordered, and a worker's account of
++    its own ending is a different question with a different owner. A reader
++    that needs both asks both.
++
++    Always answerable, including beside a known cause: a cancellation this
++    manager ordered and a worker that had already declared itself unable are
++    two facts, and neither replaces the other.
++    """
++    _supported(document)
++    held = document.get("worker_declaration")
++    return held if isinstance(held, dict) else None
++
++
++def _custody_place(locator, name):
++    """One LOCAL custody path for a measured entry, or `None`.
++
++    The locator is this manager's OWN recorded one -- `sealing` composes it
++    from the custody directory it staged into -- so this is a reader of a
++    manager fact rather than of a caller operand. It is still proved rather
++    than trusted: a scheme, host, query or fragment that is not what sealing
++    writes means the artifact is somewhere this reader has no business
++    following, and a non-canonical path is one somebody composed.
++
++    THE RESULT IS USED TO OPEN AND IS NEVER EMITTED. No member of the
++    composed declaration carries it.
++    """
++    if not isinstance(locator, str) or len(locator) > FIELD_BOUND:
++        return None
++    held = urlsplit(locator)
++    if held.scheme != "file" or held.netloc or held.query or held.fragment:
++        return None
++    place = unquote(held.path)
++    if not place.startswith("/") or "\x00" in place \
++            or place != os.path.normpath(place):
++        return None
++    return os.path.join(place, name)
++
++
++def _bound_bytes(place, size, expected):
++    """A retained file read ONLY against the measurement that binds it.
++
++    THE DIGEST IS THE BINDING AND THE SIZE IS CHECKED FIRST, on the OPENED
++    descriptor rather than on the path, so nothing is swapped between the
++    check and the read. `O_NOFOLLOW` refuses a symbolic link where a regular
++    file was measured.
++
++    `None` means "this is not the bytes this manager measured", for every
++    reason there is: absent, unreadable, not a regular file, a different
++    length, short, long, or recomputing to another digest. The caller turns
++    that into an unknown with a bounded reason; it never turns it into a
++    partial read.
++    """
++    if not isinstance(size, int) or isinstance(size, bool) \
++            or not 0 < size <= RETAINED_RESULT_BYTES \
++            or not isinstance(expected, str):
++        return None
++    try:
++        handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
++    except (OSError, ValueError):
++        return None
++    try:
++        found = os.fstat(handle)
++        if not stat.S_ISREG(found.st_mode) or found.st_size != size:
++            return None
++        raw = bytearray()
++        while len(raw) < size:
++            part = os.read(handle, size - len(raw))
++            if not part:
++                break
++            raw.extend(part)
++    except OSError:
++        return None
++    finally:
++        os.close(handle)
++    raw = bytes(raw)
++    if len(raw) != size or digest_of_bytes(raw) != expected:
++        return None
++    return raw
++
++
++def _retained_declaration(store, attempt_id, frozen):
++    """The worker's typed result document, or `(None, why)`.
++
++    EVERY STEP IS A BINDING AND NOT A LOOKUP. The retained manifest is the one
++    this attempt's frozen row names; the candidate output is the one the
++    manifest declares at the owned output type; the entry is the one the
++    manager MEASURED at `result.json`; the artifact is the one named for this
++    exact attempt, and this manager's own indexed artifact row must agree with
++    the manifest about its identity, its digest and where it is. Only then are
++    the bytes opened, and only the measured digest decides whether they are
++    the ones that were sealed.
++
++    A FOREIGN ATTEMPT'S EVIDENCE CANNOT ARRIVE HERE. The artifact identity
++    `sealing` composes is `<attempt-id>:<output-name>`, so a tree staged for
++    another attempt fails the identity test before anything is opened, and a
++    substituted file fails the digest after.
++    """
++    try:
++        manifest = manifests.load_manifest(store, frozen["manifest_digest"],
++                                           "resultManifest")
++    except ContractRefusal:
++        return None, ("this attempt's retained result manifest did not "
++                      "validate on the way out, so nothing in it is read as "
++                      "evidence about this ending")
++    if manifest is None:
++        return None, ("this manager retains no result manifest for the "
++                      "output this attempt froze")
++    named = [one for one in manifest["outputs"]
++             if one.get("type") == schema.OUTPUT_TYPES[0]
++             and one.get("status") == "present"]
++    if len(named) != 1:
++        return None, ("this attempt's frozen result carries no single present "
++                      "candidate output, so there is no typed worker result "
++                      "bound to it")
++    held = named[0]
++    # READ DEFENSIVELY RATHER THAN BY THE SCHEMA ALONE. `record_frozen_result`
++    # refuses a present output carrying no content manifest, so production
++    # cannot reach the `None` branch -- but this reader runs over a retained
++    # document and its job is to answer `unknown`, not to raise, whatever is
++    # in the store.
++    measured = held.get("content_manifest")
++    measured = measured.get("entries") if isinstance(measured, dict) else None
++    entries = [one for one in measured
++               if isinstance(one, dict)
++               and one.get("path") == RETAINED_RESULT_PATH] \
++        if isinstance(measured, list) else []
++    artifact = held.get("artifact")
++    if len(entries) != 1 or not isinstance(artifact, dict):
++        return None, ("this manager measured no single " + RETAINED_RESULT_PATH
++                      + " in the frozen candidate tree, so there is nothing "
++                      "a measurement binds")
++    if artifact.get("artifact_id") != f"{attempt_id}:{held['name']}":
++        return None, ("the frozen candidate artifact is not the one this "
++                      "attempt's own seal composed, so it is not evidence "
++                      "about this attempt")
++    rows = [one for one in frozen["artifacts"]
++            if one["output_name"] == held["name"]]
++    if len(rows) != 1 \
++            or rows[0]["artifact_id"] != artifact.get("artifact_id") \
++            or rows[0]["content_digest"] != artifact.get("content_digest") \
++            or rows[0]["locator"] != artifact.get("locator"):
++        return None, ("this manager's recorded artifact and its retained "
++                      "result manifest disagree about the frozen candidate, "
++                      "so neither is read")
++    place = _custody_place(rows[0]["locator"], RETAINED_RESULT_PATH)
++    if place is None:
++        return None, ("this attempt's frozen candidate is not in local "
++                      "custody this manager can open")
++    raw = _bound_bytes(place, entries[0].get("bytes"),
++                       entries[0].get("content_digest"))
++    if raw is None:
++        return None, ("the retained " + RETAINED_RESULT_PATH + " is absent, "
++                      "unreadable or does not recompute to the digest this "
++                      "manager measured when it sealed the tree")
++    try:
++        document = json.loads(raw.decode("utf-8"))
++    except (UnicodeDecodeError, ValueError):
++        return None, ("the retained " + RETAINED_RESULT_PATH + " is not a "
++                      "readable document")
++    if not isinstance(document, dict) \
++            or document.get("schema") not in RETAINED_RESULT_SCHEMAS:
++        return None, ("the retained result declares a generation this build "
++                      "does not read; it is not decoded against a shape "
++                      "nobody promised, and what it declared is omitted "
++                      "rather than echoed")
++    return document, None
++
++
++def _closed_member(value, owned, source, why):
++    """One member whose VALUE is owned, not merely whose name is.
++
++    An unsupported value NAMES WHAT IS OWNED and never repeats what it saw:
++    echoing the thing that should not have travelled is how it travels.
++    """
++    if value in owned and isinstance(value, str):
++        return _known(value, source)
++    return _unknown(why + "; the owned values are " + ", ".join(owned))
++
++
++def _bounded_integer(value, low, high, source, why):
++    if isinstance(value, int) and not isinstance(value, bool) \
++            and low <= value <= high:
++        return _known(value, source)
++    return _unknown(why)
++
++
++def _declared_members(document):
++    """The typed members of one retained result, each owned or unknown."""
++    provider = document.get("provider")
++    provider = provider if isinstance(provider, dict) else {}
++    verification = document.get("verification")
++    answer = {
++        "declared_ending": _closed_member(
++            document.get("disposition"), DECLARED_ENDINGS,
++            "retained result.disposition",
++            "the retained result declares an ending this build does not own"),
++        "failure_reason": _closed_member(
++            provider.get("failure_reason"), DECLARED_FAILURE_REASONS,
++            "retained result.provider.failure_reason",
++            "the retained result names no provider failure reason this build "
++            "owns"),
++        "seconds_bound": _bounded_integer(
++            provider.get("seconds_bound"), 1, SECONDS_BOUND_CEILING,
++            "retained result.provider.seconds_bound",
++            "the retained result states no provider-turn bound inside the "
++            "range this manager owns"),
++        "seconds_bound_source": _closed_member(
++            provider.get("seconds_bound_source"), DECLARED_BOUND_SOURCES,
++            "retained result.provider.seconds_bound_source",
++            "the retained result says nobody this build owns chose the "
++            "provider bound"),
++    }
++    if verification is None:
++        # NOT ATTEMPTED IS AN ANSWER. The worker publishes `null` here exactly
++        # when no verification command ran, and that is a different fact from
++        # a command that ran and said nothing -- which is why the status
++        # beside it stays unknown rather than becoming a zero.
++        answer["verification_attempted"] = _known(
++            False, "retained result.verification")
++        answer["verification_status"] = _unknown(
++            "no verification was attempted, so no command supplied a status")
++    elif isinstance(verification, dict):
++        answer["verification_attempted"] = _known(
++            True, "retained result.verification")
++        answer["verification_status"] = _bounded_integer(
++            verification.get("status"), EXIT_STATUS_RANGE[0],
++            EXIT_STATUS_RANGE[1], "retained result.verification.status",
++            "the retained result's verification names no exit status this "
++            "manager can own")
++    else:
++        unreadable = ("the retained result's verification member is not a "
++                      "document and is not absent, so whether a command ran "
++                      "is unknown")
++        answer["verification_attempted"] = _unknown(unreadable)
++        answer["verification_status"] = _unknown(unreadable)
++    return answer
++
++
++def _worker_declaration(store, attempt_id):
++    """WHAT THE WORKER DECLARED AND THIS MANAGER SEALED, member by member.
++
++    The sealed half is read from this manager's own frozen-output row; the
++    typed half is read from the retained result the same seal measured. An
++    attempt that froze nothing, or whose retained evidence does not bind,
++    answers every member unknown with a bounded reason -- which is an answer
++    about an absence and never a cause.
++    """
++    frozen = output.frozen_output_of(store, attempt_id)
++    if frozen is None:
++        return {name: _unknown(_NO_FROZEN_RESULT)
++                for name in WORKER_DECLARATION_MEMBERS}
++    answer = {
++        # THE DISPOSITION IS THE MANAGER'S RECORD OF THE WORKER'S ANSWER, and
++        # `record_frozen_result` proved it equal to the attempt's own terminal
++        # axis before this row existed. It is not a claim the caller supplied.
++        "disposition": _known(frozen["disposition"], "outputs.disposition"),
++        "result_id": _known(frozen["result_id"], "outputs.result_id"),
++        "frozen_at": (_known(frozen["frozen_at"], "outputs.frozen_at")
++                      if frozen["frozen_at"] is not None else
++                      _unknown("this manager stamped no instant on the "
++                               "freeze of this result")),
++    }
++    document, why = _retained_declaration(store, attempt_id, frozen)
++    if document is None:
++        answer.update({name: _unknown(why) for name in
++                       WORKER_DECLARATION_MEMBERS if name not in answer})
++        return answer
++    answer.update(_declared_members(document))
++    return answer
++
++
+ def attempt_failure_cause_of(store, attempt_id):
+     """THE COMPOSED TYPED CAUSE, and an explicit `unknown` that names what is absent.
+ 
+@@ -1329,6 +1742,18 @@ def attempt_failure_cause_of(store, attempt_id):
+         "cause": cause,
+         "unknown": unknown,
+         "absent_records": tuple(absent),
++        # W385424: AND WHAT THE WORKER ITSELF DECLARED, BESIDE the cessation
++        # axis and never instead of it. `cause` and `unknown` above are
++        # unchanged by anything here: a worker that declared itself unable
++        # did not order a runtime stopped, and this manager still does not
++        # know which component did. ADDITIVE AND VERSION-COMPATIBLE: the
++        # readers of this document are positive allowlists keyed by member
++        # name, so an older one reports exactly what it did before and a
++        # newer one gains an axis. Bumping the version instead would blind
++        # every already-installed reader to EVERY axis -- a larger loss than
++        # the gap this closes -- so the schema is deliberately unmoved and
++        # the choice is written down rather than left to be inferred.
++        "worker_declaration": _worker_declaration(store, attempt_id),
+         # EVERY LEAF BELOW IS A WRAPPED SCALAR, which is what makes one shape
+         # possible on all three sides. The owners' DOCUMENTS are deliberately
+         # not forwarded: a status member that carried somebody else's whole
+diff --git a/v12/python/tests/manager/test_attempt_failure_cause.py b/v12/python/tests/manager/test_attempt_failure_cause.py
+index b5fdcc24..7c699f6b 100644
+--- a/v12/python/tests/manager/test_attempt_failure_cause.py
++++ b/v12/python/tests/manager/test_attempt_failure_cause.py
+@@ -15,16 +15,23 @@ handoff, and they are the next milestone rather than a thing this module
+ quietly claims.
+ """
+ 
++import json
+ import os
+ import sqlite3
+ import unittest
+ 
+-from baton_v12.contracts import ContractRefusal
++from baton_v12.contracts import ContractRefusal, digest, digest_of_bytes
+ from baton_v12.worker_manager import documents, failure_cause
++from baton_v12.worker_manager import request_freeze
+ 
+ from .test_attempts import (ADAPTER, ATTEMPT, NOW, Adapter, Agent,
+                             AttemptCase, ControlStore, activate_assignment,
+                             request_cancellation, request_runtime_start)
++# W385424: THE REAL SEAL, reused rather than respelled. `OutputCase` already
++# owns the published input-manifest vector, the offer/claim/activation path
++# and the freeze, so a case about what the composition reads OUT of a frozen
++# result is driven through the one that puts a frozen result in.
++from .test_output import Collector, OutputCase
+ 
+ SECRET = "canary-" + "s" * 32
+ 
+@@ -2265,3 +2272,422 @@ class THEREADCONTRACTISVERSIONEDBOUNDEDANDSECRETSAFE(AttemptCase):
+             self.store, ATTEMPT, "settlement")
+         self.assertEqual(settled["revision"], 0)
+         self.assertEqual(settled["superseded"], ())
++
++
++# -- W385424: the worker's own declared ending -------------------------------
++
++
++class TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE(OutputCase):
++    """W385424 -- an ending the WORKER declared, read where the manager sealed it.
++
++    THE DEFECT THESE CASES ARE ABOUT, measured on a real pilot ending and
++    retained at `work/records/2026/10/finding-v12-development-coordination-
++    pilot/evidence/native-handoffs-1-recovery/`: the manager held a sealed
++    `unable` result whose typed members said `provider-failed`, `timeout`, a
++    3600-second provider bound and a verification that was never attempted --
++    and every operator surface printed "stage ended exceptionally; cause
++    unknown". An earlier ending whose cause was a FAILED VERIFICATION printed
++    the identical sentence. Two different, host-known endings reported as one
++    unknown.
++
++    THE FIXTURE IS THE REAL SEAL AND NOT A DICTIONARY. Every case below
++    freezes through `request_freeze`/`record_frozen_result`, so the outputs
++    row, the retained result manifest, the measured content manifest and the
++    custody tree are the ones the product writes; what a case spoils is one
++    thing in that evidence at a time.
++
++    AND A DECLARATION IS NEVER A CESSATION. The cause axis, the explicit
++    `unknown` and the records it names are asserted unchanged beside every
++    declaration, because the whole risk in reporting one is that it becomes a
++    retrospective answer to a question nobody recorded.
++    """
++
++    CANDIDATE = [{
++        "name": "proposal", "type": "git-change-proposal",
++        "path": "workspace/output", "required": False,
++        "constraints": {"max_bytes": 1 << 20, "max_entries": 100,
++                        "allowed_media_types": ["application/octet-stream"],
++                        "link_policy": "forbid", "validator_digest": None}}]
++
++    def setUp(self):
++        super().setUp()
++        self.custody = os.path.join(self._root.name, "custody", "proposal")
++        os.makedirs(self.custody)
++        self.redeclared(outputs=self.CANDIDATE)
++
++    # -- the retained typed result --------------------------------------
++
++    @staticmethod
++    def result_document(**members):
++        """One worker result in the generation the pilot ending actually
++        published, with the members a case needs replaced."""
++        held = {"schema": "baton.dogfood-proposal/2",
++                "base": "0" * 40, "head": "1" * 40,
++                "entry_head": "0" * 40, "collection": None,
++                "changed_paths": ["v12/python/tools/job_observation.py"],
++                "task_id": "w385424-1",
++                "disposition": "provider-failed",
++                "why": "the provider did not finish within 3600s",
++                "provider": {"status": None, "failure_reason": "timeout",
++                             "seconds_bound": 3600,
++                             "seconds_bound_source": "job-default"},
++                "verification": None}
++        held.update(members)
++        return json.dumps(held, sort_keys=True).encode("utf-8")
++
++    def candidate(self, raw, *, artifact_id=None, place=None, written=None):
++        """The frozen candidate output over a real custody tree.
++
++        `written` is what actually lands on disk when a case wants the bytes
++        to disagree with the measurement the seal records; `None` writes the
++        measured bytes, which is the ordinary case.
++        """
++        place = self.custody if place is None else place
++        if written is not False:
++            with open(os.path.join(place, "result.json"), "wb") as handle:
++                handle.write(raw if written is None else written)
++        entries = [{"path": "result.json", "bytes": len(raw),
++                    "content_digest": digest_of_bytes(raw)}]
++        manifest = {"entries": entries, "entry_count": len(entries),
++                    "total_bytes": len(raw), "tree_digest": digest(entries)}
++        return [{"name": "proposal", "type": "git-change-proposal",
++                 "status": "present", "result_metadata": {},
++                 "content_manifest": manifest,
++                 "artifact": {
++                     "artifact_id": (f"{ATTEMPT}:proposal"
++                                     if artifact_id is None else artifact_id),
++                     "media_type": "application/octet-stream",
++                     "bytes": manifest["total_bytes"],
++                     "content_digest": manifest["tree_digest"],
++                     "locator": "file://" + place}}]
++
++    def freeze(self, outputs, *, disposition="unable"):
++        """The whole real freeze, at a disposition a case chooses."""
++        self.attempt(disposition=disposition)
++        adapter = Collector(self.result(disposition=disposition,
++                                        outputs=outputs))
++        return request_freeze(self.store, self.port, adapter,
++                              attempt_id=ATTEMPT, disposition=disposition)
++
++    def composed(self):
++        return failure_cause.attempt_failure_cause_of(self.store, ATTEMPT)
++
++    def declared(self, **members):
++        self.freeze(self.candidate(self.result_document(**members)))
++        return failure_cause.declaration_of(self.composed())
++
++    def values(self, declaration):
++        """Every member decoded through the owner's one decoder."""
++        return {name: failure_cause.decode(declaration[name])
++                for name in failure_cause.WORKER_DECLARATION_MEMBERS}
++
++    # -- the two endings the finding names ------------------------------
++
++    def test_a_PROVIDER_TIMEOUT_is_attributable_with_its_bound_and_its_verification(self):
++        held = self.values(self.declared())
++        self.assertEqual(held["disposition"], (True, "unable"))
++        self.assertEqual(held["declared_ending"], (True, "provider-failed"))
++        self.assertEqual(held["failure_reason"], (True, "timeout"))
++        self.assertEqual(held["seconds_bound"], (True, 3600))
++        self.assertEqual(held["seconds_bound_source"], (True, "job-default"))
++        # VERIFICATION WAS NOT ATTEMPTED, which is an answer -- and the
++        # status beside it stays unknown rather than becoming a zero.
++        self.assertEqual(held["verification_attempted"], (True, False))
++        self.assertEqual(held["verification_status"], (False, None))
++        self.assertEqual(held["result_id"], (True, "result-1"))
++
++    def test_a_FAILED_VERIFICATION_is_a_DIFFERENT_attributable_ending(self):
++        """The prior occurrence's cause, which produced the identical
++        sentence before this axis existed."""
++        held = self.values(self.declared(
++            disposition="verification-failed",
++            why="the task's own command ended 1",
++            provider={"status": 0, "failure_reason": None,
++                      "seconds_bound": 3600,
++                      "seconds_bound_source": "job-default"},
++            verification={"status": 1, "argv": ["python3", "-m", "unittest"]}))
++        self.assertEqual(held["declared_ending"], (True, "verification-failed"))
++        self.assertEqual(held["verification_attempted"], (True, True))
++        self.assertEqual(held["verification_status"], (True, 1))
++        # AND NO PROVIDER FAILURE IS INVENTED for a provider that finished.
++        self.assertEqual(held["failure_reason"], (False, None))
++
++    def test_a_DECLARATION_IS_NOT_A_CESSATION_and_the_cause_axis_is_unmoved(self):
++        """The one thing a declaration must never become.
++
++        The pilot ending is exactly this shape: a worker that answered
++        `unable` and a manager that recorded NO component ordering a
++        cessation. The declaration below is fully established and the
++        cessation axis still says, in its own words, that which component
++        ended this attempt is unknown.
++        """
++        self.assertEqual(
++            failure_cause.decode(self.declared()["declared_ending"]),
++            (True, "provider-failed"))
++        after = self.composed()
++        self.assertIsNone(after["cause"])
++        self.assertIn("which component ended it",
++                      after["unknown"]["why"])
++        # The four answers are still FOUR, and this attempt is still an
++        # unknown cessation.
++        self.assertEqual(len(set(failure_cause.ANSWERS)), 4)
++        self.assertEqual(failure_cause.answer_of(after), "unknown")
++        for component in failure_cause.COMPONENTS:
++            self.assertIn("attempt.cessation-*:" + component,
++                          failure_cause.absent_of(after))
++        self.assertIn("runtime.start-failed", failure_cause.absent_of(after))
++        # AND THE REVOCATION AXIS STILL ANSWERS FOR ITSELF, beside the
++        # declaration rather than being displaced by it.
++        self.assertEqual(failure_cause.decode(after["revocation"]),
++                         (False, None))
++
++    def test_a_MANAGER_CANCELLED_ENDING_IS_REPORTED_AS_WHAT_IT_IS(self):
++        """A cancellation is the MANAGER's act. The declaration reports the
++        disposition the manager sealed and claims nothing about a provider;
++        who ordered the runtime stopped stays the cessation axis's question.
++        """
++        self.freeze(self.candidate(self.result_document()),
++                    disposition="cancelled")
++        composed = self.composed()
++        held = self.values(failure_cause.declaration_of(composed))
++        self.assertEqual(held["disposition"], (True, "cancelled"))
++        self.assertIsNone(composed["cause"])
++        self.assertEqual(failure_cause.answer_of(composed), "unknown")
++
++    # -- honest unknowns ------------------------------------------------
++
++    def test_an_attempt_that_FROZE_NOTHING_declares_NOTHING(self):
++        self.attempt(disposition="unable")
++        declaration = failure_cause.declaration_of(self.composed())
++        for name, (known, value) in self.values(declaration).items():
++            self.assertFalse(known, name)
++            self.assertIsNone(value, name)
++            self.assertIn("froze no result", declaration[name]["why"])
++
++    def test_TAMPERED_retained_bytes_establish_NOTHING(self):
++        """The measurement is the binding. Bytes that do not recompute to the
++        digest this manager measured are not evidence about this ending."""
++        raw = self.result_document()
++        self.freeze(self.candidate(raw))
++        with open(os.path.join(self.custody, "result.json"), "wb") as handle:
++            handle.write(self.result_document(disposition="candidate",
++                                              verification={"status": 0,
++                                                            "argv": ["x"]}))
++        declaration = failure_cause.declaration_of(self.composed())
++        held = self.values(declaration)
++        # The SEALED half still answers; the typed half does not.
++        self.assertEqual(held["disposition"], (True, "unable"))
++        self.assertEqual(held["declared_ending"], (False, None))
++        self.assertIn("recompute", declaration["declared_ending"]["why"])
++
++    def test_an_ABSENT_retained_result_establishes_NOTHING(self):
++        self.freeze(self.candidate(self.result_document(), written=False))
++        held = self.values(failure_cause.declaration_of(self.composed()))
++        self.assertEqual(held["disposition"], (True, "unable"))
++        self.assertEqual(held["declared_ending"], (False, None))
++
++    def test_a_FOREIGN_ATTEMPTS_artifact_is_NOT_attributed_here(self):
++        """`sealing` composes `<attempt-id>:<output-name>`, so a tree staged
++        for another attempt fails the identity before anything is opened."""
++        self.freeze(self.candidate(self.result_document(),
++                                   artifact_id="attempt-somebody-else:proposal"))
++        declaration = failure_cause.declaration_of(self.composed())
++        held = self.values(declaration)
++        self.assertEqual(held["disposition"], (True, "unable"))
++        self.assertEqual(held["declared_ending"], (False, None))
++        self.assertIn("this attempt", declaration["declared_ending"]["why"])
++
++    def test_an_UNSUPPORTED_RESULT_GENERATION_is_refused_rather_than_decoded(self):
++        declaration = self.declared(schema="baton.dogfood-proposal/99")
++        held = self.values(declaration)
++        self.assertEqual(held["declared_ending"], (False, None))
++        self.assertIn("does not read", declaration["declared_ending"]["why"])
++        self.assertNotIn("99", json.dumps(declaration, default=list))
++
++    def test_a_VALUE_OUTSIDE_THE_CLOSED_VOCABULARY_is_unknown_and_not_echoed(self):
++        declaration = self.declared(
++            disposition=SECRET,
++            provider={"status": None, "failure_reason": SECRET,
++                      "seconds_bound": SECRET,
++                      "seconds_bound_source": SECRET},
++            verification=SECRET)
++        held = self.values(declaration)
++        for name in ("declared_ending", "failure_reason", "seconds_bound",
++                     "seconds_bound_source", "verification_attempted",
++                     "verification_status"):
++            self.assertEqual(held[name], (False, None), name)
++        self.assertNotIn(SECRET, json.dumps(declaration, default=list))
++        self.assertNotIn(SECRET, json.dumps(self.composed(), default=list))
++
++    def test_a_PROSE_RECAP_IS_NEVER_READ_AS_A_TYPED_STATUS(self):
++        """`baton.git-proposal/1.recap` carries the sentence that names this
++        very ending. It is prose, it rides the output's own metadata, and no
++        member of the declaration comes from it."""
++        raw = self.result_document()
++        outputs = self.candidate(raw)
++        outputs[0]["result_metadata"] = {
++            "baton.git-proposal/1": {
++                "base": "0" * 40, "head": "1" * 40,
++                "transport": "objects.bundle",
++                "recap": "provider-failed: " + SECRET}}
++        self.freeze(outputs)
++        composed = self.composed()
++        self.assertNotIn(SECRET, json.dumps(composed, default=list))
++        self.assertEqual(
++            failure_cause.decode(
++                failure_cause.declaration_of(composed)["failure_reason"]),
++            (True, "timeout"))
++
++    # -- read-only, bounded, allowlisted --------------------------------
++
++    def test_REPEATED_OBSERVATION_HAS_NO_EFFECTS(self):
++        self.freeze(self.candidate(self.result_document()))
++        place = os.path.join(self.custody, "result.json")
++        before = self.store._connection.execute(
++            "SELECT count(*) FROM operations").fetchone()[0]
++        with open(place, "rb") as reading:
++            bytes_before = reading.read()
++        first = self.composed()
++        second = self.composed()
++        self.assertEqual(first, second)
++        self.assertEqual(self.store._connection.execute(
++            "SELECT count(*) FROM operations").fetchone()[0], before)
++        with open(place, "rb") as reading:
++            self.assertEqual(reading.read(), bytes_before)
++
++    def test_the_DECLARATION_MEMBER_SET_is_CLOSED_and_every_leaf_is_a_WRAPPER(self):
++        declaration = self.declared()
++        self.assertEqual(sorted(declaration),
++                         sorted(failure_cause.WORKER_DECLARATION_MEMBERS))
++        for name in declaration:
++            failure_cause.decode(declaration[name])
++
++    def test_NO_PATH_LOCATOR_OR_PROVIDER_PROSE_RIDES_THE_DECLARATION(self):
++        """The custody locator is used to OPEN and is never emitted."""
++        self.declared()
++        composed = self.composed()
++        rendered = json.dumps(composed, default=list)
++        self.assertNotIn(self.custody, rendered)
++        self.assertNotIn("file://", rendered)
++        self.assertNotIn("did not finish within", rendered)
++        for value in _leaf_strings(composed):
++            self.assertLessEqual(len(value), failure_cause.FIELD_BOUND, value)
++
++    def test_EVERY_UNKNOWN_REASON_ON_EVERY_PATH_IS_BOUNDED(self):
++        """`FIELD_BOUND` is the backstop for every emitted string, and the
++        reasons composed here are the longest ones this axis can produce."""
++        spoilings = (
++            {"schema": "baton.dogfood-proposal/99"},
++            {"disposition": SECRET},
++            {"provider": SECRET},
++            {"verification": SECRET},
++            {"provider": {"status": None, "failure_reason": SECRET,
++                          "seconds_bound": -1,
++                          "seconds_bound_source": SECRET}},
++        )
++        for spoiled in spoilings:
++            with self.subTest(spoiled=sorted(spoiled)):
++                case = type(self)(self._testMethodName)
++                case.setUp()
++                self.addCleanup(case.doCleanups)
++                declaration = case.declared(**spoiled)
++                for value in _leaf_strings(declaration):
++                    self.assertLessEqual(len(value),
++                                         failure_cause.FIELD_BOUND, value)
++                self.assertNotIn(SECRET, json.dumps(declaration, default=list))
++
++    def test_a_DECLARATION_IS_ABSENT_when_the_reader_is_given_no_document(self):
++        self.assertIsNone(failure_cause.declaration_of(
++            {"schema": failure_cause.DIAGNOSTIC_SCHEMA, "attempt_id": ATTEMPT}))
++        with self.assertRaises(ContractRefusal):
++            failure_cause.declaration_of({"schema": "somebody-elses/1"})
++
++
++def _leaf_strings(value):
++    """Every string in a composed document, however deeply nested."""
++    if isinstance(value, str):
++        yield value
++    elif isinstance(value, dict):
++        for name, one in value.items():
++            yield name
++            yield from _leaf_strings(one)
++    elif isinstance(value, (list, tuple)):
++        for one in value:
++            yield from _leaf_strings(one)
++
++
++class TheDeclaredVOCABULARIESAreTheirOwnersOwn(unittest.TestCase):
++    """The words are spelled twice and held against their owners here.
++
++    THREE OWNERS, AND TWO OF THEM ARE IN THIS TREE. The result generations
++    and the retained document's name belong to `verification_context` and the
++    integration runtime, and they are imported. The ENDING, the provider
++    failure reasons and the bound sources belong to the worker image, which
++    carries no `baton_v12` at all -- so that mirror is taken from the image's
++    own source by reading it rather than by importing it, which is what keeps
++    this case deterministic, provider-free and engine-free.
++    """
++
++    @staticmethod
++    def worker_constants():
++        import ast
++        import pathlib
++
++        source = (pathlib.Path(__file__).resolve().parents[3] / "worker"
++                  / "claude_agent.py")
++        tree = ast.parse(source.read_text(encoding="utf-8"), str(source))
++        held = {}
++        for node in tree.body:
++            if isinstance(node, ast.Assign) and len(node.targets) == 1 \
++                    and isinstance(node.targets[0], ast.Name):
++                try:
++                    held[node.targets[0].id] = ast.literal_eval(node.value)
++                except (ValueError, SyntaxError, TypeError):
++                    continue
++        endings = set()
++        for node in ast.walk(tree):
++            if isinstance(node, ast.FunctionDef) and node.name == "_disposition":
++                for one in ast.walk(node):
++                    if isinstance(one, ast.Return) \
++                            and isinstance(one.value, ast.Tuple) \
++                            and one.value.elts \
++                            and isinstance(one.value.elts[0], ast.Constant) \
++                            and isinstance(one.value.elts[0].value, str):
++                        endings.add(one.value.elts[0].value)
++            if isinstance(node, ast.Assign) and len(node.targets) == 1 \
++                    and isinstance(node.targets[0], ast.Name) \
++                    and node.targets[0].id == "disposition" \
++                    and isinstance(node.value, ast.Constant) \
++                    and isinstance(node.value.value, str):
++                endings.add(node.value.value)
++        return held, endings
++
++    def test_the_ENDINGS_are_the_ones_the_worker_actually_publishes(self):
++        _held, endings = self.worker_constants()
++        self.assertTrue(endings, "the worker source named no ending")
++        self.assertEqual(sorted(failure_cause.DECLARED_ENDINGS),
++                         sorted(endings))
++
++    def test_the_PROVIDER_FAILURE_REASONS_are_the_adapters_closed_set(self):
++        held, _endings = self.worker_constants()
++        owned = set(held["PROVIDER_FAILURE_REASONS"].values())
++        owned.update({held["PROVIDER_TIMED_OUT"],
++                      held["PROVIDER_START_ERROR"], held["UNCLASSIFIED"]})
++        self.assertEqual(sorted(failure_cause.DECLARED_FAILURE_REASONS),
++                         sorted(owned))
++
++    def test_the_BOUND_SOURCES_are_the_adapters_four_words(self):
++        held, _endings = self.worker_constants()
++        self.assertEqual(
++            sorted(failure_cause.DECLARED_BOUND_SOURCES),
++            sorted({held["WORKER_DEFAULT_BOUND"], held["JOB_SELECTED_BOUND"],
++                    held["JOB_DEFAULT_BOUND"], held["UNSTATED_BOUND_SOURCE"]}))
++
++    def test_the_RESULT_GENERATIONS_and_the_DOCUMENT_NAME_are_their_owners(self):
++        from baton_v12 import verification_context
++        from baton_v12.integration.runtime import RESULT_DOCUMENT
++
++        self.assertEqual(sorted(failure_cause.RETAINED_RESULT_SCHEMAS),
++                         sorted((verification_context.LEGACY_PROPOSAL,
++                                 verification_context.PROPOSAL_SCHEMA)))
++        self.assertEqual(failure_cause.RETAINED_RESULT_PATH, RESULT_DOCUMENT)
+diff --git a/v12/python/tests/manager/test_boundary_inventory.py b/v12/python/tests/manager/test_boundary_inventory.py
+index b81dbdde..2a0f2a4a 100644
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -4740,6 +4740,14 @@ STAGE_C_STATED = {
+     **{("caller", "failure_cause.py:answer_of", subject):
+        "`_supported` (dict, schema in READ_SCHEMAS) then `decode(cause[\"outcome\"])`'s wrapper rule and the closed ANSWER_OF_OUTCOME map"
+        for subject in ("document", "document.cause", "document.cause.outcome", "document.schema")},
++    # W385424: the worker-declared axis's reader, owned exactly as `absent_of`
++    # is and for the same reason -- it proves the document's version before it
++    # reads one member of it, and the member it reads is answered only when it
++    # is the shape this build owns.
++    **{("caller", "failure_cause.py:declaration_of", subject):
++       "`_supported`: a dict whose schema is in READ_SCHEMAS (refuses otherwise); `worker_declaration` is read with `.get` and answered only when it is a dict"
++       for subject in ("document", "document.schema",
++                       "document.worker_declaration")},
+     **{("caller", f"failure_cause.py:{site}", "attempt_id"):
+        "`_read`: `_attempt_row` answers absence for an unknown id before anything else; `_committed` then compares the record's attempt_id"
+        for site in ("attempt_cessation_intent_of", "attempt_cessation_outcome_of")},
+diff --git a/v12/python/tests/tools/test_attempt_diagnostics.py b/v12/python/tests/tools/test_attempt_diagnostics.py
+index 5cd74028..35dc8243 100644
+--- a/v12/python/tests/tools/test_attempt_diagnostics.py
++++ b/v12/python/tests/tools/test_attempt_diagnostics.py
+@@ -28,7 +28,7 @@ def document(**stage):
+     diagnostic = stage.get("attempt_diagnostics")
+     if isinstance(diagnostic, dict):
+         diagnostic = dict(diagnostic, schema=attempt_diagnostics.SOURCE_DIAGNOSTIC_SCHEMA, attempt_id="attempt-1")
+-        for axis in ("cause", "workspace_object"):
++        for axis in ("cause", "workspace_object", "worker_declaration"):
+             if isinstance(diagnostic.get(axis), dict):
+                 diagnostic[axis] = {key: {"known": True, "value": value, "source": "fixture"} for key, value in diagnostic[axis].items()}
+         stage["attempt_diagnostics"] = diagnostic
+@@ -350,6 +350,29 @@ class RealStatusReportSeam(JobManagerCase):
+         # The producer's OLD spelling is not owned by this build either.
+         self.assertNotIn("attempt.start-failed", reported)
+ 
++    def test_the_REAL_composition_carries_the_declaration_axis_end_to_end(self):
++        """W385424: producer -> ordinary status -> report, with no fixture.
++
++        This attempt froze nothing, so every declared member is honestly
++        unknown -- which is the point: the axis reaches the report through
++        the real seam, and an absence travels as an absence rather than as
++        nothing at all.
++        """
++        before = (self.jobs._connection.total_changes,
++                  self.control_store._connection.total_changes)
++        snapshot = self.snapshot()
++        published = snapshot["jobs"][0]["stages"][0]["attempt_diagnostics"]
++        declared = published["worker_declaration"]
++        self.assertEqual(sorted(declared),
++                         sorted(failure_cause.WORKER_DECLARATION_MEMBERS))
++        row = self.row(snapshot)
++        for name, _kinds in attempt_diagnostics.WORKER_DECLARATION_MEMBERS:
++            self.assertFalse(row["worker_declaration"][name]["known"], name)
++            self.assertTrue(row["worker_declaration"][name]["why"], name)
++        # AND NOTHING WAS WRITTEN TO EITHER STORE BY LOOKING.
++        self.assertEqual(before, (self.jobs._connection.total_changes,
++                                  self.control_store._connection.total_changes))
++
+     def test_owned_source_schema_does_not_drift(self):
+         self.assertEqual(attempt_diagnostics.SOURCE_DIAGNOSTIC_SCHEMA, failure_cause.DIAGNOSTIC_SCHEMA)
+ 
+@@ -629,3 +652,127 @@ class JobFactsAndObservationTimeReachTheReport(JobManagerCase):
+                                  execution_limits.COMPATIBILITY)))
+         self.assertEqual(sorted(attempt_diagnostics.SOURCE_LIMIT_GENERATIONS),
+                          sorted(execution_limits.GENERATIONS))
++
++
++class TheWorkerDeclaredEndingIsItsOwnAxis(unittest.TestCase):
++    """W385424 -- what the worker said, reported BESIDE the cause.
++
++    The defect these cases are about is a reporting one: the manager held a
++    sealed `unable` result naming a provider timeout and a verification that
++    was never attempted, and this report could not say any of it. What is
++    added is an axis, not a cause -- so every case below also holds the line
++    the axis must not cross.
++    """
++
++    TIMEOUT = {"disposition": "unable", "result_id": "result-1",
++               "frozen_at": "2026-11-20T16:23:27.149Z",
++               "declared_ending": "provider-failed",
++               "failure_reason": "timeout", "seconds_bound": 3600,
++               "seconds_bound_source": "job-default",
++               "verification_attempted": False}
++
++    def row(self, declaration):
++        return attempt_diagnostics.report(json.dumps(document(
++            attempt_diagnostics={"worker_declaration": declaration}
++        )).encode())["rows"][0]
++
++    def test_a_PROVIDER_TIMEOUT_reaches_the_report_with_its_bound(self):
++        held = self.row(self.TIMEOUT)["worker_declaration"]
++        self.assertEqual(held["disposition"]["value"], "unable")
++        self.assertEqual(held["declared_ending"]["value"], "provider-failed")
++        self.assertEqual(held["failure_reason"]["value"], "timeout")
++        self.assertEqual(held["seconds_bound"]["value"], 3600)
++        self.assertEqual(held["seconds_bound_source"]["value"], "job-default")
++        self.assertIs(held["verification_attempted"]["value"], False)
++        # NOT ATTEMPTED IS AN ANSWER AND THE STATUS BESIDE IT IS NOT A ZERO.
++        self.assertFalse(held["verification_status"]["known"])
++        for name, _kinds in attempt_diagnostics.WORKER_DECLARATION_MEMBERS:
++            if held[name]["known"]:
++                self.assertTrue(held[name]["source"], name)
++
++    def test_a_FAILED_VERIFICATION_is_a_DIFFERENT_report(self):
++        held = self.row(dict(self.TIMEOUT,
++                             declared_ending="verification-failed",
++                             verification_attempted=True,
++                             verification_status=1))["worker_declaration"]
++        self.assertEqual(held["declared_ending"]["value"],
++                         "verification-failed")
++        self.assertIs(held["verification_attempted"]["value"], True)
++        self.assertEqual(held["verification_status"]["value"], 1)
++
++    def test_a_DECLARATION_IS_NOT_AN_ACCEPTANCE_AND_NOT_A_CESSATION(self):
++        """A passing worker-run verification is still not acceptance, and a
++        declaration still does not complete a cause."""
++        report = attempt_diagnostics.report(json.dumps(document(
++            attempt_diagnostics={"worker_declaration": dict(
++                self.TIMEOUT, declared_ending="candidate",
++                verification_attempted=True, verification_status=0)}
++        )).encode())
++        row = report["rows"][0]
++        self.assertIs(report["is_acceptance"], False)
++        self.assertIs(row["completeness"]["is_acceptance"], False)
++        self.assertIs(row["completeness"]["proves_cessation"], False)
++        # THE CAUSE AXIS IS UNTOUCHED: no component recorded a cessation, so
++        # the report still says exactly that.
++        self.assertIsNone(row["cause"])
++        self.assertEqual(row["completeness"]["state"], "incomplete")
++        self.assertIn("cause", row["completeness"]["missing"])
++
++    def test_an_ABSENT_declaration_axis_is_ABSENT_and_costs_nothing(self):
++        """An older producer composed no declaration. That is `None` -- not a
++        claim that the worker declared nothing -- and the rest of the row is
++        unaffected."""
++        row = attempt_diagnostics.report(json.dumps(document(
++            attempt_diagnostics={"cause": {
++                "component": "expiry-reclaim", "operation_id": "op-1",
++                "correlation_id": "c-1", "outcome": "ceased-absent",
++                "cessation": "absent", "runtime_id": "container-1",
++                "category": None, "code": None}})).encode())["rows"][0]
++        self.assertIsNone(row["worker_declaration"])
++        self.assertEqual(row["cause"]["cessation"]["value"], "absent")
++
++    def test_an_UNOWNED_CLOSED_VALUE_is_UNKNOWN_and_is_never_ECHOED(self):
++        held = self.row(dict(self.TIMEOUT, disposition=SECRET,
++                             declared_ending=SECRET, failure_reason=SECRET,
++                             seconds_bound_source=SECRET))
++        declaration = held["worker_declaration"]
++        for name in ("disposition", "declared_ending", "failure_reason",
++                     "seconds_bound_source"):
++            self.assertFalse(declaration[name]["known"], name)
++            self.assertIsNone(declaration[name]["value"], name)
++            self.assertIn("does not own", declaration[name]["why"], name)
++        self.assertNotIn(SECRET, json.dumps(held, default=list))
++        # AND AN UNOWNED VALUE DOES NOT COST THE VALID FACTS BESIDE IT.
++        self.assertEqual(declaration["seconds_bound"]["value"], 3600)
++
++    def test_a_NESTED_OBJECT_in_the_declaration_is_NOT_forwarded(self):
++        held = self.row(dict(self.TIMEOUT, seconds_bound={"leaked": SECRET}))
++        self.assertNotIn(SECRET, json.dumps(held, default=list))
++        self.assertFalse(held["worker_declaration"]["seconds_bound"]["known"])
++
++    def test_an_UNDECLARED_member_is_reported_by_NAME_ONLY(self):
++        held = self.row(dict(self.TIMEOUT, private_transcript=SECRET))
++        self.assertIn("undeclared members omitted", held["unrecognised"])
++        self.assertNotIn(SECRET, json.dumps(held, default=list))
++        # AND THE NOTICE IS NOT DUPLICATED when the cause carries one too.
++        self.assertEqual(len(held["unrecognised"]),
++                         len(set(held["unrecognised"])))
++
++    def test_the_OWNED_DECLARATION_VOCABULARY_does_not_drift(self):
++        from baton_v12.worker_manager import failure_cause as owner
++        from baton_v12.worker_manager import schema as manager_schema
++
++        self.assertEqual(
++            [name for name, _kinds
++             in attempt_diagnostics.WORKER_DECLARATION_MEMBERS],
++            list(owner.WORKER_DECLARATION_MEMBERS))
++        self.assertEqual(sorted(attempt_diagnostics.SOURCE_DISPOSITIONS),
++                         sorted(manager_schema.DISPOSITIONS))
++        self.assertEqual(sorted(attempt_diagnostics.SOURCE_DECLARED_ENDINGS),
++                         sorted(owner.DECLARED_ENDINGS))
++        self.assertEqual(
++            sorted(attempt_diagnostics.SOURCE_DECLARED_FAILURE_REASONS),
++            sorted(owner.DECLARED_FAILURE_REASONS))
++        self.assertEqual(
++            sorted(attempt_diagnostics.SOURCE_DECLARED_BOUND_SOURCES),
++            sorted(owner.DECLARED_BOUND_SOURCES))
+diff --git a/v12/python/tests/tools/test_job_observation.py b/v12/python/tests/tools/test_job_observation.py
+index 1c47ba6c..a5ceb076 100644
+--- a/v12/python/tests/tools/test_job_observation.py
++++ b/v12/python/tests/tools/test_job_observation.py
+@@ -119,5 +119,146 @@ class SharedObservation(unittest.TestCase):
+             self.assertNotIn("private-command", rendered)
+ 
+ 
++class TheWorkerDeclaredEndingReachesBothSurfaces(unittest.TestCase):
++    """W385424 -- an ending the worker declared, said in both views.
++
++    THE MEASURED DEFECT: `just status` and `view` both printed "failed: stage
++    ended exceptionally; cause unknown" for an ending whose sealed result
++    named a provider timeout, a 3600-second bound and a verification that was
++    never attempted -- and printed the same sentence for an earlier ending
++    whose cause was a FAILED VERIFICATION. Distinct, host-known endings
++    reported as one unknown.
++
++    EVERY CASE RENDERS THROUGH `views`, so what is asserted is the two
++    operator surfaces rather than the helper between them.
++    """
++
++    TIMEOUT = {"disposition": "unable", "declared_ending": "provider-failed",
++               "failure_reason": "timeout", "seconds_bound": 3600,
++               "seconds_bound_source": "job-default",
++               "verification_attempted": False}
++    FAILED = {"disposition": "unable",
++              "declared_ending": "verification-failed",
++              "verification_attempted": True, "verification_status": 1}
++
++    @staticmethod
++    def wrapped(members):
++        return {name: ({"known": False, "value": None, "why": "fixture"}
++                       if value is None else
++                       {"known": True, "value": value, "source": "fixture"})
++                for name, value in members.items()}
++
++    def failing(self, declaration=None, **stage):
++        doc = document()
++        held = doc["jobs"][0]["stages"][0]
++        held["state"] = "exceptional"
++        held.update(stage)
++        if declaration is not None:
++            held["attempt_diagnostics"] = {
++                "schema": "baton.v12.attempt-failure-cause/1",
++                "attempt_id": held["attempt_id"],
++                "worker_declaration": self.wrapped(declaration)}
++        return doc
++
++    def test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views(self):
++        doc = self.failing(self.TIMEOUT)
++        for rendered in views(doc):
++            self.assertIn("worker declared unable: the provider did not "
++                          "finish (provider timed out)", rendered)
++            self.assertIn("1h00m provider bound (job-default)", rendered)
++            self.assertIn("verification not attempted", rendered)
++            self.assertNotIn("cause unknown", rendered)
++
++    def test_a_FAILED_VERIFICATION_reads_DIFFERENTLY_from_a_timeout(self):
++        timeout = views(self.failing(self.TIMEOUT))
++        failed = views(self.failing(self.FAILED))
++        for rendered in failed:
++            self.assertIn("worker declared unable: its own verification "
++                          "command failed", rendered)
++            self.assertIn("verification ended 1", rendered)
++            self.assertNotIn("cause unknown", rendered)
++            self.assertNotIn("provider timed out", rendered)
++        self.assertNotEqual(timeout, failed)
++
++    def test_NO_DECLARATION_keeps_the_HONEST_cause_unknown(self):
++        for declaration in (None, {}, {"disposition": None}):
++            for rendered in views(self.failing(declaration)):
++                self.assertIn("cause unknown", rendered)
++                self.assertNotIn("worker declared", rendered)
++
++    def test_a_MANAGER_CANCELLED_or_COMPLETED_seal_SAYS_NOTHING_here(self):
++        """A cancellation is the manager's own act and its facts are reported
++        by the cancellation axis; this view does not speak for it."""
++        for disposition in ("cancelled", "completed", "plan-rejected"):
++            doc = self.failing(dict(self.TIMEOUT, disposition=disposition))
++            for rendered in views(doc):
++                self.assertIn("cause unknown", rendered)
++                self.assertNotIn("worker declared", rendered)
++
++    def test_an_UNKNOWN_DECLARED_ENDING_is_still_more_than_cause_unknown(self):
++        doc = self.failing({"disposition": "unable", "declared_ending": None})
++        for rendered in views(doc):
++            self.assertIn("worker declared unable; its declared ending is "
++                          "unknown", rendered)
++            self.assertNotIn("cause unknown", rendered)
++
++    def test_an_UNOWNED_WORD_or_a_SECRET_never_reaches_a_LINE(self):
++        canary = "canary-" + "q" * 32
++        doc = self.failing({"disposition": "unable",
++                            "declared_ending": canary,
++                            "failure_reason": canary,
++                            "seconds_bound": canary,
++                            "seconds_bound_source": canary,
++                            "verification_attempted": canary,
++                            "verification_status": canary})
++        for rendered in views(doc):
++            self.assertNotIn(canary, rendered)
++            self.assertIn("its declared ending is unknown", rendered)
++
++    def test_an_OUT_OF_RANGE_BOUND_or_STATUS_is_simply_not_rendered(self):
++        doc = self.failing(dict(self.TIMEOUT, seconds_bound=10 ** 400))
++        for rendered in views(doc):
++            self.assertIn("provider timed out", rendered)
++            self.assertNotIn("provider bound", rendered)
++
++    def test_an_EXCHANGE_FAULT_KEEPS_ITS_PLACE_beside_the_declaration(self):
++        doc = self.failing(self.TIMEOUT)
++        doc["jobs"][0]["stages"][0]["exchange"]["terminal"] = {
++            "ending": "faulted", "fault_code": "agent",
++            "adapter_failure": {"component": "role-adapter",
++                                "code": "role-output-missing"}}
++        for rendered in views(doc):
++            self.assertIn("agent fault; role-output-missing", rendered)
++            self.assertIn("worker declared unable", rendered)
++
++    def test_a_SUCCESSFUL_or_UNRELATED_STAGE_reads_EXACTLY_as_before(self):
++        for state in ("running", "completed", "queued", "changes-requested"):
++            plain = views(self.failing(None, state=state))
++            declared = views(self.failing(self.TIMEOUT, state=state))
++            self.assertEqual(plain, declared)
++            for rendered in declared:
++                self.assertNotIn("worker declared", rendered)
++
++    def test_REPEATED_RENDERING_mutates_NOTHING(self):
++        doc = self.failing(self.TIMEOUT)
++        before = copy.deepcopy(doc)
++        first, second = views(doc), views(doc)
++        self.assertEqual(first, second)
++        self.assertEqual(doc, before)
++
++    def test_the_MIRRORED_DECLARATION_VOCABULARY_does_not_drift(self):
++        from baton_v12.worker_manager import failure_cause
++        from baton_v12.worker_manager import schema as manager_schema
++
++        self.assertEqual(sorted(model._DECLARED_ENDINGS),
++                         sorted(failure_cause.DECLARED_ENDINGS))
++        self.assertEqual(sorted(model._DECLARED_FAILURE_REASONS),
++                         sorted(failure_cause.DECLARED_FAILURE_REASONS))
++        self.assertEqual(sorted(model._DECLARED_BOUND_SOURCES),
++                         sorted(failure_cause.DECLARED_BOUND_SOURCES))
++        self.assertIn(model._DECLARED_UNABLE, manager_schema.DISPOSITIONS)
++        self.assertEqual(model._DECLARATION_MEMBER, "worker_declaration")
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/v12/python/tests/tools/test_job_viewer.py b/v12/python/tests/tools/test_job_viewer.py
+index 269d3a41..71a6c864 100644
+--- a/v12/python/tests/tools/test_job_viewer.py
++++ b/v12/python/tests/tools/test_job_viewer.py
+@@ -1476,3 +1476,106 @@ class AnInvalidCountIsUnknownAndNeverAnException(ViewerCase):
+ 
+         self.assertEqual(job_viewer.MAX_ACTIVITY_BYTES,
+                          exchange.MAX_ACTIVITY_BYTES)
++
++
++class TheWorkerDeclaredEndingIsRenderedFromTheRealProjection(ViewerCase):
++    """W385424 -- a sealed worker declaration, through `projection.status`.
++
++    THE DOCUMENT IS NOT WRITTEN HERE. The stage reaches `exceptional` through
++    the projection's own `_DISPOSITIONS` mapping of a frozen `unable` result,
++    and the declaration axis travels on the composed diagnostic exactly as
++    `delegation.ManagerOperations.observe` publishes it -- including the
++    binding checks that refuse a diagnostic about another attempt. What these
++    cases assert is what an operator actually sees on both the list and the
++    detail line.
++
++    THE PRODUCER'S OWN MEMBER NAMES drive the fixture, so a rename in
++    `failure_cause` fails this case rather than quietly emptying a line.
++    """
++
++    def declaration(self, **members):
++        from baton_v12.worker_manager import failure_cause
++
++        held = {name: {"known": False, "value": None, "why": "fixture"}
++                for name in failure_cause.WORKER_DECLARATION_MEMBERS}
++        for name, value in members.items():
++            held[name] = {"known": True, "value": value, "source": "fixture"}
++        return held
++
++    def failing(self, stage_id="job-a/implementation", declaration=None):
++        from baton_v12.job_manager.episodes import identities
++        from baton_v12.worker_manager.failure_cause import DIAGNOSTIC_SCHEMA
++
++        operations = FakeOperations()
++        operations.frozen(stage_id, "unable")
++        _offer, attempt_id = identities(UUID, stage_id, 1)
++        if declaration is not None:
++            operations.observations[stage_id]["diagnostics"] = {
++                "schema": DIAGNOSTIC_SCHEMA, "attempt_id": attempt_id,
++                "cause": None, "unknown": {"why": "fixture", "absent": []},
++                "absent_records": [], "worker_declaration": declaration}
++        held = status(self.store, operations, observed_at=NOW)
++        states = {one["stage_id"]: one["state"]
++                  for job in held["jobs"] for one in job["stages"]}
++        self.assertEqual(states[stage_id], "exceptional")
++        return held
++
++    def shown(self, held):
++        snapshot = read_snapshot(held, received_at=self.now)
++        return ("\n".join(render_list(snapshot, now=self.now)),
++                "\n".join(render_detail(snapshot, "job-a", now=self.now)))
++
++    def test_a_PROVIDER_TIMEOUT_is_rendered_on_the_LIST_and_the_DETAIL(self):
++        held = self.failing(declaration=self.declaration(
++            disposition="unable", declared_ending="provider-failed",
++            failure_reason="timeout", seconds_bound=3600,
++            seconds_bound_source="job-default",
++            verification_attempted=False))
++        for rendered in self.shown(held):
++            self.assertIn("worker declared unable: the provider did not "
++                          "finish (provider timed out)", rendered)
++            self.assertIn("1h00m provider bound (job-default)", rendered)
++            self.assertIn("verification not attempted", rendered)
++            self.assertNotIn("cause unknown", rendered)
++
++    def test_a_FAILED_VERIFICATION_renders_DIFFERENTLY(self):
++        held = self.failing(declaration=self.declaration(
++            disposition="unable", declared_ending="verification-failed",
++            verification_attempted=True, verification_status=1))
++        for rendered in self.shown(held):
++            self.assertIn("worker declared unable: its own verification "
++                          "command failed", rendered)
++            self.assertIn("verification ended 1", rendered)
++            self.assertNotIn("provider timed out", rendered)
++
++    def test_an_UNDECLARED_ending_renders_EXACTLY_as_it_did_before(self):
++        for rendered in self.shown(self.failing()):
++            self.assertIn("stage ended exceptionally", rendered)
++            self.assertIn("cause unknown", rendered)
++            self.assertNotIn("worker declared", rendered)
++
++    def test_a_FOREIGN_ATTEMPTS_diagnostic_never_reaches_a_LINE(self):
++        """`delegation` refuses a diagnostic about another attempt, so the
++        declaration cannot arrive on this stage's row at all."""
++        from baton_v12.contracts import ContractRefusal
++        from baton_v12.worker_manager.failure_cause import DIAGNOSTIC_SCHEMA
++
++        operations = FakeOperations()
++        operations.frozen("job-a/implementation", "unable")
++        operations.observations["job-a/implementation"]["diagnostics"] = {
++            "schema": DIAGNOSTIC_SCHEMA, "attempt_id": "attempt-somebody-else",
++            "cause": None, "worker_declaration": self.declaration(
++                disposition="unable", declared_ending="provider-failed")}
++        with self.assertRaises(ContractRefusal) as caught:
++            status(self.store, operations, observed_at=NOW)
++        self.assertIn("another attempt", str(caught.exception))
++
++    def test_the_VIEW_PERFORMS_NO_ACT_while_rendering_a_declaration(self):
++        operations = FakeOperations()
++        operations.frozen("job-a/implementation", "unable")
++        operations.observations["job-a/implementation"]["diagnostics"] = None
++        held = status(self.store, operations, observed_at=NOW)
++        before = list(operations.calls)
++        self.shown(held)
++        self.shown(held)
++        self.assertEqual(operations.calls, before)
+diff --git a/v12/python/tools/attempt_diagnostics.py b/v12/python/tools/attempt_diagnostics.py
+index 341702e8..741cb2ed 100644
+--- a/v12/python/tools/attempt_diagnostics.py
++++ b/v12/python/tools/attempt_diagnostics.py
+@@ -11,6 +11,14 @@ WHAT IT IS NOT, and each of these is a line somebody has crossed before:
+ * IT IS NOT AN ACCEPTANCE. A diagnostic cause says which component ordered a
+   runtime stopped. It does not accept a candidate, settle a stage, clear a
+   gate or authorize a cleanup, and nothing in the projection branches on it.
++* AND A WORKER-DECLARED ENDING IS NOT A CAUSE. W385424 adds the producer's
++  `worker_declaration` axis -- what the worker answered about its own turn
++  and what the manager sealed of it -- as its OWN row member. It is reported
++  beside the cause, never folded into it and never read as a cessation: a
++  worker declaring itself unable did not stop a container, and `completeness`
++  is still decided on the cause alone. `verification_status` is what the
++  worker's own command said about itself; it is not a review and not a
++  verdict.
+ * IT IS NOT A FRESHNESS VERDICT. No freshness policy has been selected for
+   these facts, so this reports the instants it was given and declines to say
+   whether they are recent. Inventing a staleness rule here would be this
+@@ -159,6 +167,50 @@ WORKSPACE_MEMBERS = (
+     ("inode", (int,)),
+ )
+ 
++# W385424: WHAT THE WORKER ITSELF DECLARED AND THIS MANAGER SEALED, and it is
++# a SEPARATE AXIS from the cause. A cause says which component ordered a
++# runtime stopped; this says what the worker answered about its own turn.
++# NEITHER IS THE OTHER, and reading a declaration as a cessation is exactly
++# the retrospective cause the producer refuses to manufacture -- so the two
++# travel side by side here and `completeness` is still decided on the cause
++# alone. A declaration is also NOT AN ACCEPTANCE: `verification_status: 0` is
++# what the worker's own command reported about itself, not a review, not a
++# verdict and not a merge.
++WORKER_DECLARATION_MEMBERS = (
++    ("disposition", (str,)),
++    ("result_id", (str,)),
++    ("frozen_at", (str, int, float)),
++    ("declared_ending", (str,)),
++    ("failure_reason", (str,)),
++    ("seconds_bound", (int,)),
++    ("seconds_bound_source", (str,)),
++    ("verification_attempted", (bool,)),
++    ("verification_status", (int,)),
++)
++
++# THE CLOSED VALUES, NOT ONLY THE CLOSED NAMES -- the same rule
++# `SOURCE_LIMIT_ORIGINS` exists for, applied to this axis. Four of these nine
++# members carry a vocabulary, and an unsupported value is a BOUNDED UNKNOWN
++# THAT DOES NOT ECHO WHAT IT SAW. The names are mirrored BY VALUE from
++# `baton_v12.worker_manager.failure_cause` and `...worker_manager.schema`,
++# like `SOURCE_DIAGNOSTIC_SCHEMA`, because this report is a projection OVER
++# the manager; `tests/tools/test_attempt_diagnostics.py` holds every one of
++# them against its owner so a rename fails a case instead of emptying a row.
++SOURCE_DISPOSITIONS = ("cancelled", "completed", "plan-rejected", "unable")
++SOURCE_DECLARED_ENDINGS = ("candidate", "no-candidate", "provider-failed",
++                           "verification-failed", "yielded")
++SOURCE_DECLARED_FAILURE_REASONS = ("api-error", "start-error", "timeout",
++                                   "unclassified")
++SOURCE_DECLARED_BOUND_SOURCES = ("job-default", "job-selected", "unstated",
++                                 "worker-default")
++_CLOSED_DECLARATION = {
++    "disposition": SOURCE_DISPOSITIONS,
++    "declared_ending": SOURCE_DECLARED_ENDINGS,
++    "failure_reason": SOURCE_DECLARED_FAILURE_REASONS,
++    "seconds_bound_source": SOURCE_DECLARED_BOUND_SOURCES,
++}
++_DECLARATION_SOURCE = "diagnostics.worker_declaration"
++
+ # THE JOB'S OWN EXECUTION LIMITS, and the snapshot's own observation time.
+ #
+ # W333486 review-2026-10-22T18-18-00Z.md: `rows_of` discarded the Job object
+@@ -394,6 +446,41 @@ def _closed(held, name, owned, source):
+     return fact
+ 
+ 
++def _closed_fact(held, name, owned, source):
++    """One WRAPPED member whose value is owned, not merely whose name is.
++
++    `_closed` asks the same question of a raw scalar; everything inside the
++    diagnostic is a wrapper, so this asks it through `_fact`. The reason
++    never echoes the value, for `_closed`'s reason.
++    """
++    fact = _fact(held, name, tuple({type(one) for one in owned}), source)
++    if not fact["known"] or fact["value"] in owned:
++        return fact
++    return _unknown(name + " carries a value this report does not own; "
++                    + "the owned values are "
++                    + ", ".join(repr(one) for one in owned)
++                    + ", and the received one is omitted rather than echoed")
++
++
++def _worker_declaration(diagnostic):
++    """THE WORKER-DECLARED AXIS, or `None` when the producer carries none.
++
++    `None` is the compatible answer and means exactly "this diagnostic has no
++    declaration axis" -- an older producer, or a reader looking at a document
++    composed before this axis existed. It is not a claim that the worker
++    declared nothing, and nothing in this report branches on it.
++    """
++    held = (diagnostic or {}).get("worker_declaration") \
++        if isinstance(diagnostic, dict) else None
++    if not isinstance(held, dict):
++        return None
++    return {name: (_closed_fact(held, name, _CLOSED_DECLARATION[name],
++                                _DECLARATION_SOURCE)
++                   if name in _CLOSED_DECLARATION else
++                   _fact(held, name, kinds, _DECLARATION_SOURCE))
++            for name, kinds in WORKER_DECLARATION_MEMBERS}
++
++
+ def _members(held, names, source):
+     """The stage's own raw-scalar members."""
+     return {name: _typed(held, name, kinds, source) for name, kinds in names}
+@@ -724,13 +811,18 @@ def _row(stage, job=None):
+         # PRE-EXECUTION ENDINGS, read off the diagnostic's top level.
+         "axes": _facts(diagnostic, AXIS_MEMBERS, "diagnostics")
+         if diagnostic is not None else None,
++        # W385424: WHAT THE WORKER DECLARED, BESIDE the cause and never
++        # instead of it. See WORKER_DECLARATION_MEMBERS.
++        "worker_declaration": _worker_declaration(diagnostic),
+         "completeness": _completeness(cause, diagnostic, refused),
+         # THIS ROW'S OWN JOB'S CEILINGS, requested beside effective, with the
+         # units, the scope and the origin of each. See _execution_limits: the
+         # Job is threaded in so a row can never answer with a sibling Job's.
+         "execution_limits": _execution_limits(job),
+-        "unrecognised": _unrecognised(
+-            (diagnostic or {}).get("cause"), CAUSE_MEMBERS),
++        "unrecognised": tuple(dict.fromkeys(
++            _unrecognised((diagnostic or {}).get("cause"), CAUSE_MEMBERS)
++            + _unrecognised((diagnostic or {}).get("worker_declaration"),
++                            WORKER_DECLARATION_MEMBERS))),
+         "locators": _locators(stage if isinstance(stage, dict) else {},
+                               diagnostic),
+     }
+diff --git a/v12/python/tools/job_observation.py b/v12/python/tools/job_observation.py
+index 76bcf938..8d8eb5da 100644
+--- a/v12/python/tools/job_observation.py
++++ b/v12/python/tools/job_observation.py
+@@ -276,15 +276,130 @@ def _allocated(held):
+     return taken
+ 
+ 
++# W385424: THE WORKER'S OWN DECLARED ENDING, as the diagnostic producer
++# publishes it. Every name and value below is mirrored BY VALUE from
++# `baton_v12.worker_manager.failure_cause`, for the reason this whole module
++# imports nothing: it is the shared interpretation of a document, and a
++# dependency on the producer would make it a reader of its own subject.
++# `tests/tools/test_job_observation.py` holds the mirror against the owner.
++#
++# A DECLARATION IS NOT A CESSATION, AND THIS RENDERING SAYS SO IN WORDS. It
++# reports what the worker DECLARED and what this manager SEALED of it; it
++# never says a container died, a candidate is good, verification passed or
++# anybody reviewed anything. The exchange fault and the manager's own
++# cancellation facts keep their place ahead of it and are not replaced.
++_DECLARATION_MEMBER = "worker_declaration"
++# ONLY `unable` SPEAKS HERE. `cancelled` is the manager's own act and its
++# facts are reported by the cancellation axis; `completed` and `plan-rejected`
++# are not failures and have no business explaining one.
++_DECLARED_UNABLE = "unable"
++_DECLARED_ENDINGS = {
++    "provider-failed": "the provider did not finish",
++    "verification-failed": "its own verification command failed",
++    "no-candidate": "it produced no candidate",
++    "candidate": "it produced a candidate",
++    "yielded": "it yielded a checkpoint",
++}
++_DECLARED_FAILURE_REASONS = {
++    "timeout": "provider timed out",
++    "start-error": "provider would not start",
++    "api-error": "provider reported an api error",
++    "unclassified": "provider failure unclassified",
++}
++_DECLARED_BOUND_SOURCES = ("job-default", "job-selected", "unstated",
++                           "worker-default")
++# The widest a declared provider bound or exit status may be before this view
++# declines to render it. The producer already bounds both; this is what a
++# CONSUMER must survive, exactly as MAX_ACTIVITY_BYTES is.
++MAX_DECLARED_SECONDS = 7 * 24 * 60 * 60
++DECLARED_STATUS_RANGE = (-256, 65535)
++
++
++def _declared_fact(held, name):
++    """One wrapped producer leaf as its value, or `None`.
++
++    THE ONE SHAPE, READ THE WAY ITS OWNER WRITES IT: `{"known": true,
++    "value": ...}` or `{"known": false, ...}`. A bare scalar, a missing
++    member or a non-boolean `known` is not an established fact and answers
++    `None` -- this view never reads an unknown as a known.
++    """
++    if type(held) is not dict:
++        return None
++    wrapper = held.get(name)
++    if type(wrapper) is not dict or wrapper.get("known") is not True:
++        return None
++    return wrapper.get("value")
++
++
++def _declared_word(held, name, owned):
++    value = _declared_fact(held, name)
++    return value if type(value) is str and value in owned else None
++
++
++def _declared_number(held, name, low, high):
++    value = _declared_fact(held, name)
++    if type(value) is not int or type(value) is bool or not low <= value <= high:
++        return None
++    return value
++
++
++def _declared_ending(stage):
++    """What the worker said about its own ending, in bounded words, or `None`.
++
++    `None` keeps `cause unknown` exactly as it was: no frozen result, a
++    disposition this view does not speak for, evidence that did not bind, or
++    a producer that carries no declaration at all are all "nobody established
++    this", and inventing a sentence for them is the thing this model refuses
++    everywhere else.
++    """
++    diagnostic = stage.get("attempt_diagnostics")
++    if type(diagnostic) is not dict:
++        return None
++    held = diagnostic.get(_DECLARATION_MEMBER)
++    if _declared_fact(held, "disposition") != _DECLARED_UNABLE:
++        return None
++    said = "worker declared unable"
++    ending = _declared_word(held, "declared_ending", _DECLARED_ENDINGS)
++    if ending is None:
++        return said + "; its declared ending is unknown"
++    said = said + ": " + _DECLARED_ENDINGS[ending]
++    reason = _declared_word(held, "failure_reason", _DECLARED_FAILURE_REASONS)
++    if reason is not None:
++        said = said + " (" + _DECLARED_FAILURE_REASONS[reason] + ")"
++    bound = _declared_number(held, "seconds_bound", 1, MAX_DECLARED_SECONDS)
++    if bound is not None:
++        source = _declared_word(held, "seconds_bound_source",
++                                _DECLARED_BOUND_SOURCES)
++        said = (said + " at a " + _duration(bound) + " provider bound"
++                + ("" if source is None else " (" + source + ")"))
++    attempted = _declared_fact(held, "verification_attempted")
++    if attempted is False:
++        return said + "; verification not attempted"
++    if attempted is True:
++        status = _declared_number(held, "verification_status",
++                                  DECLARED_STATUS_RANGE[0],
++                                  DECLARED_STATUS_RANGE[1])
++        return (said + "; verification "
++                + ("status unknown" if status is None
++                   else "ended " + str(status)))
++    return said + "; whether verification ran is unknown"
++
++
+ def _reason(stage, state):
+     if state == "exceptional":
+         exchange = stage.get("exchange")
+         terminal = exchange.get("terminal") if type(exchange) is dict else None
+         fault = terminal.get("fault_code") if type(terminal) is dict and terminal.get("ending") == "faulted" else None
+-        detail = fault + " fault; cause unknown" if fault in _STATUS_FAULT_CODES else "cause unknown"
++        # W385424: THE WORKER'S DECLARATION REPLACES `cause unknown` AND
++        # NOTHING ELSE. A recorded fault code and a role-adapter failure are
++        # facts other owners established about this ending; they keep their
++        # place and the declaration is reported after them.
++        declared = _declared_ending(stage)
++        detail = fault + " fault; " if fault in _STATUS_FAULT_CODES else ""
++        detail = detail + (declared if declared is not None else "cause unknown")
+         adapter = terminal.get("adapter_failure") if type(terminal) is dict else None
+         if fault == "agent" and type(adapter) is dict and adapter.get("component") == "role-adapter" and adapter.get("code") in _STATUS_ADAPTER_CODES:
+-            detail = "agent fault; " + adapter["code"]
++            detail = "agent fault; " + adapter["code"] + ("" if declared is None else "; " + declared)
+         return "failed: stage ended exceptionally; " + detail
+     if state in OPERATOR_ACTION_STATES:
+         return "operator action: changes requested"

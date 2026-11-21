@@ -19,6 +19,7 @@ import copy
 import json
 import os
 import pathlib
+import stat
 import unittest
 from types import SimpleNamespace
 from unittest import mock
@@ -34,6 +35,34 @@ from tests.job_manager.fixtures import NOW, UUID, WORK_A
 from tests.job_manager.test_review_driver import DriverCase, REVIEWER, WRITER
 
 from .test_single_worker import SingleWorkerCase
+
+
+def establish_target_posture(case, place, gid):
+    """The posture `oci_delivery.prove_target_posture` requires of a canonical
+    target -- the configured workspace group, group WRITE and group TRAVERSAL
+    -- established EXPLICITLY rather than inherited from the ambient umask.
+
+    W385454. The traversing scenario nominates the fixture's own source
+    repository as the deployment's canonical target. That directory is made
+    by `os.makedirs` with the process default mode, so under a developer's
+    `umask 002` it is `0o775` and the product's posture proof accepts it,
+    while under the worker image's `022` (or the provider child's `077`) it is
+    `0o755`/`0o700`, the proof refuses it -- correctly, as written -- and the
+    integration stage never leaves `claimed`. The scenario needs the posture;
+    it says so here, in the one place the target is nominated.
+
+    ONLY THE MODE IS SET. The group is asserted, never changed: an ordinary
+    uid cannot `chown` a directory into a group it does not hold, and a
+    fixture that silently skipped the group half would be proving less than
+    the product checks. Nothing here touches the product's refusal.
+    """
+    held = os.stat(place)
+    if held.st_gid != gid:
+        case.fail(f"the canonical target {place!r} is group {held.st_gid}, not "
+                  f"the configured workspace group {gid}; this fixture sets a "
+                  f"mode, it does not change ownership")
+    os.chmod(place, stat.S_IMODE(held.st_mode) | stat.S_IWGRP | stat.S_IXGRP)
+    return stat.S_IMODE(os.stat(place).st_mode)
 
 
 REPOSITORY = pathlib.Path(__file__).resolve().parents[4]
@@ -9504,6 +9533,11 @@ class TwoBoundJobsTraverseServingAndCorrection(
                 ["git", "-C", workspace, "init", "-q", "--bare"],
                 capture_output=True, timeout=30).returncode, 0)
         given["integration_target"] = self.source
+        # THE TARGET'S POSTURE, STATED: the fixture configured `os.getgid()`
+        # as the workspace group (see `group`), so that is the group the
+        # product's proof will compare, and the mode is made what the proof
+        # requires whatever the ambient umask is (W385454).
+        establish_target_posture(self, self.source, os.getgid())
         given["integration_target_reference"] = "refs/heads/main"
         given["integration_workspace"] = workspace
         given["integration_observer"] = "baton.result-observer"
@@ -13236,3 +13270,50 @@ class TheLastStageReturnsItsCapacityWhenItCompletes(ComposedOneJobCase):
         self.assertEqual(len(rows), 4, [row["assignment_id"] for row in rows])
         self.assertEqual(sorted(row["allocation_state"] for row in rows),
                          ["released"] * 4)
+
+
+class TheTraversedTargetPostureIsExplicit(unittest.TestCase):
+    """W385454: the posture the traversing scenario needs of its canonical
+    target does not depend on the ambient umask, and the helper changes
+    nothing but the two group bits the product's proof requires."""
+
+    def setUp(self):
+        import tempfile
+
+        self.held = os.umask(0o077)
+        self.addCleanup(os.umask, self.held)
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.place = os.path.join(self.temporary.name, "source")
+        os.makedirs(self.place)
+
+    def test_a_restrictive_umask_leaves_the_group_out_and_the_helper_puts_it_back(self):
+        before = stat.S_IMODE(os.stat(self.place).st_mode)
+        self.assertEqual(before & (stat.S_IWGRP | stat.S_IXGRP), 0)
+        mode = establish_target_posture(self, self.place, os.getgid())
+        self.assertEqual(mode, before | stat.S_IWGRP | stat.S_IXGRP)
+        self.assertEqual(stat.S_IMODE(os.stat(self.place).st_mode), mode)
+
+    def test_only_the_two_group_bits_change_and_the_call_is_idempotent(self):
+        os.chmod(self.place, 0o2700)
+        # write and traversal, and nothing else: no group READ is granted here
+        self.assertEqual(establish_target_posture(self, self.place, os.getgid()), 0o2730)
+        self.assertEqual(establish_target_posture(self, self.place, os.getgid()), 0o2730)
+        os.chmod(self.place, 0o775)
+        self.assertEqual(establish_target_posture(self, self.place, os.getgid()), 0o775)
+
+    def test_the_product_proof_accepts_what_the_helper_established(self):
+        """The same predicate `oci_delivery.prove_target_posture` applies,
+        evaluated over this directory's own stat: group matches, write and
+        traversal present."""
+        establish_target_posture(self, self.place, os.getgid())
+        held = os.stat(self.place)
+        self.assertEqual(held.st_gid, os.getgid())
+        self.assertTrue(held.st_mode & stat.S_IWGRP and held.st_mode & stat.S_IXGRP)
+
+    def test_a_foreign_group_is_a_failure_not_a_repair(self):
+        with self.assertRaises(AssertionError) as caught:
+            establish_target_posture(self, self.place, os.getgid() + 1)
+        self.assertIn("does not change ownership", str(caught.exception))
+        self.assertEqual(stat.S_IMODE(os.stat(self.place).st_mode) & stat.S_IWGRP, 0)
+

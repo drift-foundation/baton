@@ -1,0 +1,12 @@
+# Reviewable confined-fixture verification plan — NOT executable authority
+
+Keep both existing pipeline assertions unchanged. No rerun until owner exception and complete guard review.
+
+1. Create one fresh directory below work/scratch/w385427/verification-git. Pin BATON_V12_DISK_ROOT, BATON_V12_STACK_TEST_ROOT, TMPDIR and HOME inside that run. Each case logs its T before executing setup. Reject any previously existing repository as a mutation target.
+2. Put a closed Git wrapper first on PATH. In every invocation log original argv/cwd and resolved target before calling the real executable. Resolve all -C prefixes; reject --git-dir/--work-tree overrides, environment Git alternate directories and config-injected command aliases. Prove repository gitdir/common-dir/worktree objects are inside the same T and no ancestor escapes through symlinks. Initial init and clone need equivalent target-parent confinement before a repository exists. Refuse unknown verb/options, remote URLs, outside paths and source/destination crossing between T roots.
+3. Allow only the owner-selected mutation verbs and read-only verbs in the diagnosis; config is reads only. Force no global/system config, no signing, no hooks and no network protocols. Prove child Git invocations also see the wrapper. Capture attempted refusals; never auto-widen.
+4. Wrap the fixture agent's actual work/consider methods to retain an exception traceback before the original wrapper maps it to an anonymous fault. Do not change its return/exception, inputs, output validation or assertions. Capture existing terminal.json/fault code and fixture-only declared diagnostics before cleanup. No real credentials/provider/engine calls. Add test-only cleanup copy of logs, not product logging changes.
+5. Run exactly the two selected case IDs, finite outer timeout with child cleanup. Record actual Git operations and all target directories, test counts, durations and full outcomes. If guard refuses, stop and preserve evidence; a refusal does not grant permission for a broader operation.
+6. Repeat only after a concrete fixture/product correction justified by that evidence; preserve all failed attempts. Product source base remains7ac02c7f and both candidate lines remain untouched by integration.
+
+This is a design for the guard, not a claim that a secure executable guard has been implemented or reviewed. Execution remains blocked on the owner ruling and the guard implementation/verification. In particular, unknown actual worker exception cannot be filled in from static conjecture.

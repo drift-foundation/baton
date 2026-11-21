@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "bwrap",
+    "--ro-bind",
+    "/",
+    "/",
+    "--bind",
+    "/home/sl/src/baton/work/scratch/w385424-review/verification-git/run-73xz1gbn",
+    "/home/sl/src/baton/work/scratch/w385424-review/verification-git/run-73xz1gbn",
+    "--unshare-net",
+    "--unshare-pid",
+    "--die-with-parent",
+    "--new-session",
+    "--cap-drop",
+    "ALL",
+    "--proc",
+    "/proc",
+    "--dev",
+    "/dev",
+    "--chdir",
+    "/home/sl/src/baton/work/scratch/w385424-review/candidate/v12/python",
+    "--",
+    "/home/sl/src/baton/.venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-worker-declared-failure-status/evidence/review-E385465/fixture_runner.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 13.098834771022666,
+  "run_root": "/home/sl/src/baton/work/scratch/w385424-review/verification-git/run-73xz1gbn"
+}

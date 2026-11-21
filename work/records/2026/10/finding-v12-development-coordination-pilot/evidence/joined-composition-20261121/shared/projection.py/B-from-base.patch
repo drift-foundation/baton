@@ -1,0 +1,15 @@
+--- base
++++ B
+@@ -1157,5 +1157,12 @@
+         # back `unknown`. The stage state above is what the existing axes
+         # decided and this member does not touch it: a diagnostic cause is not
+         # an acceptance and must not become a second route to `exceptional`.
++        #
++        # W385424: THE SAME RULE COVERS THE WORKER-DECLARED AXIS the producer
++        # now carries beside the cause. The whole composed document travels,
++        # unread and unedited here, because this leaf answers no question the
++        # Worker Manager owns -- and a worker's own account of its ending must
++        # not decide a stage state either. `exceptional` keeps coming from the
++        # frozen disposition through `_DISPOSITIONS` and from nowhere else.
+         attempt_diagnostics=observed.get("diagnostics"),
+         diagnostic_degradation=observed.get("diagnostic_degradation"))

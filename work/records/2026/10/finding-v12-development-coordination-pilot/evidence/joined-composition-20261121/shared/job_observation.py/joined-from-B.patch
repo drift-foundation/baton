@@ -1,0 +1,140 @@
+--- B
++++ joined
+@@ -16,7 +16,7 @@
+ 
+ def stale_ages(*ages):
+     """Absent/invalid required age is unknown, never fresh."""
+-    return any(age is None or not math.isfinite(age) or age >= STALE_SECONDS for age in ages)
++    return any(age is None or not math.isfinite(age) or age < 0 or age >= STALE_SECONDS for age in ages)
+ 
+ 
+ def observation_age(observed_at, now):
+@@ -73,8 +73,9 @@
+     if not started or not finish:
+         return None
+     try:
+-        return max(0.0, _instant(finish) - _instant(started))
+-    except ValueError:
++        seconds = _instant(finish) - _instant(started)
++        return seconds if math.isfinite(seconds) and seconds >= 0 else None
++    except (ValueError, TypeError, OverflowError):
+         return None
+ 
+ 
+@@ -189,13 +190,104 @@
+     return None
+ 
+ 
+-def _stage_line(stage, observed_at):
++def job_age(job, observed_at):
++    control = job.get("control") if type(job.get("control")) is dict else {}
++    held = control.get("job") if type(control.get("job")) is dict else {}
++    origin = job.get("created_at") or held.get("origin")
++    return _duration(_elapsed(origin, None, observed_at))
++
++
++def stage_timing(stage, job, observed_at):
++    """Interpret only attributed process facts and original admitted deadlines."""
++    state = stage.get("state")
++    never = (state in HELD_STATES and not stage.get("runtime") and not stage.get("exchange")
++             and not stage.get("receipts")
++             and not any(one.get("ended_at") for one in stage.get("episodes") or [])
++             and (not stage.get("attempt_id") or state == "blocked"))
++    result = {"running": "not started" if never else UNKNOWN, "running_seconds": None,
++              "started_at": None, "ended_at": None, "scope": "provider-process",
++              "job_age": job_age(job or {}, observed_at), "deadlines": [],
++              "limiting": [], "remaining_seconds": None, "complete": False,
++              "timeout": "timeout unknown", "observed_at": observed_at}
++    try:
++        clock = _instant(observed_at)
++    except (ValueError, TypeError, OverflowError):
++        return result
++    exchange = stage.get("exchange") if type(stage.get("exchange")) is dict else {}
++    invocation = exchange.get("invocation")
++    command = exchange.get("command") if type(exchange.get("command")) is dict else {}
++    provider = None
++    if type(invocation) is dict and stage.get("attempt_id") and invocation.get("attempt_id") == stage["attempt_id"] and invocation.get("scope") == "provider-process" and invocation.get("operation") == "work" and invocation.get("command_digest") and invocation.get("command_digest") == command.get("command_digest") and invocation.get("sequence_id") == command.get("sequence_id"):
++        try:
++            start = _instant(invocation.get("started_at"))
++            deadline = _instant(invocation.get("deadline_at"))
++            end = None if invocation.get("ended_at") is None else _instant(invocation["ended_at"])
++            if start > clock or deadline < start or (end is not None and not start <= end <= clock):
++                raise ValueError("invalid invocation chronology")
++            if end is not None or state not in TERMINAL_STATES:
++                seconds = (clock if end is None else end) - start
++                result.update(running=_duration(seconds), running_seconds=seconds,
++                              started_at=invocation["started_at"], ended_at=invocation.get("ended_at"))
++            # Once this process ended, its deadline no longer limits the stage.
++            provider = {"origin": invocation["started_at"], "deadline_at": invocation["deadline_at"]} if end is None else {}
++        except (ValueError, TypeError, OverflowError):
++            pass
++    if state in TERMINAL_STATES:
++        result["timeout"] = "timeout not applicable (stage ended)"
++        return result
++    control = (job or {}).get("control")
++    trusted = False
++    if type(control) is dict and control.get("timing") == "trusted":
++        try:
++            age = clock - _instant(control.get("observed_at"))
++            trusted = 0 <= age < STALE_SECONDS
++        except (ValueError, TypeError, OverflowError):
++            pass
++    control = control if trusted else {}
++    stages = control.get("stages") if type(control.get("stages")) is list else []
++    stage_control = next((one for one in stages if type(one) is dict and one.get("stage_id") == stage.get("stage_id")), {})
++    missing = []
++    limits = [("Job", control.get("job"))]
++    if not never:
++        limits.append(("stage", stage_control))
++        if provider != {}:
++            limits.append(("provider", provider))
++    for name, held in limits:
++        try:
++            origin = _instant(held.get("origin"))
++            deadline = _instant(held.get("deadline_at"))
++            if origin > clock or deadline < origin:
++                raise ValueError("invalid deadline chronology")
++        except (AttributeError, ValueError, TypeError, OverflowError):
++            missing.append(name)
++            continue
++        result["deadlines"].append({"cause": name, "deadline_at": held["deadline_at"],
++                                    "remaining_seconds": max(0.0, deadline - clock),
++                                    "reached": deadline <= clock})
++    if result["deadlines"]:
++        first = min(_instant(one["deadline_at"]) for one in result["deadlines"])
++        names = [one["cause"] for one in result["deadlines"] if _instant(one["deadline_at"]) == first]
++        remaining = max(0.0, first - clock)
++        result.update(limiting=names, remaining_seconds=remaining, complete=not missing)
++        label = "/".join(names)
++        result["timeout"] = (label + " deadline reached; cessation unconfirmed" if first <= clock
++                             else label + " timeout in " + _duration(remaining))
++        if missing:
++            result["timeout"] += "; " + "/".join(missing) + " timing unknown (earliest known only)"
++    return result
++
++
++def _stage_line(stage, observed_at, job=None):
+     episode = _live_episode(stage)
+     started = (episode or {}).get("opened_at")
+     ended = (episode or {}).get("ended_at")
+     state = stage.get("state")
+     state = state if state in _STATUS_STAGE_STATES else UNKNOWN
++    timing = stage_timing(stage, job, observed_at)
+     held = {
++        "timing": timing,
++        "running": timing["running"],
++        "timeout": timing["timeout"],
+         "stage_id": stage.get("stage_id") or UNKNOWN,
+         "kind": stage.get("kind") or UNKNOWN,
+         "state": state,
+@@ -207,8 +299,8 @@
+         "offer_id": stage.get("offer_id") or UNKNOWN,
+         "episode": stage.get("episode") if stage.get("episode") is not None
+                    else UNKNOWN,
+-        "elapsed": _duration(_elapsed(started, ended, observed_at)),
+-        "started_at": started or UNKNOWN,
++        "elapsed": timing["running"],
++        "started_at": timing["started_at"] or UNKNOWN,
+         # ACTIVITY COMES FROM THE SNAPSHOT AND FROM NOWHERE ELSE. W61599's
+         # producer puts it on the attempt, `delegation` observes it and
+         # `projection` publishes it at `runtime.activity`; this reads that and

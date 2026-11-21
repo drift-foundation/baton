@@ -1,0 +1,190 @@
+{
+ "base-002": {
+  "exit": 0,
+  "failures": [],
+  "git": {
+   "invocations": 442,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "posture": [
+   [
+    "accepted",
+    "0o775",
+    1000
+   ],
+   [
+    "accepted",
+    "0o775",
+    1000
+   ],
+   [
+    "accepted",
+    "0o775",
+    1000
+   ],
+   [
+    "accepted",
+    "0o775",
+    1000
+   ]
+  ],
+  "refusal": null,
+  "tests": 2,
+  "tree": "/var/tmp/baton-v12-w385424-recovery/base-tree",
+  "umask": "002",
+  "wall": 12.1
+ },
+ "base-022": {
+  "exit": 1,
+  "failures": [
+   "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader",
+   "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion"
+  ],
+  "git": {
+   "invocations": 278,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "posture": [
+   [
+    "refused",
+    "0o755",
+    1000
+   ],
+   [
+    "refused",
+    "0o755",
+    1000
+   ]
+  ],
+  "refusal": "the canonical target at '/var/tmp/baton-v12-w385424-recovery/verification-git/run-ba\u2026 is group 1000 mode 0o755 and this deployment configured group 1000; an integration runtime holds that group as its only share in the target, and a target it cannot work in is refused for operator provisioning rather than repaired here",
+  "tests": 2,
+  "tree": "/var/tmp/baton-v12-w385424-recovery/base-tree",
+  "umask": "022",
+  "wall": 14.5
+ },
+ "base-077": {
+  "exit": 1,
+  "failures": [
+   "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader",
+   "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion"
+  ],
+  "git": {
+   "invocations": 278,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "posture": [
+   [
+    "refused",
+    "0o700",
+    1000
+   ],
+   [
+    "refused",
+    "0o700",
+    1000
+   ]
+  ],
+  "refusal": "the canonical target at '/var/tmp/baton-v12-w385424-recovery/verification-git/run-ba\u2026 is group 1000 mode 0o700 and this deployment configured group 1000; an integration runtime holds that group as its only share in the target, and a target it cannot work in is refused for operator provisioning rather than repaired here",
+  "tests": 2,
+  "tree": "/var/tmp/baton-v12-w385424-recovery/base-tree",
+  "umask": "077",
+  "wall": 14.6
+ },
+ "cand-002": {
+  "exit": 0,
+  "failures": [],
+  "git": {
+   "invocations": 442,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "posture": [
+   [
+    "accepted",
+    "0o775",
+    1000
+   ],
+   [
+    "accepted",
+    "0o775",
+    1000
+   ],
+   [
+    "accepted",
+    "0o775",
+    1000
+   ],
+   [
+    "accepted",
+    "0o775",
+    1000
+   ]
+  ],
+  "refusal": null,
+  "tests": 2,
+  "tree": "/var/tmp/baton-v12-w385424-recovery/tree",
+  "umask": "002",
+  "wall": 13.0
+ },
+ "cand-022": {
+  "exit": 1,
+  "failures": [
+   "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader",
+   "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion"
+  ],
+  "git": {
+   "invocations": 278,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "posture": [
+   [
+    "refused",
+    "0o755",
+    1000
+   ],
+   [
+    "refused",
+    "0o755",
+    1000
+   ]
+  ],
+  "refusal": "the canonical target at '/var/tmp/baton-v12-w385424-recovery/verification-git/run-ca\u2026 is group 1000 mode 0o755 and this deployment configured group 1000; an integration runtime holds that group as its only share in the target, and a target it cannot work in is refused for operator provisioning rather than repaired here",
+  "tests": 2,
+  "tree": "/var/tmp/baton-v12-w385424-recovery/tree",
+  "umask": "022",
+  "wall": 16.4
+ },
+ "cand-077": {
+  "exit": 1,
+  "failures": [
+   "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader",
+   "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion"
+  ],
+  "git": {
+   "invocations": 278,
+   "outside_fixture_roots": [],
+   "refused": 0
+  },
+  "posture": [
+   [
+    "refused",
+    "0o700",
+    1000
+   ],
+   [
+    "refused",
+    "0o700",
+    1000
+   ]
+  ],
+  "refusal": "the canonical target at '/var/tmp/baton-v12-w385424-recovery/verification-git/run-ca\u2026 is group 1000 mode 0o700 and this deployment configured group 1000; an integration runtime holds that group as its only share in the target, and a target it cannot work in is refused for operator provisioning rather than repaired here",
+  "tests": 2,
+  "tree": "/var/tmp/baton-v12-w385424-recovery/tree",
+  "umask": "077",
+  "wall": 16.6
+ }
+}

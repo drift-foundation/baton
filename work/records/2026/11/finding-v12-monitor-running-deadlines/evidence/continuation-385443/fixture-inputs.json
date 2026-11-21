@@ -1,0 +1,14 @@
+[
+  {
+    "path": "v12/worker/worker-control-1.0.schema.json",
+    "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+    "source_base": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+    "change": "unchanged fixture input restored to isolated copy"
+  },
+  {
+    "path": "v12/worker/verifier-layout-marker.json",
+    "sha256": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648",
+    "source_base": "7ac02c7f01cc59b43ade0c98b55be59ea750af41",
+    "change": "unchanged fixture input restored to isolated copy"
+  }
+]

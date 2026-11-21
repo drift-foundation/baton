@@ -1,0 +1,2 @@
+{"case": "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader", "fixture_root": "/home/sl/src/baton/work/scratch/w385424-review/verification-git/run-73xz1gbn/fixtures/v12-w71917-ha69afsv"}
+{"case": "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion", "fixture_root": "/home/sl/src/baton/work/scratch/w385424-review/verification-git/run-73xz1gbn/fixtures/v12-w71917-wq4y08bk"}

@@ -250,10 +250,11 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
         lines.append("JOB " + str(job.get("job_id") or UNKNOWN)
                      + "   submission " + str(job.get("submission_id")
                                               or UNKNOWN) + "   " + job_observation.job_outcome(job))
+        lines.append("  Job age " + job_observation.job_age(job, observed_at))
         for stage in stages:
-            one = _stage_line(stage, observed_at)
+            one = _stage_line(stage, observed_at, job)
             lines.append(
-                "  {kind:<16} {state:<16} elapsed {elapsed:<8} "
+                "  {kind:<16} {state:<16} running {running:<8} "
                 "activity {activity:<8} {stage_id}".format(**one)[:width])
             # BOUNDED, AND NOT CUT BY THE LINE WIDTH. Both of its parts are
             # already bounded at their source -- the count by its domain, the
@@ -262,6 +263,7 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
             # carry.
             if one["activity_when"]:
                 lines.append("      activity " + one["activity_when"])
+            lines.append("      " + one["timeout"])
             lines.append("      attempt " + str(one["attempt_id"]))
             lines.append("      operation " + one["operation"])
             if one["reason"]:
@@ -327,8 +329,9 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
              "  policy       " + str(job.get("policy_digest") or UNKNOWN),
              "  terminal     " + str(job.get("terminal_policy") or UNKNOWN)]
     observed_at = snapshot.observed_at
+    lines.append("  Job age " + job_observation.job_age(job, observed_at))
     for stage in job.get("stages") or []:
-        one = _stage_line(stage, observed_at)
+        one = _stage_line(stage, observed_at, job)
         lines.append("")
         lines.append("  STAGE " + one["stage_id"] + "  [" + one["state"] + "]")
         for label, value in (("work", one["work_id"]),
@@ -349,7 +352,8 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
                              ("pool generation", one["allocation_generation"]),
                              ("selection", one["allocation_selection"]),
                              ("started", one["started_at"]),
-                             ("elapsed", one["elapsed"]),
+                             ("running", one["running"]),
+                             ("limit", one["timeout"]),
                              ("activity", one["activity"]
                               + ("" if not one["activity_when"]
                                  else " " + one["activity_when"])),

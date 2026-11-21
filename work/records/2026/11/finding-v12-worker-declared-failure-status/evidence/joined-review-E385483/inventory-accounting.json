@@ -1,0 +1,9 @@
+{
+  "unique_test_methods_passed": 379,
+  "first_run_confirmed_passes": 357,
+  "resumed_run_passes": 153,
+  "repeated_methods": 131,
+  "one_excluded_method": "EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary",
+  "seven_excluded_subprobes": "adopted review_cycles.py:_cleaned_review replay, replay.attempt_id, replay.cleanup, replay.directory_custody, replay.kept, replay.operation, replay.state; label a historical review cleanup",
+  "all_remaining_inventory_methods_passed": true
+}

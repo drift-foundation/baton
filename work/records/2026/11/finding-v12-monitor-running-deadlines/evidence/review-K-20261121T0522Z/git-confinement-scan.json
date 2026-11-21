@@ -1,0 +1,29 @@
+{
+ "runs": {
+  "1": {
+   "invocations": 34,
+   "refused": 0,
+   "targets_outside_confined_root": []
+  },
+  "2": {
+   "invocations": 60,
+   "refused": 2,
+   "targets_outside_confined_root": []
+  },
+  "3": {
+   "invocations": 258,
+   "refused": 2,
+   "targets_outside_confined_root": []
+  },
+  "4": {
+   "invocations": 640,
+   "refused": 28,
+   "targets_outside_confined_root": []
+  },
+  "5": {
+   "invocations": 442,
+   "refused": 0,
+   "targets_outside_confined_root": []
+  }
+ }
+}

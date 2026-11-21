@@ -1,0 +1,59 @@
+observed at 2026-11-21T11:25:42.986Z   (3s old, read 0s ago)
+
+JOB w385424-status-cause-1   FAILED
+  submission   sub-w385424-status-cause-1
+  input        sha256:f96bd8c40913b68dd7af878331befb28a0dff6e0dddacfe5e07aff821b7b1722
+  policy       sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917
+  terminal     report-and-hold
+
+  STAGE w385424-status-cause-1/implementation  [exceptional]
+    work         b5f5d37f-W1
+    episode      1
+    offer        offer-be4fbac026ac440c21aef3779bdbb9deee18cc204335e8700a66a36b687c5f66
+    attempt      attempt-be4fbac026ac440c21aef3779bdbb9deee18cc204335e8700a66a36b687c5f66
+    operation    unknown
+    runtime      d07676d484153aa81ba4def23bd03686c40b59cb4fb245886252f873ad12204b
+    engine       destroyed
+    assigned to  baton.claude-native
+    assigned work {'authority_uuid': 'b5f5d37f149d42e093dfbcb545605f33', 'work_id': 'b5f5d37f-W1'}
+    assigned gen 1
+    reserved worker impl-a
+    reserved as  baton.claude-native
+    reservation  attempt-be4fbac026ac440c21aef3779bdbb9deee18cc204335e8700a66a36b687c5f66
+    reservation state released
+    lane         implementation
+    pool generation 1
+    selection    initial
+    started      2026-11-21T03:43:18.946Z
+    elapsed      7h42m
+    activity     2.37 MiB last at 2026-11-21T04:23:47.950Z
+    corrections  0
+    reason       failed: stage ended exceptionally; cause unknown
+    results
+      handoff                      69  file:///home/sl/baton-instances/native-handoffs-2/state/workspaces/.baton-review-lines/line-20384db53cc08299e78f23549522ca81fbb5ab6ee119fbf7db6b348ec5ac988e/custody/attempt-be4fbac026ac440c21aef3779bdbb9deee18cc204335e8700a66a36b687c5f66/handoff
+      proposal                 165593  file:///home/sl/baton-instances/native-handoffs-2/state/workspaces/.baton-review-lines/line-20384db53cc08299e78f23549522ca81fbb5ab6ee119fbf7db6b348ec5ac988e/custody/attempt-be4fbac026ac440c21aef3779bdbb9deee18cc204335e8700a66a36b687c5f66/proposal
+
+  STAGE w385424-status-cause-1/review  [blocked]
+    work         b5f5d37f-W1
+    episode      1
+    offer        offer-38f044ce9e9b11f0d302c3b27c561075c42bb1b9c328263573f5928f73b982a1
+    attempt      attempt-38f044ce9e9b11f0d302c3b27c561075c42bb1b9c328263573f5928f73b982a1
+    operation    unknown
+    runtime      unknown
+    engine       unknown
+    assigned to  unknown
+    assigned work unknown
+    assigned gen unknown
+    reserved worker unknown
+    reserved as  unknown
+    reservation  unknown
+    reservation state unknown
+    lane         unknown
+    pool generation unknown
+    selection    unknown
+    started      2026-11-21T03:43:18.946Z
+    elapsed      7h42m
+    activity     unknown
+    corrections  0
+    reason       held: waiting on w385424-status-cause-1/implementation (exceptional)
+    results      unavailable (no frozen output in this snapshot)

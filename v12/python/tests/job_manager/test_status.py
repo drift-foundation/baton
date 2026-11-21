@@ -61,6 +61,7 @@ class Shape(StatusCase):
         self.assertEqual(document["observed_at"], NOW)
         self.assertEqual(document["incarnation"], "jobs-1")
         self.assertTrue(document["canonical"])
+        self.assertEqual(document["jobs"][0]["created_at"], NOW)
 
     def test_a_projection_with_no_control_store_says_nobody_looked(self):
         submit(self.jobs, submission())

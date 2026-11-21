@@ -1,0 +1,18 @@
+--- B
++++ joined
+@@ -609,6 +609,7 @@
+                 # deadlines, the trusted-clock timing and the first reached
+                 # deadline. A pure read; the watermark is advanced only by
+                 # the passes and guards that write.
++                "job_origins": {job["job_id"]: job_control.job_origin_in(store._connection, job["job_id"]) for job in jobs},
+                 "controls": {job["job_id"]: job_control.evaluate(
+                     store._connection, job["job_id"], store._now())
+                     for job in jobs},
+@@ -1027,6 +1028,7 @@
+             stages.append(_stage_status(entry, held))
+         jobs.append(documents.job_status(
+             job_id=job["job_id"], submission_id=job["submission_id"],
++            created_at=snapshot["job_origins"][job["job_id"]],
+             input_digest=job["input_digest"],
+             policy_digest=job["policy_digest"],
+             test_scope=json.loads(job["test_scope"]),

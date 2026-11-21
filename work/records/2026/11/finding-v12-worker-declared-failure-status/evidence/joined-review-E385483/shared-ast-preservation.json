@@ -1,0 +1,81 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/job_manager/projection.py",
+    "all_changed_input_functions_and_methods_exact": true,
+    "checked": [
+      "A:materialized",
+      "A:status"
+    ],
+    "new_joined_methods": []
+  },
+  {
+    "path": "v12/python/tests/tools/test_job_observation.py",
+    "all_changed_input_functions_and_methods_exact": true,
+    "checked": [
+      "A:Timing.job",
+      "A:Timing.test_separate_age_unknown_runtime_and_partial_named_limit_in_all_views",
+      "A:Timing.test_blocked_episode_has_not_started",
+      "A:Timing.test_ties_and_deadline_boundary_are_not_cessation",
+      "A:Timing.test_unknown_future_stale_control_and_terminal",
+      "A:Timing.test_retry_never_rebases_job_deadline_on_new_episode",
+      "A:InvocationClocks.stage",
+      "A:InvocationClocks.test_provider_origin_and_continuation_do_not_rebase_job_limits",
+      "A:InvocationClocks.test_terminal_duration_is_frozen_and_missing_end_unknown",
+      "A:InvocationClocks.test_wrong_attempt_future_start_and_malformed_end_are_unknown",
+      "A:InvocationClocks.test_expired_provider_is_not_termination_and_partial_control_stays_qualified",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.wrapped",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.failing",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_an_UNKNOWN_verification_axis_renders_as_UNKNOWN_not_NOT_ATTEMPTED",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_a_FAILED_VERIFICATION_reads_DIFFERENTLY_from_a_timeout",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_NO_DECLARATION_keeps_the_HONEST_cause_unknown",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_a_MANAGER_CANCELLED_or_COMPLETED_seal_SAYS_NOTHING_here",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_an_UNKNOWN_DECLARED_ENDING_is_still_more_than_cause_unknown",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_an_UNOWNED_WORD_or_a_SECRET_never_reaches_a_LINE",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_an_OUT_OF_RANGE_BOUND_or_STATUS_is_simply_not_rendered",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_an_EXCHANGE_FAULT_KEEPS_ITS_PLACE_beside_the_declaration",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_a_SUCCESSFUL_or_UNRELATED_STAGE_reads_EXACTLY_as_before",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_REPEATED_RENDERING_mutates_NOTHING",
+      "B:TheWorkerDeclaredEndingReachesBothSurfaces.test_the_MIRRORED_DECLARATION_VOCABULARY_does_not_drift"
+    ],
+    "new_joined_methods": [
+      "TheFailureCauseAndTimingShareOneStageLine.test_a_declared_timeout_and_its_frozen_invocation_render_together",
+      "TheFailureCauseAndTimingShareOneStageLine.test_an_unknown_declaration_and_unknown_timing_stay_two_unknowns"
+    ]
+  },
+  {
+    "path": "v12/python/tests/tools/test_job_viewer.py",
+    "all_changed_input_functions_and_methods_exact": true,
+    "checked": [
+      "A:NothingIsInvented.test_elapsed_comes_from_source_times_and_not_the_wall_clock",
+      "A:NothingIsInvented.test_episode_opening_is_not_an_invocation_start",
+      "A:TheViewerPerformsNoAct.test_a_changed_observation_is_visible_on_the_next_tick",
+      "B:TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.declaration",
+      "B:TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.failing",
+      "B:TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.shown",
+      "B:TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_a_PROVIDER_TIMEOUT_is_rendered_on_the_LIST_and_the_DETAIL",
+      "B:TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_a_FAILED_VERIFICATION_renders_DIFFERENTLY",
+      "B:TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_an_UNDECLARED_ending_renders_EXACTLY_as_it_did_before",
+      "B:TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_a_FOREIGN_ATTEMPTS_diagnostic_never_reaches_a_LINE",
+      "B:TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_the_VIEW_PERFORMS_NO_ACT_while_rendering_a_declaration"
+    ],
+    "new_joined_methods": []
+  },
+  {
+    "path": "v12/python/tools/job_observation.py",
+    "all_changed_input_functions_and_methods_exact": true,
+    "checked": [
+      "A:stale_ages",
+      "A:_elapsed",
+      "A:job_age",
+      "A:stage_timing",
+      "A:_stage_line",
+      "B:_declared_fact",
+      "B:_declared_word",
+      "B:_declared_number",
+      "B:_declared_ending",
+      "B:_reason"
+    ],
+    "new_joined_methods": []
+  }
+]

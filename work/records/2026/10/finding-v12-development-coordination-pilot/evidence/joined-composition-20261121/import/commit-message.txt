@@ -1,0 +1,16 @@
+v12: worker-declared failure status, running duration and deadlines, explicit fixture target posture (W385424 + W385427 + W385454)
+
+Joined composition over 7ac02c7f of three independently accepted deltas:
+- W385424: the worker-declared ending (provider timeout / verification
+  failure, bound, verification status) read from the sealed result through
+  a bounded nonblocking open, surfaced on status and diagnostics instead of
+  "cause unknown"; absent verification stays unknown, explicit null is
+  not attempted.
+- W385427: attributable provider-process start/deadline/end through the
+  worker exchange; Job age, running duration and the earliest named
+  provider/stage/Job deadline on status, monitor and viewer; never-started
+  stages say so.
+- W385454: compatibility fixtures establish the integration target's group
+  write and traversal explicitly instead of inheriting the ambient umask.
+Joined tree 959f9524c94138325c724db84262dd009fa0eacedc3370e7142cc49904ed752b;
+evidence: work/records/2026/10/finding-v12-development-coordination-pilot/evidence/joined-composition-20261121/

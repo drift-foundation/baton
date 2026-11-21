@@ -1,0 +1,44 @@
+[
+  {
+    "argv": [
+      "--help"
+    ],
+    "exit": 0,
+    "output": "usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR\n"
+  },
+  {
+    "argv": [
+      "prefight",
+      "DO-NOT-OPEN",
+      "DO-NOT-CREATE"
+    ],
+    "exit": 2,
+    "output": "usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR\n"
+  },
+  {
+    "argv": [
+      "--help",
+      "DO-NOT-OPEN",
+      "DO-NOT-CREATE"
+    ],
+    "exit": 2,
+    "output": "usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR\n"
+  },
+  {
+    "argv": [
+      "import"
+    ],
+    "exit": 2,
+    "output": "usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR\n"
+  },
+  {
+    "argv": [
+      "import",
+      "DO-NOT-OPEN",
+      "DO-NOT-CREATE",
+      "extra"
+    ],
+    "exit": 2,
+    "output": "usage: integrate.py {preflight|import} PACKET EVIDENCE_DIR\n"
+  }
+]

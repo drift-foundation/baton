@@ -1,0 +1,1 @@
+{"disposition": [true, "unable"], "result_id": [true, "result-1"], "frozen_at": [true, "2026-08-24T00:00:00.000Z"], "declared_ending": [true, "provider-failed"], "failure_reason": [true, "timeout"], "seconds_bound": [true, 3600], "seconds_bound_source": [true, "job-default"], "verification_attempted": [true, false], "verification_status": [false, null]}

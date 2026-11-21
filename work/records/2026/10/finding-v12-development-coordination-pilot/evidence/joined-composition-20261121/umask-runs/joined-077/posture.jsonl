@@ -1,0 +1,4 @@
+{"event": "prove_target_posture", "umask": "077", "target": {"place": "/var/tmp/baton-v12-joined/verification-git/run-joined-077-00kh7pzk/fixtures/v12-w71917-ge2q3iqm/source", "gid": 1000, "mode": "0o730"}, "outcome": "accepted"}
+{"event": "prove_target_posture", "umask": "077", "target": {"place": "/var/tmp/baton-v12-joined/verification-git/run-joined-077-00kh7pzk/fixtures/v12-w71917-ge2q3iqm/source", "gid": 1000, "mode": "0o730"}, "outcome": "accepted"}
+{"event": "prove_target_posture", "umask": "077", "target": {"place": "/var/tmp/baton-v12-joined/verification-git/run-joined-077-00kh7pzk/fixtures/v12-w71917-hvgt60q7/source", "gid": 1000, "mode": "0o730"}, "outcome": "accepted"}
+{"event": "prove_target_posture", "umask": "077", "target": {"place": "/var/tmp/baton-v12-joined/verification-git/run-joined-077-00kh7pzk/fixtures/v12-w71917-hvgt60q7/source", "gid": 1000, "mode": "0o730"}, "outcome": "accepted"}

@@ -1,0 +1,43 @@
+# Joined source composition — W385427 + W385424 + W385454 over `7ac02c7f` (K, owner-held arrangement)
+
+K (`baton.prompt`, no claim; M385476). Isolated serial composition of the three independently accepted deltas into ONE joined candidate for independent joined review. Source composition, not native acceptance. Nothing imported, rebuilt, installed, started or committed; the three original packets are untouched.
+
+## Inputs, revalidated before composition
+
+| Work | Accepted as | Identity (re-verified byte by byte) | Paths |
+|---|---|---|---|
+| W385427 (monitor running duration / deadlines) | M385447, review-2026-11-21T05-22-39Z | tree `5348d4b3…` = sha256(`candidate.sha256`), manifest `e29153d8…`; every `candidate/<p>` = manifest `sha256`, every `base/<p>` = `git show 7ac02c7f:<p>` | 13 |
+| W385424 (worker-declared failure status, R1/R2 corrected) | M385474, review-2026-11-21T12-54-32Z | listing `10f3d809…` = sha256(`correction-K-20261121/candidate.sha256`), manifest `26cbd5d1…`; all 10 bytes verified (3 corrected from the packet's `candidate/`, 7 unchanged-native) and each path's `7ac02c7f` digest = base | 10 |
+| W385454 (explicit fixture target posture) | M385461, review-2026-11-21T12-18-08Z | tree `c6755437…`; `test_stage_execution.py` `03a7710e…`, base = `7ac02c7f` | 1 |
+
+Host at composition time: `HEAD` `7ac02c7f`, `git status --porcelain -- v12` empty (`import/PREFLIGHT.json`).
+
+## Joined path set (20) and how each was composed
+
+- **Shared W385427 ∩ W385424 (4)** — composed by three-way merge of each input over the common base (`git merge-file`, a file-only operation; `shared/<file>/{base,A,B,merged}` and the four diffs beside them). All four merged **without a textual conflict**:
+  - `job_manager/projection.py`: W385427's `job_origins`/`created_at` projection + W385424's comment; merged = base + both.
+  - `tools/job_observation.py`: W385427's `job_age`, `stage_timing`, `_stage_line(stage, observed_at, job=None)` (timing, running, timeout) + W385424's `_declared_ending`/`_reason` (worker-declared sentence replacing only `cause unknown`); `stage_view = _stage_line` serves both. Semantic check: `_stage_line` computes the timing AND calls the declared-aware `_reason`; neither displaces the other.
+  - `tests/tools/test_job_observation.py`: both suites' classes (`SharedObservation`, `TheWorkerDeclaredEndingReachesBothSurfaces` + W385424's unknown-axis case; `Timing`, `InvocationClocks`) **plus one joined class added here**, `TheFailureCauseAndTimingShareOneStageLine` (2 cases): a declared provider timeout and its frozen invocation render together on status, list and detail (`worker declared unable … provider timed out`, `verification not attempted`, `running 15s`, `timeout not applicable (stage ended)`, `Job age 1h00m`, document unchanged); an unknown declaration axis and unknown timing stay two unknowns. This class is the only bytes in the joined tree that belong to neither input (`shared/test_job_observation.py/joined-from-merged.patch` is exactly it).
+  - `tests/tools/test_job_viewer.py`: W385427's `running`/`elapsed` assertion changes + W385424's `TheWorkerDeclaredEndingIsRenderedFromTheRealProjection`; merged = base + both; the two deep real-reader cases unchanged.
+- **W385427 only (9)** — exact bytes: `documents.py`, `worker_manager/exchange.py`, `tests/job_manager/test_status.py`, `tests/manager/test_claude_agent.py`, `tests/manager/test_exchange.py`, `tools/job_viewer.py`, `tools/stack.py`, `v12/worker/baton_worker.py`, `v12/worker/claude_agent.py`.
+- **W385424 only (6)** — exact bytes: `JOB-VIEWER.md`, `worker_manager/failure_cause.py` (R1/R2 corrected), `tools/attempt_diagnostics.py`, `tests/manager/test_attempt_failure_cause.py`, `tests/manager/test_boundary_inventory.py`, `tests/tools/test_attempt_diagnostics.py`.
+- **W385454 only (1)** — exact bytes: `tests/tools/test_stage_execution.py`.
+
+`manifest.json` records, per path, the base digest, each input's digest where it has one, the joined digest and the source; `candidate.sha256` lists all 20; the joined tree is **`959f9524c94138325c724db84262dd009fa0eacedc3370e7142cc49904ed752b`**; `candidate-from-7ac02c7f.patch` (`3df45829…`, 2665 lines) is the whole delta from the base. Registrations: every test module here already exists in its registry at the base; no module was added or moved. No opportunistic change was made to any input (the only non-input bytes are the joined test class above).
+
+## Joined verification
+
+1. **Joined focused selection, Git rejected** (`logs/run_joined_focused.py`, `logs/joined-focused-2.log`): the union of what the three inputs verified with — `tests.tools.test_job_observation`, `tests.tools.test_job_viewer` (minus the two deep cases), `tests.job_manager.test_status`, `tests.manager.test_exchange`, `tests.manager.test_claude_agent.ProviderInvocationTiming`, `tests.manager.test_attempt_failure_cause`, `tests.tools.test_attempt_diagnostics`, `tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit`, `tests.manager.test_oci_integration.TheTargetPostureIsProvedAndNeverRepaired` — **Ran 541, OK**, 0 failures/errors/skips, 4.1 s unittest / 4.7 s wall, W385427's `no-git` entrypoint first on `PATH`, roots outside the checkout. This exercises failure cause plus timing on the shared status/monitor surfaces (the joined class, both inputs' rendering suites, `test_real_publisher_to_shared_status_and_monitor`), FIFO/missing/null/malformed behaviour (`TheWorkerDeclaredAxisIsComposedFromSEALEDEVIDENCE`) and fixture posture.
+   - Run 1 (`logs/joined-focused-1.log`, 921 tests, 8 failures) also included `tests.manager.test_boundary_inventory`; all 8 failures are its `review_cycles.py:_cleaned_review` probes borrowing a `test_review_driver` fixture that runs `git init` — refused by the no-Git shim (`99 != 0 … unexpected Git in no-Git focused suite`), not a composition fault. That module is excluded from run 2 with this reason; its fixture Git use is outside the two-case exception, so it was not run under confinement either. W385424's own review did not run it; the native worker's recap reported it green (380) in the worker.
+2. **The two deep compatibility cases, confined** (`umask-runs/`, the established bubblewrap + fixture-Git-guard harness with a retention wrapper on `prove_target_posture`): on the joined tree, umask **002: 2/2 OK** (posture `0o775`), **022: 2/2 OK** (`0o775`), **077: 2/2 OK** (`0o730`); 442 confined Git invocations each, 0 refused, none outside the fresh fixture roots (`umask-runs/SUMMARY.json`). Exactly the two owner-approved cases; no other Git-mutating suite.
+3. **Reviewer probes on the joined tree** (`probes/`): FIFO replacement returns in 0.4 s; missing verification → both axes unknown.
+
+Accounting: 541 + 2×3 = 547 passing executions across the joined runs; run 1's 8 probe failures are retained and attributed above. Not run: whole modules of `test_stage_execution`, `test_boundary_inventory`, the tools-pure/job_manager/manager-pure groups, packaging, image, live anything — the reviewer selects under its own boundary.
+
+## Import proposal (drift-checkable; not executed)
+
+`import/integrate.py` (adapted from the composer integration tool to this manifest shape) — `preflight`: packet consistency (manifest, listing, every candidate byte), `HEAD == 7ac02c7f`, `v12/` clean, and for each of the 20 targets a regular non-symlink owner-writable file whose bytes equal the manifest's base digest and whose blob equals `HEAD:<path>`; `import`: refuses unless preflight passes now, writes each target through a sibling temporary and `os.replace` keeping the mode, verifies every byte and the tree digest, records `POST-IMPORT.json`, `post-import.sha256`, `imported-paths.txt`. Run read-only on the host now: **`PREFLIGHT OK 20 paths; 0 faults`** (`import/PREFLIGHT.json`; modes `0644`/`0664`). The accepted manifest/tree digests are placeholders in the tool until the joined review binds them (the owner fills `MANIFEST_SHA`/`TREE` from the review before import, or the integrator checks them beside the tool). `import/GIT-COMMANDS.md` and `import/commit-message.txt` are the selective Git sheet and message for the owner after acceptance and import.
+
+## Boundaries
+
+No host import, rebuild, image, instance or live action; no owner Git mutation (fixture Git only inside fresh confined roots under `/var/tmp/baton-v12-joined/verification-git/`, logged); the three original packets unchanged; the isolated trees under `/var/tmp/baton-v12-joined/` are disposable. Handoff: independent joined review of this packet; then the owner's import by the proposal above and a human checkpoint.

@@ -1153,13 +1153,15 @@ def _print_job_outcomes(published, stream):
         print("  No Jobs observed" + ("; idle" if published["state"] == "fresh" and published["canonical"] else "; current workload unknown"), file=stream)
     for job in jobs:
         print("Job " + _status_text(job.get("job_id")) + ": " + _job_outcome(job), file=stream)
+        print("  Job age " + job_observation.job_age(job, published["document"].get("observed_at")), file=stream)
         for stage in job.get("stages") or []:
             state = stage.get("state")
             state = state if state in _STATUS_STAGE_STATES else "unknown"
-            one = job_observation.stage_view(stage, published["document"].get("observed_at"))
+            one = job_observation.stage_view(stage, published["document"].get("observed_at"), job)
             reason = one["reason"]
             detail = reason.removeprefix("failed: stage ended exceptionally; ").removeprefix("held: ")
             print("  " + _status_text(stage.get("stage_id") or stage.get("kind")) + ": " + state + ("; " + detail if detail else ""), file=stream)
+            print("    running " + one["running"] + "; " + one["timeout"], file=stream)
             print("    attempt " + _status_text(one["attempt_id"]) + "; operation " + one["operation"], file=stream)
             print("    activity " + one["activity"] + ("; " + one["activity_when"] if one["activity_when"] else ""), file=stream)
         cancellation = job.get("cancellation")

@@ -1,0 +1,34 @@
+[
+  {
+    "case": "unbound-placeholders",
+    "faults": []
+  },
+  {
+    "case": "pinned-valid",
+    "faults": []
+  },
+  {
+    "case": "manifest-mismatch",
+    "faults": [
+      "manifest digests to 8fd5f3d21846a0308fa26c73a6b35270b85414b2ba6aa9abd51750ddad8b4e05, accepted 0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  {
+    "case": "readonly-target",
+    "faults": [
+      "v12/python/JOB-VIEWER.md: not owner-writable (0o440)"
+    ]
+  },
+  {
+    "case": "target-drift",
+    "faults": [
+      "v12/python/JOB-VIEWER.md: host bytes sha256:0b7a461fefbb68e518e51884369a4b88baffdb40b7e578921f3f88649ebc6494 are not the reviewed base sha256:b4704b93d308207649a859ab51c7ea5d90fb89b303916cf109ec83da490a43e1 (blob f3d7a5268e0415eb55f918357c9d0b0ae926adbc, HEAD blob 09373c16a260f455d20cf2d33980d25a1e243cf0)"
+    ]
+  },
+  {
+    "case": "target-symlink",
+    "faults": [
+      "v12/python/JOB-VIEWER.md: host target is symlink"
+    ]
+  }
+]

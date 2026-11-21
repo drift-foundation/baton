@@ -2094,7 +2094,7 @@ def _publish(root, name, document):
             pass
 
 
-def _publish_activity(root, document):
+def _publish_activity(root, document, *, name=ACTIVITY_DOCUMENT, staging=ACTIVITY_STAGING):
     """The optional count, staged EXCLUSIVELY and renamed OVER the published
     file. Answers whether this write happened.
 
@@ -2119,7 +2119,7 @@ def _publish_activity(root, document):
     payload = canonical(document)
     if len(payload) > MAX_EXCHANGE_BYTES:
         return False
-    staged = os.path.join(root, ACTIVITY_STAGING)
+    staged = os.path.join(root, staging)
     try:
         handle = os.open(staged,
                          os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
@@ -2138,7 +2138,7 @@ def _publish_activity(root, document):
             os.fsync(handle)
         finally:
             os.close(handle)
-        os.replace(staged, os.path.join(root, ACTIVITY_DOCUMENT))
+        os.replace(staged, os.path.join(root, name))
         opened = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
         try:
             os.fsync(opened)
@@ -2177,10 +2177,11 @@ class _ActivityPublisher:
     for a count to be a count of.
     """
 
-    def __init__(self, root, document, observe, *, seconds=ACTIVITY_SECONDS):
+    def __init__(self, root, document, observe, *, invocation=None, seconds=ACTIVITY_SECONDS):
         self._root = root
         self._document = document
         self._observe = observe
+        self._invocation = invocation
         self._seconds = seconds
         self._stop = threading.Event()
         self._thread = None
@@ -2205,6 +2206,16 @@ class _ActivityPublisher:
                 return
 
     def _tick(self):
+        # Independent diagnostic: quiet native output must not hide a running
+        # provider, and terminal sampling retains its direct-child end time.
+        try:
+            timing = self._invocation() if callable(self._invocation) else None
+            if type(timing) is dict:
+                _publish_activity(self._root, {**self._document,
+                    "schema": "baton.worker-exchange.invocation/1", **timing},
+                    name="invocation.json", staging=".invocation.json.tmp")
+        except BaseException:
+            pass  # Optional timing must never change the worker outcome.
         try:
             total = self._observe()
         except BaseException:                              # noqa: BLE001
@@ -2638,7 +2649,7 @@ def _activity_publisher(agent, event_root, command, digested, operation,
         event_root,
         _bound(command, digested, operation=operation,
                operation_id=operation_id),
-        observe).start()
+        observe, invocation=getattr(agent, "observed_invocation", None)).start()
 
 
 def _stopped(publisher):

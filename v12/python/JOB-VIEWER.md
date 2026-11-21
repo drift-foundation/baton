@@ -74,7 +74,8 @@ control store is not a read.
   native session stream, and when it received them; `unknown` where it
   has observed nothing. See below.
 - Held, failed and operator-action reasons, including which stages a blocked
-  stage is waiting on.
+  stage is waiting on, and — for a failed stage — the ending the **worker
+  itself declared**, when the manager sealed one. See below.
 - Frozen output artifacts with their sizes and manager-supplied locators, or
   an explicit `unavailable`.
 
@@ -89,6 +90,51 @@ not to be. A test walks the module's identifiers (not its prose) to hold this.
 path. There is no SQL, no projection and no observer here. A viewer with its
 own reader would be a second answer to "what is running", and the two would
 disagree on the day it mattered.
+
+## Why a failed stage used to say only `cause unknown`
+
+A stage reads `failed: stage ended exceptionally; cause unknown` when nothing
+in the snapshot says what happened. That sentence used to cover two different,
+*host-known* endings: a provider turn that hit its bound, and a candidate whose
+own verification failed. Both were sealed in the frozen result and neither
+reached a line.
+
+The diagnostic producer now composes a **worker-declared axis** beside the
+cause (`attempt_diagnostics.worker_declaration`), and both views read it:
+
+```text
+  implementation: exceptional; worker declared unable: the provider did not
+    finish (provider timed out) at a 1h00m provider bound (job-default);
+    verification not attempted
+```
+
+Three rules hold that line honest, and they are the reason it is a separate
+axis rather than a cause:
+
+- **A declaration is not a cessation.** It says what the worker answered and
+  what this manager sealed of it. It never says a container stopped, who
+  stopped it, or that anything did; `cause`, the explicit `unknown` and the
+  absent-record list are unchanged beside it, and a manager cancellation or
+  revocation keeps reporting itself.
+- **A declaration is not an acceptance.** `verification ended 0` is the
+  worker's own command reporting on itself — not a review, not a verdict and
+  not a merge.
+- **Only evidence that binds is read.** The typed members come from the
+  worker's `result.json` *inside the frozen candidate tree*, read against the
+  byte count and content digest this manager measured when it sealed the tree,
+  and against an artifact identity that names this exact attempt. Missing,
+  changed, foreign or unreadable evidence leaves the members `unknown` with a
+  bounded reason — the sealed disposition beside them still answers. The
+  worker's prose `recap` is never parsed, and no path, locator or provider
+  message reaches a line: every rendered word is a closed vocabulary value, an
+  integer in a declared range or a boolean.
+
+Only a sealed `unable` disposition speaks here. `completed`, `plan-rejected`
+and `cancelled` render exactly as they did.
+
+`baton-v12-stack attempt-diagnostics <status.json>` reports the same axis
+member by member with its provenance, under the same positive allowlist as
+every other axis.
 
 **It invents nothing.** Every value comes from the snapshot or is spelled
 `unknown`. The tempting thing for a viewer is to compute a plausible number

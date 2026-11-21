@@ -1,0 +1,70 @@
+#!/usr/bin/python3
+"""Confined fixture Git entrypoint. OS read-only mount is an independent boundary."""
+import os,sys,json,pathlib
+CONFIG=json.loads(pathlib.Path(__file__).with_name('guard-config.json').read_text())
+BASE=pathlib.Path(CONFIG['root']).resolve()
+LOG=pathlib.Path(CONFIG['log'])
+ALLOWED={'init','add','commit','clone','checkout','fetch','update-ref','hash-object','commit-tree','bundle','merge-tree','rev-parse','status','diff','ls-files','ls-tree','cat-file','merge-base','config','show','show-ref','rev-list','symbolic-ref','for-each-ref','check-ref-format','check-attr','archive'}
+def inside(path):
+ p=pathlib.Path(path).resolve();rel=p.relative_to(BASE)
+ if not rel.parts or not rel.parts[0].startswith('v12-w71917-'):raise ValueError('not a fresh fixture root')
+ return BASE/rel.parts[0]
+def validate(args,cwd):
+ for key in ('GIT_DIR','GIT_WORK_TREE','GIT_COMMON_DIR','GIT_OBJECT_DIRECTORY','GIT_ALTERNATE_OBJECT_DIRECTORIES','GIT_INDEX_FILE','GIT_CONFIG_COUNT'):
+  if os.environ.get(key):raise ValueError('environment override '+key)
+ if args==['--version']:return None,None
+ i=0;target=pathlib.Path(cwd)
+ while i<len(args):
+  if args[i]=='--no-optional-locks':i+=1
+  elif args[i]=='-C':target=(target/args[i+1]).resolve();i+=2
+  elif args[i]=='-c':
+   key,value=args[i+1].split('=',1)
+   if key not in ('safe.directory','user.name','user.email','core.hooksPath','commit.gpgsign','protocol.file.allow'):raise ValueError('configuration override '+key)
+   if key=='safe.directory':inside(value)
+   if key=='core.hooksPath' and value!='/dev/null':raise ValueError('hooks')
+   if key=='commit.gpgsign' and value!='false':raise ValueError('signing')
+   i+=2
+  else:break
+ verb=args[i];rest=args[i+1:]
+ if verb not in ALLOWED:raise ValueError('unlisted verb '+verb)
+ if verb=='config' and not any(x in rest for x in ('--get','--get-all','--get-regexp','--list')):raise ValueError('config mutation')
+ if verb=='bundle' and (not rest or rest[0] not in ('create','verify','list-heads')):raise ValueError('bundle subcommand')
+ if verb=='clone':
+  operands=[x for x in rest if not x.startswith('-')]
+  if len(operands)!=2:raise ValueError('clone operands')
+  source,dest=[(target/x).resolve() for x in operands];owner=inside(dest)
+  if inside(source)!=owner:raise ValueError('clone crosses fixture roots')
+  target=dest
+ else:owner=inside(target)
+ # Every absolute argv path must stay within this fixture; configuration options
+ # already checked above. URLs and remote-helper syntax are never fixture inputs.
+ for arg in rest:
+  if '://' in arg or arg.startswith(('ext::','file:')):raise ValueError('remote endpoint')
+  if arg.startswith('/') and inside(arg)!=owner:raise ValueError('foreign absolute operand')
+ if verb=='archive':
+  if len(rest)!=4 or rest[:2]!=['--format=tar','-o'] or inside(target/rest[2])!=owner or rest[3].startswith('-'):raise ValueError('archive must write tar in same fixture')
+ if verb=='fetch':
+  operands=[x for x in rest if not x.startswith('-')]
+  if not operands or inside(target/operands[0])!=owner:raise ValueError('foreign fetch source')
+ if verb=='bundle' and rest[0]=='create' and inside(target/rest[1])!=owner:raise ValueError('bundle output escape')
+ # Existing gitdirs may not redirect to another root, even one mounted read-only.
+ for parent in (target,*target.parents):
+  if parent==owner.parent:break
+  dot=parent/'.git'
+  if dot.is_symlink():raise ValueError('symlink gitdir')
+  if dot.is_file():raise ValueError('linked gitdir')
+  gitdir=dot if dot.is_dir() else parent if (parent/'HEAD').is_file() and (parent/'objects').is_dir() else None
+  if gitdir:
+   if inside(gitdir)!=owner:raise ValueError('foreign gitdir')
+   for f in ('commondir','objects/info/alternates','objects/info/http-alternates'):
+    if (gitdir/f).exists():raise ValueError('alternate repository')
+ return verb,str(target)
+def main():
+ args=sys.argv[1:];record={'argv':args,'cwd':os.getcwd()}
+ try:record['verb'],record['target']=validate(args,os.getcwd());record['allowed']=True
+ except (ValueError,IndexError) as error:record.update(allowed=False,error=str(error))
+ with LOG.open('a') as out:out.write(json.dumps(record)+'\n')
+ if not record['allowed']:print('fixture Git guard refused: '+record['error'],file=sys.stderr);return 98
+ env=dict(os.environ,GIT_CONFIG_GLOBAL='/dev/null',GIT_CONFIG_SYSTEM='/dev/null',GIT_TERMINAL_PROMPT='0',GIT_ALLOW_PROTOCOL='file',GIT_TRACE2_EVENT=str(LOG.with_name('git-trace2.jsonl')))
+ os.execve('/usr/bin/git',['git','-c','core.hooksPath=/dev/null','-c','commit.gpgsign=false',*args],env)
+if __name__=='__main__':sys.exit(main())

@@ -1733,6 +1733,8 @@ class TheOptionalActivityDocument(Home):
         with open(os.path.join(held.event_root, ".activity.json.tmp"),
                   "w", encoding="utf-8") as writing:
             writing.write("{}")
+        self.wrote(held, exchange.INVOCATION_DOCUMENT, {})
+        self.wrote(held, ".invocation.json.tmp", {})
         entries = sorted(os.listdir(held.event_root))
         self.assertEqual(len(entries), exchange.ACTIVITY_NAMESPACE_ENTRIES)
         self.assertLessEqual(len(entries), exchange.MAX_EVENT_ENTRIES)
@@ -3498,3 +3500,46 @@ class TheWrapperReachesTheExchangeThroughRealStartup(Home):
         # AND IT WAS REACHED THROUGH THE REAL STARTUP, with the container's own
         # session -- the member the wrapper moved.
         self.assertEqual(served, [self.SESSION])
+
+
+class InvocationTiming(Home):
+    def timing(self):
+        delivery, command = self.one()
+        self.wrote(delivery, exchange.RECEIPT_DOCUMENT, self.receipt(command))
+        self.wrote(delivery, exchange.state_document("work"), self.state(command,"work","dispatched"))
+        fact = self.bound(command, schema=exchange.INVOCATION_SCHEMA, operation="work",
+                          operation_id=exchange.worker_operation_id(self.ATTEMPT,"work"),scope="provider-process",
+                          started_at="2026-09-04T00:00:02.000Z", deadline_at="2026-09-04T00:01:02.000Z", ended_at=None)
+        return delivery, fact
+
+    def test_correlated_start_and_end_survive_restart_read(self):
+        delivery, fact = self.timing()
+        self.wrote(delivery, exchange.INVOCATION_DOCUMENT, fact)
+        self.assertEqual(exchange.observation(self.adopted().exchange)["invocation"], fact)
+        fact["ended_at"]="2026-09-04T00:00:12.000Z"
+        self.wrote(delivery, exchange.INVOCATION_DOCUMENT, fact)
+        self.assertEqual(exchange.observation(delivery)["invocation"], fact)
+
+    def test_foreign_and_malformed_timing_never_change_exchange_state(self):
+        delivery, fact = self.timing()
+        for key,value in (("attempt_id","foreign"),("session","foreign"),("command_digest","sha256:"+"a"*64),("operation_id","wrong"),("scope","dispatch"),("started_at","bad"),("ended_at","2026-09-04T00:00:01.000Z"),("extra","bad")):
+            with self.subTest(key=key):
+                self.wrote(delivery,exchange.INVOCATION_DOCUMENT,dict(fact,**{key:value}))
+                view=exchange.observation(delivery)
+                self.assertEqual(view["state"],"working");self.assertIsNone(view["unreadable"]);self.assertIsNone(view["invocation"])
+
+    def test_real_publisher_to_shared_status_and_monitor(self):
+        import sys,pathlib,copy
+        sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[3]/"worker"))
+        import baton_worker
+        from tests.tools.test_job_observation import document, views
+        delivery,fact=self.timing()
+        timing={key:fact[key] for key in ("scope","started_at","ended_at","deadline_at")}
+        bound={key:fact[key] for key in ("session","attempt_id","sequence_id","command_digest","operation","operation_id")}
+        pub=baton_worker._ActivityPublisher(delivery.event_root,bound,lambda:None,invocation=lambda:timing);pub._tick()
+        observed=exchange.observation(delivery);doc=document();doc["observed_at"]="2026-09-04T00:00:12.000Z";job=doc["jobs"][0];stage=job["stages"][0];stage.update(attempt_id=self.ATTEMPT,exchange=observed)
+        job["control"]={"timing":"trusted","observed_at":doc["observed_at"],"job":{"origin":"2026-09-04T00:00:00.000Z","deadline_at":"2026-09-04T00:05:00.000Z"},"stages":[{"stage_id":stage["stage_id"],"origin":"2026-09-04T00:00:01.000Z","deadline_at":"2026-09-04T00:04:00.000Z"}]}
+        before=copy.deepcopy(doc)
+        for rendered in views(doc):
+            self.assertRegex(rendered,r"running\s+10s");self.assertIn("provider timeout in 50s",rendered)
+        self.assertEqual(doc,before)

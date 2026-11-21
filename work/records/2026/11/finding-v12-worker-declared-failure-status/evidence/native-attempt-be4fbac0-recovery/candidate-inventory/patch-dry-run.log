@@ -1,0 +1,10 @@
+checking file v12/python/JOB-VIEWER.md
+checking file v12/python/src/baton_v12/job_manager/projection.py
+checking file v12/python/src/baton_v12/worker_manager/failure_cause.py
+checking file v12/python/tests/manager/test_attempt_failure_cause.py
+checking file v12/python/tests/manager/test_boundary_inventory.py
+checking file v12/python/tests/tools/test_attempt_diagnostics.py
+checking file v12/python/tests/tools/test_job_observation.py
+checking file v12/python/tests/tools/test_job_viewer.py
+checking file v12/python/tools/attempt_diagnostics.py
+checking file v12/python/tools/job_observation.py

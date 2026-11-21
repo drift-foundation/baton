@@ -1,0 +1,156 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codxpc",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "events": [
+      {
+        "actor": "baton.prompt",
+        "kind": "create_work",
+        "payload": {
+          "binding": {
+            "path": "work/records/2026/11/finding-v12-worker-declared-failure-status",
+            "revision": 1,
+            "root": "baton"
+          },
+          "classification": "confirmed-defect",
+          "follow_up_of": null,
+          "kind": "decide",
+          "origin": "external-report",
+          "parent": null,
+          "phase": "queued",
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W385424"
+            }
+          ],
+          "priority": "normal",
+          "resolution": {
+            "endpoint": "baton.decide",
+            "generation": 15,
+            "handlers": [
+              "slaw"
+            ],
+            "role": "approv",
+            "route": "approv"
+          },
+          "team": "baton",
+          "title": "V12 status: surface attributable worker-declared failure causes"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 32160,
+          "end_kind": "claim",
+          "end_seq": 385465,
+          "ended_at": "2026-11-21T12:31:06Z",
+          "open": false,
+          "phase": "queued",
+          "start_seq": 385424,
+          "started_at": "2026-11-21T03:35:06Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385424,
+        "ts": "2026-11-21T03:35:06Z"
+      },
+      {
+        "actor": "baton.prompt",
+        "kind": "reroute",
+        "payload": {
+          "from": {
+            "endpoint": "baton.decide",
+            "route": "approv"
+          },
+          "phase": "queued",
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W385424"
+            }
+          ],
+          "reason": "Independent review of retained native failure-reporting candidate with separately accepted fixture overlay; no live execution/import. Assignment in thread.",
+          "resolution": {
+            "endpoint": "baton.codx",
+            "generation": 15,
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "route_selected": null,
+          "to": "baton.codx",
+          "work": "2b077949-W385424"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385464,
+        "ts": "2026-11-21T12:30:21Z"
+      },
+      {
+        "actor": "baton.codxpc",
+        "claim_interval": {
+          "claim_seq": 385465,
+          "claimant": "baton.codxpc",
+          "elapsed_seconds": 190,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "started_at": "2026-11-21T12:31:06Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.codxpc",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W385424"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.codx",
+            "generation": 15,
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "work": "2b077949-W385424"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 191,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "open": true,
+          "phase": "active",
+          "start_seq": 385465,
+          "started_at": "2026-11-21T12:31:06Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 385465,
+        "ts": "2026-11-21T12:31:06Z"
+      }
+    ],
+    "local_id": "W385424",
+    "next_after": null,
+    "next_before": null,
+    "title": "V12 status: surface attributable worker-declared failure causes",
+    "work": "2b077949-W385424"
+  },
+  "snapshot_seq": 385465
+}

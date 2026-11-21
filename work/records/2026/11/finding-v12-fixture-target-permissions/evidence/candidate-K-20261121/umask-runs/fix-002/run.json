@@ -1,0 +1,33 @@
+{
+  "label": "fix-002",
+  "tree": "/var/tmp/baton-v12-w385454/candidate",
+  "umask": "002",
+  "argv": [
+    "bwrap",
+    "--ro-bind",
+    "/",
+    "/",
+    "--bind",
+    "/var/tmp/baton-v12-w385454/verification-git/run-fix-002-3uewda1d",
+    "/var/tmp/baton-v12-w385454/verification-git/run-fix-002-3uewda1d",
+    "--unshare-net",
+    "--unshare-pid",
+    "--die-with-parent",
+    "--new-session",
+    "--cap-drop",
+    "ALL",
+    "--proc",
+    "/proc",
+    "--dev",
+    "/dev",
+    "--chdir",
+    "/var/tmp/baton-v12-w385454/candidate/v12/python",
+    "--",
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/var/tmp/baton-v12-w385454/umask_fixture_runner.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 12.031954140984453,
+  "run_root": "/var/tmp/baton-v12-w385454/verification-git/run-fix-002-3uewda1d",
+  "guard_sha256": "28e29e312461f88425d101b4ed4882484da59a5a4a361369879c3a105ba9ef1c"
+}

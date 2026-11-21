@@ -1,0 +1,33 @@
+{
+  "label": "joined-002",
+  "tree": "/var/tmp/baton-v12-joined/joined",
+  "umask": "002",
+  "argv": [
+    "bwrap",
+    "--ro-bind",
+    "/",
+    "/",
+    "--bind",
+    "/var/tmp/baton-v12-joined/verification-git/run-joined-002-rf5olt8y",
+    "/var/tmp/baton-v12-joined/verification-git/run-joined-002-rf5olt8y",
+    "--unshare-net",
+    "--unshare-pid",
+    "--die-with-parent",
+    "--new-session",
+    "--cap-drop",
+    "ALL",
+    "--proc",
+    "/proc",
+    "--dev",
+    "/dev",
+    "--chdir",
+    "/var/tmp/baton-v12-joined/joined/v12/python",
+    "--",
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/var/tmp/baton-v12-joined/umask_fixture_runner.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 13.133390801027417,
+  "run_root": "/var/tmp/baton-v12-joined/verification-git/run-joined-002-rf5olt8y",
+  "guard_sha256": "28e29e312461f88425d101b4ed4882484da59a5a4a361369879c3a105ba9ef1c"
+}

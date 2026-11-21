@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "Git forbidden in focused review" >&2
+exit 99

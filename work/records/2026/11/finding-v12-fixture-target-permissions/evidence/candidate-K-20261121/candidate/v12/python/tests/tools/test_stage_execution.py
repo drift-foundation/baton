@@ -1,0 +1,13319 @@
+"""W103083: the standalone stage deployment's configuration boundary.
+
+`work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/
+finding-standalone-stage-composition/findings/finding-shared-stage-assembly/`.
+
+WHAT THIS FILE OWNS, AND IT IS THE FIRST OF THREE CHECKPOINTS. The serving
+factory is wired here: one closed document, three roles over one Authority, and
+every refusal that must happen while nothing has been opened. The composed
+lifecycle and the restart cutpoint are the checkpoints after it.
+
+THE WORKER HALF IS NOT RE-PROVED HERE. `single_worker`'s own suite owns the
+launch document, the credential boundary and the mount posture, and this
+deployment calls that module's parameterized halves rather than a copy of them
+-- so a second set of assertions over the same rules would be a second place
+for them to drift.
+"""
+
+import copy
+import json
+import os
+import pathlib
+import stat
+import unittest
+from types import SimpleNamespace
+from unittest import mock
+
+from baton_v12.authority import MAX_SAFE_INTEGER
+from baton_v12.contracts import ContractRefusal, job_input_identity
+from baton_v12.integration import driver
+from baton_v12.job_manager import review_driver
+
+from tools import integration_worker, single_worker, stage_execution
+
+from tests.job_manager.fixtures import NOW, UUID, WORK_A
+from tests.job_manager.test_review_driver import DriverCase, REVIEWER, WRITER
+
+from .test_single_worker import SingleWorkerCase
+
+
+def establish_target_posture(case, place, gid):
+    """The posture `oci_delivery.prove_target_posture` requires of a canonical
+    target -- the configured workspace group, group WRITE and group TRAVERSAL
+    -- established EXPLICITLY rather than inherited from the ambient umask.
+
+    W385454. The traversing scenario nominates the fixture's own source
+    repository as the deployment's canonical target. That directory is made
+    by `os.makedirs` with the process default mode, so under a developer's
+    `umask 002` it is `0o775` and the product's posture proof accepts it,
+    while under the worker image's `022` (or the provider child's `077`) it is
+    `0o755`/`0o700`, the proof refuses it -- correctly, as written -- and the
+    integration stage never leaves `claimed`. The scenario needs the posture;
+    it says so here, in the one place the target is nominated.
+
+    ONLY THE MODE IS SET. The group is asserted, never changed: an ordinary
+    uid cannot `chown` a directory into a group it does not hold, and a
+    fixture that silently skipped the group half would be proving less than
+    the product checks. Nothing here touches the product's refusal.
+    """
+    held = os.stat(place)
+    if held.st_gid != gid:
+        case.fail(f"the canonical target {place!r} is group {held.st_gid}, not "
+                  f"the configured workspace group {gid}; this fixture sets a "
+                  f"mode, it does not change ownership")
+    os.chmod(place, stat.S_IMODE(held.st_mode) | stat.S_IWGRP | stat.S_IXGRP)
+    return stat.S_IMODE(os.stat(place).st_mode)
+
+
+REPOSITORY = pathlib.Path(__file__).resolve().parents[4]
+VECTORS = (REPOSITORY / "work" / "records" / "2026" / "08"
+           / "finding-v12-isolated-agent-workers" / "findings"
+           / "finding-v12-worker-contract" / "findings"
+           / "finding-worker-control-api-manifests" / "evidence"
+           / "vectors.json")
+
+
+# W275774: the one revision a direct integration's proposal and canonical target
+# both name. The branch decision in `Integration._run` compares those two
+# Authority answers, and a fixture that configures no reconciliation has only one
+# branch available to it -- see the deployment helpers that answer with this.
+DIRECT_REVISION = "d" * 40
+
+
+def _vector(schema):
+    """One published manifest vector, so this suite composes no second idea of
+    a valid document."""
+    for case in json.loads(VECTORS.read_text(encoding="utf-8"))["valid"]:
+        document = case.get("document")
+        if isinstance(document, dict) and document.get("schema") == schema:
+            return copy.deepcopy(document)
+    raise AssertionError(f"the published vectors carry no {schema}")
+
+
+
+def custodian_answer(argv):
+    """The verb and submission this custody argv carries, whichever shape.
+
+    W257624 R2 added a submission token after the verb. This fixture is
+    SHARED with suites that run against a pinned manager snapshot predating
+    that change -- `test_two_jobs`'s recorded command loads `baton_v12` from
+    `/home/sl/baton-runs/independent-review-247947/manager-source` -- so it
+    reads the verb where it is in BOTH shapes and passes a token only when the
+    argv actually carries one. Assuming the new shape made the pinned product's
+    verb read as a token, which is what sent twelve of those cases red.
+    """
+    where = argv.index("-c")
+    verb = argv[where + 2]
+    carried = argv[where + 3] if len(argv) > where + 3 else None
+    return verb, carried
+
+class TheContextServingBoundaryIsIsolated(unittest.TestCase):
+    def setUp(self):
+        from tests.manager.test_claude_context import ServingContextCase
+        self.case = ServingContextCase()
+        self.addCleanup(self.case.doCleanups)
+        self.case.setUp()
+
+    def test_another_roles_root_cannot_overlap_context_storage(self):
+        job, control, composed = self.case.serving()
+        given = stage_execution.held_configuration(self.case.composed_document(line_declared_base=self.case.base), checkout=self.case.checkout)
+        review = next(one for one in given["workers"] if one["role"] == "review")
+        review["deployment"]["credential_home"] = str(self.case.context_root / "foreign-role")
+        with self.assertRaises(ContractRefusal):
+            stage_execution._context_roots(given, control)
+        self.assertEqual(len(self.case.engine.starts), 0)
+
+    def test_live_handle_reopen_observes_without_duplicate_start_or_binding(self):
+        from baton_v12.worker_manager import provider_context
+        from tests.job_manager import fixtures
+        job, control, composed, attempt, roots = self.case.started()
+        binding = provider_context.context_invocation_of(control, attempt)
+        starts = len(self.case.engine.starts)
+        job, control, composed = self.case.reopen(job, control, composed)
+        sweep = __import__("baton_v12.job_manager", fromlist=["sweep"]).sweep
+        sweep(job, composed, now=fixtures.NOW)
+        self.assertEqual(self.case.states(job, composed)["implementation"], "waiting")
+        self.assertEqual(len(self.case.engine.starts), starts)
+        self.assertEqual(self.case.calls_count(), 0)
+        self.assertEqual(provider_context.context_invocation_of(control, attempt), binding)
+
+    def test_context_preflight_requires_the_preconfigured_profile(self):
+        job, control, composed = self.case.serving()
+        worker = self.case.worker_of(composed, "implementation")
+        given = dict(worker.given, provider_context=dict(worker.given["provider_context"], profile_digest="sha256:" + "f" * 64))
+        with self.assertRaises(ContractRefusal):
+            single_worker._context_preflight(given, control)
+        self.assertEqual(len(self.case.engine.starts), 0)
+
+    def test_another_job_owner_cannot_supply_the_context_attempt(self):
+        from baton_v12.job_manager import JobStore
+        from baton_v12.worker_manager import provider_context
+        from tests.job_manager import fixtures
+        job, control, composed, attempt, roots = self.case.started()
+        other = JobStore.open(os.path.join(self.case.root, "foreign-jobs.sqlite3"), authority_uuid=job.authority_uuid, incarnation="other-job-owner", clock=lambda: fixtures.NOW)
+        self.addCleanup(other.close)
+        worker = self.case.worker_of(composed, "implementation")
+        before = provider_context.context_invocation_of(control, attempt)
+        with self.assertRaises(ContractRefusal):
+            provider_context.revalidate_context_start(control, other, worker.port, attempt_id=attempt)
+        self.assertEqual(provider_context.context_invocation_of(control, attempt), before)
+
+
+class StageCase(SingleWorkerCase):
+    """One valid single-worker document, reused as three configured roles.
+
+    Reusing `SingleWorkerCase` rather than rebuilding its fixture is the same
+    decision the module makes: the launch document's rules have one owner, and
+    a test that hand-rolled a second valid document would be asserting against
+    its own idea of one.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.integration_store = os.path.join(self.root, "integration.sqlite3")
+        self.state_root = os.path.join(self.root, "state")
+        # THE FIXTURE OWNS ITS OWN "CHECKOUT". This suite's disk-backed root
+        # has to sit inside the distribution -- `/tmp` is a tmpfs and a
+        # workspace may not live there -- so a case that used the real
+        # repository root would be refused for the fixture's own reason rather
+        # than the one it is asserting. The rule is proved against a checkout
+        # this case controls, and `_checkout` is proved separately.
+        self.checkout = os.path.join(self.root, "checkout")
+        os.makedirs(self.checkout)
+
+    INTEGRATION_ROUTE = "integration"
+
+    def worker(self, role, *, participant=None, principal=None, **members):
+        deployment = copy.deepcopy(self.config)
+        deployment["launch_role"] = role
+        if participant is not None:
+            deployment["participant"] = participant
+        if principal is not None:
+            deployment["principal"] = principal
+        deployment.update(members)
+        return {"worker_id": f"{role}-worker", "role": role,
+                "deployment": deployment}
+
+    def document(self, **members):
+        given = {
+            "schema": stage_execution.CONFIG_SCHEMA,
+            "authority_store": self.authority_path,
+            "authority_uuid": self.config["authority_uuid"],
+            "integration_store": self.integration_store,
+            "state_root": self.state_root,
+            "pool_generation": 1,
+            "policy_generation": 1,
+            "line_declared_base": "a" * 40,
+            "receipt_participants": {"verification": "baton.verifier",
+                                     "review": "baton.approver-review",
+                                     "approval": "baton.approver"},
+            "job_work_id": "work-1",
+            "review_work_id": "work-1",
+            "canonical_target_id": "target-1",
+            "checkpoint_profile": "git",
+            "integration_profile": {
+                "profile_kind": "git", "profile_version": 1,
+                "integrator_participant": "baton.integrator",
+                "instructions_digest": "sha256:" + "e" * 64},
+            "retention_policy_digest": "sha256:" + "5" * 64,
+            "retention_disposition": "retain",
+            "workers": [
+                self.worker("implementation"),
+                self.worker("review", participant="baton.reviewer",
+                            principal="reviewer-principal"),
+                self.worker("integration", participant="baton.integrator",
+                            principal="integrator-principal")]}
+        given.update(members)
+        return given
+
+    def refused(self, **members):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.held(**members)
+        return caught.exception
+
+    def held(self, **members):
+        return stage_execution.held_configuration(self.document(**members),
+                                                  checkout=self.checkout)
+
+
+class TheDeploymentDocumentIsClosed(StageCase):
+
+    def test_a_well_formed_document_is_held_with_its_three_roles(self):
+        given = self.held()
+        self.assertEqual([one["role"] for one in given["workers"]],
+                         list(stage_execution.ROLES))
+        self.assertEqual(given["schema"], stage_execution.CONFIG_SCHEMA)
+
+    def test_another_generation_of_the_schema_is_refused(self):
+        """W119403: the value this case used to name is now a variant this
+        deployment SERVES, so it names one that is not.
+
+        The rule it is about has not moved -- a document whose schema this
+        build does not read is refused, and the refusal still names what it
+        does read. What changed is only which value is foreign.
+        """
+        held = self.refused(schema="baton.v12.stage-execution-deployment/9")
+        self.assertIn(stage_execution.CONFIG_SCHEMA, held.message)
+        self.assertIn(stage_execution.MULTI_CONFIG_SCHEMA, held.message)
+
+    def test_an_unknown_or_missing_member_is_refused(self):
+        with self.assertRaises(ContractRefusal):
+            stage_execution.held_configuration(
+                dict(self.document(), invented="value"),
+                checkout=self.checkout)
+        short = self.document()
+        del short["canonical_target_id"]
+        with self.assertRaises(ContractRefusal):
+            stage_execution.held_configuration(short, checkout=self.checkout)
+
+    def test_a_pool_generation_counts_from_one(self):
+        for generation in (0, -1, True, "1", None):
+            with self.subTest(generation=generation):
+                self.refused(pool_generation=generation)
+
+
+class TheConfigurationCarriesNoCredentialBytes(StageCase):
+
+    def test_a_bearer_anywhere_in_the_document_is_refused(self):
+        """Walked rather than spot-checked: the member that matters is
+        whichever one somebody added last."""
+        for where, mutate in (
+                ("root", lambda one: dict(one, bearer="not-a-credential")),
+                ("profile", lambda one: dict(
+                    one, integration_profile=dict(
+                        one["integration_profile"], token="x"))),
+                ("worker", lambda one: dict(
+                    one, workers=[dict(one["workers"][0],
+                                       deployment=dict(
+                                           one["workers"][0]["deployment"],
+                                           password="x"))]
+                    + one["workers"][1:]))):
+            with self.subTest(where=where):
+                with self.assertRaises(ContractRefusal) as caught:
+                    stage_execution.held_configuration(
+                        mutate(self.document()), checkout=self.checkout)
+                self.assertEqual(caught.exception.category, "policy")
+
+    def test_the_secret_sweep_reaches_into_nested_lists(self):
+        with self.assertRaises(ContractRefusal):
+            stage_execution.held_configuration(
+                dict(self.document(),
+                     workers=[{"worker_id": "w", "role": "implementation",
+                               "deployment": {"nested": [{"secret": "x"}]}}]),
+                checkout=self.checkout)
+
+
+class OneJobsReviewIsOverItsOwnImplementation(StageCase):
+
+    def test_a_review_stage_naming_another_work_is_refused(self):
+        held = self.refused(review_work_id="work-2")
+        self.assertIn("one Job's review is over its own implementation",
+                      held.message)
+        self.assertEqual(held.category, "refused")
+
+    def test_the_matching_case_is_held(self):
+        self.assertEqual(self.held(job_work_id="work-9",
+                                   review_work_id="work-9")["job_work_id"],
+                         "work-9")
+
+
+class IndependenceIsRefusedBeforeAnythingIsOpened(StageCase):
+
+    def test_one_participant_cannot_implement_and_review(self):
+        held = self.refused(workers=[
+            self.worker("implementation"),
+            self.worker("review", principal="reviewer-principal"),
+            self.worker("integration", participant="baton.integrator",
+                        principal="integrator-principal")])
+        self.assertIn("not one the implementer performs", held.message)
+        self.assertEqual(held.category, "policy")
+
+    def test_one_principal_cannot_implement_and_review(self):
+        held = self.refused(workers=[
+            self.worker("implementation"),
+            self.worker("review", participant="baton.reviewer"),
+            self.worker("integration", participant="baton.integrator",
+                        principal="integrator-principal")])
+        self.assertIn("not one the implementer performs", held.message)
+
+    def test_the_integrator_may_share_neither_rule_forbids(self):
+        """Independence is named for the pair that needs it, not asserted at
+        large: an integrator sharing an identity with the implementer is a
+        deployment choice, and this leaf does not invent a rule for it."""
+        self.held(workers=[
+            self.worker("implementation"),
+            self.worker("review", participant="baton.reviewer",
+                        principal="reviewer-principal"),
+            self.worker("integration")])
+
+
+class EveryStageHasExactlyOneWorker(StageCase):
+
+    def test_a_missing_stage_is_refused(self):
+        """Implementation and review remain REQUIRED; the integrator is
+        optional under owner 2026-09-20T14:57:48Z (the PR model), so the
+        missing role measured here is review."""
+        held = self.refused(workers=[self.worker("implementation")])
+        self.assertIn("review", held.message)
+
+    def test_a_deployment_without_an_integrator_is_admitted(self):
+        """Owner 2026-09-20T14:57:48Z: integration is a human act or an
+        explicitly submitted ordinary Job, never an obligatory worker; the
+        producer-and-reviewer deployment is the selected PR shape."""
+        self.held(workers=[
+            self.worker("implementation"),
+            self.worker("review", participant="baton.reviewer",
+                        principal="reviewer-principal")])
+
+    def test_two_workers_for_one_stage_are_refused(self):
+        held = self.refused(workers=[
+            self.worker("implementation"),
+            self.worker("implementation", participant="baton.second",
+                        principal="second-principal"),
+            self.worker("review", participant="baton.reviewer",
+                        principal="reviewer-principal"),
+            self.worker("integration", participant="baton.integrator",
+                        principal="integrator-principal")])
+        self.assertIn("exactly one", held.message)
+
+    def test_a_role_this_deployment_does_not_serve_is_refused(self):
+        held = self.refused(workers=[
+            self.worker("tuning"),
+            self.worker("review", participant="baton.reviewer",
+                        principal="reviewer-principal"),
+            self.worker("integration", participant="baton.integrator",
+                        principal="integrator-principal")])
+        self.assertIn("not a stage role", held.message)
+
+    def test_a_worker_naming_another_authority_is_refused(self):
+        held = self.refused(workers=[
+            self.worker("implementation",
+                        authority_uuid="f" * 32),
+            self.worker("review", participant="baton.reviewer",
+                        principal="reviewer-principal"),
+            self.worker("integration", participant="baton.integrator",
+                        principal="integrator-principal")])
+        self.assertEqual(held.category, "refused")
+        self.assertIn("configured for", held.message)
+
+
+class MutableStateStaysOutsideTheCheckout(StageCase):
+
+    def test_a_store_inside_the_checkout_is_refused(self):
+        inside = os.path.join(self.checkout, "state.db")
+        held = self.refused(integration_store=inside)
+        self.assertIn("inside the checkout", held.message)
+        self.assertEqual(held.category, "policy")
+
+    def test_a_state_root_inside_the_checkout_is_refused(self):
+        inside = os.path.join(self.checkout, "state")
+        self.assertIn("inside the checkout",
+                      self.refused(state_root=inside).message)
+
+    def test_a_worker_workspace_inside_the_checkout_is_refused(self):
+        inside = os.path.join(self.checkout, "storage")
+        held = self.refused(workers=[
+            self.worker("implementation", workspace_storage=inside),
+            self.worker("review", participant="baton.reviewer",
+                        principal="reviewer-principal"),
+            self.worker("integration", participant="baton.integrator",
+                        principal="integrator-principal")])
+        self.assertIn("inside the checkout", held.message)
+
+    def test_a_relative_or_traversing_path_is_refused(self):
+        for place in ("state", "/a/../b", ""):
+            with self.subTest(place=place):
+                self.refused(state_root=place)
+
+
+class TheAcceptedIntegrationSessionsAreProvedBeforePublication(StageCase):
+    """The SHAPE half of the session gate.
+
+    REVIEW 2026-09-07T14-12-42Z [P1] SPLIT THIS IN TWO, and the two halves are
+    deliberately proved in different places. These cases ask whether the object
+    is the runtime face this deployment mints; whether its ACTOR may write the
+    receipt is an Authority decision, and
+    `TheReceiptActorsAreAuthorizedAndNotMerelyShaped` asks that one over a real
+    Authority with real grants. A fake that answered a capability would be
+    asserting against this file's idea of one.
+    """
+
+    class _Session:
+        participant = "baton.actor"
+
+        def __init__(self, *verbs):
+            for verb in verbs:
+                setattr(self, verb, lambda *a, **k: None)
+
+    class _Authority:
+        """Authorizes everything, and RECORDS WHAT IT WAS ASKED."""
+
+        def __init__(self):
+            self.asked = []
+
+        def holds_capability(self, participant, capability, *, scope=None):
+            self.asked.append((participant, capability, scope))
+            return True
+
+    def sessions(self, **replaced):
+        held = {"verification": self._Session("verify"),
+                "review": self._Session("review"),
+                "approval": self._Session("approve"),
+                "integrator": self._Session("integrate", "receipt"),
+                "publisher": self._Session(
+                    *stage_execution.PUBLISHER_CAPABILITIES)}
+        held.update(replaced)
+        return held
+
+    def proved(self, held=None, authority=None, scope="scope:deployment"):
+        return stage_execution._sessions(
+            self.sessions() if held is None else held,
+            self._Authority() if authority is None else authority, scope)
+
+    def test_the_complete_set_is_accepted(self):
+        held = self.sessions()
+        self.assertIs(self.proved(held), held)
+
+    def test_each_receipt_actor_is_asked_for_its_own_grant_in_one_scope(self):
+        """The mapping, read off the gate rather than off the constant: four
+        receipts, four different capabilities, one scope -- and the publisher
+        is not among them, because publication is authorized by the producer's
+        live assignment and there is no grant to ask about."""
+        authority = self._Authority()
+        self.proved(authority=authority, scope="scope:job-a")
+        self.assertEqual(
+            sorted(authority.asked),
+            [("baton.actor", "approve", "scope:job-a"),
+             ("baton.actor", "integrate", "scope:job-a"),
+             ("baton.actor", "review", "scope:job-a"),
+             ("baton.actor", "verify", "scope:job-a")])
+
+    def test_a_missing_session_refuses(self):
+        for name in stage_execution.RECEIPT_SESSIONS + ("publisher",):
+            with self.subTest(name=name):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.proved(self.sessions(**{name: None}))
+                self.assertEqual(caught.exception.category, "refused")
+                self.assertIn(name, caught.exception.message)
+
+    def test_a_session_without_its_verb_refuses(self):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.proved(self.sessions(integrator=self._Session("integrate")))
+        self.assertIn("receipt", caught.exception.message)
+        # THE PUBLISHER IS REACHED EARLIEST OF ALL, so a deployment missing one
+        # of its three would discover it with a frozen result it can never
+        # publish.
+        for verb in stage_execution.PUBLISHER_CAPABILITIES:
+            partial = [one for one in stage_execution.PUBLISHER_CAPABILITIES
+                       if one != verb]
+            with self.subTest(verb=verb):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.proved(self.sessions(
+                        publisher=self._Session(*partial)))
+                self.assertIn(verb, caught.exception.message)
+
+    def test_a_session_without_a_participant_refuses(self):
+        nameless = self._Session("verify")
+        nameless.participant = None
+        with self.assertRaises(ContractRefusal) as caught:
+            self.proved(self.sessions(verification=nameless))
+        self.assertIn("participant", caught.exception.message)
+
+
+class ConstructionFailureReleasesWhatItOpened(StageCase):
+
+    class _Handle:
+        def __init__(self, name, journal, failing=False):
+            self.name, self.journal, self.failing = name, journal, failing
+
+        def close(self):
+            self.journal.append(self.name)
+            if self.failing:
+                raise OSError("this handle refuses to close")
+
+        dispose = close
+        release = close
+
+    def composed(self, journal, **members):
+        composed = stage_execution.StageExecution(
+            None, authority=self._Handle("authority", journal),
+            integration=self._Handle("integration", journal),
+            workers=[{"role": "implementation",
+                      "operations": self._Handle("implementation", journal)},
+                     {"role": "review",
+                      "operations": self._Handle("review", journal)}],
+            given={})
+        for name, value in members.items():
+            setattr(composed, name, value)
+        return composed
+
+    def test_every_handle_is_released_in_reverse_order(self):
+        journal = []
+        self.composed(journal).release()
+        self.assertEqual(journal, ["review", "implementation", "integration",
+                                   "authority"])
+
+    def test_a_partial_construction_releases_only_what_exists(self):
+        journal = []
+        composed = stage_execution.StageExecution(
+            None, authority=self._Handle("authority", journal),
+            integration=None, workers=[], given={})
+        composed.release()
+        self.assertEqual(journal, ["authority"])
+
+    def test_one_failing_release_never_stops_the_others(self):
+        journal = []
+        composed = self.composed(journal)
+        composed.integration.failing = True
+        with self.assertRaises(ContractRefusal) as caught:
+            composed.release()
+        self.assertEqual(journal, ["review", "implementation", "integration",
+                                   "authority"])
+        self.assertIn("integration store", caught.exception.message)
+
+    def test_the_pooled_surface_is_delegated_rather_than_respelled(self):
+        journal = []
+        composed = self.composed(journal)
+        composed.pooled = type(
+            "Pooled", (), {"canonical": True,
+                           "dispatch": lambda self: "asked"})()
+        self.assertEqual(composed.dispatch(), "asked")
+
+
+class TheFactoryReadsOnlyItsNamedConfiguration(StageCase):
+
+    def test_an_unset_environment_refuses_before_anything_is_opened(self):
+        held = dict(os.environ)
+        os.environ.pop(stage_execution.CONFIG_ENV, None)
+        self.addCleanup(os.environ.update, held)
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.factory(object(), object())
+        self.assertIn(stage_execution.CONFIG_ENV, caught.exception.message)
+        self.assertEqual(caught.exception.category, "refused")
+
+    def test_a_document_wider_than_the_ceiling_is_refused(self):
+        place = os.path.join(self.root, "wide.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            writing.write(
+                json.dumps({"padding": "x" *
+                            (stage_execution.MAX_CONFIG_BYTES + 16)}))
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution._read(place)
+        self.assertEqual(caught.exception.code, "limit")
+
+    def test_an_unreadable_document_is_refused_as_one(self):
+        place = os.path.join(self.root, "broken.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            writing.write("{not json")
+        with self.assertRaises(ContractRefusal):
+            stage_execution._read(place)
+
+
+class ThePublicationSeamIsTwoAcceptedOperations(StageCase):
+    """W103874's producer and W103077's publication, in the order that works.
+
+    The ending calls this while the producer assignment is still live. What
+    matters here is that the seam composes nothing of its own: the manifest
+    digest comes from `retain_proposal` and is handed to `publish_candidate` as
+    a SELECTOR, so no publication member is supplied from this deployment's
+    configuration -- if one were, the deployment would be asserting something
+    the frozen result is supposed to prove.
+    """
+
+    def seam(self, retained="sha256:" + "a" * 64, answer=None):
+        asked = []
+
+        def retain(control, publisher, *, attempt_id):
+            asked.append(("retain", control, publisher, attempt_id))
+            return retained
+
+        def publish(control, publisher, *, attempt_id,
+                    proposal_manifest_digest):
+            asked.append(("publish", control, publisher, attempt_id,
+                          proposal_manifest_digest))
+            return answer if answer is not None else {"published": True}
+
+        return asked, retain, publish
+
+    def published(self, **members):
+        asked, retain, publish = self.seam(**members)
+        seam = stage_execution.Publication("control", "publisher")
+        for name, replacement in (("retain_proposal", retain),
+                                  ("publish_candidate", publish)):
+            self.addCleanup(setattr, stage_execution, name,
+                            getattr(stage_execution, name))
+            setattr(stage_execution, name, replacement)
+        return asked, seam
+
+    def test_the_retained_digest_is_what_publication_selects_on(self):
+        asked, seam = self.published()
+        answer = seam.publish(attempt_id="attempt-1", result_id="result-1",
+                              manifest_digest="sha256:" + "b" * 64,
+                              artifacts=["artifact-1"],
+                              proposal={"target": "revision-1"})
+        self.assertEqual(answer, {"published": True})
+        self.assertEqual(
+            asked,
+            [("retain", "control", "publisher", "attempt-1"),
+             ("publish", "control", "publisher", "attempt-1",
+              "sha256:" + "a" * 64)])
+
+    def test_the_seam_records_what_it_published_and_invents_nothing(self):
+        _asked, seam = self.published()
+        seam.publish(attempt_id="attempt-1", result_id="result-1",
+                     manifest_digest="sha256:" + "b" * 64,
+                     artifacts=["artifact-1"],
+                     proposal={"target": "revision-1"})
+        self.assertEqual(seam.published, [{
+            "attempt_id": "attempt-1", "result_id": "result-1",
+            "manifest_digest": "sha256:" + "b" * 64,
+            "artifacts": ["artifact-1"],
+            "proposal_manifest_digest": "sha256:" + "a" * 64}])
+
+    def test_a_producer_refusal_stops_before_the_authority_is_asked(self):
+        asked, seam = self.published()
+
+        def refusing(control, publisher, *, attempt_id):
+            asked.append(("retain", attempt_id))
+            raise ContractRefusal("refused", "precondition",
+                                  "no frozen result")
+
+        stage_execution.retain_proposal = refusing
+        with self.assertRaises(ContractRefusal):
+            seam.publish(attempt_id="attempt-1", result_id="result-1",
+                         manifest_digest="sha256:" + "b" * 64,
+                         artifacts=[], proposal={})
+        self.assertEqual([one[0] for one in asked], ["retain"])
+        self.assertEqual(seam.published, [])
+
+
+class TheDriverFacingMembersComeFromTheConfiguration(StageCase):
+
+    def test_the_integration_profile_is_composed_from_the_document(self):
+        profile = stage_execution.integration_from(self.held())
+        self.assertEqual(profile["profile_kind"], "git")
+        self.assertEqual(profile["integrator_participant"],
+                         "baton.integrator")
+        self.assertEqual(profile["instructions_digest"], "sha256:" + "e" * 64)
+
+    def test_a_partly_constructed_object_answers_no_serving_member(self):
+        """`tools.job_manager` asks a returned object for `close` by name, and
+        a composition that failed before its pool existed must answer that as
+        an absence rather than by delegating onto nothing."""
+        composed = stage_execution.StageExecution(
+            None, authority=None, integration=None, workers=[],
+            given=self.held())
+        self.assertIsNone(getattr(composed, "launch_pass", None))
+        with self.assertRaises(AttributeError):
+            composed.binding_intent
+        # `close` IS ITS OWN, so a partial construction is still releasable.
+        self.assertTrue(callable(composed.close))
+
+
+class Publisher:
+    """The Authority a publication is performed against, answering what it is
+    asked.
+
+    Derived from the operands rather than scripted, which is what makes
+    `publish_candidate`'s own equality check meaningful over a manifest the
+    real producer composed: the answer is a function of what it was sent, so
+    the case proves the producer's receipt digest binds it.
+    """
+
+    participant = "baton.impl"
+    target = "a" * 40
+
+    def __init__(self):
+        self.calls = []
+        self.recorded = None
+
+    def canonical_target(self):
+        return self.target
+
+    def publish(self, operands):
+        self.calls.append(dict(operands))
+        self.recorded = {
+            "proposal_id": operands["proposal_id"],
+            "assignment_ref": operands["expect"],
+            "result_id": operands["result_id"],
+            "result_digest": operands["result_digest"],
+            "candidate_digest": operands["candidate_digest"],
+            "input_digest": operands["input_digest"],
+            "policy_digest": operands["policy_digest"],
+            "target": operands["target"]}
+        return dict(self.recorded)
+
+    def proposal(self, proposal_id):
+        return dict(self.recorded, decision={},
+                    published_at="2026-09-07T00:00:00.000Z")
+
+
+class ComposedLifecycleCase(DriverCase):
+    """W103083 item 3: one Job through the drivers this factory composes.
+
+    WHAT IS REAL, because that is the whole question a composed proof answers.
+    The control store, the Job store and the development line are real;
+    `prepare_implementation`, `freeze_checkpoint`, `prepare_review`,
+    `record_verdict` and `open_correction` are the accepted operations against
+    them; the result manifest each round publishes is REALLY RETAINED and read
+    back through `load_manifest`; and the publication seam is the factory's own
+    `Publication`, calling the real `retain_proposal` and `publish_candidate`.
+    That is what the ruling means by using the real retained-manifest producer
+    rather than a mock supplying the missing document.
+
+    WHAT STANDS IN, named rather than implied. The freeze, intake, retention
+    and cleanup OPERATIONS are not performed: they need an engine, a delivered
+    workspace and a custody tree, which is the live proof's half. The frozen
+    RESULT they would name is real and retained, so the producer composes over
+    durable state rather than over a fixture's idea of one. The Authority is a
+    fake that answers what it is asked.
+    """
+
+    # §12 RULE 1 IS WHY THIS AUTHORITY IS NOT THE JOB FIXTURE'S. A Work id
+    # carries its Authority's eight-character prefix, and the shared
+    # job-manager fixture's pair was written for a path that never validates a
+    # manifest -- so reusing it here refuses at the identity rule before the
+    # composition it is proving is reached. The line and every attempt below
+    # use one manifest-valid pair.
+    AUTHORITY = "0000000a" + "0" * 24
+    WORK = WORK_A
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.job_manager import JobStore, submit
+        from baton_v12.worker_manager import create_line, retain_manifest
+        from baton_v12.worker_manager.source_boundary import nominate_source
+        from tests.job_manager.test_review_driver import one_work_submission
+        # THE JOB STORE IS REBOUND TO THE SAME AUTHORITY as the line, because
+        # `advance_correction` cross-binds the recorded verdict against the
+        # Job's own Authority and Work. Two stores bound to two Authorities is
+        # exactly the mismatch it exists to refuse.
+        self.jobs.close()
+        self.jobs = JobStore.open(
+            os.path.join(self.root, "composed-jobs.sqlite3"),
+            authority_uuid=self.AUTHORITY, incarnation="jobs-2",
+            clock=self.clock)
+        self.addCleanup(self.jobs.close)
+        submit(self.jobs, one_work_submission())
+        self.line = create_line(
+            self.control, source=nominate_source(self.source),
+            declared_base="a" * 40, profile=self.profile,
+            authority_uuid=self.AUTHORITY, work_id=self.WORK)
+        self.publisher = Publisher()
+        self.seam = stage_execution.Publication(self.control, self.publisher)
+        self.input_digest = retain_manifest(
+            self.control, _vector("baton.worker-manifest/input"),
+            "inputManifest")["digest"]
+        self.retained = {}
+
+    # -- the frozen result a round publishes ---------------------------------
+
+    def frozen(self, attempt_id, generation):
+        """One really retained result manifest, and the row that names it."""
+        from baton_v12.contracts import digest
+        from baton_v12.worker_manager import retain_manifest
+        entries = [{"path": "change.patch", "bytes": 4,
+                    "content_digest": "sha256:" + "6" * 64},
+                   {"path": "objects.bundle", "bytes": 8,
+                    "content_digest": "sha256:" + "7" * 64}]
+        entries.sort(key=lambda one: one["path"].encode("utf-8"))
+        content = {"entries": entries, "entry_count": len(entries),
+                   "total_bytes": sum(one["bytes"] for one in entries),
+                   "tree_digest": digest(entries)}
+        artifact = {"artifact_id": f"{attempt_id}:proposal",
+                    "media_type": "application/octet-stream",
+                    "bytes": content["total_bytes"],
+                    "content_digest": content["tree_digest"],
+                    "locator": f"file:///var/lib/baton/{attempt_id}/proposal"}
+        claim = {"base": self.publisher.target,
+                 "head": f"{generation:040x}",
+                 "transport": "objects.bundle",
+                 "recap": f"candidate: round {generation}"}
+        document = dict(_vector("baton.worker-manifest/result"),
+                        result_id=f"result-{attempt_id}",
+                        input_manifest_digest=self.input_digest,
+                        assignment_ref={
+                            "work_ref": {"authority_uuid": self.AUTHORITY,
+                                         "work_id": self.WORK},
+                            "participant": WRITER, "generation": generation},
+                        outputs=[{"name": "proposal",
+                                  "type": "git-change-proposal",
+                                  "status": "present",
+                                  "content_manifest": content,
+                                  "artifact": artifact,
+                                  "result_metadata": {
+                                      "baton.git-proposal/1": claim}}])
+        document.pop("manifest_digest")
+        document["manifest_digest"] = digest(document)
+        held = retain_manifest(self.control, document,
+                               "resultManifest")["digest"]
+        self.control._connection.execute(
+            "INSERT INTO outputs (runtime_attempt_id, result_id, disposition, "
+            "manifest_digest, freeze_operation_id, frozen_at) VALUES (?, ?, "
+            "'completed', ?, ?, ?)",
+            (attempt_id, document["result_id"], held, "freeze-" + attempt_id,
+             NOW))
+        return held, document
+
+    # -- one composed round --------------------------------------------------
+
+    def composed_round(self, number, disposition, *, based=None):
+        """Implementation, real publication, checkpoint, review, verdict."""
+        from baton_v12.worker_manager import (freeze_checkpoint,
+                                              record_verdict)
+        writer_attempt = self.attempt(f"writer-attempt-{number}", number,
+                                      WRITER, f"writer-principal-{number}")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, writer_attempt))
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=writer_attempt, generation=number,
+            worker_id=f"impl-worker-{number}", profile=self.profile,
+            based_checkpoint_id=based)
+        self.completed(writer_attempt)
+        result_digest, document = self.frozen(writer_attempt, number)
+
+        # THE FACTORY'S OWN SEAM, and the ordering the ending imposes: this
+        # runs while the producer assignment is still live, BEFORE the
+        # checkpoint fences it. A publication after the fence refuses.
+        answer = self.seam.publish(
+            attempt_id=writer_attempt, result_id=document["result_id"],
+            manifest_digest=result_digest, artifacts=[],
+            proposal={"target": self.publisher.target})
+        self.retained[writer_attempt] = \
+            self.seam.published[-1]["proposal_manifest_digest"]
+
+        checkpoint = freeze_checkpoint(
+            self.control, writer_id=writer["writer_id"], generation=number,
+            profile=self.profile, port=self.port(WRITER))
+        review_attempt = self.attempt(f"review-attempt-{number}", number,
+                                      REVIEWER, f"review-principal-{number}")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, review_attempt))
+        attached = review_driver.prepare_review(
+            self.control, checkpoint_id=checkpoint["checkpoint_id"],
+            attempt_id=review_attempt, generation=number,
+            reviewer_worker_id=f"review-worker-{number}",
+            profile=self.profile)
+        self.completed(review_attempt, review=True)
+        verdict = record_verdict(
+            self.control, attachment_id=attached["attachment_id"],
+            disposition=disposition, profile=self.profile,
+            port=self.port(REVIEWER))
+        return {"checkpoint_id": checkpoint["checkpoint_id"],
+                "verdict_id": verdict["verdict_id"], "published": answer,
+                "result_digest": result_digest}
+
+
+class TheRECOVEREDReviewLineCarriesItsOwnCapability(unittest.TestCase):
+    """W285465 review 2026-09-28T08-35-38Z: the edge that dropped the operand.
+
+    `_prepare` passes the acting preparation's capability into `_recovered`, and the
+    implementation branch there forwards it to `writer_boundary`. The REVIEW branch dropped
+    it, so every tick after the first that recomposes an active review mount while the
+    preparation window stands was refused by that window.
+
+    WHAT THIS PROVES AND WHAT IT DOES NOT, stated rather than left to a test name: it proves
+    the OPERAND CROSSES the composer on both branches, which is exactly the defect. What the
+    capability then MEANS is the adoption entry's rule, covered by that entry's own cases --
+    this asserts nothing about it and doubles neither owner's account.
+    """
+
+    class Deployment:
+        control = "the-control"
+        profile = "the-profile"
+
+    def composed(self, role):
+        return stage_execution.StageComposition(
+            self.Deployment(), role=role, worker_id="a-worker")
+
+    def test_the_REVIEW_branch_forwards_what_it_was_given(self):
+        seen = {}
+
+        def review_for_attempt(control, *, attempt_id, generation):
+            return {"attachment_id": "an-attachment", "state": "active",
+                    "checkpoint_id": "a-checkpoint"}
+
+        def review_boundary(control, *, attachment_id, profile, preparing=None):
+            seen["preparing"] = preparing
+            return "a-boundary"
+
+        with mock.patch.multiple(stage_execution.review_cycles,
+                                 review_for_attempt=review_for_attempt,
+                                 review_boundary=review_boundary):
+            answered = self.composed("review")._recovered(
+                "an-attempt", 1, preparing="the-capability")
+        self.assertEqual(answered["boundary"], "a-boundary")
+        self.assertEqual(seen["preparing"], "the-capability")
+
+    def test_the_IMPLEMENTATION_branch_still_forwards_its_own(self):
+        """The reciprocal, so a later edit cannot fix one branch by breaking the other."""
+        seen = {}
+
+        def writer_for_attempt(control, *, attempt_id, generation):
+            return {"writer_id": "a-writer", "line_id": "a-line",
+                    "state": "active", "based_checkpoint_id": None}
+
+        def writer_boundary(control, *, writer_id, generation, preparing=None):
+            seen["preparing"] = preparing
+            return "a-boundary"
+
+        with mock.patch.multiple(stage_execution.review_cycles,
+                                 writer_for_attempt=writer_for_attempt,
+                                 writer_boundary=writer_boundary):
+            answered = self.composed("implementation")._recovered(
+                "an-attempt", 1, preparing="the-capability")
+        self.assertEqual(answered["boundary"], "a-boundary")
+        self.assertEqual(seen["preparing"], "the-capability")
+
+    def test_an_INACTIVE_review_attachment_composes_no_boundary_at_all(self):
+        """The negative control: no mount is composed for history, capability or not."""
+        def review_for_attempt(control, *, attempt_id, generation):
+            return {"attachment_id": "an-attachment", "state": "ended",
+                    "checkpoint_id": "a-checkpoint"}
+
+        def review_boundary(*arguments, **named):
+            raise AssertionError("an ended attachment composed a mount")
+
+        with mock.patch.multiple(stage_execution.review_cycles,
+                                 review_for_attempt=review_for_attempt,
+                                 review_boundary=review_boundary):
+            self.assertIsNone(self.composed("review")._recovered(
+                "an-attempt", 1, preparing="the-capability")["boundary"])
+
+
+
+class TheFAILEDReviewEndingReadsRetainedFactsOverRealStores(
+        ComposedLifecycleCase):
+    """W236087, owner 2026-09-30T09:50:56Z and review 2026-09-30T10:22:40Z.
+
+    A live run measured the defect. A review provider timed out, its output was
+    frozen `unable`, intake SEALED it, and the cleanup axis ended `pending` --
+    so the worker's material stood preserved and offered for inspection,
+    exactly as DESIGN ART-7 intends. The manager then asked `conclude` again
+    every tick; `StageComposition.end` found its `_prepared` cache EMPTY (a
+    restart, or simply a later tick) and called `_prepare`, which recovers the
+    record AND COMPOSES A BOUNDARY. A boundary is admitted through
+    `workspaces.admit_preparation`, whose `_offered_material_refusal` refuses
+    precisely that state -- and it is right to: a preparation is a WRITER
+    inside those roots. The run was refused for 104 seconds and 58 sweeps and
+    ended only when an operator interrupted it.
+
+    WHAT IS REAL HERE: the control store, the Job store, the line, the
+    checkpoint, the real `prepare_review`, the really retained result manifest,
+    the real `attempts` axes, and the real `admit_preparation` rule. WHAT
+    STANDS IN, named: the engine and the provider -- the freeze, intake,
+    retention and cleanup OPERATIONS are not performed, which is
+    `ComposedLifecycleCase`'s own stated boundary; the axes they would set are
+    written directly, which is how the state under test is reached at all.
+    """
+
+    def sealed_review(self, number=1):
+        """One real review attempt whose output is SEALED with cleanup PENDING.
+
+        Reached through the accepted operations as far as they go -- a real
+        implementation preparation, a real publication, a real
+        `freeze_checkpoint`, a real `prepare_review` over it -- and then the
+        two axes the engine would have set are written, because the engine is
+        this fixture's stated stand-in.
+        """
+        from baton_v12.worker_manager import freeze_checkpoint
+
+        writer_attempt = self.attempt(f"writer-attempt-{number}", number,
+                                      WRITER, f"writer-principal-{number}")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, writer_attempt))
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=writer_attempt, generation=number,
+            worker_id=f"impl-worker-{number}", profile=self.profile,
+            based_checkpoint_id=None)
+        self.completed(writer_attempt)
+        result_digest, document = self.frozen(writer_attempt, number)
+        self.seam.publish(
+            attempt_id=writer_attempt, result_id=document["result_id"],
+            manifest_digest=result_digest, artifacts=[],
+            proposal={"target": self.publisher.target})
+        checkpoint = freeze_checkpoint(
+            self.control, writer_id=writer["writer_id"], generation=number,
+            profile=self.profile, port=self.port(WRITER))
+
+        review_attempt = self.attempt(f"review-attempt-{number}", number,
+                                      REVIEWER, f"review-principal-{number}")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, review_attempt))
+        attached = review_driver.prepare_review(
+            self.control, checkpoint_id=checkpoint["checkpoint_id"],
+            attempt_id=review_attempt, generation=number,
+            reviewer_worker_id=f"review-worker-{number}",
+            profile=self.profile)
+        # THE TIMEOUT'S OWN STATE, as the live run recorded it: the provider
+        # answered nothing, so the worker's disposition is `unable`, the output
+        # axis is `sealed` -- intake's terminal state, whose only successor is
+        # `discarded` -- and the cleanup axis ended `pending`.
+        self.control._connection.execute(
+            "UPDATE attempts SET output = 'sealed', cleanup = 'pending', "
+            "worker_disposition = 'unable' WHERE runtime_attempt_id = ?",
+            (review_attempt,))
+        self.control._connection.execute(
+            "INSERT INTO outputs (runtime_attempt_id, result_id, disposition, "
+            "manifest_digest, freeze_operation_id, frozen_at) VALUES (?, ?, "
+            "'unable', ?, ?, ?)",
+            (review_attempt, "result-" + review_attempt, result_digest,
+             "freeze-" + review_attempt, NOW))
+        return {"attempt_id": review_attempt,
+                "attachment_id": attached["attachment_id"],
+                "checkpoint_id": checkpoint["checkpoint_id"],
+                "generation": number, "result_digest": result_digest}
+
+    def composition(self, role="review"):
+        class Deployment:
+            control = self.control
+            profile = self.profile
+
+            def generation_of(self, _attempt_id):
+                return 1
+
+            def line_for(self, _job_id):
+                raise AssertionError("a NEW preparation was composed")
+
+        return stage_execution.StageComposition(
+            Deployment(), role=role, worker_id="review-worker-1")
+
+    def prepared_roots(self, attempt_id):
+        """The pair this attempt's roots ALREADY are, allocated once.
+
+        Allocated before the axes are moved to the offered state, which is the
+        real order: a worker cannot have written material into roots that were
+        never created.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        self.control._connection.execute(
+            "UPDATE attempts SET output = 'open', cleanup = 'pending' "
+            "WHERE runtime_attempt_id = ?", (attempt_id,))
+        held = workspaces.assignment_workspace(
+            workspaces.configured_workspace_group(self.control), self.storage,
+            attempt_id, control=self.control)
+        self.control._connection.execute(
+            "UPDATE attempts SET output = 'sealed', cleanup = 'pending' "
+            "WHERE runtime_attempt_id = ?", (attempt_id,))
+        return held
+
+    def evidence(self, attempt_id):
+        """Everything the sealed offer consists of, as one comparable value."""
+        control = self.control._connection
+        return {
+            "attempt": dict(control.execute(
+                "SELECT output, cleanup, worker_disposition FROM attempts "
+                "WHERE runtime_attempt_id = ?", (attempt_id,)).fetchone()),
+            "outputs": [dict(one) for one in control.execute(
+                "SELECT * FROM outputs WHERE runtime_attempt_id = ?",
+                (attempt_id,))],
+            "manifests": sorted(one[0] for one in control.execute(
+                "SELECT digest FROM manifests")),
+            "operations": sorted(one[0] for one in control.execute(
+                "SELECT operation_id FROM operations")),
+            "review_attachments": [dict(one) for one in control.execute(
+                "SELECT * FROM review_attachments")],
+            "retentions": [dict(one) for one in control.execute(
+                "SELECT * FROM retentions")],
+        }
+
+    # -- the state itself ----------------------------------------------------
+
+    def test_THE_REAL_RULE_REALLY_REFUSES_THIS_STATE(self):
+        """The premise, over the real store: this is the refusing state, so
+        everything below is about the state the live run was actually in.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.admit_preparation(
+                self.control, held["attempt_id"],
+                f"preparing attempt {held['attempt_id']}'s roots")
+        said = str(caught.exception)
+        self.assertEqual(caught.exception.category, "refused")
+        self.assertEqual(caught.exception.code, "precondition")
+        self.assertIn("'sealed'", said)
+        self.assertIn("cleanup ended 'pending'", said)
+        self.assertIn("preserved and offered for inspection", said)
+        self.assertIn("output axis reaching 'discarded'", said)
+
+    def test_WHERE_THE_ADMISSION_ACTUALLY_HAPPENS_AND_WHERE_IT_DOES_NOT(self):
+        """A CORRECTION TO MY OWN DIAGNOSIS, and this case is how I found it.
+
+        I reported that `stage_execution._prepare` was the site, because `end`
+        called it on a cache miss and `_prepare` composes a boundary. Over this
+        real store it DOES NOT REFUSE: composing a review boundary does not
+        admit a preparation.
+
+        The admission is `single_worker._mounted`, which calls
+        `workspaces.admit_preparation(..., f"preparing attempt {attempt_id}'s
+        roots", ...)` -- the live deferral's message WORD FOR WORD -- and
+        `single_worker.ending` calls it at the top of the ending, before
+        `stage.end` is reached at all. So the `stage_execution` change is a
+        real hardening (an ending no longer composes a boundary it never
+        reads) and NOT the live refusal's cause.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        composed = self.composition()
+        # NO REFUSAL HERE: this is the part I had wrong.
+        prepared = composed._prepare({"attempt_id": held["attempt_id"],
+                                      "job_id": "job-a"})
+        self.assertEqual(prepared["attachment_id"], held["attachment_id"])
+        # AND THE REFUSAL IS HERE, at the admission the ending performs before
+        # it reaches the stage, with the message the live run retained.
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.admit_preparation(
+                self.control, held["attempt_id"],
+                f"preparing attempt {held['attempt_id']}'s roots",
+                held["attempt_id"])
+        said = str(caught.exception)
+        self.assertIn("preparing attempt", said)
+        self.assertIn("'s roots is refused", said)
+        self.assertIn("preserved and offered for inspection", said)
+        # THE SITE, NAMED FROM THE SOURCE rather than from memory.
+        import inspect
+
+        from tools import single_worker
+        ending = inspect.getsource(single_worker._SingleWorker.ending)
+        self.assertIn("self._mounted(stage, attempt_id, checkpoint=False,",
+                      ending)
+        mounted = inspect.getsource(single_worker._SingleWorker._mounted)
+        self.assertIn("workspaces.admit_preparation", mounted)
+        self.assertIn("preparing attempt ", mounted)
+
+    # -- the correction ------------------------------------------------------
+
+    def test_THE_ENDING_READS_THE_RETAINED_IDENTITY_WITH_AN_EMPTY_CACHE(self):
+        """The corrected path: a cache-empty ending answers from rows that do
+        not move, and admits no preparation at all.
+        """
+        held = self.sealed_review()
+        composed = self.composition()
+        self.assertEqual(composed._prepared, {})
+        answered = composed._retained({"attempt_id": held["attempt_id"],
+                                       "job_id": "job-a"})
+        self.assertEqual(answered["attachment_id"], held["attachment_id"])
+        self.assertEqual(answered["checkpoint_id"], held["checkpoint_id"])
+        self.assertEqual(answered["generation"], held["generation"])
+        self.assertIsNone(answered["boundary"])
+        # NOT CACHED: `mount` refuses a record without a boundary.
+        self.assertEqual(composed._prepared, {})
+
+    def test_REPEATED_CONCLUSION_CHANGES_NOTHING_AT_ALL(self):
+        """The 58 sweeps, as a property: reading the identity again and again
+        leaves the sealed evidence, the journal and every axis identical.
+        """
+        held = self.sealed_review()
+        before = self.evidence(held["attempt_id"])
+        for _tick in range(5):
+            composed = self.composition()          # a fresh cache every time,
+            answered = composed._retained(          # which is the restart case
+                {"attempt_id": held["attempt_id"], "job_id": "job-a"})
+            self.assertEqual(answered["attachment_id"],
+                             held["attachment_id"])
+        after = self.evidence(held["attempt_id"])
+        self.assertEqual(before, after)
+        # AND SPECIFICALLY: no operation was journalled by the reads, so no
+        # preparation, admission, allocation or adoption happened.
+        self.assertEqual(before["operations"], after["operations"])
+        # THE SEALED BYTES ARE THE SAME BYTES.
+        self.assertEqual(after["outputs"][0]["manifest_digest"],
+                         held["result_digest"])
+        self.assertEqual(after["attempt"],
+                         {"output": "sealed", "cleanup": "pending",
+                          "worker_disposition": "unable"})
+
+    def test_NO_VERDICT_IS_INVENTED_AND_THE_OFFER_IS_NOT_DISPOSED(self):
+        """What the correction must NOT do: it reads, and that is all. The
+        offer stays sealed -- disposing it is an operator's act -- and no
+        verdict appears from an ending that never had one.
+        """
+        held = self.sealed_review()
+        for _tick in range(3):
+            self.composition()._retained(
+                {"attempt_id": held["attempt_id"], "job_id": "job-a"})
+        control = self.control._connection
+        self.assertEqual(control.execute(
+            "SELECT count(*) FROM checkpoint_verdicts").fetchone()[0], 0)
+        self.assertEqual(control.execute(
+            "SELECT output FROM attempts WHERE runtime_attempt_id = ?",
+            (held["attempt_id"],)).fetchone()[0], "sealed")
+        # THE ATTACHMENT IS UNTOUCHED TOO: reading an identity does not end a
+        # review cycle.
+        [attachment] = [dict(one) for one in control.execute(
+            "SELECT * FROM review_attachments WHERE runtime_attempt_id = ?",
+            (held["attempt_id"],))]
+        self.assertEqual(attachment["state"], "active")
+        self.assertIsNone(attachment["ended_at"])
+
+    # -- THE CORRECTION AT THE OWNING SEAM ----------------------------------
+    #
+    # `single_worker._mounted` admitted a preparation window unconditionally and
+    # `assignment_workspace` then allocated, both of which are WRITERS' acts
+    # over material that stands offered for inspection. The window is now not
+    # opened in that state and the roots are REVALIDATED -- the same path the
+    # module already takes for a live task, which proves the pair and writes
+    # nothing.
+
+    def test_THE_PREDICATE_IS_THE_SAME_QUESTION_THE_RULE_ASKS(self):
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        self.assertTrue(workspaces.material_is_offered(self.control,
+                                                       held["attempt_id"]))
+        # AND IT IS FALSE FOR AN ORDINARY ATTEMPT, so it is a question and not
+        # a constant: the implementation attempt of the same round is
+        # `completed`, not `sealed`.
+        other = self.attempt("ordinary-attempt", 9, WRITER, "ordinary")
+        self.assertFalse(workspaces.material_is_offered(self.control, other))
+        # A `complete` CLEANUP IS NOT OFFERED MATERIAL EITHER -- the tree is
+        # gone, so there is nothing to protect.
+        self.control._connection.execute(
+            "UPDATE attempts SET output = 'sealed', cleanup = 'complete' "
+            "WHERE runtime_attempt_id = ?", (other,))
+        self.assertFalse(workspaces.material_is_offered(self.control, other))
+
+    def test_THE_ROOTS_ARE_REVALIDATED_AND_NOTHING_IS_ADMITTED(self):
+        """The corrected re-entry, over the real store and the real rule: the
+        pair is answered, no window is opened, and the journal does not move.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        roots = self.prepared_roots(attempt)
+        before = self.evidence(attempt)
+
+        answered = workspaces.assignment_workspace(
+            workspaces.configured_workspace_group(self.control), self.storage,
+            attempt, control=self.control, preparing=None)
+        self.assertEqual(answered["inputs"], roots["inputs"])
+        self.assertEqual(answered["workspace"], roots["workspace"])
+        after = self.evidence(attempt)
+        # NO OPERATION AT ALL: no allocation admitted, no adoption, no window.
+        self.assertEqual(before["operations"], after["operations"])
+        self.assertEqual(before, after)
+
+    def test_WITHOUT_THE_CORRECTION_THE_SAME_CALL_ADMITS_AN_ALLOCATION(self):
+        """The mutation, so the case above cannot pass by accident: with the
+        predicate answering False the same call takes the allocating path and
+        the journal MOVES.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        self.prepared_roots(attempt)
+        before = self.evidence(attempt)
+        with mock.patch.object(workspaces, "material_is_offered",
+                               lambda control, assignment_id: False):
+            workspaces.assignment_workspace(
+                workspaces.configured_workspace_group(self.control),
+                self.storage, attempt, control=self.control, preparing=None)
+        after = self.evidence(attempt)
+        # AND WHAT IT DOES IS WORSE THAN REFUSING: it ADMITS AN ALLOCATION over
+        # material that stands offered for inspection. The offered-material
+        # guard lives on `admit_preparation`, which this entry does not call --
+        # so without the predicate this path WRITES. That is the whole reason
+        # the correction routes it to revalidation rather than simply removing
+        # the preparation window.
+        self.assertNotEqual(before["operations"], after["operations"])
+        gained = set(after["operations"]) - set(before["operations"])
+        self.assertTrue(any("allocation" in one for one in gained), gained)
+        # THE SEALED EVIDENCE ITSELF IS STILL THERE -- this is an allocation
+        # admitted, not a tree destroyed -- which is why the defect was a
+        # refusal loop rather than lost bytes.
+        self.assertEqual(after["outputs"], before["outputs"])
+        self.assertEqual(after["attempt"], before["attempt"])
+
+    def test_THE_ENDING_SEAM_OPENS_NO_WINDOW_OVER_OFFERED_MATERIAL(self):
+        """`single_worker._mounted`'s own decision, asserted from the source and
+        from the predicate it calls.
+        """
+        import inspect
+
+        from tools import single_worker
+
+        source = inspect.getsource(single_worker._SingleWorker._mounted)
+        self.assertIn("workspaces.material_is_offered", source)
+        self.assertIn("None if offered else workspaces.admit_preparation",
+                      source)
+        # AND THE WINDOW IS STILL OPENED WHEN THE MATERIAL IS NOT OFFERED, so
+        # a LAUNCH -- which really is a writer -- is unaffected.
+        self.assertIn("admit_preparation", source)
+        released = inspect.getsource(single_worker._SingleWorker._released)
+        self.assertIn("if naming is None:", released)
+
+    # -- THE SKIP IS THE ENDING'S ALONE -------------------------------------
+    #
+    # REVIEW 2026-09-30T11:24:20Z, and it caught a hole I opened. `_mounted` is
+    # SHARED -- a launch, an abandonment and the ending all call it -- and my
+    # first cut skipped the preparation window whenever the material was
+    # offered, for every caller. A launch or a credential writer reaching this
+    # state would then have LOST the protection instead of being refused by it.
+    # The skip now needs the offered state AND `writer=False`, which only a
+    # re-entry that writes nothing passes.
+
+    def test_A_WRITER_CALLER_IS_STILL_REFUSED_OVER_OFFERED_MATERIAL(self):
+        """The default is `writer=True`, so every caller that has not said
+        otherwise keeps the admission and keeps the refusal.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        self.assertTrue(workspaces.material_is_offered(self.control, attempt))
+        # THE ADMISSION A WRITER PERFORMS, with the default intent.
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.admit_preparation(
+                self.control, attempt,
+                f"preparing attempt {attempt}'s roots", attempt)
+        self.assertIn("preserved and offered for inspection",
+                      str(caught.exception))
+
+    def test_ONLY_writer_False_SKIPS_AND_THE_SOURCE_SAYS_WHO_PASSES_IT(self):
+        """The intent is a parameter, not a state read -- and exactly one
+        caller passes it.
+        """
+        import inspect
+
+        from tools import single_worker
+
+        said = inspect.signature(single_worker._SingleWorker._mounted)
+        self.assertEqual(said.parameters["writer"].default, True)
+        source = inspect.getsource(single_worker._SingleWorker._mounted)
+        self.assertIn("offered = not writer and workspaces."
+                      "material_is_offered", source)
+        # THE THREE CALLERS, and which one asks for the read-only recovery.
+        whole = inspect.getsource(single_worker._SingleWorker)
+        # THE CALL SITES, each with the line that follows it, because the
+        # ending's call wraps and a line-by-line scan would miss its operand.
+        lines = whole.splitlines()
+        calls = [" ".join(one.strip() for one in lines[index:index + 2])
+                 for index, one in enumerate(lines)
+                 if "self._mounted(" in one]
+        self.assertEqual(len(calls), 3, calls)
+        self.assertEqual(len([one for one in calls if "writer=False" in one]),
+                         1, calls)
+        # AND IT IS THE ENDING, named from the function that contains it.
+        ending = inspect.getsource(single_worker._SingleWorker.ending)
+        self.assertIn("writer=False", ending)
+        abandoning = inspect.getsource(
+            single_worker._SingleWorker.abandon_attempt)
+        self.assertNotIn("writer=False", abandoning)
+
+    def test_A_MISSING_ROOT_IS_REFUSED_AND_NEVER_REPAIRED(self):
+        """The revalidation proves the pair and refuses what is not there. It
+        must not re-create a root it finds missing: repairing a tree whose
+        material is offered for inspection would destroy the evidence it is
+        protecting.
+        """
+        import shutil
+
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        roots = self.prepared_roots(attempt)
+        shutil.rmtree(roots["workspace"])
+        before = self.evidence(attempt)
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.assignment_workspace(
+                workspaces.configured_workspace_group(self.control),
+                self.storage, attempt, control=self.control, preparing=None)
+        self.assertEqual(caught.exception.category, "refused")
+        # NOT REPAIRED: the root is still gone and the journal has not moved.
+        self.assertFalse(os.path.exists(roots["workspace"]))
+        self.assertEqual(before, self.evidence(attempt))
+
+    def test_A_REPLACED_ROOT_IS_REFUSED_TOO(self):
+        """A link at the name is a tree somebody else chose, and revalidation
+        refuses it rather than adopting it.
+        """
+        import shutil
+
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        roots = self.prepared_roots(attempt)
+        elsewhere = os.path.join(self.root, "somebody-elses-tree")
+        os.makedirs(elsewhere, exist_ok=True)
+        shutil.rmtree(roots["workspace"])
+        os.symlink(elsewhere, roots["workspace"])
+        before = self.evidence(attempt)
+        with self.assertRaises(ContractRefusal):
+            workspaces.assignment_workspace(
+                workspaces.configured_workspace_group(self.control),
+                self.storage, attempt, control=self.control, preparing=None)
+        self.assertTrue(os.path.islink(roots["workspace"]))
+        self.assertEqual(before, self.evidence(attempt))
+
+    def test_THE_STAGE_MOUNT_STILL_REQUIRES_A_BOUNDARY(self):
+        """The scope of the `stage_execution` change, as a negative control: it
+        must not have made `mount` accept a record without one.
+
+        `mount` composes a boundary through `_prepare` and refuses when the
+        record carries none -- an ACTIVE attachment composes one here, which is
+        why this asserts the requirement from the code rather than by breaking
+        the store's state.
+        """
+        held = self.sealed_review()
+        composed = self.composition()
+        answered = composed._recovered(held["attempt_id"], 1)
+        self.assertIsNotNone(answered["boundary"])
+        # AND WITH boundary=False -- the ending's read -- there is none, so
+        # `mount` would refuse it. Both halves from the same store.
+        self.assertIsNone(composed._recovered(held["attempt_id"], 1,
+                                              boundary=False)["boundary"])
+        import inspect
+
+        source = inspect.getsource(stage_execution.StageComposition.mount)
+        self.assertIn('if held["boundary"] is None:', source)
+
+
+class TheComposedLifecycleRunsOverRealStores(ComposedLifecycleCase):
+    """Item 3's own cases, over the harness above."""
+
+    def test_one_job_runs_implementation_correction_and_acceptance(self):
+        from baton_v12.worker_manager import (integration_checkpoint,
+                                              line_of)
+        first = self.composed_round(1, "changes-requested")
+        self.assertEqual(first["published"]["result_digest"],
+                         first["result_digest"])
+        self.assertEqual(line_of(self.control,
+                                 self.line["line_id"])["revision"], 1)
+
+        # THE VERDICT ADVANCES THE JOB through the one act that touches it.
+        review_driver.open_correction(
+            self.jobs, self.control, job_id="job-a",
+            answered={"outcome": "correction",
+                      "line_id": self.line["line_id"],
+                      "checkpoint_id": first["checkpoint_id"],
+                      "verdict_id": first["verdict_id"]})
+        # THE LINE IS READY FOR A CORRECTION, and round two below can only
+        # attach a writer by naming exactly this checkpoint -- `grant_writer`
+        # refuses any other, which is what makes the next round the SAME line
+        # rather than a second one.
+        self.assertEqual(line_of(self.control,
+                                 self.line["line_id"])["state"],
+                         "correction-ready")
+
+        # ROUND TWO: the SAME line, based on the checkpoint that was rejected.
+        second = self.composed_round(2, "accepted",
+                                     based=first["checkpoint_id"])
+        held = line_of(self.control, self.line["line_id"])
+        self.assertEqual(held["revision"], 2)
+        self.assertEqual(held["current_checkpoint_id"],
+                         second["checkpoint_id"])
+        self.assertNotEqual(second["result_digest"], first["result_digest"])
+
+        # AND THE ACCEPTED CHECKPOINT IS THE ONE AN INTEGRATION WOULD ADMIT.
+        accepted = integration_checkpoint(self.control, self.line["line_id"])
+        self.assertEqual(accepted["checkpoint_id"], second["checkpoint_id"])
+        self.assertEqual(accepted["verdict_id"], second["verdict_id"])
+
+    def test_every_publication_selects_on_a_really_retained_manifest(self):
+        """The producer is real, so the digest publication selects on is one
+        `load_manifest` answers rather than one a mock supplied."""
+        from baton_v12.worker_manager import load_manifest
+        self.composed_round(1, "accepted")
+        self.assertEqual(len(self.retained), 1)
+        for attempt_id, retained in self.retained.items():
+            held = load_manifest(self.control, retained, "proposalManifest")
+            self.assertIsNotNone(held, attempt_id)
+            self.assertEqual(held["result_manifest_digest"],
+                             self.result_digest_of(attempt_id))
+            self.assertEqual(held["source_base"],
+                             {"algorithm": "sha1",
+                              "hex": self.publisher.target})
+
+    def result_digest_of(self, attempt_id):
+        from baton_v12.worker_manager import frozen_output_of
+        return frozen_output_of(self.control, attempt_id)["manifest_digest"]
+
+    def test_publication_happens_while_the_producer_is_still_live(self):
+        """W103068's measured ordering, driven rather than asserted in prose:
+        the seam is asked before the checkpoint fences the writer."""
+        from baton_v12.worker_manager import line_of
+        states = []
+        held = self.seam.publish
+
+        def watched(**operands):
+            states.append(line_of(self.control,
+                                  self.line["line_id"])["state"])
+            return held(**operands)
+
+        self.seam.publish = watched
+        self.composed_round(1, "accepted")
+        self.assertEqual(states, ["writing"])
+
+
+class TheFocusedChecksItemFourNames(ComposedLifecycleCase):
+    """W103083 item 4, over the composition item 3 just proved.
+
+    Five checks, each one the smallest thing that would actually catch its own
+    failure. Deliberately not a failure-injection campaign: the expanded
+    restart/status matrix is W103950's, and this leaf's ruling says so.
+    """
+
+    # -- one representative restart/replay cutpoint --------------------------
+
+    def test_a_restart_at_the_publication_cutpoint_replays_rather_than_repeats(
+            self):
+        """The cutpoint chosen is publication, because it is the one act that
+        reaches OUTSIDE this deployment.
+
+        A manager that died after the Authority recorded a proposal and before
+        it wrote anything of its own must, on the next incarnation, arrive at
+        the same proposal rather than a second one. Retention is keyed by the
+        digest of the bytes, so re-composing the manifest is what proves it:
+        the same frozen result produces the same digest and therefore the same
+        retained document.
+        """
+        from baton_v12.worker_manager import load_manifest, retain_manifest
+        writer_attempt = self.attempt("writer-attempt-1", 1, WRITER,
+                                      "writer-principal-1")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, writer_attempt))
+        review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=writer_attempt, generation=1,
+            worker_id="impl-worker-1", profile=self.profile)
+        self.completed(writer_attempt)
+        result_digest, document = self.frozen(writer_attempt, 1)
+
+        first = self.seam.publish(
+            attempt_id=writer_attempt, result_id=document["result_id"],
+            manifest_digest=result_digest, artifacts=[],
+            proposal={"target": self.publisher.target})
+        held = self.control._connection.execute(
+            "SELECT COUNT(*) FROM manifests WHERE schema = ?",
+            ("baton.worker-manifest/proposal",)).fetchone()[0]
+
+        # THE RESTART. A fresh seam over the same store, exactly as a new
+        # incarnation would compose it, with no memory of the first.
+        again = stage_execution.Publication(self.control, self.publisher)
+        second = again.publish(
+            attempt_id=writer_attempt, result_id=document["result_id"],
+            manifest_digest=result_digest, artifacts=[],
+            proposal={"target": self.publisher.target})
+
+        self.assertEqual(second, first)
+        self.assertEqual(again.published[0]["proposal_manifest_digest"],
+                         self.seam.published[0]["proposal_manifest_digest"])
+        # ONE RETAINED ACCOUNT, not two: the digest IS the key.
+        self.assertEqual(self.control._connection.execute(
+            "SELECT COUNT(*) FROM manifests WHERE schema = ?",
+            ("baton.worker-manifest/proposal",)).fetchone()[0], held)
+        self.assertIsNotNone(load_manifest(
+            self.control, again.published[0]["proposal_manifest_digest"],
+            "proposalManifest"))
+        self.assertEqual(retain_manifest(self.control, document,
+                                         "resultManifest")["digest"],
+                         result_digest)
+
+    # -- role and session separation -----------------------------------------
+
+    def test_the_reviewer_is_never_the_writer_it_reviews(self):
+        """Independence is refused twice, and the two refusals are different
+        questions.
+
+        The configuration refuses a shared identity before anything is opened;
+        `attach_review` refuses one at the attachment, against the checkpoint's
+        own recorded writer. This proves the second, over the real line the
+        lifecycle just built, so the configuration rule is not the only thing
+        standing between a Job and a self-review.
+        """
+        from baton_v12.worker_manager import freeze_checkpoint
+        writer_attempt = self.attempt("writer-attempt-1", 1, WRITER,
+                                      "writer-principal-1")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, writer_attempt))
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=writer_attempt, generation=1,
+            worker_id="impl-worker-1", profile=self.profile)
+        self.completed(writer_attempt)
+        checkpoint = freeze_checkpoint(
+            self.control, writer_id=writer["writer_id"], generation=1,
+            profile=self.profile, port=self.port(WRITER))
+        with self.assertRaises(ContractRefusal):
+            review_driver.prepare_review(
+                self.control, checkpoint_id=checkpoint["checkpoint_id"],
+                attempt_id=writer_attempt, generation=1,
+                reviewer_worker_id="impl-worker-1", profile=self.profile)
+
+    def test_the_composed_rounds_carry_distinct_identities(self):
+        held = self.composed_round(1, "accepted")
+        self.assertIsNotNone(held["checkpoint_id"])
+        rows = dict(self.control._connection.execute(
+            "SELECT runtime_attempt_id, assignment_participant FROM attempts"
+        ).fetchall())
+        self.assertEqual(rows["writer-attempt-1"], WRITER)
+        self.assertEqual(rows["review-attempt-1"], REVIEWER)
+        self.assertNotEqual(rows["writer-attempt-1"], rows["review-attempt-1"])
+
+    # -- operator-held uncertainty -------------------------------------------
+
+    def test_a_rejected_verdict_is_held_rather_than_acted_on(self):
+        """`rejected` is a decision about the Work, and this composition
+        schedules nothing on it.
+
+        `open_correction` refuses anything that is not a correction, which is
+        what keeps a held outcome from being quietly turned into another round.
+        """
+        held = self.composed_round(1, "rejected")
+        with self.assertRaises(ContractRefusal) as caught:
+            review_driver.open_correction(
+                self.jobs, self.control, job_id="job-a",
+                answered={"outcome": "held",
+                          "line_id": self.line["line_id"],
+                          "checkpoint_id": held["checkpoint_id"],
+                          "verdict_id": held["verdict_id"]})
+        self.assertIn("correction round follows", caught.exception.message)
+
+    def test_the_held_outcome_is_one_this_composition_never_invents(self):
+        self.assertEqual(sorted(review_driver.VERDICT_OUTCOMES),
+                         ["accepted", "correction", "held"])
+
+
+def SimpleNamespace_port():
+    """A stand-in for a composed runtime port, never called by these cases.
+
+    `_integration_ports` decides on the SHAPE of what it was handed -- a
+    mapping keyed by bound Job, or one object for one binding -- and never on
+    what a port can do. A real `IntegrationRuntimePort` needs an accepted line
+    and a published proposal, neither of which exists before a deployment has
+    served anything, which is the whole reason the binding is checkable here
+    and the port itself is not.
+    """
+    return SimpleNamespace(prepare=None, run=None)
+
+
+class NothingIsOpenedBeforeTheConfigurationIsProved(StageCase):
+    """Item 4's pre-launch refusal, asked as "what exists on disk afterwards".
+
+    A composer that refused only after opening its Authority would leave a lock
+    nobody holds a reference to, and the refusal message would describe the
+    wrong moment. The question a case can actually answer is whether the store
+    files it would have created are there.
+    """
+
+    def composed(self, **members):
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.document(**members), object(), object(),
+                checkout=self.checkout)
+        return caught.exception
+
+    def test_a_refused_document_opens_no_integration_store(self):
+        self.composed(review_work_id="work-2")
+        self.assertFalse(os.path.exists(self.integration_store))
+
+    def test_a_job_store_bound_elsewhere_refuses_before_opening_anything(self):
+        from types import SimpleNamespace
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.document(),
+                SimpleNamespace(authority_uuid="f" * 32), object(),
+                checkout=self.checkout)
+        self.assertEqual(caught.exception.category, "refused")
+        self.assertFalse(os.path.exists(self.integration_store))
+
+    # -- the injected integration port's SHAPE is one of those answers -------
+
+    def two_bound(self, **members):
+        """A `/2` document binding two Jobs, held without composing anything.
+
+        W130224. Deliberately not the composed two-Job fixture: what these
+        cases ask is what this module can refuse WITHOUT writing, so the
+        document is the cheapest valid one and the stores are doubles that
+        would fault loudly if anything reached them.
+        """
+        producer = self.worker("implementation", participant="baton.second",
+                               principal="second-principal")
+        producer["worker_id"] = "implementation-worker-b"
+        given = {
+            "schema": stage_execution.MULTI_CONFIG_SCHEMA,
+            "workers": [
+                self.worker("implementation"),
+                self.worker("review", participant="baton.reviewer",
+                            principal="reviewer-principal"),
+                self.worker("integration", participant="baton.integrator",
+                            principal="integrator-principal"),
+                producer],
+            "job_bindings": [
+                {"job_id": "job-a", "job_work_id": "work-1",
+                 "review_work_id": "work-1", "line_declared_base": "a" * 40,
+                 "canonical_target_id": "target-1",
+                 "source_worker_id": "implementation-worker"},
+                {"job_id": "job-b", "job_work_id": "work-2",
+                 "review_work_id": "work-2", "line_declared_base": "b" * 40,
+                 "canonical_target_id": "target-2",
+                 "source_worker_id": "implementation-worker-b"}]}
+        given.update(members)
+        return self.document(**given)
+
+    def refused_port(self, port):
+        """Compose a two-Job deployment with this port, over store DOUBLES.
+
+        The Job store answers only the Authority binding this document names,
+        so the comparison above passes and the port's shape is the next thing
+        asked. The control store is a bare object: `worker_preflight`
+        configures a workspace group and storage on it and would fault with an
+        attribute error rather than a typed refusal, so a clean
+        `ContractRefusal` here is itself evidence that nothing reached it.
+        """
+        from types import SimpleNamespace
+
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.two_bound(),
+                SimpleNamespace(
+                    authority_uuid=self.config["authority_uuid"]), object(),
+                checkout=self.checkout, integration_port=port)
+        self.assertFalse(os.path.exists(self.integration_store))
+        return caught.exception
+
+    def test_one_bare_port_for_two_bound_jobs_refuses_before_any_write(self):
+        """A port is composed over ONE accepted line, proposal and canonical
+        target. Handing one to a deployment binding two Jobs would run the
+        second Job's integration against the first Job's line -- and this
+        module can see that in the document it was handed, so it says so
+        before it configures a control store or opens an integration one."""
+        held = self.refused_port(SimpleNamespace_port())
+        self.assertEqual((held.category, held.code),
+                         ("refused", "precondition"))
+        self.assertIn("one per Job keyed by its Job id", held.message)
+
+    def test_a_port_mapping_naming_an_unbound_job_refuses_before_any_write(
+            self):
+        held = self.refused_port({"job-a": SimpleNamespace_port(),
+                                  "job-nobody-bound": None})
+        self.assertEqual((held.category, held.code),
+                         ("refused", "precondition"))
+        self.assertIn("job-nobody-bound", held.message)
+
+    def test_the_shapes_this_deployment_does_accept(self):
+        """THE POSITIVE CONTROL, so the refusals above are a boundary rather
+        than a composer that rejects every port. One binding takes a bare port
+        under its own absent key; several take one per bound Job; and absence
+        is the ordinary answer for a deployment composing no integration
+        runtime at all."""
+        one_job = stage_execution.held_configuration(self.document(),
+                                                     checkout=self.checkout)
+        port = SimpleNamespace_port()
+        self.assertEqual(stage_execution._integration_ports(one_job, port),
+                         {None: port})
+        self.assertEqual(stage_execution._integration_ports(one_job, None),
+                         {None: None})
+        two_jobs = stage_execution.held_configuration(self.two_bound(),
+                                                      checkout=self.checkout)
+        self.assertEqual(
+            stage_execution._integration_ports(two_jobs,
+                                               {"job-a": port,
+                                                "job-b": None}),
+            {"job-a": port, "job-b": None})
+        # A MAPPING THAT NAMES ONLY SOME OF THE BOUND JOBS IS NOT A FAULT: a
+        # Job with no port refuses at its own integration stage, with the
+        # capability sentence that has always said what this build lacks.
+        self.assertEqual(
+            stage_execution._integration_ports(two_jobs, {"job-a": port}),
+            {"job-a": port, "job-b": None})
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+class TheIntegrationStageConsumesTheAcceptedPort(StageCase):
+    """W103083 obligation115920, owner ruling M115946.
+
+    The requirement is DERIVED from configured material, and a later tick
+    refreshes before it asks the port's own marker whether this execution may
+    continue. Every driver call is recorded rather than performed: which
+    driver a tick chooses, and with what, is this assembly's decision, and the
+    drivers have their own suites for what they then do.
+    """
+
+    def group(self):
+        """The manager's own nominal WorkspaceGroup, not its integer.
+
+        Review 2026-09-08T04:06:54Z [P1]: the assembly held `.gid`, and the
+        public delivery readers require the group object -- so a fixture that
+        supplied an integer could not have noticed.
+        """
+        from baton_v12.worker_manager import ControlStore, workspaces
+
+        control = ControlStore.open(self.control_path,
+                                    incarnation="stage-group",
+                                    clock=lambda: NOW)
+        self.addCleanup(control.close)
+        workspaces.configure_workspace_group(control, os.getgid())
+        workspaces.configure_workspace_storage(control, self.storage)
+        return workspaces.configured_workspace_group(control)
+
+    def deployment(self, **members):
+        # THE FACTORY'S OWN HELD FORM, not the raw document. Review
+        # 2026-09-08T04:06:54Z [P1]: these cases supplied the raw
+        # configuration, so they could not see that `required_tests`
+        # re-validated a document the factory had already held.
+        given = members.pop("given", None) or stage_execution.held_configuration(
+            self.document(), checkout=self.checkout)
+        held = SimpleNamespace(
+            given=given, control=object(), jobs=object(),
+            # W275774: THE TWO AUTHORITY READS THE BRANCH DECISION MAKES, and
+            # nothing more. `Integration._run` asks the Authority for the
+            # producer's proposal and for the canonical target, and compares
+            # them to decide whether this candidate is the DIRECT import or the
+            # one W131409 filed -- so a bare `object()` here fails at
+            # `.proposal` before any of these cases reaches the port they are
+            # about.
+            #
+            # THE TWO ANSWERS AGREE, BECAUSE THIS FIXTURE'S MODE IS THE DIRECT
+            # ONE. These cases configure no integration target, workspace or
+            # observer, so `reconciles()` is false and a proposal built on a
+            # revision the target had moved past would refuse `capability` for
+            # want of a reconciliation this deployment deliberately does not
+            # have. Answering one revision from both readers selects the branch
+            # the cases were written for instead of manufacturing the other.
+            authority=SimpleNamespace(
+                proposal=lambda proposal_id: {"target": DIRECT_REVISION},
+                canonical_target=lambda: DIRECT_REVISION),
+            integration=object(), integration_profile=given[
+                "integration_profile"],
+            integration_root=os.path.join(self.root, "integration-root"),
+            workspace_group=self.group(),
+            sessions={one: SimpleNamespace(name=one) for one in
+                      ("verification", "review", "approval", "integrator")},
+            line=lambda: {"line_id": "line-1"},
+            published_proposal=lambda accepted: "proposal-1")
+        # W275774: AND THE BRANCH RULE ITSELF, COPIED RATHER THAN CHOSEN.
+        #
+        # `_run` asks this after the direct branch is taken, to decide whether it
+        # finalizes a reconciliation. The answer is not a fixture preference: it
+        # is `Deployment.reconciles`'s own sentence over THIS held configuration,
+        # which configures none of the three operands -- so it answers False, and
+        # supplying the operands to make it True would send these port cases into
+        # a reconciliation they were never about.
+        held.reconciles = lambda: all(
+            held.given.get(name) is not None for name in
+            ("integration_target", "integration_workspace",
+             "integration_observer"))
+        for name, value in members.items():
+            setattr(held, name, value)
+        return held
+
+    def port(self, *, runtime_state="running", continuable=True):
+        calls = []
+
+        def observed(attempt_id, assignment):
+            calls.append(("observed", attempt_id))
+            return {"execution_runtime": runtime_state}
+
+        return SimpleNamespace(
+            calls=calls,
+            prepare=lambda stage, job: calls.append(("prepare",
+                                                     stage["attempt_id"])),
+            refresh=lambda attempt_id: calls.append(("refresh", attempt_id)),
+            observed=observed,
+            may_continue=lambda assignment, delivery=None: (
+                calls.append(("may_continue", None)) or continuable))
+
+    def driven(self, *, delivery=None, assignment=None, port=None,
+               deployment=None):
+        """One tick, with every driver and public reader recorded."""
+        held = self.deployment() if deployment is None else deployment
+        taken = self.port() if port is None else port
+        seen = {}
+        with mock.patch.object(stage_execution, "admit_accepted",
+                               side_effect=lambda *a, **k: seen.setdefault(
+                                   "admit", k) or {"outcome": "running"}
+                               ) as admit, \
+                mock.patch.object(
+                    stage_execution, "continue_accepted",
+                    side_effect=lambda *a, **k: seen.setdefault(
+                        "continue", k) or {"outcome": "running"}
+                    ) as keep, \
+                mock.patch.object(stage_execution.runtime, "adopt_delivery",
+                                  return_value=delivery), \
+                mock.patch.object(stage_execution.runtime,
+                                  "published_assignment",
+                                  return_value=assignment), \
+                mock.patch.object(stage_execution.review_cycles,
+                                  "integration_checkpoint",
+                                  return_value={"checkpoint_id": "cp-1"}):
+            answer = stage_execution.Integration(held, taken).run(
+                {"attempt_id": "attempt-1", "kind": "integration"},
+                {"job_id": "job-1"})
+        return answer, taken.calls, admit, keep, seen
+
+    # -- the derived requirement --------------------------------------------
+
+    def test_the_requirement_is_derived_from_the_configured_task(self):
+        """Not from what the worker REPORTED: from the task bytes this
+        deployment configured and the input manifest they are bound to."""
+        import hashlib
+        import json as _json
+
+        held = stage_execution.Integration(self.deployment(), self.port())
+        derived = held.required_tests()
+        given = stage_execution.held_configuration(
+            self.document(), checkout=self.checkout)["workers"][0][
+                "deployment"]
+        payload = given["task_bytes"]
+        self.assertEqual(derived, {
+            "task_id": _json.loads(payload)["task_id"],
+            "task_digest": "sha256:" + hashlib.sha256(payload).hexdigest(),
+            "argv": _json.loads(payload)["verification"],
+            "input_manifest_digest":
+                given["input_manifest"]["manifest_digest"],
+            "job_input_identity":
+                job_input_identity(given["input_manifest"])})
+        # AND THE ACCEPTED DRIVER'S OWN READER ADMITS IT.
+        self.assertEqual(driver._owned_requirements(derived), derived)
+
+    def test_a_deployment_without_exactly_one_producer_refuses(self):
+        given = stage_execution.held_configuration(self.document(),
+                                                   checkout=self.checkout)
+        given["workers"] = [one for one in given["workers"]
+                            if one["role"] != "implementation"]
+        held = stage_execution.Integration(
+            self.deployment(given=given), self.port())
+        with self.assertRaises(ContractRefusal) as caught:
+            held.required_tests()
+        self.assertIn("implementation workers", caught.exception.message)
+
+    def test_the_published_reader_adopts_a_real_delivery_with_the_group(self):
+        """W103083 review 2026-09-08T04:06:54Z [P1], proved through the REAL
+        public readers over a real materialized delivery rather than a mock.
+
+        The manager's nominal group adopts; the integer that used to be stored
+        in its place refuses, which is the defect this pins. An absent delivery
+        cannot show either, because `adopt_delivery` answers `None` before it
+        validates the group.
+        """
+        from baton_v12.integration import runtime as integration_runtime
+
+        group = self.group()
+        held = self.deployment(workspace_group=group)
+        os.makedirs(held.integration_root, exist_ok=True)
+        integration_runtime.materialize_delivery(
+            held.integration_root, attempt_id="attempt-1",
+            workspace_group=group)
+
+        delivery, assignment = stage_execution.Integration(
+            held, self.port())._published({"attempt_id": "attempt-1"})
+        self.assertIsNotNone(delivery)
+        # NOTHING WAS PUBLISHED INTO IT YET, and that is an ordinary answer
+        # rather than an invented assignment.
+        self.assertIsNone(assignment)
+
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.Integration(
+                self.deployment(workspace_group=group.gid),
+                self.port())._published({"attempt_id": "attempt-1"})
+        self.assertIn(str(group.gid), caught.exception.message)
+
+    # -- which driver a tick chooses ----------------------------------------
+
+    def test_the_first_tick_prepares_and_then_admits(self):
+        _, calls, admit, keep, seen = self.driven()
+        self.assertEqual(calls, [("prepare", "attempt-1")])
+        admit.assert_called_once()
+        keep.assert_not_called()
+        # THE OPERAND THAT WAS MISSING ENTIRELY travels now.
+        self.assertIn("required_tests", seen["admit"])
+        self.assertEqual(sorted(seen["admit"]["required_tests"]),
+                         ["argv", "input_manifest_digest",
+                          "job_input_identity", "task_digest", "task_id"])
+
+    def test_a_later_tick_refreshes_before_it_continues(self):
+        """Owner ruling M115946: refresh FIRST, then the port's own marker."""
+        _, calls, admit, keep, seen = self.driven(
+            delivery=object(), assignment={"attempt_id": "attempt-1"})
+        self.assertEqual(calls, [("observed", "attempt-1"),
+                                 ("refresh", "attempt-1"),
+                                 ("may_continue", None)])
+        keep.assert_called_once()
+        admit.assert_not_called()
+        self.assertIn("required_tests", seen["continue"])
+        # AND CONTINUATION IS NEVER HANDED A PORT: it cannot start anything.
+        self.assertNotIn("port", seen["continue"])
+
+    def test_a_lost_marker_falls_through_to_admission(self):
+        """A fresh serving incarnation holds no marker, so the driver's own
+        restart behaviour is what answers -- reading a persisted assignment
+        grants no continuation permission."""
+        _, calls, admit, keep, _ = self.driven(
+            delivery=object(), assignment={"attempt_id": "attempt-1"},
+            port=self.port(continuable=False))
+        self.assertEqual(calls, [("observed", "attempt-1"),
+                                 ("refresh", "attempt-1"),
+                                 ("may_continue", None)])
+        admit.assert_called_once()
+        keep.assert_not_called()
+
+    def test_a_delivery_with_no_started_runtime_is_not_refreshed(self):
+        """The namespaces are materialized before the container, so a delivery
+        can exist with no runtime behind it. That attempt is admission's to
+        re-enter, and refreshing it would ask reconciliation about a runtime
+        nobody requested.
+
+        W103083 review 2026-09-08T12:41:47Z [P1], owner approval M118923: it
+        is PREPARED before that re-entry, and this case's recorded calls are
+        the one thing that changed. Re-entering admission with no
+        execution-local credential delivery is what a reconstructed port
+        refused on, and the other three assertions here -- no refresh, exactly
+        one admission, no continuation -- are unchanged and are why the
+        preparation is the whole of the correction.
+        """
+        _, calls, admit, keep, _ = self.driven(
+            delivery=object(), assignment={"attempt_id": "attempt-1"},
+            port=self.port(runtime_state="not-started"))
+        self.assertEqual(calls, [("observed", "attempt-1"),
+                                 ("prepare", "attempt-1")])
+        admit.assert_called_once()
+        keep.assert_not_called()
+
+    def test_a_started_or_uncertain_runtime_is_never_prepared_here(self):
+        """The other side of that branch, which is why it IS a branch.
+
+        Preparation mints a bearer only for an attempt whose runtime has not
+        started; the credential custody of a runtime this execution did not
+        start belongs to that runtime. So a started or uncertain attempt with
+        no marker is refreshed and then admitted exactly as before, and the
+        hold `admit_accepted` has always owned is what answers it.
+        """
+        for state in ("running", "uncertain"):
+            with self.subTest(runtime=state):
+                _, calls, admit, keep, _ = self.driven(
+                    delivery=object(),
+                    assignment={"attempt_id": "attempt-1"},
+                    port=self.port(runtime_state=state, continuable=False))
+                self.assertEqual(calls, [("observed", "attempt-1"),
+                                         ("refresh", "attempt-1"),
+                                         ("may_continue", None)])
+                admit.assert_called_once()
+                keep.assert_not_called()
+
+    def test_a_delivery_carrying_no_assignment_is_the_first_tick(self):
+        """Absent or unpublished: neither invents an assignment."""
+        for delivery in (None, object()):
+            with self.subTest(delivery=delivery is not None):
+                _, calls, admit, keep, _ = self.driven(delivery=delivery,
+                                                       assignment=None)
+                self.assertEqual(calls, [("prepare", "attempt-1")])
+                admit.assert_called_once()
+                keep.assert_not_called()
+
+
+class AFreshPortReentersANeverStartedDelivery(unittest.TestCase):
+    """W119113: this assembly's dispatch over the REAL production port.
+
+    COMPOSED, NOT SUBCLASSED, for the reason the port suite's own fixture
+    records: a subclass re-runs every one of its parent's cases under a second
+    name. This borrows that composed world whole -- the real Worker Manager,
+    coordinator, Authority, delivery namespaces, admission and continuation
+    drivers, and the deterministic engine and provider that stand in for a
+    daemon and a model -- and asks it the one question the recorded-port cases
+    above cannot answer: what a fresh `IntegrationRuntimePort` actually does
+    when the tick finds a delivery it published and never started.
+
+    THE MEASURED DEFECT, W103083 review 2026-09-08T12:41:47Z [P1]. A first
+    admission that dies between publishing the assignment and starting the
+    runtime leaves durable namespaces, a durable assignment and a runtime the
+    manager's own axis still calls `not-started`. The next incarnation holds
+    no in-memory credential delivery, and it used to re-enter admission
+    without preparing one, so the attempt could never start again.
+    """
+
+    def setUp(self):
+        from .test_integration_worker import (
+            ATTEMPT, TheWholeIntegrationRunsThroughThisPort)
+
+        self.attempt = ATTEMPT
+        case = TheWholeIntegrationRunsThroughThisPort()
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        self.case = case
+        self.world = case.world
+
+    # -- the world, read through its own owners -----------------------------
+
+    def deployment(self):
+        """The operands `Integration.run` resolves, from the borrowed world.
+
+        Two members answer for this fixture rather than deriving: `line` and
+        `published_proposal`, whose replay of the accepted checkpoint's own
+        writer/attempt/manifest chain belongs to the composed lifecycle cases
+        and to `W119114`. Everything this class is about is the real thing --
+        the public delivery readers, the production port, both drivers, and
+        the manager's own runtime witness.
+        """
+        case, world = self.case, self.world
+        # W275774, review 2026-09-26T23-25-30Z: `reconciles` IS DERIVED HERE, FAITHFULLY.
+        #
+        # `stage_execution.Integration.reconciles` answers `all(given.get(name) is not None
+        # for name in ("integration_target", "integration_workspace",
+        # "integration_observer"))` -- whether the deployment is wired to reconcile at all.
+        # This double predates that capability and answered nothing, so every case built on
+        # it raised `AttributeError` before reaching its own subject.
+        #
+        # THE SAME RULE OVER THE SAME OPERAND NAMES, and the operands are this fixture's own
+        # real ones -- the borrowed world's target, the case's launch root and the observer
+        # participant the composed document names. Nothing is asserted: a fixture that
+        # answered `True` outright would report an unwired deployment as reconciling, which
+        # is the check's whole point.
+        #
+        # AND FOR THIS FIXTURE THE ANSWER IS `False`, WHICH IS THE POINT OF DERIVING IT.
+        # These cases are about a fresh port re-entering a never-started delivery; the
+        # deployment they borrow configures no integration target, workspace or observer, so
+        # it is not wired to reconcile and the production rule says so. My first cut ADDED
+        # those three operands to make the answer `True`, and measured it: the cases then
+        # walked into the reconciliation path and failed on `reconciliation_profile` and
+        # `_place`, which this fixture has no business answering. Deriving the mode from
+        # what the fixture actually configures is what keeps its intended mode intact.
+        held = SimpleNamespace(
+            given={"canonical_target_id": world.target,
+                   "policy_generation": world.authority.policy_generation()},
+            control=world.manager, jobs=world.jobs,
+            authority=world.authority_read, integration=world.coordinator,
+            integration_profile=case.profile,
+            integration_root=case.launch_root,
+            workspace_group=case.owner.group,
+            sessions={"verification": world.sessions["verify"],
+                      "review": world.sessions["review"],
+                      "approval": world.sessions["approve"],
+                      "integrator": world.integrator},
+            line=lambda: {"line_id": world.line_id},
+            published_proposal=lambda accepted: world.proposal_id)
+        held.reconciles = lambda: all(
+            held.given.get(name) is not None for name in
+            ("integration_target", "integration_workspace",
+             "integration_observer"))
+        return held
+
+    def proved(self, held=None, authority=None, scope="scope:deployment"):
+        return stage_execution._sessions(
+            self.sessions() if held is None else held,
+            self._Authority() if authority is None else authority, scope)
+
+    def test_the_complete_set_is_accepted(self):
+        held = self.sessions()
+        self.assertIs(self.proved(held), held)
+
+    def test_each_receipt_actor_is_asked_for_its_own_grant_in_one_scope(self):
+        """The mapping, read off the gate rather than off the constant: four
+        receipts, four different capabilities, one scope -- and the publisher
+        is not among them, because publication is authorized by the producer's
+        live assignment and there is no grant to ask about."""
+        authority = self._Authority()
+        self.proved(authority=authority, scope="scope:job-a")
+        self.assertEqual(
+            sorted(authority.asked),
+            [("baton.actor", "approve", "scope:job-a"),
+             ("baton.actor", "integrate", "scope:job-a"),
+             ("baton.actor", "review", "scope:job-a"),
+             ("baton.actor", "verify", "scope:job-a")])
+
+    def test_a_missing_session_refuses(self):
+        for name in stage_execution.RECEIPT_SESSIONS + ("publisher",):
+            with self.subTest(name=name):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.proved(self.sessions(**{name: None}))
+                self.assertEqual(caught.exception.category, "refused")
+                self.assertIn(name, caught.exception.message)
+
+    def test_a_session_without_its_verb_refuses(self):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.proved(self.sessions(integrator=self._Session("integrate")))
+        self.assertIn("receipt", caught.exception.message)
+        # THE PUBLISHER IS REACHED EARLIEST OF ALL, so a deployment missing one
+        # of its three would discover it with a frozen result it can never
+        # publish.
+        for verb in stage_execution.PUBLISHER_CAPABILITIES:
+            partial = [one for one in stage_execution.PUBLISHER_CAPABILITIES
+                       if one != verb]
+            with self.subTest(verb=verb):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.proved(self.sessions(
+                        publisher=self._Session(*partial)))
+                self.assertIn(verb, caught.exception.message)
+
+    def test_a_session_without_a_participant_refuses(self):
+        nameless = self._Session("verify")
+        nameless.participant = None
+        with self.assertRaises(ContractRefusal) as caught:
+            self.proved(self.sessions(verification=nameless))
+        self.assertIn("participant", caught.exception.message)
+
+
+class ConstructionFailureReleasesWhatItOpened(StageCase):
+
+    class _Handle:
+        def __init__(self, name, journal, failing=False):
+            self.name, self.journal, self.failing = name, journal, failing
+
+        def close(self):
+            self.journal.append(self.name)
+            if self.failing:
+                raise OSError("this handle refuses to close")
+
+        dispose = close
+        release = close
+
+    def composed(self, journal, **members):
+        composed = stage_execution.StageExecution(
+            None, authority=self._Handle("authority", journal),
+            integration=self._Handle("integration", journal),
+            workers=[{"role": "implementation",
+                      "operations": self._Handle("implementation", journal)},
+                     {"role": "review",
+                      "operations": self._Handle("review", journal)}],
+            given={})
+        for name, value in members.items():
+            setattr(composed, name, value)
+        return composed
+
+    def test_every_handle_is_released_in_reverse_order(self):
+        journal = []
+        self.composed(journal).release()
+        self.assertEqual(journal, ["review", "implementation", "integration",
+                                   "authority"])
+
+    def test_a_partial_construction_releases_only_what_exists(self):
+        journal = []
+        composed = stage_execution.StageExecution(
+            None, authority=self._Handle("authority", journal),
+            integration=None, workers=[], given={})
+        composed.release()
+        self.assertEqual(journal, ["authority"])
+
+    def test_one_failing_release_never_stops_the_others(self):
+        journal = []
+        composed = self.composed(journal)
+        composed.integration.failing = True
+        with self.assertRaises(ContractRefusal) as caught:
+            composed.release()
+        self.assertEqual(journal, ["review", "implementation", "integration",
+                                   "authority"])
+        self.assertIn("integration store", caught.exception.message)
+
+    def test_the_pooled_surface_is_delegated_rather_than_respelled(self):
+        journal = []
+        composed = self.composed(journal)
+        composed.pooled = type(
+            "Pooled", (), {"canonical": True,
+                           "dispatch": lambda self: "asked"})()
+        self.assertEqual(composed.dispatch(), "asked")
+
+
+class TheFactoryReadsOnlyItsNamedConfiguration(StageCase):
+
+    def test_an_unset_environment_refuses_before_anything_is_opened(self):
+        held = dict(os.environ)
+        os.environ.pop(stage_execution.CONFIG_ENV, None)
+        self.addCleanup(os.environ.update, held)
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.factory(object(), object())
+        self.assertIn(stage_execution.CONFIG_ENV, caught.exception.message)
+        self.assertEqual(caught.exception.category, "refused")
+
+    def test_a_document_wider_than_the_ceiling_is_refused(self):
+        place = os.path.join(self.root, "wide.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            writing.write(
+                json.dumps({"padding": "x" *
+                            (stage_execution.MAX_CONFIG_BYTES + 16)}))
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution._read(place)
+        self.assertEqual(caught.exception.code, "limit")
+
+    def test_an_unreadable_document_is_refused_as_one(self):
+        place = os.path.join(self.root, "broken.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            writing.write("{not json")
+        with self.assertRaises(ContractRefusal):
+            stage_execution._read(place)
+
+
+class ThePublicationSeamIsTwoAcceptedOperations(StageCase):
+    """W103874's producer and W103077's publication, in the order that works.
+
+    The ending calls this while the producer assignment is still live. What
+    matters here is that the seam composes nothing of its own: the manifest
+    digest comes from `retain_proposal` and is handed to `publish_candidate` as
+    a SELECTOR, so no publication member is supplied from this deployment's
+    configuration -- if one were, the deployment would be asserting something
+    the frozen result is supposed to prove.
+    """
+
+    def seam(self, retained="sha256:" + "a" * 64, answer=None):
+        asked = []
+
+        def retain(control, publisher, *, attempt_id):
+            asked.append(("retain", control, publisher, attempt_id))
+            return retained
+
+        def publish(control, publisher, *, attempt_id,
+                    proposal_manifest_digest):
+            asked.append(("publish", control, publisher, attempt_id,
+                          proposal_manifest_digest))
+            return answer if answer is not None else {"published": True}
+
+        return asked, retain, publish
+
+    def published(self, **members):
+        asked, retain, publish = self.seam(**members)
+        seam = stage_execution.Publication("control", "publisher")
+        for name, replacement in (("retain_proposal", retain),
+                                  ("publish_candidate", publish)):
+            self.addCleanup(setattr, stage_execution, name,
+                            getattr(stage_execution, name))
+            setattr(stage_execution, name, replacement)
+        return asked, seam
+
+    def test_the_retained_digest_is_what_publication_selects_on(self):
+        asked, seam = self.published()
+        answer = seam.publish(attempt_id="attempt-1", result_id="result-1",
+                              manifest_digest="sha256:" + "b" * 64,
+                              artifacts=["artifact-1"],
+                              proposal={"target": "revision-1"})
+        self.assertEqual(answer, {"published": True})
+        self.assertEqual(
+            asked,
+            [("retain", "control", "publisher", "attempt-1"),
+             ("publish", "control", "publisher", "attempt-1",
+              "sha256:" + "a" * 64)])
+
+    def test_the_seam_records_what_it_published_and_invents_nothing(self):
+        _asked, seam = self.published()
+        seam.publish(attempt_id="attempt-1", result_id="result-1",
+                     manifest_digest="sha256:" + "b" * 64,
+                     artifacts=["artifact-1"],
+                     proposal={"target": "revision-1"})
+        self.assertEqual(seam.published, [{
+            "attempt_id": "attempt-1", "result_id": "result-1",
+            "manifest_digest": "sha256:" + "b" * 64,
+            "artifacts": ["artifact-1"],
+            "proposal_manifest_digest": "sha256:" + "a" * 64}])
+
+    def test_a_producer_refusal_stops_before_the_authority_is_asked(self):
+        asked, seam = self.published()
+
+        def refusing(control, publisher, *, attempt_id):
+            asked.append(("retain", attempt_id))
+            raise ContractRefusal("refused", "precondition",
+                                  "no frozen result")
+
+        stage_execution.retain_proposal = refusing
+        with self.assertRaises(ContractRefusal):
+            seam.publish(attempt_id="attempt-1", result_id="result-1",
+                         manifest_digest="sha256:" + "b" * 64,
+                         artifacts=[], proposal={})
+        self.assertEqual([one[0] for one in asked], ["retain"])
+        self.assertEqual(seam.published, [])
+
+
+class TheDriverFacingMembersComeFromTheConfiguration(StageCase):
+
+    def test_the_integration_profile_is_composed_from_the_document(self):
+        profile = stage_execution.integration_from(self.held())
+        self.assertEqual(profile["profile_kind"], "git")
+        self.assertEqual(profile["integrator_participant"],
+                         "baton.integrator")
+        self.assertEqual(profile["instructions_digest"], "sha256:" + "e" * 64)
+
+    def test_a_partly_constructed_object_answers_no_serving_member(self):
+        """`tools.job_manager` asks a returned object for `close` by name, and
+        a composition that failed before its pool existed must answer that as
+        an absence rather than by delegating onto nothing."""
+        composed = stage_execution.StageExecution(
+            None, authority=None, integration=None, workers=[],
+            given=self.held())
+        self.assertIsNone(getattr(composed, "launch_pass", None))
+        with self.assertRaises(AttributeError):
+            composed.binding_intent
+        # `close` IS ITS OWN, so a partial construction is still releasable.
+        self.assertTrue(callable(composed.close))
+
+
+class Publisher:
+    """The Authority a publication is performed against, answering what it is
+    asked.
+
+    Derived from the operands rather than scripted, which is what makes
+    `publish_candidate`'s own equality check meaningful over a manifest the
+    real producer composed: the answer is a function of what it was sent, so
+    the case proves the producer's receipt digest binds it.
+    """
+
+    participant = "baton.impl"
+    target = "a" * 40
+
+    def __init__(self):
+        self.calls = []
+        self.recorded = None
+
+    def canonical_target(self):
+        return self.target
+
+    def publish(self, operands):
+        self.calls.append(dict(operands))
+        self.recorded = {
+            "proposal_id": operands["proposal_id"],
+            "assignment_ref": operands["expect"],
+            "result_id": operands["result_id"],
+            "result_digest": operands["result_digest"],
+            "candidate_digest": operands["candidate_digest"],
+            "input_digest": operands["input_digest"],
+            "policy_digest": operands["policy_digest"],
+            "target": operands["target"]}
+        return dict(self.recorded)
+
+    def proposal(self, proposal_id):
+        return dict(self.recorded, decision={},
+                    published_at="2026-09-07T00:00:00.000Z")
+
+
+class ComposedLifecycleCase(DriverCase):
+    """W103083 item 3: one Job through the drivers this factory composes.
+
+    WHAT IS REAL, because that is the whole question a composed proof answers.
+    The control store, the Job store and the development line are real;
+    `prepare_implementation`, `freeze_checkpoint`, `prepare_review`,
+    `record_verdict` and `open_correction` are the accepted operations against
+    them; the result manifest each round publishes is REALLY RETAINED and read
+    back through `load_manifest`; and the publication seam is the factory's own
+    `Publication`, calling the real `retain_proposal` and `publish_candidate`.
+    That is what the ruling means by using the real retained-manifest producer
+    rather than a mock supplying the missing document.
+
+    WHAT STANDS IN, named rather than implied. The freeze, intake, retention
+    and cleanup OPERATIONS are not performed: they need an engine, a delivered
+    workspace and a custody tree, which is the live proof's half. The frozen
+    RESULT they would name is real and retained, so the producer composes over
+    durable state rather than over a fixture's idea of one. The Authority is a
+    fake that answers what it is asked.
+    """
+
+    # §12 RULE 1 IS WHY THIS AUTHORITY IS NOT THE JOB FIXTURE'S. A Work id
+    # carries its Authority's eight-character prefix, and the shared
+    # job-manager fixture's pair was written for a path that never validates a
+    # manifest -- so reusing it here refuses at the identity rule before the
+    # composition it is proving is reached. The line and every attempt below
+    # use one manifest-valid pair.
+    AUTHORITY = "0000000a" + "0" * 24
+    WORK = WORK_A
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.job_manager import JobStore, submit
+        from baton_v12.worker_manager import create_line, retain_manifest
+        from baton_v12.worker_manager.source_boundary import nominate_source
+        from tests.job_manager.test_review_driver import one_work_submission
+        # THE JOB STORE IS REBOUND TO THE SAME AUTHORITY as the line, because
+        # `advance_correction` cross-binds the recorded verdict against the
+        # Job's own Authority and Work. Two stores bound to two Authorities is
+        # exactly the mismatch it exists to refuse.
+        self.jobs.close()
+        self.jobs = JobStore.open(
+            os.path.join(self.root, "composed-jobs.sqlite3"),
+            authority_uuid=self.AUTHORITY, incarnation="jobs-2",
+            clock=self.clock)
+        self.addCleanup(self.jobs.close)
+        submit(self.jobs, one_work_submission())
+        self.line = create_line(
+            self.control, source=nominate_source(self.source),
+            declared_base="a" * 40, profile=self.profile,
+            authority_uuid=self.AUTHORITY, work_id=self.WORK)
+        self.publisher = Publisher()
+        self.seam = stage_execution.Publication(self.control, self.publisher)
+        self.input_digest = retain_manifest(
+            self.control, _vector("baton.worker-manifest/input"),
+            "inputManifest")["digest"]
+        self.retained = {}
+
+    # -- the frozen result a round publishes ---------------------------------
+
+    def frozen(self, attempt_id, generation):
+        """One really retained result manifest, and the row that names it."""
+        from baton_v12.contracts import digest
+        from baton_v12.worker_manager import retain_manifest
+        entries = [{"path": "change.patch", "bytes": 4,
+                    "content_digest": "sha256:" + "6" * 64},
+                   {"path": "objects.bundle", "bytes": 8,
+                    "content_digest": "sha256:" + "7" * 64}]
+        entries.sort(key=lambda one: one["path"].encode("utf-8"))
+        content = {"entries": entries, "entry_count": len(entries),
+                   "total_bytes": sum(one["bytes"] for one in entries),
+                   "tree_digest": digest(entries)}
+        artifact = {"artifact_id": f"{attempt_id}:proposal",
+                    "media_type": "application/octet-stream",
+                    "bytes": content["total_bytes"],
+                    "content_digest": content["tree_digest"],
+                    "locator": f"file:///var/lib/baton/{attempt_id}/proposal"}
+        claim = {"base": self.publisher.target,
+                 "head": f"{generation:040x}",
+                 "transport": "objects.bundle",
+                 "recap": f"candidate: round {generation}"}
+        document = dict(_vector("baton.worker-manifest/result"),
+                        result_id=f"result-{attempt_id}",
+                        input_manifest_digest=self.input_digest,
+                        assignment_ref={
+                            "work_ref": {"authority_uuid": self.AUTHORITY,
+                                         "work_id": self.WORK},
+                            "participant": WRITER, "generation": generation},
+                        outputs=[{"name": "proposal",
+                                  "type": "git-change-proposal",
+                                  "status": "present",
+                                  "content_manifest": content,
+                                  "artifact": artifact,
+                                  "result_metadata": {
+                                      "baton.git-proposal/1": claim}}])
+        document.pop("manifest_digest")
+        document["manifest_digest"] = digest(document)
+        held = retain_manifest(self.control, document,
+                               "resultManifest")["digest"]
+        self.control._connection.execute(
+            "INSERT INTO outputs (runtime_attempt_id, result_id, disposition, "
+            "manifest_digest, freeze_operation_id, frozen_at) VALUES (?, ?, "
+            "'completed', ?, ?, ?)",
+            (attempt_id, document["result_id"], held, "freeze-" + attempt_id,
+             NOW))
+        return held, document
+
+    # -- one composed round --------------------------------------------------
+
+    def composed_round(self, number, disposition, *, based=None):
+        """Implementation, real publication, checkpoint, review, verdict."""
+        from baton_v12.worker_manager import (freeze_checkpoint,
+                                              record_verdict)
+        writer_attempt = self.attempt(f"writer-attempt-{number}", number,
+                                      WRITER, f"writer-principal-{number}")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, writer_attempt))
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=writer_attempt, generation=number,
+            worker_id=f"impl-worker-{number}", profile=self.profile,
+            based_checkpoint_id=based)
+        self.completed(writer_attempt)
+        result_digest, document = self.frozen(writer_attempt, number)
+
+        # THE FACTORY'S OWN SEAM, and the ordering the ending imposes: this
+        # runs while the producer assignment is still live, BEFORE the
+        # checkpoint fences it. A publication after the fence refuses.
+        answer = self.seam.publish(
+            attempt_id=writer_attempt, result_id=document["result_id"],
+            manifest_digest=result_digest, artifacts=[],
+            proposal={"target": self.publisher.target})
+        self.retained[writer_attempt] = \
+            self.seam.published[-1]["proposal_manifest_digest"]
+
+        checkpoint = freeze_checkpoint(
+            self.control, writer_id=writer["writer_id"], generation=number,
+            profile=self.profile, port=self.port(WRITER))
+        review_attempt = self.attempt(f"review-attempt-{number}", number,
+                                      REVIEWER, f"review-principal-{number}")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, review_attempt))
+        attached = review_driver.prepare_review(
+            self.control, checkpoint_id=checkpoint["checkpoint_id"],
+            attempt_id=review_attempt, generation=number,
+            reviewer_worker_id=f"review-worker-{number}",
+            profile=self.profile)
+        self.completed(review_attempt, review=True)
+        verdict = record_verdict(
+            self.control, attachment_id=attached["attachment_id"],
+            disposition=disposition, profile=self.profile,
+            port=self.port(REVIEWER))
+        return {"checkpoint_id": checkpoint["checkpoint_id"],
+                "verdict_id": verdict["verdict_id"], "published": answer,
+                "result_digest": result_digest}
+
+
+class TheComposedLifecycleRunsOverRealStores(ComposedLifecycleCase):
+    """Item 3's own cases, over the harness above."""
+
+    def test_one_job_runs_implementation_correction_and_acceptance(self):
+        from baton_v12.worker_manager import (integration_checkpoint,
+                                              line_of)
+        first = self.composed_round(1, "changes-requested")
+        self.assertEqual(first["published"]["result_digest"],
+                         first["result_digest"])
+        self.assertEqual(line_of(self.control,
+                                 self.line["line_id"])["revision"], 1)
+
+        # THE VERDICT ADVANCES THE JOB through the one act that touches it.
+        review_driver.open_correction(
+            self.jobs, self.control, job_id="job-a",
+            answered={"outcome": "correction",
+                      "line_id": self.line["line_id"],
+                      "checkpoint_id": first["checkpoint_id"],
+                      "verdict_id": first["verdict_id"]})
+        # THE LINE IS READY FOR A CORRECTION, and round two below can only
+        # attach a writer by naming exactly this checkpoint -- `grant_writer`
+        # refuses any other, which is what makes the next round the SAME line
+        # rather than a second one.
+        self.assertEqual(line_of(self.control,
+                                 self.line["line_id"])["state"],
+                         "correction-ready")
+
+        # ROUND TWO: the SAME line, based on the checkpoint that was rejected.
+        second = self.composed_round(2, "accepted",
+                                     based=first["checkpoint_id"])
+        held = line_of(self.control, self.line["line_id"])
+        self.assertEqual(held["revision"], 2)
+        self.assertEqual(held["current_checkpoint_id"],
+                         second["checkpoint_id"])
+        self.assertNotEqual(second["result_digest"], first["result_digest"])
+
+        # AND THE ACCEPTED CHECKPOINT IS THE ONE AN INTEGRATION WOULD ADMIT.
+        accepted = integration_checkpoint(self.control, self.line["line_id"])
+        self.assertEqual(accepted["checkpoint_id"], second["checkpoint_id"])
+        self.assertEqual(accepted["verdict_id"], second["verdict_id"])
+
+    def test_every_publication_selects_on_a_really_retained_manifest(self):
+        """The producer is real, so the digest publication selects on is one
+        `load_manifest` answers rather than one a mock supplied."""
+        from baton_v12.worker_manager import load_manifest
+        self.composed_round(1, "accepted")
+        self.assertEqual(len(self.retained), 1)
+        for attempt_id, retained in self.retained.items():
+            held = load_manifest(self.control, retained, "proposalManifest")
+            self.assertIsNotNone(held, attempt_id)
+            self.assertEqual(held["result_manifest_digest"],
+                             self.result_digest_of(attempt_id))
+            self.assertEqual(held["source_base"],
+                             {"algorithm": "sha1",
+                              "hex": self.publisher.target})
+
+    def result_digest_of(self, attempt_id):
+        from baton_v12.worker_manager import frozen_output_of
+        return frozen_output_of(self.control, attempt_id)["manifest_digest"]
+
+    def test_publication_happens_while_the_producer_is_still_live(self):
+        """W103068's measured ordering, driven rather than asserted in prose:
+        the seam is asked before the checkpoint fences the writer."""
+        from baton_v12.worker_manager import line_of
+        states = []
+        held = self.seam.publish
+
+        def watched(**operands):
+            states.append(line_of(self.control,
+                                  self.line["line_id"])["state"])
+            return held(**operands)
+
+        self.seam.publish = watched
+        self.composed_round(1, "accepted")
+        self.assertEqual(states, ["writing"])
+
+
+class TheFocusedChecksItemFourNames(ComposedLifecycleCase):
+    """W103083 item 4, over the composition item 3 just proved.
+
+    Five checks, each one the smallest thing that would actually catch its own
+    failure. Deliberately not a failure-injection campaign: the expanded
+    restart/status matrix is W103950's, and this leaf's ruling says so.
+    """
+
+    # -- one representative restart/replay cutpoint --------------------------
+
+    def test_a_restart_at_the_publication_cutpoint_replays_rather_than_repeats(
+            self):
+        """The cutpoint chosen is publication, because it is the one act that
+        reaches OUTSIDE this deployment.
+
+        A manager that died after the Authority recorded a proposal and before
+        it wrote anything of its own must, on the next incarnation, arrive at
+        the same proposal rather than a second one. Retention is keyed by the
+        digest of the bytes, so re-composing the manifest is what proves it:
+        the same frozen result produces the same digest and therefore the same
+        retained document.
+        """
+        from baton_v12.worker_manager import load_manifest, retain_manifest
+        writer_attempt = self.attempt("writer-attempt-1", 1, WRITER,
+                                      "writer-principal-1")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, writer_attempt))
+        review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=writer_attempt, generation=1,
+            worker_id="impl-worker-1", profile=self.profile)
+        self.completed(writer_attempt)
+        result_digest, document = self.frozen(writer_attempt, 1)
+
+        first = self.seam.publish(
+            attempt_id=writer_attempt, result_id=document["result_id"],
+            manifest_digest=result_digest, artifacts=[],
+            proposal={"target": self.publisher.target})
+        held = self.control._connection.execute(
+            "SELECT COUNT(*) FROM manifests WHERE schema = ?",
+            ("baton.worker-manifest/proposal",)).fetchone()[0]
+
+        # THE RESTART. A fresh seam over the same store, exactly as a new
+        # incarnation would compose it, with no memory of the first.
+        again = stage_execution.Publication(self.control, self.publisher)
+        second = again.publish(
+            attempt_id=writer_attempt, result_id=document["result_id"],
+            manifest_digest=result_digest, artifacts=[],
+            proposal={"target": self.publisher.target})
+
+        self.assertEqual(second, first)
+        self.assertEqual(again.published[0]["proposal_manifest_digest"],
+                         self.seam.published[0]["proposal_manifest_digest"])
+        # ONE RETAINED ACCOUNT, not two: the digest IS the key.
+        self.assertEqual(self.control._connection.execute(
+            "SELECT COUNT(*) FROM manifests WHERE schema = ?",
+            ("baton.worker-manifest/proposal",)).fetchone()[0], held)
+        self.assertIsNotNone(load_manifest(
+            self.control, again.published[0]["proposal_manifest_digest"],
+            "proposalManifest"))
+        self.assertEqual(retain_manifest(self.control, document,
+                                         "resultManifest")["digest"],
+                         result_digest)
+
+    # -- role and session separation -----------------------------------------
+
+    def test_the_reviewer_is_never_the_writer_it_reviews(self):
+        """Independence is refused twice, and the two refusals are different
+        questions.
+
+        The configuration refuses a shared identity before anything is opened;
+        `attach_review` refuses one at the attachment, against the checkpoint's
+        own recorded writer. This proves the second, over the real line the
+        lifecycle just built, so the configuration rule is not the only thing
+        standing between a Job and a self-review.
+        """
+        from baton_v12.worker_manager import freeze_checkpoint
+        writer_attempt = self.attempt("writer-attempt-1", 1, WRITER,
+                                      "writer-principal-1")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, writer_attempt))
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=writer_attempt, generation=1,
+            worker_id="impl-worker-1", profile=self.profile)
+        self.completed(writer_attempt)
+        checkpoint = freeze_checkpoint(
+            self.control, writer_id=writer["writer_id"], generation=1,
+            profile=self.profile, port=self.port(WRITER))
+        with self.assertRaises(ContractRefusal):
+            review_driver.prepare_review(
+                self.control, checkpoint_id=checkpoint["checkpoint_id"],
+                attempt_id=writer_attempt, generation=1,
+                reviewer_worker_id="impl-worker-1", profile=self.profile)
+
+    def test_the_composed_rounds_carry_distinct_identities(self):
+        held = self.composed_round(1, "accepted")
+        self.assertIsNotNone(held["checkpoint_id"])
+        rows = dict(self.control._connection.execute(
+            "SELECT runtime_attempt_id, assignment_participant FROM attempts"
+        ).fetchall())
+        self.assertEqual(rows["writer-attempt-1"], WRITER)
+        self.assertEqual(rows["review-attempt-1"], REVIEWER)
+        self.assertNotEqual(rows["writer-attempt-1"], rows["review-attempt-1"])
+
+    # -- operator-held uncertainty -------------------------------------------
+
+    def test_a_rejected_verdict_is_held_rather_than_acted_on(self):
+        """`rejected` is a decision about the Work, and this composition
+        schedules nothing on it.
+
+        `open_correction` refuses anything that is not a correction, which is
+        what keeps a held outcome from being quietly turned into another round.
+        """
+        held = self.composed_round(1, "rejected")
+        with self.assertRaises(ContractRefusal) as caught:
+            review_driver.open_correction(
+                self.jobs, self.control, job_id="job-a",
+                answered={"outcome": "held",
+                          "line_id": self.line["line_id"],
+                          "checkpoint_id": held["checkpoint_id"],
+                          "verdict_id": held["verdict_id"]})
+        self.assertIn("correction round follows", caught.exception.message)
+
+    def test_the_held_outcome_is_one_this_composition_never_invents(self):
+        self.assertEqual(sorted(review_driver.VERDICT_OUTCOMES),
+                         ["accepted", "correction", "held"])
+
+
+def SimpleNamespace_port():
+    """A stand-in for a composed runtime port, never called by these cases.
+
+    `_integration_ports` decides on the SHAPE of what it was handed -- a
+    mapping keyed by bound Job, or one object for one binding -- and never on
+    what a port can do. A real `IntegrationRuntimePort` needs an accepted line
+    and a published proposal, neither of which exists before a deployment has
+    served anything, which is the whole reason the binding is checkable here
+    and the port itself is not.
+    """
+    return SimpleNamespace(prepare=None, run=None)
+
+
+class NothingIsOpenedBeforeTheConfigurationIsProved(StageCase):
+    """Item 4's pre-launch refusal, asked as "what exists on disk afterwards".
+
+    A composer that refused only after opening its Authority would leave a lock
+    nobody holds a reference to, and the refusal message would describe the
+    wrong moment. The question a case can actually answer is whether the store
+    files it would have created are there.
+    """
+
+    def composed(self, **members):
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.document(**members), object(), object(),
+                checkout=self.checkout)
+        return caught.exception
+
+    def test_a_refused_document_opens_no_integration_store(self):
+        self.composed(review_work_id="work-2")
+        self.assertFalse(os.path.exists(self.integration_store))
+
+    def test_a_job_store_bound_elsewhere_refuses_before_opening_anything(self):
+        from types import SimpleNamespace
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.document(),
+                SimpleNamespace(authority_uuid="f" * 32), object(),
+                checkout=self.checkout)
+        self.assertEqual(caught.exception.category, "refused")
+        self.assertFalse(os.path.exists(self.integration_store))
+
+    # -- the injected integration port's SHAPE is one of those answers -------
+
+    def two_bound(self, **members):
+        """A `/2` document binding two Jobs, held without composing anything.
+
+        W130224. Deliberately not the composed two-Job fixture: what these
+        cases ask is what this module can refuse WITHOUT writing, so the
+        document is the cheapest valid one and the stores are doubles that
+        would fault loudly if anything reached them.
+        """
+        producer = self.worker("implementation", participant="baton.second",
+                               principal="second-principal")
+        producer["worker_id"] = "implementation-worker-b"
+        given = {
+            "schema": stage_execution.MULTI_CONFIG_SCHEMA,
+            "workers": [
+                self.worker("implementation"),
+                self.worker("review", participant="baton.reviewer",
+                            principal="reviewer-principal"),
+                self.worker("integration", participant="baton.integrator",
+                            principal="integrator-principal"),
+                producer],
+            "job_bindings": [
+                {"job_id": "job-a", "job_work_id": "work-1",
+                 "review_work_id": "work-1", "line_declared_base": "a" * 40,
+                 "canonical_target_id": "target-1",
+                 "source_worker_id": "implementation-worker"},
+                {"job_id": "job-b", "job_work_id": "work-2",
+                 "review_work_id": "work-2", "line_declared_base": "b" * 40,
+                 "canonical_target_id": "target-2",
+                 "source_worker_id": "implementation-worker-b"}]}
+        given.update(members)
+        return self.document(**given)
+
+    def refused_port(self, port):
+        """Compose a two-Job deployment with this port, over store DOUBLES.
+
+        The Job store answers only the Authority binding this document names,
+        so the comparison above passes and the port's shape is the next thing
+        asked. The control store is a bare object: `worker_preflight`
+        configures a workspace group and storage on it and would fault with an
+        attribute error rather than a typed refusal, so a clean
+        `ContractRefusal` here is itself evidence that nothing reached it.
+        """
+        from types import SimpleNamespace
+
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.two_bound(),
+                SimpleNamespace(
+                    authority_uuid=self.config["authority_uuid"]), object(),
+                checkout=self.checkout, integration_port=port)
+        self.assertFalse(os.path.exists(self.integration_store))
+        return caught.exception
+
+    def test_one_bare_port_for_two_bound_jobs_refuses_before_any_write(self):
+        """A port is composed over ONE accepted line, proposal and canonical
+        target. Handing one to a deployment binding two Jobs would run the
+        second Job's integration against the first Job's line -- and this
+        module can see that in the document it was handed, so it says so
+        before it configures a control store or opens an integration one."""
+        held = self.refused_port(SimpleNamespace_port())
+        self.assertEqual((held.category, held.code),
+                         ("refused", "precondition"))
+        self.assertIn("one per Job keyed by its Job id", held.message)
+
+    def test_a_port_mapping_naming_an_unbound_job_refuses_before_any_write(
+            self):
+        held = self.refused_port({"job-a": SimpleNamespace_port(),
+                                  "job-nobody-bound": None})
+        self.assertEqual((held.category, held.code),
+                         ("refused", "precondition"))
+        self.assertIn("job-nobody-bound", held.message)
+
+    def test_the_shapes_this_deployment_does_accept(self):
+        """THE POSITIVE CONTROL, so the refusals above are a boundary rather
+        than a composer that rejects every port. One binding takes a bare port
+        under its own absent key; several take one per bound Job; and absence
+        is the ordinary answer for a deployment composing no integration
+        runtime at all."""
+        one_job = stage_execution.held_configuration(self.document(),
+                                                     checkout=self.checkout)
+        port = SimpleNamespace_port()
+        self.assertEqual(stage_execution._integration_ports(one_job, port),
+                         {None: port})
+        self.assertEqual(stage_execution._integration_ports(one_job, None),
+                         {None: None})
+        two_jobs = stage_execution.held_configuration(self.two_bound(),
+                                                      checkout=self.checkout)
+        self.assertEqual(
+            stage_execution._integration_ports(two_jobs,
+                                               {"job-a": port,
+                                                "job-b": None}),
+            {"job-a": port, "job-b": None})
+        # A MAPPING THAT NAMES ONLY SOME OF THE BOUND JOBS IS NOT A FAULT: a
+        # Job with no port refuses at its own integration stage, with the
+        # capability sentence that has always said what this build lacks.
+        self.assertEqual(
+            stage_execution._integration_ports(two_jobs, {"job-a": port}),
+            {"job-a": port, "job-b": None})
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+class TheIntegrationStageConsumesTheAcceptedPort(StageCase):
+    """W103083 obligation115920, owner ruling M115946.
+
+    The requirement is DERIVED from configured material, and a later tick
+    refreshes before it asks the port's own marker whether this execution may
+    continue. Every driver call is recorded rather than performed: which
+    driver a tick chooses, and with what, is this assembly's decision, and the
+    drivers have their own suites for what they then do.
+    """
+
+    def group(self):
+        """The manager's own nominal WorkspaceGroup, not its integer.
+
+        Review 2026-09-08T04:06:54Z [P1]: the assembly held `.gid`, and the
+        public delivery readers require the group object -- so a fixture that
+        supplied an integer could not have noticed.
+        """
+        from baton_v12.worker_manager import ControlStore, workspaces
+
+        control = ControlStore.open(self.control_path,
+                                    incarnation="stage-group",
+                                    clock=lambda: NOW)
+        self.addCleanup(control.close)
+        workspaces.configure_workspace_group(control, os.getgid())
+        workspaces.configure_workspace_storage(control, self.storage)
+        return workspaces.configured_workspace_group(control)
+
+    def deployment(self, **members):
+        # THE FACTORY'S OWN HELD FORM, not the raw document. Review
+        # 2026-09-08T04:06:54Z [P1]: these cases supplied the raw
+        # configuration, so they could not see that `required_tests`
+        # re-validated a document the factory had already held.
+        given = members.pop("given", None) or stage_execution.held_configuration(
+            self.document(), checkout=self.checkout)
+        held = SimpleNamespace(
+            given=given, control=object(), jobs=object(),
+            # W275774: THE TWO AUTHORITY READS THE BRANCH DECISION MAKES, and
+            # nothing more. `Integration._run` asks the Authority for the
+            # producer's proposal and for the canonical target, and compares
+            # them to decide whether this candidate is the DIRECT import or the
+            # one W131409 filed -- so a bare `object()` here fails at
+            # `.proposal` before any of these cases reaches the port they are
+            # about.
+            #
+            # THE TWO ANSWERS AGREE, BECAUSE THIS FIXTURE'S MODE IS THE DIRECT
+            # ONE. These cases configure no integration target, workspace or
+            # observer, so `reconciles()` is false and a proposal built on a
+            # revision the target had moved past would refuse `capability` for
+            # want of a reconciliation this deployment deliberately does not
+            # have. Answering one revision from both readers selects the branch
+            # the cases were written for instead of manufacturing the other.
+            authority=SimpleNamespace(
+                proposal=lambda proposal_id: {"target": DIRECT_REVISION},
+                canonical_target=lambda: DIRECT_REVISION),
+            integration=object(), integration_profile=given[
+                "integration_profile"],
+            integration_root=os.path.join(self.root, "integration-root"),
+            workspace_group=self.group(),
+            sessions={one: SimpleNamespace(name=one) for one in
+                      ("verification", "review", "approval", "integrator")},
+            line=lambda: {"line_id": "line-1"},
+            published_proposal=lambda accepted: "proposal-1")
+        # W275774: AND THE BRANCH RULE ITSELF, COPIED RATHER THAN CHOSEN.
+        #
+        # `_run` asks this after the direct branch is taken, to decide whether it
+        # finalizes a reconciliation. The answer is not a fixture preference: it
+        # is `Deployment.reconciles`'s own sentence over THIS held configuration,
+        # which configures none of the three operands -- so it answers False, and
+        # supplying the operands to make it True would send these port cases into
+        # a reconciliation they were never about.
+        held.reconciles = lambda: all(
+            held.given.get(name) is not None for name in
+            ("integration_target", "integration_workspace",
+             "integration_observer"))
+        for name, value in members.items():
+            setattr(held, name, value)
+        return held
+
+    def port(self, *, runtime_state="running", continuable=True):
+        calls = []
+
+        def observed(attempt_id, assignment):
+            calls.append(("observed", attempt_id))
+            return {"execution_runtime": runtime_state}
+
+        return SimpleNamespace(
+            calls=calls,
+            prepare=lambda stage, job: calls.append(("prepare",
+                                                     stage["attempt_id"])),
+            refresh=lambda attempt_id: calls.append(("refresh", attempt_id)),
+            observed=observed,
+            may_continue=lambda assignment, delivery=None: (
+                calls.append(("may_continue", None)) or continuable))
+
+    def driven(self, *, delivery=None, assignment=None, port=None,
+               deployment=None):
+        """One tick, with every driver and public reader recorded."""
+        held = self.deployment() if deployment is None else deployment
+        taken = self.port() if port is None else port
+        seen = {}
+        with mock.patch.object(stage_execution, "admit_accepted",
+                               side_effect=lambda *a, **k: seen.setdefault(
+                                   "admit", k) or {"outcome": "running"}
+                               ) as admit, \
+                mock.patch.object(
+                    stage_execution, "continue_accepted",
+                    side_effect=lambda *a, **k: seen.setdefault(
+                        "continue", k) or {"outcome": "running"}
+                    ) as keep, \
+                mock.patch.object(stage_execution.runtime, "adopt_delivery",
+                                  return_value=delivery), \
+                mock.patch.object(stage_execution.runtime,
+                                  "published_assignment",
+                                  return_value=assignment), \
+                mock.patch.object(stage_execution.review_cycles,
+                                  "integration_checkpoint",
+                                  return_value={"checkpoint_id": "cp-1"}):
+            answer = stage_execution.Integration(held, taken).run(
+                {"attempt_id": "attempt-1", "kind": "integration"},
+                {"job_id": "job-1"})
+        return answer, taken.calls, admit, keep, seen
+
+    # -- the derived requirement --------------------------------------------
+
+    def test_the_requirement_is_derived_from_the_configured_task(self):
+        """Not from what the worker REPORTED: from the task bytes this
+        deployment configured and the input manifest they are bound to."""
+        import hashlib
+        import json as _json
+
+        held = stage_execution.Integration(self.deployment(), self.port())
+        derived = held.required_tests()
+        given = stage_execution.held_configuration(
+            self.document(), checkout=self.checkout)["workers"][0][
+                "deployment"]
+        payload = given["task_bytes"]
+        self.assertEqual(derived, {
+            "task_id": _json.loads(payload)["task_id"],
+            "task_digest": "sha256:" + hashlib.sha256(payload).hexdigest(),
+            "argv": _json.loads(payload)["verification"],
+            "input_manifest_digest":
+                given["input_manifest"]["manifest_digest"],
+            "job_input_identity":
+                job_input_identity(given["input_manifest"])})
+        # AND THE ACCEPTED DRIVER'S OWN READER ADMITS IT.
+        self.assertEqual(driver._owned_requirements(derived), derived)
+
+    def test_a_deployment_without_exactly_one_producer_refuses(self):
+        given = stage_execution.held_configuration(self.document(),
+                                                   checkout=self.checkout)
+        given["workers"] = [one for one in given["workers"]
+                            if one["role"] != "implementation"]
+        held = stage_execution.Integration(
+            self.deployment(given=given), self.port())
+        with self.assertRaises(ContractRefusal) as caught:
+            held.required_tests()
+        self.assertIn("implementation workers", caught.exception.message)
+
+    def test_the_published_reader_adopts_a_real_delivery_with_the_group(self):
+        """W103083 review 2026-09-08T04:06:54Z [P1], proved through the REAL
+        public readers over a real materialized delivery rather than a mock.
+
+        The manager's nominal group adopts; the integer that used to be stored
+        in its place refuses, which is the defect this pins. An absent delivery
+        cannot show either, because `adopt_delivery` answers `None` before it
+        validates the group.
+        """
+        from baton_v12.integration import runtime as integration_runtime
+
+        group = self.group()
+        held = self.deployment(workspace_group=group)
+        os.makedirs(held.integration_root, exist_ok=True)
+        integration_runtime.materialize_delivery(
+            held.integration_root, attempt_id="attempt-1",
+            workspace_group=group)
+
+        delivery, assignment = stage_execution.Integration(
+            held, self.port())._published({"attempt_id": "attempt-1"})
+        self.assertIsNotNone(delivery)
+        # NOTHING WAS PUBLISHED INTO IT YET, and that is an ordinary answer
+        # rather than an invented assignment.
+        self.assertIsNone(assignment)
+
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.Integration(
+                self.deployment(workspace_group=group.gid),
+                self.port())._published({"attempt_id": "attempt-1"})
+        self.assertIn(str(group.gid), caught.exception.message)
+
+    # -- which driver a tick chooses ----------------------------------------
+
+    def test_the_first_tick_prepares_and_then_admits(self):
+        _, calls, admit, keep, seen = self.driven()
+        self.assertEqual(calls, [("prepare", "attempt-1")])
+        admit.assert_called_once()
+        keep.assert_not_called()
+        # THE OPERAND THAT WAS MISSING ENTIRELY travels now.
+        self.assertIn("required_tests", seen["admit"])
+        self.assertEqual(sorted(seen["admit"]["required_tests"]),
+                         ["argv", "input_manifest_digest",
+                          "job_input_identity", "task_digest", "task_id"])
+
+    def test_a_later_tick_refreshes_before_it_continues(self):
+        """Owner ruling M115946: refresh FIRST, then the port's own marker."""
+        _, calls, admit, keep, seen = self.driven(
+            delivery=object(), assignment={"attempt_id": "attempt-1"})
+        self.assertEqual(calls, [("observed", "attempt-1"),
+                                 ("refresh", "attempt-1"),
+                                 ("may_continue", None)])
+        keep.assert_called_once()
+        admit.assert_not_called()
+        self.assertIn("required_tests", seen["continue"])
+        # AND CONTINUATION IS NEVER HANDED A PORT: it cannot start anything.
+        self.assertNotIn("port", seen["continue"])
+
+    def test_a_lost_marker_falls_through_to_admission(self):
+        """A fresh serving incarnation holds no marker, so the driver's own
+        restart behaviour is what answers -- reading a persisted assignment
+        grants no continuation permission."""
+        _, calls, admit, keep, _ = self.driven(
+            delivery=object(), assignment={"attempt_id": "attempt-1"},
+            port=self.port(continuable=False))
+        self.assertEqual(calls, [("observed", "attempt-1"),
+                                 ("refresh", "attempt-1"),
+                                 ("may_continue", None)])
+        admit.assert_called_once()
+        keep.assert_not_called()
+
+    def test_a_delivery_with_no_started_runtime_is_not_refreshed(self):
+        """The namespaces are materialized before the container, so a delivery
+        can exist with no runtime behind it. That attempt is admission's to
+        re-enter, and refreshing it would ask reconciliation about a runtime
+        nobody requested.
+
+        W103083 review 2026-09-08T12:41:47Z [P1], owner approval M118923: it
+        is PREPARED before that re-entry, and this case's recorded calls are
+        the one thing that changed. Re-entering admission with no
+        execution-local credential delivery is what a reconstructed port
+        refused on, and the other three assertions here -- no refresh, exactly
+        one admission, no continuation -- are unchanged and are why the
+        preparation is the whole of the correction.
+        """
+        _, calls, admit, keep, _ = self.driven(
+            delivery=object(), assignment={"attempt_id": "attempt-1"},
+            port=self.port(runtime_state="not-started"))
+        self.assertEqual(calls, [("observed", "attempt-1"),
+                                 ("prepare", "attempt-1")])
+        admit.assert_called_once()
+        keep.assert_not_called()
+
+    def test_a_started_or_uncertain_runtime_is_never_prepared_here(self):
+        """The other side of that branch, which is why it IS a branch.
+
+        Preparation mints a bearer only for an attempt whose runtime has not
+        started; the credential custody of a runtime this execution did not
+        start belongs to that runtime. So a started or uncertain attempt with
+        no marker is refreshed and then admitted exactly as before, and the
+        hold `admit_accepted` has always owned is what answers it.
+        """
+        for state in ("running", "uncertain"):
+            with self.subTest(runtime=state):
+                _, calls, admit, keep, _ = self.driven(
+                    delivery=object(),
+                    assignment={"attempt_id": "attempt-1"},
+                    port=self.port(runtime_state=state, continuable=False))
+                self.assertEqual(calls, [("observed", "attempt-1"),
+                                         ("refresh", "attempt-1"),
+                                         ("may_continue", None)])
+                admit.assert_called_once()
+                keep.assert_not_called()
+
+    def test_a_delivery_carrying_no_assignment_is_the_first_tick(self):
+        """Absent or unpublished: neither invents an assignment."""
+        for delivery in (None, object()):
+            with self.subTest(delivery=delivery is not None):
+                _, calls, admit, keep, _ = self.driven(delivery=delivery,
+                                                       assignment=None)
+                self.assertEqual(calls, [("prepare", "attempt-1")])
+                admit.assert_called_once()
+                keep.assert_not_called()
+
+
+class AFreshPortReentersANeverStartedDelivery(unittest.TestCase):
+    """W119113: this assembly's dispatch over the REAL production port.
+
+    COMPOSED, NOT SUBCLASSED, for the reason the port suite's own fixture
+    records: a subclass re-runs every one of its parent's cases under a second
+    name. This borrows that composed world whole -- the real Worker Manager,
+    coordinator, Authority, delivery namespaces, admission and continuation
+    drivers, and the deterministic engine and provider that stand in for a
+    daemon and a model -- and asks it the one question the recorded-port cases
+    above cannot answer: what a fresh `IntegrationRuntimePort` actually does
+    when the tick finds a delivery it published and never started.
+
+    THE MEASURED DEFECT, W103083 review 2026-09-08T12:41:47Z [P1]. A first
+    admission that dies between publishing the assignment and starting the
+    runtime leaves durable namespaces, a durable assignment and a runtime the
+    manager's own axis still calls `not-started`. The next incarnation holds
+    no in-memory credential delivery, and it used to re-enter admission
+    without preparing one, so the attempt could never start again.
+    """
+
+    def setUp(self):
+        from .test_integration_worker import (
+            ATTEMPT, TheWholeIntegrationRunsThroughThisPort)
+
+        self.attempt = ATTEMPT
+        case = TheWholeIntegrationRunsThroughThisPort()
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        self.case = case
+        self.world = case.world
+
+    # -- the world, read through its own owners -----------------------------
+
+    def deployment(self):
+        """The operands `Integration.run` resolves, from the borrowed world.
+
+        Two members answer for this fixture rather than deriving: `line` and
+        `published_proposal`, whose replay of the accepted checkpoint's own
+        writer/attempt/manifest chain belongs to the composed lifecycle cases
+        and to `W119114`. Everything this class is about is the real thing --
+        the public delivery readers, the production port, both drivers, and
+        the manager's own runtime witness.
+        """
+        case, world = self.case, self.world
+        # W275774, review 2026-09-26T23-25-30Z: `reconciles` IS DERIVED HERE, FAITHFULLY.
+        #
+        # `stage_execution.Integration.reconciles` answers `all(given.get(name) is not None
+        # for name in ("integration_target", "integration_workspace",
+        # "integration_observer"))` -- whether the deployment is wired to reconcile at all.
+        # This double predates that capability and answered nothing, so every case built on
+        # it raised `AttributeError` before reaching its own subject.
+        #
+        # THE SAME RULE OVER THE SAME OPERAND NAMES, and the operands are this fixture's own
+        # real ones -- the borrowed world's target, the case's launch root and the observer
+        # participant the composed document names. Nothing is asserted: a fixture that
+        # answered `True` outright would report an unwired deployment as reconciling, which
+        # is the check's whole point.
+        #
+        # AND FOR THIS FIXTURE THE ANSWER IS `False`, WHICH IS THE POINT OF DERIVING IT.
+        # These cases are about a fresh port re-entering a never-started delivery; the
+        # deployment they borrow configures no integration target, workspace or observer, so
+        # it is not wired to reconcile and the production rule says so. My first cut ADDED
+        # those three operands to make the answer `True`, and measured it: the cases then
+        # walked into the reconciliation path and failed on `reconciliation_profile` and
+        # `_place`, which this fixture has no business answering. Deriving the mode from
+        # what the fixture actually configures is what keeps its intended mode intact.
+        held = SimpleNamespace(
+            given={"canonical_target_id": world.target,
+                   "policy_generation": world.authority.policy_generation()},
+            control=world.manager, jobs=world.jobs,
+            authority=world.authority_read, integration=world.coordinator,
+            integration_profile=case.profile,
+            integration_root=case.launch_root,
+            workspace_group=case.owner.group,
+            sessions={"verification": world.sessions["verify"],
+                      "review": world.sessions["review"],
+                      "approval": world.sessions["approve"],
+                      "integrator": world.integrator},
+            line=lambda: {"line_id": world.line_id},
+            published_proposal=lambda accepted: world.proposal_id)
+        held.reconciles = lambda: all(
+            held.given.get(name) is not None for name in
+            ("integration_target", "integration_workspace",
+             "integration_observer"))
+        return held
+
+    def recording(self, port=None):
+        """One production port whose two acts are recorded and not replaced.
+
+        `wraps` rather than a substitute: what each call then does is the
+        port's own, and the assertions here are about which of them this
+        assembly makes.
+        """
+        held = self.case.port() if port is None else port
+        held.prepare = mock.Mock(wraps=held.prepare)
+        held.refresh = mock.Mock(wraps=held.refresh)
+        return held
+
+    def tick(self, port):
+        """One `Integration.run`, with the driver it chose recorded.
+
+        The requirement is the world's own selection. This borrowed deployment
+        carries no configured workers to derive one from, and the derivation
+        has its own real-factory cases above; substituting it here keeps this
+        boundary about dispatch and preparation.
+        """
+        held = stage_execution.Integration(self.deployment(), port)
+        with mock.patch.object(held, "required_tests",
+                               return_value=self.world.required), \
+                mock.patch.object(stage_execution, "admit_accepted",
+                                  wraps=stage_execution.admit_accepted
+                                  ) as admit, \
+                mock.patch.object(stage_execution, "continue_accepted",
+                                  wraps=stage_execution.continue_accepted
+                                  ) as keep:
+            answer = held.run(self.case.stage(), {"job_id": "job-1"})
+        return answer, admit, keep
+
+    def starts(self):
+        """How many runtimes this world's engine was asked to run."""
+        return len([one for one in self.case.engine_calls if one[1] == "run"])
+
+    def witness(self):
+        """The manager's own accepted axis for this attempt."""
+        from baton_v12.integration import runtime as integration_runtime
+
+        return integration_runtime.prior_runtime_witness(
+            self.world.manager, self.attempt)["execution_runtime"]
+
+    def interrupted(self):
+        """One first admission that dies between publication and the start."""
+        held = self.case.port()
+        held.prepare(self.case.stage(), None)
+        with mock.patch.object(
+                held, "run",
+                side_effect=ContractRefusal(
+                    "refused", "precondition",
+                    "the injected interruption before the runtime start")):
+            with self.assertRaises(ContractRefusal):
+                self.case.admit(held)
+        return held
+
+    # -- the controls, which say what an unbroken tick does ------------------
+
+    def test_an_ordinary_first_tick_prepares_and_starts_exactly_once(self):
+        """The valid initial case: nothing is published yet, so this is the
+        first tick the recorded-port cases describe, performed for real."""
+        port = self.recording()
+        answer, admit, keep = self.tick(port)
+
+        self.assertEqual(answer["outcome"], "running")
+        self.assertEqual(port.prepare.call_count, 1)
+        port.refresh.assert_not_called()
+        admit.assert_called_once()
+        keep.assert_not_called()
+        self.assertEqual(self.starts(), 1)
+        self.assertEqual(self.witness(), "running")
+
+    def test_a_second_tick_in_the_same_execution_starts_nothing_again(self):
+        """The same-execution case: this port holds the marker it made, so the
+        tick refreshes and continues, and no second runtime is asked for."""
+        port = self.recording()
+        self.tick(port)
+        answer, admit, keep = self.tick(port)
+
+        self.assertEqual(port.prepare.call_count, 1)
+        self.assertEqual(port.refresh.call_count, 1)
+        keep.assert_called_once()
+        admit.assert_not_called()
+        self.assertEqual(self.starts(), 1)
+        self.assertEqual(answer["outcome"], "running")
+
+    # -- the correction ------------------------------------------------------
+
+    def test_an_interrupted_first_admission_leaves_a_never_started_delivery(
+            self):
+        """The predecessor state this correction is about, measured rather
+        than assumed: a real published assignment over a runtime the manager's
+        own axis says was never started, and no engine start at all."""
+        from baton_v12.integration import runtime as integration_runtime
+
+        self.interrupted()
+        delivery = integration_runtime.adopt_delivery(
+            self.case.launch_root, attempt_id=self.attempt,
+            workspace_group=self.case.owner.group)
+        self.assertIsNotNone(delivery)
+        self.assertIsNotNone(
+            integration_runtime.published_assignment(delivery))
+        self.assertEqual(self.witness(), "not-started")
+        self.assertEqual(self.starts(), 0)
+
+    def test_a_fresh_port_prepares_that_delivery_and_then_starts_it(self):
+        """W103083 review 2026-09-08T12:41:47Z [P1], and the whole of W119113.
+
+        The reconstructed port receives the preparation it needs before
+        admission -- and receives it without a refresh, because reconciling an
+        attempt no start was ever requested for is a write this branch has
+        never made.
+        """
+        self.interrupted()
+        port = self.recording()
+        answer, admit, keep = self.tick(port)
+
+        self.assertEqual(answer["outcome"], "running")
+        self.assertEqual(port.prepare.call_count, 1)
+        port.refresh.assert_not_called()
+        admit.assert_called_once()
+        keep.assert_not_called()
+        # ONE START, from the incarnation that prepared it.
+        self.assertEqual(self.starts(), 1)
+        self.assertEqual(self.witness(), "running")
+
+    def test_a_runtime_this_execution_did_not_start_is_still_held(self):
+        """The hold this correction must not spend: a started attempt is NOT
+        prepared, because its credential custody belongs to the runtime that
+        holds it, and no second writer is ever run for it."""
+        self.case.started()
+        minted = len(self.case.minted)
+        self.assertEqual(self.starts(), 1)
+
+        port = self.recording()
+        answer, admit, keep = self.tick(port)
+
+        self.assertEqual(answer["outcome"], "held")
+        port.prepare.assert_not_called()
+        self.assertEqual(port.refresh.call_count, 1)
+        admit.assert_called_once()
+        keep.assert_not_called()
+        self.assertEqual(self.starts(), 1)
+        self.assertEqual(len(self.case.minted), minted)
+
+
+class ServingCase(StageCase):
+    """One deployment composed the way the serving loop composes it.
+
+    REVIEW 2026-09-07T13-29-13Z [P1] IS WHY THESE EXIST AT ALL. The cases
+    above prove what a configuration refuses and the cases below prove what
+    the drivers do; between them sat an object that had been constructed but
+    never asked to serve anything. These ask it.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.authority import Authority
+        from tests.job_manager import fixtures
+        self.work = fixtures.WORK_A
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            self.principals = {
+                who: authority.principal_of(who)
+                for who in ("baton.reviewer", "baton.integrator")}
+            # THE SCOPE THE RECEIPTS WILL ACTUALLY BE AUTHORIZED IN, read from
+            # the Work rather than assumed to be the deployment's.
+            self.scope = authority.project_work(self.work)["scope"]
+            # AND THE FOUR GRANTS, WHICH THIS FIXTURE PREVIOUSLY DID NOT NEED.
+            # Review 2026-09-07T14-12-42Z [P1]: the composition proved only
+            # that each session object had callable methods of the right name,
+            # and every minted session has all of them -- so every case here
+            # composed a deployment whose receipt actors were authorized for
+            # nothing at all, and the deployment would have discovered that at
+            # `_write_receipt`, with a candidate already published.
+            self.receipt_grants = {"baton.verifier": "verify",
+                                   "baton.approver-review": "review",
+                                   "baton.approver": "approve",
+                                   "baton.integrator": "integrate"}
+            for who, capability in self.receipt_grants.items():
+                authority.grant_capability(who, capability, scope=self.scope)
+            # W122060: AND THE TWO ROUTES THE ORDINARY HANDOFF MOVES THIS WORK
+            # TO. The routing record is explicit that the existing per-worker
+            # `review_route` operand is the source and that a deployment
+            # configures it rather than a new map supplying it -- so the
+            # Authority has to know which participant serves each of those
+            # routes, exactly as `SingleWorkerCase` already declares the
+            # implementation one. Without this the reviewer's claim refuses
+            # against a route nobody handles, which is a fixture that never
+            # authorized the next role rather than a defect in the handoff.
+            for route, who in (("rview", "baton.reviewer"),
+                               (self.INTEGRATION_ROUTE, "baton.integrator")):
+                authority.add_route_handler(route, who)
+        finally:
+            authority.dispose()
+
+    def composed_document(self, **members):
+        given = {
+            "job_work_id": self.work, "review_work_id": self.work,
+            "workers": [
+                self.worker("implementation"),
+                # W122060: THE REVIEW WORKER'S OWN OUTGOING ROUTE. Each
+                # worker carries the route its own ending hands the Work on
+                # to: the implementation worker's is the review route it
+                # already declares, and the review worker's is the one the
+                # integration role is served on. One operand per worker, which
+                # is the operand this deployment already had.
+                self.worker("review", participant="baton.reviewer",
+                            principal=self.principals["baton.reviewer"],
+                            review_route=self.INTEGRATION_ROUTE),
+                self.worker(
+                    "integration", participant="baton.integrator",
+                    principal=self.principals["baton.integrator"],
+                    # W122060: THE SLOT THE ACCEPTED INTEGRATION PORT READS ITS
+                    # BEARER FROM. `integration_worker` names it, and a
+                    # deployment resolving another slot is refused there rather
+                    # than discovering it with a candidate published.
+                    credential_slots=[integration_worker
+                                      .REQUIRED_CREDENTIAL_SLOT],
+                    credential_profile={
+                        integration_worker.REQUIRED_CREDENTIAL_SLOT: {
+                            "provider": "fixture",
+                            "reference": "fixture/one"}})]}
+        given.update(members)
+        return self.document(**given)
+
+    def serving(self, **members):
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+        job, control = self.stores("stage-serving")
+        composed = stage_execution.operations_from(
+            self.composed_document(**members), job, control,
+            engine_run=Engine(),
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        return job, control, composed
+
+
+class TheServingPathReachesTheAcceptedDrivers(ServingCase):
+    """P1: the object the loop drives, not the attributes beside it."""
+
+    def test_each_stage_worker_carries_its_own_composition(self):
+        _job, _control, composed = self.serving()
+        held = {one["role"]: one["operations"]._worker.stage
+                for one in composed.workers}
+        for role in ("implementation", "review"):
+            with self.subTest(role=role):
+                self.assertIsInstance(held[role],
+                                      stage_execution.StageComposition)
+                self.assertEqual(held[role].role, role)
+                self.assertEqual(held[role].worker_id, f"{role}-worker")
+        # THE INTEGRATION WORKER HAS NO WORKER-LAUNCH COMPOSITION, because an
+        # accepted integration is not started through an offer, a claim and an
+        # exchange: `admit_accepted` leases the candidate and drives its own
+        # delivery. Giving it a stage composition would be composing a mount
+        # and an ending nothing would ever call.
+        self.assertIsNone(held["integration"])
+
+    def test_a_review_stage_is_admitted_by_the_review_worker(self):
+        """The measured symptom: `_matches` refused every kind but
+        `implementation`, so no review stage could ever be launched."""
+        _job, _control, composed = self.serving()
+        worker = {one["role"]: one["operations"]._worker
+                  for one in composed.workers}["review"]
+        stage = {"stage_id": "job-a:review", "kind": "review",
+                 "work_id": self.work,
+                 "profile_name": worker.given["profile_name"],
+                 "profile_digest": worker.given["profile_digest"]}
+        job = {"input_digest":
+               job_input_identity(worker.given["input_manifest"]),
+               "policy_digest": worker.given["policy_digest"]}
+        # No refusal: the stage matches the worker composed for it.
+        self.assertIsNone(worker._matches(stage, job))
+        with self.assertRaises(ContractRefusal) as caught:
+            worker._matches(dict(stage, kind="implementation"), job)
+        self.assertIn("only 'review'", caught.exception.message)
+
+    def test_the_integration_kind_is_driven_by_the_integration_driver(self):
+        _job, _control, composed = self.serving()
+        asked = []
+        composed.integrator = type(
+            "Recording", (), {"run": lambda _self, stage, job:
+                              asked.append((stage["kind"], job)) or "driven"})()
+        stage = {"kind": "integration", "attempt_id": "attempt-i",
+                 "stage_id": "job-a:integration"}
+        self.assertEqual(composed.launch(stage, {"job": 1}), "driven")
+        self.assertEqual(composed.conclude(stage, {"job": 1}), "driven")
+        self.assertEqual([one[0] for one in asked],
+                         ["integration", "integration"])
+
+    def test_integration_requires_an_accepted_checkpoint_before_runtime(self):
+        """W103068 constructs the runtime port; acceptance remains the gate.
+
+        The old fixture expected the removed missing-port refusal and had no
+        repository. Use a real unreviewed line and prove the current gate,
+        before any integration runtime or provider can run.
+        """
+        case = ComposedOneJobCase()
+        self.addCleanup(case.doCleanups)
+        case.setUp()
+        held = case.implemented()
+        starts = len(case.engine.starts)
+        with self.assertRaises(ContractRefusal) as caught:
+            held.composed.launch({"kind": "integration", "attempt_id": "attempt-i", "job_id": "job-a"}, {})
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("no accepted integration checkpoint", caught.exception.message)
+        self.assertEqual(len(case.engine.starts), starts)
+
+    def test_the_pool_is_activated_from_the_configuration(self):
+        """Nobody issues an operator transition to create capacity: the
+        deployment's own workers ARE the pool generation it serves under."""
+        from baton_v12.job_manager import scheduler
+        job, _control, composed = self.serving()
+        active = scheduler.active_generation(job)
+        self.assertEqual(active["generation"], 1)
+        self.assertEqual(
+            sorted(one["worker_id"] for one in scheduler.pool_workers(job)),
+            ["implementation-worker", "integration-worker", "review-worker"])
+        self.assertEqual(sorted(composed.pooled.workers),
+                         [(1, "implementation-worker"),
+                          (1, "integration-worker"), (1, "review-worker")])
+
+    def test_a_configuration_naming_another_pool_generation_refuses(self):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.serving(pool_generation=4)
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertIn("moved on", caught.exception.message)
+
+
+class TheFactorysOwnOperandsReachTheIntegrationStage(ServingCase):
+    """W119113: review 119091's independent controls, kept as ordinary tests.
+
+    Review 2026-09-08T12:41:47Z accepted the held/raw and nominal-group
+    corrections through a probe over the ACTUAL `operations_from` factory,
+    because the recorded-port cases build their deployment by hand and could
+    not have seen either defect. These ask the same questions here, so the
+    acceptance is a test this suite runs rather than only retained evidence.
+    """
+
+    def producer(self, composed):
+        """The factory's own held implementation deployment."""
+        return next(one["deployment"] for one in
+                    composed.deployment.given["workers"]
+                    if one["role"] == "implementation")
+
+    def test_the_composed_integration_derives_its_requirement_from_it(self):
+        """The held form is consumed AS IT STANDS: re-validating it through
+        the raw-document validator refused the factory's own derived members,
+        and every real integration tick stopped there."""
+        import hashlib
+
+        _job, _control, composed = self.serving()
+        held = self.producer(composed)
+        derived = composed.integrator.required_tests()
+        self.assertEqual(derived["task_digest"],
+                         "sha256:" + hashlib.sha256(
+                             held["task_bytes"]).hexdigest())
+        self.assertEqual(derived["input_manifest_digest"],
+                         held["input_manifest"]["manifest_digest"])
+        # AND THE ACCEPTED DRIVER'S OWN READER ADMITS WHAT THE FACTORY BUILT.
+        self.assertEqual(driver._owned_requirements(derived), derived)
+
+    def test_replacing_the_task_document_after_construction_changes_nothing(
+            self):
+        """The bytes were read once at configuration, no-follow and bounded.
+        A file replaced afterwards would otherwise substitute new expected
+        bytes for the producer this Job actually ran."""
+        _job, _control, composed = self.serving()
+        derived = composed.integrator.required_tests()
+        with open(self.task_document, "wb") as writing:
+            writing.write(b'{"task_id": "replaced", '
+                          b'"verification": ["a-different-command"]}')
+        self.assertEqual(composed.integrator.required_tests(), derived)
+
+    def test_a_producer_task_naming_no_verification_refuses(self):
+        """An integration is admitted behind an ordinary test run and never
+        ahead of one, so a producer configured without a command refuses."""
+        _job, _control, composed = self.serving()
+        held = self.producer(composed)
+        task = json.loads(held["task_bytes"].decode("utf-8"))
+        task.pop("verification", None)
+        held["task_bytes"] = json.dumps(task).encode("utf-8")
+        with self.assertRaises(ContractRefusal) as caught:
+            composed.integrator.required_tests()
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("names no verification command",
+                      caught.exception.message)
+
+    def test_a_job_naming_another_producers_input_refuses(self):
+        """M115946's correspondence check, over the factory's own operands: a
+        required-test selection describes the producer this Job ran."""
+        _job, _control, composed = self.serving()
+        integration = composed.integrator
+        derived = integration.required_tests()
+        # The Job this deployment's producer really ran passes.
+        self.assertIsNone(integration._correspondent(
+            {"input_digest": derived["job_input_identity"]}, derived))
+        with self.assertRaises(ContractRefusal) as caught:
+            integration._correspondent({"input_digest": "sha256:" + "f" * 64},
+                                       derived)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("sha256:" + "f" * 64, caught.exception.message)
+
+    def test_the_factory_holds_the_group_a_real_delivery_is_adopted_with(
+            self):
+        """The manager's nominal `WorkspaceGroup`, proved by adopting a really
+        materialized delivery at the factory's own integration root."""
+        from baton_v12.integration import runtime as integration_runtime
+        from baton_v12.worker_manager import workspaces
+
+        _job, _control, composed = self.serving()
+        group = composed.deployment.workspace_group
+        self.assertIsInstance(group, workspaces.WorkspaceGroup)
+        root = composed.deployment.integration_root
+        os.makedirs(root, exist_ok=True)
+        made = integration_runtime.materialize_delivery(
+            root, attempt_id="attempt-f", workspace_group=group)
+
+        delivery, assignment = composed.integrator._published(
+            {"attempt_id": "attempt-f"})
+        self.assertEqual(delivery.root, made.root)
+        # NOTHING WAS PUBLISHED INTO IT, which is an ordinary answer rather
+        # than an invented assignment.
+        self.assertIsNone(assignment)
+
+
+class ThePublicFactoryResolvesEveryRequiredSession(ServingCase):
+    """P1: the entry point, not `_sessions` called by hand."""
+
+    def factory(self, **members):
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+        place = os.path.join(self.root, "stage-config.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            json.dump(self.composed_document(**members), writing)
+        job, control = self.stores("stage-factory")
+        # THE FACTORY'S OWN READ OF ITS OWN ENVIRONMENT, and then the same
+        # composition it performs -- with the two capabilities a focused run
+        # supplies in place of a live engine and secret registry, which is
+        # what `single_worker`'s own factory cases do.
+        with unittest.mock.patch.dict(
+                os.environ, {stage_execution.CONFIG_ENV: place}):
+            composed = stage_execution.operations_from(
+                stage_execution._configuration(), job, control,
+                engine_run=Engine(),
+                credential_provider=lambda provider, reference: self.secret,
+                clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        return composed
+
+    def test_the_five_sessions_are_minted_and_proved(self):
+        composed = self.factory()
+        self.assertEqual(
+            sorted(composed.sessions),
+            ["approval", "integrator", "publisher", "review", "verification"])
+        for name, session in composed.sessions.items():
+            with self.subTest(name=name):
+                self.assertIsNotNone(session.participant)
+
+    def test_the_publisher_is_the_producer_and_not_a_configured_name(self):
+        """`Authority.publish` takes the producer's live assignment as its
+        compare-and-swap operand, and a session refuses to act on one naming
+        somebody else -- so any other publisher could only ever be wrong."""
+        composed = self.factory()
+        self.assertEqual(composed.sessions["publisher"].participant,
+                         self.config["participant"])
+        self.assertIs(composed.publication.publisher,
+                      composed.sessions["publisher"])
+
+    def test_the_integrator_session_is_the_profiles_own_participant(self):
+        composed = self.factory()
+        self.assertEqual(composed.sessions["integrator"].participant,
+                         "baton.integrator")
+
+    def test_a_missing_receipt_participant_refuses_before_serving(self):
+        for name in ("verification", "review", "approval"):
+            with self.subTest(name=name):
+                held = dict(self.document()["receipt_participants"])
+                held[name] = ""
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.serving(receipt_participants=held)
+                self.assertIn(name, caught.exception.message)
+
+
+class TheReceiptActorsAreAuthorizedAndNotMerelyShaped(ServingCase):
+    """P1 (review 2026-09-07T14-12-42Z): a callable method is not a grant.
+
+    THE MEASURED SYMPTOM. An independent probe configured `baton.not-configured`
+    as this deployment's approval participant. `operations_from` composed a
+    serving object, and that object's OWN Authority answered
+    `holds_capability(actor, "approve")` false. The configuration had passed
+    the gate this module advertises with no authority to write the receipt it
+    will be asked for -- and it would have found that out after publication,
+    which is the one step a deployment cannot back out of.
+
+    The gate now asks the Authority, in the scope the receipt will actually be
+    written in. These cases are over a REAL Authority with real grants, because
+    a fake answering `True` would prove only that this file agrees with itself.
+    """
+
+    def refused_composition(self, name, **members):
+        """One refused composition, with the stores it was refused over."""
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+        job, control = self.stores(name)
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.composed_document(**members), job, control,
+                engine_run=Engine(),
+                credential_provider=lambda provider, reference: self.secret,
+                clock=lambda: fixtures.NOW, checkout=self.checkout)
+        return caught.exception, job, control
+
+    def assertNothingWasWritten(self, job, control):
+        """What a refusal must leave behind, asked of the owners.
+
+        REVIEW [P1] REQUIRED THIS SHAPE rather than "construction raised": the
+        old ordering DID raise, and had configured a control store and
+        activated a pool on the way. So each fact is read back through the
+        owner that would answer it in production -- the workspace group through
+        the Worker Manager's own reader, the pool through the scheduler's, and
+        the integration store through the filesystem, because a store that was
+        never opened has no reader at all.
+        """
+        from baton_v12.job_manager import scheduler
+        from baton_v12.worker_manager import configured_workspace_group
+        with self.assertRaises(ContractRefusal):
+            configured_workspace_group(control)
+        self.assertIsNone(scheduler.active_generation(job))
+        self.assertFalse(os.path.exists(self.integration_store))
+
+    def test_every_configured_receipt_actor_really_holds_its_grant(self):
+        """The authorized positive, asked of the Authority the COMPOSITION
+        opened rather than of the fixture that granted."""
+        _job, _control, composed = self.serving()
+        for name, capability in stage_execution.RECEIPT_CAPABILITIES.items():
+            with self.subTest(name=name):
+                self.assertTrue(composed.authority.holds_capability(
+                    composed.sessions[name].participant, capability,
+                    scope=self.scope))
+
+    def test_an_actor_holding_no_grant_refuses_and_writes_nothing(self):
+        held = dict(self.document()["receipt_participants"],
+                    approval="baton.not-configured")
+        refusal, job, control = self.refused_composition(
+            "no-grant", receipt_participants=held)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("policy", "denied"))
+        self.assertIn("baton.not-configured", refusal.message)
+        self.assertIn("approve", refusal.message)
+        self.assertNothingWasWritten(job, control)
+
+    def test_a_grant_in_another_scope_does_not_reach_this_work(self):
+        """The reason the scope is READ from the Work. An actor granted
+        `verify` somewhere else holds the capability name and not the
+        authorization, and `_write_receipt` -- which derives the scope from the
+        Work the proposal belongs to -- would refuse it after publication."""
+        from baton_v12.authority import Authority
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            authority.grant_capability("baton.elsewhere", "verify",
+                                       scope="scope:elsewhere")
+            self.assertFalse(authority.holds_capability(
+                "baton.elsewhere", "verify", scope=self.scope))
+        finally:
+            authority.dispose()
+        held = dict(self.document()["receipt_participants"],
+                    verification="baton.elsewhere")
+        refusal, job, control = self.refused_composition(
+            "other-scope", receipt_participants=held)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("policy", "denied"))
+        self.assertIn(self.scope, refusal.message)
+        self.assertNothingWasWritten(job, control)
+
+    def test_a_malformed_actor_refuses_in_this_boundarys_own_vocabulary(self):
+        """The second half of the same finding: the mint's raw `Refusal`
+        escaped, so a fault this module could see in the document it was handed
+        arrived as an exception from a package the caller never asked about --
+        and it arrived AFTER the control store had been configured."""
+        held = dict(self.document()["receipt_participants"],
+                    verification="not-an-address")
+        refusal, job, control = self.refused_composition(
+            "malformed", receipt_participants=held)
+        self.assertIsInstance(refusal, ContractRefusal)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("refused", "capability"))
+        self.assertIn("not-an-address", refusal.message)
+        self.assertNothingWasWritten(job, control)
+
+    def test_a_worker_participant_resolving_elsewhere_refuses_first(self):
+        """The identity check moved to the same side of the line, because it
+        is one this module can answer from the Authority alone."""
+        refusal, job, control = self.refused_composition(
+            "principal", workers=[
+                self.worker("implementation"),
+                self.worker("review", participant="baton.reviewer",
+                            principal="principal:somebody-else"),
+                self.worker("integration", participant="baton.integrator",
+                            principal=self.principals["baton.integrator"])])
+        self.assertEqual((refusal.category, refusal.code),
+                         ("refused", "capability"))
+        self.assertIn("principal:somebody-else", refusal.message)
+        self.assertNothingWasWritten(job, control)
+
+
+class ARefusedPoolGenerationLeavesThePoolAlone(ServingCase):
+    """P1 (review 2026-09-07T14-12-42Z): the refusal had already activated it.
+
+    With a fresh Job store and a configuration naming generation 4, the
+    composition refused for the mismatch -- and `active_generation` had moved
+    from `None` to 1, because the comparison read the ANSWER of the activation
+    it was meant to prevent. A refusal that changed the thing it refused over
+    is not a refusal.
+    """
+
+    def test_a_generation_the_next_activation_would_not_answer_refuses(self):
+        from baton_v12.job_manager import scheduler
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+        job, control = self.stores("pool-generation")
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.composed_document(pool_generation=4), job, control,
+                engine_run=Engine(),
+                credential_provider=lambda provider, reference: self.secret,
+                clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertIn("before it activates one", caught.exception.message)
+        # THE POOL IS EXACTLY AS IT WAS FOUND, read from the scheduler.
+        self.assertIsNone(scheduler.active_generation(job))
+        self.assertEqual(scheduler.pool_workers(job), [])
+
+    def test_reattaching_to_the_live_generation_is_not_a_new_one(self):
+        """The other side of the prediction: composing the same deployment
+        twice revalidates generation 1 rather than minting generation 2, so a
+        restart under an unchanged configuration is not a pool change."""
+        from baton_v12.job_manager import scheduler
+        job, _control, first = self.serving()
+        self.assertEqual(scheduler.active_generation(job)["generation"], 1)
+        first.close()
+        job, _control, again = self.serving()
+        self.assertEqual(scheduler.active_generation(job)["generation"], 1)
+        self.assertEqual(sorted(again.pooled.workers),
+                         [(1, "implementation-worker"),
+                          (1, "integration-worker"), (1, "review-worker")])
+
+
+class ThePublicFactoryComposesThroughItsOwnEntryPoint(ServingCase):
+    """P1: the exported `factory`, not `operations_from` called beside it.
+
+    REVIEW 2026-09-07T14-12-42Z asked for this exactly: the cases named "public
+    factory" invoked `operations_from` after `_configuration`, so the one thing
+    `tools.job_manager` actually calls -- `module:attribute` with two operands
+    and nothing else -- was never run. This runs it, with the two external
+    dependencies a focused case can supply for real: a credential registry on
+    disk and this fixture's own engine, which is what `single_worker`'s own
+    public-factory case does for the same reason.
+    """
+
+    def registry(self):
+        """A real user credential registry, so the production provider is the
+        one that is built."""
+        source = os.path.join(self.root, "provider.token")
+        with open(source, "w", encoding="utf-8") as writing:
+            writing.write(self.secret)
+        os.chmod(source, 0o600)
+        place = os.path.join(self.root, "credential-sources.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            json.dump({"schema": "baton.user-credential-sources/1",
+                       "sources": [{"provider": "fixture",
+                                    "reference": "fixture/one",
+                                    "path": source}]}, writing)
+        os.chmod(place, 0o600)
+        return place
+
+    def composed(self, **members):
+        registry = self.registry()
+        document = self.composed_document(**members)
+        for one in document["workers"]:
+            one["deployment"] = dict(one["deployment"],
+                                     credential_sources=registry)
+        place = os.path.join(self.root, "stage-config.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            json.dump(document, writing)
+        job, control = self.stores("public-factory")
+        from .test_single_worker import Engine
+        # THE TWO SUBSTITUTIONS, NAMED. `factory` takes exactly two operands,
+        # so a case cannot inject anything through it -- the engine is this
+        # suite's own, for the reason every case here uses one, and `_checkout`
+        # is the fixture's, because this suite's disk-backed root must live
+        # inside the distribution and the real answer would refuse it for the
+        # fixture's reason rather than the one under test. `_checkout` itself
+        # is proved separately.
+        with unittest.mock.patch.dict(
+                os.environ, {stage_execution.CONFIG_ENV: place}), \
+                unittest.mock.patch.object(stage_execution, "_checkout",
+                                           lambda: self.checkout), \
+                unittest.mock.patch.object(stage_execution.single_worker,
+                                           "_engine_run", Engine()):
+            return job, stage_execution.factory(job, control)
+
+    def test_the_entry_point_job_manager_loads_composes_and_serves(self):
+        from baton_v12.job_manager import scheduler
+        job, composed = self.composed()
+        self.addCleanup(composed.close)
+        self.assertEqual(
+            sorted(composed.sessions),
+            ["approval", "integrator", "publisher", "review", "verification"])
+        self.assertIsNotNone(composed.publication)
+        self.assertEqual(scheduler.active_generation(job)["generation"], 1)
+        # AND ITS ACTORS ARE AUTHORIZED, through the same entry point rather
+        # than through a composer a case assembled by hand.
+        for name, capability in stage_execution.RECEIPT_CAPABILITIES.items():
+            with self.subTest(name=name):
+                self.assertTrue(composed.authority.holds_capability(
+                    composed.sessions[name].participant, capability,
+                    scope=self.scope))
+
+    def test_the_entry_point_refuses_an_unauthorized_actor(self):
+        held = dict(self.document()["receipt_participants"],
+                    review="baton.not-configured")
+        with self.assertRaises(ContractRefusal) as caught:
+            self.composed(receipt_participants=held)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+        self.assertIn("baton.not-configured", caught.exception.message)
+
+
+class AGenerationOutsideTheInteroperableRangeIsRefused(ServingCase):
+    """P2 (review 2026-09-07T14-44-03Z): the ceiling nobody was checking.
+
+    THE MEASURED SYMPTOM. `policy_generation=9007199254740992` counted from one
+    and so passed the configuration gate. The composition then created the
+    integration store, configured the workspace group and activated a pool --
+    and the real approval Session refused that same operand much later, at the
+    one moment a deployment cannot back out of, because it is outside the
+    interoperable range the Authority publishes.
+
+    Both members are proved, at the ceiling and one past it, because they are
+    checked by one rule and an exemption for either would have no reason.
+    """
+
+    def test_the_ceiling_itself_is_an_accepted_generation(self):
+        """The maximum ACCEPTED value, so the bound refuses what is outside
+        the range rather than the edge of it."""
+        for name in ("pool_generation", "policy_generation"):
+            with self.subTest(name=name):
+                held = self.held(**{name: MAX_SAFE_INTEGER})
+                self.assertEqual(held[name], MAX_SAFE_INTEGER)
+
+    def test_one_past_the_ceiling_is_refused_as_a_limit(self):
+        for name in ("pool_generation", "policy_generation"):
+            with self.subTest(name=name):
+                caught = self.refused(**{name: MAX_SAFE_INTEGER + 1})
+                self.assertEqual((caught.category, caught.code),
+                                 ("integrity", "limit"))
+                self.assertIn(name.replace("_", " "), caught.message)
+
+    def test_counting_from_one_is_still_the_other_half_of_the_rule(self):
+        """The existing type, bool and zero checks are preserved rather than
+        replaced: a bound above says nothing about the bound below."""
+        for value in (0, -1, True, "1", 1.0):
+            with self.subTest(value=value):
+                caught = self.refused(policy_generation=value)
+                self.assertIn("counts from one", caught.message)
+
+    def test_a_generation_past_the_ceiling_writes_nothing(self):
+        from baton_v12.job_manager import scheduler
+        from baton_v12.worker_manager import configured_workspace_group
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+        job, control = self.stores("policy-ceiling")
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.composed_document(
+                    policy_generation=MAX_SAFE_INTEGER + 1), job, control,
+                engine_run=Engine(),
+                credential_provider=lambda provider, reference: self.secret,
+                clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.assertEqual(caught.exception.code, "limit")
+        # THE SAME QUESTION THE OTHER PRE-SETUP REFUSALS ARE ASKED, and asked
+        # of the owners rather than of the exception: a deployment that would
+        # have failed at approval must not have configured a control store or
+        # activated a pool on its way to saying so.
+        with self.assertRaises(ContractRefusal):
+            configured_workspace_group(control)
+        self.assertIsNone(scheduler.active_generation(job))
+        self.assertFalse(os.path.exists(self.integration_store))
+
+    def test_the_ceiling_is_the_authoritys_own_and_not_a_second_copy(self):
+        from baton_v12.authority import MAX_SAFE_INTEGER as published
+        self.assertEqual(MAX_SAFE_INTEGER, published)
+        self.assertEqual(published, 2 ** 53 - 1)
+
+
+class TheObservationSurfaceIsSeparateAndReadOnly(ServingCase):
+    """P2: `status --observe` receives an object that CANNOT serve."""
+
+    def observing(self):
+        self.submitted = []
+        job, control = self.stores("stage-observing")
+        # The control store's group is what `launch.adopt` validates against,
+        # and an observation neither configures nor certifies anything -- so
+        # this run composes the serving deployment first, exactly as an
+        # operator's `serve` process would already have done.
+        self.serving()
+        return job, control, stage_execution.observation_from(
+            self.composed_document(), job, control, checkout=self.checkout)
+
+    def test_it_carries_the_exchange_read_and_no_act(self):
+        from tools import job_manager
+        _job, _control, observed = self.observing()
+        self.assertEqual(job_manager._exchange_read(observed).__func__,
+                         type(observed).observe_exchange)
+        for act in ("launch", "dispatch", "conclude", "admit", "claim",
+                    "recover", "attach", "drain", "refresh_runtime",
+                    "binding_intent", "close", "release"):
+            with self.subTest(act=act):
+                self.assertIsNone(getattr(observed, act, None))
+
+    def test_a_stage_with_no_allocation_is_answered_by_no_worker(self):
+        """The rule `PooledManagerOperations._reader` keeps, for the same
+        reason: reporting one worker's silence as another's state is a false
+        observation rather than a missing one."""
+        _job, _control, observed = self.observing()
+        self.assertIsNone(
+            observed.observe_exchange({"attempt_id": "attempt-nobody-holds",
+                                       "stage_id": "job-a:implementation"}))
+
+    def test_it_reads_through_the_worker_the_scheduler_allocated(self):
+        job, _control, observed = self.observing()
+        asked = []
+        for worker_id in observed.readers:
+            observed.readers[worker_id] = type(
+                "Reader", (),
+                {"observe_exchange":
+                 (lambda _self, stage, held=worker_id:
+                  asked.append(held) or {"state": held})})()
+        # THE SCHEDULER'S OWN RESERVATION, not a hand-written row: which
+        # worker holds a stage is exactly the answer this surface must not
+        # compose a second idea of.
+        stage = self.reserved(job, "review")
+        self.assertEqual(observed.observe_exchange(stage),
+                         {"state": "review-worker"})
+        self.assertEqual(asked, ["review-worker"])
+        # AND THE IMPLEMENTATION STAGE REACHES THE OTHER ONE.
+        self.assertEqual(observed.observe_exchange(
+            self.reserved(job, "implementation")),
+            {"state": "implementation-worker"})
+        self.assertEqual(asked, ["review-worker", "implementation-worker"])
+
+    def reserved(self, job, kind):
+        from baton_v12.job_manager import episodes, scheduler, submit
+        from tests.job_manager.test_review_driver import one_work_submission
+        if not self.submitted:
+            submit(job, one_work_submission())
+            self.submitted.append(True)
+        stage_id = [row["stage_id"] for row in job._connection.execute(
+            "SELECT stage_id, kind FROM stages ORDER BY stage_id")
+            if row["kind"] == kind][0]
+        live = episodes.live_of(job, stage_id)
+        stage = {"stage_id": stage_id, "episode": live["episode"],
+                 "attempt_id": live["attempt_id"], "kind": kind,
+                 "job_id": stage_id.split(":")[0], "work_id": self.work,
+                 "profile_name": self.config["profile_name"],
+                 "profile_digest": self.config["profile_digest"]}
+        scheduler.reserve(job, stage)
+        return stage
+
+
+class TheReviewersVerdictHasNoChannelAndIsNotInvented(StageCase):
+    """The exact missing public capability, reported rather than worked
+    around -- the same disposition this leaf took over the absent retained
+    proposal manifest, which became W103874."""
+
+    def test_a_composition_with_no_supplied_verdict_refuses(self):
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution._no_verdict(None, "attempt-r")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "capability"))
+        self.assertIn("carries the reviewer's verdict out of its container",
+                      caught.exception.message)
+
+
+# W119114: THE IMAGE'S OWN `source_profiles`, declared here for the same reason
+# `test_single_worker` declares the worker directory. `claude_agent` imports it
+# as a top-level module because nothing from `baton_v12` travels into that
+# image, so a suite that drives the real workload has to put it where the image
+# puts it. Declared at import rather than inside a case, so a sharded gate that
+# collects this module alone still runs it.
+import sys as _sys                                            # noqa: E402
+
+_WORKER = pathlib.Path(__file__).resolve().parents[3] / "worker"
+for _place in (str(_WORKER), str(_WORKER.parent / "python" / "src"
+                                 / "baton_v12")):
+    if _place not in _sys.path:
+        _sys.path.insert(0, _place)
+
+
+# The three outputs a SHARED Job declares, and which role writes which half.
+# `claude_agent.COMMON_OUTPUTS` is the same list one layer over; it is spelled
+# here rather than imported so a drift between the image's idea of the set and
+# the manifest this deployment composes is caught by a failing case rather than
+# hidden behind a shared constant.
+SHARED_OUTPUTS = (("proposal", "git-change-proposal"),
+                  ("findings", "directory-result"),
+                  ("logs", "directory-result"))
+
+
+class ComposedOneJobCase(ServingCase):
+    """W119114: the real factory, ordinary manager ticks, one real worker turn.
+
+    WHAT IS REAL HERE, because that is the whole question this record exists to
+    answer and every earlier round in this campaign stopped short of it. The
+    serving object is `operations_from`'s own; the Authority, Job, Control and
+    Integration stores are real local ones; the development line is a real
+    version-controlled checkout materialized by the accepted checkpoint profile
+    from a real nominated source; the worker is the actual `claude_agent`
+    workload entered through `baton_worker.serve_exchange` over the namespaces
+    this deployment mounted; and the ending is `review_driver`'s, so the seal,
+    the intake receipt, the retention decision, the publication, the checkpoint
+    freeze and the cleanup are the accepted public operations rather than rows
+    a fixture wrote.
+
+    THE TWO DETERMINISTIC SEAMS ARE NAMED RATHER THAN IMPLIED, and both are the
+    allowance this leaf's ruling already grants. The ENGINE is a callable with
+    no daemon, and `quiescing` below models exactly three real facts about one:
+    a stopped container stops running, a removed one is positively absent to a
+    later inspection IN THE ENGINE'S OWN ABSENCE SENTENCE, and the custody
+    helper answers the verb it was asked for. The PROVIDER inside the workload
+    is injected, exactly as `test_claude_agent` injects it. Version control is
+    not simulated at all.
+
+    WHAT IS NOT REACHED, and is not claimed: no daemon, no container, no image,
+    no network, no live model and no live credential.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.authority import Authority
+        from baton_v12.contracts import digest, digest_of_bytes
+        from tests.job_manager import fixtures
+
+        # A REAL VERSION-CONTROLLED SOURCE, because the composed line is one.
+        # The accepted profile clones it and detaches at the declared base, and
+        # a fixture that nominated an ordinary directory would be proving that
+        # profile's refusal rather than this deployment's composition.
+        self.vcs("init", "-q", "-b", "main")
+        self.write(os.path.join(self.source, "harness.py"),
+                   "print('the accepted verification ran')\n")
+        self.vcs("add", "--all")
+        self.vcs("commit", "-q", "--message", "base")
+        self.base = self.vcs("rev-parse", "HEAD").strip()
+
+        # THE AUTHORITY'S CANONICAL TARGET IS THAT SAME OBJECT. It is what
+        # `retain_proposal` reads and what `publish_candidate` binds to, so a
+        # target this Authority cannot name as an object refuses at the
+        # publication -- one step past everything these cases are about.
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            authority.set_policy("canonical_target", self.base)
+        finally:
+            authority.dispose()
+
+        self.task_bytes = json.dumps(
+            {"schema": "baton.dogfood-task/2",
+             "task_id": "w119114-composed-lifecycle",
+             "instructions": "Add focused coverage for the composed line.",
+             "source_root": "source", "source_profile": "git-line",
+             "declared_base": self.base,
+             "verification": ["python3", "harness.py"]},
+            sort_keys=True).encode("utf-8")
+        with open(self.task_document, "wb") as writing:
+            writing.write(self.task_bytes)
+
+        # THE ONE MANIFEST A SHARED JOB CARRIES, declaring the union of both
+        # stages' outputs. `single_worker._matches` compares every stage
+        # against the Job's ONE input digest, so an implementation manifest
+        # and a review manifest could never both satisfy it; each role writes
+        # its own half
+        # and answers the other `missing-optional`. NONE of the three is
+        # required for that reason: the worker refuses a required output
+        # answered absent, so a declaration the other stage owns being required
+        # would be a declaration no single turn can satisfy.
+        manifest = copy.deepcopy(self.config["input_manifest"])
+        held = manifest["outputs"][0]
+        manifest["outputs"] = [dict(held, name=name, type=kind, path=name,
+                                    required=False)
+                               for name, kind in SHARED_OUTPUTS]
+        manifest["human_contract"] = dict(
+            manifest["human_contract"], bytes=len(self.task_bytes),
+            content_digest=digest_of_bytes(self.task_bytes))
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        self.config["input_manifest"] = manifest
+        self.manifest = manifest
+        self.submission = fixtures.submission(jobs=[fixtures.job(
+            "job-a", input_digest=job_input_identity(manifest),
+            policy_digest=fixtures.POLICY_DIGEST,
+            stages=[
+                fixtures.stage("implementation", self.work),
+                fixtures.stage("review", self.work,
+                               depends_on=[{"job_id": "job-a",
+                                            "kind": "implementation"}]),
+                fixtures.stage("integration", self.work,
+                               depends_on=[{"job_id": "job-a",
+                                            "kind": "review"}])])])
+
+    # -- real version control, composed environment -------------------------
+
+    def environment(self):
+        """What every child here runs under: NO ambient configuration.
+
+        The container has none, so a case that passed only because a global
+        hooks path, signing key or identity happened to be set in the ambient
+        environment would be passing for a reason the image does not have.
+        """
+        return {"PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+                "HOME": self.root,
+                "GIT_CONFIG_GLOBAL": os.devnull,
+                "GIT_CONFIG_SYSTEM": os.devnull,
+                "GIT_TERMINAL_PROMPT": "0"}
+
+    def vcs(self, *arguments):
+        """The FIXTURE's own history, with the fixture's own identity.
+
+        Deliberately not the adapter's environment: the adapter composes its
+        identity onto its own command line, and lending it one here would erase
+        the property that makes its authorship provable inside the image.
+        """
+        import subprocess
+
+        argv = ["git", "-C", self.source] + list(arguments)
+        answer = subprocess.run(
+            argv, capture_output=True, text=True, timeout=300,
+            env=dict(self.environment(), GIT_AUTHOR_NAME="Baton Test",
+                     GIT_AUTHOR_EMAIL="test@baton.invalid",
+                     GIT_COMMITTER_NAME="Baton Test",
+                     GIT_COMMITTER_EMAIL="test@baton.invalid"))
+        self.assertEqual(answer.returncode, 0,
+                         f"{argv} failed: {answer.stderr}")
+        return answer.stdout
+
+    @staticmethod
+    def write(place, body):
+        os.makedirs(os.path.dirname(place), exist_ok=True)
+        with open(place, "w", encoding="utf-8") as handle:
+            handle.write(body)
+
+    # -- the deterministic engine seam ---------------------------------------
+
+    def quiescing(self):
+        """One engine callable, modelling three real facts and no daemon.
+
+        `Engine` alone cannot carry an ending: `adapter.stop` ORDERS and then
+        OBSERVES, and `authorize_cleanup` settles on POSITIVE ABSENCE of the
+        exact identity in the engine's own absence sentence -- so a fixture
+        that reported the same container forever could reach neither the
+        freeze nor a settled cleanup. What is added is only what a real engine
+        would do.
+        """
+        from tests.manager.test_custody import reported
+
+        from .test_single_worker import Engine, activating, launching
+
+        original = Engine.__call__
+
+        def call(engine, argv, *, seconds=None):
+            gone = engine.__dict__.setdefault("gone", set())
+            if argv[1] == "run" and "--entrypoint" in argv:
+                # THE CUSTODY HELPER, and the verb it is answering is its own
+                # last operand rather than one this fixture chose.
+                engine.vectors.append(list(argv))
+                # W257624 R2: the verb, and the token when this product sends
+                # one -- see `custodian_answer`.
+                verb, carried = custodian_answer(argv)
+                return Engine.answer(stdout=json.dumps(
+                    reported(verb) if carried is None
+                    else reported(verb, carried)))
+            if argv[1] == "rm":
+                gone.add(argv[-1])
+                if engine.runtime_id == argv[-1]:
+                    engine.runtime_id = None
+                engine.vectors.append(list(argv))
+                return Engine.answer()
+            if argv[1] == "inspect" and argv[-1] in gone:
+                # THE ENGINE'S OWN SENTENCE, NAMING THIS IDENTITY. `observe`
+                # refuses to read absence out of any other prose, and it is
+                # right to: a manager that treated confusion as death would
+                # release an assignment whose worker is still running.
+                engine.vectors.append(list(argv))
+                return Engine.answer(
+                    status=1,
+                    stderr=("Error response from daemon: No such container: "
+                            + argv[-1]))
+            if launching(argv):
+                # W122060: ONE IDENTITY PER STARTED RUNTIME, which a lifecycle
+                # with three roles needs and one with a single implementation
+                # attempt never did. `Engine` mints `runtime-single-1` every
+                # time; after the first attempt's `rm` that identity is in
+                # `gone`, so the reviewer's brand-new container was reported
+                # absent the moment it started and its stage projected
+                # `exceptional`. The first identity is unchanged, so every
+                # single-runtime expectation above still reads as it did.
+                #
+                # W275774, review 2026-09-26T22-29-30Z: EITHER LAUNCH SHAPE MINTS THE
+                # IDENTITY, and this is the correction that suite needed. A governed start
+                # composes `create` and then `start`, and this branch asked `argv[1] ==
+                # "run"` -- so `create` fell through to the base double, which minted
+                # `runtime-single-1` rather than this lifecycle's next identity, and the
+                # per-attempt bookkeeping above never saw the container at all. Every
+                # implementation stage then reported a start with no runtime and projected
+                # `exceptional`. The minting is unchanged; WHICH VECTORS REACH IT is what
+                # was wrong.
+                #
+                # AND `create` LEAVES IT INERT, which is the whole point of the split: the
+                # container exists so a token can be bound to it, and it is not running
+                # until `start` says so. The custody helper's own `run --entrypoint` is
+                # handled above and never reaches here.
+                answer = original(engine, argv, seconds=seconds)
+                minted = engine.__dict__.setdefault("minted", [])
+                minted.append(f"runtime-single-{len(minted) + 1}")
+                engine.runtime_id = minted[-1]
+                # AND A FRESH RUNTIME IS RUNNING, whatever the last one did -- for the
+                # single-act `run`. A `create` is inert until it is activated.
+                engine.stopped = False
+                engine.running = argv[1] == "run"
+                del answer
+                return Engine.answer(stdout=engine.runtime_id + "\n")
+            if activating(argv):
+                # THE SECOND ACT, and it names the container it activates. An activation
+                # of anything but the minted identity is the engine's own "no such
+                # container", exactly as the base double answers it -- a fixture that
+                # activated whatever it was handed would pass a case that bound one
+                # container and ran another.
+                engine.vectors.append(list(argv))
+                if len(argv) < 3 or argv[2] != engine.runtime_id:
+                    return Engine.answer(
+                        status=1,
+                        stderr=("Error response from daemon: No such container: "
+                                + (argv[2] if len(argv) > 2 else "")))
+                engine.running = True
+                engine.stopped = False
+                return Engine.answer()
+            if argv[1] == "stop":
+                engine.stopped = True
+            answer = original(engine, argv, seconds=seconds)
+            if argv[1] == "inspect" and getattr(engine, "stopped", False):
+                body = json.loads(answer["stdout"])
+                body["State"]["Running"] = False
+                answer = Engine.answer(stdout=json.dumps(body))
+            return answer
+
+        Engine.__call__ = call
+        self.addCleanup(setattr, Engine, "__call__", original)
+        return Engine()
+
+    # -- the serving object, and the ticks that drive it ---------------------
+
+    def serving(self, **members):
+        from tests.job_manager import fixtures
+
+        self.engine = self.quiescing()
+        job, control = self.stores("stage-composed")
+        composed = stage_execution.operations_from(
+            self.composed_document(line_declared_base=self.base, **members),
+            job, control, engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        # W122060: HELD SO `turn` CAN ASK THIS ROLE WHAT IT MOUNTED. A review
+        # turn needs the boundary the manager composed, and the fixture's one
+        # serving object is where that lives.
+        self._composed = composed
+        return job, control, composed
+
+    def states(self, job, composed):
+        from baton_v12.job_manager import status as projected_status
+        from tests.job_manager import fixtures
+
+        projected = projected_status(job, composed, observed_at=fixtures.NOW)
+        return {one["kind"]: one["state"]
+                for one in projected["jobs"][0]["stages"]}
+
+    def drive(self, job, composed, kind, want, ticks=10):
+        """Ordinary ticks until one stage reaches a state, and no operator act.
+
+        `sweep` is the whole of it. Nothing here reserves an allocation, issues
+        an offer, claims, starts, commands or ends anything by hand: every one
+        of those is derived from canonical state by the manager this deployment
+        was handed to.
+        """
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        for _ in range(ticks):
+            tick(job, composed, now=fixtures.NOW)
+            held = self.states(job, composed)
+            if held.get(kind) == want:
+                return held
+        self.fail(f"the {kind} stage never reached {want!r}: "
+                  f"{self.states(job, composed)}")
+
+    def operations_of(self, composed, role):
+        """One role's composed operations, through the public list."""
+        return {one["role"]: one["operations"]
+                for one in composed.workers}[role]
+
+    def worker_of(self, composed, role):
+        return {one["role"]: one["operations"]._worker
+                for one in composed.workers}[role]
+
+    def mounted(self, composed, role, attempt_id):
+        """The roots this role's container was really started over."""
+        held = self.worker_of(composed, role).stage._prepared[attempt_id]
+        return held["boundary"]["roots"]
+
+    def only_attempt(self, composed, role):
+        held = sorted(self.worker_of(composed, role).stage._prepared)
+        self.assertEqual(len(held), 1, held)
+        return held[0]
+
+    # -- one real worker turn ------------------------------------------------
+
+    def provider(self, edits=None, status=0):
+        """The adapter's one process seam: real version control, and an
+        injected model.
+
+        The version-control child really runs; the PROVIDER writes into the
+        candidate, which is the only way a real one changes anything; and the
+        task's own verification command really runs, because whether it passed
+        is a fact the workload publishes, and a fixture that answered it
+        would be publishing its own.
+        """
+        import subprocess
+
+        import claude_agent
+
+        def run(argv, **options):
+            if argv[0] == "git":
+                return subprocess.run(list(argv), env=self.environment(),
+                                      **options)
+            if argv[0] == claude_agent.PROVIDER_PROGRAM:
+                for name, body in (edits or {}).items():
+                    self.write(os.path.join(options["cwd"], name), body)
+                return subprocess.CompletedProcess(argv, status, None, None)
+            return subprocess.run(list(argv), **options)
+
+        return run
+
+    def turn(self, control, role, attempt_id, roots, **operands):
+        """One REAL worker turn over exactly the namespaces this run mounted.
+
+        The roots are patched onto the two modules exactly as
+        `test_single_worker` and `test_claude_agent` patch them: they are
+        CONSTANTS of the workload contract, so there is no operand for a
+        deployment to supply and none for a fixture to invent.
+        """
+        import baton_worker
+        import claude_agent
+
+        from baton_v12.contracts import digest
+        from tools.single_worker import exchange, launch
+
+        credentials = os.path.join(self.root, "credential-" + attempt_id[:12])
+        os.makedirs(credentials, exist_ok=True)
+        roots = self.mounted_view(role, attempt_id, roots)
+        # A FILE THAT SAYS IT IS NOT A CREDENTIAL. Its content is never read,
+        # so a real bearer would prove nothing this does not and would put a
+        # secret in a repository.
+        self.write(os.path.join(credentials, "claude"), "not-a-credential\n")
+        delivered = launch.adopt(
+            self.config["launch_home"], attempt_id=attempt_id,
+            session="session-" + digest(attempt_id)[7:31],
+            contract=self.config["launch_contract"], role=role,
+            transport=exchange.EXCHANGE_TRANSPORT,
+            # W156162, scheduled in PLAN by review 2026-09-13T02:19:56Z: this
+            # helper adopts the delivery ITSELF, so it must supply the same Job
+            # context the deployment composed -- adoption compares canonical
+            # bytes. Setup only: no assertion and no expected outcome changes.
+            job_execution=self.job_execution_for(role, attempt_id),
+            provider_context=__import__("baton_v12.worker_manager.provider_context", fromlist=["context_invocation_of"]).context_invocation_of(control, attempt_id),
+            workspace_group=single_worker.configured_workspace_group(control))
+        held = []
+        for module, name, value in (
+                (baton_worker, "INPUT_ROOT", roots["inputs"]),
+                (baton_worker, "OUTPUT_ROOT", roots["workspace"]),
+                (claude_agent, "INPUT_ROOT", roots["inputs"]),
+                (claude_agent, "OUTPUT_ROOT", roots["workspace"]),
+                (claude_agent, "CREDENTIAL_ROOT", credentials)):
+            held.append((module, name, getattr(module, name)))
+            setattr(module, name, value)
+        try:
+            scratch = os.path.join(self.root, "scratch-" + attempt_id[:12])
+            os.makedirs(scratch, exist_ok=True)
+            # W376586: THE CONTAINER DOCUMENT IS THE `/5` WRAPPER'S PAYLOAD,
+            # and the fixture asks for it the way the product does -- through
+            # `launch.payload_of` -- rather than reaching into the wrapper. In
+            # a real container `baton_worker.launched` does this unwrapping;
+            # this fixture hands the worker an already-validated document, so
+            # it has to ask the same question itself.
+            from baton_v12.worker_manager import launch as launch_module
+
+            seen = launch_module.payload_of(delivered.document)
+            return baton_worker.serve_exchange(
+                claude_agent.ClaudeAgent(run=self.provider(**operands),
+                                         home=scratch),
+                seen, seen["session"],
+                delivered.exchange.command_root, delivered.exchange.event_root)
+        finally:
+            for module, name, value in held:
+                setattr(module, name, value)
+
+    def mounted_view(self, role, attempt_id, roots):
+        """What this role's container would SEE, composed outside one.
+
+        W122060. THE ROLES DIFFER IN WHERE THE LINE IS, and only the review
+        role needed anything: an implementation attempt mounts the line
+        WRITABLE as its own workspace, which is an ordinary directory this
+        fixture can hand the workload; a review attempt mounts the frozen
+        checkpoint READ-ONLY at `/input/source`, and outside a container that
+        mountpoint is the empty directory the frozen manifest declares.
+
+        SO THE BIND IS COMPOSED AS A LINK, from the boundary's OWN nominated
+        source rather than from a path this fixture picked. It is the same
+        thing `turn` already does for `INPUT_ROOT`, `OUTPUT_ROOT` and
+        `CREDENTIAL_ROOT`: this deployment has no daemon, so the container's
+        view is assembled here and the workload runs against it unchanged.
+        """
+        if role != "review":
+            return roots
+        boundary = self.worker_of(self.composed_for(role),
+                                  role).stage._prepared[attempt_id]["boundary"]
+        staged = os.path.join(self.root, "mounted-" + attempt_id[:12])
+        os.makedirs(staged, exist_ok=True)
+        for entry in sorted(os.listdir(roots["inputs"])):
+            target = os.path.join(staged, entry)
+            if os.path.lexists(target):
+                continue
+            os.symlink(boundary["boundary"].source.place if entry == "source"
+                       else os.path.join(roots["inputs"], entry), target)
+        return dict(roots, inputs=staged)
+
+    def job_execution_for(self, role, attempt_id):
+        """The Job context the serving deployment composed for this attempt.
+
+        W156162. Resolved the way the deployment resolves it, through public
+        readers only and never out of the launch bytes being checked:
+
+          - the worker is the one that actually PREPARED this attempt, not
+            whichever worker happens to hold the role -- with two producers and
+            two reviewers, role alone is a coin toss;
+          - the attempt's own ALLOCATION names its stage, and the stage names
+            its Job. A static stage row carries no attempt, so the allocation is
+            the link;
+          - the runtime identities are that worker's own configured manifest and
+            policy, which is what it actually mounts.
+
+        MISSING EVIDENCE IS A REFUSAL, NOT A LEGACY DELIVERY. Review
+        2026-09-13T02:27:16Z: answering `None` because the lookup came up empty
+        would mean a Job-bound attempt silently adopting a launch that carries
+        no ceilings -- the exact fallback this Work forbids. `None` is returned
+        only where there is genuinely no Job behind the composition, which this
+        fixture expresses as a deployment with no `jobs` owner at all.
+        """
+        from baton_v12.job_manager import scheduler, submission as job_rows
+
+        composed = self.composed_for(role)
+        workers = [one["operations"]._worker for one in composed.workers
+                   if attempt_id in (getattr(
+                       getattr(one["operations"]._worker, "stage", None),
+                       "_prepared", None) or {})]
+        if not workers and attempt_id.startswith("judgment-"):
+            # THE DERIVED JUDGMENT, WHICH IS NOT A JOB STAGE. It has no
+            # allocation and no configured worker prepared it, so a
+            # stage-to-Job lookup must not be invented for it. Its owning Job
+            # rides on its own INTENT, composed from the result subject its
+            # owner published, and its runtime identities are the judge's own
+            # configured manifest and policy. Both are read from the live
+            # execution rather than from the launch being checked.
+            #
+            # W156162: this branch used to return `None` and say the derived
+            # carrier was not implemented. It is now, so the fixture resolves
+            # it the way the deployment does. Setup only.
+            from baton_v12.job_manager import submission as job_rows
+
+            judges = [one for one in
+                      self.deployment_of(self._composed).judges.values()
+                      if one.intent["attempt_id"] == attempt_id]
+            self.assertEqual(
+                len(judges), 1,
+                f"exactly one derived judge is executing {attempt_id!r}; "
+                f"{len(judges)} are")
+            judge = judges[0]
+            jobs = self.deployment_of(self._composed).jobs
+            return job_rows.job_execution_context(
+                jobs, judge.intent["job_id"], attempt_id=attempt_id,
+                runtime_input_digest=judge.given["input_manifest"][
+                    "manifest_digest"],
+                runtime_policy_digest=judge.given["policy_digest"])
+        self.assertEqual(
+            len(workers), 1,
+            f"exactly one configured worker prepared {attempt_id!r}; "
+            f"{len(workers)} did, and a delivery this fixture cannot attribute "
+            f"is not one it may adopt as a legacy launch")
+        worker = workers[0]
+        jobs = getattr(getattr(worker, "stage", None), "deployment", None)
+        jobs = getattr(jobs, "jobs", None)
+        if jobs is None:
+            # NO JOB OWNER BEHIND THIS COMPOSITION AT ALL -- the one case that
+            # legitimately has no context.
+            return None
+        allocation = scheduler.allocation_of(jobs, attempt_id)
+        self.assertIsNotNone(
+            allocation,
+            f"attempt {attempt_id!r} holds an allocation; without it this "
+            f"fixture cannot name the Job whose ceilings the delivery carries")
+        [stage] = [one for one in job_rows.stage_rows(jobs)
+                   if one["stage_id"] == allocation["stage_id"]]
+        return job_rows.job_execution_context(
+            jobs, stage["job_id"], attempt_id=attempt_id,
+            runtime_input_digest=worker.given["input_manifest"][
+                "manifest_digest"],
+            runtime_policy_digest=worker.given["policy_digest"])
+
+    def composed_for(self, role):
+        """The serving object this fixture is driving, held for `turn`."""
+        del role
+        return self._composed
+
+    # -- the composed round these cases are about ----------------------------
+
+    def implemented(self, **operands):
+        """Submit one Job and carry its implementation stage to its ending.
+
+        Every transition below is a tick. The only thing this method does that a
+        serving loop would not is RUN THE CONTAINER, which is the one boundary
+        this build has no daemon for.
+        """
+        from baton_v12.job_manager import submit as submit_jobs
+
+        job, control, composed = self.serving()
+        submit_jobs(job, self.submission)
+        self.drive(job, composed, "implementation", "waiting")
+        attempt_id = self.only_attempt(composed, "implementation")
+        roots = self.mounted(composed, "implementation", attempt_id)
+        operands.setdefault("edits",
+                            {"harness.py": "print('the corrected harness')\n"})
+        self.assertEqual(
+            self.turn(control, "implementation", attempt_id, roots,
+                      **operands), 0)
+        self.drive(job, composed, "implementation", "completed")
+        return SimpleNamespace(job=job, control=control, composed=composed,
+                               attempt_id=attempt_id, roots=roots)
+
+
+class CheckpointIdentityAtHostAdmission(ComposedOneJobCase):
+    """HP6: current checkpoint eligibility is re-read after host completion."""
+
+    def checkpoint_admission(self, changed, restarted=False):
+        from baton_v12.job_manager import sweep
+        from baton_v12.worker_manager import review_cycles, tokens, workspaces
+        from .test_single_worker import activating, EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld
+
+        held = self.implemented()
+        worker = self.worker_of(held.composed, "review")
+        deployment = worker.stage.deployment
+        line = deployment.line_for("job-a")
+        checkpoint = review_cycles.checkpoint_of(held.control, line["current_checkpoint_id"])
+        identity_of = EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.identity_of
+        def material(place):
+            return {name: (mode, content) for name, (mode, device, inode, content)
+                    in identity_of(place).items()}
+        candidate = material(line["line_path"])
+        sibling = os.path.join(self.root, "hp6-sibling")
+        os.mkdir(sibling)
+        self.write(os.path.join(sibling, "sentinel"), "unrelated bytes")
+        sibling_before = identity_of(sibling)
+        starts = len(self.engine.starts)
+        activations = len([one for one in self.engine.vectors if activating(one)])
+        counts = {name: 0 for name in ("completion", "preparation", "task", "write")}
+        completed, grants, mount_refusals = [], [], []
+        honest_line = review_cycles.line_of
+        honest_grant = review_cycles._review_grant
+        honest_boundary = review_cycles.review_boundary
+        def boundary(*args, **kwargs):
+            try:
+                return honest_boundary(*args, **kwargs)
+            except ContractRefusal as refusal:
+                mount_refusals.append((refusal.category, refusal.code, str(refusal)))
+                raise
+        def reading(store, line_id):
+            answer = honest_line(store, line_id)
+            if completed and changed and line_id == line["line_id"]:
+                return dict(answer, current_checkpoint_id="checkpoint-other")
+            return answer
+        def granted(*args, **kwargs):
+            answer = honest_grant(*args, **kwargs)
+            if completed:
+                grants.append(answer)
+            return answer
+        def count(name, function):
+            def called(*args, **kwargs):
+                counts[name] += 1
+                return function(*args, **kwargs)
+            return called
+        honest_open = os.open
+        def opening(place, flags, *args, **kwargs):
+            if isinstance(place, str) and place.endswith(single_worker.TASK_DOCUMENT) and flags & os.O_EXCL:
+                counts["write"] += 1
+            return honest_open(place, flags, *args, **kwargs)
+        def checkpointed(point):
+            if point == "prepared":
+                attempt = self.only_attempt(held.composed, "review")
+                account = workspaces.preparation_completed(held.control, attempt)
+                self.assertIsNotNone(account)
+                self.assertEqual(len(self.engine.starts), starts)
+                completed.append((attempt, account, single_worker.boundary_identity_of(held.control, attempt)))
+                if restarted:
+                    raise RuntimeError("HP6 stop after completed host preparation")
+        worker.checkpoint = checkpointed
+        with mock.patch.object(review_cycles, "line_of", side_effect=reading), \
+                mock.patch.object(review_cycles, "review_boundary", side_effect=boundary), \
+                mock.patch.object(review_cycles, "_review_grant", side_effect=granted), \
+                mock.patch.object(workspaces, "record_preparation", side_effect=count("completion", workspaces.record_preparation)), \
+                mock.patch.object(workspaces, "admit_preparation", side_effect=count("preparation", workspaces.admit_preparation)), \
+                mock.patch.object(tokens, "acquire", side_effect=count("task", tokens.acquire)), \
+                mock.patch.object(os, "open", side_effect=opening):
+            if restarted:
+                with self.assertRaisesRegex(RuntimeError, "HP6 stop after completed"):
+                    for _ in range(6):
+                        sweep(held.job, held.composed, now=NOW)
+                held.composed.close()
+                held.job.close()
+                held.control.close()
+                held.job, held.control = self.stores("hp6-checkpoint-reopened")
+                held.composed = stage_execution.operations_from(
+                    self.composed_document(line_declared_base=self.base),
+                    held.job, held.control, engine_run=self.engine,
+                    credential_provider=lambda provider, reference: self.secret,
+                    clock=lambda: NOW, checkout=self.checkout)
+                self.addCleanup(held.composed.close)
+                self.assertEqual(self.worker_of(held.composed, "review").stage._prepared, {})
+            for _ in range(6):
+                sweep(held.job, held.composed, now=NOW)
+        self.assertEqual(len(completed), 1)
+        attempt, account, pin = completed[0]
+        if restarted and changed:
+            self.assertEqual(len(mount_refusals), 1)
+            self.assertEqual(mount_refusals[0][:2], ("integrity", "schema"))
+            self.assertIn("not the line's current checkpoint", mount_refusals[0][2])
+            self.assertEqual(grants, [])
+        else:
+            self.assertEqual(mount_refusals, [])
+            self.assertTrue(grants, "the live checkpoint grant was never re-read after completion")
+            self.assertEqual(grants, [not changed] * len(grants))
+        self.assertEqual(counts, {"completion": 1 + int(restarted and not changed),
+                                  "preparation": 1 + int(restarted),
+                                  "task": int(not changed), "write": 1})
+        self.assertEqual(len(self.engine.starts) - starts, int(not changed))
+        self.assertEqual(len([one for one in self.engine.vectors if activating(one)]) - activations, int(not changed))
+        self.assertEqual(workspaces.preparation_completed(held.control, attempt), account)
+        self.assertEqual(single_worker.boundary_identity_of(held.control, attempt), pin)
+        self.assertEqual(review_cycles.checkpoint_of(held.control, checkpoint["checkpoint_id"]), checkpoint)
+        self.assertEqual(material(line["line_path"]), candidate)
+        self.assertEqual(identity_of(sibling), sibling_before)
+
+    def test_unchanged_checkpoint_continues_once_after_host_completion(self):
+        self.checkpoint_admission(False)
+
+    def test_changed_checkpoint_refuses_after_host_completion(self):
+        self.checkpoint_admission(True)
+
+    def test_unchanged_checkpoint_reopens_and_continues_once(self):
+        self.checkpoint_admission(False, restarted=True)
+
+    def test_changed_checkpoint_refuses_with_fresh_handles(self):
+        self.checkpoint_admission(True, restarted=True)
+
+
+class TheComposedImplementationHalfRunsOnOrdinaryTicks(ComposedOneJobCase):
+    """W119114 item 3, for the half the undischarged gate leaves reachable.
+
+    Every earlier round of this campaign proved its own component and stopped.
+    This drives the composed thing: one submitted Job, the factory's own serving
+    object, and nothing but `sweep` between the submission and a completed
+    implementation stage carrying a published proposal and a frozen checkpoint.
+    """
+
+    def test_one_submitted_job_reaches_a_completed_implementation_stage(self):
+        """No operator transition after the submission, measured as one.
+
+        The pool activation, the offer, the claim, the attempt, its activation,
+        the line, the mount, the start, the command and the whole ending are all
+        derived from canonical state by the manager.
+        """
+        held = self.implemented()
+        self.assertEqual(self.states(held.job, held.composed)["implementation"],
+                         "completed")
+        # ONE WORKER CONTAINER EVER, for one attempt. The custody helper runs
+        # are the manager's own normalization acts and are counted apart: they
+        # carry `--entrypoint`, which no worker start does.
+        self.assertEqual(
+            len([one for one in self.engine.starts
+                 if "--entrypoint" not in one]), 1)
+
+    def test_the_real_worker_committed_the_line_and_claimed_its_objects(self):
+        """The producer is the actual workload, so its claim is its own.
+
+        `retain_proposal` reads exactly this claim out of the frozen result, and
+        a deployment that composed one would be asserting what the result is
+        supposed to prove.
+        """
+        import claude_agent
+        from baton_v12.worker_manager import frozen_output_of, load_manifest
+
+        held = self.implemented()
+        frozen = frozen_output_of(held.control, held.attempt_id)
+        sealed = load_manifest(held.control, frozen["manifest_digest"],
+                               "resultManifest")
+        [produced] = [one for one in sealed["outputs"]
+                      if one["status"] == "present"]
+        self.assertEqual(produced["name"], "proposal")
+        claim = produced["result_metadata"][claude_agent.CLAIM_NAMESPACE]
+        self.assertEqual(claim["base"], self.base)
+        self.assertNotEqual(claim["head"], self.base)
+        self.assertEqual(claim["transport"], "objects.bundle")
+        # AND THE OTHER STAGE'S HALF IS ABSENT RATHER THAN INVENTED, which is
+        # the shared-Job declaration set working.
+        self.assertEqual(sorted(one["name"] for one in sealed["outputs"]
+                                if one["status"] != "present"),
+                         ["findings", "logs"])
+
+    def test_the_ending_reached_every_accepted_owner(self):
+        """Read back from each owner's own durable record, not from the answer
+        the composition returned."""
+        from baton_v12.worker_manager import (attempt_runtime_of,
+                                              frozen_output_of,
+                                              intake_receipt_of, line_of,
+                                              retentions_of)
+
+        held = self.implemented()
+        self.assertEqual(frozen_output_of(held.control,
+                                          held.attempt_id)["disposition"],
+                         "completed")
+        self.assertIsNotNone(intake_receipt_of(held.control, held.attempt_id))
+        self.assertEqual(
+            [one["disposition"]
+             for one in retentions_of(held.control, held.attempt_id)],
+            ["retain"])
+        runtime = attempt_runtime_of(held.control, held.attempt_id)
+        # POSITIVE ABSENCE OF THE EXACT RUNTIME, which is what an ordinary
+        # cleanup settles on and what a `failed` one does not reach.
+        self.assertEqual(runtime["execution_runtime"], "destroyed")
+        line = line_of(held.control, held.composed.deployment.line()["line_id"])
+        self.assertEqual(line["revision"], 1)
+        self.assertIsNotNone(line["current_checkpoint_id"])
+
+    def test_the_publication_named_the_proposal_the_authority_recorded(self):
+        """The publication is the real one, so the accepted checkpoint's own
+        writer chain replays to the identity the Authority holds."""
+        from baton_v12.worker_manager import integration_checkpoint
+
+        held = self.implemented()
+        line = held.composed.deployment.line()
+        accepted = integration_checkpoint(held.control, line["line_id"])
+        # THE LINE IS AWAITING REVIEW, so no checkpoint is accepted for
+        # integration yet -- which is the honest state at this boundary.
+        self.assertIsNone(accepted)
+        # AND THE PROPOSAL IS STILL RESOLVABLE FROM THE FROZEN CHECKPOINT'S
+        # OWN WRITER, which is the replay `published_proposal` performs.
+        self.assertIsNotNone(
+            held.composed.deployment.published_proposal(
+                {"checkpoint_id": line["current_checkpoint_id"]}))
+
+
+class TheRetainedResultReopensAfterOrdinaryCleanup(ComposedOneJobCase):
+    """W105982's one remaining acceptance check, carried here as its review
+    `review-2026-09-07T15-46-38Z.md` directed.
+
+    THE CHECK IS ABOUT BYTES, and the review says so in as many words: a
+    pathname assertion, a surviving checkpoint reference, a fixture teardown or
+    a canned receipt cannot substitute. So the sealed result is really retained
+    by `request_intake` and `decide_retention`, ordinary manager-authorized
+    cleanup really settles, and only then are the artifact bytes reopened AT
+    THEIR RECORDED LOCATOR and measured against the digest the receipt carries.
+    """
+
+    def retained(self, held):
+        from baton_v12.worker_manager import intake_receipt_of
+
+        receipt = intake_receipt_of(held.control, held.attempt_id)
+        [artifact] = receipt["artifacts"]
+        place = artifact["custody_locator"]
+        self.assertTrue(place.startswith("file://"), place)
+        return artifact, place[len("file://"):]
+
+    @staticmethod
+    def measured(place):
+        """The content manifest of one tree, by the rules the manager uses."""
+        import hashlib
+
+        entries = []
+        for base, _directories, names in os.walk(place):
+            for one in sorted(names):
+                whole = os.path.join(base, one)
+                with open(whole, "rb") as reading:
+                    body = reading.read()
+                entries.append({"path": os.path.relpath(whole, place),
+                                "bytes": len(body),
+                                "content_digest": "sha256:" + hashlib.sha256(
+                                    body).hexdigest()})
+        entries.sort(key=lambda one: one["path"].encode("utf-8"))
+        return entries
+
+    def test_the_cleanup_that_ran_was_the_ordinary_authorized_one(self):
+        """`retained` is TERMINAL and is not `complete`, and neither is
+        `failed`: material kept on purpose and a runtime that survived its own
+        removal are different endings, and only one of them is this proof."""
+        held = self.implemented()
+        row = held.control._connection.execute(
+            "SELECT cleanup FROM attempts WHERE runtime_attempt_id = ?",
+            (held.attempt_id,)).fetchone()
+        self.assertEqual(row["cleanup"], "retained")
+
+    def test_the_artifact_bytes_reopen_at_their_recorded_locator(self):
+        from baton_v12.contracts import digest
+
+        held = self.implemented()
+        artifact, place = self.retained(held)
+        entries = self.measured(place)
+        self.assertTrue(entries, place)
+        self.assertEqual(digest(entries), artifact["content_digest"])
+
+    def test_the_retained_manifest_reopens_and_names_those_same_bytes(self):
+        from baton_v12.worker_manager import frozen_output_of, load_manifest
+
+        held = self.implemented()
+        artifact, _place = self.retained(held)
+        frozen = frozen_output_of(held.control, held.attempt_id)
+        sealed = load_manifest(held.control, frozen["manifest_digest"],
+                               "resultManifest")
+        self.assertIsNotNone(sealed)
+        [produced] = [one for one in sealed["outputs"]
+                      if one["status"] == "present"]
+        self.assertEqual(produced["artifact"]["content_digest"],
+                         artifact["content_digest"])
+        self.assertEqual(produced["artifact"]["artifact_id"],
+                         artifact["artifact_id"])
+
+    def test_the_retained_sibling_was_never_a_writable_worker_mount(self):
+        """The custody tree is beside the line, not inside it.
+
+        `roots['workspace']` is the directory this attempt's container had
+        WRITABLE -- the line checkout itself under this profile -- so the
+        containment question is asked of the real mount rather than of a
+        pathname this case composed.
+        """
+        held = self.implemented()
+        _artifact, place = self.retained(held)
+        writable = os.path.realpath(held.roots["workspace"])
+        self.assertFalse(
+            os.path.realpath(place).startswith(writable + os.sep),
+            f"{place} is inside the writable mount {writable}")
+        # AND IT IS THE LINE'S OWN SIBLING rather than an unrelated directory:
+        # the custody tree and the checkout share the line's root.
+        self.assertEqual(os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.realpath(place)))),
+            os.path.dirname(writable))
+
+    def test_the_persistent_line_and_its_pin_survive_that_cleanup(self):
+        """Ordinary attempt cleanup neither deletes the line nor moves its pin.
+
+        The checkpoint is re-validated through the accepted profile over the
+        real repository, so this is the pin being REOPENED rather than a row
+        being read back.
+        """
+        from baton_v12.worker_manager import checkpoint_of, line_of
+
+        held = self.implemented()
+        line = line_of(held.control,
+                       held.composed.deployment.line()["line_id"])
+        self.assertEqual(line["state"], "review-ready")
+        self.assertTrue(os.path.isdir(held.roots["workspace"]))
+        checkpoint = checkpoint_of(held.control, line["current_checkpoint_id"])
+        validated = held.composed.deployment.profile.validate(
+            held.roots["workspace"], checkpoint["evidence"])
+        self.assertEqual(validated, checkpoint["evidence"])
+        self.assertEqual(validated["base"], self.base)
+
+
+def delattr_if_set(held, name):
+    """Undo an instance attribute that shadows a class method."""
+    if name in vars(held):
+        delattr(held, name)
+
+
+class TheComposedHandoffCarriesItsOwnQuiescenceEvidence(ComposedOneJobCase):
+    """W122060, converting W119114's three scheduled assertions.
+
+    THESE THREE USED TO MEASURE THE ABSENCE OF W119548 and said so: the
+    manager's port could not reach the Authority's gate discharge, the
+    completed implementation left the Work blocked on
+    `runtime-quiescence:<generation>`, and the review stage's offer was refused
+    against that blocked Work. All three were written as the regression for the
+    Work that would land the missing act, with "when it lands they fail, and
+    the composed lifecycle continues from exactly here."
+
+    IT LANDED, AND THIS IS FROM EXACTLY HERE. The implementation ending now
+    registers its obligation, runs the accepted driver, carries the manager's
+    own committed positive-absence proof to the gate, routes what the answer
+    earned and only then settles -- so the Work is ungated and queued when the
+    ending finishes and the review stage's offer is issued on an ordinary tick.
+
+    Owner event119712 scheduled exactly this conversion, including the class
+    rename. The prior file and its reproduction are preserved in the record.
+    """
+
+    def test_the_manager_can_reach_the_operation_that_discharges_it(self):
+        """W121887's accepted forwarding, measured where it is consumed.
+
+        `satisfy_gate` is deliberately NOT in `SESSION_OPERATIONS`: that tuple
+        is a CONSTRUCTION requirement, and two production deployments in this
+        distribution compose narrower sessions. It is the port's one named
+        optional operation, and this deployment's session forwards it exactly.
+        """
+        from baton_v12.worker_manager import (OPTIONAL_SESSION_OPERATIONS,
+                                              SESSION_OPERATIONS)
+
+        self.assertNotIn("satisfy_gate", SESSION_OPERATIONS)
+        self.assertIn("satisfy_gate", OPTIONAL_SESSION_OPERATIONS)
+        forwarding = single_worker._AuthoritySession.satisfy_gate
+        self.assertTrue(callable(forwarding))
+        held = []
+
+        class Session:
+            participant = "baton.impl"
+
+            def satisfy_gate(self, operands):
+                held.append(operands)
+                return {"gate": operands["gate"], "kind": "runtime-absent",
+                        "phase": "queued"}
+
+        answer = single_worker._AuthoritySession(Session()).satisfy_gate(
+            {"work_id": self.work, "operation_id": "op-1", "gate": "g",
+             "evidence": {"kind": "runtime-absent", "runtime": "runtime-1"}})
+        # EXACTLY THE OPERANDS, UNCHANGED. A forwarding member that composed
+        # anything would be a second author of an act it only carries.
+        self.assertEqual(len(held), 1)
+        self.assertEqual(held[0]["gate"], "g")
+        self.assertEqual(answer["phase"], "queued")
+
+    def test_the_completed_implementation_leaves_the_work_ungated(self):
+        """The converted assertion: `block` on a quiescence gate became
+        `queued` with no gate at all, and the manager's own committed cleanup
+        is what cleared it."""
+        from baton_v12.authority import Authority
+
+        held = self.implemented()
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            work = authority.project_work(self.work)
+        finally:
+            authority.dispose()
+        self.assertEqual(work["phase"], "queued")
+        self.assertIsNone(work["gate"])
+        self.assertTrue(work["ready"])
+
+    def test_the_review_stage_is_queued_and_its_offer_is_issued(self):
+        """The converted assertion: the offer used to be DEFERRED against an
+        ungated Work, and an ordinary tick now issues it."""
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.implemented()
+        self.assertEqual(self.states(held.job, held.composed)["review"],
+                         "queued")
+        report = tick(held.job, held.composed, now=fixtures.NOW)
+        [admit] = [one for one in report["acts"] if one.get("act") == "admit"]
+        self.assertEqual(admit["outcome"], "performed")
+        self.assertEqual(self.states(held.job, held.composed)["review"],
+                         "offered")
+
+
+class TheComposedEndingIsOrderedAndSettledFromItsOwnRecord(ComposedOneJobCase):
+    """W122060: the obligation, the order, and the re-entry after cleanup.
+
+    The composed ending's last act is not the driver's. Cleanup commits, and
+    the gate discharge and the routing still have to happen -- so between them
+    every live projection says the attempt is over and the ending is not. The
+    intent is what makes that window discoverable and the settlement is what
+    closes it, and both are measured here through ordinary ticks.
+    """
+
+    def cleaned_up(self):
+        """One implementation attempt whose CLEANUP has committed and whose
+        ending has not settled.
+
+        THE WINDOW THIS WHOLE WORK IS ABOUT, and it is reached by ordinary
+        ticks rather than composed: the first conclude after the worker turn
+        runs the accepted ending all the way through `authorize_cleanup`, and
+        the acts still owed -- the gate discharge and the routing -- come
+        after it. The runtime is destroyed, the writer is revoked, the two
+        roots are gone, and the obligation is registered and open.
+        """
+        from baton_v12.job_manager import submit as submit_jobs, sweep as tick
+        from baton_v12.worker_manager import attempt_runtime_of
+        from tests.job_manager import fixtures
+
+        job, control, composed = self.serving()
+        submit_jobs(job, self.submission)
+        self.drive(job, composed, "implementation", "waiting")
+        attempt_id = self.only_attempt(composed, "implementation")
+        roots = self.mounted(composed, "implementation", attempt_id)
+        self.assertEqual(
+            self.turn(control, "implementation", attempt_id, roots,
+                      edits={"harness.py": "print('the corrected harness')\n"}),
+            0)
+        # ONE WITHHELD ACT, and it is withheld deliberately now. W124782's
+        # accepted receipt fix means the ordinary ending settles on its first
+        # tick, so the window these cases are about -- cleanup committed,
+        # obligation open -- no longer happens by accident. Refusing the
+        # discharge once produces exactly it, and the ending's own re-entry is
+        # then what the cases measure.
+        with mock.patch.object(
+                stage_execution, "discharge_quiescence_gate",
+                side_effect=ContractRefusal(
+                    "refused", "precondition",
+                    "the fixture withholds this discharge once")):
+            tick(job, composed, now=fixtures.NOW)
+        held = SimpleNamespace(job=job, control=control, composed=composed,
+                               attempt_id=attempt_id, roots=roots)
+        self.assertEqual(
+            attempt_runtime_of(control, attempt_id)["execution_runtime"],
+            "destroyed")
+        record = self.ending_records(held)
+        self.assertIsNotNone(record["intent"])
+        self.assertIsNone(record["settlement"])
+        return held
+
+    def ending_records(self, held):
+        from baton_v12.job_manager import ending as obligations
+
+        stage_id = held.job._connection.execute(
+            "SELECT stage_id FROM stages WHERE kind = 'implementation'"
+        ).fetchone()[0]
+        return obligations.ending_of(held.job, stage_id, 1)
+
+    def test_the_obligation_is_registered_and_settled_by_ordinary_ticks(self):
+        held = self.implemented()
+        record = self.ending_records(held)
+        self.assertIsNotNone(record["intent"])
+        self.assertIsNotNone(record["settlement"])
+        intent = record["intent"]
+        self.assertEqual(intent["attempt_id"], held.attempt_id)
+        self.assertEqual(intent["kind"], "implementation")
+        self.assertEqual(intent["disposition"], "completed")
+
+    def test_the_settlement_names_the_records_that_finished_the_ending(self):
+        """Every member is an identity an operator can look up in the owner
+        that produced it, which is the whole reason a settlement carries any."""
+        from baton_v12.worker_manager import (frozen_output_of,
+                                              intake_receipt_of, review_cycles)
+
+        held = self.implemented()
+        evidence = self.ending_records(held)["settlement"]["evidence"]
+        frozen = frozen_output_of(held.control, held.attempt_id)
+        receipt = intake_receipt_of(held.control, held.attempt_id)
+        self.assertEqual(evidence["result_id"], frozen["result_id"])
+        self.assertEqual(evidence["manifest_digest"],
+                         frozen["manifest_digest"])
+        self.assertEqual(evidence["receipt_digest"], receipt["receipt_digest"])
+        checkpoint = review_cycles.checkpoint_of(held.control,
+                                                 evidence["checkpoint_id"])
+        writer = review_cycles.writer_of(held.control,
+                                         checkpoint["writer_id"])
+        self.assertEqual(writer["runtime_attempt_id"], held.attempt_id)
+
+    def test_a_reconstructed_manager_re_enters_the_same_ending(self):
+        """THE CUTPOINT THIS WORK EXISTS FOR, driven through the actual
+        serving entry rather than asserted about a warm cache.
+
+        Clearing `_prepared` is a reconstructed manager: the process that
+        granted the writer is gone and the durable records are all that is
+        left. The ending re-enters, recovers its writer from the attempt and
+        generation rather than from the line's moved pointer, and starts,
+        publishes, freezes and destroys nothing a second time.
+        """
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.cleaned_up()
+        before = self.publications(held)
+        checkpoint = self.checkpoints(held)
+        composition = self.worker_of(held.composed, "implementation").stage
+        composition._prepared.clear()
+        starts = len([one for one in self.engine.starts
+                      if "--entrypoint" not in one])
+        report = tick(held.job, held.composed, now=fixtures.NOW)
+        self.assertEqual(
+            [one for one in report["spoken"]
+             if one["outcome"] == "deferred"], [])
+        self.assertIsNotNone(self.ending_records(held)["settlement"])
+        self.assertEqual(self.publications(held), before)
+        self.assertEqual(self.checkpoints(held), checkpoint)
+        self.assertEqual(len([one for one in self.engine.starts
+                              if "--entrypoint" not in one]), starts)
+
+    def test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer(
+            self):
+        """The durable operand, read through the accepted public reader."""
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.cleaned_up()
+        composition = self.worker_of(held.composed, "implementation").stage
+        composition._prepared.clear()
+        # W119405: `_prepare` takes the STAGE now, because the line it grants
+        # on belongs to that stage's Job. What this case is about -- the
+        # recovered writer being the ATTEMPT'S and not the line pointer's -- is
+        # unchanged; only how the attempt is handed over moved.
+        recovered = composition._prepare(
+            {"stage_id": "job-a/implementation", "job_id": "job-a",
+             "attempt_id": held.attempt_id, "kind": "implementation"})
+        writer = review_cycles.writer_for_attempt(
+            held.control, attempt_id=held.attempt_id,
+            generation=recovered["generation"])
+        self.assertEqual(recovered["writer_id"], writer["writer_id"])
+        self.assertEqual(recovered["based_checkpoint_id"],
+                         writer["based_checkpoint_id"])
+        # AND IT MOUNTS NOTHING, because the writer this round left behind is
+        # revoked. `mount` refuses rather than handing a null to a caller that
+        # subscripts it.
+        self.assertIsNone(recovered["boundary"])
+        self.assertEqual(writer["state"], "revoked")
+        with self.assertRaises(ContractRefusal) as caught:
+            composition.mount(None, {"attempt_id": held.attempt_id}, None)
+        self.assertIn("mounts nothing", str(caught.exception))
+
+    def test_the_historical_entry_reconstructs_no_mount_or_credential(self):
+        """The entry the ordinary ending cannot be.
+
+        `_SingleWorker.ending` re-mounts the roots this attempt was started
+        over, materializes its credential and composes a runtime adapter from
+        both, before it reaches the composition. After the cleanup none of
+        those exists: the writer that made the mount is revoked and the two
+        roots are gone. This drives that none of them is reached and that the
+        ending still completes from its recorded obligation.
+
+        `_adopted` IS DELIBERATELY NOT AMONG THEM. The sweep's own projection
+        observes the exchange to report a stage's state, which is a read this
+        composition owes whatever the ending does; refusing it here would
+        prove this about the projection rather than about the ending. What the
+        ending must not do is take its DISPOSITION or its TERMINAL from that
+        delivery, and the case below measures that directly: both come from
+        the registered obligation.
+        """
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.cleaned_up()
+        worker = self.worker_of(held.composed, "implementation")
+        worker.stage._prepared.clear()
+
+        def never(*arguments, **operands):
+            del arguments, operands
+            raise AssertionError("the historical entry reconstructed live "
+                                 "evidence")
+
+        # ON THE INSTANCE, NOT THE CLASS. The review worker is another
+        # `_SingleWorker`, and patching the class would refuse its ordinary
+        # launch as well -- which would prove this about the wrong attempt.
+        for verb in ("_mounted", "_credential", "_adapter"):
+            self.addCleanup(delattr_if_set, worker, verb)
+            setattr(worker, verb, never)
+        report = tick(held.job, held.composed, now=fixtures.NOW)
+        self.assertEqual([one for one in report["spoken"]
+                          if one["outcome"] == "deferred"], [])
+        self.assertIsNotNone(self.ending_records(held)["settlement"])
+
+    def test_the_historical_operands_come_from_the_recorded_obligation(self):
+        """Not from the exchange the ordinary ending reads them off."""
+        held = self.cleaned_up()
+        worker = self.worker_of(held.composed, "implementation")
+        stage = self.attempting(held)
+        historical = worker.stage.historical(stage, {"work_ref": {}})
+        intent = self.ending_records(held)["intent"]
+        self.assertEqual(historical["disposition"], intent["disposition"])
+        self.assertEqual(historical["terminal"]["manifest_digest"],
+                         intent["terminal_manifest_digest"])
+        self.assertEqual(historical["terminal"]["ending"], "answered")
+
+    def attempting(self, held):
+        from baton_v12.job_manager import episodes, submission
+
+        stage_id = held.job._connection.execute(
+            "SELECT stage_id FROM stages WHERE kind = 'implementation'"
+        ).fetchone()[0]
+        [stage] = [one for one in submission.stage_rows(held.job)
+                   if one["stage_id"] == stage_id]
+        return episodes.attempting(stage,
+                                   episodes.episodes_of(held.job, stage_id)[0])
+
+    def test_the_historical_adapter_can_perform_no_runtime_act(self):
+        """A property of the object rather than a promise about the path."""
+        adapter = single_worker._RecordedRuntime("sha256:" + "a" * 64)
+        self.assertEqual(adapter.custodian_image_digest, "sha256:" + "a" * 64)
+        for verb in review_driver.RUNTIME_ADAPTER:
+            with self.subTest(verb=verb):
+                held = getattr(adapter, verb, None)
+                self.assertTrue(callable(held), verb)
+                with self.assertRaises(ContractRefusal) as caught:
+                    held()
+                self.assertEqual(caught.exception.category, "refused")
+                self.assertIn(verb, str(caught.exception))
+
+    def publications(self, held):
+        from baton_v12.integration import publication_for_attempt
+
+        return publication_for_attempt(held.control,
+                                       attempt_id=held.attempt_id)
+
+    @staticmethod
+    def checkpoints(held):
+        return held.control._connection.execute(
+            "SELECT count(*), max(checkpoint_id) FROM line_checkpoints"
+        ).fetchone()[:]
+
+
+class TheDischargeReceiptIsCommittedWithItsOwnKind(ComposedOneJobCase):
+    """W122060, converting the regression W124782 landed the fix for.
+
+    THIS USED TO PIN A DEFECT. `Authority.satisfy_gate` answers `kind` with
+    the EVIDENCE's kind -- `runtime-absent`, the thing this manager proved --
+    and `intake.discharge_quiescence_gate` required the GATE kind, so the
+    remote act committed, the gate cleared, and the local receipt was never
+    written. The provider now compares against the evidence kind it actually
+    sends, and the receipt commits.
+
+    The cases below are the same two facts, read the other way round.
+    """
+
+    def test_the_ordinary_ending_journals_its_gate_discharge(self):
+        from baton_v12.worker_manager import gate_discharge_of
+
+        held = self.implemented()
+        receipt = gate_discharge_of(held.control, held.attempt_id)
+        self.assertIsNotNone(receipt)
+        self.assertEqual(receipt["attempt_id"], held.attempt_id)
+        self.assertEqual(receipt["kind"], "runtime-absent")
+        self.assertEqual(receipt["phase"], "queued")
+        self.assertTrue(receipt["gate"].startswith("runtime-quiescence:"))
+
+    def test_the_settlement_names_that_discharge(self):
+        """The obligation is closed naming the act that cleared the gate."""
+        held = self.implemented()
+        stage_id = held.job._connection.execute(
+            "SELECT stage_id FROM stages WHERE kind = 'implementation'"
+        ).fetchone()[0]
+        from baton_v12.job_manager import ending as obligations
+
+        settlement = obligations.ending_of(held.job, stage_id, 1)["settlement"]
+        self.assertIsNotNone(settlement)
+        self.assertIn("gate_discharge", settlement["evidence"])
+
+
+class TheComposedJobTraversesReviewAndAcceptance(ComposedOneJobCase):
+    """W122060: one submitted Job, past the boundary the campaign stopped at.
+
+    THE BLOCKER WAS THE ROUTE. A composed Job's review stage is another
+    assignment of the SAME Work, one Work carries one route, and the
+    implementation ending left it on the route the implementation worker is
+    served on -- so the reviewer's claim was refused and the campaign's
+    furthest transition was "implementation completed, wrong-route review
+    claim" for its whole length.
+
+    W125189's `route_fenced` is what moves it, and the ORDER is the correction:
+    the committed route change happens while this ending's own fence still
+    holds the runtime gate, and only then is the gate discharged. Discharging
+    first returns the Work to `queued` on the route the FINISHED role is served
+    on, which is the reclaim race the routing record measured.
+
+    WHAT THIS CLASS PROVES is one Job going through the actual serving path:
+    implementation, handoff, review by a real reviewer container, an accepted
+    verdict, a second handoff, and an integration stage its integrator can
+    claim. Where it stops, and why, is measured too.
+    """
+
+    REPORT = {"schema": "baton.review-report/1", "verdict": "accepted",
+              "findings": "the composed line reads correctly"}
+
+    def reviewed(self, verdict="accepted"):
+        """One Job carried through its real review turn."""
+        import copy
+
+        held = self.implemented()
+        self.drive(held.job, held.composed, "review", "waiting")
+        attempt = self.only_attempt(held.composed, "review")
+        report = copy.deepcopy(self.REPORT)
+        report["verdict"] = verdict
+        self.assertEqual(
+            self.turn(held.control, "review", attempt,
+                      self.mounted(held.composed, "review", attempt),
+                      edits={"review-report.json": json.dumps(report)}), 0)
+        held.review = attempt
+        return held
+
+    def projected(self):
+        """This Job's one Work, as the Authority holds it now."""
+        from baton_v12.authority import Authority
+
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            return authority.project_work(self.work)
+        finally:
+            authority.dispose()
+
+    # -- the boundary the campaign stopped at --------------------------------
+
+    def test_the_implementation_handoff_moves_the_work_to_the_review_route(
+            self):
+        """THE ROUTE MOVED AND THE GATE DID NOT.
+
+        Both halves matter: a handoff that also cleared the gate would let the
+        implementation participant reclaim its own Work before the reviewer
+        was offered anything.
+        """
+        self.implemented()
+        work = self.projected()
+        self.assertEqual(work["route"], self.config["review_route"])
+
+    def test_the_reviewer_claims_and_its_container_starts(self):
+        """The exact transition this campaign could not make."""
+        held = self.implemented()
+        states = self.drive(held.job, held.composed, "review", "waiting")
+        self.assertEqual(states["review"], "waiting")
+        attempt = self.only_attempt(held.composed, "review")
+        self.assertNotEqual(attempt, held.attempt_id)
+        # ITS OWN CONTAINER, not the implementation's. Two worker starts now,
+        # and the custody helper runs are counted apart as they always were.
+        self.assertEqual(
+            len([one for one in self.engine.starts
+                 if "--entrypoint" not in one]), 2)
+
+    def test_the_reviewers_own_verdict_completes_the_review_stage(self):
+        """The verdict is READ from the reviewer's frozen result.
+
+        Nothing in this deployment decides it: the container writes a report,
+        the manager measures and seals the output it wrote, and
+        `end_review_from_result` reads the claim back out of that result.
+        """
+        held = self.reviewed()
+        report = self.tick(held)
+        [concluded] = [one for one in report["spoken"]
+                       if one["stage_id"] == "job-a/review"]
+        self.assertEqual(concluded["outcome"], "performed")
+        self.assertEqual(concluded["detail"]["verdict"], "accepted")
+        self.assertEqual(self.states(held.job, held.composed)["review"],
+                         "completed")
+
+    def test_the_accepted_review_hands_off_and_the_integrator_claims(self):
+        """The second handoff, and the stage it makes eligible."""
+        held = self.reviewed()
+        states = self.drive(held.job, held.composed, "integration", "claimed")
+        self.assertEqual(states["integration"], "claimed")
+        self.assertEqual(self.projected()["route"],
+                         self.INTEGRATION_ROUTE)
+
+    def test_each_handoff_left_the_runtime_gate_exactly_as_it_found_it(self):
+        """A handoff moves the route and nothing else.
+
+        Measured at the Authority after each ending rather than asserted from
+        this deployment's own answer.
+        """
+        self.implemented()
+        after_implementation = self.projected()
+        self.assertEqual(after_implementation["route"],
+                         self.config["review_route"])
+        self.assertIsNone(after_implementation["gate"])
+        self.assertEqual(after_implementation["phase"], "queued")
+
+    def test_a_changes_requested_review_routes_back_to_the_producer(self):
+        """REVIEW 2026-09-09T05:33Z [1], driven.
+
+        A correction is not forward. The Work goes back to the route the
+        reviewed checkpoint's PRODUCER was claimed on, derived from that
+        checkpoint's own writer -- not to the review worker's outgoing route,
+        which sent the correction round's implementation claim at
+        `integration` and refused it there.
+        """
+        held = self.reviewed(verdict="changes-requested")
+        self.tick(held)
+        from tests.job_manager import fixtures
+
+        self.assertEqual(self.projected()["route"], fixtures.ROUTE)
+        states = self.drive(held.job, held.composed, "implementation",
+                            "waiting", ticks=12)
+        self.assertEqual(states["implementation"], "waiting")
+
+    def test_the_correction_round_claims_and_runs_a_second_time(self):
+        """The same submitted Job and the same persistent line, round two."""
+        held = self.reviewed(verdict="changes-requested")
+        self.drive(held.job, held.composed, "implementation", "waiting",
+                   ticks=12)
+        second = self.only_attempt_of(held.composed, "implementation",
+                                      exclude=held.attempt_id)
+        self.assertNotEqual(second, held.attempt_id)
+        self.assertEqual(
+            len([one for one in self.engine.starts
+                 if "--entrypoint" not in one]), 3)
+
+    def only_attempt_of(self, composed, role, *, exclude):
+        held = sorted(one for one in
+                      self.worker_of(composed, role).stage._prepared
+                      if one != exclude)
+        self.assertEqual(len(held), 1, held)
+        return held[0]
+
+    # -- through the accepted integration runtime port -----------------------
+
+    def integration_port(self, held):
+        """The ACCEPTED port, composed from this fixture's own operands.
+
+        REVIEW 2026-09-09T05:33Z [3], and my report that no provider existed
+        was simply wrong: `tools/integration_worker.py` is W110774's accepted
+        `IntegrationRuntimePort`, and every operand it names is one this
+        deployment already resolves. Nothing is recreated here and nothing is
+        stubbed; this is the wiring the fixture never had.
+
+        IT IS COMPOSED AFTER ACCEPTANCE because two of its operands do not
+        exist before it: the accepted checkpoint's line and the proposal that
+        checkpoint's producer published. Both are read from their own owners --
+        `integration_checkpoint` and `published_proposal` -- rather than
+        remembered from the tick that produced them.
+        """
+        from baton_v12.worker_manager import review_cycles, source_boundary
+
+        deployment = self.deployment_of(held)
+        line = review_cycles.line_of(deployment.control,
+                                     deployment.line()["line_id"])
+        accepted = review_cycles.integration_checkpoint(deployment.control,
+                                                        line["line_id"])
+        self.assertIsNotNone(accepted)
+        integrator = self.worker_of(held.composed, "integration")
+        given = integrator.given
+        for place in (deployment.integration_root,
+                      os.path.join(self.root, "integration-bundles"),
+                      os.path.join(self.root, "integration-launch")):
+            os.makedirs(place, exist_ok=True)
+        return integration_worker.IntegrationRuntimePort(
+            coordinator=deployment.integration, manager=deployment.control,
+            jobs=deployment.jobs, authority=deployment.authority,
+            assignment_port=integrator.port,
+            profile=deployment.integration_profile,
+            checkpoint_profile=deployment.profile,
+            object_runner=stage_execution._git_run,
+            line_id=line["line_id"],
+            proposal_id=deployment.published_proposal(accepted),
+            canonical_target_id=deployment.given["canonical_target_id"],
+            canonical_target=self.source,
+            delivery_home=deployment.integration_root,
+            instructions=b"the configured integration instructions\n",
+            identity={one: given[one] for one in
+                      ("image_digest", "profile_digest", "policy_digest",
+                       "adapter_digest")},
+            adapter_name=given["adapter_name"],
+            toolchain_digest="sha256:" + "7" * 64,
+            input_manifest=given["input_manifest"],
+            engine=given["engine"], engine_run=self.engine,
+            workspace_storage=self.storage,
+            workspace_group=deployment.workspace_group,
+            capacity=source_boundary.workspace_capacity(1 << 30),
+            bundle_home=os.path.join(self.root, "integration-bundles"),
+            launch_home=os.path.join(self.root, "integration-launch"),
+            launch_session="integration-session",
+            launch_contract=given["launch_contract"],
+            network=given["network"],
+            credential_resolution=given["credential_resolution"],
+            credential_home=integrator.credential_home,
+            credential_provider=lambda provider, reference: self.secret)
+
+    @staticmethod
+    def deployment_of(held):
+        return held.composed.workers[0]["operations"]._worker.stage.deployment
+
+    def test_the_accepted_integration_port_composes_from_this_deployment(self):
+        """Every operand this port names is one this deployment resolves."""
+        held = self.reviewed()
+        self.drive(held.job, held.composed, "integration", "claimed")
+        port = self.integration_port(held)
+        for verb in ("prepare", "run", "refresh", "observed", "may_continue"):
+            self.assertTrue(callable(getattr(port, verb, None)), verb)
+
+    def test_the_integration_stage_advances_through_that_port(self):
+        """THE WIRING THE FIXTURE NEVER HAD, driven on ordinary ticks.
+
+        A second serving object is composed with the port and the same durable
+        stores. That is not a restart trick: this manager is re-enterable by
+        design, and the two operands the port needs -- the accepted line and
+        its published proposal -- do not exist until the review has been
+        accepted.
+        """
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.reviewed()
+        self.drive(held.job, held.composed, "integration", "claimed")
+        port = self.integration_port(held)
+        # THE FIRST OBJECT IS LEFT OPEN. Closing it disposes the Authority
+        # handle the port above already holds, and this fixture's cleanup owns
+        # both.
+        composed = stage_execution.operations_from(
+            self.composed_document(line_declared_base=self.base),
+            held.job, held.control, engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout,
+            integration_port=port)
+        self.addCleanup(composed.close)
+        self._composed = composed
+        held.composed = composed
+        report = tick(held.job, composed, now=fixtures.NOW)
+        started = [one for one in report["started"]
+                   if one["stage_id"] == "job-a/integration"]
+        self.assertTrue(started)
+        # THE PORT WAS REACHED. Whatever it then answers is its own accepted
+        # contract's business; what this pins is that the deployment no longer
+        # refuses for want of one.
+        for one in started:
+            self.assertNotIn("no integration runtime port",
+                             json.dumps(one.get("detail") or {}))
+
+    # -- and exactly where it stops ------------------------------------------
+
+    def test_the_integration_stage_stops_on_unconfigured_integrator_wiring(
+            self):
+        """W103068 EXPECTATION CHANGE, and it is the point of the correction.
+
+        WHAT THIS USED TO RECORD was "the exact next blocker": no accepted
+        composition in this build started an integrator, so the deployment held
+        no runtime port and the stage stopped with `capability` --
+        `no integration runtime port`. Review 2026-09-11T01-22-35Z named exactly
+        that sentence as the reason the public factory could not perform an
+        ordinary direct integration, and the deployment CONSTRUCTS its own port
+        now. So the old refusal cannot happen and this records the real
+        remaining stop for a deployment that has not configured the integrator's
+        own material.
+
+        WHAT IS STILL TRUE AND STILL MEASURED. The stop is reported as itself
+        rather than stubbed, it names the missing CONFIGURATION rather than a
+        missing capability, and it is contained: the other stages of this Job
+        keep their finished state. This class configures no
+        `integration_instructions`, which is the one operand a constructed port
+        cannot derive -- the bytes sealed into the bundle it runs -- so this is
+        an honest unconfigured-deployment control rather than a port gap.
+        """
+        held = self.reviewed()
+        self.drive(held.job, held.composed, "integration", "claimed")
+        report = self.tick(held)
+        [started] = [one for one in report["started"]
+                     if one["stage_id"] == "job-a/integration"]
+        self.assertEqual(started["outcome"], "deferred")
+        self.assertEqual(started["detail"]["code"], "capability")
+        self.assertIn("configures no integration_instructions",
+                      started["detail"]["message"])
+        self.assertNotIn("no integration runtime port",
+                         started["detail"]["message"])
+        states = self.states(held.job, held.composed)
+        self.assertEqual(states["implementation"], "completed")
+        self.assertEqual(states["review"], "completed")
+
+    def tick(self, held):
+        from baton_v12.job_manager import sweep
+        from tests.job_manager import fixtures
+
+        return sweep(held.job, held.composed, now=fixtures.NOW)
+
+
+class OrdinaryTerminalLifecycle(ComposedOneJobCase):
+    """W122060: coherent provisioning and one actual terminal lifecycle."""
+
+    REPORT = TheComposedJobTraversesReviewAndAcceptance.REPORT
+    reviewed = TheComposedJobTraversesReviewAndAcceptance.reviewed
+    projected = TheComposedJobTraversesReviewAndAcceptance.projected
+    only_attempt_of = TheComposedJobTraversesReviewAndAcceptance.only_attempt_of
+    deployment_of = staticmethod(TheComposedJobTraversesReviewAndAcceptance.deployment_of)
+    tick = TheComposedJobTraversesReviewAndAcceptance.tick
+    INSTRUCTIONS = b"the configured integration instructions\n"
+
+    def setUp(self):
+        from baton_v12.authority import Authority
+
+        super().setUp()
+        # Provision the disposable target at its Git-reviewed ordinary mode,
+        # independently of the test process umask, before starting any worker.
+        os.chmod(os.path.join(self.source, "harness.py"), 0o644)
+        authority = Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            # Pin once after bootstrap; subsequent policy drift still refuses.
+            self.fixture_policy = authority.policy_generation()
+        finally:
+            authority.dispose()
+        self.lifecycle_reports = []
+
+    def composed_document(self, **members):
+        from baton_v12.contracts import digest_of_bytes
+
+        given = super().composed_document(**members)
+        given["policy_generation"] = self.fixture_policy
+        given["integration_profile"]["instructions_digest"] = digest_of_bytes(self.INSTRUCTIONS)
+        return given
+
+    def integration_port(self, held):
+        # W103068: THE COMPOSITION ADOPTS ITS OWN CONFIGURED TARGET NOW, so this
+        # PROVES the adoption rather than performing a second one.
+        # `activate_target` makes an exact repeat one act and refuses a CHANGED
+        # configuration for the same key by name, so a fixture activating this
+        # deployment's target under its own description would be a second
+        # configuration of one target.
+        from baton_v12.integration import target_of
+
+        deployment = self.deployment_of(held)
+        self.assertIsNotNone(
+            target_of(deployment.integration,
+                      deployment.given["canonical_target_id"]),
+            "the composition adopted no configured canonical target")
+        port = TheComposedJobTraversesReviewAndAcceptance.integration_port(self, held)
+        port.object_runner = self.object_runner
+        return port
+
+    def object_runner(self, argv, *, directory):
+        import subprocess
+
+        answer = subprocess.run(list(argv), cwd=f"/proc/self/fd/{directory}", pass_fds=(directory,),
+                                env=self.environment(), capture_output=True, timeout=10)
+        return {"returncode": answer.returncode, "stdout": answer.stdout, "stderr": answer.stderr}
+
+    def accepted_correction(self):
+        held = self.reviewed("changes-requested")
+        line_id = self.deployment_of(held).line()["line_id"]
+        self.drive(held.job, held.composed, "implementation", "waiting", ticks=12)
+        corrected = self.only_attempt_of(held.composed, "implementation", exclude=held.attempt_id)
+        self.assertEqual(self.turn(held.control, "implementation", corrected,
+                                  self.mounted(held.composed, "implementation", corrected),
+                                  edits={"harness.py": "print('the accepted correction')\n"}), 0)
+        self.drive(held.job, held.composed, "review", "waiting", ticks=12)
+        reviewer = self.only_attempt_of(held.composed, "review", exclude=held.review)
+        self.assertEqual(self.turn(held.control, "review", reviewer,
+                                  self.mounted(held.composed, "review", reviewer),
+                                  edits={"review-report.json": json.dumps(self.REPORT)}), 0)
+        self.drive(held.job, held.composed, "integration", "claimed", ticks=12)
+        self.assertEqual(self.deployment_of(held).line()["line_id"], line_id)
+        held.corrected = corrected
+        return held
+
+    def connect_integration(self, held):
+        port = self.integration_port(held)
+        composed = stage_execution.operations_from(
+            self.composed_document(line_declared_base=self.base), held.job, held.control,
+            engine_run=self.engine, credential_provider=lambda *_: self.secret,
+            clock=lambda: NOW, checkout=self.checkout, integration_port=port)
+        self.addCleanup(composed.close)
+        self._composed = composed
+        held.composed = composed
+        held.integration_port = port
+
+    def integration_job_execution(self, deployment, attempt_id):
+        """The Job execution context this deployment's port composed.
+
+        W156162. Derived from PUBLIC OWNERS -- the Job store's own stage rows
+        and live episodes name which stage is attempting this id, and the
+        deployment's own served configuration answers the runtime identities
+        its port was constructed with. Nothing private is reached and nothing
+        is read back out of the document being proved.
+        """
+        from baton_v12.job_manager import episodes
+        from baton_v12.job_manager.submission import stage_rows
+
+        from tools import single_worker
+
+        for row in stage_rows(deployment.jobs):
+            if row["kind"] != integration_worker.INTEGRATION_STAGE_KIND:
+                continue
+            live = episodes.live_of(deployment.jobs, row["stage_id"])
+            if live is None:
+                continue
+            if episodes.attempting(row, live)["attempt_id"] != attempt_id:
+                continue
+            given = deployment.integration_served(row["job_id"])
+            return single_worker.job_execution_reader(deployment.jobs)(
+                job_id=row["job_id"], attempt_id=attempt_id,
+                runtime_input_digest=given["input_manifest"][
+                    "manifest_digest"],
+                runtime_policy_digest=given["policy_digest"])
+        return None
+
+    def integration_turn(self, held, attempt_id, *, behavior="import"):
+        import subprocess
+        import sys
+        import claude_agent
+        import integration_entry
+        from baton_v12.integration import runtime
+        from tests.manager.test_integration_worker import PROVIDER_SOURCE
+        from unittest.mock import patch
+
+        deployment = self.deployment_of(held)
+        delivery = runtime.adopt_delivery(deployment.integration_root, attempt_id=attempt_id,
+                                          workspace_group=deployment.workspace_group)
+        script = os.path.join(self.root, "integration-provider.py")
+        self.write(script, PROVIDER_SOURCE)
+
+        def runner(argv, **options):
+            return subprocess.run([sys.executable, "-I", "-B", script, behavior, argv[-1]],
+                                  cwd=options.get("cwd"), env=dict(options.get("env") or {}),
+                                  stdout=options.get("stdout"), stderr=options.get("stderr"), timeout=10)
+
+        from baton_v12.worker_manager import launch
+
+        launched = launch.adopt(os.path.join(self.root, "integration-launch"), attempt_id=attempt_id,
+                               session="integration-session", contract=self.config["launch_contract"],
+                               role=integration_worker.LAUNCH_ROLE)
+        launch_place = launched.place
+        scratch = os.path.join(self.root, "integration-scratch")
+        os.mkdir(scratch, 0o700)
+        agent_home = os.path.join(self.root, "integration-agent")
+        os.mkdir(agent_home, 0o700)
+        credentials = os.path.join(self.root, "integration-credentials")
+        os.mkdir(credentials, 0o700)
+        self.write(os.path.join(credentials, "claude"), "not-a-credential\n")
+        with patch.object(claude_agent, "CREDENTIAL_ROOT", credentials):
+            return integration_entry.main(
+                agent=claude_agent.ClaudeAgent(run=runner, home=agent_home),
+                launch_place=launch_place, assignment_root=delivery.assignment_root,
+                result_root=delivery.result_root,
+                bundle_root=os.path.join(self.root, "integration-bundles", attempt_id),
+                target_root=self.source, scratch=scratch)
+
+    def test_one_job_completes_correction_integration_and_terminal_handoff(self):
+        from baton_v12.integration import entries_of, lease_of
+
+        held = self.accepted_correction()
+        self.connect_integration(held)
+        report = self.tick(held)
+        self.lifecycle_reports.append(report)
+        [started] = [one for one in report["started"] if one["stage_id"] == "job-a/integration"]
+        self.assertEqual(started["outcome"], "started", started)
+        self.assertEqual(self.states(held.job, held.composed)["integration"], "integrating")
+        attempt_id = started["attempt_id"]
+        self.assertEqual(self.integration_turn(held, attempt_id), 0)
+        from baton_v12.integration import runtime
+
+        deployment = self.deployment_of(held)
+        delivery = runtime.adopt_delivery(deployment.integration_root, attempt_id=attempt_id,
+                                          workspace_group=deployment.workspace_group)
+        observed = runtime.observed_delivery(delivery, runtime.published_assignment(delivery))
+        self.assertEqual(observed["state"], "answered", observed)
+        self.assertEqual(observed["result"]["outcome"], "integrated", observed)
+        self.engine.stopped = True
+        report = self.tick(held)
+        self.lifecycle_reports.append(report)
+        [ended] = [one for one in report["spoken"] if one["stage_id"] == "job-a/integration"]
+        self.assertEqual(ended["outcome"], "performed", ended)
+        self.assertEqual(ended["detail"]["outcome"], "integrated", ended)
+        self.assertIsNotNone(ended["detail"]["authority_receipt"])
+        deployment = self.deployment_of(held)
+        [entry] = entries_of(deployment.integration, deployment.given["canonical_target_id"])
+        self.assertEqual(entry["state"], "integrated")
+        self.assertEqual(lease_of(deployment.integration, runtime.published_assignment(delivery)["lease_id"])["state"], "released")
+        self.assertEqual(pathlib.Path(self.source, "harness.py").read_text(), "print('the accepted correction')\n")
+        states = self.drive(held.job, held.composed, "integration", "completed", ticks=3)
+        self.assertEqual(states, {"implementation": "completed", "review": "completed", "integration": "completed"})
+        self.assertIsNone(self.projected()["handler"])
+        from baton_v12.worker_manager import attempt_runtime_of
+
+        fixed = attempt_runtime_of(held.control, attempt_id)["assignment"]
+        outgoing = self.worker_of(held.composed, "integration").given["review_route"]
+        handoff = deployment.authority.operation_result("integration-pass:" + attempt_id)
+        self.assertEqual(handoff["assignment"], fixed)
+        self.assertEqual(handoff["route"], outgoing)
+        self.assertEqual(handoff["cause"], "pass")
+        self.assertFalse(handoff["fenced"])
+        self.assertIsNone(handoff["gate"])
+        self.assertEqual(self.projected()["route"], outgoing)
+        self.assertNotEqual(entry["assignment_generation"], fixed["generation"])
+        self.terminal_evidence = {"states": states, "entry": entry,
+            "lease": lease_of(deployment.integration, runtime.published_assignment(delivery)["lease_id"]),
+            "integration_receipt": ended["detail"]["authority_receipt"], "handoff": handoff,
+            "runtime": attempt_runtime_of(held.control, attempt_id), "work": self.projected()}
+
+    def test_the_corrected_rounds_retained_bytes_reopen_at_their_locator(self):
+        """W119114: the mandatory custody check, on the JOINED chain.
+
+        `TheRetainedResultReopensAfterOrdinaryCleanup` proves this for the
+        first implementation round. What integration actually consumes is the
+        CORRECTION's result, and that round has its own attempt, its own
+        ending and its own retained tree -- so the check is made again over
+        the bytes that carry the accepted proposal, by the same rule: reopen
+        at the RECORDED locator and measure against the digest the intake
+        receipt carries, never a pathname and never a row read back.
+        """
+        from baton_v12.contracts import digest
+        from baton_v12.worker_manager import intake_receipt_of
+
+        held = self.accepted_correction()
+        receipt = intake_receipt_of(held.control, held.corrected)
+        [artifact] = receipt["artifacts"]
+        locator = artifact["custody_locator"]
+        self.assertTrue(locator.startswith("file://"), locator)
+        place = locator[len("file://"):]
+        entries = TheRetainedResultReopensAfterOrdinaryCleanup.measured(place)
+        self.assertTrue(entries, place)
+        self.assertEqual(digest(entries), artifact["content_digest"])
+        # AND IT WAS NEVER INSIDE THE TREE THAT ROUND HAD WRITABLE, asked of
+        # the real mount this attempt's container was started over.
+        writable = os.path.realpath(self.mounted(
+            held.composed, "implementation", held.corrected)["workspace"])
+        self.assertFalse(
+            os.path.realpath(place).startswith(writable + os.sep),
+            f"{place} is inside the writable mount {writable}")
+        self.custody = {"receipt": receipt, "artifact": artifact,
+                        "entries": len(entries), "writable": writable}
+
+    def test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds(
+            self):
+        """W119114: one line, two rounds, and the pin the integration reads.
+
+        The eligibility the integration stage consumes must name the
+        CORRECTION's checkpoint rather than the round the review sent back,
+        and that checkpoint's pin must still revalidate through the accepted
+        profile over the real repository after both endings have run.
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.accepted_correction()
+        deployment = self.deployment_of(held)
+        line = deployment.line()
+        accepted = review_cycles.integration_checkpoint(deployment.control,
+                                                        line["line_id"])
+        self.assertIsNotNone(accepted)
+        checkpoint = review_cycles.checkpoint_of(deployment.control,
+                                                 accepted["checkpoint_id"])
+        writer = review_cycles.writer_of(deployment.control,
+                                         checkpoint["writer_id"])
+        self.assertEqual(writer["runtime_attempt_id"], held.corrected)
+        self.assertNotEqual(writer["runtime_attempt_id"], held.attempt_id)
+        # THE PIN IS REOPENED, not read: the profile revalidates it against
+        # the line checkout that survived both rounds' endings.
+        validated = deployment.profile.validate(line["line_path"],
+                                                checkpoint["evidence"])
+        self.assertEqual(validated, checkpoint["evidence"])
+        self.assertEqual(validated["base"], self.base)
+        self.assertGreater(line["revision"], 1)
+        self.pins = {"line": line, "checkpoint": checkpoint, "writer": writer}
+
+    # W119114 review 2026-09-09T17:41Z [P1]: the recovered Job, finished.
+    # The four recovery helpers are bound at the foot of this module, because
+    # the class that owns them is defined below this one and a class body
+    # cannot name it yet.
+
+    def recovered_correction(self):
+        """The SAME held Job, recovered and then corrected for real.
+
+        `accepted_correction` is the ordinary run's version of this and stays
+        exactly as it is; this is the abandoned one, which reaches the same
+        place through A, B, C and ordinary ticks. One fixture, not two.
+        """
+        held = self.started_correction(self.committed_handoff())
+        line_id = self.deployment_of(held).line()["line_id"]
+        self.declare_abandoned(held)
+        self.recover(held)
+        self.drive(held.job, held.composed, "implementation", "waiting",
+                   ticks=12)
+        corrected = sorted(
+            one for one in self.worker_of(held.composed,
+                                          "implementation").stage._prepared
+            if one not in (held.attempt_id, held.abandoned))
+        self.assertEqual(len(corrected), 1, corrected)
+        held.corrected = corrected[0]
+        # HELD NOW, because `connect_integration` composes a FRESH serving
+        # object and the mounts this round was started over live on the one
+        # that started it.
+        held.corrected_roots = self.mounted(held.composed, "implementation",
+                                            held.corrected)
+        # THE FRESH WORKER REALLY RUNS, which is what the previous candidate
+        # stopped short of and what the handoff wrongly claimed.
+        self.assertEqual(
+            self.turn(held.control, "implementation", held.corrected,
+                      self.mounted(held.composed, "implementation",
+                                   held.corrected),
+                      edits={"harness.py": "print('the recovered correction')\n"}),
+            0)
+        self.drive(held.job, held.composed, "review", "waiting", ticks=12)
+        reviewer = sorted(one for one in
+                          self.worker_of(held.composed, "review").stage._prepared
+                          if one != held.review)
+        self.assertEqual(len(reviewer), 1, reviewer)
+        self.assertEqual(
+            self.turn(held.control, "review", reviewer[0],
+                      self.mounted(held.composed, "review", reviewer[0]),
+                      edits={"review-report.json": json.dumps(self.REPORT)}), 0)
+        self.drive(held.job, held.composed, "integration", "claimed", ticks=12)
+        # THE SAME DURABLE LINE THROUGHOUT.
+        self.assertEqual(self.deployment_of(held).line()["line_id"], line_id)
+        return held
+
+    def test_the_recovered_job_finishes_and_its_manifest_reopens(self):
+        """[P1] THE RECOVERED JOB, DRIVEN TO ITS TERMINAL HANDOFF, and then
+        its corrected result reopened.
+
+        My previous candidate stopped at `implementation waiting` and my
+        handoff said an ordinary worker turn corrects it and the same Job
+        finishes. The reviewer is right that neither was established. This is
+        the same held Job -- abandoned, recovered through A/B/C, and then
+        carried through its fresh correction, an independent accepted review,
+        actual integration and the terminal handoff.
+        """
+        from baton_v12.contracts import digest
+        from baton_v12.integration import entries_of, lease_of, runtime
+        from baton_v12.worker_manager import (attempt_runtime_of,
+                                              intake_receipt_of, line_of,
+                                              checkpoint_of, load_manifest,
+                                              frozen_output_of, review_cycles)
+
+        held = self.recovered_correction()
+        self.connect_integration(held)
+        [started] = [one for one in self.tick(held)["started"]
+                     if one["stage_id"] == "job-a/integration"]
+        self.assertEqual(started["outcome"], "started", started)
+        attempt_id = started["attempt_id"]
+        self.assertEqual(self.integration_turn(held, attempt_id), 0)
+        self.engine.stopped = True
+        [ended] = [one for one in self.tick(held)["spoken"]
+                   if one["stage_id"] == "job-a/integration"]
+        self.assertEqual(ended["detail"]["outcome"], "integrated", ended)
+
+        deployment = self.deployment_of(held)
+        [entry] = entries_of(deployment.integration,
+                             deployment.given["canonical_target_id"])
+        self.assertEqual(entry["state"], "integrated")
+        # THE INTEGRATED BYTES ARE THE RECOVERED CORRECTION'S.
+        self.assertEqual(pathlib.Path(self.source, "harness.py").read_text(),
+                         "print('the recovered correction')\n")
+        states = self.drive(held.job, held.composed, "integration",
+                            "completed", ticks=3)
+        self.assertEqual(states, {"implementation": "completed",
+                                  "review": "completed",
+                                  "integration": "completed"})
+        # AND THE TERMINAL HANDOFF IS THE AUTHORITY'S OWN RECORD.
+        fixed = attempt_runtime_of(held.control, attempt_id)["assignment"]
+        handoff = deployment.authority.operation_result(
+            "integration-pass:" + attempt_id)
+        self.assertEqual(handoff["assignment"], fixed)
+        self.assertEqual(handoff["cause"], "pass")
+        self.assertIsNone(self.projected()["handler"])
+
+        # -- the corrected result, REOPENED at its own recorded locator ------
+        receipt = intake_receipt_of(held.control, held.corrected)
+        [artifact] = receipt["artifacts"]
+        locator = artifact["custody_locator"]
+        self.assertTrue(locator.startswith("file://"), locator)
+        place = locator[len("file://"):]
+        entries = TheRetainedResultReopensAfterOrdinaryCleanup.measured(place)
+        self.assertTrue(entries, place)
+        self.assertEqual(digest(entries), artifact["content_digest"])
+        # THE RETAINED MANIFEST NAMES THOSE SAME BYTES.
+        frozen = frozen_output_of(held.control, held.corrected)
+        sealed = load_manifest(held.control, frozen["manifest_digest"],
+                               "resultManifest")
+        [produced] = [one for one in sealed["outputs"]
+                      if one["status"] == "present"]
+        self.assertEqual(produced["artifact"]["content_digest"],
+                         artifact["content_digest"])
+        self.assertEqual(produced["artifact"]["artifact_id"],
+                         artifact["artifact_id"])
+        # AND IT WAS NEVER INSIDE THE TREE THAT ROUND HAD WRITABLE.
+        writable = os.path.realpath(held.corrected_roots["workspace"])
+        self.assertFalse(os.path.realpath(place).startswith(writable + os.sep),
+                         f"{place} is inside the writable mount {writable}")
+
+        # -- the pins, and the candidate integration actually consumed -------
+        line = line_of(held.control, deployment.line()["line_id"])
+        accepted = review_cycles.integration_checkpoint(held.control,
+                                                        line["line_id"])
+        self.assertIsNotNone(accepted)
+        checkpoint = checkpoint_of(held.control, accepted["checkpoint_id"])
+        writer = review_cycles.writer_of(held.control, checkpoint["writer_id"])
+        self.assertEqual(writer["runtime_attempt_id"], held.corrected)
+        validated = deployment.profile.validate(line["line_path"],
+                                                checkpoint["evidence"])
+        self.assertEqual(validated, checkpoint["evidence"])
+        self.assertEqual(validated["base"], self.base)
+        # THE INTEGRATED CANDIDATE IS THE CORRECTED ROUND'S OWN PUBLICATION.
+        #
+        # MEASURED, not assumed: asking `published_proposal` here refuses,
+        # because it re-derives the proposal against the Authority's CURRENT
+        # canonical target and the integration has just advanced it -- "a
+        # proposal is offered against the revision it was built from". So the
+        # correlation is read from the two committed records instead, which is
+        # the more direct claim anyway.
+        published = stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.corrected)
+        self.assertIsNotNone(published)
+        self.assertEqual(entry["proposal_id"], published["proposal_id"])
+        # THE ORIGINAL HANDOFF AND PUBLICATION SURVIVED THE WHOLE ARC.
+        self.assertEqual(stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.attempt_id), held.publication)
+        self.assertEqual(review_cycles.checkpoint_of(held.control,
+                                                     held.checkpoint),
+                         held.frozen)
+        delivery = runtime.adopt_delivery(
+            deployment.integration_root, attempt_id=attempt_id,
+            workspace_group=deployment.workspace_group)
+        self.assertEqual(lease_of(deployment.integration,
+                                  runtime.published_assignment(
+                                      delivery)["lease_id"])["state"],
+                         "released")
+        self.joined = {"states": states, "entry": entry, "handoff": handoff,
+                       "receipt": receipt, "checkpoint": checkpoint,
+                       "line": line, "published": published}
+
+    def answered_integration(self, *, behavior="import"):
+        held = self.accepted_correction()
+        self.connect_integration(held)
+        with mock.patch.object(held.composed.integrator, "observe", wraps=held.composed.integrator.observe) as observed:
+            started = self.tick(held)
+        [launched] = [one for one in started["started"] if one["stage_id"] == "job-a/integration"]
+        held.integration_attempt = launched["attempt_id"]
+        held.integration_stage = next(dict(call.args[0]) for call in reversed(observed.call_args_list)
+                                      if call.args[0].get("kind") == "integration")
+        self.assertEqual(self.integration_turn(held, held.integration_attempt, behavior=behavior), 0)
+        return held
+
+    def test_running_integrator_result_cannot_end_its_assignment(self):
+        held = self.answered_integration()
+        session = held.composed.sessions["integrator"]
+        with mock.patch.object(session, "pass_work", wraps=session.pass_work) as passed:
+            report = self.tick(held)
+        self.assertFalse(passed.called)
+        self.assertEqual(self.projected()["handler"], "baton.integrator")
+        self.assertEqual(self.states(held.job, held.composed)["integration"], "answering")
+        self.assertEqual(report["spoken"][0]["detail"]["outcome"], "running")
+
+    def test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff(self):
+        held = self.answered_integration()
+        self.engine.stopped = True
+        with mock.patch.object(held.composed.integrator, "finish"):
+            self.tick(held)
+        authority = held.composed.authority
+        receipt = authority.receipt
+        def foreign(proposal, kind):
+            return dict(receipt(proposal, kind), candidate_digest="foreign-candidate")
+        with mock.patch.object(authority, "receipt", side_effect=foreign):
+            with self.assertRaises(ContractRefusal) as refused:
+                held.composed.integrator.finish(held.integration_stage)
+        self.assertEqual(refused.exception.code, "operation-collision")
+        lease_of = stage_execution.lease_of
+        with mock.patch.object(stage_execution, "lease_of", side_effect=lambda *args: dict(lease_of(*args), fence=999)):
+            with self.assertRaises(ContractRefusal) as refused:
+                held.composed.integrator.finish(held.integration_stage)
+        self.assertEqual(refused.exception.code, "operation-collision")
+        self.assertIsNone(authority.operation_result("integration-pass:" + held.integration_attempt))
+        self.assertEqual(self.projected()["handler"], "baton.integrator")
+
+    def test_lost_pass_answer_remains_completed_after_a_later_assignment(self):
+        from baton_v12.authority import Refusal
+
+        held = self.answered_integration()
+        self.engine.stopped = True
+        session = held.composed.sessions["integrator"]
+        original = session.pass_work
+        def lost(operands):
+            original(operands)
+            raise Refusal("the probe loses the committed pass answer")
+        with mock.patch.object(session, "pass_work", side_effect=lost) as passed:
+            self.tick(held)
+        self.assertEqual(passed.call_count, 1)
+        authority = held.composed.authority
+        operation = "integration-pass:" + held.integration_attempt
+        committed = authority.operation_result(operation)
+        later = authority.session("baton.reviewer").claim({"work_id": self.work, "operation_id": "later-review-claim"})
+        with mock.patch.object(session, "pass_work", side_effect=AssertionError("a historical pass must not run again")), \
+                mock.patch.object(held.composed.integrator, "_run", side_effect=AssertionError("integration must not run again")):
+            self.assertEqual(self.states(held.job, held.composed)["integration"], "completed")
+            self.tick(held)
+        self.assertEqual(authority.operation_result(operation), committed)
+        self.assertEqual(self.projected()["assignment"], later["assignment"])
+
+    def test_uncertain_integration_effect_stays_held(self):
+        from baton_v12.integration import entries_of, target_of
+
+        held = self.answered_integration(behavior="index")
+        self.engine.stopped = True
+        self.tick(held)
+        deployment = self.deployment_of(held)
+        [entry] = entries_of(deployment.integration, deployment.given["canonical_target_id"])
+        self.assertEqual(entry["state"], "held")
+        self.assertEqual(target_of(deployment.integration, deployment.given["canonical_target_id"])["state"], "blocked")
+        self.assertEqual(self.states(held.job, held.composed)["integration"], "exceptional")
+        self.assertEqual(self.projected()["handler"], "baton.integrator")
+        self.assertIsNone(deployment.authority.operation_result("integration-pass:" + held.integration_attempt))
+
+    def test_serving_observation_reads_only_existing_owners(self):
+        held = self.answered_integration()
+        with mock.patch.object(held.composed.integrator, "_run", side_effect=AssertionError("read invoked driver")), \
+                mock.patch.object(held.integration_port, "refresh", side_effect=AssertionError("read refreshed runtime")), \
+                mock.patch.object(held.composed.sessions["integrator"], "pass_work", side_effect=AssertionError("read passed Work")), \
+                mock.patch.object(stage_execution.review_cycles, "create_line", side_effect=AssertionError("read created line")), \
+                mock.patch.object(stage_execution, "retain_proposal", side_effect=AssertionError("read retained proposal")):
+            self.assertEqual(self.states(held.job, held.composed)["integration"], "answering")
+
+    def test_committed_handoff_recovers_before_local_acknowledgement(self):
+        from baton_v12.job_manager import ending, submit
+        from baton_v12.worker_manager import review_cycles
+
+        job, control, composed = self.serving()
+        submit(job, self.submission)
+        self.drive(job, composed, "implementation", "waiting")
+        attempt = self.only_attempt(composed, "implementation")
+        self.assertEqual(self.turn(control, "implementation", attempt,
+                                  self.mounted(composed, "implementation", attempt),
+                                  edits={"harness.py": "print('retained handoff')\n"}), 0)
+        held = SimpleNamespace(job=job, control=control, composed=composed)
+        with mock.patch.object(stage_execution.ending, "settle_ending", side_effect=ContractRefusal("refused", "precondition", "lost local acknowledgement")):
+            self.tick(held)
+        record = ending.ending_of(job, "job-a/implementation", 1)
+        self.assertIsNone(record["settlement"])
+        authority = composed.authority
+        operation = "route-fenced:" + attempt + ":" + self.config["review_route"]
+        handoff = authority.operation_result(operation)
+        self.assertIsNotNone(handoff)
+        self.assertIsNone(authority.project_work(self.work)["gate"])
+        writer = review_cycles.writer_for_attempt(control, attempt_id=attempt, generation=handoff["assignment"]["generation"])
+        publication = stage_execution.publication_for_attempt(control, attempt_id=attempt)
+        starts = len(self.engine.starts)
+        composed.close()
+        job.close()
+        control.close()
+        job, control = self.stores("after-committed-handoff")
+        restarted = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
+            engine_run=self.engine, credential_provider=lambda *_: self.secret, clock=lambda: NOW, checkout=self.checkout)
+        self.addCleanup(restarted.close)
+        self._composed = restarted
+        resumed = SimpleNamespace(job=job, control=control, composed=restarted)
+        self.tick(resumed)
+        settled = ending.ending_of(job, "job-a/implementation", 1)
+        self.assertIsNotNone(settled["settlement"])
+        self.assertEqual(restarted.authority.operation_result(operation), handoff)
+        self.assertEqual(review_cycles.writer_for_attempt(control, attempt_id=attempt, generation=handoff["assignment"]["generation"]), writer)
+        self.assertEqual(stage_execution.publication_for_attempt(control, attempt_id=attempt), publication)
+        self.assertEqual(len(self.engine.starts), starts)
+        self.assertEqual(self.states(job, restarted)["implementation"], "completed")
+        checkpoint = settled["settlement"]["evidence"]["checkpoint_id"]
+        self.assertEqual(review_cycles.checkpoint_of(control, checkpoint)["writer_id"], writer["writer_id"])
+
+    READONLY_PROCESS = r'''
+import contextlib
+import json
+import sys
+from unittest.mock import patch
+from baton_v12.authority import Authority
+from baton_v12.contracts import ContractRefusal, job_input_identity
+from baton_v12.integration import IntegrationStore
+from baton_v12.job_manager import JobStore, status
+from baton_v12.worker_manager import ControlStore
+from tools import job_manager, stage_execution
+
+spec = json.load(open(sys.argv[1]))
+clock = lambda: "2026-09-02T00:00:00.000Z"
+counts = {"authority_open": 0, "authority_dispose": 0, "coordinator_open": 0, "coordinator_close": 0}
+open_authority, dispose = Authority.open_readonly, Authority.dispose
+open_coordinator, close = IntegrationStore.open_readonly, IntegrationStore.close
+def authority_open(*args, **kwargs):
+    assert kwargs["expected_authority_uuid"] == spec["uuid"]
+    result = open_authority(*args, **kwargs)
+    counts["authority_open"] += 1
+    return result
+def coordinator_open(*args, **kwargs):
+    result = open_coordinator(*args, **kwargs)
+    counts["coordinator_open"] += 1
+    return result
+def disposed(owner):
+    counts["authority_dispose"] += 1
+    dispose(owner)
+def closed(owner):
+    counts["coordinator_close"] += 1
+    close(owner)
+
+with JobStore.open(spec["job"], authority_uuid=spec["uuid"], incarnation="readonly-child", clock=clock) as job, \
+        ControlStore.open(spec["control"], incarnation="readonly-child", clock=clock) as control, contextlib.ExitStack() as guards:
+    for owner, name in ((Authority, "open"), (Authority, "session"), (IntegrationStore, "open"),
+            (stage_execution, "operations_from"), (stage_execution.Integration, "run"),
+            (stage_execution.Integration, "finish"), (stage_execution.scheduler, "activate_pool"),
+            (stage_execution.single_worker, "worker_preflight"), (stage_execution, "retain_proposal"),
+            (stage_execution.review_cycles, "create_line")):
+        guards.enter_context(patch.object(owner, name, side_effect=AssertionError("read reached " + name)))
+    guards.enter_context(patch.object(stage_execution, "_checkout", return_value=spec["checkout"]))
+    guards.enter_context(patch.object(Authority, "open_readonly", side_effect=authority_open))
+    guards.enter_context(patch.object(IntegrationStore, "open_readonly", side_effect=coordinator_open))
+    guards.enter_context(patch.object(Authority, "dispose", disposed))
+    guards.enter_context(patch.object(IntegrationStore, "close", closed))
+    reader = job_manager._observation_from("tools.stage_execution:observing_factory", job, control)
+    observed = reader.observe_integration(spec["stage"])
+    assert observed["state"] == "completed", observed
+    completion = observed["completion"]
+    assert observed["assignment"] == spec["fixed"]
+    for member in ("proposal_id", "integration_receipt_id", "entry_id", "lease_id", "fence", "handoff_operation_id", "to_route", "runtime_id"):
+        assert completion[member] == spec["completion"][member], (member, completion)
+    projected = status(job, job_manager._Observing(control, reader), observed_at=clock())
+    assert {row["kind"]: row["state"] for row in projected["jobs"][0]["stages"]} == {
+        "implementation": "completed", "review": "completed", "integration": "completed"}
+    actual = Authority.operation_result
+    with patch.object(Authority, "operation_result", lambda self, op: None if op == completion["handoff_operation_id"] else actual(self, op)):
+        assert reader.observe_integration(spec["stage"])["state"] == "answered"
+    receipt = Authority.receipt
+    with patch.object(Authority, "receipt", lambda self, *args: dict(receipt(self, *args), candidate_digest="foreign")):
+        try:
+            reader.observe_integration(spec["stage"])
+        except ContractRefusal as refusal:
+            assert refusal.code == "operation-collision"
+        else:
+            raise AssertionError("foreign receipt completed")
+    for name, value in (("integration_store", spec["missing_coordinator"]), ("authority_store", spec["foreign_authority"])):
+        document = json.load(open(spec["config"]))
+        document[name] = value
+        alternate = stage_execution.observation_from(document, job, control, checkout=spec["checkout"])
+        try:
+            alternate.observe_integration(spec["stage"])
+        except ContractRefusal:
+            pass
+        else:
+            raise AssertionError("missing/foreign evidence completed")
+    assert counts["authority_open"] == counts["authority_dispose"], counts
+    assert counts["coordinator_open"] == counts["coordinator_close"], counts
+    print(json.dumps({"observation": observed, "status": projected, "handles": counts,
+        "checks": ["configured UUID", "closed-serving completion", "missing handoff stays owed", "foreign receipt refuses",
+                   "absent coordinator refuses", "foreign Authority refuses", "no serving acts", "all reader handles disposed"]}))
+'''
+
+    def test_fresh_process_observes_owned_completion_after_serving_closes(self):
+        import subprocess
+        import sys
+        from baton_v12.authority import Authority
+
+        made = []
+        create = stage_execution.operations_from
+        def tracked(*args, **kwargs):
+            result = create(*args, **kwargs)
+            made.append(result)
+            return result
+        with mock.patch.object(stage_execution, "operations_from", side_effect=tracked):
+            held = self.answered_integration()
+        self.engine.stopped = True
+        self.tick(held)
+        expected = held.composed.integrator.observe(held.integration_stage)
+        self.assertEqual(expected["state"], "completed")
+        foreign = os.path.join(self.root, "foreign-authority.db")
+        Authority.create(foreign, authority_uuid="0000000b000000000000000000000000").dispose()
+        configuration = os.path.join(self.root, "readonly-config.json")
+        self.write(configuration, json.dumps(self.composed_document(line_declared_base=self.base)))
+        spec = {"job": self.job_path, "control": self.control_path, "uuid": self.config["authority_uuid"],
+                "checkout": self.checkout, "config": configuration, "stage": held.integration_stage,
+                "fixed": expected["assignment"], "completion": expected["completion"],
+                "foreign_authority": foreign, "missing_coordinator": os.path.join(self.root, "absent-coordinator.db")}
+        for composed in reversed(made):
+            composed.close()
+        held.job.close()
+        held.control.close()
+        protected = (self.authority_path, self.integration_store, self.job_path, self.control_path)
+        before = {path: (pathlib.Path(path).read_bytes(), os.stat(path).st_mode) for path in protected}
+        script = os.path.join(self.root, "read-completed.py")
+        self.write(script, self.READONLY_PROCESS)
+        specification = os.path.join(self.root, "read-spec.json")
+        self.write(specification, json.dumps(spec))
+        result = subprocess.run([sys.executable, script, specification], cwd=REPOSITORY / "v12/python",
+            env={**self.environment(), "PYTHONPATH": "src:.", stage_execution.CONFIG_ENV: configuration},
+            capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual({path: (pathlib.Path(path).read_bytes(), os.stat(path).st_mode) for path in protected}, before)
+        self.assertFalse(os.path.exists(spec["missing_coordinator"]))
+        self.readonly_evidence = json.loads(result.stdout)
+
+
+class UnfinishedWorkIsFencedBeforeAnythingRepeatsIt(ComposedOneJobCase):
+    """W119114's remaining acceptance: safe abandonment of scratch work.
+
+    `RESTART-ACCEPTANCE-2026-09-09.md` asks for one thing W122060's
+    committed-handoff cut does not cover. That cut proves a manager can be
+    reconstructed and finish a handoff it already committed. This asks the
+    other half: a worker that is still THERE, holding a writable mount over
+    the line, with unfinished scratch nobody committed -- stop and fence it,
+    prove the exclusion, and then let a fresh assignment repeat the work from
+    the last committed handoff and its retained checkpoint.
+
+    THE ABANDONMENT IS AN OPERATOR ACT AND IS PERFORMED AS ONE. W44716's
+    `abandon_attempt` says calling it IS the declaration, and
+    `single_worker.conclude` says in as many words that deciding it is not
+    this composition's. So nothing here asks the composition to abandon
+    anything: the declaration is made against the deployment's OWN control
+    store, port and adapter, which is the shape a Route policy or an operator
+    would use, and every consequence is then read back off the ordinary ticks.
+    """
+
+    REPORT = TheComposedJobTraversesReviewAndAcceptance.REPORT
+    reviewed = TheComposedJobTraversesReviewAndAcceptance.reviewed
+    projected = TheComposedJobTraversesReviewAndAcceptance.projected
+    only_attempt_of = TheComposedJobTraversesReviewAndAcceptance.only_attempt_of
+    deployment_of = staticmethod(
+        TheComposedJobTraversesReviewAndAcceptance.deployment_of)
+    tick = TheComposedJobTraversesReviewAndAcceptance.tick
+    REASON = "the correction worker stopped answering and is declared abandoned"
+
+    def committed_handoff(self):
+        """One Job driven to the last committed handoff before a correction.
+
+        The reviewed checkpoint is retained, the Work is back on the producer's
+        route, and the correction round is the thing about to repeat.
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.reviewed(verdict="changes-requested")
+        self.tick(held)
+        deployment = self.deployment_of(held)
+        line = deployment.line()
+        held.line_id = line["line_id"]
+        held.checkpoint = line["current_checkpoint_id"]
+        self.assertIsNotNone(held.checkpoint)
+        held.frozen = review_cycles.checkpoint_of(deployment.control,
+                                                  held.checkpoint)
+        self.assertEqual(held.frozen["state"], "frozen")
+        held.route = self.projected()["route"]
+        held.publication = stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.attempt_id)
+        return held
+
+    def started_correction(self, held):
+        """The correction round, started and then left unfinished.
+
+        `drive` runs ordinary ticks until the stage is waiting on its worker,
+        which is exactly the state a worker that stopped answering leaves
+        behind: the runtime is attached, the line writer is granted, and the
+        mount is writable.
+        """
+        self.drive(held.job, held.composed, "implementation", "waiting",
+                   ticks=12)
+        held.abandoned = self.only_attempt_of(held.composed, "implementation",
+                                              exclude=held.attempt_id)
+        held.abandoned_roots = self.mounted(held.composed, "implementation",
+                                            held.abandoned)
+        # THE SCRATCH NOBODY COMMITTED. A real abandoned worker leaves bytes in
+        # the tree it had writable; writing one here is what makes "unfinished
+        # work may be lost" a measured claim rather than an empty one.
+        self.write(os.path.join(held.abandoned_roots["workspace"],
+                                "scratch-nobody-committed.py"),
+                   "print('the abandoned round never finished this')\n")
+        return held
+
+    def declare_abandoned(self, held):
+        """The operator's declaration, through the accepted public operation."""
+        from baton_v12 import worker_manager
+        from baton_v12.worker_manager import attempt_runtime_of, tokens
+
+        worker = self.worker_of(held.composed, "implementation")
+        state = attempt_runtime_of(held.control, held.abandoned)
+        self.assertIsNotNone(state["runtime_id"])
+        delivery, orphan = worker._credential(held.abandoned, state,
+                                              held.abandoned_roots)
+        adapter = worker._adapter(held.abandoned_roots, delivery, orphan, None)
+        return worker_manager.abandon_attempt(
+            held.control, worker.port, adapter, attempt_id=held.abandoned,
+            reason=self.REASON,
+            retention_policy_digest=self.deployment_of(
+                held).retention_policy_digest,
+            # W275774: AND THE GOVERNANCE THIS DEPLOYMENT'S ABANDONMENT CARRIES.
+            # Every worker here starts governed, and abandonment is the ending
+            # this attempt gets -- `single_worker.Worker.abandon_attempt` passes
+            # exactly this for exactly this reason, so a declaration composed here
+            # without it would hold the workspace no successor could then acquire:
+            # measured, the restored correction's own start was refused by
+            # generation 2 of the attempt this declaration ended.
+            govern=tokens.workspace_governance())
+
+    def recover(self, held, *, discharge=True, restore=True, replace=True):
+        """The three accepted providers, in their own order, and nothing else.
+
+        A: W128682's `discharge_abandoned_quiescence_gate` carries the
+        abandonment's own positive-absence evidence to the gate its fence
+        installed. B: W128692's `restore_abandoned_correction` puts the
+        checkout back on the retained checkpoint and revokes the excluded
+        writer. C: W128698's `restart_abandoned_correction` ends exactly the
+        one live episode that could never finish.
+
+        NOTHING HERE OPENS AN ASSIGNMENT. The successor is the ordinary sweep's,
+        which is the whole point: this wiring reaches the accepted public
+        operations and then gets out of the way.
+        """
+        from baton_v12.job_manager.episodes import restart_abandoned_correction
+        from baton_v12.worker_manager import (
+            discharge_abandoned_quiescence_gate)
+        from baton_v12.worker_manager.review_cycles import (
+            restore_abandoned_correction)
+
+        deployment = self.deployment_of(held)
+        worker = self.worker_of(held.composed, "implementation")
+        generation = deployment.generation_of(held.abandoned)
+        held.generation = generation
+        policy = deployment.retention_policy_digest
+        answered = {}
+        if discharge:
+            answered["discharge"] = discharge_abandoned_quiescence_gate(
+                held.control, worker.port, attempt_id=held.abandoned,
+                retention_policy_digest=policy)
+        if restore:
+            # W275774: THE ACCOUNTABLE-LAUNCH PAIR THE RESTORATION REFUSES
+            # WITHOUT, and it is this deployment's own. W257624 requires both a
+            # launcher, which commits each command's intent before its child
+            # exists, and a cessation observer, which asks the kernel whether that
+            # work has ended; an unaccountable restoration is held rather than
+            # performed. `stage_execution` owns both, so the recovery is driven
+            # with the same pair a deployment would supply.
+            answered["restore"] = restore_abandoned_correction(
+                held.control, attempt_id=held.abandoned,
+                generation=generation, retention_policy_digest=policy,
+                profile=deployment.profile,
+                launcher=stage_execution.restoration_launcher,
+                cessation=stage_execution.restoration_cessation())
+        if replace:
+            # ORDINARY TICKS FIRST, and this is C's own rule rather than a
+            # convenience. `episodes._unheld` refuses while the abandoned
+            # episode's allocation is still reserved: releasing a worker is
+            # the SCHEDULER's act, not this recovery's, and opening a
+            # successor over a live reservation would let one Job hold two
+            # workers in one lane. So the sweep releases it and C proceeds --
+            # measured, because my first cut called C immediately and was
+            # refused exactly there.
+            for _ in range(4):
+                self.tick(held)
+            answered["replace"] = restart_abandoned_correction(
+                held.job, held.control, job_id="job-a",
+                attempt_id=held.abandoned, generation=generation)
+        held.recovery = answered
+        return answered
+
+    def test_the_declaration_fences_the_generation_and_destroys_the_runtime(
+            self):
+        """STOP AND FENCE, read back off the owners rather than the answer."""
+        from baton_v12.worker_manager import (assignment_of,
+                                              attempt_runtime_of)
+
+        held = self.started_correction(self.committed_handoff())
+        before = assignment_of(held.control, held.abandoned)
+        answered = self.declare_abandoned(held)
+        # POSITIVE ABSENCE, IN THE ENGINE'S OWN SENTENCE, and a cleanup that
+        # settled at `retained` -- the ending deletes nothing.
+        self.assertEqual(answered["cleanup"]["state"], "absent")
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        runtime = attempt_runtime_of(held.control, held.abandoned)
+        self.assertEqual(runtime["execution_runtime"], "destroyed")
+        # THE IDENTITY IS REMEMBERED RATHER THAN CLEARED, and the engine was
+        # really asked to remove that exact one -- which is what makes the
+        # destruction attributable to this runtime rather than to a state
+        # word.
+        self.assertIn(runtime["runtime_id"], self.engine.gone)
+        # THE FENCE IS THE AUTHORITY'S OWN RECORD, replayed through the
+        # operation the declaration itself named, at the exact generation the
+        # abandoned attempt held -- not a generation this fixture chose.
+        fenced = self.deployment_of(held).authority.operation_result(
+            answered["intent"]["authority_operation_id"])
+        self.assertEqual(fenced, answered["fenced"])
+        self.assertTrue(fenced["fenced"])
+        self.assertEqual(fenced["assignment"]["generation"],
+                         before["generation"])
+        # AND THE WORK IS HELD BEHIND THIS ATTEMPT'S OWN QUIESCENCE GATE, so
+        # the exclusion is the Authority's rather than this deployment's
+        # promise: nothing can claim the Work at the fenced generation.
+        self.assertEqual(fenced["phase"], "block")
+        self.assertEqual(fenced["gate"],
+                         "runtime-quiescence:%d" % before["generation"])
+        self.assertEqual(self.projected()["gate"]["token"], fenced["gate"])
+        self.assertEqual(answered["intent"]["reason"], self.REASON)
+        self.assertEqual(answered["intent"]["decision"], "abandoned")
+        self.abandonment = {"answer": answered, "runtime": runtime,
+                            "fence": fenced}
+
+    def test_the_committed_effects_the_declaration_crossed_are_all_intact(
+            self):
+        """REPEATED COMPUTATION IS PERMITTED; COMMITTED EFFECT IS NOT REDONE.
+
+        The reviewed checkpoint, the route the handoff committed and the
+        proposal the implementation round published are all effects that
+        committed BEFORE this attempt existed. An abandonment that disturbed
+        any of them would be losing committed work rather than scratch.
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.started_correction(self.committed_handoff())
+        self.declare_abandoned(held)
+        deployment = self.deployment_of(held)
+        self.assertEqual(review_cycles.checkpoint_of(deployment.control,
+                                                     held.checkpoint),
+                         held.frozen)
+        self.assertEqual(self.projected()["route"], held.route)
+        self.assertEqual(stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.attempt_id), held.publication)
+
+    def test_the_abandoned_scratch_reaches_no_proposal(self):
+        """WHAT THE ABANDONED WORKER WROTE IS LEFT UNTRUSTED AND UNUSED.
+
+        M33800's rule for all four endings, read at this composition: the
+        declaration freezes nothing and collects nothing, so the bytes that
+        worker left behind never become a candidate.
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.started_correction(self.committed_handoff())
+        published = stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.abandoned)
+        self.assertIsNone(published)
+        self.declare_abandoned(held)
+        self.assertIsNone(stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.abandoned))
+        line = review_cycles.line_of(self.deployment_of(held).control,
+                                     held.line_id)
+        self.assertEqual(line["current_checkpoint_id"], held.checkpoint)
+
+    def test_the_recovered_correction_reaches_a_fresh_assignment(self):
+        """THE TRANSITION `review-2026-09-09T14-55-17Z.md` MEASURED AS
+        IMPOSSIBLE, now driven.
+
+        This case used to assert the blocked outcome and name the three owners
+        a correction had to reach. All three are accepted now -- W128682's
+        abandoned-family gate discharge, W128692's checkpoint restoration and
+        writer exclusion, W128698's exactly-one replacement episode -- and this
+        is the same fixture crossing the same boundary through them.
+
+        WHAT IS WIRED AND WHAT IS NOT. The three public operations are called
+        in their own order and nothing else is: no store edit, no hidden reset,
+        no synthetic verdict and no engine-state guess. The successor
+        assignment is the ORDINARY sweep's, and the correction round that
+        follows is an ordinary worker turn.
+        """
+        from baton_v12.job_manager import episodes, projection
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.started_correction(self.committed_handoff())
+        deployment = self.deployment_of(held)
+        generation = deployment.generation_of(held.abandoned)
+        self.declare_abandoned(held)
+
+        # THE STATE THAT USED TO BE THE END OF THE ROAD, measured before the
+        # recovery rather than asserted about it.
+        for _ in range(2):
+            self.tick(held)
+        stage_id = "job-a/implementation"
+        self.assertEqual(self.states(held.job, held.composed)["implementation"],
+                         "exceptional")
+        self.assertIsNone(episodes.live_of(held.job, stage_id)["ended_state"])
+        self.assertEqual(self.projected()["gate"]["token"],
+                         "runtime-quiescence:%d" % generation)
+
+        answered = self.recover(held)
+
+        # A: THE GATE IS ACTUALLY DISCHARGED, read from the Authority.
+        self.assertEqual(answered["discharge"]["gate"],
+                         "runtime-quiescence:%d" % generation)
+        self.assertIsNone(self.projected()["gate"])
+        # B: THE LINE IS BACK AT ITS RETAINED CHECKPOINT WITH THE WRITER OUT.
+        self.assertEqual(answered["restore"]["checkpoint_id"], held.checkpoint)
+        line = review_cycles.line_of(deployment.control, held.line_id)
+        self.assertEqual(line["state"], "correction-ready")
+        self.assertEqual(line["current_checkpoint_id"], held.checkpoint)
+        self.assertEqual(review_cycles.writer_for_attempt(
+            deployment.control, attempt_id=held.abandoned,
+            generation=generation)["state"], "revoked")
+        # C: EXACTLY THAT EPISODE ENDED, and it is now replaceable.
+        self.assertEqual(answered["replace"]["ended_state"],
+                         "abandoned-after-exclusion")
+        self.assertIsNone(episodes.live_of(held.job, stage_id))
+        self.assertTrue(projection.replaceable(
+            projection.stage_states(held.job, held.composed)[stage_id]))
+
+        # AND THE ORDINARY TICKS DO THE REST. Nothing below reaches a provider.
+        self.drive(held.job, held.composed, "implementation", "waiting",
+                   ticks=12)
+        fresh = sorted(one for one in
+                       self.worker_of(held.composed,
+                                      "implementation").stage._prepared
+                       if one not in (held.attempt_id, held.abandoned))
+        self.assertEqual(len(fresh), 1, fresh)
+        held.fresh = fresh[0]
+        self.recovered = {"discharge": answered["discharge"],
+                          "restore": answered["restore"],
+                          "replace": answered["replace"], "fresh": held.fresh,
+                          "line": line}
+
+    def test_the_fresh_assignment_writes_only_after_the_exclusion(self):
+        """NO NEW WRITER BEFORE THE EXCLUSION, in the order the acceptance
+        states it: every earlier step is refused, and only the completed
+        recovery admits one."""
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.started_correction(self.committed_handoff())
+        deployment = self.deployment_of(held)
+        self.declare_abandoned(held)
+        # Before any recovery: the line is still held by the abandoned writer.
+        self.assertEqual(review_cycles.line_of(deployment.control,
+                                               held.line_id)["state"],
+                         "writing")
+        # After A alone: still held -- a discharged gate is not an exclusion.
+        self.recover(held, restore=False, replace=False)
+        self.assertEqual(review_cycles.line_of(deployment.control,
+                                               held.line_id)["state"],
+                         "writing")
+        # After B: excluded and ready, and only then does C end the episode.
+        self.recover(held, discharge=False, replace=False)
+        self.assertEqual(review_cycles.line_of(deployment.control,
+                                               held.line_id)["state"],
+                         "correction-ready")
+        self.recover(held, discharge=False, restore=False)
+        self.drive(held.job, held.composed, "implementation", "waiting",
+                   ticks=12)
+        fresh = sorted(one for one in
+                       self.worker_of(held.composed,
+                                      "implementation").stage._prepared
+                       if one not in (held.attempt_id, held.abandoned))
+        self.assertEqual(len(fresh), 1, fresh)
+
+    def test_the_discarded_scratch_is_gone_and_the_checkpoint_bytes_are_back(
+            self):
+        """THE UNCOMMITTED WORK IS LOST AND THE RETAINED CHECKPOINT IS NOT.
+
+        The abandoned round's scratch was written into the tree it had
+        writable; after the restore that tree is the checkpoint's own, proved
+        through the accepted profile rather than by reading a row.
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.started_correction(self.committed_handoff())
+        deployment = self.deployment_of(held)
+        checkout = held.abandoned_roots["workspace"]
+        self.assertTrue(os.path.exists(
+            os.path.join(checkout, "scratch-nobody-committed.py")))
+        self.declare_abandoned(held)
+        self.recover(held)
+
+        self.assertFalse(os.path.exists(
+            os.path.join(checkout, "scratch-nobody-committed.py")))
+        checkpoint = review_cycles.checkpoint_of(deployment.control,
+                                                 held.checkpoint)
+        self.assertEqual(checkpoint, held.frozen)
+        # THE PIN IS REOPENED rather than read: the profile revalidates the
+        # restored checkout against the retained checkpoint.
+        validated = deployment.profile.validate(
+            review_cycles.line_of(deployment.control,
+                                  held.line_id)["line_path"],
+            checkpoint["evidence"], current=True)
+        self.assertEqual(validated, checkpoint["evidence"])
+
+    def test_the_recovery_replays_and_committed_effects_are_unchanged(self):
+        """REPEATED COMPUTATION IS PERMITTED; COMMITTED EFFECT IS NOT REDONE.
+
+        Every one of the three operations answers its committed result a
+        second time, no second episode is opened, and the reviewed checkpoint,
+        the route and the first round's publication are byte-identical
+        afterwards.
+        """
+        from baton_v12.job_manager import episodes
+
+        held = self.started_correction(self.committed_handoff())
+        self.declare_abandoned(held)
+        first = self.recover(held)
+        self.drive(held.job, held.composed, "implementation", "waiting",
+                   ticks=12)
+        successor = episodes.live_of(held.job, "job-a/implementation")
+
+        again = self.recover(held)
+        self.assertEqual(again, first)
+        self.assertEqual(episodes.live_of(held.job, "job-a/implementation"),
+                         successor)
+        self.assertEqual(self.projected()["route"], held.route)
+        self.assertEqual(stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.attempt_id), held.publication)
+
+    def test_an_unrecovered_declaration_still_reaches_no_assignment(self):
+        """THE NEGATIVE THAT WAS THIS CASE'S WHOLE POINT, kept: without the
+        recovery the stage still stops, so the positive proof above is the
+        recovery's doing and not the fixture's."""
+        from baton_v12.job_manager import episodes, projection
+
+        held = self.started_correction(self.committed_handoff())
+        self.declare_abandoned(held)
+        for _ in range(4):
+            self.tick(held)
+        stage_id = "job-a/implementation"
+        self.assertEqual(self.states(held.job, held.composed),
+                         {"implementation": "exceptional", "review": "blocked",
+                          "integration": "blocked"})
+        self.assertIsNone(episodes.live_of(held.job, stage_id)["ended_state"])
+        self.assertFalse(projection.replaceable(
+            projection.stage_states(held.job, held.composed)[stage_id]))
+        self.assertEqual(
+            sorted(self.worker_of(held.composed,
+                                  "implementation").stage._prepared),
+            sorted([held.attempt_id, held.abandoned]))
+
+    def test_a_running_or_foreign_selection_recovers_nothing(self):
+        """The accepted owners' own refusals, reached through this fixture."""
+        from baton_v12.job_manager.episodes import restart_abandoned_correction
+        from baton_v12.worker_manager.review_cycles import (
+            restore_abandoned_correction)
+
+        held = self.started_correction(self.committed_handoff())
+        deployment = self.deployment_of(held)
+        generation = deployment.generation_of(held.abandoned)
+        policy = deployment.retention_policy_digest
+        # STILL RUNNING: nothing has been declared, so there is nothing to
+        # restore and nothing to replace.
+        # THE PAIR IS SUPPLIED TO THE NEGATIVES TOO, so what refuses them is the
+        # refusal each case is about rather than a missing capability.
+        with self.assertRaises(ContractRefusal):
+            restore_abandoned_correction(
+                held.control, attempt_id=held.abandoned,
+                generation=generation, retention_policy_digest=policy,
+                profile=deployment.profile,
+                launcher=stage_execution.restoration_launcher,
+                cessation=stage_execution.restoration_cessation())
+        with self.assertRaises(ContractRefusal):
+            restart_abandoned_correction(held.job, held.control,
+                                         job_id="job-a",
+                                         attempt_id=held.abandoned,
+                                         generation=generation)
+        self.declare_abandoned(held)
+        self.recover(held, restore=False, replace=False)
+        # A FOREIGN GENERATION selects an abandonment this deployment never
+        # committed.
+        with self.assertRaises(ContractRefusal):
+            restore_abandoned_correction(
+                held.control, attempt_id=held.abandoned,
+                generation=generation + 5, retention_policy_digest=policy,
+                profile=deployment.profile,
+                launcher=stage_execution.restoration_launcher,
+                cessation=stage_execution.restoration_cessation())
+        self.recover(held, discharge=False)
+        with self.assertRaises(ContractRefusal):
+            restart_abandoned_correction(held.job, held.control,
+                                         job_id="job-a",
+                                         attempt_id=held.attempt_id,
+                                         generation=1)
+
+class TheWrongRouteClaimDefersInsteadOfStoppingTheSweep(ComposedOneJobCase):
+    """W125032 refusal containment, with W385222 terminal retirement.
+
+    Withholding handoff still creates the deliberate wrong-route negative.
+    Positive refusal now ends the offer instead of keeping it owed forever;
+    an unknown claim outcome retains the separate reconciliation behavior.
+    """
+
+    def wrong_route(self):
+        """One Job whose implementation ending did not hand its Work on.
+
+        THE HANDOFF IS WITHHELD, not broken: `_handed_off` is the act that
+        moves the Work to the review route, and without it the Work stays on
+        the route the implementation worker is served on -- which is the state
+        this negative is about.
+        """
+        with mock.patch.object(stage_execution.StageComposition,
+                               "_handed_off", lambda *arguments: None):
+            return self.implemented()
+
+    def test_the_wrong_route_claim_retires_and_the_sweep_finishes(self):
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.wrong_route()
+        reports = [tick(held.job, held.composed, now=fixtures.NOW)
+                   for _ in range(4)]
+        # THE SWEEP RETURNED EVERY TIME, which is the whole correction. Before
+        # it, the first refused claim left the tick entirely.
+        self.assertEqual(len(reports), 4)
+        claims = [one for report in reports for one in report["acts"]
+                  if one.get("act") == "claim"]
+        self.assertEqual(len(claims), 1)
+        self.assertEqual(claims[0]["outcome"], "refused")
+
+    def test_no_successful_claim_and_no_review_runtime_follow_it(self):
+        """A contained refusal is not a quiet success."""
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.wrong_route()
+        starts = len([one for one in self.engine.starts
+                      if "--entrypoint" not in one])
+        for _ in range(4):
+            tick(held.job, held.composed, now=fixtures.NOW)
+        self.assertEqual(self.states(held.job, held.composed)["review"],
+                         "exceptional")
+        self.assertEqual(len([one for one in self.engine.starts
+                              if "--entrypoint" not in one]), starts)
+        self.assertEqual(held.control._connection.execute(
+            "SELECT count(*) FROM attempts WHERE assignment_generation "
+            "IS NOT NULL AND runtime_attempt_id != ?",
+            (held.attempt_id,)).fetchone()[0], 0)
+
+
+class OneRefusedClaimLeavesEveryOtherJobAlone(ComposedOneJobCase):
+    """W125032's accepted class, RESTORED with the same deliberate
+    precondition.
+
+    Review [4]. Its subject is the composed deployment's own limits and the
+    containment measured against them, and both still hold; only the way its
+    wrong-route state is reached has changed, for the reason the class above
+    gives.
+
+    JOB B IS OWED AND DOES NOT PROGRESS HERE, and this class says so plainly.
+    The joined proof -- one Job claiming successfully in the same sweep as the
+    other's concrete refusal -- is `TwoIndependentlyBoundWorkersShareOneSweep`,
+    which composes its own two workers because this deployment cannot carry
+    them; the three owner refusals that stop it are measured below.
+    """
+
+    wrong_route = TheWrongRouteClaimDefersInsteadOfStoppingTheSweep.wrong_route
+
+    def carried(self):
+        """Job A at its wrong-route review claim, with Job B owed beside it."""
+        from baton_v12.job_manager import submit as submit_jobs
+        from tests.job_manager import fixtures
+
+        held = self.wrong_route()
+        [first] = self.submission["jobs"]
+        submit_jobs(held.job, fixtures.submission(
+            submission_id="sub-2",
+            jobs=[fixtures.job("job-b",
+                               input_digest=first["input_digest"],
+                               policy_digest=first["policy_digest"],
+                               stages=[fixtures.stage("implementation",
+                                                      self.work)])]))
+        return held
+
+    def test_the_other_jobs_act_is_still_reached_in_the_same_tick(self):
+        """THE HARM THE ESCAPE ACTUALLY DID, and its repair."""
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.carried()
+        refused = []
+        for _ in range(4):
+            report = tick(held.job, held.composed, now=fixtures.NOW)
+            spoken = {one["stage_id"]: one for one in report["acts"]}
+            claim = spoken.get("job-a/review", {})
+            if claim.get("act") == "claim":
+                self.assertIn("job-b/implementation", spoken)
+                refused.append(claim)
+        self.assertEqual([one["outcome"] for one in refused], ["refused"])
+
+    def test_without_the_containment_the_other_job_is_never_reached(self):
+        """The counterfactual, driven rather than described."""
+        from baton_v12.authority import Refusal
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.carried()
+        tick(held.job, held.composed, now=fixtures.NOW)
+        direct = single_worker._AuthoritySession.claim
+        with mock.patch.object(single_worker._ManagerClaimSession, "claim",
+                               direct):
+            with self.assertRaises(Refusal) as caught:
+                tick(held.job, held.composed, now=fixtures.NOW)
+        self.assertIn("does not resolve to", str(caught.exception))
+        report = tick(held.job, held.composed, now=fixtures.NOW)
+        self.assertIn("job-b/implementation",
+                      {one["stage_id"] for one in report["acts"]})
+
+    def test_correcting_the_route_cannot_revive_the_retired_claim(self):
+        """A terminally retired operation stays retired after route repair."""
+        from baton_v12.authority import Authority
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.carried()
+        for _ in range(3):
+            tick(held.job, held.composed, now=fixtures.NOW)
+        offered = self.offers(held, "job-a/review")
+        self.assertEqual(len(offered), 1)
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            authority.add_route_handler(fixtures.ROUTE, "baton.reviewer")
+        finally:
+            authority.dispose()
+        performed = []
+        for _ in range(3):
+            performed.extend(
+                one for one in tick(held.job, held.composed,
+                                    now=fixtures.NOW)["acts"]
+                if one["stage_id"] == "job-a/review"
+                and one.get("act") == "claim"
+                and one["outcome"] == "performed")
+        self.assertEqual(performed, [])
+        self.assertEqual(self.offers(held, "job-a/review"), offered)
+
+    def test_why_the_joined_proof_is_composed_outside_this_deployment(self):
+        """The three owner refusals that stop this deployment carrying a
+        second progressing Job, measured rather than asserted."""
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.carried()
+        report = tick(held.job, held.composed, now=fixtures.NOW)
+        [admit] = [one for one in report["acts"]
+                   if one["stage_id"] == "job-b/implementation"]
+        self.assertEqual((admit["act"], admit["outcome"]),
+                         ("admit", "deferred"))
+        self.assertIn("already has a live offer", admit["detail"]["message"])
+        self.assertEqual(self.job_states(held, "job-b")["implementation"],
+                         "queued")
+
+    def test_a_second_worker_for_one_role_is_refused_by_the_document(self):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.serving(workers=[
+                self.worker("implementation"),
+                dict(self.worker("implementation"),
+                     worker_id="second-implementation-worker"),
+                self.worker("review", participant="baton.reviewer",
+                            principal=self.principals["baton.reviewer"],
+                            review_route=self.INTEGRATION_ROUTE),
+                self.worker("integration", participant="baton.integrator",
+                            principal=self.principals["baton.integrator"])])
+        self.assertIn("each stage is served by exactly one",
+                      str(caught.exception))
+
+    def test_the_two_jobs_are_served_by_the_two_configured_participants(self):
+        held = self.carried()
+        roles = {one["role"]: one["operations"]._worker.port.participant
+                 for one in held.composed.workers}
+        self.assertEqual(roles["implementation"], "baton.claude")
+        self.assertEqual(roles["review"], "baton.reviewer")
+        self.assertNotEqual(roles["implementation"], roles["review"])
+
+    @staticmethod
+    def job_states(held, job_id):
+        from baton_v12.job_manager import status as projected_status
+        from tests.job_manager import fixtures
+
+        projected = projected_status(held.job, held.composed,
+                                     observed_at=fixtures.NOW)
+        [job] = [one for one in projected["jobs"] if one["job_id"] == job_id]
+        return {one["kind"]: one["state"] for one in job["stages"]}
+
+    @staticmethod
+    def offers(held, stage_id):
+        return sorted(row[0] for row in held.job._connection.execute(
+            "SELECT offer_id FROM episodes WHERE stage_id = ?", (stage_id,)))
+
+
+class TwoIndependentlyBoundWorkersShareOneSweep(SingleWorkerCase):
+    """W125032: one concrete claim refuses; the other Job gets its turn.
+
+    THIS IS WHAT THE CONTAINMENT IS FOR. `sweep` walks every Job in one tick,
+    and `authority.errors.Refusal` is not a `ContractRefusal` -- so before this
+    Work the first refused claim ended the tick and took every other Job's owed
+    act with it. Proving that needs two Jobs that can both really act, which
+    the composed one-Job deployment cannot give: it configures one worker per
+    role, binds each worker to one Work and one bootstrap input, and one Work
+    carries one live offer.
+
+    SO THE TWO WORKERS ARE COMPOSED FROM THE PUBLIC CONSTRUCTORS, as review
+    2026-09-09T05-01-39Z directs: `worker_preflight` and `worker_operations`
+    build each one over its own Work, participant, session and input manifest,
+    `activate_pool` declares both, and `PooledManagerOperations` serves them.
+    That is the same public path `stage_execution` itself takes once per
+    configured worker; nothing here copies its private composition, relaxes its
+    one-worker-per-role rule or touches that file.
+
+    THE REFUSAL IS THE REAL ONE. Work B is routed to `rview`, which no
+    participant handles, so the Authority refuses its claim exactly as it
+    refuses the composed Job's wrong-route review claim. Work C is routed to
+    the second participant and its claim performs.
+    """
+
+    SECOND = "baton.second"
+    SECOND_NAME = "second-reference"
+    SECOND_PROFILE = "sha256:" + "5a" * 32
+    REFUSING = "aa-refusing-worker"
+    PROGRESSING = "bb-progressing-worker"
+    REFUSING_JOB = "job-a-refusing"
+    PROGRESSING_JOB = "job-b-progressing"
+
+    def works(self):
+        """Two Works: one nobody can claim, one the second participant can."""
+        from baton_v12.authority import Authority
+        from tests.job_manager import fixtures
+
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            authority.create_work(fixtures.WORK_B, "rview",
+                                  contract="v12-assignment-1",
+                                  operation_id="create-refusing-work")
+            authority.create_work(fixtures.WORK_C, fixtures.ROUTE,
+                                  contract="v12-assignment-1",
+                                  operation_id="create-progressing-work")
+            authority.add_route_handler(fixtures.ROUTE, self.SECOND)
+            return authority.principal_of(self.SECOND)
+        finally:
+            authority.dispose()
+
+    def configured(self, *, work_id, participant, principal, profile_name,
+                   profile_digest, home):
+        """One worker's whole deployment document, bound to its own Work.
+
+        The manifest is this fixture's own with its Work reference and runtime
+        profile replaced and its digest recomputed, because a manifest digest
+        is over the document it describes. The two workers keep separate launch
+        and credential homes for the same reason two deployments would.
+        """
+        import copy
+
+        from baton_v12.contracts import digest
+
+        manifest = copy.deepcopy(self.manifest)
+        manifest["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
+        manifest["runtime_profile_digest"] = profile_digest
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        return dict(self.config, input_manifest=manifest,
+                    participant=participant, principal=principal,
+                    profile_name=profile_name, profile_digest=profile_digest,
+                    launch_home=os.path.join(self.root, "launch-" + home),
+                    credential_home=os.path.join(self.root,
+                                                 "credentials-" + home))
+
+    def serving_pair(self):
+        """Both workers, one pool, one manager surface, two submitted Jobs."""
+        from baton_v12.authority import Authority
+        from baton_v12.job_manager import scheduler, submit
+        from baton_v12.job_manager.scheduler import PooledManagerOperations
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+
+        principal = self.works()
+        given = {
+            self.REFUSING: self.configured(
+                work_id=fixtures.WORK_B, participant=fixtures.WHO,
+                principal=self.principal, profile_name="reference",
+                profile_digest=fixtures.PROFILE, home="refusing"),
+            self.PROGRESSING: self.configured(
+                work_id=fixtures.WORK_C, participant=self.SECOND,
+                principal=principal, profile_name=self.SECOND_NAME,
+                profile_digest=self.SECOND_PROFILE, home="progressing")}
+        job, control = self.stores("two-bound-workers")
+        engine = Engine()
+        operations = {}
+        for worker_id, document in given.items():
+            # `_held` IS WHAT `stage_execution` READS EACH WORKER'S DEPLOYMENT
+            # WITH, and this composes workers the same way rather than a second
+            # way. Both public constructors take the document in that form.
+            held = single_worker._held(document)
+            opened = Authority.open(
+                self.authority_path,
+                expected_authority_uuid=document["authority_uuid"])
+            self.addCleanup(opened.dispose)
+            provider = single_worker.worker_preflight(
+                held, control, credential_provider=lambda *_: self.secret,
+                engine_run=engine)
+            operations[worker_id] = single_worker.worker_operations(
+                held, control, opened, provider, engine_run=engine,
+                clock=lambda: fixtures.NOW, dispose=lambda: None)
+        resolved = {fixtures.WHO: self.principal, self.SECOND: principal}
+        generation = scheduler.activate_pool(job, {
+            "schema": scheduler.POOL_SCHEMA,
+            "variant": "two-bound-workers",
+            "separation_class": "provider-diverse",
+            "workers": [
+                {"worker_id": self.REFUSING, "lane": "implementation",
+                 "participant": fixtures.WHO, "profile_name": "reference",
+                 "profile_digest": fixtures.PROFILE,
+                 "eligible_kinds": ["implementation"]},
+                {"worker_id": self.PROGRESSING, "lane": "implementation",
+                 "participant": self.SECOND,
+                 "profile_name": self.SECOND_NAME,
+                 "profile_digest": self.SECOND_PROFILE,
+                 "eligible_kinds": ["implementation"]}]},
+            resolved)["generation"]
+        pooled = PooledManagerOperations(
+            job, {(generation, worker_id): held
+                  for worker_id, held in operations.items()},
+            resolved_principals=resolved)
+        submit(job, fixtures.submission(jobs=[
+            self.one_job(self.REFUSING_JOB, given[self.REFUSING],
+                         fixtures.WORK_B, "reference", fixtures.PROFILE),
+            self.one_job(self.PROGRESSING_JOB, given[self.PROGRESSING],
+                         fixtures.WORK_C, self.SECOND_NAME,
+                         self.SECOND_PROFILE)]))
+        return SimpleNamespace(job=job, control=control, pooled=pooled,
+                               engine=engine)
+
+    @staticmethod
+    def one_job(job_id, given, work_id, profile_name, profile_digest):
+        from tests.job_manager import fixtures
+
+        return fixtures.job(
+            job_id, input_digest=job_input_identity(given["input_manifest"]),
+            policy_digest=fixtures.POLICY_DIGEST,
+            stages=[fixtures.stage(work_id=work_id,
+                                   profile_name=profile_name,
+                                   profile_digest=profile_digest)])
+
+    def ticks(self, held, count=4):
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        return [tick(held.job, held.pooled, now=fixtures.NOW)
+                for _ in range(count)]
+
+    @staticmethod
+    def claims(reports):
+        return [one for report in reports for one in report["acts"]
+                if one.get("act") == "claim"]
+
+    def states(self, held):
+        from baton_v12.job_manager import status
+        from tests.job_manager import fixtures
+
+        projected = status(held.job, held.pooled, observed_at=fixtures.NOW)
+        return {one["job_id"]: one["stages"][0]["state"]
+                for one in projected["jobs"]}
+
+    # -- the proof -----------------------------------------------------------
+
+    def test_one_claim_refuses_while_the_other_performs_in_one_sweep(self):
+        """BOTH IN ONE TICK, which is the whole statement."""
+        held = self.serving_pair()
+        together = []
+        for report in self.ticks(held):
+            spoken = {one["stage_id"]: one for one in report["acts"]
+                      if one.get("act") == "claim"}
+            if len(spoken) == 2:
+                together.append(spoken)
+        self.assertTrue(together, "no tick carried both Jobs' claims")
+        for spoken in together:
+            refused = spoken[self.REFUSING_JOB + "/implementation"]
+            performed = spoken[self.PROGRESSING_JOB + "/implementation"]
+            self.assertEqual(refused["outcome"], "refused")
+            self.assertEqual(performed["outcome"], "performed")
+
+    def test_the_other_job_advances_past_the_one_that_refuses(self):
+        """Performing an act is not the same as getting somewhere."""
+        held = self.serving_pair()
+        self.ticks(held, 6)
+        states = self.states(held)
+        self.assertEqual(states[self.REFUSING_JOB], "exceptional")
+        self.assertNotIn(states[self.PROGRESSING_JOB],
+                         ("blocked", "queued", "offered"))
+
+    def test_the_refused_claim_records_no_success_and_releases_capacity(self):
+        """A positive refusal retires its offer and releases logical capacity.
+
+        No successful claim is recorded for it.
+
+        `claimed_offers_for` IS KEYED BY THE ATTEMPT, and review
+        2026-09-09T05-09-21Z caught this call passing a participant instead:
+        the reader then answered an empty list whatever the target attempt's
+        claim state was, so the assertion held for the wrong reason and would
+        have gone on holding if a claim had been recorded. The positive case
+        below is what stops that from being invisible again -- an absence
+        reader nobody has seen say "present" is not evidence of absence.
+        """
+        from baton_v12.job_manager.scheduler import allocation_of
+        from baton_v12.worker_manager import claimed_offers_for
+
+        held = self.serving_pair()
+        self.ticks(held)
+        refused = self.attempt_of(held, self.REFUSING_JOB)
+        allocation = allocation_of(held.job, refused)
+        self.assertEqual(allocation["allocation_state"], "released")
+        self.assertEqual(claimed_offers_for(held.control, refused), [])
+
+    def test_the_same_reader_sees_the_claim_the_other_job_did_record(self):
+        """THE POSITIVE CONTROL for the reader the case above trusts.
+
+        Same store, same tick sequence, same call -- and the attempt whose
+        claim performed answers one claimed offer naming it. That is what
+        makes the empty answer above a fact about the refused attempt rather
+        than about the query.
+        """
+        from baton_v12.worker_manager import claimed_offers_for
+
+        held = self.serving_pair()
+        self.ticks(held)
+        progressed = self.attempt_of(held, self.PROGRESSING_JOB)
+        [claimed] = claimed_offers_for(held.control, progressed)
+        self.assertEqual(claimed["runtime_attempt_id"], progressed)
+        self.assertEqual(claimed["state"], "claimed")
+        self.assertEqual(
+            claimed_offers_for(held.control,
+                               self.attempt_of(held, self.REFUSING_JOB)), [])
+
+    @staticmethod
+    def attempt_of(held, job_id):
+        [attempt] = [row["attempt_id"] for row in held.job._connection.execute(
+            "SELECT attempt_id FROM episodes WHERE stage_id = ?",
+            (job_id + "/implementation",))]
+        return attempt
+
+    def test_correcting_the_route_cannot_revive_the_same_offer(self):
+        """THE FIXED CLAIM IDENTITY, not a second one.
+
+        `add_route_handler` is an authorized Authority bootstrap action taken
+        by this fixture, not a production routing remedy -- that is W124786's.
+        W385222 changes the former retry expectation: the retired operation
+        cannot revive even when the routing precondition later becomes true.
+        """
+        from baton_v12.authority import Authority
+        from tests.job_manager import fixtures
+
+        held = self.serving_pair()
+        self.ticks(held)
+        stage_id = self.REFUSING_JOB + "/implementation"
+        before = self.offers(held, stage_id)
+        self.assertEqual(len(before), 1)
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            authority.add_route_handler("rview", fixtures.WHO)
+        finally:
+            authority.dispose()
+        performed = [one for one in self.claims(self.ticks(held))
+                     if one["stage_id"] == stage_id
+                     and one["outcome"] == "performed"]
+        self.assertEqual(performed, [])
+        self.assertEqual(self.offers(held, stage_id), before)
+
+    def test_without_the_containment_the_other_job_is_never_reached(self):
+        """The counterfactual, driven rather than described.
+
+        Forwarding the claim directly is what this deployment did before. The
+        refusing Job sorts first, so the concrete `Refusal` leaves the sweep
+        before the other Job's claim is reached at all -- and the contained
+        run reaches it in the very next tick.
+        """
+        from baton_v12.authority import Refusal
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.serving_pair()
+        tick(held.job, held.pooled, now=fixtures.NOW)
+        direct = single_worker._AuthoritySession.claim
+        with mock.patch.object(single_worker._ManagerClaimSession, "claim",
+                               direct):
+            with self.assertRaises(Refusal) as caught:
+                tick(held.job, held.pooled, now=fixtures.NOW)
+        self.assertIn("does not resolve to", str(caught.exception))
+        report = tick(held.job, held.pooled, now=fixtures.NOW)
+        self.assertIn(self.PROGRESSING_JOB + "/implementation",
+                      {one["stage_id"] for one in report["acts"]})
+
+    @staticmethod
+    def offers(held, stage_id):
+        return sorted(row[0] for row in held.job._connection.execute(
+            "SELECT offer_id FROM episodes WHERE stage_id = ?", (stage_id,)))
+
+
+class TheDeploymentAnswersTheAcceptedReplayHalves(unittest.TestCase):
+
+    def test_the_publication_seam_carries_the_verb_the_driver_names(self):
+        """`PUBLICATION_HISTORY` is typed inside the resumed branch only.
+
+        An ordinary ending still needs one verb, so this asserts the seam
+        answers both rather than that the driver requires both.
+        """
+        self.assertEqual(review_driver.PUBLICATION_SEAM, ("publish",))
+        self.assertEqual(review_driver.PUBLICATION_HISTORY,
+                         ("published_of",))
+        for verb in review_driver.PUBLICATION_SEAM + \
+                review_driver.PUBLICATION_HISTORY:
+            self.assertTrue(
+                callable(getattr(stage_execution.Publication, verb, None)),
+                verb)
+
+    def test_the_replay_half_reads_the_owner_and_not_its_own_list(self):
+        """An in-memory list says nothing about a process that has died.
+
+        `published_of` must reach `publication_for_attempt`, which takes no
+        publisher and no remembered selector; a seam answering from
+        `self.published` would satisfy the driver's shape and fail every
+        restart.
+        """
+        publication = stage_execution.Publication(object(), object())
+        publication.published.append({"attempt_id": "attempt-1"})
+        with mock.patch.object(stage_execution, "publication_for_attempt",
+                               return_value=None) as owner:
+            self.assertIsNone(
+                publication.published_of(attempt_id="attempt-1"))
+        self.assertEqual(owner.call_args.kwargs, {"attempt_id": "attempt-1"})
+        self.assertEqual(owner.call_args.args, (publication.control,))
+
+
+# W119114 review 2026-09-09T17:41Z [P1]: ONE FIXTURE, BOUND LATE.
+#
+# `OrdinaryTerminalLifecycle` owns the terminal machinery and
+# `UnfinishedWorkIsFencedBeforeAnythingRepeatsIt` owns the abandonment and its
+# recovery, and the second is defined after the first. Binding here rather than
+# duplicating either keeps the recovered Job on the SAME fixture the ordinary
+# one uses, which is what the review asks for.
+for _borrowed in ("committed_handoff", "started_correction",
+                  "declare_abandoned", "recover", "REASON"):
+    setattr(OrdinaryTerminalLifecycle, _borrowed,
+            getattr(UnfinishedWorkIsFencedBeforeAnythingRepeatsIt, _borrowed))
+del _borrowed
+
+
+class TheMultiWorkerPoolComposesWithoutASecondAllocator(ServingCase):
+    """W119403: several workers for one role, through the existing pool.
+
+    THE LIMITATION THIS ANSWERS. `_held_workers` refused a repeated role, so a
+    deployment could never offer two implementation workers and additional
+    submitted Jobs could not be served at once. That is a composition limit
+    rather than a defect in the accepted scheduler -- which already takes one
+    pool entry per configured worker -- so what is added is a CONFIGURATION
+    VARIANT and not a second allocator.
+
+    THE ONE-JOB DOCUMENT IS UNTOUCHED. `/1` still refuses two workers for one
+    role and every refusal control above it still passes; a deployment asks for
+    the wider pool by naming `/2`.
+
+    WHAT THIS CUT DOES NOT CLAIM. Per-Job source, task, line, checkpoint and
+    target binding is the next cut's, and the questions that need one producer
+    refuse here with a sentence saying so rather than choosing the first
+    worker. Pool acceptance alone is not multi-Job execution.
+    """
+
+    SECOND_PRODUCER = "baton.second"
+    SECOND_REVIEWER = "baton.reviewer-2"
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.authority import Authority
+
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            # THE AUTHORITY'S OWN MAPPING, read rather than chosen: an endpoint
+            # nobody has bound resolves to this Authority's default principal,
+            # and a deployment that named a different one is refused by
+            # `_resolved` for exactly that reason.
+            self.principals.update(
+                {who: authority.principal_of(who)
+                 for who in (self.SECOND_PRODUCER, self.SECOND_REVIEWER)})
+        finally:
+            authority.dispose()
+
+    def multi(self, **members):
+        """The `/2` document: two producers, two reviewers, one integrator.
+
+        The extra workers are DERIVED from the ones the accepted composed
+        document already builds, so each keeps its role's own operands -- the
+        review worker's outgoing route, the integration worker's bearer slot --
+        rather than this case inventing a second idea of a valid worker.
+        """
+        given = self.composed_document()
+        held = {one["role"]: one for one in given["workers"]}
+        producer = copy.deepcopy(held["implementation"])
+        producer["worker_id"] = "implementation-worker-2"
+        producer["deployment"]["participant"] = self.SECOND_PRODUCER
+        producer["deployment"]["principal"] = \
+            self.principals[self.SECOND_PRODUCER]
+        reviewer = copy.deepcopy(held["review"])
+        reviewer["worker_id"] = "review-worker-2"
+        reviewer["deployment"]["participant"] = self.SECOND_REVIEWER
+        reviewer["deployment"]["principal"] = \
+            self.principals[self.SECOND_REVIEWER]
+        workers = [held["implementation"], producer, held["review"], reviewer,
+                   held["integration"]]
+        answer = {"schema": stage_execution.MULTI_CONFIG_SCHEMA,
+                  "workers": workers,
+                  # W119405: `/2` now binds each Job to its own source, base,
+                  # Work and target, so a document that named none could not
+                  # serve one. The pool cases keep asserting the POOL; this is
+                  # the smallest binding that lets them.
+                  "job_bindings": [self.binding("job-a")]}
+        answer.update(members)
+        return answer
+
+    def binding(self, job_id, **members):
+        """One Job's own binding, defaulted from this fixture's own values."""
+        held = {"job_id": job_id, "job_work_id": self.work,
+                "review_work_id": self.work,
+                "line_declared_base": "a" * 40,
+                "canonical_target_id": "target-1",
+                "source_worker_id": "implementation-worker"}
+        held.update(members)
+        return held
+
+    def multi_held(self, **members):
+        return stage_execution.held_configuration(
+            self.document(**self.multi(**members)), checkout=self.checkout)
+
+    def multi_refused(self, **members):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.multi_held(**members)
+        return caught.exception
+
+    def serving_multi(self, **members):
+        return self.serving(**self.multi(**members))
+
+    def deployment_of(self, composed):
+        return composed.workers[0]["operations"]._worker.stage.deployment
+
+    # -- configuration --------------------------------------------------------
+
+    def test_the_variant_admits_several_workers_for_one_role(self):
+        held = self.multi_held()
+        self.assertEqual(held["schema"], stage_execution.MULTI_CONFIG_SCHEMA)
+        self.assertEqual(
+            [(one["worker_id"], one["role"]) for one in held["workers"]],
+            [("implementation-worker", "implementation"),
+             ("implementation-worker-2", "implementation"),
+             ("review-worker", "review"),
+             ("review-worker-2", "review"),
+             ("integration-worker", "integration")])
+
+    def test_the_one_job_document_still_refuses_a_repeated_role(self):
+        """The closed variant is closed, said beside the one that opens it."""
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.held_configuration(
+                self.document(**dict(self.multi(),
+                                     schema=stage_execution.CONFIG_SCHEMA)),
+                checkout=self.checkout)
+        self.assertIn("exactly one", caught.exception.message)
+
+    def test_a_repeated_worker_identity_is_refused(self):
+        """The rule `/1` got for free from its roles: the pool tells its
+        workers apart by identity, so it cannot hold one twice."""
+        workers = self.multi()["workers"]
+        workers[1] = dict(workers[1], worker_id="implementation-worker")
+        self.assertIn("cannot hold it twice",
+                      self.multi_refused(workers=workers).message)
+
+    def test_a_participant_serving_both_sides_of_a_review_is_refused(self):
+        """Independence is the whole reason a review exists, and the wider
+        pool is not bought with it."""
+        workers = copy.deepcopy(self.multi()["workers"])
+        workers[3]["deployment"]["participant"] = self.SECOND_PRODUCER
+        held = self.multi_refused(workers=workers)
+        self.assertEqual((held.category, held.code), ("policy", "denied"))
+        workers = copy.deepcopy(self.multi()["workers"])
+        workers[3]["deployment"]["principal"] = \
+            self.principals[self.SECOND_PRODUCER]
+        self.assertEqual(self.multi_refused(workers=workers).category,
+                         "policy")
+
+    def test_another_authority_and_a_role_mismatch_still_refuse(self):
+        workers = copy.deepcopy(self.multi()["workers"])
+        workers[1]["deployment"]["authority_uuid"] = "0" * 32
+        self.assertEqual(self.multi_refused(workers=workers).code, "capability")
+        workers = copy.deepcopy(self.multi()["workers"])
+        workers[1]["deployment"]["launch_role"] = "review"
+        self.assertIn("configured for it",
+                      self.multi_refused(workers=workers).message)
+
+    def test_every_role_is_still_served(self):
+        """The REQUIRED roles, that is: review here. The integrator is
+        optional under owner 2026-09-20T14:57:48Z, and its absence from a
+        multi-worker pool is the admitted PR shape."""
+        workers = [one for one in self.multi()["workers"]
+                   if one["role"] != "review"]
+        self.assertIn("review",
+                      self.multi_refused(workers=workers).message)
+
+    def test_a_multi_pool_without_an_integrator_is_admitted(self):
+        workers = [one for one in self.multi()["workers"]
+                   if one["role"] != "integration"]
+        self.multi_held(workers=workers)
+
+    # -- activation and reconstruction ----------------------------------------
+
+    def test_every_configured_worker_reaches_the_pool_with_its_own_lane(self):
+        """The scheduler's own rule, quoted rather than restated: a review kind
+        is the review lane and everything else the implementation lane, and a
+        worker is eligible for exactly the kind it was configured for."""
+        from baton_v12.job_manager import scheduler
+
+        job, _control, composed = self.serving_multi()
+        self.assertEqual(scheduler.active_generation(job)["generation"], 1)
+        pooled = {one["worker_id"]: one for one in scheduler.pool_workers(job)}
+        self.assertEqual(sorted(pooled),
+                         ["implementation-worker", "implementation-worker-2",
+                          "integration-worker", "review-worker",
+                          "review-worker-2"])
+        self.assertEqual(pooled["implementation-worker-2"]["lane"],
+                         "implementation")
+        self.assertEqual(pooled["review-worker-2"]["lane"], "review")
+        self.assertEqual(pooled["implementation-worker-2"]["participant"],
+                         self.SECOND_PRODUCER)
+        self.assertEqual(sorted(composed.pooled.workers),
+                         [(1, "implementation-worker"),
+                          (1, "implementation-worker-2"),
+                          (1, "integration-worker"), (1, "review-worker"),
+                          (1, "review-worker-2")])
+
+    def test_the_eligible_kinds_are_the_roles_each_worker_was_configured_for(
+            self):
+        from baton_v12.job_manager import scheduler
+
+        job, _control, _composed = self.serving_multi()
+        # THE STORE ANSWERS ITS OWN COLUMN, which is the encoded list rather
+        # than a Python one; decoding it here is reading what was written.
+        self.assertEqual(
+            {one["worker_id"]: sorted(json.loads(one["eligible_kinds"])
+                                      if isinstance(one["eligible_kinds"], str)
+                                      else one["eligible_kinds"])
+             for one in scheduler.pool_workers(job)},
+            {"implementation-worker": ["implementation"],
+             "implementation-worker-2": ["implementation"],
+             "review-worker": ["review"], "review-worker-2": ["review"],
+             "integration-worker": ["integration"]})
+
+    def test_every_pooled_worker_carries_its_configured_profile(self):
+        from baton_v12.job_manager import scheduler
+
+        job, _control, _composed = self.serving_multi()
+        for one in scheduler.pool_workers(job):
+            self.assertEqual(one["profile_name"], self.config["profile_name"])
+            self.assertEqual(one["profile_digest"],
+                             self.config["profile_digest"])
+
+    def test_reconstruction_reattaches_the_same_pool(self):
+        """A second composition over the same stores is a RECONSTRUCTION, not
+        a new generation: `activate_pool` replays and the workers are the ones
+        already configured."""
+        from baton_v12.job_manager import scheduler
+        from tests.job_manager import fixtures
+
+        from .test_single_worker import Engine
+
+        job, control, composed = self.serving_multi()
+        before = sorted(one["worker_id"]
+                        for one in scheduler.pool_workers(job))
+        again = stage_execution.operations_from(
+            self.composed_document(**self.multi()), job, control,
+            engine_run=Engine(),
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(again.close)
+        self.assertEqual(scheduler.active_generation(job)["generation"], 1)
+        self.assertEqual(sorted(one["worker_id"]
+                                for one in scheduler.pool_workers(job)), before)
+        self.assertEqual(sorted(again.pooled.workers),
+                         sorted(composed.pooled.workers))
+
+    # -- the seam the next cut selects on -------------------------------------
+
+    def test_the_role_seam_answers_every_worker_and_never_a_singleton(self):
+        _job, _control, composed = self.serving_multi()
+        deployment = self.deployment_of(composed)
+        self.assertEqual(
+            [one["worker_id"]
+             for one in deployment.workers_for("implementation")],
+            ["implementation-worker", "implementation-worker-2"])
+        self.assertEqual(
+            [one["worker_id"] for one in deployment.workers_for("review")],
+            ["review-worker", "review-worker-2"])
+        self.assertEqual(deployment.sole_worker("integration")["worker_id"],
+                         "integration-worker")
+
+    def test_selecting_among_producers_is_still_not_a_pool_question(self):
+        """W119405 CONVERTS THE SECOND HALF OF THIS CASE, and keeps the first.
+
+        When the pool cut wrote it, `line()` reached one global Work and source
+        and refused here -- correctly, because choosing the first configured
+        producer would have been that cut inventing a binding it did not own.
+        The per-Job binding cut owns it now and answers it, so asserting the
+        refusal would be asserting the absence of a capability that has since
+        landed.
+
+        WHAT DOES NOT MOVE is the half this class is actually about: asking a
+        POOL which of several producers is "the" one is still a question with
+        no answer, and `sole_worker` still refuses it.
+        """
+        _job, _control, composed = self.serving_multi()
+        deployment = self.deployment_of(composed)
+        with self.assertRaises(ContractRefusal) as caught:
+            deployment.sole_worker("implementation")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("per-Job binding cut", caught.exception.message)
+        # AND THE LINE IS NOW REACHED THROUGH THE JOB THAT OWNS IT. This
+        # class's source is not a version-controlled tree -- it proves the
+        # POOL -- so what is asserted here is the binding the line is derived
+        # from; materializing one is the per-Job class's own proof.
+        self.assertEqual(deployment.works_for("job-a"), (self.work, self.work))
+        self.assertEqual(deployment.target_for("job-a"), "target-1")
+        self.assertEqual(deployment.binding_for("job-a")["source_worker_id"],
+                         "implementation-worker")
+        with self.assertRaises(ContractRefusal):
+            deployment.binding_for("job-nobody-bound")
+
+    def test_each_producer_gets_its_own_publisher_session(self):
+        """`Authority.publish` takes the PRODUCER's live assignment, and a
+        session refuses to act on an assignment naming somebody else -- so a
+        pool with two producers needs two publisher sessions."""
+        _job, _control, composed = self.serving_multi()
+        deployment = self.deployment_of(composed)
+        self.assertEqual(sorted(deployment.publishers),
+                         sorted([self.config["participant"],
+                                 self.SECOND_PRODUCER]))
+        self.assertEqual(
+            sorted(one for one in composed.sessions
+                   if one.startswith("publisher")),
+            sorted(["publisher:" + self.config["participant"],
+                    "publisher:" + self.SECOND_PRODUCER]))
+
+
+# W119405: the second Job's Work, named here so the binding cases read as one
+# fact rather than as a fixtures import three classes away.
+SECOND_WORK = "0000000a-W2"
+
+
+class EachJobBindsItsOwnDeploymentAndLine(ComposedOneJobCase):
+    """W119405: two Jobs, two lines, and no global fallback anywhere.
+
+    THE LIMITATION THIS ANSWERS. `StageDeployment.line` reached one source, one
+    declared base and one Work, and `_prepare` reached that line from an
+    attempt alone -- so a second submitted Job could only ever share the first
+    one's checkout. The pool cut made the deployment able to hold several
+    workers; this one makes each JOB hold its own source, base, Works, line and
+    integration target.
+
+    THE FIXTURE IS THE COMPOSED ONE, so the sources are real
+    version-controlled trees and the lines are materialized by the accepted
+    checkpoint profile rather than described. Two Jobs get two sources, and
+    what is asserted is that the accepted line provider answers two different
+    lines for them.
+
+    WHAT IS SELECTED AND HOW. A Job's binding is selected by its own `job_id`
+    and its source by a configured worker's IDENTITY; the worker serving a
+    stage is selected by the scheduler's own recorded allocation. Nothing here
+    selects by list order, which is the one thing this cut may not do.
+    """
+
+    SECOND_PRODUCER = "baton.second"
+    SECOND_REVIEWER = "baton.reviewer-2"
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.authority import Authority
+        from tests.job_manager import fixtures
+
+        # A SECOND REAL SOURCE, because a second Job's line is materialized
+        # from its own tree and a fixture that shared one would be proving the
+        # opposite of this cut.
+        self.second_source = os.path.join(self.root, "source-b")
+        os.makedirs(self.second_source)
+        self.vcs_at(self.second_source, "init", "-q", "-b", "main")
+        self.write(os.path.join(self.second_source, "harness.py"),
+                   "print('the second job')\n")
+        self.vcs_at(self.second_source, "add", "--all")
+        self.vcs_at(self.second_source, "commit", "-q", "--message", "base")
+        self.second_base = self.vcs_at(self.second_source, "rev-parse",
+                                       "HEAD").strip()
+        # W130224: AND ITS OWN TASK, because a task DECLARES ITS BASE. The
+        # workload plans its checkout from `declared_base` and refuses a base
+        # its mounted line has never heard of, so a second Job whose producer
+        # carried the FIRST Job's task could never run a turn at all -- and
+        # the required-test selection this deployment derives from the bound
+        # producer's task would have been the first Job's too. One task per
+        # producer is the same per-Job binding as one source and one Work.
+        self.second_task_document = os.path.join(self.root, "task-b.json")
+        self.second_task_bytes = json.dumps(
+            {"schema": "baton.dogfood-task/2",
+             "task_id": "w130224-second-job",
+             "instructions": "Add focused coverage for the second line.",
+             "source_root": "source", "source_profile": "git-line",
+             "declared_base": self.second_base,
+             "verification": ["python3", "harness.py"]},
+            sort_keys=True).encode("utf-8")
+        with open(self.second_task_document, "wb") as writing:
+            writing.write(self.second_task_bytes)
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            # THE SECOND WORK IS REAL. W119405 review [P1]: the fixture bound
+            # job-b to a Work this Authority did not hold and copied the first
+            # Job's task, input and Work into its producer -- so it was
+            # asserting per-Job binding over operands that were not actually
+            # distinct. `_bound_scope` reads every bound Work's own effective
+            # scope, and a Work nobody created has none to read.
+            authority.create_work(SECOND_WORK, fixtures.ROUTE,
+                                  contract="v12-assignment-1",
+                                  operation_id="create-second-job-work")
+            # UPDATED, NOT REPLACED: `composed_document` needs the reviewer
+            # and integrator principals this fixture already read.
+            self.principals.update(
+                {who: authority.principal_of(who)
+                 for who in (self.SECOND_PRODUCER, self.SECOND_REVIEWER)})
+            # W130224: AND THE TWO ROUTES THE SECOND JOB'S OWN HANDOFFS MOVE
+            # ITS WORK TO. `ServingCase` declares them for the first Job's
+            # producer and reviewer for exactly this reason: a fenced handoff
+            # moves the Work onto the route the NEXT role is served on, and a
+            # participant the Authority does not know serves that route has
+            # its claim refused there -- which is a fixture that never
+            # authorized the next role rather than a defect in the handoff.
+            # The route says who MAY claim; which of them actually does is the
+            # scheduler's allocation, which is per Job and proved as that.
+            for route, who in ((fixtures.ROUTE, self.SECOND_PRODUCER),
+                               ("rview", self.SECOND_REVIEWER)):
+                authority.add_route_handler(route, who)
+        finally:
+            authority.dispose()
+
+    def vcs_at(self, place, *arguments):
+        import subprocess
+
+        argv = ["git", "-C", place] + list(arguments)
+        answer = subprocess.run(
+            argv, capture_output=True, text=True, timeout=300,
+            env=dict(self.environment(), GIT_AUTHOR_NAME="Baton Test",
+                     GIT_AUTHOR_EMAIL="test@baton.invalid",
+                     GIT_COMMITTER_NAME="Baton Test",
+                     GIT_COMMITTER_EMAIL="test@baton.invalid"))
+        self.assertEqual(answer.returncode, 0, f"{argv}: {answer.stderr}")
+        return answer.stdout
+
+    def manifest_for(self, work_id):
+        """THIS Job's own held input manifest, derived and not copied.
+
+        W130216. The predecessor's fixture left Job B's producer on Work A and
+        changed only the source and participant, so the per-Job cases were
+        asserted over operands that were never actually distinct. A manifest
+        names its Work, and its digest is over the whole document -- so a Job
+        on another Work has another manifest and another submitted input.
+        """
+        from baton_v12.contracts import digest, digest_of_bytes
+
+        manifest = copy.deepcopy(self.manifest)
+        manifest["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
+        # W130224: AND THE TASK THIS JOB'S PRODUCER ACTUALLY CARRIES. The
+        # human contract names the task's bytes, and a Job on another line
+        # declares another base -- so a manifest that kept the first Job's
+        # digest would describe a task its own producer does not hold.
+        payload = self.task_for(work_id)
+        manifest["human_contract"] = dict(
+            manifest["human_contract"], bytes=len(payload),
+            content_digest=digest_of_bytes(payload))
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        return manifest
+
+    def manifest_over(self, work_id, payload):
+        """One Work's manifest naming an EXPLICIT task's bytes.
+
+        `manifest_for` answers for the task this fixture binds to that Work.
+        A case that configures a producer with another task -- W130224's
+        traversal binds its second Job to a second line of the SAME canonical
+        target -- names that task's bytes here rather than reaching past the
+        human contract the deployment validates the pair against.
+        """
+        from baton_v12.contracts import digest, digest_of_bytes
+
+        manifest = copy.deepcopy(self.manifest)
+        manifest["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
+        manifest["human_contract"] = dict(
+            manifest["human_contract"], bytes=len(payload),
+            content_digest=digest_of_bytes(payload))
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        return manifest
+
+    def task_for(self, work_id):
+        """The task document bytes the producer bound to this Work holds."""
+        return (self.second_task_bytes if work_id == SECOND_WORK
+                else self.task_bytes)
+
+    def task_document_for(self, work_id):
+        """The task document path a worker serving this Work carries."""
+        return (self.second_task_document if work_id == SECOND_WORK
+                else self.task_document)
+
+    def bound_worker(self, worker, work_id):
+        """Point one configured worker at a Job's manifest AND its task.
+
+        W130224. `single_worker._held` cross-checks the configured task
+        document's bytes against the manifest's own human contract, so the
+        two move together or the deployment refuses to compose at all. One
+        helper is where they move, because two call sites that each moved one
+        of them is exactly how they would come apart.
+        """
+        worker["deployment"]["input_manifest"] = self.manifest_for(work_id)
+        worker["deployment"]["task_document"] = \
+            self.task_document_for(work_id)
+        return worker
+
+    def role_worker(self, role, work_id, worker_id, **members):
+        """One configured worker, coherent with the Job it will serve."""
+        held = self.worker(role, **members)
+        held["worker_id"] = worker_id
+        return self.bound_worker(held, work_id)
+
+    def second_submission(self, **members):
+        """Job B, submitted against ITS OWN input and Work."""
+        from tests.job_manager import fixtures
+
+        given = {"job_id": "job-b",
+                 "input_digest": job_input_identity(
+                     self.manifest_for(SECOND_WORK)),
+                 "policy_digest": fixtures.POLICY_DIGEST,
+                 "stages": [
+                     fixtures.stage("implementation", SECOND_WORK),
+                     # STANDALONE, and deliberately: this isolates the same
+                     # admission callback ordinary review reaches after
+                     # implementation, without a full traversal that belongs
+                     # to a successor. It is the reviewer's own probe shape.
+                     fixtures.stage("review", SECOND_WORK),
+                     fixtures.stage("integration", SECOND_WORK,
+                                    depends_on=[{"job_id": "job-b",
+                                                 "kind": "review"}])]}
+        given.update(members)
+        # ONE SUBMISSION, TWO JOBS -- which is what a multi-Job deployment
+        # actually receives, and a second submission id would be proving
+        # something about replay instead.
+        return fixtures.submission(
+            jobs=[copy.deepcopy(self.submission["jobs"][0]),
+                  fixtures.job(**given)])
+
+    def two_jobs(self, **members):
+        """One `/2` document binding two Jobs to two sources and two Works."""
+        given = self.composed_document(line_declared_base=self.base)
+        held = {one["role"]: one for one in given["workers"]}
+        producer = copy.deepcopy(held["implementation"])
+        producer["worker_id"] = "implementation-worker-b"
+        self.bound_worker(producer, SECOND_WORK)
+        producer["deployment"]["participant"] = self.SECOND_PRODUCER
+        producer["deployment"]["principal"] = \
+            self.principals[self.SECOND_PRODUCER]
+        # ITS OWN SOURCE, named as the RAW member the worker document carries;
+        # `single_worker._held` is what turns it into the held nomination this
+        # deployment binds a Job's line to.
+        producer["deployment"]["nominated_source"] = self.second_source
+        # EVERY ROLE OF JOB B, coherent with Job B. W130216 review [P1]: the
+        # review and integration workers were left on Job A's Work, so the
+        # only thing the fixture could prove about them was that admission
+        # reserved one and `single_worker` refused it afterwards.
+        #
+        # ONE INTEGRATION WORKER, AND THE REASON IS MEASURED RATHER THAN
+        # ASSUMED. A second record under the same actor is refused by
+        # `scheduler.own_pool`, which requires one participant per worker
+        # because two entries sharing one are not distinct capacity; and a
+        # second ACTOR would contradict the single configured
+        # `integrator_participant` that the integration profile and all four
+        # receipt sessions belong to -- which is the multi-integrator provider
+        # this Work may not imply. So the second Job's integration stage is a
+        # reported boundary, asserted below as a refusal BEFORE allocation
+        # rather than worked around here.
+        workers = [
+            held["implementation"], held["review"], held["integration"],
+            producer,
+            self.role_worker("review", SECOND_WORK, "review-worker-b",
+                             participant=self.SECOND_REVIEWER,
+                             principal=self.principals[self.SECOND_REVIEWER],
+                             review_route=self.INTEGRATION_ROUTE)]
+        answer = {
+            "schema": stage_execution.MULTI_CONFIG_SCHEMA,
+            "workers": workers,
+            "job_bindings": [
+                {"job_id": "job-a", "job_work_id": self.work,
+                 "review_work_id": self.work,
+                 "line_declared_base": self.base,
+                 "canonical_target_id": "target-a",
+                 "source_worker_id": "implementation-worker"},
+                {"job_id": "job-b", "job_work_id": SECOND_WORK,
+                 "review_work_id": SECOND_WORK,
+                 "line_declared_base": self.second_base,
+                 "canonical_target_id": "target-b",
+                 "source_worker_id": "implementation-worker-b"}]}
+        answer.update(members)
+        return answer
+
+    def held_two(self, **members):
+        return stage_execution.held_configuration(
+            self.composed_document(**self.two_jobs(**members)),
+            checkout=self.checkout)
+
+    def refused_two(self, **members):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.held_two(**members)
+        return caught.exception
+
+    def serving_two(self, **members):
+        return self.serving(**self.two_jobs(**members))
+
+    def deployment_of(self, composed):
+        return composed.workers[0]["operations"]._worker.stage.deployment
+
+    # -- the binding, held before anything durable ----------------------------
+
+    def test_each_job_binds_its_own_source_base_works_and_target(self):
+        held = self.held_two()
+        bound = {one["job_id"]: one for one in held["job_bindings"]}
+        self.assertEqual(sorted(bound), ["job-a", "job-b"])
+        self.assertEqual(bound["job-a"]["canonical_target_id"], "target-a")
+        self.assertEqual(bound["job-b"]["canonical_target_id"], "target-b")
+        self.assertEqual(bound["job-b"]["job_work_id"], SECOND_WORK)
+        self.assertNotEqual(bound["job-a"]["line_declared_base"],
+                            bound["job-b"]["line_declared_base"])
+        self.assertEqual(bound["job-b"]["source_worker_id"],
+                         "implementation-worker-b")
+
+    def test_two_bindings_for_one_job_are_refused(self):
+        bindings = self.two_jobs()["job_bindings"]
+        held = self.refused_two(job_bindings=bindings + [bindings[0]])
+        self.assertIn("binds one source", held.message)
+
+    def test_a_source_worker_this_deployment_does_not_configure_is_refused(
+            self):
+        bindings = copy.deepcopy(self.two_jobs()["job_bindings"])
+        bindings[1]["source_worker_id"] = "implementation-worker-nobody"
+        held = self.refused_two(job_bindings=bindings)
+        self.assertEqual((held.category, held.code),
+                         ("refused", "precondition"))
+        self.assertIn("does not configure", held.message)
+
+    def test_a_review_work_that_differs_from_the_implementation_is_refused(
+            self):
+        """One development line carries one Work, and `attach_review` binds the
+        reviewer to the writer's own -- so those stages could never attach."""
+        bindings = copy.deepcopy(self.two_jobs()["job_bindings"])
+        bindings[1]["review_work_id"] = self.work
+        held = self.refused_two(job_bindings=bindings)
+        self.assertIn("could never be attached", held.message)
+
+    def test_the_one_job_document_carries_no_bindings(self):
+        """Two places for one fact is how they drift: `/1` says these things
+        once, globally, and is refused for saying them twice."""
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.held_configuration(
+                self.composed_document(
+                    line_declared_base=self.base,
+                    job_bindings=self.two_jobs()["job_bindings"]),
+                checkout=self.checkout)
+        self.assertIn("names no job_bindings", caught.exception.message)
+
+    def test_the_one_job_document_still_derives_its_own_binding(self):
+        """`/1` is not asked for a new member; its binding is derived from what
+        it already says, so every existing assertion about those members
+        stands."""
+        held = stage_execution.held_configuration(
+            self.composed_document(line_declared_base=self.base),
+            checkout=self.checkout)
+        [binding] = held["job_bindings"]
+        self.assertIsNone(binding["job_id"])
+        self.assertEqual(binding["job_work_id"], self.work)
+        self.assertEqual(binding["line_declared_base"], self.base)
+        self.assertEqual(binding["canonical_target_id"],
+                         held["canonical_target_id"])
+
+    # -- two Jobs, two real lines ---------------------------------------------
+
+    def test_two_jobs_materialize_two_distinct_persistent_lines(self):
+        """THE LIMITATION, GONE. `create_line` derives its identity from
+        `(authority, work)`, so two bound Works give two checkouts -- and each
+        is materialized from its OWN nominated source at its OWN declared
+        base, proved by reading the line back through the accepted provider."""
+        from baton_v12.worker_manager import line_of
+
+        _job, control, composed = self.serving_two()
+        deployment = self.deployment_of(composed)
+        first = deployment.line_for("job-a")
+        second = deployment.line_for("job-b")
+        self.assertNotEqual(first["line_id"], second["line_id"])
+        self.assertNotEqual(first["line_path"], second["line_path"])
+        self.assertEqual(first["work_id"], self.work)
+        self.assertEqual(second["work_id"], SECOND_WORK)
+        self.assertEqual(first["declared_base"], self.base)
+        self.assertEqual(second["declared_base"], self.second_base)
+        self.assertEqual(first["source_path"], self.source)
+        self.assertEqual(second["source_path"], self.second_source)
+        # READ BACK THROUGH THE PROVIDER'S OWN READER, not from what this
+        # composition just returned.
+        self.assertEqual(line_of(control, second["line_id"])["declared_base"],
+                         self.second_base)
+
+    def test_the_same_job_reaches_the_same_line_every_time(self):
+        """`create_line` is create-or-recover by that derived identity, so a
+        second composition over the same stores recovers rather than making a
+        second checkout -- which is what makes a correction the same line."""
+        _job, control, composed = self.serving_two()
+        deployment = self.deployment_of(composed)
+        first = deployment.line_for("job-b")
+        again = self.deployment_of(composed).line_for("job-b")
+        self.assertEqual(again["line_id"], first["line_id"])
+        self.assertEqual(again["line_path"], first["line_path"])
+
+    def test_an_unbound_job_is_refused_before_any_line_is_made(self):
+        from baton_v12.worker_manager import review_cycles
+
+        _job, control, composed = self.serving_two()
+        deployment = self.deployment_of(composed)
+        before = control._connection.execute(
+            "SELECT count(*) FROM review_lines").fetchone()[0]
+        with self.assertRaises(ContractRefusal) as caught:
+            deployment.line_for("job-nobody-submitted")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("binds no Job", caught.exception.message)
+        self.assertEqual(control._connection.execute(
+            "SELECT count(*) FROM review_lines").fetchone()[0], before)
+        del review_cycles
+
+    def test_one_line_asked_of_a_two_job_deployment_names_its_job(self):
+        """`line()` is the one-Job spelling and says so: a line belongs to a
+        Job, so a deployment serving two is asked which."""
+        _job, _control, composed = self.serving_two()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.deployment_of(composed).line()
+        self.assertIn("so its Job is named", caught.exception.message)
+
+    # -- the worker a stage reaches is the allocated one ----------------------
+
+    def test_the_worker_for_a_stage_is_the_scheduler_s_allocation(self):
+        """Actual allocation evidence selects a worker; list order never
+        does."""
+        from baton_v12.job_manager import scheduler, submit
+
+        job, _control, composed = self.serving_two()
+        submit(job, self.submission)
+        self.drive(job, composed, "implementation", "waiting")
+        # THE EPISODE'S OWN ATTEMPT, read from the Job store. With two
+        # implementation workers `only_attempt` reads one worker's prepared
+        # map, and which one prepared is the SCHEDULER's answer -- which is the
+        # very thing this case is about.
+        from baton_v12.job_manager import live_of
+
+        attempt_id = live_of(job, "job-a/implementation")["attempt_id"]
+        deployment = self.deployment_of(composed)
+        allocated = scheduler.allocation_of(job, attempt_id)
+        self.assertIsNotNone(allocated)
+        stage = {"stage_id": "job-a/implementation", "job_id": "job-a",
+                 "attempt_id": attempt_id, "kind": "implementation"}
+        self.assertEqual(deployment.worker_for(stage)["worker_id"],
+                         allocated["worker_id"])
+        # AND IT IS ONE OF THE CONFIGURED PRODUCERS rather than whichever the
+        # composition happens to list first.
+        self.assertIn(allocated["worker_id"],
+                      ["implementation-worker", "implementation-worker-b"])
+
+    def test_a_stage_with_no_allocation_is_refused_rather_than_guessed(self):
+        _job, _control, composed = self.serving_two()
+        deployment = self.deployment_of(composed)
+        with self.assertRaises(ContractRefusal) as caught:
+            deployment.worker_for({"stage_id": "job-a/implementation",
+                                   "job_id": "job-a",
+                                   "attempt_id": "attempt-nobody-allocated",
+                                   "kind": "implementation"})
+        self.assertIn("not this composition's order", caught.exception.message)
+
+
+class EveryJobRoleIsValidatedBeforeAllocation(EachJobBindsItsOwnDeploymentAndLine):
+    """W130216: every role, before the reserve, over one coherent fixture.
+
+    THE LIMITATION THIS ANSWERS. `_job_eligibility` derived compatibility only
+    when the stage kind was `implementation`. Review and integration got an
+    empty exclusion list after one Work comparison, so a review worker
+    configured for Work A was RESERVED for a Job on Work B and `single_worker`
+    refused it only afterwards -- leaving an allocation holding that worker's
+    capacity for a stage nobody could ever serve, and no admit receipt to show
+    for it. The advertised all-role compatibility was absent.
+
+    WHAT IS MEASURED IS PUBLIC AND DURABLE: the allocation rows the scheduler
+    writes and the canonical admit receipts, read back through the manager's
+    own readers after ordinary ticks. A helper returning the right answer is
+    not evidence that admission reached it.
+    """
+
+    # -- what every case below measures, and all of it is public -------------
+
+    def submitted(self, **members):
+        """Both Jobs, submitted against their own inputs and Works."""
+        from baton_v12.job_manager import submit
+
+        job, control, composed = self.serving_two(**members)
+        submit(job, self.second_submission())
+        return job, control, composed
+
+    def standalone(self, job_id, kind, work_id, **members):
+        """One Job carrying exactly one stage, coherent with its own Work.
+
+        THE REVIEWER'S OWN PROBE SHAPE, and it is deliberately not a traversal.
+        What this cut owes is that admission selects a worker that can serve
+        the Job and records the canonical offer; driving an integration
+        stage's dependencies through implementation and review to `waiting` is
+        the serial successor's Work and would spend its allocation here.
+        """
+        from tests.job_manager import fixtures
+
+        given = {"input_digest":
+                 job_input_identity(self.manifest_for(work_id)),
+                 "policy_digest": fixtures.POLICY_DIGEST,
+                 "stages": [fixtures.stage(kind, work_id)]}
+        given.update(members)
+        return fixtures.job(job_id, **given)
+
+    def offered(self, job_store, jobs):
+        """These Jobs, in ONE submission -- what a deployment receives."""
+        from baton_v12.job_manager import submit
+        from tests.job_manager import fixtures
+
+        return submit(job_store, fixtures.submission(jobs=list(jobs)))
+
+    def attempted(self, job_store, stage_id):
+        """This stage merged with the episode currently answering for it.
+
+        The public readers: `stage_rows` for the stage, `live_of` for its live
+        episode and `attempting` for the one view the seam is handed. No case
+        below reads a table of either store.
+        """
+        from baton_v12.job_manager import attempting, live_of, stage_rows
+
+        row = {one["stage_id"]: one for one in stage_rows(job_store)}[stage_id]
+        return attempting(row, live_of(job_store, stage_id))
+
+    def admitting(self, job_store, composed, stage_id):
+        """Admit one stage through the module's OWN public admission.
+
+        Answers the refusal when it refuses and `None` when it admits, so a
+        case asserts about the durable evidence either way rather than about
+        which branch raised.
+        """
+        from baton_v12.job_manager import submission
+
+        job_id = stage_id.split("/")[0]
+        stage = self.attempted(job_store, stage_id)
+        try:
+            composed.admit(stage, submission.job_of(job_store, job_id))
+        except ContractRefusal as refusal:
+            return refusal
+        return None
+
+    def allocated(self, job_store, stage_id):
+        """The worker the SCHEDULER recorded for this stage's live attempt.
+
+        W130216 review [P2]: `scheduler.allocation_of` on the attempt the live
+        episode actually names, rather than a private read of
+        `stage_allocations`. Absence is an ordinary answer -- a stage refused
+        before it reserved anything has no allocation to record.
+        """
+        from baton_v12.job_manager import live_of
+        from baton_v12.job_manager.scheduler import allocation_of
+
+        live = live_of(job_store, stage_id)
+        if live is None:
+            return None
+        held = allocation_of(job_store, live["attempt_id"])
+        return None if held is None else held["worker_id"]
+
+    def receipted(self, job_store, composed, stage_id):
+        """This stage's canonical admit receipt, read at its OWN owner.
+
+        W130216 review [P2]. An admit receipt does not live in the Job store's
+        operation journal: `ManagerOperations.admit` issues the offer through
+        the Worker Manager control store, whose committed record has identity
+        `offer.issue:offer-<digest>` and is read back through `receipt_of`. A
+        `LIKE '%admit%'` scan of the Job store could only ever answer absence,
+        which proves nothing at all about a receipt -- so every case below
+        pairs its absence with a positive control that finds one.
+
+        EVERY EPISODE OF THE STAGE IS ASKED rather than only the live one. An
+        offer identity is derived from the stage and its EPISODE, so a stage
+        that has moved on carries a live episode whose offer nobody admitted;
+        asking only that one would report an admitted stage as unadmitted, and
+        asking all of them is what makes an absent answer mean that no
+        admission of this stage ever committed a receipt.
+        """
+        from baton_v12.job_manager import episodes_of
+
+        for one in episodes_of(job_store, stage_id):
+            held = composed.receipt_of(
+                composed.canonical_operation("admit", one["offer_id"]))
+            if held is not None:
+                return held
+        return None
+
+    # -- the configurations a case needs, all coherent but for one operand ----
+
+    def incoherent(self, worker_id):
+        """The same pool with one role worker left on the FIRST Job's Work."""
+        workers = self.two_jobs()["workers"]
+        for one in workers:
+            if one["worker_id"] == worker_id:
+                self.bound_worker(one, self.work)
+        return {"workers": workers}
+
+    def swapped(self):
+        """The same pool with the two reviewers' bound Jobs exchanged.
+
+        A REDEPLOYMENT THAT MOVED A JOB, which is one of the real ways a
+        recorded allocation stops being able to serve the Job it was made for.
+        Both workers stay configured, both stay coherent with A Job, and
+        neither is invented -- only which Job each one can serve changes.
+        """
+        workers = self.two_jobs()["workers"]
+        held = {one["worker_id"]: one for one in workers}
+        self.bound_worker(held["review-worker"], SECOND_WORK)
+        self.bound_worker(held["review-worker-b"], self.work)
+        return {"workers": workers}
+
+    def recomposed(self, job_store, control, **members):
+        """A SECOND composition over the SAME durable stores.
+
+        Reconstruction is a new composition over state somebody else wrote --
+        a restart, a correction round, a redeployment. The stores, the pool
+        generation, the submitted Jobs and the recorded allocations are the
+        ones the first composition left; only the held deployment is composed
+        again, through the public entry point and with nothing hand-written.
+        """
+        from tests.job_manager import fixtures
+
+        composed = stage_execution.operations_from(
+            self.composed_document(line_declared_base=self.base,
+                                   **self.two_jobs(**members)),
+            job_store, control, engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        return composed
+
+    # -- the positives: each Job's stage reaches its own Job's worker ---------
+
+    def test_each_job_reaches_its_own_worker_for_every_role(self):
+        """The whole of this cut in one assertion per role. Job B's stages are
+        served by Job B's workers, and the lane alone could not tell them
+        apart -- both Jobs' workers are eligible for the same lane and kind."""
+        job, _control, composed = self.submitted()
+        self.drive(job, composed, "implementation", "waiting", ticks=14)
+        self.assertEqual(self.allocated(job, "job-a/implementation"),
+                         "implementation-worker")
+        self.assertEqual(self.allocated(job, "job-b/implementation"),
+                         "implementation-worker-b")
+        # AND EACH ONE ACTUALLY REACHED ITS CANONICAL OFFER, which is the
+        # difference between an allocation and an admission.
+        self.assertIsNotNone(
+            self.receipted(job, composed, "job-a/implementation"))
+        self.assertIsNotNone(
+            self.receipted(job, composed, "job-b/implementation"))
+
+    def test_a_job_never_reserves_another_jobs_review_worker(self):
+        """W130216 review [P1], exactly: job-b/review on the second Work must
+        not reserve the review worker whose manifest names the first. Both
+        review workers are eligible for the same lane and the same kind, so
+        the scheduler alone could not tell them apart -- this is the
+        compatibility the predecessor derived for implementation only."""
+        job, _control, composed = self.submitted()
+        self.drive(job, composed, "implementation", "waiting", ticks=14)
+        self.assertEqual(self.allocated(job, "job-b/review"),
+                         "review-worker-b")
+        self.assertNotEqual(self.allocated(job, "job-b/review"),
+                            "review-worker")
+        # THE ALLOCATION IS WHAT THIS CASE IS ABOUT, and its canonical offer
+        # deliberately is not: both of Job B's stages name Job B's Work, and
+        # the Authority allows one live offer per Work at a time -- so this
+        # stage's offer waits on the implementation stage's rather than on
+        # anything this cut decides. The receipt evidence is measured where it
+        # is this cut's own, in the public admission cases below.
+
+    def test_the_first_jobs_integration_reaches_the_configured_integrator(
+            self):
+        """The control the second Job's case is read against: the one-Job
+        answer is exactly what it was, through public admission."""
+        job, _control, composed = self.serving_two()
+        self.offered(job, [self.standalone("job-a", "integration", self.work)])
+        self.assertIsNone(self.admitting(job, composed, "job-a/integration"))
+        self.assertEqual(self.allocated(job, "job-a/integration"),
+                         "integration-worker")
+        self.assertIsNotNone(
+            self.receipted(job, composed, "job-a/integration"))
+
+    def test_the_second_jobs_integration_reaches_the_same_integrator(self):
+        """W130216 review [P1], AND THE ACCEPTED POSITIVE THIS CHILD OWED.
+
+        The predecessor made this stage's refusal its expected outcome on the
+        reading that a second Job needs a second integration worker. It does
+        not. One deployment names one `integrator_participant` and
+        `scheduler.own_pool` gives that participant one pool worker -- so the
+        capacity is one, and it stays one. What is per Job is the OPERAND SET
+        that one worker serves a stage under: the Work and the submitted input
+        are the Job's own, derived from the producer its binding already names.
+        So Job B's integration stage is admitted onto the same configured
+        integrator, with its own canonical offer.
+        """
+        job, _control, composed = self.serving_two()
+        self.offered(job, [
+            self.standalone("job-b", "integration", SECOND_WORK)])
+        self.assertIsNone(self.admitting(job, composed, "job-b/integration"))
+        self.assertEqual(self.allocated(job, "job-b/integration"),
+                         "integration-worker")
+        self.assertIsNotNone(
+            self.receipted(job, composed, "job-b/integration"))
+
+    def test_one_integrator_serves_two_jobs_serially_and_says_so(self):
+        """AND THE CAPACITY IS STILL ONE, which is the honest half of the
+        answer above. With Job A's integration holding the one integrator,
+        Job B's is refused for CAPACITY rather than for compatibility -- the
+        scheduler's own sentence about a reserved worker, not this assembly's
+        about a worker that could never serve the Job. Nothing is reserved
+        twice and no second actor is implied."""
+        job, _control, composed = self.serving_two()
+        self.offered(job, [
+            self.standalone("job-a", "integration", self.work),
+            self.standalone("job-b", "integration", SECOND_WORK)])
+        self.assertIsNone(self.admitting(job, composed, "job-a/integration"))
+        refusal = self.admitting(job, composed, "job-b/integration")
+        self.assertIsNotNone(refusal)
+        self.assertIn("capacity is reserved", refusal.message)
+        self.assertNotIn("can serve Job", refusal.message)
+        self.assertEqual(self.allocated(job, "job-a/integration"),
+                         "integration-worker")
+        self.assertIsNone(self.allocated(job, "job-b/integration"))
+        self.assertIsNone(self.receipted(job, composed, "job-b/integration"))
+
+    # -- the negatives: no allocation and no receipt, not a late refusal -----
+
+    def test_a_role_worker_on_another_work_reaches_no_allocation(self):
+        """THE MEASURED BOUNDARY. With job-b's review worker left on Work A,
+        no allocation is recorded for that stage and no admit receipt exists
+        -- rather than a RESERVED allocation holding capacity for a stage
+        `single_worker` must then refuse forever, one tick at a time. The
+        positive control is the same Job's implementation stage, which is
+        coherent and therefore reaches both."""
+        job, _control, composed = self.serving_two(
+            **self.incoherent("review-worker-b"))
+        self.offered(job, [
+            self.standalone("job-b", "review", SECOND_WORK)])
+        refusal = self.admitting(job, composed, "job-b/review")
+        self.assertIsNotNone(refusal)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("refused", "precondition"))
+        self.assertIn("can serve Job 'job-b'", refusal.message)
+        self.assertIsNone(self.allocated(job, "job-b/review"))
+        self.assertIsNone(self.receipted(job, composed, "job-b/review"))
+
+    def test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt(self):
+        """The positive half of the control above, so an absent receipt is
+        evidence of a refusal rather than of a reader that finds nothing."""
+        job, _control, composed = self.serving_two(
+            **self.incoherent("review-worker-b"))
+        self.offered(job, [
+            self.standalone("job-b", "implementation", SECOND_WORK)])
+        self.assertIsNone(self.admitting(job, composed,
+                                         "job-b/implementation"))
+        self.assertEqual(self.allocated(job, "job-b/implementation"),
+                         "implementation-worker-b")
+        self.assertIsNotNone(
+            self.receipted(job, composed, "job-b/implementation"))
+
+    def test_an_incompatible_stage_does_not_consume_capacity_a_job_needs(self):
+        """FAULT CAPACITY, AT THE WORKER THE FAULT ACTUALLY THREATENED.
+
+        W130216 review [P2]: the predecessor measured implementation
+        allocations, which the incoherent REVIEW stage never competed for. The
+        worker job-b/review would have reserved is `review-worker` -- Job A's
+        own reviewer, on Job A's Work -- so what proves the refusal took
+        nothing is that Job A's review stage still reserves exactly that
+        worker and records its own canonical offer afterwards.
+        """
+        job, _control, composed = self.serving_two(
+            **self.incoherent("review-worker-b"))
+        self.offered(job, [
+            self.standalone("job-b", "review", SECOND_WORK),
+            self.standalone("job-a", "review", self.work)])
+        # THE FAULT FIRST, so the capacity question is asked after it.
+        self.assertIsNotNone(self.admitting(job, composed, "job-b/review"))
+        self.assertIsNone(self.allocated(job, "job-b/review"))
+        self.assertIsNone(self.admitting(job, composed, "job-a/review"))
+        self.assertEqual(self.allocated(job, "job-a/review"), "review-worker")
+        self.assertIsNotNone(self.receipted(job, composed, "job-a/review"))
+
+    # -- reconstruction, where the pre-reserve callback is never consulted ----
+
+    def test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted(
+            self):
+        """`_allocation` consults the pre-reserve callback ONLY when it creates
+        a reservation. An allocation recorded before this deployment bound the
+        Job is otherwise used on every later tick with nothing re-deriving
+        whether that worker still serves it.
+
+        W130216 review [P2]: the state this reaches is REAL. A first
+        composition admits job-b/review publicly and the scheduler reserves
+        `review-worker-b` for it. A second composition over the same stores
+        exchanges the two reviewers' Jobs, which is an ordinary redeployment
+        -- and now the recorded worker is the one that cannot serve Job B.
+        Nothing is written into `stage_allocations` by this case.
+        """
+        job, control, composed = self.serving_two()
+        self.offered(job, [
+            self.standalone("job-b", "review", SECOND_WORK)])
+        self.assertIsNone(self.admitting(job, composed, "job-b/review"))
+        self.assertEqual(self.allocated(job, "job-b/review"),
+                         "review-worker-b")
+        again = self.recomposed(job, control, **self.swapped())
+        refusal = self.admitting(job, again, "job-b/review")
+        self.assertIsNotNone(refusal)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("refused", "precondition"))
+        self.assertIn("already holds an allocation", refusal.message)
+        # AND IT ADDED NOTHING AND REMOVED NOTHING.
+        self.assertEqual(self.allocated(job, "job-b/review"),
+                         "review-worker-b")
+
+
+class _ConcurrentEngine:
+    """One observable OCI process boundary holding SEVERAL containers.
+
+    W130224. `test_single_worker.Engine` is the accepted single-container
+    model and this is deliberately not a change to it: the cases that own it
+    start one container at a time and the fact it models is true for them.
+    Two Jobs coding simultaneously is a different fact, and it belongs to the
+    fixture that needs it.
+    """
+
+    def __init__(self):
+        self.vectors = []
+        self.records = {}
+        self.minted = 0
+        self._stopped = False
+
+    @property
+    def starts(self):
+        """THE LAUNCH VECTORS, either shape -- one per container composed.
+
+        W275774: a governed launch is `create` then `start`, so counting `run` alone
+        would report zero launches for every governed deployment. The custody helper's
+        own `run --entrypoint` is not a launch and is excluded, which the previous
+        spelling never had to say.
+        """
+        return [one for one in self.vectors
+                if one[1] in ("run", "create") and "--entrypoint" not in one]
+
+    @property
+    def runtime_id(self):
+        """The last identity started, for the readers that ask for one."""
+        live = [one for one, held in self.records.items() if not held["gone"]]
+        return live[-1] if live else None
+
+    @property
+    def stopped(self):
+        return self._stopped
+
+    @stopped.setter
+    def stopped(self, value):
+        """Deployment-wide quiescence, which is what the callers mean by it."""
+        self._stopped = bool(value)
+        if value:
+            for held in self.records.values():
+                held["running"] = False
+
+    def __call__(self, argv, *, seconds=None):
+        del seconds
+        from tests.manager.test_custody import reported
+
+        self.vectors.append(list(argv))
+        verb = argv[1]
+        if verb == "run" and "--entrypoint" in argv:
+            # THE CUSTODY HELPER, answering the verb it was asked for -- its
+            # own last operand, exactly as the accepted helper reads it.
+            # W257624 R2: the verb, and the token when this product sends one.
+            verb, carried = custodian_answer(argv)
+            return self.answer(stdout=json.dumps(
+                reported(verb) if carried is None
+                else reported(verb, carried)))
+        if verb == "run":
+            return self._started(argv)
+        # W275774, review 2026-09-26T22-29-30Z: THE TWO-ACT LAUNCH, modelled here too.
+        #
+        # A governed start composes `create` and then `start`: the container must exist so
+        # a resource token can be bound to it, and it must NOT be running until the
+        # activation says so. This double answered neither verb, so `create` fell through
+        # to the bare answer at the bottom -- empty stdout, no record -- and every governed
+        # implementation start reported a start with no runtime, which projected the stage
+        # `exceptional`. `test_single_worker.Engine` has modelled both acts since the split;
+        # this is the same correction in the double that holds SEVERAL containers.
+        if verb == "create":
+            return self._started(argv, running=False)
+        if verb == "start":
+            # THE SECOND ACT NAMES WHAT IT ACTIVATES. An activation of an identity this
+            # engine never created is the engine's own absence sentence, so a case that
+            # bound one container and activated another cannot pass.
+            activating = self.records.get(argv[-1])
+            if activating is None or activating["gone"]:
+                return self.answer(
+                    status=1,
+                    stderr=("Error response from daemon: No such container: "
+                            + argv[-1]))
+            activating["running"] = True
+            self._stopped = False
+            return self.answer()
+        held = self.records.get(argv[-1])
+        if verb == "rm":
+            if held is not None:
+                held["gone"] = True
+                held["running"] = False
+            return self.answer()
+        if verb == "stop":
+            if held is not None:
+                held["running"] = False
+            return self.answer()
+        if verb == "ps":
+            return self.answer(stdout="".join(
+                json.dumps({"ID": one, "Image": row["image"],
+                            "Labels": dict(row["labels"])}) + "\n"
+                for one, row in sorted(self.records.items())
+                if not row["gone"] and self._selected(argv, row)))
+        if verb == "inspect":
+            if held is None or held["gone"]:
+                # THE ENGINE'S OWN ABSENCE SENTENCE, NAMING THIS IDENTITY.
+                # `observe` refuses to read absence out of any other prose.
+                return self.answer(
+                    status=1,
+                    stderr=("Error response from daemon: No such container: "
+                            + argv[-1]))
+            return self.answer(stdout=json.dumps(
+                {"Id": argv[-1], "State": {"Running": held["running"]},
+                 "Mounts": list(held["mounts"])}))
+        return self.answer()
+
+    def _started(self, argv, running=True):
+        self.minted += 1
+        runtime_id = f"runtime-single-{self.minted}"
+        labels, mounts = {}, []
+        for index, operand in enumerate(argv[:-1]):
+            if operand == "--label":
+                name, value = argv[index + 1].split("=", 1)
+                labels[name] = value
+            elif operand == "--mount":
+                parts = dict(part.split("=", 1) for part in
+                             argv[index + 1].split(",") if "=" in part)
+                mounts.append({"Source": parts["source"],
+                               "Destination": parts["target"],
+                               "RW": parts["readonly"] == "false"})
+        # A FRESH CONTAINER IS RUNNING, whatever any other one is doing.
+        self._stopped = False
+        self.records[runtime_id] = {"image": argv[-1], "labels": labels,
+                                    "mounts": mounts, "running": running,
+                                    "gone": False}
+        return self.answer(stdout=runtime_id + "\n")
+
+    @staticmethod
+    def _selected(argv, row):
+        """Every `--filter label=name=value` this listing was given holds."""
+        for index, operand in enumerate(argv[:-1]):
+            if operand != "--filter":
+                continue
+            kind, _, rest = argv[index + 1].partition("=")
+            if kind != "label":
+                return False
+            name, _, value = rest.partition("=")
+            if row["labels"].get(name) != value:
+                return False
+        return True
+
+    @staticmethod
+    def answer(status=0, stdout="", stderr=""):
+        return {"status": status, "stdout": stdout, "stderr": stderr}
+
+
+class TheTargetDescriptorIsNotCapacity(unittest.TestCase):
+    """W202663 D4 — a live target survives a capacity change.
+
+    THE DEFECT. `activate_targets` composed "at pool generation {n}" into the
+    target description, and `queue.activate_target` compares the WHOLE document
+    digest for an existing key. So adding a worker advanced the pool
+    generation, re-described a live target, and the installed start refused
+    `policy/denied`: "a live target's identity is not re-described". Two
+    correct rules that could not both hold.
+
+    THE CORRECTION, under owner ruling 2026-09-19T02:44:19Z: a NEW target gets
+    a description that cannot move, and an EXISTING one is adopted exactly as
+    stored. Both halves matter -- review208415 warned that merely dropping the
+    generation and presenting the new document for an old key re-describes it
+    just as surely.
+
+    EVERY CASE DRIVES THE REAL `activate_targets` AGAINST A REAL
+    `IntegrationStore`. The deployment is constructed through `__new__` because
+    this method reads exactly two attributes and a full one would need an
+    Authority, a Job store, sessions and an engine that none of these questions
+    touch -- but the store, the public reader and the refusal are all the
+    product's own.
+    """
+
+    TARGET = "w202663-d4-target"
+    AUTHORITY = "cf92cbff7ffc456c96e9a6345de293f5"
+
+    def setUp(self):
+        import tempfile
+
+        self.temp = tempfile.TemporaryDirectory(prefix="w202663-d4-")
+        self.addCleanup(self.temp.cleanup)
+        self.path = os.path.join(self.temp.name, "integration.sqlite3")
+
+    def store(self):
+        from baton_v12.integration import IntegrationStore
+        from tests.job_manager import fixtures
+
+        held = IntegrationStore.open(self.path, incarnation="d4-case",
+                                     clock=lambda: fixtures.NOW)
+        self.addCleanup(held.close)
+        return held
+
+    def deployment(self, store, *, generation, target=None):
+        """The real method, on the two attributes it actually reads."""
+        held = stage_execution.StageDeployment.__new__(
+            stage_execution.StageDeployment)
+        held.integration = store
+        held.given = {
+            "authority_uuid": self.AUTHORITY,
+            "pool_generation": generation,
+            "job_bindings": [{"canonical_target_id": target or self.TARGET}]}
+        return held
+
+    def stored(self, store):
+        from baton_v12.integration import target_of
+
+        return target_of(store, self.TARGET)
+
+    def test_a_new_target_is_described_without_its_pool_generation(self):
+        """The whole point: nothing in a new descriptor moves with capacity."""
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        document = self.stored(store)["document"]
+        self.assertNotIn("generation", document["description"])
+        self.assertIn(self.AUTHORITY, document["description"])
+
+    def test_an_exact_repeat_replays_rather_than_colliding(self):
+        """A restart composes the same deployment again and must be one act."""
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        first = self.stored(store)
+        self.deployment(store, generation=1).activate_targets()
+        self.assertEqual(self.stored(store), first)
+
+    def test_a_capacity_change_no_longer_re_describes_a_live_target(self):
+        """THE REGRESSION. This is the exact sequence that refused: activate at
+        one generation, then activate the same target from a deployment whose
+        pool has advanced."""
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        before = self.stored(store)
+        self.deployment(store, generation=2).activate_targets()
+        self.assertEqual(self.stored(store), before,
+                         "a capacity change must not touch the target")
+
+    def test_a_legacy_generation_bearing_descriptor_is_preserved(self):
+        """A target activated by the OLD code keeps its document, its fence and
+        its identity. Adopting it must not rewrite it into the new shape."""
+        from baton_v12.integration import TARGET_SCHEMA, activate_target
+
+        store = self.store()
+        legacy = {"schema": TARGET_SCHEMA,
+                  "canonical_target_id": self.TARGET,
+                  "description": f"configured by stage-execution deployment "
+                                 f"{self.AUTHORITY} at pool generation 1"}
+        activate_target(store, dict(legacy))
+        before = self.stored(store)
+        self.deployment(store, generation=7).activate_targets()
+        held = self.stored(store)
+        self.assertEqual(held["document"], legacy)
+        self.assertEqual(held, before)
+
+    def test_a_genuinely_different_document_is_still_refused(self):
+        """THE INVARIANT IS NOT WEAKENED. What changed is that this caller
+        stopped manufacturing a difference out of capacity; a caller that
+        really does present another identity for a live key is still denied."""
+        from baton_v12.integration import TARGET_SCHEMA, activate_target
+
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        with self.assertRaises(ContractRefusal) as caught:
+            activate_target(store, {"schema": TARGET_SCHEMA,
+                                    "canonical_target_id": self.TARGET,
+                                    "description": "somebody else's target"})
+        self.assertIn("is not re-described", caught.exception.message)
+        self.assertEqual(caught.exception.category, "policy")
+
+    def test_a_refused_activation_leaves_the_target_and_recovers(self):
+        """FAILED-START SIDE EFFECTS. After a refusal from another caller, the
+        target is untouched and this deployment still adopts it -- which is
+        what makes a retry after a failed start ordinary rather than special."""
+        from baton_v12.integration import TARGET_SCHEMA, activate_target
+
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        before = self.stored(store)
+        with self.assertRaises(ContractRefusal):
+            activate_target(store, {"schema": TARGET_SCHEMA,
+                                    "canonical_target_id": self.TARGET,
+                                    "description": "a different description"})
+        self.assertEqual(self.stored(store), before)
+        self.deployment(store, generation=3).activate_targets()
+        self.assertEqual(self.stored(store), before)
+
+    def test_every_configured_target_is_adopted_and_no_other(self):
+        """The key is the configured id, and a deployment adopts exactly the
+        targets its own bindings name."""
+        from baton_v12.integration import target_of
+
+        store = self.store()
+        held = self.deployment(store, generation=1)
+        held.given["job_bindings"] = [
+            {"canonical_target_id": self.TARGET},
+            {"canonical_target_id": self.TARGET + "-second"},
+            {"canonical_target_id": self.TARGET}]
+        held.activate_targets()
+        self.assertIsNotNone(target_of(store, self.TARGET))
+        self.assertIsNotNone(target_of(store, self.TARGET + "-second"))
+        self.assertIsNone(target_of(store, self.TARGET + "-absent"))
+
+
+class TheTargetSurvivesACapacityChangeOverRetainedHistory(ComposedOneJobCase):
+    """W202663 D4, at the COMPOSITION boundary over a populated store.
+
+    REVIEW208507 [R1] IS WHY THIS EXISTS BESIDE THE SEVEN METHOD CASES. Those
+    drive `activate_targets` directly against an empty store, which fixes the
+    method's contract and nothing about startup. This drives the real
+    `stage_execution.operations_from` -- the function whose target activation
+    at 5894 precedes `scheduler.activate_pool` at 5943, which is the order D4
+    was found in -- over a target that ALREADY carries a legacy
+    generation-bearing document, a queue entry and a non-zero fence.
+
+    WHAT IT MUST SHOW, and each is asserted rather than implied: a capacity
+    change composes; the retained target document, fence, state and queue are
+    untouched; a startup that fails AFTER the target is adopted leaves that
+    same state; and the retry then succeeds. A fake engine throughout -- no
+    provider, no deployed instance, no live model.
+    """
+
+    LEGACY = ("configured by stage-execution deployment "
+              "00000000000000000000000000000000 at pool generation 1")
+
+    def populated(self):
+        """A target with real history: a legacy document, an entry, a fence.
+
+        THE HISTORY IS MADE THROUGH THE PUBLIC OPERATIONS, never by writing
+        rows: what this case must protect is what those operations produced.
+        """
+        from baton_v12.integration import (IntegrationStore, TARGET_SCHEMA,
+                                           activate_target, enqueue,
+                                           target_of, entries_of)
+        from tests.integration.fixtures import eligibility
+        from tests.job_manager import fixtures
+
+        store = IntegrationStore.open(self.integration_store,
+                                      incarnation="d4-composition",
+                                      clock=lambda: fixtures.NOW)
+        self.addCleanup(store.close)
+        activate_target(store, {"schema": TARGET_SCHEMA,
+                                "canonical_target_id": self.TARGET_ID,
+                                "description": self.LEGACY})
+        enqueue(store, canonical_target_id=self.TARGET_ID,
+                entry_id="entry-d4", eligibility=eligibility())
+        return store, target_of(store, self.TARGET_ID), entries_of(
+            store, self.TARGET_ID)
+
+    @property
+    def TARGET_ID(self):
+        return self.composed_document()["canonical_target_id"]
+
+    def enlarged(self, generation):
+        """This deployment's document, with a SECOND producer at generation 2.
+
+        A GENUINE CAPACITY CHANGE, because the rule being exercised only fires
+        on one: `activate_pool` answers the generation the POOL is at, and a
+        configuration naming 2 over an unchanged three-worker pool is refused
+        for naming a generation the pool never reached -- correctly, and it is
+        not what D4 was about. So generation 2 here really does add a worker,
+        with its own participant, because duplicates are not distinct capacity.
+        """
+        held = self.composed_document(pool_generation=generation,
+                                      line_declared_base=self.base)
+        if generation > 1:
+            from baton_v12.authority import Authority
+
+            authority = Authority.open(
+                self.authority_path,
+                expected_authority_uuid=self.config["authority_uuid"])
+            try:
+                who = "baton.second-reviewer"
+                principal = authority.principal_of(who)
+            finally:
+                authority.dispose()
+            # THE POOL CHANGES WITHOUT BREAKING ONE-WORKER-PER-STAGE. A
+            # `/1` deployment is refused if two workers serve one stage, so a
+            # second producer is not the way to move this pool; replacing WHO
+            # serves review is. The pool document carries each worker's
+            # participant, so this really is a different pool, and the
+            # deployment still serves each stage exactly once.
+            workers = []
+            for one in held["workers"]:
+                if one["role"] != "review":
+                    workers.append(one)
+                    continue
+                # A CONFIGURED WORKER CARRIES EXACTLY worker_id, role and
+                # deployment -- the participant lives inside the deployment,
+                # and adding a top-level one is refused by name.
+                workers.append({
+                    "worker_id": one["worker_id"], "role": one["role"],
+                    "deployment": dict(one["deployment"], participant=who,
+                                       principal=principal)})
+            held = dict(held, workers=workers)
+        return held
+
+    def composing(self, generation):
+        """One real `operations_from` over these stores, at this capacity."""
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+
+        job, control = self.stores(f"d4-compose-{generation}")
+        composed = stage_execution.operations_from(
+            self.enlarged(generation), job, control,
+            engine_run=Engine(),
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        return composed
+
+    def unchanged(self, store, target_before, entries_before):
+        from baton_v12.integration import entries_of, target_of
+
+        self.assertEqual(target_of(store, self.TARGET_ID), target_before)
+        self.assertEqual(entries_of(store, self.TARGET_ID), entries_before)
+
+    def test_a_capacity_change_composes_over_retained_history(self):
+        """THE REGRESSION, at the boundary that refused it. The same target,
+        one composition at generation 1 and another at 2, and the legacy
+        document, its fence, its state and its queue all survive both."""
+        store, before, entries = self.populated()
+        self.composing(1)
+        self.unchanged(store, before, entries)
+        self.composing(2)
+        self.unchanged(store, before, entries)
+        self.assertIn("at pool generation 1", before["document"]["description"])
+
+    def test_a_startup_that_fails_after_adoption_leaves_the_target_alone(self):
+        """AN INJECTED FAILURE PAST THE ADOPTION POINT, and the retry after it.
+
+        The target is adopted before the pool activates, so a composition that
+        raises after that point is exactly the partial start D4 was found in.
+        What must be true is that it changed nothing about the target, and that
+        an ordinary retry then composes.
+        """
+        store, before, entries = self.populated()
+        # THE POOL EXISTS FIRST. `_pool_generation` predicts 1 for an absent
+        # pool, so a configuration naming 2 over a store that never activated
+        # one is refused for naming a generation nothing reached -- which is
+        # correct and is not the failure under test. This establishes
+        # generation 1, exactly as the real sequence did.
+        self.composing(1)
+        self.unchanged(store, before, entries)
+        faults = []
+
+        def failing(*arguments, **keywords):
+            faults.append(arguments)
+            raise RuntimeError("fixture: startup failed after adoption")
+
+        # THE INJECTION POINT IS THE STEP AFTER ADOPTION. `operations_from`
+        # calls `deployment.activate_targets()` and only later
+        # `scheduler.activate_pool`, which is the order D4 lives in -- so a
+        # failure here is a start that adopted the target and then died.
+        with mock.patch.object(stage_execution.scheduler, "activate_pool",
+                               failing):
+            with self.assertRaises(RuntimeError):
+                self.composing(2)
+        self.assertEqual(len(faults), 1, "the injected failure must be reached")
+        self.unchanged(store, before, entries)
+
+        # AND THE RETRY IS ORDINARY. Nothing had to be repaired first.
+        self.composing(2)
+        self.unchanged(store, before, entries)
+
+
+class TheHeterogeneousPoolTraversesTheSameLifecycle(
+        TheComposedJobTraversesReviewAndAcceptance):
+    """W202663 — the SAME accepted lifecycle, with three different images.
+
+    REVIEW207096 IS WHY THIS EXISTS. `ThreeWorkersOneJobThreeImages` in
+    `test_single_worker` constructs its worker through `__new__` and calls
+    `_held`/`_matches`; that is configuration and preflight eligibility, and
+    the review is right that it is not launch, claim or execution. This class
+    INHERITS every case of the accepted one-Job lifecycle and re-runs all of
+    them over a pool whose three workers select three different immutable
+    images.
+
+    WHAT IT ACTUALLY DRIVES, said exactly, because review207195 found my first
+    description of it overstated and was right:
+
+      REAL -- the Job store and the control store, the scheduler's admission
+      and allocation, the offer, the claim, the attempt rows, the launch
+      document composition, the mount boundary, the endings and their route
+      changes, the review verdict's effect on the Work, and the integration
+      port's composition from this deployment;
+      NOT REAL -- the container. `ComposedOneJobCase.serving` uses the
+      simulated `Engine` from `test_single_worker`, and `turn` calls
+      `baton_worker.serve_exchange` IN THIS PROCESS with `ClaudeAgent` over a
+      fake provider. No image is pulled, started or executed, so this proves
+      nothing about the SELECTED artefacts running -- only about the
+      coordination and workload code around them.
+
+    SO THE THREE IMAGE DIGESTS HERE ARE IDENTITIES THE DEPLOYMENT CARRIES AND
+    THE MANAGER RECORDS, not three artefacts that ran. That is the right
+    boundary for what this proves -- the correction is about which identity a
+    Job compares -- and it is emphatically not completed heterogeneous
+    integration. `test_the_integration_stage_advances_through_that_port`,
+    inherited above, asserts a port was reached; another inherited case expects
+    a deferred capability because `integration_instructions` is absent. Full
+    terminal heterogeneous integration stays OPEN and is named as such in PLAN.
+    """
+
+    # THREE IMAGES, one per role. Distinct by construction, and each worker's
+    # own manifest names its own, so `single_worker:267` binds each worker to
+    # the image its manifest declares exactly as it always did.
+    IMAGES = {"implementation": "sha256:" + "1" * 64,
+              "review": "sha256:" + "2" * 64,
+              "integration": "sha256:" + "3" * 64}
+
+    # THE OTHER WORKER-RUNTIME MEMBERS, varied so these are INDEPENDENTLY
+    # COMPOSED manifests rather than clones with one member moved -- which is
+    # the distinction review206898 [R2] drew and this class has to keep.
+    #
+    # `runtime_profile_digest` is deliberately NOT varied here: `_held`
+    # requires it to equal the worker's `profile_digest` and `_matches`
+    # requires that to equal the STAGE's, so varying it needs per-stage profile
+    # rows in the submission, which is a wider fixture change than this proof
+    # needs. That member's independence is fixed by
+    # `test_manifest_rules.TheJobInputIdentityIsAClassification`, which varies
+    # it directly.
+    # EVERY CHARACTER IS HEX. A first draft reached past 'f' for distinct
+    # values and the frozen schema refused the digest's PATTERN before any of
+    # this could run.
+    VARIED = {"implementation": ("4", "7", "a", "01"),
+              "review": ("5", "8", "b", "02"),
+              "integration": ("6", "9", "c", "03")}
+
+    def worker(self, role, **members):
+        """One role's worker, on its OWN image and its OWN runtime manifest."""
+        import copy
+
+        from baton_v12.contracts import digest
+
+        held = super().worker(role, **members)
+        deployment = held["deployment"]
+        manifest = copy.deepcopy(deployment["input_manifest"])
+        toolchain, credential, instructions, month = self.VARIED[role]
+        manifest.update(
+            manifest_id=f"input-{role}-attempt",
+            created_at=f"2031-{month}-01T00:00:00.000Z",
+            worker_image_digest=self.IMAGES[role],
+            toolchain_digest="sha256:" + toolchain * 64,
+            credential_policy_digest="sha256:" + credential * 64,
+            role_instructions_digest="sha256:" + instructions * 64)
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        deployment["input_manifest"] = manifest
+        deployment["image_digest"] = self.IMAGES[role]
+        return held
+
+    def test_the_three_workers_really_are_on_three_images(self):
+        """The control. Every case inherited above would still pass over a
+        homogeneous pool if this override silently stopped working, so the
+        heterogeneity itself is asserted rather than assumed."""
+        given = self.composed_document()
+        images = {one["role"]: one["deployment"]["image_digest"]
+                  for one in given["workers"]}
+        runtimes = {one["role"]:
+                    one["deployment"]["input_manifest"]["manifest_digest"]
+                    for one in given["workers"]}
+        self.assertEqual(len(set(images.values())), 3, images)
+        self.assertEqual(len(set(runtimes.values())), 3, runtimes)
+        self.assertEqual(images, dict(self.IMAGES))
+
+    def test_every_worker_produces_the_one_job_input_identity(self):
+        """Three runtime manifests, one Job. This is what the whole correction
+        is for, asserted against the Job the fixture actually submitted."""
+        given = self.composed_document()
+        submitted = self.submission["jobs"][0]["input_digest"]
+        for one in given["workers"]:
+            with self.subTest(role=one["role"]):
+                self.assertEqual(
+                    job_input_identity(one["deployment"]["input_manifest"]),
+                    submitted)
+
+    def test_each_attempt_keeps_its_own_runtime_manifest_and_image(self):
+        """RUNTIME ATTRIBUTION SURVIVES, which is what owner206702 requires
+        preserved. The implementation and review stages really ran here, so
+        the attempt rows are the manager's own record of which image answered
+        -- not a fixture's restatement of what it configured."""
+        from baton_v12.worker_manager import attempts as attempt_reads
+
+        def attempt_of(store, attempt_id):
+            """The manager's own durable attempt row.
+
+            Read through the module's private reader rather than restated by
+            this fixture: what these cases are about is what the MANAGER
+            recorded, and a row this suite hand-assembled would be testing
+            itself.
+            """
+            row = attempt_reads._attempt_row(store, attempt_id)
+            self.assertIsNotNone(row, attempt_id)
+            return row
+
+        held = self.reviewed()
+        for role in ("implementation", "review"):
+            with self.subTest(role=role):
+                attempt = self.only_attempt(held.composed, role)
+                row = attempt_of(held.control, attempt)
+                given = self.worker_of(held.composed, role).given
+                self.assertEqual(row["image_digest"], self.IMAGES[role])
+                self.assertEqual(
+                    row["input_digest"],
+                    given["input_manifest"]["manifest_digest"])
+                self.assertEqual(row["toolchain_digest"],
+                                 given["input_manifest"]["toolchain_digest"])
+        # AND THE TWO ROLES DID NOT RECORD THE SAME RUNTIME.
+        rows = [attempt_of(held.control, self.only_attempt(held.composed, one))
+                for one in ("implementation", "review")]
+        self.assertNotEqual(rows[0]["image_digest"], rows[1]["image_digest"])
+        self.assertNotEqual(rows[0]["input_digest"], rows[1]["input_digest"])
+
+    def test_a_worker_whose_image_is_not_its_manifests_refuses_composition(self):
+        """The own-image rule at the boundary that composes a real deployment,
+        rather than at a preflight helper: `operations_from` refuses before any
+        stage is served."""
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+
+        job, control = self.stores("heterogeneous-refusal")
+        spoiled = self.composed_document()
+        for one in spoiled["workers"]:
+            if one["role"] == "review":
+                one["deployment"]["image_digest"] = "sha256:" + "f" * 64
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                spoiled, job, control, engine_run=Engine(),
+                credential_provider=lambda provider, reference: self.secret,
+                clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.assertIn("names another worker image", caught.exception.message)
+
+    # THE THREE ACCEPTED READERS, borrowed rather than reimplemented.
+    #
+    # `EveryJobRoleIsValidatedBeforeAllocation` owns these and this class does
+    # not descend from it -- it descends from the one-Job lifecycle case. They
+    # are bound here from that class rather than copied so that a correction to
+    # either reader reaches both, which is the whole reason they are public
+    # readers instead of table scans.
+    attempted = EveryJobRoleIsValidatedBeforeAllocation.attempted
+    admitting = EveryJobRoleIsValidatedBeforeAllocation.admitting
+    allocated = EveryJobRoleIsValidatedBeforeAllocation.allocated
+    receipted = EveryJobRoleIsValidatedBeforeAllocation.receipted
+
+    def moved_shared_member(self):
+        """This deployment with the implementation worker's manifest moved on
+        ONE shared member, resealed.
+
+        The record binding, not the Work: `_matches` compares the stage's own
+        `work_id` against the manifest first, so a moved Work refuses one rule
+        earlier and would make the case below pass for the wrong reason.
+        """
+        from baton_v12.contracts import digest
+
+        moved = self.composed_document()
+        for one in moved["workers"]:
+            if one["role"] != "implementation":
+                continue
+            manifest = one["deployment"]["input_manifest"]
+            binding = dict(manifest["record_binding"],
+                           path=manifest["record_binding"]["path"]
+                           + "/elsewhere")
+            manifest = dict(manifest, record_binding=binding)
+            manifest.pop("manifest_digest")
+            manifest["manifest_digest"] = digest(manifest)
+            one["deployment"]["input_manifest"] = manifest
+        return moved
+
+    def test_a_worker_that_moved_a_shared_member_cannot_serve_the_job(self):
+        """THE JOB HALF, AT REAL ADMISSION, WITH NO ALLOCATION AND NO EFFECT.
+
+        Review207195 [R1]: my first version of this changed a document and
+        asserted only that `job_input_identity` differed. That is arithmetic
+        about a projection, not the exclusion it advertised -- it never handed
+        the moved configuration to anything that admits. This one submits it
+        through the module's own public admission and asserts what the
+        deployment actually did: refused, reserved nothing, and wrote no
+        receipt.
+        """
+        from baton_v12.job_manager import submit as submit_jobs
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+
+        job, control = self.stores("moved-shared-member")
+        composed = stage_execution.operations_from(
+            self.moved_shared_member(), job, control, engine_run=Engine(),
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        submit_jobs(job, self.submission)
+        stage_id = "job-a/implementation"
+        refusal = self.admitting(job, composed, stage_id)
+        self.assertIsNotNone(refusal, "a moved shared member was admitted")
+        self.assertIn("the submitted input", refusal.message)
+        # NO CAPACITY WAS HELD AND NOTHING WAS RECORDED. A refusal that had
+        # already reserved a worker would hold that worker's capacity for a
+        # stage nobody can serve, which is the failure this whole rule exists
+        # to keep on the assembly side.
+        self.assertIsNone(self.allocated(job, stage_id))
+        self.assertIsNone(self.receipted(job, composed, stage_id))
+
+    def test_the_same_pool_with_that_member_intact_is_admitted(self):
+        """The control, so the refusal above is about the moved member and not
+        about anything else this composition happens to do."""
+        from baton_v12.job_manager import submit as submit_jobs
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+
+        job, control = self.stores("intact-shared-member")
+        composed = stage_execution.operations_from(
+            self.composed_document(), job, control, engine_run=Engine(),
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        submit_jobs(job, self.submission)
+        stage_id = "job-a/implementation"
+        self.assertIsNone(self.admitting(job, composed, stage_id))
+        self.assertEqual(self.allocated(job, stage_id),
+                         "implementation-worker")
+
+
+class TwoBoundJobsTraverseServingAndCorrection(
+        EveryJobRoleIsValidatedBeforeAllocation):
+    """W130224: two bound Jobs through the ACTUAL serving path, on ticks.
+
+    WHAT THE PREDECESSORS LEFT. W119405 gave each Job its own binding and
+    W130216 made admission select each Job's own worker, but neither drove
+    one. Every transition below is a `sweep`; the only thing these cases do
+    that a serving loop would not is RUN THE CONTAINER, which is the one
+    boundary this build has no daemon for -- exactly as the accepted one-Job
+    lifecycle cases already do it.
+
+    THE FIXTURE IS THE ACCEPTED TWO-JOB ONE, unchanged: two real sources, two
+    real Works, two producers, two reviewers, one integrator. What this class
+    adds is the per-attempt selection the one-Job helpers could not make --
+    `worker_of` answers by ROLE, and with two workers per role that is
+    whichever the deployment lists last. Every helper here selects by the
+    worker that actually PREPARED the attempt, which is the same fact the
+    scheduler's allocation names.
+    """
+
+    REPORT = TheComposedJobTraversesReviewAndAcceptance.REPORT
+    INSTRUCTIONS = OrdinaryTerminalLifecycle.INSTRUCTIONS
+
+    def setUp(self):
+        from baton_v12.authority import Authority
+
+        super().setUp()
+        # THE SECOND JOB'S TRAVERSAL TASK, declaring the CANONICAL TARGET's
+        # own revision. See `traversing`: the Authority holds one canonical
+        # target revision and a proposal is offered against the revision it
+        # was built from, so two Jobs that both publish are two lines of one
+        # target. The task is still the second Job's own -- its identity and
+        # its instructions differ, which is what makes the required-test
+        # selection a per-Job fact this traversal can actually measure.
+        self.shared_task_document = os.path.join(self.root, "task-b-line.json")
+        self.shared_task_bytes = json.dumps(
+            {"schema": "baton.dogfood-task/2",
+             "task_id": "w130224-second-line-of-one-target",
+             "instructions": "Add focused coverage for the second Job.",
+             "source_root": "source", "source_profile": "git-line",
+             "declared_base": self.base,
+             # W133129: THE SECOND JOB'S OWN REQUIRED TEST, over its own data
+             # path. Reviewer 2026-09-10T20:36:08Z P1: a both-changes witness
+             # needs the two Jobs to touch DIFFERENT paths, and a renamed
+             # print-only harness would pass on the base and prove nothing.
+             # `feature_check.py` ASSERTS `feature.py`'s value, so it fails on
+             # the original base -- where `feature.py` does not exist -- with
+             # only itself overlaid, and passes on B's isolated content and on
+             # the combination with A's harness change. This is the SECOND
+             # Job's task only; Job A keeps the base fixture's harness task.
+             "verification": ["python3", "feature_check.py"]},
+            sort_keys=True).encode("utf-8")
+        with open(self.shared_task_document, "wb") as writing:
+            writing.write(self.shared_task_bytes)
+        # AND THE TERMINAL HALF'S OWN PROVISIONING, exactly as the accepted
+        # one-Job terminal lifecycle composes it: the disposable target at its
+        # ordinary reviewed mode, the policy generation pinned once after
+        # bootstrap, and the integrator's configured instruction bytes.
+        os.chmod(os.path.join(self.source, "harness.py"), 0o644)
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            self.fixture_policy = authority.policy_generation()
+        finally:
+            authority.dispose()
+
+    def composed_document(self, **members):
+        from baton_v12.contracts import digest_of_bytes
+
+        given = super().composed_document(**members)
+        given["policy_generation"] = self.fixture_policy
+        given["integration_profile"]["instructions_digest"] = \
+            digest_of_bytes(self.INSTRUCTIONS)
+        return given
+
+    def traversing(self, **members):
+        """Two Jobs, two lines, ONE canonical target -- and why it is one.
+
+        `integration.driver` reads the Authority's canonical target revision
+        and refuses a proposal built on any other: "a proposal is offered
+        against the revision it was built from". An Authority holds ONE such
+        revision, so two Jobs that both PUBLISH are two development lines of
+        one target at that revision. That is not a weakening of the per-Job
+        binding -- it is the fact that makes their integrations serialize on
+        the same target, which is what this Work is asked to demonstrate.
+
+        EVERYTHING ELSE STAYS THE JOB'S OWN: its Work, its line, its producer
+        and reviewer participants, its task and the required-test selection
+        derived from that task. `two_jobs` itself is untouched, so the
+        admission fixture and every case over it are exactly as accepted.
+
+        W133129 ADDS THE RECONCILIATION WIRING, and it is deployment wiring
+        rather than a fixture convenience: where the dedicated target lives,
+        which of its references is the configured one, where the integration
+        role's own private storage is, and which participant RUNS a result's
+        causal harness. `integration_target_reference` is the target's OWN
+        branch -- the branch the ordinary direct integration commits on -- so
+        nothing here initializes or repairs a reference behind that path.
+        """
+        given = self.two_jobs()
+        import subprocess as _subprocess
+
+        workspace = os.path.join(self.root, "integration-workspace")
+        os.makedirs(workspace, exist_ok=True)
+        if not os.path.exists(os.path.join(workspace, "HEAD")):
+            self.assertEqual(_subprocess.run(
+                ["git", "-C", workspace, "init", "-q", "--bare"],
+                capture_output=True, timeout=30).returncode, 0)
+        given["integration_target"] = self.source
+        # THE TARGET'S POSTURE, STATED: the fixture configured `os.getgid()`
+        # as the workspace group (see `group`), so that is the group the
+        # product's proof will compare, and the mode is made what the proof
+        # requires whatever the ambient umask is (W385454).
+        establish_target_posture(self, self.source, os.getgid())
+        given["integration_target_reference"] = "refs/heads/main"
+        given["integration_workspace"] = workspace
+        given["integration_observer"] = "baton.result-observer"
+        # W103068: AND WHERE THE INTEGRATOR'S OWN INSTRUCTION BYTES LIVE. The
+        # digest `composed_document` pins into the integration profile is the
+        # digest of exactly these bytes, which is what lets the production
+        # composition read them and prove them before it starts anything.
+        instructions = os.path.join(self.root, "integration-instructions")
+        with open(instructions, "wb") as writing:
+            writing.write(self.INSTRUCTIONS)
+        given["integration_instructions"] = instructions
+        held = {one["worker_id"]: one for one in given["workers"]}
+        for worker_id in ("implementation-worker-b", "review-worker-b"):
+            deployment = held[worker_id]["deployment"]
+            deployment["input_manifest"] = self.manifest_over(
+                SECOND_WORK, self.shared_task_bytes)
+            deployment["task_document"] = self.shared_task_document
+        # THE SECOND LINE IS A SECOND CHECKOUT OF THE SAME TARGET. `create_line`
+        # derives its identity from `(authority, work)`, so one nominated
+        # source at one base still gives two distinct lines.
+        held["implementation-worker-b"]["deployment"]["nominated_source"] = \
+            self.source
+        binding = {one["job_id"]: one for one in given["job_bindings"]}
+        binding["job-b"]["line_declared_base"] = self.base
+        binding["job-b"]["canonical_target_id"] = \
+            binding["job-a"]["canonical_target_id"]
+        given.update(members)
+        return given
+
+    def quiescing(self):
+        """One engine boundary that models SEVERAL live containers.
+
+        W130224. The accepted helper models exactly one: `runtime_id`,
+        `image`, `labels` and `mounts` are single-valued and `inspect` answers
+        about the last container started WHATEVER identity it was asked about.
+        Two Jobs coding at once therefore reported each other's runtime, and
+        the second producer's stage projected `exceptional` the instant the
+        first one started -- a fixture that models one container refusing the
+        very thing this Work exists to drive.
+
+        WHAT IS ADDED IS ONLY WHAT A REAL ENGINE ALREADY DOES: a container has
+        its own identity, image, labels, mounts and running state, an engine
+        answers about the one it was asked about, and a listing answers the
+        ones matching the label filters it was given. Absence is still the
+        engine's own sentence naming the exact identity; `stop` still stops,
+        `rm` still removes, and the custody helper still answers the verb it
+        was asked for. Nothing here decides an outcome.
+        """
+        engine = _ConcurrentEngine()
+        self.engine = engine
+        return engine
+
+    def both_jobs(self):
+        """One submission carrying both Jobs, each gated like a real one.
+
+        `second_submission` deliberately leaves Job B's review standalone --
+        it is the admission probe's shape, isolating the callback without a
+        traversal. A traversal needs the ordinary gating, so this states it:
+        review behind implementation, integration behind review, for both.
+        """
+        from tests.job_manager import fixtures
+
+        return fixtures.submission(jobs=[
+            copy.deepcopy(self.submission["jobs"][0]),
+            fixtures.job(
+                "job-b",
+                input_digest=job_input_identity(self.manifest_over(
+                    SECOND_WORK, self.shared_task_bytes)),
+                policy_digest=fixtures.POLICY_DIGEST,
+                stages=[
+                    fixtures.stage("implementation", SECOND_WORK),
+                    fixtures.stage("review", SECOND_WORK,
+                                   depends_on=[{"job_id": "job-b",
+                                                "kind": "implementation"}]),
+                    fixtures.stage("integration", SECOND_WORK,
+                                   depends_on=[{"job_id": "job-b",
+                                                "kind": "review"}])])])
+
+    # -- per-Job and per-attempt selection, where the one-Job helpers guess ---
+
+    def states_for(self, job, composed, job_id):
+        """One Job's stage states. `states` answers about `jobs[0]` only."""
+        from baton_v12.job_manager import status as projected_status
+        from tests.job_manager import fixtures
+
+        projected = projected_status(job, composed, observed_at=fixtures.NOW)
+        [held] = [one for one in projected["jobs"]
+                  if one["job_id"] == job_id]
+        return {one["kind"]: one["state"] for one in held["stages"]}
+
+    def drive_job(self, job, composed, job_id, kind, want, ticks=14):
+        """Ordinary ticks until ONE Job's stage reaches a state.
+
+        The sweep is deployment-wide, so every tick advances both Jobs; what
+        this names is which one's state ends the loop.
+        """
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        for _ in range(ticks):
+            tick(job, composed, now=fixtures.NOW)
+            held = self.states_for(job, composed, job_id)
+            if held.get(kind) == want:
+                return held
+        self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+                  f"{self.states_for(job, composed, job_id)}")
+
+    def preparing(self, composed, attempt_id):
+        """The worker and record that actually prepared this attempt.
+
+        THE PREPARATION IS KEYED BY ATTEMPT, so the worker holding one is the
+        worker whose own boundary this attempt was granted on. Selecting by
+        role instead answers whichever worker of that role is listed last,
+        which under two producers and two reviewers is a coin toss.
+        """
+        for one in composed.workers:
+            stage = getattr(one["operations"]._worker, "stage", None)
+            held = getattr(stage, "_prepared", None) or {}
+            if attempt_id in held:
+                return one["worker_id"], held[attempt_id]
+        self.fail(f"no configured worker prepared attempt {attempt_id!r}")
+
+    def attempts_of(self, composed, worker_id):
+        """Every attempt this ONE worker has prepared, oldest id first."""
+        held = {one["worker_id"]: one for one in composed.workers}[worker_id]
+        return sorted(getattr(held["operations"]._worker.stage, "_prepared"))
+
+    def one_attempt_of(self, composed, worker_id, *, exclude=()):
+        held = [one for one in self.attempts_of(composed, worker_id)
+                if one not in set(exclude)]
+        self.assertEqual(len(held), 1, held)
+        return held[0]
+
+    def mounted_at(self, composed, attempt_id):
+        """The roots this attempt's own container was really started over."""
+        _worker_id, held = self.preparing(composed, attempt_id)
+        return held["boundary"]["roots"]
+
+    def mounted_view(self, role, attempt_id, roots):
+        """W130224: the boundary of the worker that PREPARED this attempt.
+
+        The inherited helper resolves the review boundary by role, and with
+        two reviewers that answers the wrong one -- so a Job A review turn
+        would be composed over Job B's frozen checkpoint. Everything else
+        about the staged view is unchanged.
+        """
+        if role != "review":
+            return roots
+        _worker_id, held = self.preparing(self._composed, attempt_id)
+        boundary = held["boundary"]
+        staged = os.path.join(self.root, "mounted-" + attempt_id[:12])
+        os.makedirs(staged, exist_ok=True)
+        for entry in sorted(os.listdir(roots["inputs"])):
+            target = os.path.join(staged, entry)
+            if os.path.lexists(target):
+                continue
+            os.symlink(boundary["boundary"].source.place if entry == "source"
+                       else os.path.join(roots["inputs"], entry), target)
+        return dict(roots, inputs=staged)
+
+    def line_of(self, composed, job_id):
+        return self.deployment_of(composed).line_for(job_id)
+
+    # -- the traversal itself, in the order a serving loop reaches it ---------
+
+    def coding(self, **members):
+        """Both Jobs submitted together, both implementations admitted.
+
+        SIMULTANEOUS AND INDEPENDENT: one submission, one deployment, and
+        each Job's implementation stage waiting on its OWN producer at the
+        same instant -- neither queued behind the other's capacity.
+        """
+        from baton_v12.job_manager import submit
+
+        job, control, composed = self.serving_two(
+            **self.traversing(**members))
+        submit(job, self.both_jobs())
+        self.drive_job(job, composed, "job-b", "implementation", "waiting")
+        held = SimpleNamespace(job=job, control=control, composed=composed)
+        held.first = self.one_attempt_of(composed, "implementation-worker")
+        held.second = self.one_attempt_of(composed, "implementation-worker-b")
+        return held
+
+    # W133129: B'S FEATURE AND ITS OWN ASSERTING CHECK. The check is the
+    # required test the configured task names, and it is written by the same
+    # producer turn that writes the feature -- so the submission carries its
+    # test with it, exactly as A's harness change does.
+    B_FEATURE = "VALUE = 'the second job answered'\n"
+    B_CHECK = ("from feature import VALUE\n\n"
+               "assert VALUE == 'the second job answered', VALUE\n"
+               "print('the second job feature check passed')\n")
+
+    def produced(self, held, job_id, attempt_id, body, edits=None):
+        """One producer's REAL turn over the namespaces this run mounted."""
+        self.assertEqual(
+            self.turn(held.control, "implementation", attempt_id,
+                      self.mounted_at(held.composed, attempt_id),
+                      edits=edits or {"harness.py": body}), 0)
+        return self.drive_job(held.job, held.composed, job_id,
+                              "implementation", "completed")
+
+    def review_turn(self, held, job_id, attempt_id, verdict):
+        """One reviewer's REAL turn, and the verdict read from its result."""
+        report = copy.deepcopy(self.REPORT)
+        report["verdict"] = verdict
+        self.assertEqual(
+            self.turn(held.control, "review", attempt_id,
+                      self.mounted_at(held.composed, attempt_id),
+                      edits={"review-report.json": json.dumps(report)}), 0)
+        return attempt_id
+
+    def accepted(self, held, job_id, producer_id, reviewer_id, attempt_id,
+                 body, edits=None):
+        """One Job from a coding producer to an accepted verdict."""
+        self.produced(held, job_id, attempt_id, body, edits=edits)
+        self.drive_job(held.job, held.composed, job_id, "review", "waiting")
+        reviewed = self.one_attempt_of(held.composed, reviewer_id)
+        self.review_turn(held, job_id, reviewed, "accepted")
+        self.drive_job(held.job, held.composed, job_id, "review", "completed")
+        del producer_id
+        return reviewed
+
+    # -- the integration half, one port per bound Job ------------------------
+
+    def activated(self, deployment, target_id):
+        """W103068: THE DEPLOYMENT ADOPTS ITS OWN CONFIGURED TARGETS, so this
+        PROVES the adoption instead of performing it.
+
+        `activate_target` makes an exact repeat one act and refuses a CHANGED
+        configuration for the same key by name -- so a fixture that activated
+        this deployment's own target under its own description would be a second
+        configuration of one target, which is the conflict the key exists to
+        catch. What a fixture may honestly do here is check that the composition
+        really adopted what it configured.
+        """
+        from baton_v12.integration import target_of
+
+        self.assertIsNotNone(target_of(deployment.integration, target_id),
+                             f"the composition adopted no target {target_id!r}")
+
+    JUDGMENT_WORKS = {"verification": "0000000a-W3",
+                      "review": "0000000a-W4",
+                      "approval": "0000000a-W5"}
+
+    def judgment_work(self, kind):
+        """This judgment's OWN Work, created for real.
+
+        W103068 review 2026-09-11T02-41-03Z: the first form of this helper
+        copied `self.config` wholesale, so every judgment carried the ORIGINAL
+        producer's `input_manifest.work_ref` and its own-Work claim was not
+        proved at all -- three executions would have run under one Job's Work.
+        A judgment acquires its authorized assignment through the Work its own
+        manifest names, so that Work has to exist and be its own.
+        """
+        from baton_v12.authority import Authority
+        from tests.job_manager import fixtures
+
+        held = self.__dict__.setdefault("_judgment_works", set())
+        work_id = self.JUDGMENT_WORKS[kind]
+        if work_id in held:
+            return work_id
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            who = self.document()["receipt_participants"][kind]
+            authority.add_route_handler(fixtures.ROUTE, who)
+            authority.create_work(work_id, fixtures.ROUTE,
+                                  contract="v12-assignment-1",
+                                  operation_id=f"create-{kind}-judgment-work")
+        finally:
+            authority.dispose()
+        held.add(work_id)
+        return work_id
+
+    def judgment_execution(self, kind, job_id="job-b"):
+        """One configured derived-result judgment execution.
+
+        W103068: a COMPLETE `single_worker` deployment for the participant that
+        owns this kind of judgment, launched under the accepted `review` role.
+        Its identity, homes, Work and input manifest are its OWN -- nothing is
+        borrowed from the original reviewer or the producer's Job, because a
+        judgment executed under another participant or another Work would be
+        attributable to the wrong actor and could never acquire its own
+        authorized assignment.
+        """
+        from baton_v12.authority import Authority
+
+        who = self.document()["receipt_participants"][kind]
+        # THE PRINCIPAL IS THE AUTHORITY'S OWN ANSWER. `self.principals` holds
+        # the three stage workers' and these judges are not among them; a
+        # configuration is refused unless the participant really resolves to the
+        # principal it names, so the fixture asks rather than guesses.
+        authority = Authority.open_readonly(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            principal = authority.principal_of(who)
+        finally:
+            authority.dispose()
+        deployment = copy.deepcopy(self.config)
+        deployment["launch_role"] = stage_execution.JUDGMENT_LAUNCH_ROLE
+        deployment["participant"] = who
+        deployment["principal"] = principal
+        # ITS OWN WORK AND ITS OWN MANIFEST OVER ITS OWN TASK.
+        work_id = self.judgment_work(kind)
+        deployment["input_manifest"] = self.manifest_over(
+            work_id, self.judgment_task_bytes(kind))
+        deployment["task_document"] = self.judgment_task_document(kind)
+        for name in ("launch_home", "credential_home"):
+            place = os.path.join(self.root, f"judgment-{kind}-{name}")
+            os.makedirs(place, exist_ok=True)
+            deployment[name] = place
+        return {"worker_id": f"{job_id}-{kind}-judge",
+                "deployment": deployment}
+
+    def judgment_task_bytes(self, kind):
+        """The instructions this judgment executes under -- its own, and not
+        the producer's task, which is about writing the change rather than
+        judging the merged candidate."""
+        return json.dumps(
+            {"schema": "baton.dogfood-task/2",
+             "task_id": f"w103068-derived-{kind}",
+             "instructions": f"Judge the derived candidate: {kind}. Read /input/judgment.json for the exact result, policy generation and causal evidence. Inspect the read-only source and return the ordinary review report; accept only if this judgment is satisfied.",
+             "source_root": "source", "source_profile": "git-line",
+             "declared_base": self.base,
+             "verification": ["python3", "harness.py"]},
+            sort_keys=True).encode("utf-8")
+
+    def judgment_task_document(self, kind):
+        place = os.path.join(self.root, f"judgment-task-{kind}.json")
+        with open(place, "wb") as writing:
+            writing.write(self.judgment_task_bytes(kind))
+        return place
+
+    def judgment_workers(self, job_id="job-b", **changed):
+        held = {kind: self.judgment_execution(kind, job_id)
+                for kind in stage_execution._JUDGMENT_KINDS}
+        held.update(changed)
+        from baton_v12.authority import Authority
+        authority = Authority.open_readonly(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            self.fixture_policy = authority.policy_generation()
+        finally:
+            authority.dispose()
+        return {job_id: held}
+
+    def judgment_turn(self, held, execution, verdict="accepted"):
+        from unittest.mock import patch
+        attempt_id = execution.intent["attempt_id"]
+        worker = execution.operations._worker
+        roots = worker._mounted(execution.intent, attempt_id, checkpoint=False)[0]
+        runtime_id = single_worker.attempt_runtime_of(held.control, attempt_id)["runtime_id"]
+        mounts = {one["Destination"]: one for one in self.engine.records[runtime_id]["mounts"]}
+        self.assertFalse(mounts["/input"]["RW"])
+        self.assertFalse(mounts["/input/source"]["RW"])
+        self.assertTrue(mounts["/output"]["RW"])
+        self.assertNotEqual(mounts["/input/source"]["Source"], mounts["/output"]["Source"])
+        staged = os.path.join(self.root, "mounted-" + attempt_id)
+        os.makedirs(staged, exist_ok=True)
+        for name in os.listdir(roots["inputs"]):
+            source = (worker.given["source_nomination"].place if name == "source"
+                      else os.path.join(roots["inputs"], name))
+            os.symlink(source, os.path.join(staged, name))
+        with open(os.path.join(staged, "judgment.json"), "rb") as reading:
+            self.assertEqual(json.load(reading), execution.subject)
+        self.assertEqual(self.vcs_in(worker.given["source_nomination"].place, "rev-parse", "HEAD").strip(), execution.subject["candidate"])
+        report = dict(self.REPORT, verdict=verdict)
+        with patch.object(self, "config", execution.given), patch.object(self, "mounted_view", lambda *args: dict(roots, inputs=staged)):
+            self.assertEqual(self.turn(held.control, "review", attempt_id, roots,
+                                      edits={"review-report.json": json.dumps(report)}), 0)
+
+    def pending_judgments(self):
+        from baton_v12.integration import reconciliation
+        from baton_v12.worker_manager import attempt_runtime_of
+
+        held = self.integrating(result_judgment_workers=self.judgment_workers())
+        self.drive_job(held.job, held.composed, "job-a", "integration", "completed", ticks=4)
+        deployment = self.deployment_of(held.composed)
+        reports = []
+        for _ in range(14):
+            reports.append(self.tick(held))
+            if len(deployment.judges) == 3:
+                break
+        if deployment.judges and len(deployment.judges) != 3:
+            deployment.judge_result(next(iter(deployment.judges))[0])
+        self.assertEqual(len(deployment.judges), 3, reports[-1])
+        result_id = next(iter(deployment.judges))[0]
+        result = reconciliation.result_of(deployment.integration, result_id)
+        self.assertEqual(result["state"], "published")
+        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
+        return held, deployment, result_id, result
+
+    def test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs(self):
+        from baton_v12.integration import reconciliation
+        from baton_v12.worker_manager import attempt_runtime_of
+
+        held, deployment, result_id, result = self.pending_judgments()
+        attempts = set()
+        for (identity, kind), execution in deployment.judges.items():
+            self.assertEqual(identity, result_id)
+            self.assertEqual(execution.subject["kind"], kind)
+            self.assertEqual(execution.subject["causal_observations"], result["causal_observations"])
+            self.assertEqual(execution.subject["candidate"], result["prepared"]["head"])
+            self.assertNotEqual(execution.subject["candidate"], result["source_candidate"])
+            self.assertEqual(execution.intent["work_id"], self.JUDGMENT_WORKS[kind])
+            attempts.add(execution.intent["attempt_id"])
+            self.judgment_turn(held, execution)
+        self.assertEqual(len(attempts), 3)
+        self.tick(held)
+        for execution in deployment.judges.values():
+            execution.result()
+        self.drive_job(held.job, held.composed, "job-b", "integration", "completed", ticks=14)
+        settled = reconciliation.result_of(deployment.integration, result_id)
+        self.assertEqual(settled["state"], "imported")
+        self.assertEqual(len(deployment.authority.receipts(result["derived_proposal_id"])), 4)
+        for execution in deployment.judges.values():
+            first = execution.result()
+            self.assertEqual(execution.poll(), first)
+            self.assertEqual(first["verdict"], "accepted")
+            self.assertIn(attempt_runtime_of(held.control, execution.intent["attempt_id"])["cleanup"], ("complete", "retained"))
+        for job_id in ("job-a", "job-b"):
+            self.assertEqual(self.states_for(held.job, held.composed, job_id)["integration"], "completed")
+        landed = self.vcs("rev-parse", "refs/heads/main").strip()
+        self.assertEqual(self.vcs("show", landed + ":harness.py"), "print('the first job answered')\n")
+        self.assertEqual(self.vcs("show", landed + ":feature.py"), self.B_FEATURE)
+        self.assertEqual(self.vcs("show", landed + ":feature_check.py"), self.B_CHECK)
+        print("W103068 genuine consumer evidence " + json.dumps({
+            "derived_result": result_id, "derived_proposal": result["derived_proposal_id"],
+            "judgments": [one.result() for one in deployment.judges.values()],
+            "receipts": deployment.authority.receipts(result["derived_proposal_id"]),
+            "target": landed, "jobs": {job_id: self.states_for(held.job, held.composed, job_id) for job_id in ("job-a", "job-b")}}, sort_keys=True))
+
+    def test_rejected_derived_judgment_cannot_authorize_import(self):
+        from baton_v12.integration import reconciliation
+        held, deployment, result_id, result = self.pending_judgments()
+        target = deployment.authority.canonical_target()
+        for (_, kind), execution in deployment.judges.items():
+            self.judgment_turn(held, execution, verdict="rejected" if kind == "review" else "accepted")
+        self.tick(held)
+        self.assertEqual(deployment.judges[(result_id, "review")].result()["verdict"], "rejected")
+        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
+        self.assertEqual(deployment.authority.canonical_target(), target)
+        self.assertEqual(reconciliation.result_of(deployment.integration, result_id)["state"], "published")
+
+    def test_unusable_judge_report_cannot_authorize_derived_receipts(self):
+        held, deployment, result_id, result = self.pending_judgments()
+        execution = next(iter(deployment.judges.values()))
+        self.judgment_turn(held, execution, verdict="not-a-verdict")
+        self.tick(held)
+        with self.assertRaisesRegex(ContractRefusal, "completed frozen result"):
+            execution.result()
+        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
+
+    def test_policy_drift_cannot_reuse_or_redispatch_derived_judgments(self):
+        held, deployment, result_id, result = self.pending_judgments()
+        for execution in deployment.judges.values():
+            self.judgment_turn(held, execution)
+        starts = self.engine.minted
+        deployment.authority.grant_capability("baton.result-observer", "review", scope=self.scope)
+        with self.assertRaisesRegex(ContractRefusal, "policy generation"):
+            deployment.judge_result(result_id)
+        self.assertEqual(self.engine.minted, starts)
+        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
+
+    def test_foreign_frozen_candidate_cannot_authorize_derived_receipts(self):
+        from unittest.mock import patch
+        held, deployment, result_id, result = self.pending_judgments()
+        for execution in deployment.judges.values():
+            self.judgment_turn(held, execution)
+        reader = single_worker.load_manifest
+
+        def foreign(*args):
+            value = reader(*args)
+            if args[-1] == "resultManifest" and value is not None:
+                value = copy.deepcopy(value)
+                for output in value["outputs"]:
+                    claim = (output.get("result_metadata") or {}).get("baton.checkpoint-review/1")
+                    if claim is not None:
+                        claim["head"] = result["source_candidate"]
+            return value
+
+        with patch.object(single_worker, "load_manifest", foreign):
+            self.tick(held)
+            with self.assertRaisesRegex(ContractRefusal, "another candidate"):
+                deployment.judge_result(result_id)
+        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
+
+    def test_derived_judges_reconstruct_after_dispatch_without_second_launch(self):
+        held, deployment, result_id, result = self.pending_judgments()
+        starts = self.engine.minted
+        identities = {key: execution.intent for key, execution in deployment.judges.items()}
+        deployment.judges.clear()
+        with self.assertRaisesRegex(ContractRefusal, "awaits"):
+            deployment.judge_result(result_id)
+        self.assertEqual({key: execution.intent for key, execution in deployment.judges.items()}, identities)
+        self.assertEqual(self.engine.minted, starts)
+        for execution in deployment.judges.values():
+            self.judgment_turn(held, execution)
+        self.tick(held)
+        for (_, kind), execution in deployment.judges.items():
+            one = deployment.judgment_executions("job-b")[kind]
+            reconstructed = single_worker.JudgmentExecution(
+                execution.given, held.control, deployment.authority,
+                deployment.judgment_providers[one["worker_id"]],
+                worker_id=one["worker_id"],
+                subject=execution.subject, source=execution.given["source_nomination"].place,
+                engine_run=self.engine, clock=deployment.judgment_clock)
+            self.assertEqual(reconstructed.poll(), execution.result())
+        self.assertEqual(self.engine.minted, starts)
+
+    def judging(self, **changed):
+        """The two-Job document WITH its derived-result consumer configured."""
+        return self.traversing(result_judgment_workers=self.judgment_workers(
+            **changed))
+
+    def refused_judgment(self, **changed):
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.held_configuration(
+                self.composed_document(line_declared_base=self.base,
+                                       **self.two_jobs(**self.judging(
+                                           **changed))),
+                checkout=self.checkout)
+        return caught.exception
+
+    # -- the configured consumer, held before anything is opened -------------
+
+    def test_the_configured_judgment_executions_are_held_per_job(self):
+        """W103068: THE CONSUMER'S EXECUTION CONFIGURATION, proved and selected.
+
+        Each of the three judgments names its own worker identity and a complete
+        deployment, held by `single_worker`'s own validator, and each executes as
+        the participant `receipt_participants` already names for that kind.
+        """
+        given = stage_execution.held_configuration(
+            self.composed_document(line_declared_base=self.base,
+                                   **self.two_jobs(**self.judging())),
+            checkout=self.checkout)
+        held = given["result_judgment_workers"]
+        self.assertEqual(sorted(held), ["job-b"])
+        self.assertEqual(sorted(held["job-b"]),
+                         sorted(stage_execution._JUDGMENT_KINDS))
+        judges = given["receipt_participants"]
+        for kind, one in held["job-b"].items():
+            with self.subTest(kind=kind):
+                self.assertEqual(one["worker_id"], f"job-b-{kind}-judge")
+                self.assertEqual(one["deployment"]["participant"],
+                                 judges[kind])
+                self.assertEqual(one["deployment"]["launch_role"],
+                                 stage_execution.JUDGMENT_LAUNCH_ROLE)
+                # AND IT IS THE HELD FORM, not the bytes that were written:
+                # `single_worker._held` derives members the raw document has no
+                # business carrying.
+                self.assertIn("credential_resolution", one["deployment"])
+                # ITS OWN WORK, which is what it will acquire its authorized
+                # assignment through -- not the producer Job's.
+                self.assertEqual(
+                    one["deployment"]["input_manifest"]["work_ref"]["work_id"],
+                    self.JUDGMENT_WORKS[kind])
+        self.assertEqual(
+            len({one["deployment"]["input_manifest"]["work_ref"]["work_id"]
+                 for one in held["job-b"].values()}), 3)
+        for one in held["job-b"].values():
+            self.assertNotEqual(
+                one["deployment"]["input_manifest"]["work_ref"]["work_id"],
+                self.work)
+        # THE ORIGINAL STAGE-WORKER CONTRACT IS UNTOUCHED: this two-Job
+        # deployment still names exactly its own five stage workers in exactly
+        # the three stage roles, and no judgment execution leaked into them.
+        self.assertEqual(sorted(one["role"] for one in given["workers"]),
+                         ["implementation", "implementation", "integration",
+                          "review", "review"])
+        self.assertEqual(
+            {one["role"] for one in given["workers"]}, set(stage_execution.ROLES))
+        self.assertNotIn(
+            "job-b-review-judge",
+            {one["worker_id"] for one in given["workers"]})
+
+    def test_a_deployment_without_a_consumer_is_unchanged(self):
+        """Absent is an answer, and every accepted document predates this."""
+        given = stage_execution.held_configuration(
+            self.composed_document(line_declared_base=self.base,
+                                   **self.two_jobs(**self.traversing())),
+            checkout=self.checkout)
+        self.assertIsNone(given["result_judgment_workers"])
+
+    def test_a_judgment_execution_for_another_participant_is_refused(self):
+        """The execution and the judge are ONE fact: an execution configured for
+        somebody who does not own that judgment would produce a report this
+        deployment could never turn into that owner's receipt."""
+        other = self.judgment_execution("review")
+        other["deployment"]["participant"] = "baton.integrator"
+        other["deployment"]["principal"] = \
+            self.principals["baton.integrator"]
+        held = self.refused_judgment(review=other)
+        self.assertEqual((held.category, held.code), ("policy", "denied"))
+        self.assertIn("judgment belongs to", held.message)
+
+    def test_two_of_three_judgments_are_refused(self):
+        """Two judgments out of three is not an authorization."""
+        held = self.judgment_workers()
+        del held["job-b"]["approval"]
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.held_configuration(
+                self.composed_document(
+                    line_declared_base=self.base,
+                    **self.two_jobs(**self.traversing(
+                        result_judgment_workers=held))),
+                checkout=self.checkout)
+        self.assertIn("approval", caught.exception.message)
+
+    def test_a_consumer_for_an_unbound_job_is_refused(self):
+        """A derived result belongs to one Job's line and target."""
+        held = self.judgment_workers("job-nobody")
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.held_configuration(
+                self.composed_document(
+                    line_declared_base=self.base,
+                    **self.two_jobs(**self.traversing(
+                        result_judgment_workers=held))),
+                checkout=self.checkout)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("job-nobody", caught.exception.message)
+
+    def test_a_judgment_identity_that_collides_with_a_stage_worker_refuses(
+            self):
+        """A judgment execution is its own identity and not a stage worker's --
+        it serves no Job stage and takes no stage allocation."""
+        other = self.judgment_execution("verification")
+        other["worker_id"] = "review-worker"
+        held = self.refused_judgment(verification=other)
+        self.assertEqual((held.category, held.code),
+                         ("refused", "precondition"))
+        self.assertIn("already configures", held.message)
+
+    def test_the_judgment_subject_is_the_derived_candidate(self):
+        """W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own
+        custody record rather than composed by a caller.
+
+        It is the DERIVED candidate -- its own proposal, content and head, and
+        the target revision it was reconciled onto -- and never the producer's
+        original one, which a judgment of the merged bytes must not be about.
+        The retained causal observations travel with it as evidence, which is
+        not the same thing as a judgment.
+        """
+        held = self.integrating()
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "completed", ticks=4)
+        deployment = self.deployment_of(held.composed)
+        found = None
+        for _ in range(14):
+            self.tick(held)
+            found = deployment.integration._connection.execute(
+                "SELECT result_id, state FROM integration_results").fetchone()
+            if found is not None and found["state"] == "published":
+                break
+        self.assertEqual(found["state"], "published")
+        subject = deployment.judgment_subject(found["result_id"])
+        self.assertEqual(subject["result_id"], found["result_id"])
+        self.assertEqual(subject["job_id"], "job-b")
+        self.assertTrue(subject["derived_proposal_id"])
+        # THE DERIVED PROPOSAL IS NOT THE PRODUCER'S OWN.
+        self.assertNotEqual(subject["derived_proposal_id"],
+                            subject["source_proposal_id"])
+        # AND THE CANDIDATE IS THE MERGED HEAD, not the submission's.
+        self.assertNotEqual(subject["candidate"], subject["source_candidate"])
+        self.assertNotEqual(subject["candidate"], subject["source_base"])
+        # THE RETAINED CAUSAL EVIDENCE TRAVELS WITH IT, unmodified.
+        self.assertEqual(sorted(subject["causal_observations"]),
+                         ["base", "combined", "isolated"])
+        self.assertEqual(subject["observed_by"],
+                         deployment.observer_participant())
+
+    def test_a_configured_consumer_composes_and_resolves_its_judges(self):
+        """W103068: the consumer's configuration survives a REAL composition.
+
+        `_resolved` now asks the Authority about every judgment participant and
+        its configured Work as well as the stage workers, so this proves the
+        whole document composes with the consumer present -- and that the
+        deployment selects the three executions afterwards.
+        """
+        _job, _control, composed = self.serving_two(**self.judging())
+        deployment = self.deployment_of(composed)
+        held = deployment.judgment_executions("job-b")
+        self.assertEqual(sorted(held), sorted(stage_execution._JUDGMENT_KINDS))
+        judges = deployment.given["receipt_participants"]
+        for kind, one in held.items():
+            with self.subTest(kind=kind):
+                self.assertEqual(one["deployment"]["participant"],
+                                 judges[kind])
+                self.assertEqual(
+                    one["deployment"]["input_manifest"]["work_ref"]["work_id"],
+                    self.JUDGMENT_WORKS[kind])
+
+    def test_a_judgment_work_this_authority_does_not_project_is_refused(self):
+        """A judgment acquires its authorized assignment through the Work its
+        own manifest names, so a Work this Authority does not hold is one it
+        could never obtain an assignment for -- and that is answered while
+        nothing has been written, not at the launch."""
+        other = self.judgment_execution("verification")
+        other["deployment"]["input_manifest"] = self.manifest_over(
+            "0000000a-W9999", self.judgment_task_bytes("verification"))
+        with self.assertRaises(ContractRefusal) as caught:
+            self.serving_two(**self.judging(verification=other))
+        # The Authority refuses the projection read for a Work it does not
+        # hold, so the refusal is its own capability answer rather than this
+        # module's absent-projection one; either way it names the Work and it
+        # happens before anything durable is configured.
+        self.assertEqual(caught.exception.category, "refused")
+        self.assertIn("0000000a-W9999", caught.exception.message)
+        self.assertIn("judgment execution", caught.exception.message)
+
+    def test_a_job_with_no_configured_consumer_selects_none(self):
+        """A Job whose derived branch has no consumer has no way to obtain
+        independent judgments, so this says so rather than inventing one."""
+        held = self.both_accepted()
+        deployment = self.deployment_of(held.composed)
+        self.assertIsNone(deployment.judgment_executions("job-b"))
+
+    def credential_registry(self):
+        """A real user-credential registry, so the DEFAULT provider is used.
+
+        W103068: `worker_preflight` builds its production provider from
+        `credential_sources` when a composer injects none, and the literal
+        `factory` injects none. Configuring the registry exercises that default
+        path instead of substituting a provider, which is the difference between
+        controlling an external boundary and injecting a capability.
+        """
+        source = os.path.join(self.root, "factory-provider.token")
+        with open(source, "w", encoding="utf-8") as writing:
+            writing.write(self.secret)
+        os.chmod(source, 0o600)
+        place = os.path.join(self.root, "factory-credential-sources.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            json.dump({"schema": "baton.user-credential-sources/1",
+                       "sources": [{"provider": "fixture",
+                                    "reference": "fixture/one",
+                                    "path": source}]}, writing)
+        os.chmod(place, 0o600)
+        return place
+
+    def factory_serving(self, **members):
+        """This deployment composed by the LITERAL public factory.
+
+        `tools.stage_execution:factory` takes exactly two operands, so nothing
+        can be injected through it: no `engine_run`, no `credential_provider`,
+        no `clock`, no `checkout` and no `integration_port`. That is the whole
+        point -- review 2026-09-11T02-06-10Z [P1] established that a witness
+        passing capabilities through `operations_from` proves construction but
+        not that the DEFAULTS work, and the defaults were in fact broken.
+
+        THE THREE SUBSTITUTIONS ARE EXTERNAL BOUNDARIES, named as the accepted
+        `ThePublicFactoryComposesThroughItsOwnEntryPoint` names its two: the
+        engine is this suite's own, because no case here starts real containers;
+        `_checkout` is the fixture's, because this suite's disk-backed root lives
+        inside the distribution and the real answer would refuse it for the
+        fixture's reason rather than the one under test; and the CLOCK is the
+        fixture's, because this suite pins its stores to `fixtures.NOW` and
+        `factory` takes no clock -- so a real-time worker reads the offers its
+        pinned store issued as `expired` and claims nothing. In production both
+        clocks are the same real one; that mismatch is this fixture's, not the
+        composition's.
+
+        THE CREDENTIAL PROVIDER IS NOT SUBSTITUTED. It is CONFIGURED, so
+        `worker_preflight`'s production default builds it from the registry --
+        which is the operand review 2026-09-11T02-06-10Z required be effective
+        rather than injected.
+        """
+        from unittest.mock import patch
+
+        self.engine = self.quiescing()
+        registry = self.credential_registry()
+        document = self.composed_document(line_declared_base=self.base,
+                                          **members)
+        document["workers"] = [
+            dict(one, deployment=dict(one["deployment"],
+                                      credential_sources=registry))
+            for one in document["workers"]]
+        place = os.path.join(self.root, "factory-stage-config.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            json.dump(document, writing)
+        job, control = self.stores("stage-factory")
+        for one in (patch.dict(os.environ,
+                               {stage_execution.CONFIG_ENV: place}),
+                    patch.object(stage_execution, "_checkout",
+                                 lambda: self.checkout),
+                    patch.object(stage_execution.single_worker, "_engine_run",
+                                 self.engine),
+                    patch.object(stage_execution.single_worker, "_now",
+                                 lambda: NOW)):
+            one.start()
+            self.addCleanup(one.stop)
+        composed = stage_execution.factory(job, control)
+        self.addCleanup(composed.close)
+        self._composed = composed
+        return job, control, composed
+
+    def factory_coding(self, **members):
+        """`coding`, over the literal-factory composition."""
+        from baton_v12.job_manager import submit
+
+        job, control, composed = self.factory_serving(
+            **self.two_jobs(**self.traversing(**members)))
+        submit(job, self.both_jobs())
+        self.drive_job(job, composed, "job-b", "implementation", "waiting")
+        held = SimpleNamespace(job=job, control=control, composed=composed)
+        held.first = self.one_attempt_of(composed, "implementation-worker")
+        held.second = self.one_attempt_of(composed, "implementation-worker-b")
+        return held
+
+    def test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT(self):
+        """W103068's P1: the production composition supplies its own port.
+
+        WHAT THIS DOES NOT DO IS THE POINT. There is no `integration_port`
+        keyword anywhere in this case and no `connect()` step: the deployment is
+        the ordinary one `serving_two` composes through the public
+        `operations_from` entry that `factory` itself calls, with no capability
+        the operator did not already configure. Review 2026-09-11T01-22-35Z [P1]
+        measured that such a deployment mapped every Job's port to `None` and
+        refused `capability` before preparation, so the advertised production
+        entry point could not perform an ordinary direct integration at all.
+
+        AND THE PORT IS CONSTRUCTED, NOT INJECTED. Job A's own accepted line,
+        the proposal its producer published for that line and its canonical
+        target are read from their own public owners at the moment its
+        integration stage runs -- two of those three do not exist until the
+        review is accepted, which is why no configuration document could carry
+        them. The constructed port's own operands are compared against those
+        owners' answers here.
+
+        AND IT IS THE LITERAL `factory` THAT COMPOSES IT. Review
+        2026-09-11T02-06-10Z [P1]: an earlier form of this case passed
+        `engine_run` and `credential_provider` through `operations_from`, which
+        proves construction but NOT that the production defaults work -- and
+        they did not: `factory` supplies neither, so the deployment held `None`
+        for both and the constructed port refused for want of an engine. This
+        composes through `factory_serving`, which injects nothing through the
+        entry point; the engine and `_checkout` are external boundaries this
+        suite already substitutes, and the credential provider is CONFIGURED so
+        the production default builds it.
+
+        THE ENGINE BOUNDARY IS THE FIXTURE'S, as this record's other composed
+        cases drive it, and that is a controlled boundary rather than a claim
+        about a real container: this proves production CONSTRUCTION and
+        preparation, and W71879's actual run remains the model proof.
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.factory_coding()
+        deployment = self.deployment_of(held.composed)
+        # AT COMPOSITION THIS DEPLOYMENT SUPPLIES NO PORT AT ALL, which is the
+        # exact state review 2026-09-11T01-22-35Z traced: `_integration_ports`
+        # maps every bound Job to None and nothing constructs one. No port can
+        # exist yet either -- neither Job has an accepted review, so two of the
+        # three operands a port is composed over do not exist.
+        self.assertEqual(held.composed.integrator.ports,
+                         {"job-a": None, "job-b": None})
+
+        # AND THEN BOTH JOBS ARE ACCEPTED, exactly as `both_accepted` does it.
+        held.first_review = self.accepted(
+            held, "job-a", "implementation-worker", "review-worker",
+            held.first, "print('the first job answered')\n")
+        held.second_review = self.accepted(
+            held, "job-b", "implementation-worker-b", "review-worker-b",
+            held.second, "print('the second job answered')\n",
+            edits={"feature.py": self.B_FEATURE,
+                   "feature_check.py": self.B_CHECK})
+
+        # AND JOB A'S INTEGRATION REALLY STARTS. `integrating` is the state a
+        # stage reaches only once its delivery was published and its runtime
+        # started through the port -- which is exactly what the accepted
+        # composition could not do, because it had no port to publish through.
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "integrating")
+
+        # THE PORT THIS DEPLOYMENT BUILT, and it is the real class.
+        port = held.composed.integrator.ports["job-a"]
+        self.assertIsInstance(port, integration_worker.IntegrationRuntimePort)
+        # JOB B WAS NOT GIVEN ONE: a port is one Job's, and B has not reached
+        # its own integration.
+        self.assertIsNone(held.composed.integrator.ports["job-b"])
+
+        # ITS THREE DYNAMIC OPERANDS ARE THE OWNERS' OWN ANSWERS.
+        line_id = deployment.line_for("job-a")["line_id"]
+        self.assertEqual(port.line_id, line_id)
+        self.assertEqual(
+            port.proposal_id,
+            deployment.published_proposal(
+                review_cycles.integration_checkpoint(held.control, line_id)))
+        self.assertEqual(port._target_id, deployment.target_for("job-a"))
+        # AND ITS FIXED HALF IS THE CONFIGURATION'S, not a default: the
+        # integrator's own identity digests, its adapter, the retained input
+        # manifest's own toolchain digest, and the instruction bytes this
+        # deployment configured -- whose digest the integration profile pins.
+        integrator = self.worker_of(held.composed, "integration")
+        given = integrator.given
+        self.assertEqual(port.identity,
+                         {one: given[one] for one in
+                          ("image_digest", "profile_digest", "policy_digest",
+                           "adapter_digest")})
+        self.assertEqual(port.adapter_name, given["adapter_name"])
+        self.assertEqual(port.toolchain_digest,
+                         given["input_manifest"]["toolchain_digest"])
+        from baton_v12.contracts import digest_of_bytes
+
+        self.assertEqual(port.instructions, self.INSTRUCTIONS)
+        self.assertEqual(digest_of_bytes(port.instructions),
+                         deployment.integration_profile["instructions_digest"])
+        # THE ASSIGNMENT PORT IS THE COMPOSITION'S OWN PUBLIC ONE -- the port
+        # that actually holds this attempt's claim, not a second Authority view.
+        self.assertIs(port.assignment_port,
+                      self.operations_of(held.composed, "integration").port)
+        # AND THE CREDENTIAL HOME IS A VIEW OVER THE CONFIGURED ROOT rather
+        # than the worker's private object: the root is configuration, so the
+        # view over it is composed, and what must agree is the place.
+        self.assertEqual(port.credential_home.place,
+                         integrator.credential_home.place)
+        self.assertEqual(port.credential_home.place,
+                         deployment.integration_served("job-a")[
+                             "credential_home"])
+
+        # RE-ENTERING THE STAGE USES THE SAME CAPACITY rather than building a
+        # second set of the homes one serialized integration owns.
+        self.tick(held)
+        self.assertIs(held.composed.integrator.ports["job-a"], port)
+
+    def test_the_constructed_port_is_the_same_one_through_completion(self):
+        """W103068: ONE CAPACITY FOR ONE JOB'S INTEGRATION, end to end.
+
+        THE CLAIM THIS CASE USED TO MAKE WAS WRONG and review
+        2026-09-11T02-06-10Z said so. It was named for supplied-port precedence
+        and asserted `assertIsNotNone`, but `integrating()` supplies no port at
+        all any more -- so what it actually measured was the CONSTRUCTED port
+        surviving to completion. That is worth measuring; it is just not what
+        the name said, and a control whose name misdescribes it is a control
+        nobody can rely on. The precedence claim is measured for real below.
+        """
+        held = self.integrating()
+        built = held.composed.integrator.ports["job-a"]
+        self.assertIsInstance(built, integration_worker.IntegrationRuntimePort)
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "completed", ticks=4)
+        self.assertIs(held.composed.integrator.ports["job-a"], built)
+
+    def test_a_supplied_port_takes_precedence_over_construction(self):
+        """AN OPERATOR'S INJECTED CAPABILITY STAYS THE ONE IN USE, measured by
+        actually supplying one.
+
+        This composes a second deployment over the same durable stores WITH a
+        per-Job port -- the operator-supplied shape `_integration_ports` has
+        always accepted -- and drives that Job's integration. The deployment
+        must not decide its own construction is better than what it was handed,
+        and the object identity is what proves it did not.
+        """
+        held = self.both_accepted()
+        supplied = self.integration_port(held, "job-a")
+        composed = stage_execution.operations_from(
+            self.composed_document(line_declared_base=self.base,
+                                   **self.traversing()),
+            held.job, held.control, engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: NOW, checkout=self.checkout,
+            integration_port={"job-a": supplied, "job-b": None})
+        self.addCleanup(composed.close)
+        held.composed = composed
+        self.assertIs(composed.integrator.ports["job-a"], supplied)
+        self.drive_job(held.job, composed, "job-a", "integration",
+                       "integrating")
+        # AND IT IS STILL THE OPERATOR'S OBJECT, not one built beside it.
+        self.assertIs(composed.integrator.ports["job-a"], supplied)
+
+    def test_instructions_that_do_not_match_the_pinned_digest_are_refused(self):
+        """The pin is what makes reading a configured file safe: bytes that
+        could never produce a bundle matching this deployment's own integration
+        profile are refused before any container is started."""
+        held = self.both_accepted()
+        deployment = self.deployment_of(held.composed)
+        other = os.path.join(self.root, "other-instructions")
+        self.write(other, "instructions this profile never pinned\n")
+        deployment.given["integration_instructions"] = other
+        with self.assertRaises(ContractRefusal) as caught:
+            deployment.integration_port_for(
+                "job-a", line_id=deployment.line_for("job-a")["line_id"],
+                proposal_id="proposal-whatever",
+                canonical_target_id=deployment.target_for("job-a"))
+        self.assertEqual(caught.exception.category, "refused")
+        self.assertEqual(caught.exception.code, "capability")
+        self.assertIn("integration profile pins", caught.exception.message)
+
+    def test_a_deployment_that_configures_no_instructions_is_refused(self):
+        """And an unconfigured one says which member is missing rather than
+        recovering the bytes from a document that means something else."""
+        held = self.both_accepted()
+        deployment = self.deployment_of(held.composed)
+        deployment.given.pop("integration_instructions", None)
+        with self.assertRaises(ContractRefusal) as caught:
+            deployment.integration_instructions()
+        self.assertEqual(caught.exception.code, "capability")
+        self.assertIn("integration_instructions", caught.exception.message)
+
+    def integration_port(self, held, job_id):
+        """THIS JOB'S accepted runtime port, over THIS JOB'S own operands.
+
+        W130224. `IntegrationRuntimePort` is composed over one accepted line,
+        one published proposal and one canonical target, and all three are
+        read from their own owners for the Job this port belongs to --
+        `line_for`, `integration_checkpoint` and `published_proposal`. A
+        deployment serving two Jobs composes two of these and names each by
+        its Job; see `stage_execution._integration_ports`.
+        """
+        from baton_v12.worker_manager import review_cycles, source_boundary
+
+        deployment = self.deployment_of(held.composed)
+        target_id = deployment.target_for(job_id)
+        self.activated(deployment, target_id)
+        line = review_cycles.line_of(deployment.control,
+                                     deployment.line_for(job_id)["line_id"])
+        accepted = review_cycles.integration_checkpoint(deployment.control,
+                                                        line["line_id"])
+        self.assertIsNotNone(accepted, job_id)
+        integrator = self.worker_of(held.composed, "integration")
+        given = integrator.given
+        for place in (deployment.integration_root,
+                      os.path.join(self.root, "integration-bundles"),
+                      os.path.join(self.root, "integration-launch")):
+            os.makedirs(place, exist_ok=True)
+        return integration_worker.IntegrationRuntimePort(
+            coordinator=deployment.integration, manager=deployment.control,
+            jobs=deployment.jobs, authority=deployment.authority,
+            assignment_port=integrator.port,
+            profile=deployment.integration_profile,
+            checkpoint_profile=deployment.profile,
+            object_runner=self.object_runner,
+            line_id=line["line_id"],
+            proposal_id=deployment.published_proposal(accepted),
+            canonical_target_id=target_id, canonical_target=self.source,
+            delivery_home=deployment.integration_root,
+            instructions=self.INSTRUCTIONS,
+            identity={one: given[one] for one in
+                      ("image_digest", "profile_digest", "policy_digest",
+                       "adapter_digest")},
+            adapter_name=given["adapter_name"],
+            toolchain_digest="sha256:" + "7" * 64,
+            input_manifest=given["input_manifest"],
+            engine=given["engine"], engine_run=self.engine,
+            workspace_storage=self.storage,
+            workspace_group=deployment.workspace_group,
+            capacity=source_boundary.workspace_capacity(1 << 30),
+            bundle_home=os.path.join(self.root, "integration-bundles"),
+            launch_home=os.path.join(self.root, "integration-launch"),
+            launch_session="integration-session",
+            launch_contract=given["launch_contract"],
+            network=given["network"],
+            credential_resolution=given["credential_resolution"],
+            credential_home=integrator.credential_home,
+            credential_provider=lambda provider, reference: self.secret)
+
+    object_runner = OrdinaryTerminalLifecycle.object_runner
+
+    def connect(self, held, ports):
+        """Recompose this deployment WITH its per-Job integration ports.
+
+        The two operands each port needs -- the accepted line and the proposal
+        that line's producer published -- do not exist until that Job's review
+        has been accepted, which is why the ports are supplied to a second
+        composition over the same durable stores rather than to the first.
+        """
+        composed = stage_execution.operations_from(
+            self.composed_document(line_declared_base=self.base,
+                                   **self.traversing()),
+            held.job, held.control, engine_run=self.engine,
+            credential_provider=lambda *_: self.secret,
+            clock=lambda: NOW, checkout=self.checkout, integration_port=ports)
+        self.addCleanup(composed.close)
+        self._composed = composed
+        held.composed = composed
+        return composed
+
+    def integration_job_execution(self, deployment, attempt_id):
+        """The Job execution context this deployment's port composed.
+
+        W156162. Derived from PUBLIC OWNERS -- the Job store's own stage rows
+        and live episodes name which stage is attempting this id, and the
+        deployment's own served configuration answers the runtime identities
+        its port was constructed with. Nothing private is reached and nothing
+        is read back out of the document being proved.
+        """
+        from baton_v12.job_manager import episodes
+        from baton_v12.job_manager.submission import stage_rows
+
+        from tools import single_worker
+
+        for row in stage_rows(deployment.jobs):
+            if row["kind"] != integration_worker.INTEGRATION_STAGE_KIND:
+                continue
+            live = episodes.live_of(deployment.jobs, row["stage_id"])
+            if live is None:
+                continue
+            if episodes.attempting(row, live)["attempt_id"] != attempt_id:
+                continue
+            given = deployment.integration_served(row["job_id"])
+            return single_worker.job_execution_reader(deployment.jobs)(
+                job_id=row["job_id"], attempt_id=attempt_id,
+                runtime_input_digest=given["input_manifest"][
+                    "manifest_digest"],
+                runtime_policy_digest=given["policy_digest"])
+        return None
+
+    def integration_turn(self, held, attempt_id, *, behavior="import"):
+        """One REAL integrator turn over the delivery this run published."""
+        import subprocess
+        import sys
+
+        import claude_agent
+        import integration_entry
+        from unittest.mock import patch
+
+        from baton_v12.integration import runtime
+        from baton_v12.worker_manager import launch
+        from tests.manager.test_integration_worker import PROVIDER_SOURCE
+
+        deployment = self.deployment_of(held.composed)
+        delivery = runtime.adopt_delivery(
+            deployment.integration_root, attempt_id=attempt_id,
+            workspace_group=deployment.workspace_group)
+        script = os.path.join(self.root, "integration-provider.py")
+        self.write(script, PROVIDER_SOURCE)
+
+        def runner(argv, **options):
+            return subprocess.run(
+                [sys.executable, "-I", "-B", script, behavior, argv[-1]],
+                cwd=options.get("cwd"), env=dict(options.get("env") or {}),
+                stdout=options.get("stdout"), stderr=options.get("stderr"),
+                timeout=10)
+
+        # W103068: THE HOMES ARE THE DEPLOYMENT'S OWN, ASKED RATHER THAN
+        # GUESSED. This turn used to name `<root>/integration-launch` and
+        # `<root>/integration-bundles` because the fixture itself had created
+        # them for a port it constructed by hand. The production composition
+        # provisions them under its configured `state_root`, so a turn that
+        # kept guessing would be reading a directory nothing writes.
+        # W156162: AND THE JOB HALF THE PORT NOW COMPOSES. `adopt` authors what
+        # the manager WOULD have written and compares canonical bytes, so a
+        # caller that did not restate the Job context would be asking for a
+        # `/1` and correctly told the `/3` on disk is not it. The context is
+        # re-derived from the Job's own owner here rather than read back out of
+        # the file, which is the same rule the production adoption follows.
+        launched = launch.adopt(
+            deployment.integration_home(
+                stage_execution.INTEGRATION_LAUNCH_HOME),
+            attempt_id=attempt_id,
+            session=stage_execution.INTEGRATION_LAUNCH_SESSION,
+            contract=self.config["launch_contract"],
+            role=integration_worker.LAUNCH_ROLE,
+            job_execution=self.integration_job_execution(deployment,
+                                                         attempt_id))
+        places = {}
+        for name in ("scratch", "agent", "credentials"):
+            places[name] = os.path.join(self.root,
+                                        f"integration-{name}-{attempt_id[:12]}")
+            os.makedirs(places[name], exist_ok=True)
+        self.write(os.path.join(places["credentials"], "claude"),
+                   "not-a-credential\n")
+        with patch.object(claude_agent, "CREDENTIAL_ROOT",
+                          places["credentials"]):
+            return integration_entry.main(
+                agent=claude_agent.ClaudeAgent(run=runner,
+                                               home=places["agent"]),
+                launch_place=launched.place,
+                assignment_root=delivery.assignment_root,
+                result_root=delivery.result_root,
+                bundle_root=os.path.join(
+                    deployment.integration_home(
+                        stage_execution.INTEGRATION_BUNDLE_HOME),
+                    attempt_id),
+                # THE DEPLOYMENT'S OWN TARGET when a case separates it from
+                # the nominated source (W202663 D8's fresh-successor proof);
+                # the accepted same-tree cases are unchanged by the default.
+                target_root=getattr(self, "integration_target_root",
+                                    self.source),
+                scratch=places["scratch"])
+
+    def tick(self, held):
+        from baton_v12.job_manager import sweep
+        from tests.job_manager import fixtures
+
+        return sweep(held.job, held.composed, now=fixtures.NOW)
+
+    # -- simultaneous independent implementation bindings --------------------
+
+    def test_both_jobs_code_at_once_on_their_own_workers_and_lines(self):
+        """THE FIRST THING A TWO-JOB DEPLOYMENT OWES, and every operand of it
+        is a committed record rather than this composition's list order."""
+        held = self.coding()
+        self.assertNotEqual(held.first, held.second)
+        # BOTH WAITING AT THE SAME INSTANT: neither Job is queued behind the
+        # other's producer capacity.
+        self.assertEqual(
+            self.states_for(held.job, held.composed, "job-a")
+            ["implementation"], "waiting")
+        self.assertEqual(
+            self.states_for(held.job, held.composed, "job-b")
+            ["implementation"], "waiting")
+        # EACH ON ITS OWN ALLOCATED PRODUCER.
+        self.assertEqual(self.allocated(held.job, "job-a/implementation"),
+                         "implementation-worker")
+        self.assertEqual(self.allocated(held.job, "job-b/implementation"),
+                         "implementation-worker-b")
+        # AND EACH WRITING ITS OWN PERSISTENT LINE, at its own declared base,
+        # from its own nominated source.
+        first = self.line_of(held.composed, "job-a")
+        second = self.line_of(held.composed, "job-b")
+        self.assertNotEqual(first["line_id"], second["line_id"])
+        self.assertEqual(first["work_id"], self.work)
+        self.assertEqual(second["work_id"], SECOND_WORK)
+        _first_worker, first_prepared = self.preparing(held.composed,
+                                                       held.first)
+        _second_worker, second_prepared = self.preparing(held.composed,
+                                                         held.second)
+        self.assertEqual(first_prepared["line_id"], first["line_id"])
+        self.assertEqual(second_prepared["line_id"], second["line_id"])
+
+    # -- review alongside unrelated coding ------------------------------------
+
+    def test_one_job_reviews_while_the_other_is_still_coding(self):
+        """THE OVERLAP, and it is the whole reason a pool exists.
+
+        Job A's producer answers and its Work is handed to the review route;
+        Job B has not answered and is still waiting on its own producer. Both
+        are true of one deployment at one instant, and the reviewer that
+        claims is Job B's reviewer's peer rather than Job B's reviewer.
+        """
+        held = self.coding()
+        self.produced(held, "job-a", held.first,
+                      "print('the first job answered')\n")
+        self.drive_job(held.job, held.composed, "job-a", "review", "waiting")
+        self.assertEqual(
+            self.states_for(held.job, held.composed, "job-a")["review"],
+            "waiting")
+        # AND THE OTHER JOB IS STILL CODING, on its own producer, untouched.
+        second = self.states_for(held.job, held.composed, "job-b")
+        self.assertEqual(second["implementation"], "waiting")
+        self.assertEqual(second["review"], "blocked")
+        self.assertEqual(self.allocated(held.job, "job-a/review"),
+                         "review-worker")
+        self.assertEqual(
+            self.one_attempt_of(held.composed, "implementation-worker-b"),
+            held.second)
+
+    # -- correction on that Job's own line, and no other ----------------------
+
+    def test_a_correction_reopens_only_its_own_jobs_line(self):
+        """A CHANGES-REQUESTED VERDICT IS A JOB'S OWN FACT.
+
+        The correction round is the SAME line the rejected checkpoint was
+        written on -- which is what makes it a correction rather than a second
+        checkout -- and the other Job's line, round and attempt are exactly
+        where they were.
+        """
+        held = self.coding()
+        self.produced(held, "job-a", held.first,
+                      "print('the first job answered')\n")
+        self.drive_job(held.job, held.composed, "job-a", "review", "waiting")
+        reviewed = self.one_attempt_of(held.composed, "review-worker")
+        self.review_turn(held, "job-a", reviewed, "changes-requested")
+        line = self.line_of(held.composed, "job-a")["line_id"]
+        second_line = self.line_of(held.composed, "job-b")["line_id"]
+        self.drive_job(held.job, held.composed, "job-a", "implementation",
+                       "waiting")
+        corrected = self.one_attempt_of(held.composed, "implementation-worker",
+                                        exclude=[held.first])
+        self.assertNotEqual(corrected, held.first)
+        # THE SAME LINE, AND ITS OWN.
+        _worker_id, prepared = self.preparing(held.composed, corrected)
+        self.assertEqual(prepared["line_id"], line)
+        self.assertEqual(self.line_of(held.composed, "job-a")["line_id"], line)
+        self.assertNotEqual(line, second_line)
+        # AND THE CORRECTION ROUND IS BASED ON THE REJECTED CHECKPOINT rather
+        # than on the line's declared base, which is what a second checkout
+        # would have been.
+        self.assertIsNotNone(prepared["based_checkpoint_id"])
+        # THE OTHER JOB DID NOT MOVE.
+        self.assertEqual(self.line_of(held.composed, "job-b")["line_id"],
+                         second_line)
+        self.assertEqual(
+            self.one_attempt_of(held.composed, "implementation-worker-b"),
+            held.second)
+        self.assertEqual(
+            self.states_for(held.job, held.composed, "job-b")["review"],
+            "blocked")
+
+    # -- and the second Job traverses its own review the same way -------------
+
+    def test_the_second_job_reaches_its_own_reviewer_and_verdict(self):
+        """THE OTHER HALF OF THE OVERLAP, driven rather than assumed.
+
+        Job B's producer answers, its Work moves to the review route, and the
+        reviewer that claims is JOB B's -- the one configured for Job B's
+        Work and input, not the one Job A's review used.
+        """
+        held = self.coding()
+        self.produced(held, "job-b", held.second,
+                      "print('the second job answered')\n",
+                      edits={"feature.py": self.B_FEATURE,
+                             "feature_check.py": self.B_CHECK})
+        self.drive_job(held.job, held.composed, "job-b", "review", "waiting")
+        self.assertEqual(self.allocated(held.job, "job-b/review"),
+                         "review-worker-b")
+        reviewed = self.one_attempt_of(held.composed, "review-worker-b")
+        self.review_turn(held, "job-b", reviewed, "accepted")
+        states = self.drive_job(held.job, held.composed, "job-b", "review",
+                                "completed")
+        self.assertEqual(states["review"], "completed")
+        # ITS OWN LINE HOLDS THE ACCEPTED CHECKPOINT, and Job A's does not:
+        # Job A never answered in this case.
+        from baton_v12.worker_manager import review_cycles
+
+        control = held.control
+        second = self.line_of(held.composed, "job-b")["line_id"]
+        self.assertIsNotNone(
+            review_cycles.integration_checkpoint(control, second))
+        first = self.line_of(held.composed, "job-a")["line_id"]
+        self.assertIsNone(
+            review_cycles.integration_checkpoint(control, first))
+
+    # -- and the integration both accepted Jobs must share -------------------
+
+    def both_accepted(self, **members):
+        """Both Jobs coded, reviewed and accepted, on one deployment."""
+        held = self.coding(**members)
+        held.first_review = self.accepted(
+            held, "job-a", "implementation-worker", "review-worker",
+            held.first, "print('the first job answered')\n")
+        held.second_review = self.accepted(
+            held, "job-b", "implementation-worker-b", "review-worker-b",
+            held.second, "print('the second job answered')\n",
+            edits={"feature.py": self.B_FEATURE,
+                   "feature_check.py": self.B_CHECK})
+        return held
+
+    def test_two_accepted_jobs_share_one_integrator_one_at_a_time(self):
+        """SAME-TARGET SERIALIZATION, measured where the owners decide it.
+
+        Both Jobs are accepted and both integration stages are eligible at the
+        same instant. One deployment names one `integrator_participant`, the
+        pool gives that participant one worker, and `scheduler.reserve` holds
+        one live allocation per worker -- so exactly one of the two holds the
+        integrator and the other reaches no allocation at all. Neither is
+        refused for compatibility: each is a Job this integrator can serve.
+        """
+        held = self.both_accepted()
+        for job_id in ("job-a", "job-b"):
+            self.assertEqual(
+                self.states_for(held.job, held.composed, job_id)["review"],
+                "completed")
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "integrating")
+        allocated = {job_id: self.allocated(held.job, f"{job_id}/integration")
+                     for job_id in ("job-a", "job-b")}
+        self.assertEqual(allocated["job-a"], "integration-worker")
+        self.assertIsNone(allocated["job-b"])
+        # AND THE TWO JOBS PROPOSE INTO THE SAME CANONICAL TARGET, which is
+        # what makes that serialization the target's and not an accident of
+        # this fixture's configuration.
+        deployment = self.deployment_of(held.composed)
+        self.assertEqual(deployment.target_for("job-a"),
+                         deployment.target_for("job-b"))
+        self.assertNotEqual(deployment.line_for("job-a")["line_id"],
+                            deployment.line_for("job-b")["line_id"])
+
+    def test_each_jobs_integration_binds_its_own_producer_task_and_port(self):
+        """NO GLOBAL FALLBACK LEFT IN THE INTEGRATION OPERANDS.
+
+        The required-test selection is derived from the producer THIS Job's
+        binding names, so two Jobs with two tasks answer two selections; and
+        a deployment binding two Jobs refuses ONE bare runtime port rather
+        than running the second Job's integration against the first Job's
+        line and target.
+        """
+        held = self.both_accepted()
+        deployment = self.deployment_of(held.composed)
+        integrator = held.composed.integrator
+        first = integrator.required_tests("job-a")
+        second = integrator.required_tests("job-b")
+        self.assertNotEqual(first["task_id"], second["task_id"])
+        self.assertEqual(first["task_id"], "w119114-composed-lifecycle")
+        self.assertEqual(second["task_id"],
+                         "w130224-second-line-of-one-target")
+        self.assertNotEqual(first["input_manifest_digest"],
+                            second["input_manifest_digest"])
+        # AND ONE PORT FOR TWO JOBS IS REFUSED RATHER THAN REUSED.
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                self.composed_document(line_declared_base=self.base,
+                                       **self.traversing()),
+                held.job, held.control, engine_run=self.engine,
+                credential_provider=lambda *_: self.secret,
+                clock=lambda: NOW, checkout=self.checkout,
+                integration_port=self.integration_port(held, "job-a"))
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("one per Job keyed by its Job id",
+                      caught.exception.message)
+        del deployment
+
+    def test_readonly_reconciled_completion_without_runtime_reaches_outer_observer(self):
+        """A model-free import reaches status through the public read-only owner."""
+        from contextlib import ExitStack
+        from baton_v12.authority import Authority
+        from baton_v12.integration import IntegrationStore, reconciliation
+        from baton_v12.job_manager import episodes_of, status
+        from baton_v12.worker_manager import attempt_runtime_of
+        from tools import job_manager
+
+        judges = self.judgment_workers()
+        with mock.patch.object(self, "judgment_workers", return_value=judges):
+            held, deployment, result_id, result = self.pending_judgments()
+        stage = {"job_id": "job-b", "kind": "integration", "stage_id": "job-b/integration",
+                 **episodes_of(held.job, "job-b/integration")[-1]}
+        document = self.composed_document(line_declared_base=self.base,
+                                         result_judgment_workers=judges, **self.traversing())
+        self.assertIsNone(attempt_runtime_of(held.control, stage["attempt_id"]))
+        for execution in deployment.judges.values():
+            self.judgment_turn(held, execution)
+        self.tick(held)
+        self.drive_job(held.job, held.composed, "job-b", "integration", "completed", ticks=14)
+        self.assertEqual(reconciliation.result_of(deployment.integration, result_id)["state"], "imported")
+        expected = held.composed.integrator.observe(stage)
+        self.assertEqual(expected["state"], "completed")
+        self.assertEqual(expected["completion"]["result_id"], result_id)
+        self.assertIsNone(expected["completion"]["runtime_id"])
+        self.assertEqual(expected["completion"]["execution_runtime"], "absent")
+        starts = self.engine.minted
+        with ExitStack() as guards:
+            for owner, method in ((Authority, "open"), (Authority, "session"),
+                    (IntegrationStore, "open"), (stage_execution, "operations_from"),
+                    (stage_execution.Integration, "run"), (stage_execution.Integration, "finish"),
+                    (stage_execution.scheduler, "activate_pool"), (stage_execution.review_cycles, "create_line")):
+                guards.enter_context(mock.patch.object(owner, method, side_effect=AssertionError("observation acted: " + method)))
+            observed = stage_execution.observation_from(document, held.job, held.control, checkout=self.checkout)
+            self.assertEqual(observed.observe_integration(stage), expected)
+            projected = status(held.job, job_manager._Observing(held.control, observed), observed_at=NOW)
+            self.assertEqual({job["job_id"]: {one["kind"]: one["state"] for one in job["stages"]}
+                              for job in projected["jobs"]},
+                             {job_id: {kind: "completed" for kind in ("implementation", "review", "integration")}
+                              for job_id in ("job-a", "job-b")})
+            self.assertIsNone(observed.observe_integration(dict(stage, attempt_id="never-started")))
+            with mock.patch.object(Authority, "open_readonly", side_effect=AssertionError("generic stage opened Authority")):
+                self.assertIsNone(observed.observe_integration(dict(stage, kind="implementation")))
+            for changed in ({"job_id": "unbound-job"}, {"job_id": "job-a"}, {"offer_id": "foreign-offer"}):
+                with self.subTest(changed=changed), self.assertRaises(ContractRefusal):
+                    observed.observe_integration(dict(stage, **changed))
+            operation_result = Authority.operation_result
+            handoff = expected["completion"]["handoff_operation_id"]
+            with mock.patch.object(Authority, "operation_result",
+                    lambda owner, operation: None if operation == handoff else operation_result(owner, operation)):
+                owed = observed.observe_integration(stage)
+                self.assertEqual(owed["state"], "answered")
+                self.assertIsNone(owed["completion"])
+            with mock.patch.object(Authority, "receipt", return_value=None):
+                with self.assertRaises(ContractRefusal) as missing:
+                    observed.observe_integration(stage)
+                self.assertEqual(missing.exception.code, "operation-collision")
+        self.assertEqual(self.engine.minted, starts)
+        self.assertIsNone(attempt_runtime_of(held.control, stage["attempt_id"]))
+
+    def test_readonly_integration_observation_keeps_the_bound_job(self):
+        """The public observer reaches the real two-producer completion account."""
+        from contextlib import ExitStack
+        from baton_v12.authority import Authority
+        from baton_v12.integration import IntegrationStore
+        from baton_v12.job_manager import episodes_of
+
+        held = self.integrating()
+        self.drive_job(held.job, held.composed, "job-a", "integration", "completed", ticks=4)
+        stage = {"job_id": "job-a", "kind": "integration", "stage_id": "job-a/integration",
+                 **episodes_of(held.job, "job-a/integration")[-1]}
+        expected = held.composed.integrator.observe(stage)
+        self.assertEqual(expected["state"], "completed")
+        document = self.composed_document(line_declared_base=self.base, **self.traversing())
+        with ExitStack() as guards:
+            for owner, method in ((Authority, "open"), (Authority, "session"),
+                    (IntegrationStore, "open"), (stage_execution, "operations_from"),
+                    (stage_execution.Integration, "run"), (stage_execution.Integration, "finish"),
+                    (stage_execution.scheduler, "activate_pool"), (stage_execution.review_cycles, "create_line")):
+                guards.enter_context(mock.patch.object(owner, method, side_effect=AssertionError("observation acted: " + method)))
+            observed = stage_execution.observation_from(document, held.job, held.control, checkout=self.checkout)
+            self.assertEqual(observed.observe_integration(stage), expected)
+            with self.assertRaises(ContractRefusal) as unknown:
+                observed.observe_integration(dict(stage, job_id="unbound-job"))
+            self.assertIn("binds no Job", unknown.exception.message)
+            # A real Job's binding must also refuse a foreign fixed assignment.
+            with self.assertRaises(ContractRefusal) as foreign:
+                observed.observe_integration(dict(stage, job_id="job-b"))
+            self.assertEqual(foreign.exception.code, "operation-collision")
+            # Both producer selections pass through the observation context;
+            # this probe does not stand in for the real completion above.
+            def required(reader, selected):
+                return reader.required_tests(stage_execution._bound_id(reader.deployment, selected))
+            with mock.patch.object(stage_execution.Integration, "observe", required):
+                for job_id in ("job-a", "job-b"):
+                    self.assertEqual(observed.observe_integration(dict(stage, job_id=job_id)),
+                                     held.composed.integrator.required_tests(job_id))
+
+    def test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool(
+            self):
+        """THE TERMINAL HALF, driven inside a deployment serving two Jobs.
+
+        This is where the two global fallbacks this Work removed are actually
+        reached: the integration is started through THIS Job's own runtime
+        port, and its committed settlement is proved against THIS Job's own
+        required test -- the selection `required_tests()` with no Job refuses
+        outright once a deployment configures two producers.
+        """
+        from baton_v12.integration import entries_of, lease_of, runtime
+        from baton_v12.worker_manager import attempt_runtime_of
+
+        held = self.integrating()
+        ended = held.ended
+        attempt_id = held.integrated
+        self.assertEqual(ended["outcome"], "performed", ended)
+        self.assertEqual(ended["detail"]["outcome"], "integrated", ended)
+        deployment = self.deployment_of(held.composed)
+        target_id = deployment.target_for("job-a")
+        [entry] = entries_of(deployment.integration, target_id)
+        self.assertEqual(entry["state"], "integrated")
+        delivery = runtime.adopt_delivery(
+            deployment.integration_root, attempt_id=attempt_id,
+            workspace_group=deployment.workspace_group)
+        assignment = runtime.published_assignment(delivery)
+        self.assertEqual(
+            lease_of(deployment.integration, assignment["lease_id"])["state"],
+            "released")
+        # AND THE TERMINAL HANDOFF, which is the completion check that reads
+        # this Job's own required test.
+        states = self.drive_job(held.job, held.composed, "job-a",
+                                "integration", "completed", ticks=4)
+        self.assertEqual(states, {"implementation": "completed",
+                                  "review": "completed",
+                                  "integration": "completed"})
+        fixed = attempt_runtime_of(held.control, attempt_id)["assignment"]
+        outgoing = self.worker_of(held.composed,
+                                  "integration").given["review_route"]
+        handoff = deployment.authority.operation_result(
+            "integration-pass:" + attempt_id)
+        self.assertEqual(handoff["assignment"], fixed)
+        self.assertEqual(handoff["route"], outgoing)
+        self.assertEqual(handoff["cause"], "pass")
+        self.assertEqual(fixed["work_ref"]["work_id"], self.work)
+        # THE OTHER JOB IS UNTOUCHED and still holds no integrator.
+        self.assertEqual(
+            self.states_for(held.job, held.composed, "job-b")["review"],
+            "completed")
+        self.terminal_evidence = {
+            "attempt_id": attempt_id, "entry": entry, "handoff": handoff,
+            "states": states, "assignment": fixed}
+
+    def test_a_completed_integration_returns_the_integrator_to_the_next_job(
+            self):
+        """W131187, driven end to end: the capacity comes back.
+
+        THE BOUNDARY THIS REPLACES. When W130224 first drove two Jobs, a
+        completed integration never returned its scheduler capacity:
+        `reconcile_allocations` released on an episode ended in one of its
+        release endings or on a runtime whose cleanup axis was terminal, and an
+        integration attempt reached neither -- an integrator's runtime produces
+        no frozen worker result, so no intake receipt, so no
+        `authorize_cleanup`. The one configured integrator was held by the
+        first Job that used it for the life of the deployment, and this case
+        measured that. W131187 corrects it in the scheduler, and this is the
+        public consumer witness for the correction.
+
+        WHAT IS RETURNED IS LOGICAL CAPACITY. The cleanup axis is untouched and
+        this pins it: the release reason is its own word and the runtime's
+        cleanup is still `pending`, so nothing here tells a reader the
+        container, credential or workspace was destroyed.
+
+        AND WHAT IS NOT CLAIMED. Job B acquires the worker; it does not
+        integrate. This deployment composes no runtime port for it, and whether
+        its already published proposal is still current against the canonical
+        target Job A's integration moved is W130224's acceptance, not this
+        prerequisite's. Capacity return does not make a stale candidate good.
+        """
+        from baton_v12.job_manager import scheduler
+        from baton_v12.job_manager.scheduler import allocation_of
+
+        held = self.integrating()
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "completed", ticks=4)
+        self.assertEqual(
+            self.states_for(held.job, held.composed, "job-a")["integration"],
+            "completed")
+        # THE EXACT ALLOCATION, SETTLED UNDER ITS OWN REASON.
+        allocation = allocation_of(held.job, held.integrated)
+        self.assertEqual(allocation["worker_id"], "integration-worker")
+        self.assertEqual(allocation["allocation_state"], "released")
+        self.assertEqual(allocation["release_reason"],
+                         scheduler.INTEGRATION_COMPLETED)
+        # CLEANUP SEMANTICS PRESERVED: this returned capacity, not resources.
+        observed = held.composed.observe(
+            self.attempted(held.job, "job-a/integration"))
+        self.assertEqual(observed["runtime"]["execution_runtime"], "quiescent")
+        self.assertEqual(observed["runtime"]["cleanup"], "pending")
+        # AND THE ELIGIBLE SECOND JOB TAKES THE SAME WORKER, on ordinary ticks
+        # and with no manual release anywhere.
+        for _ in range(6):
+            self.tick(held)
+            if self.allocated(held.job, "job-b/integration") is not None:
+                break
+        self.assertEqual(self.allocated(held.job, "job-b/integration"),
+                         "integration-worker")
+        # AND IT REALLY ADMITTED, rather than merely holding a reservation.
+        self.assertIsNotNone(
+            self.receipted(held.job, held.composed, "job-b/integration"))
+        # THE OTHER TWO ROLES STILL RETURN THEIRS THE WAY THEY ALWAYS DID,
+        # which is what makes this a correction to the integration ending
+        # rather than a loosening of the scheduler.
+        for stage_id in ("job-a/implementation", "job-a/review"):
+            [attempt] = self.attempts_of_stage(held.job, stage_id)
+            settled = allocation_of(held.job, attempt)
+            self.assertEqual(settled["allocation_state"], "released", stage_id)
+            self.assertNotEqual(settled["release_reason"],
+                                scheduler.INTEGRATION_COMPLETED)
+
+    def test_the_second_jobs_published_proposal_survives_the_advance(self):
+        """W133129: THE FIRST HALF OF THE BOUNDARY THIS TRAVERSAL FOUND.
+
+        What this case used to record is that the second Job could not even be
+        NAMED once the first integrated: `published_proposal` re-composed the
+        proposal manifest, composing one asks whether a proposal may be offered
+        against the canonical target NOW, and the target had moved -- so the
+        reader refused with "a proposal is offered against the revision it was
+        built from" for a proposal that had been published long before, against
+        the revision it really was built from.
+
+        IT IS A HISTORICAL LOOKUP NOW. `driver.publication_for_attempt` answers
+        from the attempt alone, out of the journal, opening no write and
+        comparing against no later target. Job B's own published proposal is
+        readable after Job A's integration, which is what a reconciliation has
+        to start from.
+
+        WHAT IS STILL TRUE AND STILL BLOCKING is the other half, and this case
+        keeps measuring it: the line's declared base is immutable and the
+        canonical target has moved past it, so the DIRECT import path cannot
+        offer this candidate. W133117 and W133120 built the reconciled answer;
+        wiring it into this ordinary tick is the remaining R scope.
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.integrating()
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "completed", ticks=4)
+        deployment = self.deployment_of(held.composed)
+        # THE TARGET MOVED, and it moved to Job A's own candidate.
+        advanced = deployment.authority.canonical_target()
+        self.assertNotEqual(advanced, self.base)
+        # CAPACITY IS NOT THE BLOCKER: Job B takes the integrator.
+        for _ in range(6):
+            self.tick(held)
+            if self.allocated(held.job, "job-b/integration") is not None:
+                break
+        self.assertEqual(self.allocated(held.job, "job-b/integration"),
+                         "integration-worker")
+        # AND ITS LINE IS STILL DECLARED AT THE BASE IT WAS CREATED ON, which
+        # is the revision the target has now moved past. That is the fact a
+        # reconciliation exists for, and it is deliberately unchanged.
+        line = deployment.line_for("job-b")
+        self.assertEqual(line["declared_base"], self.base)
+        self.assertNotEqual(line["declared_base"], advanced)
+        self.assertEqual(
+            review_cycles.line_of(held.control,
+                                  line["line_id"])["declared_base"],
+            self.base)
+        # ITS ACCEPTED CHECKPOINT IS NAMEABLE, which is what changed.
+        accepted = review_cycles.integration_checkpoint(held.control,
+                                                        line["line_id"])
+        self.assertIsNotNone(accepted)
+        proposal_id = deployment.published_proposal(accepted)
+        self.assertTrue(proposal_id)
+        # AND IT IS THE PROPOSAL JOB B ACTUALLY PUBLISHED, against the base its
+        # line was declared at rather than against the target that moved.
+        proposal = deployment.authority.proposal(proposal_id)
+        self.assertEqual(proposal["target"], self.base)
+        self.assertNotEqual(proposal["target"], advanced)
+        self.assertEqual(proposal["assignment_ref"]["work_ref"]["work_id"],
+                         deployment.binding_for("job-b")["job_work_id"])
+
+    def receipts_for(self, held, proposal_id):
+        """THE THREE CONFIGURED PARTICIPANTS' OWN ORDINARY RECEIPTS.
+
+        Written by the deployment's REAL Authority sessions on the derived
+        proposal, exactly as they are written on any other. Nothing in the
+        assembly writes them; until they exist the reconciled result stays
+        published and its stage stays pending.
+        """
+        deployment = self.deployment_of(held.composed)
+        generation = deployment.authority.policy_generation()
+        deployment.sessions["verification"].verify({
+            "proposal_id": proposal_id,
+            "verification_id": proposal_id + "-verification",
+            "observation": "passed",
+            "operation_id": proposal_id + "-verify"})
+        deployment.sessions["review"].review({
+            "proposal_id": proposal_id, "review_id": proposal_id + "-review",
+            "disposition": "accepted", "operation_id": proposal_id + "-rev"})
+        deployment.sessions["approval"].approve({
+            "proposal_id": proposal_id,
+            "approval_id": proposal_id + "-approval",
+            "disposition": "approved", "operation_id": proposal_id + "-appr",
+            "policy_generation": generation})
+
+    def test_the_direct_integration_finalizes_the_dedicated_target(self):
+        """W133129, owner return137905: the transition the witness FOUND
+        missing, now performed by its own owner.
+
+        Job A's ordinary integration used to advance the Authority's canonical
+        target to a candidate the dedicated repository did not even contain,
+        leaving its only reference at the original base -- so a second Job had
+        no revision to reconcile onto. The coordinator finalizes that target
+        now, before the Authority receipt: it delivers the accepted candidate
+        object out of the proved producer custody and advances the configured
+        reference by compare-and-swap from the accepted old revision.
+        """
+        held = self.integrating()
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "completed", ticks=4)
+        deployment = self.deployment_of(held.composed)
+        advanced = deployment.authority.canonical_target()
+        self.assertNotEqual(advanced, self.base)
+        # THE DEDICATED TARGET NOW HOLDS THE ACCEPTED CANDIDATE, and its
+        # configured reference names it.
+        self.assertEqual(self.vcs("rev-parse", "refs/heads/main").strip(),
+                         advanced)
+        import subprocess as _subprocess
+
+        kind = _subprocess.run(
+            ["git", "-C", self.source, "cat-file", "-t", advanced],
+            capture_output=True, text=True, timeout=30)
+        self.assertEqual(kind.returncode, 0, kind.stderr)
+        self.assertEqual(kind.stdout.strip(), "commit")
+
+    def test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET(self):
+        """W131409'S WHOLE POINT, driven through the ordinary configured tick.
+
+        Job A integrates directly, and the coordinator finalizes the dedicated
+        target so its configured reference names A's accepted candidate. Job
+        B's line was declared at the revision that moved past, so its accepted
+        submission cannot be offered as it stands -- and instead of stopping
+        there, the ordinary tick RECONCILES it: composes B's change with the
+        snapshot A left, runs the deployment's own required test against the
+        base, the isolated candidate and the combination, publishes an
+        unapproved derived candidate, waits for the three configured
+        participants to judge it, then imports the approved bytes and settles.
+
+        Both changes end on ONE target, B's own line and proposal are never
+        rewritten, and the capacity is released.
+        """
+        from baton_v12.integration import entries_of, lease_of
+        from baton_v12.integration import reconciliation
+        from baton_v12.job_manager import scheduler
+        from baton_v12.job_manager.scheduler import allocation_of
+        from baton_v12.worker_manager import review_cycles
+
+        # ORIGINAL B EVIDENCE, READ BEFORE JOB A MOVES ANYTHING. Everything
+        # compared at the end of this case is compared against THIS reading.
+        original = {}
+
+        def capture(held):
+            deployment = self.deployment_of(held.composed)
+            line_b = deployment.line_for("job-b")
+            row = review_cycles.line_of(held.control, line_b["line_id"])
+            checkpoint = review_cycles.integration_checkpoint(
+                held.control, line_b["line_id"])
+            proposal_id = deployment.published_proposal(checkpoint)
+            original.update(
+                line_id=line_b["line_id"], line=row,
+                root=row["line_path"] or row["source_path"],
+                declared_base=line_b["declared_base"],
+                checkpoint=checkpoint, proposal_id=proposal_id,
+                proposal=deployment.authority.proposal(proposal_id),
+                receipts=deployment.authority.receipts(proposal_id))
+            original["candidate"] = self.vcs_in(original["root"],
+                                                "rev-parse", "HEAD")
+
+        held = self.integrating(before=capture)
+        self.assertEqual(original["declared_base"], self.base)
+        self.assertEqual(original["proposal"]["target"], self.base)
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "completed", ticks=4)
+        deployment = self.deployment_of(held.composed)
+        advanced = deployment.authority.canonical_target()
+        self.assertEqual(self.vcs("rev-parse", "refs/heads/main").strip(),
+                         advanced)
+        # AND JOB B'S LINE IS DECLARED AT THE REVISION THAT MOVED PAST, which
+        # is the whole reason a reconciliation has to happen at all.
+        self.assertNotEqual(original["declared_base"], advanced)
+
+        # B TAKES THE INTEGRATOR AND ITS TICK RECONCILES.
+        found = None
+        for _ in range(14):
+            self.tick(held)
+            found = deployment.integration._connection.execute(
+                "SELECT result_id, state, derived_proposal_id FROM "
+                "integration_results").fetchone()
+            if found is not None and found["state"] == "published":
+                break
+        self.assertIsNotNone(found, "no reconciled result was composed")
+        self.assertEqual(found["state"], "published")
+        result_id = found["result_id"]
+        proposal_id = found["derived_proposal_id"]
+        # PENDING REAL RECEIPTS: the candidate exists and nobody has judged it.
+        self.assertEqual(deployment.authority.receipts(proposal_id), [])
+
+        # THE CAUSAL OBSERVATIONS ARE THE CONFIGURED REQUIRED TEST'S OWN, and
+        # they are what makes this evidence rather than an assertion: ONE
+        # harness -- Job B's own `feature_check.py`, named by Job B's own task
+        # before it was ever submitted -- run against three real content
+        # states. It FAILS on the original declared base, where `feature.py`
+        # does not exist and only the harness itself was overlaid; it passes
+        # on B's isolated candidate; and it passes on the combination with the
+        # snapshot Job A left.
+        composed_result = reconciliation.result_of(deployment.integration,
+                                                   result_id)
+        observed = composed_result["causal_observations"]
+        argv = json.loads(self.shared_task_bytes)["verification"]
+        required = " ".join(argv)
+        self.assertEqual(argv, ["python3", "feature_check.py"])
+        # AND IT IS THE SECOND JOB'S OWN SELECTION, not the deployment's one
+        # global answer: Job A's configured task names a different command.
+        self.assertNotEqual(
+            required, " ".join(json.loads(self.task_bytes)["verification"]))
+        for state in ("base", "isolated", "combined"):
+            # THE CAUSAL OWNER RECORDS THE COMMAND WORDS; the post-import owner
+            # below records the joined line. Each is compared as its own owner
+            # stores it rather than reformatted to match the other.
+            self.assertEqual(observed[state]["command"], argv, state)
+            self.assertEqual(observed[state]["execution"],
+                             deployment.observer_participant(), state)
+        self.assertNotEqual(observed["base"]["status"], 0, observed["base"])
+        self.assertTrue(observed["base"]["harness_added"])
+        self.assertEqual(observed["isolated"]["status"], 0,
+                         observed["isolated"])
+        self.assertEqual(observed["combined"]["status"], 0,
+                         observed["combined"])
+        self.assertFalse(observed["combined"]["harness_added"])
+        # AND ALL THREE RAN THE SAME BYTES, which is what "one harness" means.
+        self.assertEqual({observed[state]["test_digest"]
+                          for state in ("base", "isolated", "combined")},
+                         {observed["combined"]["test_digest"]})
+        # THE BASE OBSERVED IS B'S OWN IMMUTABLE DECLARED BASE, not the
+        # snapshot the result was reconciled onto.
+        self.assertEqual(observed["base"]["input_commit"], self.base)
+        self.assertEqual(observed["isolated"]["input_commit"],
+                         original["candidate"])
+
+        # THE THREE CONFIGURED PARTICIPANTS' OWN ORDINARY RECEIPTS, written by
+        # real sessions against the Authority's CURRENT policy generation.
+        generation = deployment.authority.policy_generation()
+        self.assertNotEqual(generation, self.fixture_policy)
+        deployment.sessions["verification"].verify({
+            "proposal_id": proposal_id,
+            "verification_id": proposal_id + "-verification",
+            "observation": "passed", "operation_id": proposal_id + "-verify"})
+        deployment.sessions["review"].review({
+            "proposal_id": proposal_id, "review_id": proposal_id + "-review",
+            "disposition": "accepted", "operation_id": proposal_id + "-rev"})
+        deployment.sessions["approval"].approve({
+            "proposal_id": proposal_id,
+            "approval_id": proposal_id + "-approval",
+            "disposition": "approved", "operation_id": proposal_id + "-appr",
+            "policy_generation": generation})
+
+        # AND THE NEXT ORDINARY TICKS IMPORT IT.
+        state = None
+        for _ in range(14):
+            self.tick(held)
+            state = deployment.integration._connection.execute(
+                "SELECT state FROM integration_results").fetchone()["state"]
+            if state == "imported":
+                break
+        self.assertEqual(state, "imported")
+
+        # BOTH CHANGES ARE ON THE ONE TARGET -- contents AND modes, and the
+        # modes are proved to be the producers' own rather than asserted as
+        # constants: each path's tree entry at the landed revision is the
+        # entry that producer's OWN accepted candidate carried.
+        landed = self.vcs("rev-parse", "refs/heads/main").strip()
+        self.assertNotEqual(landed, advanced)
+        self.assertNotEqual(landed, self.base)
+        self.assertEqual(self.vcs("show", landed + ":harness.py"),
+                         "print('the first job answered')\n")
+        self.assertEqual(self.vcs("show", landed + ":feature.py"),
+                         self.B_FEATURE)
+        self.assertEqual(self.vcs("show", landed + ":feature_check.py"),
+                         self.B_CHECK)
+        self.assertEqual(self.entry_at(self.source, landed, "harness.py"),
+                         self.entry_at(self.source, advanced, "harness.py"))
+        for named in ("feature.py", "feature_check.py"):
+            self.assertEqual(
+                self.entry_at(self.source, landed, named),
+                self.entry_at(original["root"], original["candidate"], named),
+                named)
+        # AND NOTHING OF JOB A'S WAS LOST: the landed revision descends from
+        # the revision A's own integration finalized.
+        self.assertEqual(self.vcs("merge-base", "--is-ancestor", advanced,
+                                  landed), "")
+
+        # BOTH JOBS REACH A TERMINAL INTEGRATION STAGE.
+        self.drive_job(held.job, held.composed, "job-b", "integration",
+                       "completed", ticks=6)
+        for job_id in ("job-a", "job-b"):
+            self.assertEqual(
+                self.states_for(held.job, held.composed,
+                                job_id)["integration"],
+                "completed", job_id)
+
+        # THE SOURCE AND THE DERIVED COMPLETION ARE LINKED EXACTLY, and the
+        # reconciled branch's own absent runtime is named rather than borrowed.
+        attempt = self.attempted(held.job, "job-b/integration")
+        completion = self.completion_of(held, attempt)
+        self.assertEqual(completion["result_id"], result_id)
+        self.assertEqual(completion["source_proposal_id"],
+                         original["proposal_id"])
+        self.assertEqual(completion["proposal_id"], proposal_id)
+        self.assertEqual(completion["execution_runtime"], "absent")
+        self.assertIsNone(completion["runtime_id"])
+        settled = reconciliation.result_of(deployment.integration, result_id)
+        self.assertEqual(settled["source_proposal_id"],
+                         original["proposal_id"])
+        self.assertEqual(completion["entry_id"], settled["entry_id"])
+        # AND JOB A'S OWN COMPLETION IS THE OTHER BRANCH, on the same target.
+        direct = self.completion_of(
+            held, self.attempted(held.job, "job-a/integration"))
+        self.assertIsNone(direct["result_id"])
+        self.assertEqual(direct["execution_runtime"], "quiescent")
+
+        # THE CONFIGURED REQUIRED TEST REALLY RAN AGAINST THE IMPORTED BYTES,
+        # inside the dedicated target itself, and it is B's own test.
+        [entry] = [one for one in
+                   entries_of(deployment.integration,
+                              settled["canonical_target_id"])
+                   if one["entry_id"] == settled["entry_id"]]
+        self.assertEqual(entry["state"], "integrated")
+        executed = entry["settlement"]["verification"]["post_import_tests"]
+        self.assertEqual(executed["command"], required)
+        self.assertEqual(executed["status"], 0, executed)
+
+        # B'S OWN SUBMISSION, LINE, PROPOSAL AND RECEIPTS WERE NEVER
+        # REWRITTEN -- compared against the reading taken before A moved.
+        self.assertEqual(self.vcs_in(original["root"], "rev-parse", "HEAD"),
+                         original["candidate"])
+        self.assertEqual(
+            review_cycles.line_of(held.control,
+                                  original["line_id"])["declared_base"],
+            self.base)
+        self.assertEqual(
+            review_cycles.integration_checkpoint(held.control,
+                                                 original["line_id"]),
+            original["checkpoint"])
+        self.assertEqual(
+            deployment.authority.proposal(original["proposal_id"]),
+            original["proposal"])
+        self.assertEqual(
+            deployment.authority.receipts(original["proposal_id"]),
+            original["receipts"])
+
+        # AND THE EXCLUSION AND THE CAPACITY ARE BOTH RELEASED. The lease is
+        # the coordinator's own fence -- the thing that excluded every other
+        # writer for a branch that started no container -- and the allocation
+        # is the scheduler's.
+        lease = lease_of(deployment.integration, completion["lease_id"])
+        self.assertEqual(lease["state"], "released")
+        self.assertEqual(lease["ending"]["outcome"], "integrated")
+        self.assertEqual(lease["fence"], completion["fence"])
+        self.assertNotIn("live", [one["state"] for one in
+                                  deployment.integration._connection.execute(
+                                      "SELECT state FROM leases").fetchall()])
+        allocation = allocation_of(held.job, attempt["attempt_id"])
+        self.assertEqual(allocation["worker_id"], "integration-worker")
+        self.assertEqual(allocation["allocation_state"], "released")
+        self.assertEqual(allocation["release_reason"],
+                         scheduler.INTEGRATION_COMPLETED)
+
+    def completion_of(self, held, attempt):
+        """One integration stage's completion, through its PUBLIC owner.
+
+        `StageExecution.observe` answers one member per surface and the
+        integration document is under `integration`; the completion is that
+        document's own member. Review 2026-09-10T21:10:42Z: both lookups here
+        indexed `completion` at the top level, which is not where the public
+        response carries it -- and the public response is not changed to suit
+        the test.
+        """
+        observed = held.composed.observe(attempt)
+        self.assertIsNotNone(observed["integration"],
+                            f"no integration observation for "
+                            f"{attempt['stage_id']}")
+        return observed["integration"]["completion"]
+
+    def entry_at(self, place, revision, named):
+        """One path's exact tree entry -- its MODE and its object."""
+        listed = self.vcs_in(place, "ls-tree", revision, "--", named)
+        self.assertTrue(listed, f"{named} is absent at {revision}")
+        return listed.split("\t")[0]
+
+    def vcs_in(self, place, *arguments):
+        import subprocess as _subprocess
+
+        return _subprocess.run(["git", "-C", place] + list(arguments),
+                               capture_output=True, text=True,
+                               timeout=30).stdout.strip()
+
+    def refused_rows(self, report, stage_id):
+        """Every row of one tick's report that REFUSED or deferred a stage."""
+        held = []
+        for key in sorted(report):
+            if not isinstance(report[key], list):
+                continue
+            for one in report[key]:
+                if not isinstance(one, dict) or one.get("stage_id") != stage_id:
+                    continue
+                if one.get("outcome") in ("deferred", "refused"):
+                    held.append(one)
+        return held
+
+    def objects_at(self, place):
+        """What a repository HOLDS -- every object it can name, and its own
+        count. A fetch into it changes both."""
+        return (sorted(self.vcs_in(place, "cat-file", "--batch-all-objects",
+                                   "--batch-check=%(objectname)").split()),
+                self.vcs_in(place, "count-objects", "-v"))
+
+    def test_a_workspace_aliasing_the_target_fetches_and_writes_nothing(self):
+        """W133129: THE BRANCH-LEVEL no-fetch/no-write CONTROL.
+
+        Reviews 2026-09-10T17:55:49Z and 21:10:42Z: the sibling case only
+        compares the profile's identity answers, which proves the READER and
+        not the guard. This drives the actual reconciled branch with the
+        integration workspace configured as a SYMLINK ALIAS of the dedicated
+        target -- the exact counterexample the guard exists for, because the
+        candidate fetch is this branch's first write and `_place` only stats
+        the path it was named by.
+
+        WHAT IS MEASURED IS THE TARGET'S OWN CONTENT. A fetch into the alias is
+        a fetch into the target, so every object the target can name and its
+        own object count are compared across the refusal, together with the
+        configured reference. Nothing is written and nothing is fetched.
+        """
+        held = self.integrating()
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "completed", ticks=4)
+        deployment = self.deployment_of(held.composed)
+        # THE ALIAS: another name for the repository that is the target.
+        alias = os.path.join(self.root, "workspace-that-is-the-target")
+        if not os.path.exists(alias):
+            os.symlink(self.source, alias)
+        deployment.given["integration_workspace"] = alias
+        before = self.objects_at(self.source)
+        reference = self.vcs("rev-parse", "refs/heads/main").strip()
+
+        refused = []
+        for _ in range(8):
+            refused = self.refused_rows(self.tick(held), "job-b/integration")
+            if refused:
+                break
+        self.assertTrue(refused, "the aliased workspace was never refused")
+        [detail] = [one["detail"] for one in refused]
+        self.assertEqual(detail["category"], "refused")
+        self.assertEqual(detail["code"], "capability")
+        self.assertIn("is the same repository as", detail["message"])
+        self.assertIn("nothing is fetched into shared storage",
+                      detail["message"])
+        # AND THE TARGET IS BYTE-FOR-BYTE WHERE IT WAS.
+        self.assertEqual(self.objects_at(self.source), before)
+        self.assertEqual(self.vcs("rev-parse", "refs/heads/main").strip(),
+                         reference)
+        # NO RESULT WAS COMPOSED EITHER: the guard runs before `prepare_result`.
+        self.assertIsNone(deployment.integration._connection.execute(
+            "SELECT result_id FROM integration_results").fetchone())
+
+    def test_a_workspace_that_is_the_target_is_the_same_repository(self):
+        """The alias no-write control for the pre-write isolation guard: the
+        profile's own identity reader answers the SAME repository for a
+        workspace configured as the dedicated target, which is what the guard
+        compares before anything is fetched."""
+        held = self.integrating()
+        deployment = self.deployment_of(held.composed)
+        profile = deployment.reconciliation_profile
+        target = profile.storage(self.source)
+        alias = os.path.join(self.root, "target-by-another-name")
+        if not os.path.exists(alias):
+            os.symlink(self.source, alias)
+        self.assertEqual((profile.storage(alias)["device"],
+                          profile.storage(alias)["inode"]),
+                         (target["device"], target["inode"]))
+        workspace = deployment._place("integration_workspace")
+        self.assertNotEqual(
+            (profile.storage(workspace["path"])["device"],
+             profile.storage(workspace["path"])["inode"]),
+            (target["device"], target["inode"]))
+
+    def attempts_of_stage(self, job_store, stage_id):
+        """Every attempt this stage has had, through the public reader."""
+        from baton_v12.job_manager import episodes_of
+
+        return [one["attempt_id"] for one in episodes_of(job_store, stage_id)]
+
+    def integrating(self, before=None, **members):
+        """Both Jobs accepted, and the FIRST one integrated for real.
+
+        `before` is handed the accepted deployment BEFORE Job A's integration
+        opens -- the one instant at which Job B's line, base, proposal and
+        receipts are readable in their original state. A witness that captures
+        them afterwards can only prove they did not move during the second
+        half of the run, which is not the claim.
+        """
+        held = self.both_accepted(**members)
+        if before is not None:
+            before(held)
+        # AND ITS INTEGRATION STARTS THROUGH THE PORT THIS DEPLOYMENT BUILT.
+        # No `integration_port`, no `connect`, no second composition: the
+        # accepted line and the published proposal this port is composed over
+        # are read from their own owners on the tick that needs them.
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "integrating")
+        held.integrated = self.attempted(held.job,
+                                         "job-a/integration")["attempt_id"]
+        self.assertEqual(self.integration_turn(held, held.integrated), 0)
+        self.engine.stopped = True
+        report = self.tick(held)
+        [held.ended] = [one for one in report["spoken"]
+                        if one["stage_id"] == "job-a/integration"]
+        return held
+
+
+class TheStagedDeploymentOwnsOneIngestionHelper(ServingCase):
+    """W61599: the staged factory half and its `_closers` entry.
+
+    THE ADMISSION PRIMITIVE IS SHARED WITH THE BOOTSTRAP FACTORY and the
+    unwind is not: a staged deployment releases through
+    `StageExecution._closers`, whose failures `release` collects into one
+    refusal, and a bootstrap deployment through `_Operations.close`'s single
+    `dispose`. Neither composes the other's.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.addCleanup(self.forget)
+
+    def forget(self):
+        with single_worker._ACTIVITY_LOCK:
+            single_worker._ACTIVITY_HELPERS.clear()
+
+    def test_the_deployment_admits_one_and_every_worker_shares_it(self):
+        """OWNERSHIP IS AT THE DEPLOYMENT, not at the worker.
+        `worker_operations` is per pooled worker and could not own a
+        per-deployment handle, so what each worker gets is the enqueue."""
+        _job, _control, composed = self.serving()
+        self.assertIsNotNone(composed.activity)
+        held = [one["operations"]._worker.activity
+                for one in composed.workers
+                if one["role"] != "integration"]
+        self.assertTrue(held)
+        for one in held:
+            self.assertEqual(one.__self__, composed.activity)
+            self.assertEqual(one.__func__,
+                             single_worker._ActivityIngestion.enqueue)
+
+    def test_the_helper_is_released_through_closers_by_its_own_name(self):
+        _job, _control, composed = self.serving()
+        named = [what for what, _close in composed._closers()]
+        self.assertIn("the activity ingestion helper", named)
+        # AND IT IS STOPPED FIRST: it is the one handle here that writes to the
+        # control store from a thread of its own.
+        self.assertEqual(named[0], "the activity ingestion helper")
+        composed.release()
+        self.assertEqual(single_worker._ACTIVITY_HELPERS, {})
+
+    def test_an_over_bound_stop_appears_in_the_collected_refusal(self):
+        import threading
+
+        from unittest import mock
+
+        _job, _control, composed = self.serving()
+        wedged = threading.Event()
+        self.addCleanup(wedged.set)
+        with mock.patch.object(single_worker._ActivityIngestion, "_ingest",
+                               staticmethod(lambda _s, _r: wedged.wait(30))), \
+                mock.patch.object(single_worker, "ACTIVITY_STOP_SECONDS", 0.2):
+            composed.activity.enqueue({"attempt_id": "a", "root": self.root,
+                                       "session": "s"})
+            with self.assertRaises(ContractRefusal) as caught:
+                composed.release()
+        self.assertIn("the activity ingestion helper",
+                      caught.exception.message)
+        # EVERY OTHER HANDLE WAS STILL RELEASED. A failed closer never stops
+        # the rest, which is this deployment's existing rule.
+        self.assertEqual(caught.exception.category, "unavailable")
+
+    def test_a_second_staged_composition_over_one_store_admits_none(self):
+        """DISTINCT COMPOSITIONS, ONE STORE. The second runs normally with no
+        activity ingestion at all, which is what optional has meant here."""
+        from tests.job_manager import fixtures
+
+        from .test_single_worker import Engine
+
+        _job, control, first = self.serving()
+        self.assertIsNotNone(first.activity)
+        job, _second_control = self.stores("stage-serving-2")
+        second = stage_execution.operations_from(
+            self.composed_document(), job, control, engine_run=Engine(),
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(second.close)
+        self.assertIsNone(second.activity)
+        for one in second.workers:
+            if one["role"] != "integration":
+                self.assertIsNone(one["operations"]._worker.activity)
+
+    def test_a_partially_constructed_deployment_answers_this_as_its_own(self):
+        """`__getattr__` DELEGATES EVERY UNBOUND NAME to the pooled surface,
+        and a deployment released mid-construction has no pool."""
+        composed = stage_execution.StageExecution(
+            None, authority=None, integration=None, workers=[], given={})
+        self.assertIsNone(composed.activity)
+        composed.release()
+
+
+class TheRestartOverAnAdvancedPoolPreservesSettledHistory(ComposedOneJobCase):
+    """W202663 D7 [R1], at the COMPOSITION boundary with the REAL observers.
+
+    REVIEW209188 IS WHY THIS EXISTS BESIDE THE TWO SCHEDULING UNIT CASES.
+    Those prove the fallback is called and the row survives; they cannot
+    prove the fallback ANSWERS TRUTHFULLY, because observation adopts each
+    worker's own launch home, role and manifest context and identical stubs
+    would pass whichever worker was picked. Here everything is the composed
+    real thing: `operations_from`'s own serving object, real stores, a real
+    version-controlled line, the actual `claude_agent` workload, the
+    accepted ending -- one implementation attempt carried to `completed`
+    with its evidence durable and its allocation RELEASED by cleanup. Then
+    the pool genuinely advances (a different participant serves review, the
+    exact capacity change the installed instance performed), the composition
+    restarts over the SAME stores, and the first sweep -- the tick that
+    raised the raw KeyError before the correction -- must observe the exact
+    history: same completed state, same allocation row, same publication,
+    same writer, no second execution of the settled attempt.
+
+    ONE STAGE, SETTLED -- deliberately, and measured on the way here: with
+    the ordinary three-stage Job, the settling ticks ADMIT the review stage,
+    whose reserved generation-1 allocation used to make attachment refuse
+    the generation-2 composition by name ("must provide exactly the active
+    generation and live prior generations' pairs"). D9 (claim219702)
+    measured that refusal INSTALLED blocking every pool advance over a held
+    episode and corrected the composer to attach live prior pairs -- the
+    scheduling family carries the focused cases. This class is about D7's
+    SETTLED history; a single-stage Job reproduces exactly the installed
+    D7 shape, so it stays.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from tests.job_manager import fixtures
+
+        self.submission = fixtures.submission(jobs=[fixtures.job(
+            "job-a", input_digest=job_input_identity(self.manifest),
+            policy_digest=fixtures.POLICY_DIGEST,
+            stages=[fixtures.stage("implementation", self.work)])])
+
+    def advanced_document(self):
+        """This deployment's document with the pool genuinely changed.
+
+        The same shape `TheTargetSurvivesACapacityChangeOverRetainedHistory`
+        measured: replacing WHO serves review is a real membership change --
+        `activate_pool` answers generation 2 for it -- while every stage is
+        still served exactly once.
+        """
+        from baton_v12.authority import Authority
+
+        held = self.composed_document(pool_generation=2,
+                                      line_declared_base=self.base)
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            who = "baton.second-reviewer"
+            principal = authority.principal_of(who)
+            # THE REPLACEMENT REVIEWER SERVES THE SAME ROUTES the original
+            # carried; without the grant and route the change would prove a
+            # missing authorization rather than the restart under test.
+            authority.grant_capability(who, "review", scope=self.scope)
+            authority.add_route_handler("rview", who)
+        finally:
+            authority.dispose()
+        workers = []
+        for one in held["workers"]:
+            if one["role"] != "review":
+                workers.append(one)
+                continue
+            workers.append({
+                "worker_id": one["worker_id"], "role": one["role"],
+                "deployment": dict(one["deployment"], participant=who,
+                                   principal=principal)})
+        return dict(held, workers=workers)
+
+    def settled(self, held):
+        """The implementation allocation, driven to its RELEASED settlement.
+
+        The installed D7 evidence was a released (cleanup-retained) row; the
+        composed ending reaches the same settlement on ordinary ticks.
+        """
+        from baton_v12.job_manager import scheduler, sweep as tick
+        from tests.job_manager import fixtures
+
+        for _ in range(10):
+            allocation = scheduler.allocation_of(held.job, held.attempt_id)
+            if allocation["allocation_state"] == "released":
+                return allocation
+            tick(held.job, held.composed, now=fixtures.NOW)
+        self.fail(f"the implementation allocation never released: "
+                  f"{allocation}")
+
+    def implementation_stage(self, job, composed):
+        from baton_v12.job_manager import status as projected_status
+        from tests.job_manager import fixtures
+
+        projected = projected_status(job, composed, observed_at=fixtures.NOW)
+        return {one["kind"]: one
+                for one in projected["jobs"][0]["stages"]}["implementation"]
+
+    def test_the_first_sweep_after_the_advance_observes_exact_history(self):
+        from baton_v12.job_manager import scheduler, sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.implemented()
+        allocation_before = self.settled(held)
+        self.assertEqual(allocation_before["generation"], 1)
+        stage_before = self.implementation_stage(held.job, held.composed)
+        self.assertEqual(stage_before["state"], "completed")
+        publication_before = stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.attempt_id)
+        self.assertIsNotNone(publication_before)
+        starts_before = [list(one) for one in self.engine.starts]
+
+        # THE RESTART, over the SAME durable stores, at the advanced pool.
+        held.composed.close()
+        job, control = self.stores("d7-advanced-restart")
+        restarted = stage_execution.operations_from(
+            self.advanced_document(), job, control,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(restarted.close)
+        self._composed = restarted
+
+        # THE TICK THAT USED TO RAISE KeyError, and one more after it.
+        tick(job, restarted, now=fixtures.NOW)
+        tick(job, restarted, now=fixtures.NOW)
+
+        stage_after = self.implementation_stage(job, restarted)
+        self.assertEqual(stage_after["state"], "completed")
+        # THE EXACT HISTORICAL IDENTITY, not merely a non-crash: the same
+        # attempt, the same generation-1 released allocation row with its
+        # cleanup reason, and the same runtime identity the real observer
+        # answers through the same-named worker's own context.
+        self.assertEqual(stage_after["attempt_id"], held.attempt_id)
+        self.assertEqual(scheduler.allocation_of(job, held.attempt_id),
+                         allocation_before)
+        self.assertEqual(stage_after["allocation"], stage_before["allocation"])
+        self.assertEqual(stage_after["runtime"], stage_before["runtime"])
+        # THE RETAINED EVIDENCE IS BYTE-IDENTICAL through the restarted
+        # composition's own reader.
+        self.assertEqual(stage_execution.publication_for_attempt(
+            control, attempt_id=held.attempt_id), publication_before)
+        # AND NOTHING RE-EXECUTED THE SETTLED ATTEMPT: any start the advanced
+        # pool performs belongs to OTHER stages, never to this attempt.
+        for one in self.engine.starts[len(starts_before):]:
+            self.assertNotIn(held.attempt_id, " ".join(map(str, one)))
+
+    def test_settled_history_cannot_be_moved_back_to_live(self):
+        """WHY the unattached-live branch is defence in depth, measured: the
+        one public act that could revive a settled allocation refuses it, so
+        no post-attachment state move can manufacture a live allocation on a
+        retired key. (The branch itself is covered at the unit level with an
+        injected answer, because this is exactly a cannot-happen guard.)"""
+        from baton_v12.job_manager import scheduler
+        from tests.job_manager import fixtures
+
+        held = self.implemented()
+        self.settled(held)
+        held.composed.close()
+        job, _control = self.stores("d7-live-refusal")
+        with self.assertRaises(ContractRefusal) as caught:
+            scheduler.require_recovery(job, held.attempt_id)
+        self.assertIn("is not quarantined again", caught.exception.message)
+
+
+class ANewJobCreatedAfterAFollowsTheAdvancedTarget(
+        TwoBoundJobsTraverseServingAndCorrection):
+    """W202663 owner212383 point (4): the FRESH-SUCCESSOR topology, composed.
+
+    `test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET` proves the RECONCILED
+    path -- B prepublished at the original base, on a deployment whose
+    dedicated target IS the nominated source, so B's line never needs a
+    commit the source lacks (review212328's caveat). This drives the OTHER
+    half, the topology every installed experiment measured: the dedicated
+    target is a SEPARATE clone; Job A completes and the coordinator's
+    finalization advances THAT repository, not the source; Job B is CREATED
+    AFTERWARD, on its own Work, declaring A's advanced candidate as its
+    base -- a commit the nominated source provably does not hold -- and its
+    line materializes through the profile's supplement, publishes directly
+    against the current policy, and integrates to completed on the SAME
+    stores, with Job A's history untouched and its settled attempts never
+    re-executed.
+    """
+
+    def dedicated(self):
+        import subprocess as _subprocess
+
+        place = os.path.join(self.root, "dedicated-target")
+        self.assertEqual(_subprocess.run(
+            ["git", "clone", "-q", self.source, place],
+            capture_output=True, timeout=60).returncode, 0)
+        return place
+
+    def only_a(self, document):
+        held = copy.deepcopy(document)
+        held["job_bindings"] = [one for one in held["job_bindings"]
+                                if one["job_id"] == "job-a"]
+        held["workers"] = [one for one in held["workers"]
+                           if not one["worker_id"].endswith("-b")]
+        return held
+
+    def successor_task(self, advanced):
+        """Job B's OWN task, declared at the ADVANCED candidate."""
+        payload = json.loads(self.shared_task_bytes)
+        payload["declared_base"] = advanced
+        held = json.dumps(payload, sort_keys=True).encode("utf-8")
+        place = os.path.join(self.root, "task-b-successor.json")
+        with open(place, "wb") as writing:
+            writing.write(held)
+        return place, held
+
+    # THE SELECTED OUTCOME, PROVEN END TO END (owner217455). This test
+    # previously ASSERTED D8's boundary here: the single-slot delivery
+    # namespace made B adopt A's retained delivery, skip preparation, and
+    # defer forever on the witness contradiction. With per-attempt delivery
+    # namespaces the boundary is GONE: the fresh successor's DIRECT
+    # integration launches (its own preparation, its own namespace), runs
+    # its real turn over the dedicated target, and COMPLETES -- the target
+    # advancing again to B's own candidate -- while Job A's retained
+    # delivery sits untouched beside B's, each adopting back as itself.
+    def test_the_successor_materializes_publishes_and_completes(self):
+        from baton_v12.job_manager import submit
+        from baton_v12.job_manager.scheduler import allocation_of
+        from tests.job_manager import fixtures
+
+        target = self.dedicated()
+
+        # ---- PHASE 1: Job A alone, on the SEPARATE dedicated target. ----
+        doc1 = self.only_a(self.traversing(integration_target=target))
+        job, control, composed = self.serving(**doc1)
+        self._composed = composed
+        held = SimpleNamespace(job=job, control=control, composed=composed)
+        submit(job, fixtures.submission(
+            jobs=[copy.deepcopy(self.submission["jobs"][0])]))
+        self.drive_job(job, composed, "job-a", "implementation", "waiting")
+        first = self.one_attempt_of(composed, "implementation-worker")
+        self.accepted(held, "job-a", "implementation-worker", "review-worker",
+                      first, "print('the first job answered')\n")
+        self.drive_job(job, composed, "job-a", "integration", "integrating")
+        held.integrated = self.attempted(job, "job-a/integration")["attempt_id"]
+        self.assertEqual(self.integration_turn(held, held.integrated), 0)
+        self.engine.stopped = True
+        self.tick(held)
+        self.drive_job(job, composed, "job-a", "integration", "completed",
+                       ticks=4)
+
+        deployment = self.deployment_of(composed)
+        advanced = deployment.authority.canonical_target()
+        self.assertNotEqual(advanced, self.base)
+        # THE SEPARATE TARGET ADVANCED; THE NOMINATED SOURCE DID NOT.
+        self.assertEqual(
+            self.vcs_in(target, "rev-parse", "refs/heads/main"), advanced)
+        self.assertNotEqual(
+            self.vcs_in(self.source, "rev-parse", "refs/heads/main"),
+            advanced)
+        import subprocess as _subprocess
+
+        absent = _subprocess.run(
+            ["git", "-C", self.source, "cat-file", "-t", advanced],
+            capture_output=True, text=True, timeout=30)
+        self.assertNotEqual(absent.returncode, 0,
+                            "the successor's base must be a commit the "
+                            "nominated source does not hold")
+        a_allocation = allocation_of(job, first)
+        a_states = self.states_for(job, composed, "job-a")
+        starts_before = len(self.engine.starts)
+        # THE SUCCESSOR PINS THE CURRENT POLICY GENERATION, exactly as an
+        # installed re-bootstrap does: A's own receipts moved the Authority
+        # past the fixture's original pin, and a deployment configured for a
+        # generation the Authority has left cannot write receipts (measured
+        # here first: "moved to policy generation 12 from the configured 11").
+        current_policy = deployment.authority.policy_generation()
+
+        # ---- PHASE 2: the SUCCESSOR, created only now, on the same stores.
+        composed.close()
+        task_place, task_bytes = self.successor_task(advanced)
+        manifest = self.manifest_over(SECOND_WORK, task_bytes)
+        doc2 = self.traversing(integration_target=target)
+        binding = {one["job_id"]: one for one in doc2["job_bindings"]}
+        binding["job-b"]["line_declared_base"] = advanced
+        workers = {one["worker_id"]: one for one in doc2["workers"]}
+        for worker_id in ("implementation-worker-b", "review-worker-b"):
+            workers[worker_id]["deployment"]["input_manifest"] = manifest
+            workers[worker_id]["deployment"]["task_document"] = task_place
+        doc2["pool_generation"] = 2
+        self.engine.stopped = False
+        job2, control2 = self.stores("fresh-successor")
+        document2 = self.composed_document(**doc2)
+        document2["policy_generation"] = current_policy
+        composed2 = stage_execution.operations_from(
+            document2, job2, control2,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed2.close)
+        self._composed = composed2
+        held2 = SimpleNamespace(job=job2, control=control2,
+                                composed=composed2)
+        submit(job2, fixtures.submission(
+            submission_id="sub-successor",
+            jobs=[fixtures.job(
+                "job-b",
+                input_digest=job_input_identity(manifest),
+                policy_digest=fixtures.POLICY_DIGEST,
+                stages=[
+                    fixtures.stage("implementation", SECOND_WORK),
+                    fixtures.stage("review", SECOND_WORK,
+                                   depends_on=[{"job_id": "job-b",
+                                                "kind": "implementation"}]),
+                    fixtures.stage("integration", SECOND_WORK,
+                                   depends_on=[{"job_id": "job-b",
+                                                "kind": "review"}])])]))
+        self.drive_job(job2, composed2, "job-b", "implementation", "waiting")
+
+        # THE SUPPLEMENT DID THE MATERIALIZATION: the line IS the advanced
+        # commit, which the nominated source does not hold.
+        line = self.line_of(composed2, "job-b")
+        self.assertEqual(line["declared_base"], advanced)
+        row = self.deployment_of(composed2)
+        second = self.one_attempt_of(composed2, "implementation-worker-b")
+        self.produced(held2, "job-b", second, None,
+                      edits={"feature.py": self.B_FEATURE,
+                             "feature_check.py": self.B_CHECK})
+        self.drive_job(job2, composed2, "job-b", "review", "waiting")
+        reviewed = self.one_attempt_of(composed2, "review-worker-b")
+        self.review_turn(held2, "job-b", reviewed, "accepted")
+        self.drive_job(job2, composed2, "job-b", "review", "completed")
+
+        # JOB A'S HISTORY IS UNTOUCHED and its settled attempt never ran
+        # again -- asserted HERE, before the pinned open boundary below, so
+        # these claims are actually reached (review217322).
+        self.assertEqual(allocation_of(job2, first), a_allocation)
+        self.assertEqual(self.states_for(job2, composed2, "job-a"), a_states)
+        for one in self.engine.starts[starts_before:]:
+            self.assertNotIn(first, " ".join(map(str, one)))
+
+        # THE SELECTED OUTCOME (owner217455): with per-attempt delivery
+        # namespaces (D8's correction), the fresh successor's DIRECT
+        # integration completes on the same deployment while Job A's
+        # retained delivery stays untouched beside it.
+        from baton_v12.integration import runtime as integration_runtime
+
+        self.drive_job(job2, composed2, "job-b", "integration", "integrating")
+        held2.integrated = self.attempted(
+            job2, "job-b/integration")["attempt_id"]
+        # B'S TURN RUNS OVER THE DEDICATED TARGET: its expected revision is
+        # the ADVANCED one, which only that repository holds.
+        self.integration_target_root = target
+        self.assertEqual(self.integration_turn(held2, held2.integrated), 0)
+        self.engine.stopped = True
+        self.tick(held2)
+        self.drive_job(job2, composed2, "job-b", "integration", "completed",
+                       ticks=6)
+        # THE TARGET ADVANCED AGAIN, to the successor's own candidate.
+        further = self.deployment_of(composed2).authority.canonical_target()
+        self.assertNotEqual(further, advanced)
+        self.assertEqual(
+            self.vcs_in(target, "rev-parse", "refs/heads/main"), further)
+        # AND JOB A'S RETAINED DELIVERY IS UNTOUCHED BESIDE B'S: both adopt
+        # back as themselves, each carrying its own attempt's assignment.
+        deployment2 = self.deployment_of(composed2)
+        for attempt in (held.integrated, held2.integrated):
+            adopted = integration_runtime.adopt_delivery(
+                deployment2.integration_root, attempt_id=attempt,
+                workspace_group=deployment2.workspace_group)
+            self.assertIsNotNone(adopted, attempt)
+            self.assertEqual(
+                integration_runtime.published_assignment(
+                    adopted)["attempt_id"], attempt)
+
+
+class APRJobSettlesAtItsReviewAndSurvivesRestart(ComposedOneJobCase):
+    """OWNER-HANDOFF-PR-JOBS (owner220327), review221748's continuation: the
+    PR shape's ACTUAL terminal behavior, composed and measured rather than
+    shape-validated. A PR-mode Job carries TWO stages -- producer and
+    reviewer -- and its deliverable is the durable reviewed candidate;
+    there is no integration stage to serve, so neither of D10's gates ever
+    binds. Everything real here is `ComposedOneJobCase`'s real thing: the
+    factory's own serving object, real stores, a real version-controlled
+    line, the actual workloads, ordinary ticks and the accepted ending.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.contracts import job_input_identity
+        from tests.job_manager import fixtures
+
+        self.submission = fixtures.submission(jobs=[fixtures.job(
+            "job-a", input_digest=job_input_identity(self.manifest),
+            policy_digest=fixtures.POLICY_DIGEST,
+            stages=[
+                fixtures.stage("implementation", self.work),
+                fixtures.stage("review", self.work,
+                               depends_on=[{"job_id": "job-a",
+                                            "kind": "implementation"}])])])
+
+    def composed_document(self, **members):
+        """The TRUE two-worker topology, review221816: the inherited
+        document still configured an integrator, so the earlier run proved
+        only that the submission had no integration stage. This deployment
+        composes NO integration worker at all -- what the factory does with
+        that configuration is exactly what the proof must measure."""
+        given = dict(members)
+        if "workers" not in given:
+            given["workers"] = [
+                self.worker("implementation"),
+                self.worker("review", participant="baton.reviewer",
+                            principal=self.principals["baton.reviewer"],
+                            review_route=self.INTEGRATION_ROUTE)]
+        return super().composed_document(**given)
+
+    def reviewed(self):
+        """`TheComposedJobTraversesReviewAndAcceptance.reviewed`'s own
+        cadence over the two-stage submission (not inherited as a class,
+        because that class's tests assume the three-stage shape)."""
+        import copy
+
+        held = self.implemented()
+        self.drive(held.job, held.composed, "review", "waiting")
+        attempt = self.only_attempt(held.composed, "review")
+        report = copy.deepcopy(
+            TheComposedJobTraversesReviewAndAcceptance.REPORT)
+        report["verdict"] = "accepted"
+        self.assertEqual(
+            self.turn(held.control, "review", attempt,
+                      self.mounted(held.composed, "review", attempt),
+                      edits={"review-report.json": json.dumps(report)}), 0)
+        held.review = attempt
+        return held
+
+    def test_the_two_stage_job_completes_at_review_and_restart_observes(self):
+        from baton_v12.job_manager import scheduler
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.reviewed()
+        states = self.drive(held.job, held.composed, "review", "completed",
+                            ticks=12)
+        # THE WHOLE JOB, distinguished exactly as the owner's model asks:
+        # the producer completed, the independent review completed, there is
+        # no third stage, and the reviewed candidate is the deliverable.
+        # Owner-mainline acceptance is a HUMAN act recorded elsewhere
+        # (tools/accepted_base.py) and nothing here claims it.
+        self.assertEqual(states.get("implementation"), "completed")
+        self.assertEqual(states.get("review"), "completed")
+        self.assertNotIn("integration", states)
+        # SETTLEMENT LAGS THE STATE by ordinary cleanup ticks; drive until
+        # every allocation released, bounded, and require the retained
+        # cleanup rather than any release.
+        for _ in range(20):
+            rows = scheduler.allocation_rows(held.job)
+            if rows and all(one["allocation_state"] == "released"
+                            for one in rows):
+                break
+            tick(held.job, held.composed, now=fixtures.NOW)
+        rows = scheduler.allocation_rows(held.job)
+        self.assertTrue(rows)
+        for row in rows:
+            self.assertEqual(row["allocation_state"], "released",
+                             row["stage_id"])
+            self.assertEqual(row["release_reason"], "cleanup-retained",
+                             row["stage_id"])
+        # The candidate's publication is durable and readable through the
+        # supported reader -- the PR handback's own locator.
+        self.assertIsNotNone(stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.attempt_id))
+
+        # RESTART over the same durable stores: settled work is OBSERVED,
+        # never redispatched, and no new episode appears for either stage.
+        implementation, review = held.attempt_id, held.review
+        held.composed.close()
+        job, control = self.stores("pr-restart")
+        restarted = stage_execution.operations_from(
+            self.composed_document(), job, control,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(restarted.close)
+        self._composed = restarted
+        starts_before = len(self.engine.starts)
+        tick(job, restarted, now=fixtures.NOW)
+        tick(job, restarted, now=fixtures.NOW)
+        after = self.states(job, restarted)
+        self.assertEqual(after.get("implementation"), "completed")
+        self.assertEqual(after.get("review"), "completed")
+        self.assertEqual(len(self.engine.starts), starts_before,
+                         "nothing redispatched the settled attempts")
+        self.assertEqual(
+            {one["assignment_id"] for one in scheduler.allocation_rows(job)},
+            {implementation, review},
+            "the same two attempts, no new episodes")
+
+
+class AAcceptedPRSeedsTheSuccessorOnTheSameStores(
+        TwoBoundJobsTraverseServingAndCorrection):
+    """OWNER-HANDOFF-PR-JOBS + review221919: the ACTUAL
+    A-acceptance-new-B proof, composed on the selected PR topology.
+
+    Job A runs producer-and-reviewer ONLY (no integration stage, no
+    integration worker) to its accepted review; the HUMAN acceptance is
+    simulated EXPLICITLY -- a durable acceptance record written beside the
+    root and the accepted candidate fetched into the nominated source,
+    which is Slawomir's merge in miniature; and Job B is created only
+    then, on the SAME durable stores under its own distinct Work, its
+    binding declaring the accepted candidate as an OPAQUE reference. B
+    reaches its own accepted, completed review while A's settled history
+    stays byte-identical and nothing redispatches.
+    """
+
+    only_a = ANewJobCreatedAfterAFollowsTheAdvancedTarget.only_a
+    successor_task = ANewJobCreatedAfterAFollowsTheAdvancedTarget \
+        .successor_task
+
+    def test_the_accepted_candidate_seeds_job_b_on_the_same_stores(self):
+        from baton_v12.contracts import job_input_identity
+        from baton_v12.job_manager import submit
+        from baton_v12.job_manager.scheduler import allocation_of
+        from tests.job_manager import fixtures
+
+        # ---- PHASE 1: Job A alone, producer and reviewer, NO integrator.
+        doc1 = self.only_a(self.traversing())
+        doc1["workers"] = [one for one in doc1["workers"]
+                           if one["role"] != "integration"]
+        job, control, composed = self.serving(**doc1)
+        self._composed = composed
+        held = SimpleNamespace(job=job, control=control, composed=composed)
+        job_a = copy.deepcopy(self.submission["jobs"][0])
+        job_a["stages"] = [one for one in job_a["stages"]
+                           if one["kind"] != "integration"]
+        submit(job, fixtures.submission(jobs=[job_a]))
+        self.drive_job(job, composed, "job-a", "implementation", "waiting")
+        first = self.one_attempt_of(composed, "implementation-worker")
+        self.accepted(held, "job-a", "implementation-worker",
+                      "review-worker", first,
+                      "print('the first job answered')\n")
+
+        # THE ACCEPTED CANDIDATE: the head of A's durable line, read with
+        # ordinary version control -- an opaque reference from here on.
+        line = self.line_of(composed, "job-a")
+        checkout = line["line_path"]
+        if os.path.isdir(os.path.join(checkout, "checkout")):
+            checkout = os.path.join(checkout, "checkout")
+        head = self.vcs_in(checkout, "rev-parse", "HEAD")
+        self.assertNotEqual(head, self.base)
+
+        # ---- THE EXPLICIT SIMULATED ACCEPTANCE, both halves of the human
+        # act: the durable record, and the merge-in-miniature that puts the
+        # accepted object into the OFFICIAL nominated source. The
+        # coordinator interprets none of it.
+        acceptance = {"schema": "baton.w202663.accepted-base/1",
+                      "repository": self.source,
+                      "accepted_commit": head,
+                      "expected_old": self.base,
+                      "included_candidates": [f"{head} (job-a)"],
+                      "acceptance_evidence":
+                          "simulated human acceptance inside the composed "
+                          "proof; review verdict accepted",
+                      "accepted_by": "the-test-as-Slawomir",
+                      "recorded_at": fixtures.NOW}
+        place = os.path.join(self.root, "ACCEPTED-BASE-simulated.json")
+        with open(place, "w") as writing:
+            json.dump(acceptance, writing, indent=1, sort_keys=True)
+        self.vcs_in(self.source, "fetch", checkout, head)
+
+        deployment = self.deployment_of(composed)
+        current_policy = deployment.authority.policy_generation()
+        a_allocation = allocation_of(job, first)
+        a_states = self.states_for(job, composed, "job-a")
+        starts_before = len(self.engine.starts)
+
+        # ---- PHASE 2: Job B, created only now, on the SAME durable
+        # stores, its OWN Work, its binding declaring the accepted
+        # candidate verbatim.
+        composed.close()
+        task_place, task_bytes = self.successor_task(head)
+        manifest = self.manifest_over(SECOND_WORK, task_bytes)
+        doc2 = self.traversing()
+        doc2["workers"] = [one for one in doc2["workers"]
+                           if one["role"] != "integration"]
+        binding = {one["job_id"]: one for one in doc2["job_bindings"]}
+        binding["job-b"]["line_declared_base"] = head
+        workers = {one["worker_id"]: one for one in doc2["workers"]}
+        for worker_id in ("implementation-worker-b", "review-worker-b"):
+            workers[worker_id]["deployment"]["input_manifest"] = manifest
+            workers[worker_id]["deployment"]["task_document"] = task_place
+        doc2["pool_generation"] = 2
+        job2, control2 = self.stores("pr-successor")
+        document2 = self.composed_document(**doc2)
+        document2["policy_generation"] = current_policy
+        composed2 = stage_execution.operations_from(
+            document2, job2, control2,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed2.close)
+        self._composed = composed2
+        held2 = SimpleNamespace(job=job2, control=control2,
+                                composed=composed2)
+        submit(job2, fixtures.submission(
+            submission_id="sub-pr-successor",
+            jobs=[fixtures.job(
+                "job-b",
+                input_digest=job_input_identity(manifest),
+                policy_digest=fixtures.POLICY_DIGEST,
+                stages=[
+                    fixtures.stage("implementation", SECOND_WORK),
+                    fixtures.stage("review", SECOND_WORK,
+                                   depends_on=[{"job_id": "job-b",
+                                                "kind": "implementation"}])])]))
+        self.drive_job(job2, composed2, "job-b", "implementation", "waiting")
+
+        # B's line IS the accepted candidate -- materialized from the
+        # nominated source the acceptance put it into, no supplement, no
+        # coordinator Git interpretation anywhere.
+        line_b = self.line_of(composed2, "job-b")
+        self.assertEqual(line_b["declared_base"], head)
+        second = self.one_attempt_of(composed2, "implementation-worker-b")
+        self.accepted(held2, "job-b", "implementation-worker-b",
+                      "review-worker-b", second,
+                      None, edits={"feature.py": self.B_FEATURE,
+                                   "feature_check.py": self.B_CHECK})
+
+        # JOB A'S HISTORY IS BYTE-IDENTICAL and nothing ran it again.
+        self.assertEqual(allocation_of(job2, first), a_allocation)
+        self.assertEqual(self.states_for(job2, composed2, "job-a"),
+                         a_states)
+        for one in self.engine.starts[starts_before:]:
+            self.assertNotIn(first, " ".join(map(str, one)),
+                             "A's settled attempt never redispatched")
+
+
+class TheDeploymentRoutesACancellationToItsOwner(ServingCase):
+    """W236087 R2a: an attempt is stopped by the worker that STARTED it.
+
+    Picking the first worker of a matching role would cancel through a
+    composition that never launched this container, and a correction round is
+    exactly the case where two attempts of one role exist.
+    """
+
+    def test_an_attempt_with_no_recorded_allocation_refuses_by_name(self):
+        _job, _control, composed = self.serving()
+        with self.assertRaises(ContractRefusal) as caught:
+            composed.cancel_attempt(attempt_id="attempt-nobody-started",
+                                    reason="overall bound")
+        self.assertIn("no recorded allocation", caught.exception.message)
+
+    def test_the_recorded_allocation_selects_the_worker(self):
+        """The REVIEW worker's composition, because the allocation says so.
+
+        Patched at the launch capability rather than at the operations object:
+        `_Operations` carries `__slots__`, and what this has to prove is WHICH
+        composition the act reached, which the captured `self` answers.
+        """
+        from unittest import mock
+
+        from tools import single_worker
+
+        _job, _control, composed = self.serving()
+        owners = {one["worker_id"]: one["operations"]
+                  for one in composed.workers}
+        wanted = "review-worker"
+        self.assertIn(wanted, owners)
+        reached = []
+
+        def cancelling(worker, *, attempt_id, reason):
+            reached.append((worker, attempt_id, reason))
+            return {"fenced": True}
+
+        with mock.patch.object(stage_execution, "allocation_of",
+                               return_value={"worker_id": wanted}), \
+            mock.patch.object(single_worker._SingleWorker, "cancel_attempt",
+                              cancelling):
+            answered = composed.cancel_attempt(attempt_id="attempt-1",
+                                               reason="overall bound")
+        self.assertEqual(answered, {"fenced": True})
+        self.assertEqual(len(reached), 1)
+        worker, attempt_id, reason = reached[0]
+        self.assertIs(worker, owners[wanted]._worker)
+        self.assertEqual((attempt_id, reason), ("attempt-1", "overall bound"))
+
+    def test_an_allocation_naming_an_uncomposed_worker_refuses(self):
+        from unittest import mock
+
+        _job, _control, composed = self.serving()
+        with mock.patch.object(stage_execution, "allocation_of",
+                               return_value={"worker_id": "somebody-else"}):
+            with self.assertRaises(ContractRefusal) as caught:
+                composed.cancel_attempt(attempt_id="attempt-1",
+                                        reason="overall bound")
+        self.assertIn("this deployment does not compose",
+                      caught.exception.message)
+
+
+class TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld(
+        TheComposedJobTraversesReviewAndAcceptance):
+    """W236087, owner E314549 and review 2026-09-30T11:33:49Z: the scenario
+    EXECUTED, not described.
+
+    One submitted Job through the actual serving path with this suite's fake
+    engine and real worker code: the implementation completes, the review turn
+    produces NO USABLE REPORT so the worker really answers `unable`, the real
+    ending seals and collects it, and the attempt comes to rest at
+    `output='sealed'`, `cleanup='pending'`. Then the execution is RECREATED
+    over the same stores and the ending is re-entered.
+
+    WHAT THE CORRECTION IS FOR, measured in both directions here: with
+    `material_is_offered` answering truthfully the ending proceeds and NO act
+    is deferred; with it forced False -- the code as it was -- the manager's
+    `conclude` is refused with `precondition` every tick, which is the live
+    defect that cost 104 seconds and 58 sweeps.
+
+    AND `answering` WITH A PENDING CLEANUP IS THE CORRECT REST STATE, not a
+    stall: `end`'s own contract says a held review settles nothing, the
+    obligation stays owed, the operator keeps the frozen evidence, and no
+    correction is opened on a verdict nobody gave. These cases assert that
+    shape rather than a completion the product does not promise.
+    """
+
+    def unable_review(self):
+        """One real review turn that leaves no usable report."""
+        held = self.implemented()
+        self.drive(held.job, held.composed, "review", "waiting")
+        attempt = self.only_attempt(held.composed, "review")
+        roots = self.mounted(held.composed, "review", attempt)
+        # NO USABLE REPORT. `claude_agent` answers `unable` when `report is
+        # None`, which is the failure this whole Work is about.
+        self.assertEqual(
+            self.turn(held.control, "review", attempt, roots, edits={}), 0)
+        held.review = attempt
+        return held
+
+    def ticks(self, held, count=8):
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        for _ in range(count):
+            tick(held.job, held.composed, now=fixtures.NOW)
+        return self.states(held.job, held.composed)
+
+    def axes(self, held, attempt):
+        return dict(held.control._connection.execute(
+            "SELECT output, cleanup, worker_disposition FROM attempts WHERE "
+            "runtime_attempt_id = ?", (attempt,)).fetchone())
+
+    def journal(self, held):
+        """Every durable effect this run has, as one comparable value."""
+        control = held.control._connection
+        return {
+            "operations": sorted(one[0] for one in control.execute(
+                "SELECT operation_id FROM operations")),
+            "outputs": sorted(tuple(one) for one in control.execute(
+                "SELECT runtime_attempt_id, disposition, manifest_digest, "
+                "freeze_operation_id FROM outputs")),
+            "intakes": sorted(tuple(one) for one in control.execute(
+                "SELECT runtime_attempt_id, receipt_digest, custody, "
+                "intake_operation_id FROM intakes")),
+            "retentions": sorted(tuple(one) for one in control.execute(
+                "SELECT runtime_attempt_id, artifact_id, disposition, "
+                "retain_operation_id FROM retentions")),
+            "artifacts": sorted(tuple(one) for one in control.execute(
+                "SELECT runtime_attempt_id, artifact_id, content_digest, "
+                "bytes FROM output_artifacts")),
+            "verdicts": control.execute(
+                "SELECT count(*) FROM checkpoint_verdicts").fetchone()[0],
+            "attachments": sorted(tuple(one) for one in control.execute(
+                "SELECT attachment_id, state, ended_at FROM "
+                "review_attachments")),
+        }
+
+    def deferrals(self, held):
+        return [tuple(one) for one in held.job._connection.execute(
+            "SELECT act, category, code, message FROM deferrals")]
+
+    # -- the scenario --------------------------------------------------------
+
+    def test_the_failed_review_reaches_sealed_pending_and_is_not_refused(self):
+        held = self.unable_review()
+        states = self.ticks(held)
+        # THE REST STATE, as the ending's own contract describes it.
+        self.assertEqual(states["implementation"], "completed")
+        self.assertEqual(states["review"], "answering")
+        self.assertEqual(self.axes(held, held.review),
+                         {"output": "sealed", "cleanup": "pending",
+                          "worker_disposition": "unable"})
+        # THE ENDING GOT THERE BY DOING ITS WORK: the output is frozen
+        # `unable`, the intake is recorded under the live assignment, and the
+        # retention decision is taken.
+        journal = self.journal(held)
+        [frozen] = [one for one in journal["outputs"]
+                    if one[0] == held.review]
+        self.assertEqual(frozen[1], "unable")
+        self.assertTrue(frozen[2].startswith("sha256:"))
+        [taken] = [one for one in journal["intakes"]
+                   if one[0] == held.review]
+        self.assertEqual(taken[2], "accepted")
+        self.assertTrue(any(one[0] == held.review and one[2] == "retain"
+                            for one in journal["retentions"]),
+                        journal["retentions"])
+        # AND NOTHING WAS DEFERRED. This is the correction: the conclude act is
+        # not being refused.
+        self.assertEqual(self.deferrals(held), [])
+        # NO FALSE VERDICT, and the review cycle is not ended behind the
+        # reviewer's back.
+        self.assertEqual(journal["verdicts"], 0)
+        self.assertEqual([one[1] for one in journal["attachments"]],
+                         ["active"])
+        self.assertEqual([one[2] for one in journal["attachments"]], [None])
+
+    def test_WITHOUT_the_correction_the_conclude_act_is_refused_every_tick(self):
+        """The live defect, reproduced in this fixture: the same scenario with
+        `material_is_offered` forced False -- the code as it was.
+
+        WHICH REFUSAL THIS IS, LABELLED, because review 2026-09-30T11:45:12Z is
+        right that they must not be conflated. THE LIVE RUN recorded the
+        OFFERED-MATERIAL refusal: its execution's token had been returned, so
+        what remained was the rule protecting preserved evidence. THIS FIXTURE
+        records the OWNERSHIP refusal: the execution's workspace token is still
+        held here, so governed ownership answers first. They are two different
+        rules refusing the same `conclude` act, and only the first is the one
+        this Work corrects -- the correction makes the ending stop asking, so
+        NEITHER is reached.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.unable_review()
+        with mock.patch.object(workspaces, "material_is_offered",
+                               lambda control, assignment_id: False):
+            self.ticks(held)
+            deferred = self.deferrals(held)
+        self.assertEqual(len(deferred), 1, deferred)
+        act, category, code, message = deferred[0]
+        self.assertEqual((act, category, code),
+                         ("conclude", "refused", "precondition"))
+        self.assertIn("is refused", message)
+        self.assertIn(held.review[:32], message)
+        # WHICH ROOT-PROTECTION REASON FIRES FIRST DEPENDS ON THE TOKEN, and
+        # saying so is more honest than forcing one sentence. Here the
+        # execution's own workspace token has not been returned yet, so the
+        # governed-ownership refusal answers first; in the live run the token
+        # HAD been returned and the offered-material refusal is what the
+        # deferral recorded. They are the same act being refused for the same
+        # reason -- these roots are not a writer's to take -- and WITH THE
+        # CORRECTION NEITHER OF THEM FIRES, which the scenario case asserts by
+        # an empty deferral set.
+        self.assertTrue(
+            "preserved and offered for inspection" in message
+            or "a live governed execution owns these roots" in message,
+            message)
+
+    def test_a_SECOND_LIVE_COMPOSITION_IS_REFUSED_BY_OWNERSHIP(self):
+        """NOT a restart, and review 2026-09-30T11:45:12Z was right to say so:
+        both compositions are alive here and the first still holds its token.
+        What this proves is REFUSAL SAFETY -- a second live manager cannot take
+        roots the first one owns -- which is worth keeping and is not recovery.
+        The recovery is
+        `test_a_RESTART_AFTER_EXPIRY_RECOVERS_THROUGH_THE_SUPPORTED_RECLAIM`.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+        axes = self.axes(held, held.review)
+        deferred_before = self.deferrals(held)
+
+        # A SECOND COMPOSITION OVER THE SAME STORES. `serving` opens the same
+        # store names, so this is the process restart rather than a new world.
+        job, control, composed = self.serving()
+        restarted = SimpleNamespace(job=job, control=control,
+                                    composed=composed, review=held.review)
+        states = self.ticks(restarted)
+        self.assertEqual(states["review"], "answering")
+        self.assertEqual(self.axes(restarted, held.review), axes)
+        after = self.journal(restarted)
+        # NO DUPLICATE EFFECTS: not one new operation, output, intake,
+        # retention or artifact, and still no verdict.
+        self.assertEqual(before, after)
+
+        # AND WHAT THE RESTART DOES MEET IS GOVERNANCE, WHICH IS A DIFFERENT
+        # CONDITION AND NOT MINE TO BYPASS. The first execution's workspace
+        # token was never returned -- the run it belonged to is gone -- so the
+        # new composition is refused when it tries to ADOPT those roots: "a
+        # live governed execution owns these roots, and ownership is
+        # transferred after that token is returned rather than beside it".
+        # That refusal is right, it is about ownership across executions rather
+        # than about preserved material, and the correction this Work makes
+        # neither removes it nor should.
+        deferred = self.deferrals(restarted)
+        self.assertEqual(len(deferred), 1, deferred)
+        act, category, code, message = deferred[0]
+        self.assertEqual((act, category, code),
+                         ("conclude", "refused", "precondition"))
+        self.assertIn("a live governed execution owns these roots", message)
+        self.assertNotIn("preserved and offered for inspection", message)
+        # AND IT APPEARED ONLY AFTER THE RESTART: the original composition ran
+        # the same ticks with nothing deferred, which is what makes the token
+        # the operative difference rather than the re-entry itself. (One store,
+        # one deferrals table -- so this is captured before, not read after.)
+        self.assertEqual(deferred_before, [])
+
+    def test_the_SEALED_BYTES_are_unchanged_across_the_re_entry(self):
+        """The evidence the whole refusal exists to protect."""
+        from baton_v12.worker_manager import load_manifest
+
+        held = self.unable_review()
+        self.ticks(held)
+        [digest] = [one[2] for one in self.journal(held)["outputs"]
+                    if one[0] == held.review]
+        sealed = load_manifest(held.control, digest, "resultManifest")
+        self.assertIsNotNone(sealed)
+        before = json.dumps(sealed, sort_keys=True)
+
+        job, control, composed = self.serving()
+        restarted = SimpleNamespace(job=job, control=control,
+                                    composed=composed, review=held.review)
+        self.ticks(restarted)
+        again = load_manifest(control, digest, "resultManifest")
+        self.assertEqual(json.dumps(again, sort_keys=True), before)
+        # AND THE ARTIFACT ROWS STILL MEASURE THE SAME BYTES.
+        self.assertEqual(self.journal(restarted)["artifacts"],
+                         self.journal(held)["artifacts"])
+
+    def restarted(self, held):
+        """The FIRST PROCESS ENDS and a later one opens the same stores.
+
+        REVIEW 2026-09-30T11:45:12Z, and it was right: my earlier restart case
+        opened a second composition while the first was still alive, which
+        proves refusal safety and nothing about recovery. This closes the first
+        composition through the factory's own `close`, and opens the stores
+        again on a LATER CLOCK -- which is what a restart really has, and which
+        is what makes the dead execution's token overdue. The fake engine is
+        the SAME object, so the runtime state the first process left is the
+        state this one finds.
+        """
+        import datetime
+
+        from baton_v12.job_manager import JobStore
+        from baton_v12.worker_manager import ControlStore
+        from baton_v12.worker_manager import tokens
+        from tests.job_manager import fixtures
+
+        from .test_single_worker import AUTHORITY_UUID
+
+        held.composed.close()
+        later = (datetime.datetime.fromisoformat(
+            fixtures.NOW.replace("Z", "+00:00"))
+            + datetime.timedelta(seconds=tokens.LIFETIME_SECONDS + 60))
+        # THE FROZEN GRAMMAR THE STORES REQUIRE: milliseconds, always.
+        stamp = later.strftime("%Y-%m-%dT%H:%M:%S.") + \
+            "%03dZ" % (later.microsecond // 1000)
+        job = JobStore.open(self.job_path, authority_uuid=AUTHORITY_UUID,
+                            incarnation="restarted", clock=lambda: stamp)
+        control = ControlStore.open(self.control_path,
+                                    incarnation="restarted",
+                                    clock=lambda: stamp)
+        self.addCleanup(job.close)
+        self.addCleanup(control.close)
+        composed = stage_execution.operations_from(
+            self.composed_document(line_declared_base=self.base), job, control,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: stamp, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        return SimpleNamespace(job=job, control=control, composed=composed,
+                               review=held.review, now=stamp)
+
+    def reclaimed(self, restarted):
+        """The supported recovery, through the entry production calls.
+
+        `tools/job_manager.py`'s restart pass selects overdue governed
+        candidates and calls `intake.reclaim_expired_resource` with its own
+        lean `_ReclaimAdapter`. This builds that adapter the same way -- the
+        engine and its runner, nothing else -- so the four acts are the
+        product's: REVOKE (permitted only because the generation is overdue),
+        STOP the exact container, POSITIVELY CONFIRM what it now is, SETTLE.
+        No token is bypassed and no expiry is faked: the clock moved.
+        """
+        from baton_v12.worker_manager import attempts as A
+        from baton_v12.worker_manager import intake, tokens
+
+        from tools import job_manager as manager
+
+        row = dict(A._attempt_row(restarted.control, restarted.review))
+        governance = tokens.workspace_governance()
+        operation = A._start_operation_id(row)
+        overdue = governance.overdue(restarted.control, row,
+                                     operation=operation)
+        self.assertIsNotNone(overdue, "the generation is not overdue")
+        self.assertTrue(overdue["expired"])
+        self.assertFalse(overdue["returned"])
+        adapter = manager._ReclaimAdapter(self.engine.engine
+                                          if hasattr(self.engine, "engine")
+                                          else "docker", self.engine)
+        return intake.reclaim_expired_resource(
+            restarted.control, adapter, attempt_id=restarted.review,
+            govern=governance), overdue
+
+    def settled(self, restarted):
+        """The SECOND HALF of the same restart pass, which is the release.
+
+        OWNER REROUTE 316504 asked whether the reclaim's `held` answer -- "the
+        runtime observed absent and no writer-absence proof exists yet, so the
+        revoked generation keeps the resource" -- is a product gap or missing
+        evidence. IT IS MISSING EVIDENCE, and production says so in its own
+        words: `tools/job_manager.py` runs `intake.settle_revoked_resource`
+        whenever the reclaim answers `held` OR `returned`, because "the revoked
+        settlement no longer performs or requires any custody act -- it
+        observes the exact container's termination, records the execution
+        status, PRESERVES THE WORKSPACE AS IS and releases the exact gate".
+
+        So the release does not need the normalization the held answer was
+        waiting for. It needs the settlement to be RUN, which my earlier case
+        never did.
+        """
+        from baton_v12.worker_manager import intake, tokens
+
+        from tools import job_manager as manager
+
+        adapter = manager._ReclaimAdapter(
+            "docker", self.engine,
+            custodian_image_digest="sha256:" + "c" * 64)
+        return intake.settle_revoked_resource(
+            restarted.control, adapter, attempt_id=restarted.review,
+            govern=tokens.workspace_governance())
+
+    def token(self, restarted, generation=1):
+        from baton_v12.worker_manager import attempts as A
+        from baton_v12.worker_manager import tokens
+
+        row = dict(A._attempt_row(restarted.control, restarted.review))
+        governance = tokens.workspace_governance()
+        domain = tokens.domain_of(governance.resource_kind,
+                                  governance.identity(row))
+        return tokens.token_of(restarted.control, domain, generation)
+
+    def test_THE_SETTLEMENT_RELEASES_THE_GATE_AND_PRESERVES_THE_WORKSPACE(self):
+        """The cessation-to-release path, completed with the product's own act.
+
+        The reclaim withdraws the entitlement and answers `held` because it
+        establishes no writer cessation of its own. The settlement is what
+        returns the resource, and it preserves the workspace rather than
+        normalizing it -- which is exactly right for material that stands
+        offered for inspection.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+
+        restarted = self.restarted(held)
+        reclaimed, _overdue = self.reclaimed(restarted)
+        # THE RECLAIM'S OWN ANSWER, stated rather than glossed: absent runtime,
+        # no writer-absence proof, resource still held.
+        self.assertEqual(reclaimed["reclaimed"], "held")
+        self.assertEqual(reclaimed["state"], "absent")
+        self.assertIn("no writer-absence proof exists yet", reclaimed["why"])
+        self.assertTrue(self.token(restarted)["revoked"])
+        self.assertFalse(self.token(restarted)["returned"])
+
+        # AND THEN THE SETTLEMENT, which production runs in the same pass.
+        answer = self.settled(restarted)
+        self.assertEqual(answer["attempt_id"], held.review)
+        token = self.token(restarted)
+        self.assertTrue(token["returned"], token)
+        self.assertTrue(token["revoked"], token)
+
+        # THE WORKSPACE IS PRESERVED AS IS: every piece of sealed evidence is
+        # exactly what the first process left, and the attempt's axes have not
+        # moved -- the offer is still sealed and still offered.
+        after = self.journal(restarted)
+        for key in ("outputs", "intakes", "retentions", "artifacts",
+                    "verdicts", "attachments"):
+            self.assertEqual(before[key], after[key], key)
+        self.assertEqual(self.axes(restarted, held.review),
+                         {"output": "sealed", "cleanup": "pending",
+                          "worker_disposition": "unable"})
+
+    def test_WITHOUT_A_CUSTODIAN_IMAGE_THE_HOLD_IS_CORRECT(self):
+        """The other half of the owner's question, and it is not a gap.
+
+        OWNER REROUTE 316504 asked whether the reclaim's `held` answer is a
+        product gap or missing evidence. IT IS MISSING EVIDENCE, in two
+        distinct pieces, and this case pins the second: the release requires
+        HELPER ABSENCE to be established, and establishing it requires a
+        configured CUSTODIAN IMAGE so the engine can be asked. An adapter
+        without one cannot ask, and the manager says so in its own words rather
+        than inferring an absence it did not establish -- for both governed
+        roots, named individually. Holding there is correct behaviour.
+        """
+        from baton_v12.worker_manager import intake, tokens
+
+        from tools import job_manager as manager
+
+        held = self.unable_review()
+        self.ticks(held)
+        restarted = self.restarted(held)
+        self.reclaimed(restarted)
+        # THE SAME SETTLEMENT, WITH NO CUSTODIAN IMAGE CONFIGURED.
+        answer = intake.settle_revoked_resource(
+            restarted.control, manager._ReclaimAdapter("docker", self.engine),
+            attempt_id=restarted.review,
+            govern=tokens.workspace_governance())
+        self.assertEqual(answer["settled"], "held")
+        self.assertEqual(answer["state"], "absent")
+        self.assertIn("configures no custodian image", answer["why"])
+        self.assertIn("the engine was NOT asked", answer["why"])
+        self.assertIn("helper absence is not established", answer["why"])
+        self.assertEqual(sorted(one["root"] for one in answer["surviving"]),
+                         ["result", "workspace"])
+        # AND THE RESOURCE STAYS HELD, which is the point: revoked, not
+        # returned.
+        token = self.token(restarted)
+        self.assertTrue(token["revoked"])
+        self.assertFalse(token["returned"])
+
+    def test_AFTER_THE_RELEASE_THE_ENDING_STILL_RESTS_HELD(self):
+        """The release frees the RESOURCE and settles nothing about the review:
+        no verdict appears, the offer is still sealed, and the stage is still
+        answering. A released gate is not an accepted Job.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        restarted = self.restarted(held)
+        self.reclaimed(restarted)
+        self.settled(restarted)
+        before = self.journal(restarted)
+        states = self.ticks(restarted)
+        self.assertEqual(states["review"], "answering")
+        self.assertEqual(self.axes(restarted, held.review)["output"], "sealed")
+        self.assertEqual(self.journal(restarted), before)
+        self.assertEqual(before["verdicts"], 0)
+        self.assertEqual([one[1] for one in before["attachments"]], ["active"])
+
+    def test_THE_OFFERED_MATERIAL_RULE_STILL_EXCLUDES_A_WRITER_AFTER_RELEASE(self):
+        """The release must not weaken the exclusion: the material is still
+        preserved and offered, so a writer is still refused over it.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.unable_review()
+        self.ticks(held)
+        restarted = self.restarted(held)
+        self.reclaimed(restarted)
+        self.settled(restarted)
+        self.assertTrue(workspaces.material_is_offered(restarted.control,
+                                                       held.review))
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.admit_preparation(
+                restarted.control, held.review,
+                f"preparing attempt {held.review}'s roots", held.review)
+        self.assertIn("preserved and offered for inspection",
+                      str(caught.exception))
+
+    def test_a_RESTART_AFTER_EXPIRY_RECOVERS_THROUGH_THE_SUPPORTED_RECLAIM(self):
+        """The recovery, not merely the refusal: first process closed, token
+        overdue, the product's own reclaim, then the ending re-entered.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+        axes = self.axes(held, held.review)
+
+        restarted = self.restarted(held)
+        outcome, overdue = self.reclaimed(restarted)
+        self.assertEqual(outcome["attempt_id"], held.review)
+        # THE ENTITLEMENT IS WITHDRAWN, whatever the cessation turned out to be.
+        from baton_v12.worker_manager import tokens
+        from baton_v12.worker_manager import attempts as A
+
+        row = dict(A._attempt_row(restarted.control, restarted.review))
+        governance = tokens.workspace_governance()
+        domain = tokens.domain_of(governance.resource_kind,
+                                  governance.identity(row))
+        token = tokens.token_of(restarted.control, domain,
+                                overdue["generation"])
+        self.assertTrue(token["revoked"], token)
+
+        # AND THE EVIDENCE IS IMMUTABLE ACROSS ALL OF IT: the sealed output,
+        # the intake, the retention, the artifacts and the verdict count are
+        # exactly what the first process left.
+        after = self.journal(restarted)
+        for key in ("outputs", "intakes", "retentions", "artifacts",
+                    "verdicts", "attachments"):
+            self.assertEqual(before[key], after[key], key)
+        # THE ATTEMPT'S OWN AXES ARE UNCHANGED TOO: still sealed, still
+        # pending, still `unable`. A reclaim is not a settlement of the review.
+        self.assertEqual(self.axes(restarted, held.review), axes)
+        # AND NO VERDICT WAS INVENTED BY ANY OF IT.
+        self.assertEqual(after["verdicts"], 0)
+
+    def test_THE_RECOVERED_ENDING_REACHES_THE_SAME_HELD_STATE(self):
+        """After the reclaim, the recovered process re-enters the ending and
+        comes to rest in the same place, with no duplicate effects.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+
+        restarted = self.restarted(held)
+        self.reclaimed(restarted)
+        states = self.ticks(restarted)
+        self.assertEqual(states["review"], "answering")
+        self.assertEqual(self.axes(restarted, held.review)["output"], "sealed")
+        after = self.journal(restarted)
+        # NO DUPLICATES: the freeze, the intake and the retention are the same
+        # journalled acts, not second ones.
+        for key in ("outputs", "intakes", "retentions", "artifacts"):
+            self.assertEqual(before[key], after[key], key)
+        self.assertEqual(after["verdicts"], 0)
+
+    def test_a_WRITER_CALLER_IS_REFUSED_BEFORE_IT_CAN_WRITE(self):
+        """The actual caller, not a source string: the launch's own intent --
+        `writer=True`, the default -- over this exact state.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+        worker = [one["operations"]._worker for one in held.composed.workers
+                  if one["role"] == "review"][0]
+        stage = {"attempt_id": held.review, "job_id": "job-a",
+                 "kind": "review"}
+        with self.assertRaises(ContractRefusal) as caught:
+            worker._mounted(stage, held.review, checkpoint=False)
+        said = str(caught.exception)
+        self.assertIn("preserved and offered for inspection", said)
+        # AND IT REFUSED BEFORE WRITING ANYTHING: no operation was journalled,
+        # so no task publication and no credential materialization happened.
+        self.assertEqual(before, self.journal(held))
+
+    def test_the_ENDING_INTENT_is_the_only_one_that_skips(self):
+        """The same worker, the same state, the two intents: one refuses and
+        one answers the roots it sealed.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        worker = [one["operations"]._worker for one in held.composed.workers
+                  if one["role"] == "review"][0]
+        stage = {"attempt_id": held.review, "job_id": "job-a",
+                 "kind": "review"}
+        with self.assertRaises(ContractRefusal):
+            worker._mounted(stage, held.review, checkpoint=False)
+        answered = worker._mounted(stage, held.review, checkpoint=False,
+                                   writer=False)
+        self.assertTrue(answered[0]["workspace"])
+        self.assertTrue(os.path.isdir(answered[0]["workspace"]))
+
+
+class TheLastStageReturnsItsCapacityWhenItCompletes(ComposedOneJobCase):
+    """W316918: over the real composed runtime, where the completing tick is
+    the last one.
+
+    THE RESIDUAL, as the deployed instance recorded it. A completed Job whose
+    implementation allocation was `released` with reason `cleanup-retained`,
+    and whose review allocation -- reserved six milliseconds later, with no
+    runtime alive and its workspace retained -- was still `reserved` with
+    `released_at` null. Nothing was wrong with the runtime, the cleanup or the
+    verdict; the capacity was simply never given back.
+
+    WHY THIS LEVEL AND NOT ONLY THE SWEEP FIXTURE.
+    `tests/job_manager/test_final_allocation_release.py` pins the ordering
+    rule against a fake deployment whose `conclude` settles cleanup, and it is
+    the cheaper, sharper proof of the rule. It cannot prove the thing that
+    made this a residual rather than a one-tick delay: that for the LAST stage
+    of a Job, the tick which completes it is the only tick there will be. Only
+    a real composed lifecycle -- real containers through the fake engine, a
+    real reviewer verdict, the real ending, cleanup and settlement -- decides
+    where that boundary actually falls.
+
+    SO EVERY CASE HERE MEASURES ONE TICK. The stage's own completion and its
+    allocation's release must be facts of the SAME tick, because a supervisor
+    that stops when its stages are completed stops between them.
+    """
+
+    # BORROWED AND NOT SUBCLASSED, on this file's own idiom (see
+    # `OrdinaryTerminalLifecycle`): inheriting that class would silently
+    # re-run its nine cases under this name, which would make this suite's
+    # measured cost a statement about somebody else's proof.
+    REPORT = TheComposedJobTraversesReviewAndAcceptance.REPORT
+    reviewed = TheComposedJobTraversesReviewAndAcceptance.reviewed
+    only_attempt_of = TheComposedJobTraversesReviewAndAcceptance.only_attempt_of
+    deployment_of = staticmethod(
+        TheComposedJobTraversesReviewAndAcceptance.deployment_of)
+    tick = TheComposedJobTraversesReviewAndAcceptance.tick
+
+    def allocations(self, held, kind=None):
+        """Every allocation this Job's store holds, oldest reservation first.
+
+        A LIST AND NOT A MAP KEYED BY STAGE, which is a correction to how I
+        first wrote this. A correction round gives one stage TWO allocations,
+        and keying by stage silently kept whichever sorted last -- so the two
+        cases below that are about a stage carrying two episodes passed while
+        one of the two rows was never looked at at all.
+        """
+        from baton_v12.job_manager import allocation_rows
+
+        return [row for row in allocation_rows(held.job)
+                if kind is None
+                or row["stage_id"].rsplit("/", 1)[-1] == kind]
+
+    def only(self, held, kind):
+        [row] = self.allocations(held, kind)
+        return row
+
+    def live(self, held):
+        """Each live allocation as (stage kind, assignment), duplicates kept."""
+        from baton_v12.job_manager import scheduler
+
+        return sorted((row["stage_id"].rsplit("/", 1)[-1],
+                       row["assignment_id"]) for row in self.allocations(held)
+                      if row["allocation_state"] in scheduler.LIVE_STATES)
+
+    def completing(self, held):
+        """The one tick in which the review stage reaches `completed`.
+
+        Asserted rather than searched for: if it took two ticks this method
+        fails here instead of letting a later assertion measure the wrong one.
+        """
+        self.assertEqual(self.states(held.job, held.composed)["review"],
+                         "answering")
+        report = self.tick(held)
+        self.assertEqual(self.states(held.job, held.composed)["review"],
+                         "completed")
+        return report
+
+    # -- the tick that completes it is the tick that frees it ----------------
+
+    def test_the_completing_tick_releases_the_review_allocation(self):
+        held = self.reviewed()
+        self.assertEqual(self.only(held, "review")["allocation_state"],
+                         "reserved")
+        self.completing(held)
+        settled = self.only(held, "review")
+        self.assertEqual(settled["allocation_state"], "released")
+        self.assertIsNotNone(settled["released_at"])
+        self.assertEqual(settled["release_reason"], "cleanup-retained")
+
+    def test_it_releases_the_assignment_the_reviewer_actually_ran(self):
+        """The exact assignment, read back from the attempt this fixture
+        watched the container start under."""
+        from baton_v12.job_manager import allocation_of
+
+        held = self.reviewed()
+        self.completing(held)
+        settled = allocation_of(held.job, held.review)
+        self.assertIsNotNone(settled)
+        self.assertEqual(settled["allocation_state"], "released")
+        self.assertEqual(settled["stage_id"], "job-a/review")
+
+    def test_no_allocation_of_this_job_is_still_live_at_completion(self):
+        """THE WHOLE POINT, stated as the reader sees it.
+
+        At the moment every reader calls this Job's review completed, the
+        deployment's review lane holds no live allocation -- so a supervisor
+        that stops here leaves nothing behind.
+        """
+        held = self.reviewed()
+        self.assertEqual(self.live(held),
+                         [("review", self.only(held, "review")
+                           ["assignment_id"])])
+        self.completing(held)
+        self.assertEqual(self.live(held), [])
+
+    def test_the_release_claims_only_the_cleanup_that_was_proven(self):
+        """`cleanup-retained` AND NOT `cleanup-complete`, which is the
+        distinction the deployed residual also carried: the runtime ceased and
+        the workspace was deliberately KEPT for evidence. Returning logical
+        capacity says nothing about the container or the workspace, and the
+        retained material is still there to be read.
+        """
+        held = self.reviewed()
+        self.completing(held)
+        self.assertEqual(self.only(held, "review")["release_reason"],
+                         "cleanup-retained")
+        worker = self.worker_of(held.composed, "review")
+        prepared = worker.stage._prepared[held.review]
+        self.assertTrue(os.path.isdir(prepared["boundary"]["roots"]["workspace"]))
+
+    def test_the_accepted_verdict_and_its_evidence_survive_the_release(self):
+        """A settlement is not an erasure. The verdict the reviewer's own
+        container wrote, the frozen result it was sealed from, and the
+        accepted checkpoint the integration stage depends on are all exactly
+        where they were.
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.reviewed()
+        report = self.completing(held)
+        [concluded] = [one for one in report["spoken"]
+                       if one["stage_id"] == "job-a/review"]
+        self.assertEqual(concluded["detail"]["verdict"], "accepted")
+        deployment = self.deployment_of(held)
+        line = deployment.line()
+        accepted = review_cycles.integration_checkpoint(deployment.control,
+                                                        line["line_id"])
+        self.assertIsNotNone(accepted)
+        # AND THE JOB STILL GOES FORWARD from the state the release left.
+        states = self.drive(held.job, held.composed, "integration", "claimed")
+        self.assertEqual(states["integration"], "claimed")
+
+    # -- once, and once only -------------------------------------------------
+
+    def test_later_ticks_do_not_release_it_a_second_time(self):
+        held = self.reviewed()
+        self.completing(held)
+        first = self.only(held, "review")
+        for index in range(3):
+            with self.subTest(tick=index + 1):
+                self.tick(held)
+                again = self.only(held, "review")
+                self.assertEqual(again["released_at"], first["released_at"])
+                self.assertEqual(again["release_reason"],
+                                 first["release_reason"])
+        self.assertEqual(
+            [row["operation_id"] for row in held.job._connection.execute(
+                "SELECT operation_id FROM operations "
+                "WHERE kind = 'allocation.released' AND operation_id LIKE ?",
+                ("%" + held.review,))],
+            ["allocation.released:" + held.review])
+
+    def test_the_implementation_allocation_was_released_on_its_own_tick(self):
+        """The half that always worked, kept measured beside the half that did
+        not -- because a fix that made the review stage release EARLY would
+        show up here as an implementation allocation released before its
+        cleanup was proven."""
+        held = self.reviewed()
+        implementation = self.only(held, "implementation")
+        self.assertEqual(implementation["allocation_state"], "released")
+        self.assertEqual(implementation["release_reason"], "cleanup-retained")
+        self.assertNotEqual(implementation["assignment_id"], held.review)
+
+    # -- the correction path, whose review stage has a second episode --------
+
+    def corrected(self):
+        """The same Job, reviewed twice: changes-requested, then accepted.
+
+        THIS PATH IS MEASURED SEPARATELY BECAUSE ITS CODE PATH DIFFERS. A
+        correction round advances the review stage into a SECOND episode, and
+        `reconcile_allocations` keys the projection entry by stage while the
+        allocation is keyed by assignment -- so a stage carrying two
+        allocations is exactly where a settlement could name the wrong one, or
+        free the round that is still open.
+        """
+        import copy
+
+        held = self.reviewed(verdict="changes-requested")
+        self.tick(held)
+        self.drive(held.job, held.composed, "implementation", "waiting",
+                   ticks=12)
+        second = self.only_attempt_of(held.composed, "implementation",
+                                      exclude=held.attempt_id)
+        self.assertEqual(
+            self.turn(held.control, "implementation", second,
+                      self.mounted(held.composed, "implementation", second),
+                      edits={"harness.py": "print('the second harness')\n"}), 0)
+        self.drive(held.job, held.composed, "implementation", "completed",
+                   ticks=14)
+        self.drive(held.job, held.composed, "review", "waiting", ticks=14)
+        third = self.only_attempt_of(held.composed, "review",
+                                     exclude=held.review)
+        report = copy.deepcopy(self.REPORT)
+        self.assertEqual(
+            self.turn(held.control, "review", third,
+                      self.mounted(held.composed, "review", third),
+                      edits={"review-report.json": json.dumps(report)}), 0)
+        held.first_review, held.review = held.review, third
+        return held
+
+    def test_the_accepted_second_round_releases_its_own_allocation(self):
+        from baton_v12.job_manager import allocation_of
+
+        held = self.corrected()
+        self.assertEqual(
+            allocation_of(held.job, held.review)["allocation_state"],
+            "reserved")
+        self.completing(held)
+        settled = allocation_of(held.job, held.review)
+        self.assertEqual(settled["allocation_state"], "released")
+        self.assertIsNotNone(settled["released_at"])
+
+    def test_the_corrected_round_settles_each_episode_exactly_once(self):
+        """Two allocations on one stage, each released for its own ending."""
+        from baton_v12.job_manager import allocation_of
+
+        held = self.corrected()
+        self.completing(held)
+        first = allocation_of(held.job, held.first_review)
+        second = allocation_of(held.job, held.review)
+        self.assertNotEqual(first["assignment_id"], second["assignment_id"])
+        self.assertNotEqual(first["episode"], second["episode"])
+        for settled in (first, second):
+            with self.subTest(assignment=settled["assignment_id"]):
+                self.assertEqual(settled["allocation_state"], "released")
+        self.assertEqual(self.live(held), [])
+
+    def test_the_corrected_round_leaves_every_allocation_released(self):
+        """All four of them -- two implementation rounds and two review
+        rounds -- named individually, so no row can hide behind another."""
+        held = self.corrected()
+        self.completing(held)
+        rows = self.allocations(held)
+        self.assertEqual(len(rows), 4, [row["assignment_id"] for row in rows])
+        self.assertEqual(sorted(row["allocation_state"] for row in rows),
+                         ["released"] * 4)
+
+
+class TheTraversedTargetPostureIsExplicit(unittest.TestCase):
+    """W385454: the posture the traversing scenario needs of its canonical
+    target does not depend on the ambient umask, and the helper changes
+    nothing but the two group bits the product's proof requires."""
+
+    def setUp(self):
+        import tempfile
+
+        self.held = os.umask(0o077)
+        self.addCleanup(os.umask, self.held)
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.place = os.path.join(self.temporary.name, "source")
+        os.makedirs(self.place)
+
+    def test_a_restrictive_umask_leaves_the_group_out_and_the_helper_puts_it_back(self):
+        before = stat.S_IMODE(os.stat(self.place).st_mode)
+        self.assertEqual(before & (stat.S_IWGRP | stat.S_IXGRP), 0)
+        mode = establish_target_posture(self, self.place, os.getgid())
+        self.assertEqual(mode, before | stat.S_IWGRP | stat.S_IXGRP)
+        self.assertEqual(stat.S_IMODE(os.stat(self.place).st_mode), mode)
+
+    def test_only_the_two_group_bits_change_and_the_call_is_idempotent(self):
+        os.chmod(self.place, 0o2700)
+        # write and traversal, and nothing else: no group READ is granted here
+        self.assertEqual(establish_target_posture(self, self.place, os.getgid()), 0o2730)
+        self.assertEqual(establish_target_posture(self, self.place, os.getgid()), 0o2730)
+        os.chmod(self.place, 0o775)
+        self.assertEqual(establish_target_posture(self, self.place, os.getgid()), 0o775)
+
+    def test_the_product_proof_accepts_what_the_helper_established(self):
+        """The same predicate `oci_delivery.prove_target_posture` applies,
+        evaluated over this directory's own stat: group matches, write and
+        traversal present."""
+        establish_target_posture(self, self.place, os.getgid())
+        held = os.stat(self.place)
+        self.assertEqual(held.st_gid, os.getgid())
+        self.assertTrue(held.st_mode & stat.S_IWGRP and held.st_mode & stat.S_IXGRP)
+
+    def test_a_foreign_group_is_a_failure_not_a_repair(self):
+        with self.assertRaises(AssertionError) as caught:
+            establish_target_posture(self, self.place, os.getgid() + 1)
+        self.assertIn("does not change ownership", str(caught.exception))
+        self.assertEqual(stat.S_IMODE(os.stat(self.place).st_mode) & stat.S_IWGRP, 0)
+

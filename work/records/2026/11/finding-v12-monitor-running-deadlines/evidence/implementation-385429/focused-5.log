@@ -1,0 +1,238 @@
+{"excluded": ["tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader", "tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion"]}
+test_activity_zero_missing_foreign_and_old_in_fresh_snapshot (tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot) ... ok
+test_publication_and_observation_ages_share_exact_boundary (tests.tools.test_job_observation.SharedObservation.test_publication_and_observation_ages_share_exact_boundary) ... ok
+test_schema_and_visibility_contract_remain_unchanged (tests.tools.test_job_observation.SharedObservation.test_schema_and_visibility_contract_remain_unchanged) ... ok
+test_shared_model_has_no_io_dependencies (tests.tools.test_job_observation.SharedObservation.test_shared_model_has_no_io_dependencies) ... ok
+test_shared_outcomes_gates_and_typed_failure (tests.tools.test_job_observation.SharedObservation.test_shared_outcomes_gates_and_typed_failure) ... ok
+test_terminal_activity_keeps_original_absolute_time (tests.tools.test_job_observation.SharedObservation.test_terminal_activity_keeps_original_absolute_time) ... ok
+test_unrecognized_operations_are_not_relayed (tests.tools.test_job_observation.SharedObservation.test_unrecognized_operations_are_not_relayed) ... ok
+test_blocked_episode_has_not_started (tests.tools.test_job_observation.Timing.test_blocked_episode_has_not_started) ... ok
+test_retry_never_rebases_job_deadline_on_new_episode (tests.tools.test_job_observation.Timing.test_retry_never_rebases_job_deadline_on_new_episode) ... ok
+test_separate_age_unknown_runtime_and_partial_named_limit_in_all_views (tests.tools.test_job_observation.Timing.test_separate_age_unknown_runtime_and_partial_named_limit_in_all_views) ... ok
+test_ties_and_deadline_boundary_are_not_cessation (tests.tools.test_job_observation.Timing.test_ties_and_deadline_boundary_are_not_cessation) ... ok
+test_unknown_future_stale_control_and_terminal (tests.tools.test_job_observation.Timing.test_unknown_future_stale_control_and_terminal) ... ok
+test_a_connected_snapshot_without_the_job_still_refuses (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_connected_snapshot_without_the_job_still_refuses)
+A view that answered "not read yet" for a Job that genuinely is not ... ok
+test_a_json_list_is_refused_rather_than_crashing (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_json_list_is_refused_rather_than_crashing)
+`held.get` on a list raises AttributeError, which escapes as a ... ok
+test_a_nested_malformed_document_never_replaces_the_good_one (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_nested_malformed_document_never_replaces_the_good_one)
+REVIEW claim168169 [P2]. `{"schema": ..., "jobs": [null]}` carried ... ok
+test_a_truncated_document_disconnects_and_keeps_the_last_view (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_truncated_document_disconnects_and_keeps_the_last_view) ... ok
+test_an_oversize_document_disconnects_rather_than_exiting (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_an_oversize_document_disconnects_rather_than_exiting) ... ok
+test_detail_on_a_first_unreadable_snapshot_does_not_exit (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_detail_on_a_first_unreadable_snapshot_does_not_exit)
+"I have not managed to look" and "I looked and it is not there" ... ok
+test_the_loop_retries_after_a_bad_document (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_the_loop_retries_after_a_bad_document) ... ok
+test_an_enormous_integer_renders_unknown_through_a_real_json_read (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_an_enormous_integer_renders_unknown_through_a_real_json_read)
+THROUGH THE REAL PATH: JSON text, `read_snapshot`, then both ... ok
+test_every_out_of_domain_count_is_unknown (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_every_out_of_domain_count_is_unknown) ... ok
+test_the_largest_valid_producer_count_still_renders (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_the_largest_valid_producer_count_still_renders)
+THE BOUND IS A BOUND, not a refusal of every large number. The ... ok
+test_the_ordinary_refresh_and_render_survive_it (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_the_ordinary_refresh_and_render_survive_it)
+`refresh` installs the snapshot and rendering happens outside its ... ok
+test_the_viewer_ceiling_is_the_producers_own (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_the_viewer_ceiling_is_the_producers_own)
+Two copies of one number, held together. The worker manager's parser ... ok
+test_an_unobserved_attempt_reports_activity_unknown (tests.tools.test_job_viewer.NothingIsInvented.test_an_unobserved_attempt_reports_activity_unknown)
+W61599's source exists now, and absence is still `unknown`. ... ok
+test_an_unread_manager_says_nobody_looked (tests.tools.test_job_viewer.NothingIsInvented.test_an_unread_manager_says_nobody_looked)
+`canonical: false` is the difference between "nothing is running" ... ok
+test_elapsed_comes_from_source_times_and_not_the_wall_clock (tests.tools.test_job_viewer.NothingIsInvented.test_elapsed_comes_from_source_times_and_not_the_wall_clock)
+A stage whose start nobody recorded has an UNKNOWN elapsed. The ... ok
+test_episode_opening_is_not_an_invocation_start (tests.tools.test_job_viewer.NothingIsInvented.test_episode_opening_is_not_an_invocation_start)
+An episode is opened before admission/launch and cannot time a turn. ... ok
+test_an_advancing_observation_stays_fresh (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_an_advancing_observation_stays_fresh)
+And the reversal: when the manager IS advancing, the view does not ... ok
+test_an_observation_that_was_already_old_is_stale_on_first_read (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_an_observation_that_was_already_old_is_stale_on_first_read)
+A view that only watched its own reads would call a two-hour-old ... ok
+test_an_unreadable_observation_time_is_treated_as_stale (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_an_unreadable_observation_time_is_treated_as_stale)
+A view that cannot tell how old its facts are must not present them ... ok
+test_refresh_interval_does_not_change_freshness (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_refresh_interval_does_not_change_freshness) ... ok
+test_rereading_an_unchanged_document_goes_stale (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_rereading_an_unchanged_document_goes_stale)
+The source is not advancing. Reading it again is not news. ... ok
+test_a_foreign_schema_refuses (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_foreign_schema_refuses) ... ok
+test_a_locator_read_is_bounded_and_visibly_truncated (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_locator_read_is_bounded_and_visibly_truncated) ... ok
+test_a_stage_with_no_frozen_output_says_unavailable (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_stage_with_no_frozen_output_says_unavailable) ... ok
+test_an_artifact_without_a_locator_is_unavailable_not_guessed (tests.tools.test_job_viewer.TheBoundsAreHonest.test_an_artifact_without_a_locator_is_unavailable_not_guessed) ... ok
+test_an_oversize_snapshot_refuses_rather_than_omitting_jobs (tests.tools.test_job_viewer.TheBoundsAreHonest.test_an_oversize_snapshot_refuses_rather_than_omitting_jobs)
+A view that dropped the tail would silently omit Jobs -- and a Job ... ok
+test_read_locator_takes_no_path_operand (tests.tools.test_job_viewer.TheBoundsAreHonest.test_read_locator_takes_no_path_operand)
+A HELPER-SHAPE CHECK, and nothing more. Review claim168257: this is ... ok
+test_a_canonical_read_does_not_carry_the_nobody_looked_warning (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_a_canonical_read_does_not_carry_the_nobody_looked_warning) ... ok
+test_a_held_stage_says_what_it_is_waiting_on (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_a_held_stage_says_what_it_is_waiting_on) ... ok
+test_a_model_free_completed_stage_renders_through_the_real_reader (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_a_model_free_completed_stage_renders_through_the_real_reader)
+The completion path this viewer has to be able to show, taken from ... ok
+test_the_canonical_read_performs_no_act (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_the_canonical_read_performs_no_act)
+The operations surface records every act it is asked for, so an ... ok
+test_two_jobs_stay_isolated_through_the_canonical_reader (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_two_jobs_stay_isolated_through_the_canonical_reader) ... ok
+test_a_detail_request_for_an_absent_job_refuses_with_status_two (tests.tools.test_job_viewer.TheCommandIsOrdinary.test_a_detail_request_for_an_absent_job_refuses_with_status_two) ... ok
+test_it_reads_a_status_document_an_operator_already_has (tests.tools.test_job_viewer.TheCommandIsOrdinary.test_it_reads_a_status_document_an_operator_already_has) ... ok
+test_a_live_stage_keeps_its_identity_too (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_live_stage_keeps_its_identity_too) ... ok
+test_a_malformed_instant_cannot_widen_the_line (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_malformed_instant_cannot_widen_the_line)
+The document is the manager's, but a malformed one does not get to ... ok
+test_a_quiet_stage_gains_no_continuation_line (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_quiet_stage_gains_no_continuation_line)
+`unknown` has no timing to carry, so it costs no line. A view that ... ok
+test_every_terminal_state_keeps_count_instant_and_identity_at_width (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_every_terminal_state_keeps_count_instant_and_identity_at_width) ... ok
+test_a_file_uri_locator_is_read_as_a_locator (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_a_file_uri_locator_is_read_as_a_locator)
+`integration_bundle` already treats `file:///...` as a locator; the ... ok
+test_a_locator_that_is_not_a_regular_file_refuses (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_a_locator_that_is_not_a_regular_file_refuses)
+A fifo would block this program forever and a symlink would let the ... ok
+test_a_relative_reference_is_never_resolved_against_the_cwd (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_a_relative_reference_is_never_resolved_against_the_cwd)
+Where this program happens to be running is not part of the ... ok
+test_an_absolute_path_locator_also_reads (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_an_absolute_path_locator_also_reads) ... ok
+test_an_unpublished_artifact_or_stage_refuses (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_an_unpublished_artifact_or_stage_refuses) ... ok
+test_drilling_down_without_identities_refuses (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_drilling_down_without_identities_refuses) ... ok
+test_the_artifact_is_selected_out_of_the_snapshot_by_identity (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_artifact_is_selected_out_of_the_snapshot_by_identity) ... ok
+test_the_command_drills_down_through_identities (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_command_drills_down_through_identities) ... ok
+test_the_drill_down_banner_uses_the_configured_threshold (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_drill_down_banner_uses_the_configured_threshold)
+REVIEW claim168257 [P2]. `_drilled` called `_banner` without the ... ok
+test_a_spinning_or_nonfinite_interval_refuses (tests.tools.test_job_viewer.TheIntervalIsFiniteAndPositive.test_a_spinning_or_nonfinite_interval_refuses) ... ok
+test_the_command_refuses_one_too (tests.tools.test_job_viewer.TheIntervalIsFiniteAndPositive.test_the_command_refuses_one_too) ... ok
+test_a_reservation_without_a_runtime_still_shows_its_worker (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_a_reservation_without_a_runtime_still_shows_its_worker)
+An assignment before a runtime exists is exactly the case an ... ok
+test_an_absent_runtime_and_reservation_say_unknown (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_an_absent_runtime_and_reservation_say_unknown) ... ok
+test_an_exact_identifier_is_never_clipped_in_detail (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_an_exact_identifier_is_never_clipped_in_detail)
+A 100-column clamp cut identifiers in half -- precisely the view an ... ok
+test_the_real_scheduler_reservation_is_displayed (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_the_real_scheduler_reservation_is_displayed)
+The reservation exists BEFORE any runtime does, so its worker and ... ok
+test_the_runtime_fixed_assignment_fields_are_rendered (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_the_runtime_fixed_assignment_fields_are_rendered)
+These are the runtime's OWN assignment, retained beside the ... ok
+test_an_owner_locator_whose_file_is_gone_is_unavailable_not_invented (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_an_owner_locator_whose_file_is_gone_is_unavailable_not_invented)
+The owner recorded where it put the artifact; if that is no longer ... ok
+test_an_owner_produced_artifact_is_selected_and_read (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_an_owner_produced_artifact_is_selected_and_read) ... ok
+test_the_owners_artifact_is_shown_in_the_detail_view (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_the_owners_artifact_is_shown_in_the_detail_view) ... ok
+test_a_known_zero_is_not_an_unknown_count (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_known_zero_is_not_an_unknown_count) ... ok
+test_a_live_stage_and_a_terminal_one_disagree_on_purpose (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_live_stage_and_a_terminal_one_disagree_on_purpose)
+The same count and the same instant, rendered two ways. This is the ... ok
+test_a_live_stage_shows_the_count_and_a_relative_age (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_live_stage_shows_the_count_and_a_relative_age) ... ok
+test_a_missing_instant_is_unknown_rather_than_now (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_missing_instant_is_unknown_rather_than_now)
+A count with no instant is not a fresh one. Neither rendering may ... ok
+test_a_terminal_stage_shows_the_instant_and_never_an_age (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_terminal_stage_shows_the_instant_and_never_an_age)
+THE CASE THAT WOULD HAVE CAUGHT THE DEFECT. `4s ago` beside ... ok
+test_activity_changes_no_view_decision (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_activity_changes_no_view_decision)
+IT IS A DIAGNOSTIC AND NOTHING BRANCHES ON IT. Approver ruling ... ok
+test_every_shape_of_absence_reports_unknown (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_every_shape_of_absence_reports_unknown)
+THREE DIFFERENT ABSENCES, ONE HONEST ANSWER. No runtime at all, a ... ok
+test_rendering_activity_opens_no_store_and_performs_no_act (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_rendering_activity_opens_no_store_and_performs_no_act)
+The viewer gains NO second read path. Rendering the count touches ... ok
+test_snapshot_staleness_and_activity_age_are_separate_clocks (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_snapshot_staleness_and_activity_age_are_separate_clocks)
+A FRESH SNAPSHOT CAN CARRY AN OLD ACTIVITY INSTANT, and that is a ... ok
+test_the_count_is_read_from_the_snapshot_and_not_invented (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_the_count_is_read_from_the_snapshot_and_not_invented)
+Two different counts render differently. A view that ignored the ... ok
+test_a_failed_read_disconnects_and_keeps_saying_so (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_failed_read_disconnects_and_keeps_saying_so)
+The last good reading is kept because it was true once -- as long ... ok
+test_a_fresh_reading_shows_when_it_was_observed (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_fresh_reading_shows_when_it_was_observed) ... ok
+test_a_reconnect_clears_the_warning (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_reconnect_clears_the_warning) ... ok
+test_an_unrefreshed_view_becomes_conspicuously_stale (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_an_unrefreshed_view_becomes_conspicuously_stale) ... ok
+test_a_foreign_identity_refuses_instead_of_rendering_empty (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_a_foreign_identity_refuses_instead_of_rendering_empty)
+An empty detail view for a Job that is not here reads exactly like ... ok
+test_the_exact_identities_are_shown_not_summarised (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_the_exact_identities_are_shown_not_summarised)
+An operator chasing a stuck Job has to be able to hand somebody ... ok
+test_two_independent_jobs_are_both_visible_and_distinct (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_two_independent_jobs_are_both_visible_and_distinct)
+The whole reason this Work exists: V12 runs Jobs in parallel and an ... ok
+test_a_changed_observation_is_visible_on_the_next_tick (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_a_changed_observation_is_visible_on_the_next_tick)
+THE REFRESH LATENCY, TESTED LOGICALLY RATHER THAN BY WAITING. ... ok
+test_refreshing_only_reads (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_refreshing_only_reads) ... ok
+test_the_loop_sleeps_between_reads_and_does_not_spin (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_loop_sleeps_between_reads_and_does_not_spin) ... ok
+test_the_module_constructs_no_serving_factory (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_module_constructs_no_serving_factory)
+Read the imports rather than the paragraph promising the absence. ... ok
+test_the_store_is_unchanged_by_being_viewed (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_store_is_unchanged_by_being_viewed)
+The disposable owner state is established before and compared ... ok
+test_a_completed_account_survives_a_later_uncertain_refresh (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_completed_account_survives_a_later_uncertain_refresh)
+[2]. A completed integration is HISTORICAL evidence about the fixed ... ok
+test_a_failed_start_still_answers_first (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_failed_start_still_answers_first) ... ok
+test_a_foreign_exchange_cannot_move_an_integration (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_foreign_exchange_cannot_move_an_integration)
+An integration attempt writes no worker exchange, so one that ... ok
+test_a_foreign_frozen_output_cannot_complete_an_integration (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_foreign_frozen_output_cannot_complete_an_integration)
+The same rule the other way: an integration still working is not ... ok
+test_a_held_document_is_not_turned_into_an_owed_ending (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_held_document_is_not_turned_into_an_owed_ending)
+[3]. The generic rules answered first about evidence that was never ... ok
+test_a_supplied_document_for_another_kind_refuses_at_the_status (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_supplied_document_for_another_kind_refuses_at_the_status)
+[1], through the public projection rather than the binding alone. ... ok
+test_an_uncertain_runtime_holds_the_three_that_earn_an_act (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_an_uncertain_runtime_holds_the_three_that_earn_an_act)
+No automatic conclude follows an uncertain runtime. ... ok
+test_answered_is_answering_whatever_the_runtime_is_doing (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_answered_is_answering_whatever_the_runtime_is_doing)
+Concluding changes no Job state by itself; the next observation is ... ok
+test_completed_is_completed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_completed_is_completed) ... ok
+test_held_is_a_visible_exceptional_stage (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_held_is_a_visible_exceptional_stage) ... ok
+test_pending_or_answered_without_a_runtime_fails_closed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_or_answered_without_a_runtime_fails_closed) ... ok
+test_pending_with_a_quiet_runtime_is_answering (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_with_a_quiet_runtime_is_answering)
+So `conclude` reaches the driver and the DRIVER decides what a ... ok
+test_pending_with_a_running_runtime_is_integrating (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_with_a_running_runtime_is_integrating) ... ok
+test_unstarted_beside_a_started_runtime_fails_closed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_unstarted_beside_a_started_runtime_fails_closed) ... ok
+test_unstarted_is_claimed_and_still_owes_its_launch (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_unstarted_is_claimed_and_still_owes_its_launch) ... ok
+test_a_FAILING_observation_also_leaves_no_boundary_behind (tests.job_manager.test_status.ConcurrentSubmission.test_a_FAILING_observation_also_leaves_no_boundary_behind)
+DB-1 is not satisfied by the happy path. An observation that raises ... ok
+test_a_caller_s_own_boundary_is_neither_nested_nor_ended (tests.job_manager.test_status.ConcurrentSubmission.test_a_caller_s_own_boundary_is_neither_nested_nor_ended)
+SQLite has no nested transactions, and ending one here would commit ... ok
+test_a_concurrent_advancement_leaves_the_derivation_coherent_too (tests.job_manager.test_status.ConcurrentSubmission.test_a_concurrent_advancement_leaves_the_derivation_coherent_too)
+`stage_states` on its own -- the pass the sweep and the owed-act ... ok
+test_a_populated_store_reads_the_same_through_both_handles (tests.job_manager.test_status.ConcurrentSubmission.test_a_populated_store_reads_the_same_through_both_handles) ... ok
+test_a_submission_committed_INSIDE_the_materialization_is_coherent (tests.job_manager.test_status.ConcurrentSubmission.test_a_submission_committed_INSIDE_the_materialization_is_coherent)
+The same race one layer in: the writer commits between the stage ... ok
+test_a_submission_committed_between_the_two_reads_no_longer_raises (tests.job_manager.test_status.ConcurrentSubmission.test_a_submission_committed_between_the_two_reads_no_longer_raises)
+The minimal baseline from the finding, end to end. ... ok
+test_an_empty_store_still_reads_empty_through_the_reader (tests.job_manager.test_status.ConcurrentSubmission.test_an_empty_store_still_reads_empty_through_the_reader) ... ok
+test_an_episode_advancing_mid_status_is_not_mixed_with_the_next_one (tests.job_manager.test_status.ConcurrentSubmission.test_an_episode_advancing_mid_status_is_not_mixed_with_the_next_one)
+A stage whose live episode ends and is replaced WHILE the status is ... ok
+test_every_reported_stage_has_its_Job_and_every_Job_its_stages (tests.job_manager.test_status.ConcurrentSubmission.test_every_reported_stage_has_its_Job_and_every_Job_its_stages)
+The invariant the `KeyError` was the symptom of, asserted directly ... ok
+test_reading_through_the_read_only_handle_changes_no_row (tests.job_manager.test_status.ConcurrentSubmission.test_reading_through_the_read_only_handle_changes_no_row) ... ok
+test_the_authority_and_schema_checks_still_guard_the_reader (tests.job_manager.test_status.ConcurrentSubmission.test_the_authority_and_schema_checks_still_guard_the_reader)
+The new boundary is not a way around the opener's proofs. ... ok
+test_the_materialization_cannot_reach_another_store_at_all (tests.job_manager.test_status.ConcurrentSubmission.test_the_materialization_cannot_reach_another_store_at_all)
+The enforcement is structural rather than a comment: the function ... ok
+test_the_new_stages_are_reported_by_the_NEXT_read_and_not_lost (tests.job_manager.test_status.ConcurrentSubmission.test_the_new_stages_are_reported_by_the_NEXT_read_and_not_lost)
+An earlier coherent moment is not a silent omission. The submission ... ok
+test_the_other_store_is_read_with_no_Job_transaction_open (tests.job_manager.test_status.ConcurrentSubmission.test_the_other_store_is_read_with_no_Job_transaction_open) ... ok
+test_the_read_view_is_released_even_when_the_body_raises (tests.job_manager.test_status.ConcurrentSubmission.test_the_read_view_is_released_even_when_the_body_raises) ... ok
+test_the_whole_status_shape_survives_the_new_boundary (tests.job_manager.test_status.ConcurrentSubmission.test_the_whole_status_shape_survives_the_new_boundary)
+The document's contract is closed, so the composition is compared ... ok
+test_a_frozen_result_reports_the_managers_own_artifact_locators (tests.job_manager.test_status.Locators.test_a_frozen_result_reports_the_managers_own_artifact_locators) ... ok
+test_a_running_stage_reports_its_runtime_identity_and_activity (tests.job_manager.test_status.Locators.test_a_running_stage_reports_its_runtime_identity_and_activity) ... ok
+test_a_stage_with_no_runtime_reports_absence_rather_than_zero (tests.job_manager.test_status.Locators.test_a_stage_with_no_runtime_reports_absence_rather_than_zero) ... ok
+test_the_recorded_receipts_travel_with_the_stage (tests.job_manager.test_status.Locators.test_the_recorded_receipts_travel_with_the_stage) ... ok
+test_a_CLOSED_handle_reports_this_distributions_refusal (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_a_CLOSED_handle_reports_this_distributions_refusal)
+`read_snapshot` asked `in_transaction` ahead of its own `try`, so a ... ok
+test_a_status_inside_the_callers_own_read_view_observes_NOTHING (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_a_status_inside_the_callers_own_read_view_observes_NOTHING)
+The measured case, asserted by what the other store was asked. ... ok
+test_an_EMPTY_store_refuses_identically (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_EMPTY_store_refuses_identically)
+Nothing to observe is not the same as nothing to refuse. A check ... ok
+test_an_UNOBSERVED_derivation_refuses_on_the_same_rule (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_UNOBSERVED_derivation_refuses_on_the_same_rule)
+`Unobserved` performs no I/O, so this one is about the rule rather ... ok
+test_an_observation_that_would_itself_FAIL_is_never_attempted (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_observation_that_would_itself_FAIL_is_never_attempted)
+The point is not which refusal wins. It is that the external read ... ok
+test_materialized_is_STILL_served_inside_the_callers_boundary (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_materialized_is_STILL_served_inside_the_callers_boundary)
+The refusal is scoped to the passes that go on to observe. ... ok
+test_stage_states_called_from_inside_a_boundary_refuses_too (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_stage_states_called_from_inside_a_boundary_refuses_too)
+`stage_states` is the pass the sweep and the owed-act derivation ... ok
+test_stage_states_leaves_the_writers_pending_change_alone_too (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_stage_states_leaves_the_writers_pending_change_alone_too) ... ok
+test_the_SAME_status_succeeds_once_the_boundary_is_released (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_SAME_status_succeeds_once_the_boundary_is_released)
+The refusal is about WHEN it was asked, and says so by being ... ok
+test_the_callers_transaction_can_still_be_COMMITTED_afterwards (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_callers_transaction_can_still_be_COMMITTED_afterwards)
+The other half: a caller that meant to keep its change keeps it. ... ok
+test_the_callers_transaction_is_still_open_and_still_PENDING (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_callers_transaction_is_still_open_and_still_PENDING)
+Neither committed nor discarded. The refusal decides nothing about ... ok
+test_the_question_itself_is_the_stores_own_and_is_public (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_question_itself_is_the_stores_own_and_is_public)
+`holds_transaction` is asked of the owner rather than read off its ... ok
+test_the_refusal_names_what_was_done_and_what_to_do_instead (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_refusal_names_what_was_done_and_what_to_do_instead) ... ok
+test_a_projection_with_no_control_store_says_nobody_looked (tests.job_manager.test_status.Shape.test_a_projection_with_no_control_store_says_nobody_looked) ... ok
+test_an_empty_store_projects_an_empty_pipeline (tests.job_manager.test_status.Shape.test_an_empty_store_projects_an_empty_pipeline) ... ok
+test_reading_a_status_writes_nothing (tests.job_manager.test_status.Shape.test_reading_a_status_writes_nothing) ... ok
+test_the_document_names_its_schema_and_what_it_observed (tests.job_manager.test_status.Shape.test_the_document_names_its_schema_and_what_it_observed) ... ok
+test_the_job_carries_its_immutable_identities_and_bounded_scope (tests.job_manager.test_status.Shape.test_the_job_carries_its_immutable_identities_and_bounded_scope) ... ok
+test_a_blocked_stage_names_the_gate_holding_it (tests.job_manager.test_status.States.test_a_blocked_stage_names_the_gate_holding_it) ... ok
+test_a_cancelled_or_unable_ending_is_exceptional (tests.job_manager.test_status.States.test_a_cancelled_or_unable_ending_is_exceptional) ... ok
+test_a_claimed_stage_with_no_runtime_is_claimed (tests.job_manager.test_status.States.test_a_claimed_stage_with_no_runtime_is_claimed) ... ok
+test_a_completed_stage_opens_its_successor_s_gate (tests.job_manager.test_status.States.test_a_completed_stage_opens_its_successor_s_gate) ... ok
+test_a_disposition_this_build_does_not_know_is_not_read_as_benign (tests.job_manager.test_status.States.test_a_disposition_this_build_does_not_know_is_not_read_as_benign) ... ok
+test_a_rejected_review_is_changes_requested (tests.job_manager.test_status.States.test_a_rejected_review_is_changes_requested) ... ok
+test_a_rejection_on_a_stage_that_is_not_a_review_is_exceptional (tests.job_manager.test_status.States.test_a_rejection_on_a_stage_that_is_not_a_review_is_exceptional) ... ok
+test_a_submitted_pipeline_is_queued_and_blocked (tests.job_manager.test_status.States.test_a_submitted_pipeline_is_queued_and_blocked) ... ok
+test_an_admitted_stage_is_offered (tests.job_manager.test_status.States.test_an_admitted_stage_is_offered) ... ok
+test_an_uncertain_runtime_is_exceptional_and_never_running (tests.job_manager.test_status.States.test_an_uncertain_runtime_is_exceptional_and_never_running) ... ok
+test_each_kind_names_its_own_running_state (tests.job_manager.test_status.States.test_each_kind_names_its_own_running_state) ... ok
+test_every_projected_state_is_in_the_closed_vocabulary (tests.job_manager.test_status.States.test_every_projected_state_is_in_the_closed_vocabulary) ... ok
+
+----------------------------------------------------------------------
+Ran 156 tests in 0.905s
+
+OK
