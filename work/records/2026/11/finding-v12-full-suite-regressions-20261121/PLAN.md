@@ -29,3 +29,7 @@ M385526/M385528 scope revalidated at d1919f95. Fixture action.json is created by
 ## 2026-11-21 — baton.codxpc E385529 ready for review
 
 Confirmed fixture publication race: action.json becomes visible empty before Path.write_text writes JSON. Deterministic post-open reader reproduces character-0 decode error; new regression rejects legacy writer. Candidate publishes complete action by sibling rename after partial output; existing manager-loss/unknown/no-repeat semantics preserved. Secondary explicit accounting display leaves JSON/verdict logic unchanged. Three-path candidate tree e467b92f20a73340835ed52ee84777cb3d5da0ba9050fe8d8ab04d0289d00f04 over d1919f951f919e0064386d131a9bfa457e9eaaec. Exact immutable bytes, manifest, root cause, initial instrumentation failure and final 81/81 focused passes (28.187153s) at evidence/repair-385529/REPORT.md. No full-suite rerun. Next independent review, then reviewed integration/checkpoint and owner acceptance; no outstanding product decision.
+
+## Acceptance complete — 2026-11-21
+
+Owner full-suite run at73506123 passed all required coverage (11842pass,2optional skips;11844accounted;zero failures/errors/unaccounted). Repairs, independent reviews, imports and human source checkpoints complete. Evidence retained under evidence/full-suite-20261121T233239Z-3923644/. Owner ledger closure and evidence checkpoint remain administrative next steps. W9901 planning may proceed after closing this blocker.
