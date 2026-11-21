@@ -12,8 +12,49 @@ import subprocess
 import sys
 import time
 import unittest
+from unittest.mock import patch
+
+from tests.manager.disk_roots import disk_backed_under
 
 from tests.tools.test_stage_execution import ServingCase
+
+
+def publish_action(root, action):
+    # action.json is the parent process's readiness marker. Publish only after
+    # retained output and the complete JSON are closed, including before a kill.
+    (root / 'partial.txt').write_text('retained author output')
+    pending = root / 'action.json.tmp'
+    pending.write_text(json.dumps(action))
+    os.replace(pending, root / 'action.json')
+
+
+class ActionPublication(unittest.TestCase):
+    def test_ready_marker_never_exposes_an_incomplete_document(self):
+        root = Path(disk_backed_under(self))
+        action = {'pid': 123, 'guard_pid': 123, 'admitted': True, 'acts': []}
+        ready = root / 'action.json'
+        real_open = Path.open
+        observed = []
+
+        def inspect_after_open(path, *args, **kwargs):
+            stream = real_open(path, *args, **kwargs)
+            if path.name in ('action.json', 'action.json.tmp') and (args[0] if args else kwargs.get('mode')) == 'w':
+                try:
+                    # Deterministically take the reader's turn after creation,
+                    # before write_text gets its stream and writes any bytes.
+                    observed.append(path.name)
+                    self.assertFalse(ready.exists(), 'readiness exposed before JSON write')
+                    self.assertEqual((root / 'partial.txt').read_text(), 'retained author output')
+                except BaseException:
+                    stream.close()
+                    raise
+            return stream
+
+        with patch.object(Path, 'open', inspect_after_open):
+            publish_action(root, action)
+        self.assertEqual(observed, ['action.json.tmp'])
+        self.assertEqual(json.loads(ready.read_text()), action)
+        self.assertFalse((root / 'action.json.tmp').exists())
 
 
 class ManagerComposition(ServingCase):
@@ -207,8 +248,7 @@ def fixture_main():
                 submit(job, value['test_submission'])
                 result = reconcile(job, operations, now=e.utc())
                 guard = workspaces.hold_manager_instance(control, storage)
-                (root / 'action.json').write_text(json.dumps({'admitted': any(act['act'] == 'admit' and act['outcome'] == 'performed' for act in result['acts']), 'acts': result['acts'], 'pid': os.getpid(), 'guard_pid': guard.pid}))
-                (root / 'partial.txt').write_text('retained author output')
+                publish_action(root, {'admitted': any(act['act'] == 'admit' and act['outcome'] == 'performed' for act in result['acts']), 'acts': result['acts'], 'pid': os.getpid(), 'guard_pid': guard.pid})
                 if value['test_mode'] == 'exception':
                     raise RuntimeError('selected workload exception')
                 if value['test_mode'] == 'blocked':

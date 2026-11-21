@@ -1,0 +1,38 @@
+test_ready_marker_never_exposes_an_incomplete_document (tests.manager.test_authoring_manager_guard.ActionPublication.test_ready_marker_never_exposes_an_incomplete_document) ... FAIL
+test_author_exception_releases_process_guard_and_preserves_failure (tests.manager.test_authoring_manager_guard.ManagerComposition.test_author_exception_releases_process_guard_and_preserves_failure) ... ok
+test_blocked_author_keeps_exclusion_and_outer_deadline (tests.manager.test_authoring_manager_guard.ManagerComposition.test_blocked_author_keeps_exclusion_and_outer_deadline) ... ok
+test_manager_loss_retains_unknown_and_restart_does_not_repeat (tests.manager.test_authoring_manager_guard.ManagerComposition.test_manager_loss_retains_unknown_and_restart_does_not_repeat) ... ok
+test_operator_stop_preserves_partial_output_and_original_envelope (tests.manager.test_authoring_manager_guard.ManagerComposition.test_operator_stop_preserves_partial_output_and_original_envelope) ... ok
+test_parent_loss_kills_manager_without_inherited_workspace_guard (tests.manager.test_authoring_manager_guard.ManagerComposition.test_parent_loss_kills_manager_without_inherited_workspace_guard) ... ok
+test_preexisting_independent_manager_refuses_before_author_admission (tests.manager.test_authoring_manager_guard.ManagerComposition.test_preexisting_independent_manager_refuses_before_author_admission) ... ok
+test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes) ... ok
+test_a_clean_run_is_passed_plus_optional_skips_equals_collected (tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan.test_a_clean_run_is_passed_plus_optional_skips_equals_collected) ... ok
+test_a_required_skip_an_unaccounted_id_and_a_duplicate_each_fail (tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan.test_a_required_skip_an_unaccounted_id_and_a_duplicate_each_fail) ... ok
+test_a_subtest_failure_fails_its_test_and_a_stray_error_is_visible (tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan.test_a_subtest_failure_fails_its_test_and_a_stray_error_is_visible) ... ok
+test_explicit_summary_distinguishes_outcomes_without_changing_ledger (tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan.test_explicit_summary_distinguishes_outcomes_without_changing_ledger) ... ok
+test_a_shard_that_dies_leaves_its_ids_unaccounted (tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan.test_a_shard_that_dies_leaves_its_ids_unaccounted) ... ok
+test_a_skip_is_required_unless_the_registry_says_optional (tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan.test_a_skip_is_required_unless_the_registry_says_optional) ... ok
+test_collected_equals_executed_and_the_ledger_is_written (tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan.test_collected_equals_executed_and_the_ledger_is_written) ... ok
+test_keep_going_runs_the_serial_phase_after_a_parallel_failure (tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan.test_keep_going_runs_the_serial_phase_after_a_parallel_failure) ... ok
+
+======================================================================
+FAIL: test_ready_marker_never_exposes_an_incomplete_document (tests.manager.test_authoring_manager_guard.ActionPublication.test_ready_marker_never_exposes_an_incomplete_document)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385517-385529/candidate/v12/python/tests/manager/test_authoring_manager_guard.py", line 55, in test_ready_marker_never_exposes_an_incomplete_document
+    self.assertEqual(observed, ['action.json.tmp'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['action.json.tmp']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'action.json.tmp'
+
+- []
++ ['action.json.tmp']
+
+----------------------------------------------------------------------
+Ran 16 tests in 20.531s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1

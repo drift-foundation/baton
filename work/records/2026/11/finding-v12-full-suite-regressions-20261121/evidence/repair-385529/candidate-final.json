@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_authoring_manager_guard",
+    "tests.tools.test_parallel_runner"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385517-385529/candidate/v12/python",
+  "seconds": 28.187153061968274,
+  "returncode": 0
+}

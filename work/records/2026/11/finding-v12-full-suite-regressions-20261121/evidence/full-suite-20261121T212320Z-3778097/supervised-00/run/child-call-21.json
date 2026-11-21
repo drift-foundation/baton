@@ -1,0 +1,1 @@
+{"actual_timeout": 30, "command": ["docker", "ps", "--all", "--no-trunc", "--format", "{{json .}}", "--filter", "name=baton-custody-e3ffed10f0b370d87476026b99282d14"], "elapsed": 0.005659763002768159, "expected": 1, "margin": 1, "phase_end": 353635.684239528, "returncode": 0, "state": "completed", "stderr": "", "stdout": "", "timeout": 30, "total_end": 353695.684239528}

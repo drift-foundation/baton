@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_authoring_manager_guard",
+    "tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan",
+    "tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385517-385529/candidate/v12/python",
+  "seconds": 21.080782566044945,
+  "returncode": 1
+}

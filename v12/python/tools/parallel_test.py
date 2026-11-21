@@ -1557,8 +1557,10 @@ def present_accounting(ledger, out):
           f"errors {len(ledger['errors'])}, fixture skips {len(ledger['fixture_skipped'])}, "
           f"fixture errors {len(ledger['fixture_errors'])}, duplicates {len(ledger['duplicates'])}, "
           f"unaccounted {len(ledger['unaccounted'])}", file=out)
-    print(f"[accounting] passed {p} + optional skipped {k} = {p + k} of collected {n} "
-          f"-> {'OK' if ledger['ok'] else 'FAILED'}", file=out)
+    errors = len(ledger["errors"])
+    print(f"[accounting] {n} collected: {p} passed, {k} optional skips, "
+          f"{len(ledger['failed'])} failures, {errors} {'error' if errors == 1 else 'errors'}, "
+          f"{len(ledger['unaccounted'])} unaccounted -> {'OK' if ledger['ok'] else 'FAILED'}", file=out)
 
 
 def resolve_supervisor(locator, root):

@@ -203,7 +203,7 @@ The last two lines of an accounted run are the counts and the verdict:
 
 ```
 collected N, executed X, passed P, optional skipped K, required skipped R, failed F, errors E, fixture skips S, fixture errors G, duplicates D, unaccounted U
-[accounting] passed P + optional skipped K = P+K of collected N -> OK|FAILED
+[accounting] N collected: P passed, K optional skips, F failures, E errors, U unaccounted -> OK|FAILED
 ```
 
 Non-zero exit: 1 for any failing condition above or a failed phase, 2 for a

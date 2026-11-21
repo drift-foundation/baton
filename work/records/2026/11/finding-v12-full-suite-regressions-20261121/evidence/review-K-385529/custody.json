@@ -1,0 +1,33 @@
+{
+ "host_head": "d1919f951f919e0064386d131a9bfa457e9eaaec",
+ "host_v12_status_lines": 0,
+ "manifest_sha256": "6644449db7d91d8ff50ebedbb07b78f269ce04e27bf45506d127addf3ceea319",
+ "owner_failed": [],
+ "owner_sole_error": [
+  "tests.manager.test_authoring_manager_guard.ManagerComposition.test_manager_loss_retains_unknown_and_restart_does_not_repeat"
+ ],
+ "patch_manifest": "be817d1bd402b2924ad14cc031bcc14cbee18974d9fbd25cf77109c2a36b1b04",
+ "patch_sha256": "be817d1bd402b2924ad14cc031bcc14cbee18974d9fbd25cf77109c2a36b1b04",
+ "paths": [
+  {
+   "agree": true,
+   "base": "32635b88e50f84024dade44f896222b97876fbac4090067db4993a1b7c13757f",
+   "candidate": "83d92d8809faae52ea62bd739e312f39ffe9bebb5d6317b050725fdc9e732637",
+   "path": "v12/python/tests/manager/test_authoring_manager_guard.py"
+  },
+  {
+   "agree": true,
+   "base": "70008af50f91448e4a6e202d849dd561480be695bbc9ece227107adb4db38171",
+   "candidate": "0bb36bcd03eee74d6eec0e18ad5ce22e3768aeeb806418fb0aaab39ce113db1f",
+   "path": "v12/python/tests/tools/test_parallel_runner.py"
+  },
+  {
+   "agree": true,
+   "base": "1c4eeda8755612f6a5942c3ad549b11df68540646f45ad009d62aa94f42df6b5",
+   "candidate": "026ec7fabc804e6953a5bc629b46873c9873a50bb824391740de5562b6afc78b",
+   "path": "v12/python/tools/parallel_test.py"
+  }
+ ],
+ "tree_manifest": "e467b92f20a73340835ed52ee84777cb3d5da0ba9050fe8d8ab04d0289d00f04",
+ "tree_recomputed": "e467b92f20a73340835ed52ee84777cb3d5da0ba9050fe8d8ab04d0289d00f04"
+}

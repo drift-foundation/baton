@@ -1,0 +1,145 @@
+--- a/v12/python/tests/manager/test_authoring_manager_guard.py
++++ b/v12/python/tests/manager/test_authoring_manager_guard.py
+@@ -12,8 +12,49 @@
+ import sys
+ import time
+ import unittest
++from unittest.mock import patch
++
++from tests.manager.disk_roots import disk_backed_under
+ 
+ from tests.tools.test_stage_execution import ServingCase
++
++
++def publish_action(root, action):
++    # action.json is the parent process's readiness marker. Publish only after
++    # retained output and the complete JSON are closed, including before a kill.
++    (root / 'partial.txt').write_text('retained author output')
++    pending = root / 'action.json.tmp'
++    pending.write_text(json.dumps(action))
++    os.replace(pending, root / 'action.json')
++
++
++class ActionPublication(unittest.TestCase):
++    def test_ready_marker_never_exposes_an_incomplete_document(self):
++        root = Path(disk_backed_under(self))
++        action = {'pid': 123, 'guard_pid': 123, 'admitted': True, 'acts': []}
++        ready = root / 'action.json'
++        real_open = Path.open
++        observed = []
++
++        def inspect_after_open(path, *args, **kwargs):
++            stream = real_open(path, *args, **kwargs)
++            if path.name in ('action.json', 'action.json.tmp') and (args[0] if args else kwargs.get('mode')) == 'w':
++                try:
++                    # Deterministically take the reader's turn after creation,
++                    # before write_text gets its stream and writes any bytes.
++                    observed.append(path.name)
++                    self.assertFalse(ready.exists(), 'readiness exposed before JSON write')
++                    self.assertEqual((root / 'partial.txt').read_text(), 'retained author output')
++                except BaseException:
++                    stream.close()
++                    raise
++            return stream
++
++        with patch.object(Path, 'open', inspect_after_open):
++            publish_action(root, action)
++        self.assertEqual(observed, ['action.json.tmp'])
++        self.assertEqual(json.loads(ready.read_text()), action)
++        self.assertFalse((root / 'action.json.tmp').exists())
+ 
+ 
+ class ManagerComposition(ServingCase):
+@@ -207,8 +248,7 @@
+                 submit(job, value['test_submission'])
+                 result = reconcile(job, operations, now=e.utc())
+                 guard = workspaces.hold_manager_instance(control, storage)
+-                (root / 'action.json').write_text(json.dumps({'admitted': any(act['act'] == 'admit' and act['outcome'] == 'performed' for act in result['acts']), 'acts': result['acts'], 'pid': os.getpid(), 'guard_pid': guard.pid}))
+-                (root / 'partial.txt').write_text('retained author output')
++                publish_action(root, {'admitted': any(act['act'] == 'admit' and act['outcome'] == 'performed' for act in result['acts']), 'acts': result['acts'], 'pid': os.getpid(), 'guard_pid': guard.pid})
+                 if value['test_mode'] == 'exception':
+                     raise RuntimeError('selected workload exception')
+                 if value['test_mode'] == 'blocked':
+--- a/v12/python/tests/tools/test_parallel_runner.py
++++ b/v12/python/tests/tools/test_parallel_runner.py
+@@ -40,7 +40,7 @@
+                                  OPTIONAL_SKIPS, PARALLEL_MODULES, ROOT, Run, RunnerRefusal,
+                                  SERIAL_MODULES, STATUS_EVIDENCE_MODULE, STATUS_EVIDENCE_VARIABLE,
+                                  SUPERVISED_MODULES, Suite, account, base_id, consumed_inputs, group_of, main,
+-                                 module_of, partition, resolve_jobs)
++                                 module_of, partition, present_accounting, resolve_jobs)
+ 
+ RUNNER = pathlib.Path(__file__).resolve().parents[2] / "tools" / "parallel_test.py"
+ # W384870: a fake tree carves no group; its packages map to one group each.
+@@ -1067,6 +1067,29 @@
+         answer.update(outcomes)
+         return answer
+ 
++    def test_explicit_summary_distinguishes_outcomes_without_changing_ledger(self):
++        cases = [
++            ('clean', ['a'], [self.report('x', ['a'])], {}, '1 passed, 0 optional skips, 0 failures, 0 errors, 0 unaccounted -> OK', None),
++            ('failure', ['a'], [self.report('x', ['a'], failures=[{'id': 'a', 'trace': ''}])], {}, '0 passed, 0 optional skips, 1 failures, 0 errors, 0 unaccounted -> FAILED', None),
++            ('error', ['a'], [self.report('x', ['a'], errors=[{'id': 'a', 'trace': ''}])], {}, '0 passed, 0 optional skips, 0 failures, 1 error, 0 unaccounted -> FAILED', None),
++            ('missing', ['a'], [], {}, '0 passed, 0 optional skips, 0 failures, 0 errors, 1 unaccounted -> FAILED', '[UNACCOUNTED] a'),
++            ('optional', ['a'], [self.report('x', ['a'], skipped=[{'id': 'a', 'reason': 'optional'}])], {'a': 'owner'}, '0 passed, 1 optional skips, 0 failures, 0 errors, 0 unaccounted -> OK', '[optional skip] a'),
++            ('required', ['a'], [self.report('x', ['a'], skipped=[{'id': 'a', 'reason': 'required'}])], {}, '0 passed, 0 optional skips, 0 failures, 0 errors, 0 unaccounted -> FAILED', '[REQUIRED SKIP] a'),
++            ('duplicate', ['a'], [self.report('x', ['a']), self.report('y', ['a'])], {}, '1 passed, 0 optional skips, 0 failures, 0 errors, 0 unaccounted -> FAILED', '[DUPLICATES] a'),
++            ('fixture error', ['a'], [self.report('x', [], errors=[{'id': 'setUpClass (t.K)', 'trace': 'boom'}])], {}, '0 passed, 0 optional skips, 0 failures, 0 errors, 1 unaccounted -> FAILED', '[FIXTURE ERROR] setUpClass (t.K)'),
++            ('fixture skip', ['a'], [self.report('x', [], skipped=[{'id': 'setUpClass (t.K)', 'reason': 'no'}])], {}, '0 passed, 0 optional skips, 0 failures, 0 errors, 1 unaccounted -> FAILED', '[FIXTURE SKIP] setUpClass (t.K)'),
++        ]
++        for name, collected, reports, optional, summary, anomaly in cases:
++            with self.subTest(name=name):
++                ledger = account(collected, reports, optional=optional)
++                before = json.dumps(ledger, sort_keys=True)
++                output = io.StringIO()
++                present_accounting(ledger, output)
++                self.assertIn('[accounting] 1 collected: ' + summary, output.getvalue())
++                if anomaly:
++                    self.assertIn(anomaly, output.getvalue())
++                self.assertEqual(json.dumps(ledger, sort_keys=True), before)
++
+     def test_a_clean_run_is_passed_plus_optional_skips_equals_collected(self):
+         ledger = account(["t.a", "t.b", "t.c"], [self.report("x", ["t.a", "t.b"]),
+                                                  self.report("y", ["t.c"], skipped=[{"id": "t.c", "reason": "optional"}])],
+@@ -1108,7 +1131,7 @@
+         code, output = self.run_suite(self.suite(("tests.test_one",), serial=("tests.test_two",)),
+                                       ["--jobs", "1", "--account", "--summary", str(summary)])
+         self.assertEqual(code, 0, output)
+-        self.assertIn("[accounting] passed 3 + optional skipped 0 = 3 of collected 3 -> OK", output)
++        self.assertIn("[accounting] 3 collected: 3 passed, 0 optional skips, 0 failures, 0 errors, 0 unaccounted -> OK", output)
+         self.assertIn("[groups] authority=3", output)
+         ledger = json.loads(summary.read_text(encoding="utf-8"))
+         self.assertEqual(ledger["collected"], ledger["executed"])
+@@ -1136,7 +1159,7 @@
+                                       ["--jobs", "1", "--account"])
+         self.assertEqual(code, 0, output)
+         self.assertIn("[optional skip] tests.test_skips.Skips.test_a: needs something", output)
+-        self.assertIn("passed 0 + optional skipped 1 = 1 of collected 1 -> OK", output)
++        self.assertIn("1 collected: 0 passed, 1 optional skips, 0 failures, 0 errors, 0 unaccounted -> OK", output)
+ 
+     def test_keep_going_runs_the_serial_phase_after_a_parallel_failure(self):
+         write_tree(self.root, {"test_bad": case_source(self.marks, "Bad", ["test_a"], failing=["test_a"]),
+@@ -1188,7 +1211,7 @@
+                                       ["--jobs", "1", "--account"])
+         self.assertEqual(code, 0, output)
+         self.assertIn("[optional skip] tests.test_p.P.test_a: not started: the engine is not on PATH", output)
+-        self.assertIn("passed 0 + optional skipped 4 = 4 of collected 4 -> OK", output)
++        self.assertIn("4 collected: 0 passed, 4 optional skips, 0 failures, 0 errors, 0 unaccounted -> OK", output)
+ 
+ 
+ class SubtestOutcomesBindToTheirParent(FakeTreeCase):
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -1557,8 +1557,10 @@
+           f"errors {len(ledger['errors'])}, fixture skips {len(ledger['fixture_skipped'])}, "
+           f"fixture errors {len(ledger['fixture_errors'])}, duplicates {len(ledger['duplicates'])}, "
+           f"unaccounted {len(ledger['unaccounted'])}", file=out)
+-    print(f"[accounting] passed {p} + optional skipped {k} = {p + k} of collected {n} "
+-          f"-> {'OK' if ledger['ok'] else 'FAILED'}", file=out)
++    errors = len(ledger["errors"])
++    print(f"[accounting] {n} collected: {p} passed, {k} optional skips, "
++          f"{len(ledger['failed'])} failures, {errors} {'error' if errors == 1 else 'errors'}, "
++          f"{len(ledger['unaccounted'])} unaccounted -> {'OK' if ledger['ok'] else 'FAILED'}", file=out)
+ 
+ 
+ def resolve_supervisor(locator, root):
