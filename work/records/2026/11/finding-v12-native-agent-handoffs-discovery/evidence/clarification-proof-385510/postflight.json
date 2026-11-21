@@ -1,0 +1,16 @@
+{
+  "main_head": "3c449083124a45af32073aeab4d6e3532f0ceb24",
+  "main_index_unchanged": true,
+  "main_v12_status": "",
+  "tracked_v12_paths_compared": 1112,
+  "missing_paths": [],
+  "candidate_changed_paths": [
+    "v12/python/tests/authority/test_work_messages.py",
+    "v12/python/tests/tools/test_native_handoffs.py"
+  ],
+  "candidate_tree": "ea6ffd7e395894adf1a0b7220b7439aa265572cae299098457a7591f42b21b8c",
+  "trace_git_starts": 1262,
+  "trace_targets_with_C_and_clone_confined": true,
+  "trace_limitation": "fixture/provider environment() clears ambient variables, so trace covers profile-side operations only; fixture/worker Git target confinement also verified from source and isolated setup",
+  "fixture_roots_remaining": []
+}

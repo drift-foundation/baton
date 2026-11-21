@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.tools.test_native_handoffs"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385331-385503/baseline-connected/v12/python",
+  "returncode": 0,
+  "seconds": 15.177429589966778,
+  "env": {
+    "TMPDIR": "/home/sl/src/baton/work/scratch/w385331-385503/tmp",
+    "BATON_V12_STACK_TEST_ROOT": "/home/sl/src/baton/work/scratch/w385331-385503/disk",
+    "BATON_V12_DISK_ROOT": "/home/sl/src/baton/work/scratch/w385331-385503/disk",
+    "GIT_CEILING_DIRECTORIES": "/home/sl/src/baton/work/scratch/w385331-385503",
+    "GIT_TRACE2_EVENT": "/home/sl/src/baton/work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/clarification-proof-385510/baseline-git-trace.jsonl"
+  }
+}

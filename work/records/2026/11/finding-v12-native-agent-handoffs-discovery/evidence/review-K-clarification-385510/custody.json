@@ -1,0 +1,35 @@
+{
+ "host_head": "3c449083124a45af32073aeab4d6e3532f0ceb24",
+ "host_v12_status_lines": 0,
+ "manifest_sha256": "3578e83136c44b200a7c7b07c006e0daf4580ed30eb7bdce1299153896f166b4",
+ "patch_manifest": "6f3807e1b9097828fd2471880c9588d86097d803f3c0bf897c5794d573afe8bc",
+ "patch_sha256": "6f3807e1b9097828fd2471880c9588d86097d803f3c0bf897c5794d573afe8bc",
+ "paths": [
+  {
+   "agree": true,
+   "git_939c7adf": "f64e56e87c3e07748c7ba92586f7f36276ffeb7041bd7a0a98d3047814fa31f8",
+   "host_now": "f64e56e87c3e07748c7ba92586f7f36276ffeb7041bd7a0a98d3047814fa31f8",
+   "manifest_base": "f64e56e87c3e07748c7ba92586f7f36276ffeb7041bd7a0a98d3047814fa31f8",
+   "manifest_candidate": "4aefcb1b77a91aff0918ca707dea28852231dc35956a6bc0b70cc4d8423bc860",
+   "packet_base": "f64e56e87c3e07748c7ba92586f7f36276ffeb7041bd7a0a98d3047814fa31f8",
+   "packet_candidate": "4aefcb1b77a91aff0918ca707dea28852231dc35956a6bc0b70cc4d8423bc860",
+   "path": "v12/python/tests/authority/test_work_messages.py"
+  },
+  {
+   "agree": true,
+   "git_939c7adf": "3dd82c2287f5068aaa8d801a920745d9f021d7ae0926cdc7ee575baeb1a860db",
+   "host_now": "3dd82c2287f5068aaa8d801a920745d9f021d7ae0926cdc7ee575baeb1a860db",
+   "manifest_base": "3dd82c2287f5068aaa8d801a920745d9f021d7ae0926cdc7ee575baeb1a860db",
+   "manifest_candidate": "b4a8fce06ed419dffad1dd83d6df7486ef24b051b3c4862e1e1229340d292fd3",
+   "packet_base": "3dd82c2287f5068aaa8d801a920745d9f021d7ae0926cdc7ee575baeb1a860db",
+   "packet_candidate": "b4a8fce06ed419dffad1dd83d6df7486ef24b051b3c4862e1e1229340d292fd3",
+   "path": "v12/python/tests/tools/test_native_handoffs.py"
+  }
+ ],
+ "prior_manifest_sha256": "3b012a3190b6bd44d409304eb7b9ef69f36d5e5e6d171910c9af7c287381c213",
+ "required_fixture_manifest": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+ "required_fixture_sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+ "tree_manifest": "ea6ffd7e395894adf1a0b7220b7439aa265572cae299098457a7591f42b21b8c",
+ "tree_recomputed": "ea6ffd7e395894adf1a0b7220b7439aa265572cae299098457a7591f42b21b8c",
+ "v12_delta_939c7adf_to_HEAD_lines": 0
+}

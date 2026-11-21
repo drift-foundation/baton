@@ -735,6 +735,42 @@ class AGenuineAmbiguityEscalatesOnceAndStaysHeld(HandoffJobCase):
         self.assertIsNone(self.projected()["handler"])
 
 
+class AnEscalationSurvivesServingRestart(HandoffJobCase):
+    """Reconnect after the owner hold; ordinary ticks cannot approve it."""
+
+    def test_restarted_serving_preserves_the_exact_escalation_and_hold(self):
+        from baton_v12.job_manager import sweep as tick
+
+        held = self.answered(self.yielded(), response=ESCALATION)
+        self.drive(held.job, held.composed, "review",
+                   native_handoffs.ANSWERED_STATE, ticks=12)
+        before = self.messages()
+        episode = episodes.live_of(held.job, "job-a/implementation")["episode"]
+        hold = native_handoffs.hold_of(held.job, "job-a/implementation", episode)
+        self.reconnected(held)
+        for _ in range(5):
+            tick(held.job, held.composed, now=fixtures.NOW)
+        self.assertEqual(self.messages(), before)
+        self.assertEqual(len(before), 2)
+        self.assertEqual(before[1]["author"], REVIEWER)
+        self.assertEqual(before[1]["destination"], OWNER)
+        self.assertEqual(native_handoffs.hold_of(
+            held.job, "job-a/implementation", episode), hold)
+        self.assertEqual(episodes.live_of(
+            held.job, "job-a/implementation")["episode"], episode)
+        self.assertEqual(self.operations(held.job, native_handoffs.HOLD_KIND), 1)
+        self.assertEqual(self.operations(held.job, native_handoffs.CONTINUE_KIND), 0)
+        self.assertEqual(self.attempts_of(held, "implementation"), [])
+        self.assertEqual(self.attempts_of(held, "review"), [])
+        states = self.states(held.job, held.composed)
+        self.assertEqual(states["implementation"], native_handoffs.AWAITING_STATE)
+        self.assertEqual(states["review"], native_handoffs.ANSWERED_STATE)
+        self.assertEqual(states["integration"], "blocked")
+        self.assertIsNone(review_cycles.integration_checkpoint(
+            self.deployment_of(held).control, self.line(held)["line_id"]))
+        self.assertIsNone(self.projected()["handler"])
+
+
 class AnUnsolicitedResponseAnswersNothing(HandoffJobCase):
 
     def test_a_final_review_that_answers_a_question_nobody_asked_commits_no_reply(self):

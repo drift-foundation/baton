@@ -1,0 +1,19 @@
+{
+  "base": "939c7adfe591cc413f29ab44d41392b583aaa5e5",
+  "observed_head": "3c449083124a45af32073aeab4d6e3532f0ceb24",
+  "v12_changes_since_base": "",
+  "candidate_tree": "ea6ffd7e395894adf1a0b7220b7439aa265572cae299098457a7591f42b21b8c",
+  "candidate_hashes_verified": true,
+  "candidate_symlinks": [],
+  "git_metadata_in_candidate": [],
+  "protected_index_sha256": "8f1ad9db185e7817db3c8a33a410a7e26b81eb9d1413660d0ed4fa048c475787",
+  "protected_git_status": "",
+  "prepared_interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "groups": [
+    "authority",
+    "job_manager",
+    "tools-pure"
+  ],
+  "last_thread_read": 385508,
+  "claim": 385510
+}

@@ -97,3 +97,13 @@ M385501: permitted baseline148 and candidate150 tests pass; two new durable Auth
 ## Continuation — disposable Git blocker resolved, 2026-11-21
 
 M385505 partial packet is not acceptance. Owner standing rule in AGENTS.md now permits its connected tests in isolated disposable repositories without further fixture-specific approval. Resume from evidence/clarification-proof-385503/REPORT.md and exact candidate identity; include pinned fixture inputs, run existing14-case baseline and candidate15-case connected coverage, address in-scope defects and return complete evidence for independent review. Main development Git state, installed instances and live execution remain untouched.
+
+
+## 2026-11-21 — E385510 continuation under standing disposable authority
+
+M385508 and updated AGENTS supersede the prior fixture-Git blocker. Pinned base939c7adf and candidateea6ffd7e retained. Current HEAD3c449083 has no v12 delta against base; candidate hashes intact. Codxpc owns the same isolated two-test-path candidate; groups authority, job_manager, tools-pure. Run connected baseline14/candidate15 via prepared interpreter and existing test-one; retain per-id accounting, provenance and Git trace under evidence/clarification-proof-385510. Fresh fixture roots only, no protected repository metadata sharing or symlinks; no installed-instance or live-engine/model actions. Prior ambient-interpreter results retained as historical, final permitted selection will be verified on prepared interpreter. Last discussion M385508, current claimE385510.
+
+
+## 2026-11-21 — E385510 connected proof complete, independent review pending
+
+Supersedes M385505 partial/fixture-blocked disposition under standing disposable Git authority M385508. Base939c7adf and exact candidate ea6ffd7e395894adf1a0b7220b7439aa265572cae299098457a7591f42b21b8c unchanged; HEAD3c449083 has no v12 overlap. Prepared-interpreter baseline14/14 and candidate165/165 pass, no failures/errors/skips/unaccounted. Current test wall35.908139s; cumulative49.460230s including disclosed earlier fixture-input errors and ambient runs. Complete coverage/identity/accounting/limits in evidence/clarification-proof-385510/REPORT.md, manifest.json, logs and per-ID summaries. Main index/HEAD unchanged, host v12 clean; no live/instance/host import. Ready for independent review via baton.decide, not Work closure. Pending after acceptance/import: human checkpoint; proposed message `test(v12): prove durable clarification and escalation restart`. Last discussion M385508; claimE385510.

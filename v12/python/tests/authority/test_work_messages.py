@@ -631,6 +631,60 @@ class EveryActIsEffectivelyOnce(MessageCase):
         self.assertIn("is already the", said)
 
 
+class DurableRestartPreservesCorrespondence(MessageCase):
+    """Close the database connection, then replay through fresh sessions.
+
+    These are Authority proofs only: no provider, worker or Git fixture is
+    involved. The composed pipeline remains covered separately.
+    """
+
+    def reopen(self):
+        self.authority.dispose()
+        self.authority = Authority.open(self.path, expected_authority_uuid=UUID)
+        self.addCleanup(self.authority.dispose)
+        self.implementer = self.authority.session(IMPLEMENTER)
+        self.reviewer = self.authority.session(REVIEWER)
+
+    def test_request_and_answer_survive_closed_connections_and_exact_retries(self):
+        request = self.asked()
+        self.reopen()
+        self.assertEqual(self.asked(), request)
+        first = self.answered(request)
+        before = self.authority.work_messages(WORK)
+        self.reopen()
+        self.assertEqual(self.answered(request), first)
+        self.assertEqual(self.authority.work_messages(WORK), before)
+        self.assertEqual(len(before), 2)
+        question, reply = before
+        self.assertEqual(question["author"], IMPLEMENTER)
+        self.assertEqual(reply["author"], REVIEWER)
+        self.assertEqual(reply["reply_to"], question["message_id"])
+        self.assertEqual(reply["task_digest"], question["task_digest"])
+        self.assertEqual(reply["checkpoint_ref"], question["checkpoint_ref"])
+        self.assertEqual(self.authority.work_message_transition(
+            reply["message_id"])["effect"], messages.CONTINUATION_EFFECT)
+        self.assertIn("different operands", self.refusal(lambda: self.asked(
+            document=request_document(body="changed after restart"))))
+        self.assertEqual(self.authority.work_messages(WORK), before)
+
+    def test_escalation_survives_restart_without_an_approval_or_second_effect(self):
+        request = self.asked()
+        first = self.answered(request, disposition="escalate")
+        before = self.authority.work_messages(WORK)
+        transition = self.authority.work_message_transition(
+            before[1]["message_id"])
+        self.reopen()
+        for _ in range(3):
+            self.assertEqual(self.answered(request, disposition="escalate"), first)
+        self.assertEqual(self.authority.work_messages(WORK), before)
+        self.assertEqual(len(self.authority.handoff_escalations(WORK)), 1)
+        self.assertEqual(before[1]["destination"], OWNER)
+        self.assertEqual(transition["effect"], messages.HELD_EFFECT)
+        self.assertEqual(self.authority.work_message_transition(
+            before[1]["message_id"]), transition)
+        self.assertEqual(self.authority.pending_handoff_requests(WORK), [])
+
+
 class TheReadsAnswerHonestlyAndGateNothing(MessageCase):
 
     def test_a_work_with_no_messages_reads_as_an_empty_list(self):

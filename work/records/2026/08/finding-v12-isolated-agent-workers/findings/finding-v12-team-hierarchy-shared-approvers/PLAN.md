@@ -62,3 +62,7 @@ to W10.
 ## Next planning action — owner clarification 2026-11-21
 
 Capture complete; W9901 remains parked pending explicit scheduling, not executing. Revalidate existing principal/scope decisions and historical milestone references against current code and DESIGN. Map the confirmed multi-project/team operating model, cross-team filing and clarification dependencies, shared visibility, resource reuse and operator view to current capabilities; identify concrete gaps and update normative DESIGN before dependent implementation. Reuse W385331 rather than duplicate its clarification/discovery work. Prepare a read-only v11 migration inventory and bounded two-project pilot; no backlog copy, new authority, broad implementation, advanced scheduling or automatic launch selected. Current clarification proof remains the active priority.
+
+## Selected next priority and decision gate — 2026-11-21
+
+Supersedes the earlier unspecified scheduling: owner selects this as next PLANNING priority after acceptance/checkpoint of current clarification proof. Before dependent implementation, revalidate old milestones and DESIGN, produce concrete user workflows and gap/coverage map, and bring every unresolved product/UX ambiguity to the owner with scenarios/options/recommendation. Do not manufacture semantics or start a broad teams rewrite. Select the smallest two-project proof and coordinate with W385331 discovery/dependency work. Ledger activation/routing follows the current checkpoint; this note alone changes no graph gate.

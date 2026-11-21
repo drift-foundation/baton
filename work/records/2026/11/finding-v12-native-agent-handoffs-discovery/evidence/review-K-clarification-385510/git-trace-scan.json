@@ -1,0 +1,10 @@
+{
+ "baseline-git-trace.jsonl": {
+  "starts": 612,
+  "operands_outside_disposable_root": []
+ },
+ "candidate-git-trace.jsonl": {
+  "starts": 650,
+  "operands_outside_disposable_root": []
+ }
+}

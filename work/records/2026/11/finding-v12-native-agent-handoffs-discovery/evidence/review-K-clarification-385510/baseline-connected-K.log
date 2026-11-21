@@ -1,0 +1,25 @@
+test_a_fault_between_the_continuation_and_the_settlement_duplicates_nothing (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_a_fault_between_the_continuation_and_the_settlement_duplicates_nothing)
+The interior restart cut (R2): the response ending commits the ... ok
+test_an_exact_retry_of_the_continuation_is_the_committed_receipt (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_an_exact_retry_of_the_continuation_is_the_committed_receipt)
+Review 2026-11-20T19-39-15Z R2, through the deployment's own ... ok
+test_the_configured_routing_is_the_bootstraps_and_the_grant_is_its (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_the_configured_routing_is_the_bootstraps_and_the_grant_is_its)
+R4, end to end: the selection in the bootstrap input is the policy ... ok
+test_the_resumed_provider_is_given_the_exact_retained_continuation (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_the_resumed_provider_is_given_the_exact_retained_continuation)
+Review 2026-11-20T19-39-15Z R1, observed at the actual provider ... ok
+test_the_reviewer_answers_and_the_same_task_resumes (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_the_reviewer_answers_and_the_same_task_resumes) ... ok
+test_the_yield_is_retained_and_publishes_nothing (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_the_yield_is_retained_and_publishes_nothing) ... ok
+test_zero_human_acts_to_the_ordinary_final_review (tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct.test_zero_human_acts_to_the_ordinary_final_review) ... ok
+test_an_in_scope_finding_is_classified_and_the_task_resumes (tests.tools.test_native_handoffs.AFindingContinuesTheSameWay.test_an_in_scope_finding_is_classified_and_the_task_resumes) ... ok
+test_one_escalation_to_the_owner_and_nothing_scheduled (tests.tools.test_native_handoffs.AGenuineAmbiguityEscalatesOnceAndStaysHeld.test_one_escalation_to_the_owner_and_nothing_scheduled) ... ok
+test_a_request_the_adapter_cannot_bind_ends_the_turn_unable (tests.tools.test_native_handoffs.AMalformedRequestIsRefusedNotPublished.test_a_request_the_adapter_cannot_bind_ends_the_turn_unable)
+"Undeclared, mixed, missing or foreign output holds." A provider ... ok
+test_a_fresh_serving_object_rereads_the_yield_and_the_answer (tests.tools.test_native_handoffs.ARestartBetweenTheCutsDuplicatesNothing.test_a_fresh_serving_object_rereads_the_yield_and_the_answer) ... ok
+test_a_question_with_no_edits_yields_and_resumes (tests.tools.test_native_handoffs.AZeroEditYieldContinuesTheSameWay.test_a_question_with_no_edits_yields_and_resumes) ... ok
+test_the_preparation_refuses_and_no_runtime_starts (tests.tools.test_native_handoffs.AnUnconfiguredDeploymentRefusesBeforeATurnIsSpent.test_the_preparation_refuses_and_no_runtime_starts) ... ok
+test_a_final_review_that_answers_a_question_nobody_asked_commits_no_reply (tests.tools.test_native_handoffs.AnUnsolicitedResponseAnswersNothing.test_a_final_review_that_answers_a_question_nobody_asked_commits_no_reply)
+R3 at the composed boundary. The ordinary final review after the ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 14.498s
+
+OK
