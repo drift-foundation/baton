@@ -3528,18 +3528,46 @@ class InvocationTiming(Home):
                 view=exchange.observation(delivery)
                 self.assertEqual(view["state"],"working");self.assertIsNone(view["unreadable"]);self.assertIsNone(view["invocation"])
 
-    def test_real_publisher_to_shared_status_and_monitor(self):
+    def published(self, ended_at=None):
+        """THE REAL PUBLISHER's own invocation timing, read back and rendered.
+
+        Nothing here is hand-authored: `_ActivityPublisher` writes the event,
+        `exchange.observation` reads it, and the shared views render what came
+        out. `ended_at` is what the worker records when the provider PROCESS
+        exits -- before its own verification command runs.
+        """
         import sys,pathlib,copy
         sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[3]/"worker"))
         import baton_worker
         from tests.tools.test_job_observation import document, views
         delivery,fact=self.timing()
+        if ended_at is not None:
+            fact["ended_at"]=ended_at
         timing={key:fact[key] for key in ("scope","started_at","ended_at","deadline_at")}
         bound={key:fact[key] for key in ("session","attempt_id","sequence_id","command_digest","operation","operation_id")}
         pub=baton_worker._ActivityPublisher(delivery.event_root,bound,lambda:None,invocation=lambda:timing);pub._tick()
         observed=exchange.observation(delivery);doc=document();doc["observed_at"]="2026-09-04T00:00:12.000Z";job=doc["jobs"][0];stage=job["stages"][0];stage.update(attempt_id=self.ATTEMPT,exchange=observed)
         job["control"]={"timing":"trusted","observed_at":doc["observed_at"],"job":{"origin":"2026-09-04T00:00:00.000Z","deadline_at":"2026-09-04T00:05:00.000Z"},"stages":[{"stage_id":stage["stage_id"],"origin":"2026-09-04T00:00:01.000Z","deadline_at":"2026-09-04T00:04:00.000Z"}]}
-        before=copy.deepcopy(doc)
+        return doc,views,copy.deepcopy(doc)
+
+    def test_real_publisher_to_shared_status_and_monitor(self):
+        doc,views,before=self.published()
         for rendered in views(doc):
             self.assertRegex(rendered,r"running\s+10s");self.assertIn("provider timeout in 50s",rendered)
+        self.assertEqual(doc,before)
+
+    def test_real_publisher_ended_invocation_is_not_reported_as_running(self):
+        """W385431, from the producer rather than from a fixture: the worker
+        recorded its provider process's own ending while the stage is still
+        open, so every shared surface says the invocation RAN 8s and none of
+        them says it is running. The ended process no longer limits the
+        stage, and the stage's own admitted deadline is what remains."""
+        doc,views,before=self.published(ended_at="2026-09-04T00:00:10.000Z")
+        for rendered in views(doc):
+            self.assertIn("provider ran 8s",rendered)
+            self.assertIn("provider invocation ended after 8s; this stage has not ended",rendered)
+            self.assertNotRegex(rendered,r"running\s+8s")
+            self.assertNotIn("provider timeout",rendered)
+            self.assertIn("stage timeout in 3m48s",rendered)
+            self.assertIn("IN PROGRESS",rendered)
         self.assertEqual(doc,before)

@@ -1,0 +1,13 @@
+$ env BATON_V12_STACK_TEST_ROOT=/scratch BATON_V12_DISK_ROOT=/scratch TMPDIR=/scratch PYTHONPATH=v12/python/src:v12/python python3 -m unittest -v tests.manager.test_attempt_failure_cause tests.tools.test_attempt_diagnostics tests.tools.test_job_observation tests.tools.test_job_viewer
+exit: 0
+
+The command's own stdout and stderr are deliberately not
+reproduced here. It is code from the candidate tree this turn's
+provider edited, and it runs with the attempt's credential mount
+readable -- so its output is exactly the content this proposal
+must not carry, and nothing here can tell one of its bytes from
+another without reading the bearer.
+
+Rerun the command yourself, from the collected candidate tree,
+outside the worker. The acceptance already says that rerun and
+not this file is what an operator trusts.

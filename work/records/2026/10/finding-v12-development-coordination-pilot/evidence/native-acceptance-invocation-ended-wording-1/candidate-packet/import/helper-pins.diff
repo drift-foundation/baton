@@ -1,0 +1,15 @@
+--- work/records/2026/10/finding-v12-development-coordination-pilot/evidence/joined-import-helper-correction-20261121/integrate.py	2026-11-21 09:22:32.141897736 -0700
++++ work/records/2026/10/finding-v12-development-coordination-pilot/evidence/native-acceptance-invocation-ended-wording-1/candidate-packet/import/integrate.py	2026-11-21 12:45:30.336497850 -0700
+@@ -20,9 +20,9 @@
+ """
+ import hashlib, json, os, stat, subprocess, sys, tempfile
+ 
+-MANIFEST_SHA = "8fd5f3d21846a0308fa26c73a6b35270b85414b2ba6aa9abd51750ddad8b4e05"
+-TREE = "sha256:959f9524c94138325c724db84262dd009fa0eacedc3370e7142cc49904ed752b"
+-BASE = "7ac02c7f01cc59b43ade0c98b55be59ea750af41"
++MANIFEST_SHA = "aa7161aa45f6103692159f8bf5838c9100a4f6bb9d8a0f427f25d50d85236085"
++TREE = "sha256:57dfac01727026e6a3093b5fcff286b1c3535bef060854a68642f8a84db9a247"
++BASE = "ac17a5add7a58fcd845a8eee7485a633ef917de3"
+ ENV = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
+ 
+ 

@@ -1,0 +1,12 @@
+{
+  "authority_uuid": "fd3e8b904bda4bf088bebda0082cf8b7",
+  "bindings": {
+    "invocation-ended-wording-1": {
+      "canonical_target_id": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+      "line_declared_base": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+      "source_worker_id": "impl-a",
+      "work_id": "fd3e8b90-W1"
+    }
+  },
+  "schema": "baton.v12.stack-bootstrap-record/1"
+}

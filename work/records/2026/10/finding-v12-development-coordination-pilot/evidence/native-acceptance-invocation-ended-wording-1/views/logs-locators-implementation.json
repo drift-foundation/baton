@@ -1,0 +1,76 @@
+{
+ "attempt_id": "attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97",
+ "log_root": "/home/sl/baton-instances/native-handoffs-3/state/launch/logs/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97",
+ "native": {
+  "entries": [
+   ".last-cleanup",
+   "backups%2F.claude.json.backup.1795279417077",
+   "projects%2F-output%2Fd12fd3bb-9b26-4863-abef-054c3205f748%2Ftool-results%2Fbou9p3kd4.txt",
+   "projects%2F-output%2Fd12fd3bb-9b26-4863-abef-054c3205f748%2Ftool-results%2Fbuyu17wcm.txt",
+   "projects%2F-output%2Fd12fd3bb-9b26-4863-abef-054c3205f748.jsonl",
+   "sessions%2F33.1af269bfdc33b6906643519c2aff3e6800cc5ebddb64e03863673726204ba72d.key",
+   "sessions%2F33.json",
+   "shell-snapshots%2Fsnapshot-bash-1795279422864-yfqkza.sh"
+  ],
+  "place": "/home/sl/baton-instances/native-handoffs-3/state/launch/logs/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97/native",
+  "state": "captured",
+  "why": "the provider's own session files are here"
+ },
+ "streams": [
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-instances/native-handoffs-3/state/launch/logs/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97/worker.stdout.log",
+   "state": "absent",
+   "stream": "worker.stdout",
+   "why": "no log was created for this stream"
+  },
+  {
+   "bytes": 4464,
+   "declaration": "declared",
+   "file": "present",
+   "place": "/home/sl/baton-instances/native-handoffs-3/state/launch/logs/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97/worker.stderr.log",
+   "state": "captured",
+   "stream": "worker.stderr",
+   "why": "the writer saw this stream to its end"
+  },
+  {
+   "bytes": 8155,
+   "declaration": "declared",
+   "file": "present",
+   "place": "/home/sl/baton-instances/native-handoffs-3/state/launch/logs/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97/provider.stdout.log",
+   "state": "captured",
+   "stream": "provider.stdout",
+   "why": "the writer saw this stream to its end"
+  },
+  {
+   "bytes": 157,
+   "declaration": "declared",
+   "file": "present",
+   "place": "/home/sl/baton-instances/native-handoffs-3/state/launch/logs/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97/provider.stderr.log",
+   "state": "captured",
+   "stream": "provider.stderr",
+   "why": "the writer saw this stream to its end"
+  },
+  {
+   "bytes": 0,
+   "declaration": "declared",
+   "file": "present",
+   "place": "/home/sl/baton-instances/native-handoffs-3/state/launch/logs/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97/verification.stdout.log",
+   "state": "captured",
+   "stream": "verification.stdout",
+   "why": "the writer saw this stream to its end"
+  },
+  {
+   "bytes": 67210,
+   "declaration": "declared",
+   "file": "present",
+   "place": "/home/sl/baton-instances/native-handoffs-3/state/launch/logs/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97/verification.stderr.log",
+   "state": "captured",
+   "stream": "verification.stderr",
+   "why": "the writer saw this stream to its end"
+  }
+ ],
+ "target": "/run/baton/attempt-logs"
+}

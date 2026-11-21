@@ -68,8 +68,9 @@ control store is not a read.
 
 - Every Job in the snapshot, with its stages, exact stage/work/offer/attempt
   identities and the current episode.
-- `elapsed`, computed **only from recorded source times** — the episode's
-  `opened_at` and `ended_at`.
+- `duration`, computed **only from recorded source times** — the attributed
+  provider invocation's own `started_at` and `ended_at`. It says `running Ns`
+  only while no ending is recorded. See below.
 - `activity` — the bytes this manager has **observed** of the worker's
   native session stream, and when it received them; `unknown` where it
   has observed nothing. See below.
@@ -189,6 +190,44 @@ update admitted while the operation was live may arrive after it completed. A
 relative age beside `completed` invites reading a finished attempt as a running
 one, and it gets worse with time: the apparent freshness improves as the clock
 moves while nothing is running.
+
+## Why a frozen duration does not say `running`
+
+The worker records the provider **process's** own `ended_at` when that process
+exits, and *then* runs its verification command. Between those two facts the
+invocation duration has stopped moving while the stage is genuinely still
+open — and every shared surface printed `running 15s`: a frozen figure under a
+live word, getting more convincing as the clock moved.
+
+The label follows the invocation and nothing else:
+
+```text
+  implementation   running          running 30s      activity 1.40 MiB job-a/implementation
+      provider timeout in 30s
+
+  implementation   running          provider ran 15s activity 1.40 MiB job-a/implementation
+      provider invocation ended after 15s; this stage has not ended
+      stage timeout in 1m00s
+```
+
+- an invocation with **no recorded ending** reads `running Ns`, and the figure
+  moves with the manager's own observation clock.
+- a **recorded ended** invocation reads `provider ran Ns`, past tense and
+  naming the provider rather than the stage. Under a stage that has not ended
+  it also carries one sentence saying exactly that, on its own continuation
+  line so the fixed columns keep the stage id.
+- timing that is absent, malformed, in the future, stale or attributed to
+  another attempt keeps its `unknown`, and a stage that never started still
+  reads `not started`. Neither acquires a tense.
+
+`provider ran Ns` is a claim about a **process**. It does not say the stage or
+the Job ended, completed, succeeded or was accepted — the state, timeout,
+reason and activity axes beside it report what they always did, and an ended
+process stops limiting the stage, so the stage's own admitted deadline is what
+remains. `just status`, the viewer list and the viewer detail print the same
+words from the same interpretation (`tools/job_observation.py`), because a
+surface that composed its own label is one that can disagree with the other
+two on the day it matters.
 
 **A count is not proof of useful work** (approver ruling M61707). Repeated noise
 grows it, a long quiet model call leaves it unchanged, and nothing in this

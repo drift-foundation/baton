@@ -1,0 +1,19 @@
+Jobs (fresh, canonical):
+Job invocation-ended-wording-1: COMPLETED
+  Job age 3h01m
+  invocation-ended-wording-1/implementation: completed
+    running unknown; timeout not applicable (stage ended)
+    attempt attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97; operation unknown
+    activity 1.15 MiB; last at 2026-11-21T17:08:43.790Z
+  invocation-ended-wording-1/review: completed
+    running unknown; timeout not applicable (stage ended)
+    attempt attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29; operation unknown
+    activity 460.89 KiB; last at 2026-11-21T17:15:26.158Z
+Services:
+manager    running pid 3593688
+publisher  running pid 3593689
+snapshot   fresh (observed 0.9s ago, written 0.9s ago)
+jobs       1 observed (canonical=True)
+serving    acknowledged
+runtime   2 open episode(s), 2 with a recorded runtime, observed 0.9s ago
+          stopping a supervisor does not stop a runtime, and this is the last RECORDED answer rather than a fresh one

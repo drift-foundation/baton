@@ -383,7 +383,10 @@ class TheFailureCauseAndTimingShareOneStageLine(unittest.TestCase):
             self.assertIn("worker declared unable: the provider did not finish (provider timed out)", rendered)
             self.assertIn("verification not attempted", rendered)
             self.assertNotIn("cause unknown", rendered)
-            self.assertRegex(rendered, r"running\s+15s")
+            # W385431: the frozen figure, labelled for what it is. The
+            # invocation recorded an ending, so no surface says `running`.
+            self.assertIn("provider ran 15s", rendered)
+            self.assertNotRegex(rendered, r"running\s+15s")
             self.assertIn("timeout not applicable (stage ended)", rendered)
             self.assertIn("Job age 1h00m", rendered)
         self.assertEqual(doc, before)
@@ -398,4 +401,280 @@ class TheFailureCauseAndTimingShareOneStageLine(unittest.TestCase):
             self.assertIn("whether verification ran is unknown", rendered)
             self.assertRegex(rendered, r"running\s+unknown")
             self.assertIn("timeout not applicable (stage ended)", rendered)
+
+
+class AnEndedInvocationIsNotARunningOne(unittest.TestCase):
+    """W385431 -- the frozen provider duration, labelled for what it is.
+
+    THE DEFECT, on all three shared surfaces at once. The worker records the
+    provider PROCESS's own `ended_at` when that process exits and THEN runs
+    its verification command, so between those two facts the invocation
+    duration has stopped moving while the stage is genuinely still open --
+    and `just status`, the viewer list and the viewer detail all printed
+    `running 15s`. The figure was frozen, the word said live, and the pair got
+    more convincing with time, exactly as a relative activity age beside a
+    terminal stage does.
+
+    WHAT IS ASSERTED IS THE SURFACES. Every case renders through `views`, so
+    the subject is the two operator surfaces and their shared viewer rather
+    than the helper between them, and each case asserts the word that was
+    WRONG is absent rather than merely leaving it unasserted.
+
+    AND AN HONEST LABEL IS NOT AN OUTCOME. `provider ran 15s` says a process
+    ended; it does not say the stage or the Job ended, completed, succeeded or
+    was accepted, and the state, timeout, reason and activity axes beside it
+    keep reporting exactly what they did.
+    """
+
+    ENDED = "2026-11-19T17:59:45Z"
+    OPEN_NOTE = ("provider invocation ended after 15s; "
+                 "this stage has not ended")
+
+    def staged(self, *, state="running", invocation=True, **spoiled):
+        """One Job whose stage carries an attributed provider invocation.
+
+        The fixtures are the ones the existing cases use: `Timing.job`'s
+        admitted Job/stage deadlines and `InvocationClocks.stage`'s attributed
+        provider process, which starts 30s before this observation.
+        """
+        doc = document()
+        job = doc["jobs"][0]
+        job.update(Timing.job(None))
+        stage = job["stages"][0]
+        fact = InvocationClocks.stage(None)
+        stage["state"] = state
+        stage["attempt_id"] = fact["attempt_id"]
+        stage["exchange"].update(fact["exchange"])
+        if invocation:
+            stage["exchange"]["invocation"].update(spoiled)
+        else:
+            stage["exchange"]["invocation"] = None
+        return doc, stage, job
+
+    # -- an ACTIVE invocation, unchanged -----------------------------------
+
+    def test_an_ACTIVE_invocation_keeps_RUNNING_and_a_FIGURE_THAT_MOVES(self):
+        doc, stage, job = self.staged()
+        view = model.stage_timing(stage, job, NOW)
+        self.assertEqual(view["invocation"], "active")
+        self.assertEqual(view["running_seconds"], 30)
+        self.assertEqual(view["duration"], "running 30s")
+        self.assertIsNone(view["duration_note"])
+        before = copy.deepcopy(doc)
+        for rendered in views(doc):
+            self.assertRegex(rendered, r"running\s+30s")
+            self.assertNotIn("provider ran", rendered)
+            self.assertNotIn("has not ended", rendered)
+            # THE PROVIDER'S OWN DEADLINE STILL LIMITS A LIVE PROCESS.
+            self.assertIn("provider timeout in 30s", rendered)
+            self.assertIn("Job age 1h00m", rendered)
+        self.assertEqual(doc, before)
+        # AND IT MOVES, because nothing has frozen it: ten seconds later on the
+        # manager's own clock the figure is ten seconds larger. That is the
+        # property the ended case must NOT have.
+        later = model.stage_timing(stage, job, "2026-11-19T18:00:10.000Z")
+        self.assertEqual(later["duration"], "running 40s")
+
+    # -- an ENDED invocation under a stage that has NOT ended --------------
+
+    def test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere(self):
+        """The measured defect, across the states a stage is in while the
+        worker's own verification is still running."""
+        for state in ("running", "reviewing", "integrating", "answering"):
+            with self.subTest(state=state):
+                doc, stage, job = self.staged(state=state, ended_at=self.ENDED)
+                view = model.stage_timing(stage, job, NOW)
+                self.assertEqual(view["invocation"], "ended")
+                self.assertEqual(view["running_seconds"], 15)
+                self.assertEqual(view["duration"], "provider ran 15s")
+                self.assertEqual(view["duration_note"], self.OPEN_NOTE)
+                for rendered in views(doc):
+                    self.assertIn("provider ran 15s", rendered)
+                    self.assertIn(self.OPEN_NOTE, rendered)
+                    # THE WORD THAT WAS WRONG.
+                    self.assertNotRegex(rendered, r"running\s+15s")
+                    # AND NOTHING HERE PROMOTES IT TO AN OUTCOME: the Job is
+                    # still in progress, the stage is still under its own
+                    # deadline, and no acceptance is claimed.
+                    self.assertIn("IN PROGRESS", rendered)
+                    self.assertIn("stage timeout in 1m00s", rendered)
+                    self.assertNotIn("COMPLETED", rendered)
+                    self.assertNotIn("timeout not applicable", rendered)
+                    self.assertNotIn("accepted", rendered)
+
+    def test_the_FROZEN_figure_does_not_grow_while_nothing_runs(self):
+        """The reason the word mattered. An ended invocation's figure is the
+        same an hour later; a label saying `running` beside it would have been
+        getting steadily more wrong."""
+        doc, stage, job = self.staged(ended_at=self.ENDED)
+        for observed in (NOW, "2026-11-19T18:05:00.000Z",
+                         "2026-11-20T18:00:00.000Z"):
+            with self.subTest(observed=observed):
+                view = model.stage_timing(stage, job, observed)
+                self.assertEqual(view["running_seconds"], 15)
+                self.assertEqual(view["duration"], "provider ran 15s")
+                self.assertEqual(view["ended_at"], self.ENDED)
+        # AND A CONTROL READING NOBODY REFRESHED IS STILL UNKNOWN TIMING, by
+        # the same 15-second rule: an honest duration label does not make a
+        # stale deadline current.
+        stale = model.stage_timing(stage, job, "2026-11-19T18:05:00.000Z")
+        self.assertEqual(stale["timeout"], "timeout unknown")
+        self.assertEqual(stale["deadlines"], [])
+
+    def test_the_ENDED_PROVIDER_DEADLINE_no_longer_limits_the_stage(self):
+        """An ended process cannot time out, and the stage's own admitted
+        deadline is what remains."""
+        doc, stage, job = self.staged(ended_at=self.ENDED)
+        view = model.stage_timing(stage, job, NOW)
+        self.assertEqual(view["limiting"], ["stage"])
+        self.assertTrue(view["complete"])
+        self.assertEqual(view["timeout"], "stage timeout in 1m00s")
+        for rendered in views(doc):
+            self.assertNotIn("provider timeout", rendered)
+            self.assertNotIn("provider timing unknown", rendered)
+
+    # -- a TERMINAL stage --------------------------------------------------
+
+    def test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE(self):
+        """The stage state and `timeout not applicable (stage ended)` already
+        say the stage ended, so the open-stage sentence would be false."""
+        for state in ("completed", "exceptional", "changes-requested"):
+            with self.subTest(state=state):
+                doc, stage, job = self.staged(state=state, ended_at=self.ENDED)
+                view = model.stage_timing(stage, job, NOW)
+                self.assertEqual(view["invocation"], "ended")
+                self.assertEqual(view["duration"], "provider ran 15s")
+                self.assertIsNone(view["duration_note"])
+                self.assertEqual(view["timeout"],
+                                 "timeout not applicable (stage ended)")
+                for rendered in views(doc):
+                    self.assertIn("provider ran 15s", rendered)
+                    self.assertNotRegex(rendered, r"running\s+15s")
+                    self.assertNotIn("has not ended", rendered)
+
+    def test_a_TERMINAL_stage_with_NO_RECORDED_END_stays_unknown(self):
+        """A terminal stage whose invocation never recorded an ending has no
+        duration to report, and an invented one is the thing this view
+        refuses everywhere else."""
+        doc, stage, job = self.staged(state="completed")
+        view = model.stage_timing(stage, job, NOW)
+        self.assertIsNone(view["invocation"])
+        self.assertIsNone(view["running_seconds"])
+        self.assertEqual(view["duration"], "running unknown")
+        self.assertIsNone(view["duration_note"])
+        for rendered in views(doc):
+            self.assertRegex(rendered, r"running\s+unknown")
+            self.assertNotIn("provider ran", rendered)
+
+    # -- missing and unqualified timing ------------------------------------
+
+    def test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label(self):
+        """Every qualification that already answered `unknown` still answers
+        `unknown`, and none of them acquires a past tense."""
+        spoiled = {"no invocation at all": {"invocation": False},
+                   "a foreign attempt": {"attempt_id": "retired-attempt"},
+                   "a start in the future": {"started_at": "2026-11-19T18:00:01Z"},
+                   "a malformed ending": {"ended_at": "bad"},
+                   "an ending before its start": {"ended_at": "2026-11-19T17:59:00Z"},
+                   "an ending after the observation": {"ended_at": "2026-11-19T18:00:01Z"},
+                   "another scope": {"scope": "dispatch"},
+                   "another operation": {"operation": "describe"},
+                   "another command": {"command_digest": "sha256:" + "a" * 64},
+                   "another sequence": {"sequence_id": "other-sequence"}}
+        for why, members in spoiled.items():
+            with self.subTest(why=why):
+                doc, stage, job = self.staged(**members)
+                view = model.stage_timing(stage, job, NOW)
+                self.assertIsNone(view["invocation"])
+                self.assertIsNone(view["running_seconds"])
+                self.assertEqual(view["running"], "unknown")
+                self.assertEqual(view["duration"], "running unknown")
+                self.assertIsNone(view["duration_note"])
+                self.assertIn("provider timing unknown (earliest known only)",
+                              view["timeout"])
+                for rendered in views(doc):
+                    self.assertRegex(rendered, r"running\s+unknown")
+                    self.assertNotIn("provider ran", rendered)
+                    self.assertNotIn("has not ended", rendered)
+
+    def test_a_stage_that_NEVER_STARTED_still_says_NOT_STARTED(self):
+        doc = document()
+        job = doc["jobs"][0]
+        job.update(Timing.job(None))
+        job["stages"] = [{"stage_id": "implementation",
+                          "kind": "implementation", "state": "queued"}]
+        view = model.stage_timing(job["stages"][0], job, NOW)
+        self.assertIsNone(view["invocation"])
+        self.assertEqual(view["duration"], "not started")
+        self.assertIsNone(view["duration_note"])
+        for rendered in views(doc):
+            self.assertIn("not started", rendered)
+            self.assertNotIn("provider ran", rendered)
+            self.assertNotRegex(rendered, r"running\s+\d")
+
+    # -- the three surfaces, word for word ---------------------------------
+
+    def test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD(self):
+        """One interpretation and no second wording. A surface that composed
+        its own label is a surface that can disagree with the other two on the
+        day it matters."""
+        for state, members, expected in (
+                ("running", {}, "running 30s"),
+                ("running", {"ended_at": self.ENDED}, "provider ran 15s"),
+                ("completed", {"ended_at": self.ENDED}, "provider ran 15s"),
+                ("running", {"ended_at": "bad"}, "running unknown")):
+            with self.subTest(expected=expected, state=state):
+                doc, stage, job = self.staged(state=state, **members)
+                self.assertEqual(model.stage_timing(stage, job, NOW)["duration"],
+                                 expected)
+                for rendered in views(doc):
+                    self.assertIn(expected, rendered)
+                    for other in ("running 30s", "provider ran 15s",
+                                  "running unknown"):
+                        if other != expected:
+                            self.assertNotIn(other, rendered)
+
+    def test_the_LIST_COLUMNS_keep_the_STAGE_ID_and_the_BANNER_its_AGE(self):
+        """Review R1's rule, held for the sentence this correction adds: the
+        variable-width fact goes on a continuation line, the fixed columns
+        keep the identity an operator opened the list to copy, and the
+        15-second freshness rule is untouched."""
+        doc, stage, job = self.staged(ended_at=self.ENDED)
+        status_text, listed, detail = views(doc)
+        for rendered in (status_text, listed, detail):
+            self.assertEqual(rendered.count("provider ran 15s"), 1)
+            self.assertIn(self.OPEN_NOTE, rendered)
+            self.assertNotIn("STALE", rendered)
+        row = next(one for one in listed.splitlines()
+                   if one.startswith("  implementation"))
+        self.assertLessEqual(len(row), 100)
+        self.assertTrue(row.endswith("implementation"))
+        self.assertIn("duration     provider ran 15s", detail)
+        # THE SAME DOCUMENT, UNREFRESHED, IS STILL CONSPICUOUSLY STALE.
+        snapshot = job_viewer.read_snapshot(doc, received_at=0)
+        stale = "\n".join(job_viewer.render_list(
+            snapshot, now=0, wall_now=EPOCH + model.STALE_SECONDS))
+        self.assertIn("!! STALE", stale)
+        self.assertIn("provider ran 15s", stale)
+        self.assertIn(self.OPEN_NOTE, stale)
+
+    def test_the_WORKER_DECLARED_CAUSE_still_reaches_an_OPEN_stage_line(self):
+        """The axes do not displace each other. A stage whose provider
+        invocation ended and whose diagnostics carry a declaration renders
+        both, and neither becomes the other's explanation."""
+        declared = TheWorkerDeclaredEndingReachesBothSurfaces(
+            "test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views")
+        doc, stage, job = self.staged(state="exceptional",
+                                      ended_at=self.ENDED)
+        stage["attempt_diagnostics"] = {
+            "schema": "baton.v12.attempt-failure-cause/1",
+            "attempt_id": stage["attempt_id"],
+            "worker_declaration": declared.wrapped(declared.FAILED)}
+        for rendered in views(doc):
+            self.assertIn("provider ran 15s", rendered)
+            self.assertIn("worker declared unable: its own verification "
+                          "command failed", rendered)
+            self.assertIn("verification ended 1", rendered)
+            self.assertNotIn("cause unknown", rendered)
+            self.assertNotRegex(rendered, r"running\s+15s")
 

@@ -1,0 +1,7 @@
+patching file v12/python/JOB-VIEWER.md
+patching file v12/python/tests/manager/test_exchange.py
+patching file v12/python/tests/tools/test_job_observation.py
+patching file v12/python/tests/tools/test_job_viewer.py
+patching file v12/python/tools/job_observation.py
+patching file v12/python/tools/job_viewer.py
+patching file v12/python/tools/stack.py

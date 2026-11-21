@@ -1,0 +1,720 @@
+diff --git a/v12/python/JOB-VIEWER.md b/v12/python/JOB-VIEWER.md
+index 425aced4..19148f0f 100644
+--- a/v12/python/JOB-VIEWER.md
++++ b/v12/python/JOB-VIEWER.md
+@@ -68,8 +68,9 @@ control store is not a read.
+ 
+ - Every Job in the snapshot, with its stages, exact stage/work/offer/attempt
+   identities and the current episode.
+-- `elapsed`, computed **only from recorded source times** — the episode's
+-  `opened_at` and `ended_at`.
++- `duration`, computed **only from recorded source times** — the attributed
++  provider invocation's own `started_at` and `ended_at`. It says `running Ns`
++  only while no ending is recorded. See below.
+ - `activity` — the bytes this manager has **observed** of the worker's
+   native session stream, and when it received them; `unknown` where it
+   has observed nothing. See below.
+@@ -190,6 +191,44 @@ relative age beside `completed` invites reading a finished attempt as a running
+ one, and it gets worse with time: the apparent freshness improves as the clock
+ moves while nothing is running.
+ 
++## Why a frozen duration does not say `running`
++
++The worker records the provider **process's** own `ended_at` when that process
++exits, and *then* runs its verification command. Between those two facts the
++invocation duration has stopped moving while the stage is genuinely still
++open — and every shared surface printed `running 15s`: a frozen figure under a
++live word, getting more convincing as the clock moved.
++
++The label follows the invocation and nothing else:
++
++```text
++  implementation   running          running 30s      activity 1.40 MiB job-a/implementation
++      provider timeout in 30s
++
++  implementation   running          provider ran 15s activity 1.40 MiB job-a/implementation
++      provider invocation ended after 15s; this stage has not ended
++      stage timeout in 1m00s
++```
++
++- an invocation with **no recorded ending** reads `running Ns`, and the figure
++  moves with the manager's own observation clock.
++- a **recorded ended** invocation reads `provider ran Ns`, past tense and
++  naming the provider rather than the stage. Under a stage that has not ended
++  it also carries one sentence saying exactly that, on its own continuation
++  line so the fixed columns keep the stage id.
++- timing that is absent, malformed, in the future, stale or attributed to
++  another attempt keeps its `unknown`, and a stage that never started still
++  reads `not started`. Neither acquires a tense.
++
++`provider ran Ns` is a claim about a **process**. It does not say the stage or
++the Job ended, completed, succeeded or was accepted — the state, timeout,
++reason and activity axes beside it report what they always did, and an ended
++process stops limiting the stage, so the stage's own admitted deadline is what
++remains. `just status`, the viewer list and the viewer detail print the same
++words from the same interpretation (`tools/job_observation.py`), because a
++surface that composed its own label is one that can disagree with the other
++two on the day it matters.
++
+ **A count is not proof of useful work** (approver ruling M61707). Repeated noise
+ grows it, a long quiet model call leaves it unchanged, and nothing in this
+ program — refresh, refusal, ordering or selection — branches on it. The viewer
+diff --git a/v12/python/tests/manager/test_exchange.py b/v12/python/tests/manager/test_exchange.py
+index 717cceff..81aa58da 100644
+--- a/v12/python/tests/manager/test_exchange.py
++++ b/v12/python/tests/manager/test_exchange.py
+@@ -3528,18 +3528,46 @@ class InvocationTiming(Home):
+                 view=exchange.observation(delivery)
+                 self.assertEqual(view["state"],"working");self.assertIsNone(view["unreadable"]);self.assertIsNone(view["invocation"])
+ 
+-    def test_real_publisher_to_shared_status_and_monitor(self):
++    def published(self, ended_at=None):
++        """THE REAL PUBLISHER's own invocation timing, read back and rendered.
++
++        Nothing here is hand-authored: `_ActivityPublisher` writes the event,
++        `exchange.observation` reads it, and the shared views render what came
++        out. `ended_at` is what the worker records when the provider PROCESS
++        exits -- before its own verification command runs.
++        """
+         import sys,pathlib,copy
+         sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[3]/"worker"))
+         import baton_worker
+         from tests.tools.test_job_observation import document, views
+         delivery,fact=self.timing()
++        if ended_at is not None:
++            fact["ended_at"]=ended_at
+         timing={key:fact[key] for key in ("scope","started_at","ended_at","deadline_at")}
+         bound={key:fact[key] for key in ("session","attempt_id","sequence_id","command_digest","operation","operation_id")}
+         pub=baton_worker._ActivityPublisher(delivery.event_root,bound,lambda:None,invocation=lambda:timing);pub._tick()
+         observed=exchange.observation(delivery);doc=document();doc["observed_at"]="2026-09-04T00:00:12.000Z";job=doc["jobs"][0];stage=job["stages"][0];stage.update(attempt_id=self.ATTEMPT,exchange=observed)
+         job["control"]={"timing":"trusted","observed_at":doc["observed_at"],"job":{"origin":"2026-09-04T00:00:00.000Z","deadline_at":"2026-09-04T00:05:00.000Z"},"stages":[{"stage_id":stage["stage_id"],"origin":"2026-09-04T00:00:01.000Z","deadline_at":"2026-09-04T00:04:00.000Z"}]}
+-        before=copy.deepcopy(doc)
++        return doc,views,copy.deepcopy(doc)
++
++    def test_real_publisher_to_shared_status_and_monitor(self):
++        doc,views,before=self.published()
+         for rendered in views(doc):
+             self.assertRegex(rendered,r"running\s+10s");self.assertIn("provider timeout in 50s",rendered)
+         self.assertEqual(doc,before)
++
++    def test_real_publisher_ended_invocation_is_not_reported_as_running(self):
++        """W385431, from the producer rather than from a fixture: the worker
++        recorded its provider process's own ending while the stage is still
++        open, so every shared surface says the invocation RAN 8s and none of
++        them says it is running. The ended process no longer limits the
++        stage, and the stage's own admitted deadline is what remains."""
++        doc,views,before=self.published(ended_at="2026-09-04T00:00:10.000Z")
++        for rendered in views(doc):
++            self.assertIn("provider ran 8s",rendered)
++            self.assertIn("provider invocation ended after 8s; this stage has not ended",rendered)
++            self.assertNotRegex(rendered,r"running\s+8s")
++            self.assertNotIn("provider timeout",rendered)
++            self.assertIn("stage timeout in 3m48s",rendered)
++            self.assertIn("IN PROGRESS",rendered)
++        self.assertEqual(doc,before)
+diff --git a/v12/python/tests/tools/test_job_observation.py b/v12/python/tests/tools/test_job_observation.py
+index 42097163..c3808f22 100644
+--- a/v12/python/tests/tools/test_job_observation.py
++++ b/v12/python/tests/tools/test_job_observation.py
+@@ -383,7 +383,10 @@ class TheFailureCauseAndTimingShareOneStageLine(unittest.TestCase):
+             self.assertIn("worker declared unable: the provider did not finish (provider timed out)", rendered)
+             self.assertIn("verification not attempted", rendered)
+             self.assertNotIn("cause unknown", rendered)
+-            self.assertRegex(rendered, r"running\s+15s")
++            # W385431: the frozen figure, labelled for what it is. The
++            # invocation recorded an ending, so no surface says `running`.
++            self.assertIn("provider ran 15s", rendered)
++            self.assertNotRegex(rendered, r"running\s+15s")
+             self.assertIn("timeout not applicable (stage ended)", rendered)
+             self.assertIn("Job age 1h00m", rendered)
+         self.assertEqual(doc, before)
+@@ -399,3 +402,279 @@ class TheFailureCauseAndTimingShareOneStageLine(unittest.TestCase):
+             self.assertRegex(rendered, r"running\s+unknown")
+             self.assertIn("timeout not applicable (stage ended)", rendered)
+ 
++
++class AnEndedInvocationIsNotARunningOne(unittest.TestCase):
++    """W385431 -- the frozen provider duration, labelled for what it is.
++
++    THE DEFECT, on all three shared surfaces at once. The worker records the
++    provider PROCESS's own `ended_at` when that process exits and THEN runs
++    its verification command, so between those two facts the invocation
++    duration has stopped moving while the stage is genuinely still open --
++    and `just status`, the viewer list and the viewer detail all printed
++    `running 15s`. The figure was frozen, the word said live, and the pair got
++    more convincing with time, exactly as a relative activity age beside a
++    terminal stage does.
++
++    WHAT IS ASSERTED IS THE SURFACES. Every case renders through `views`, so
++    the subject is the two operator surfaces and their shared viewer rather
++    than the helper between them, and each case asserts the word that was
++    WRONG is absent rather than merely leaving it unasserted.
++
++    AND AN HONEST LABEL IS NOT AN OUTCOME. `provider ran 15s` says a process
++    ended; it does not say the stage or the Job ended, completed, succeeded or
++    was accepted, and the state, timeout, reason and activity axes beside it
++    keep reporting exactly what they did.
++    """
++
++    ENDED = "2026-11-19T17:59:45Z"
++    OPEN_NOTE = ("provider invocation ended after 15s; "
++                 "this stage has not ended")
++
++    def staged(self, *, state="running", invocation=True, **spoiled):
++        """One Job whose stage carries an attributed provider invocation.
++
++        The fixtures are the ones the existing cases use: `Timing.job`'s
++        admitted Job/stage deadlines and `InvocationClocks.stage`'s attributed
++        provider process, which starts 30s before this observation.
++        """
++        doc = document()
++        job = doc["jobs"][0]
++        job.update(Timing.job(None))
++        stage = job["stages"][0]
++        fact = InvocationClocks.stage(None)
++        stage["state"] = state
++        stage["attempt_id"] = fact["attempt_id"]
++        stage["exchange"].update(fact["exchange"])
++        if invocation:
++            stage["exchange"]["invocation"].update(spoiled)
++        else:
++            stage["exchange"]["invocation"] = None
++        return doc, stage, job
++
++    # -- an ACTIVE invocation, unchanged -----------------------------------
++
++    def test_an_ACTIVE_invocation_keeps_RUNNING_and_a_FIGURE_THAT_MOVES(self):
++        doc, stage, job = self.staged()
++        view = model.stage_timing(stage, job, NOW)
++        self.assertEqual(view["invocation"], "active")
++        self.assertEqual(view["running_seconds"], 30)
++        self.assertEqual(view["duration"], "running 30s")
++        self.assertIsNone(view["duration_note"])
++        before = copy.deepcopy(doc)
++        for rendered in views(doc):
++            self.assertRegex(rendered, r"running\s+30s")
++            self.assertNotIn("provider ran", rendered)
++            self.assertNotIn("has not ended", rendered)
++            # THE PROVIDER'S OWN DEADLINE STILL LIMITS A LIVE PROCESS.
++            self.assertIn("provider timeout in 30s", rendered)
++            self.assertIn("Job age 1h00m", rendered)
++        self.assertEqual(doc, before)
++        # AND IT MOVES, because nothing has frozen it: ten seconds later on the
++        # manager's own clock the figure is ten seconds larger. That is the
++        # property the ended case must NOT have.
++        later = model.stage_timing(stage, job, "2026-11-19T18:00:10.000Z")
++        self.assertEqual(later["duration"], "running 40s")
++
++    # -- an ENDED invocation under a stage that has NOT ended --------------
++
++    def test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere(self):
++        """The measured defect, across the states a stage is in while the
++        worker's own verification is still running."""
++        for state in ("running", "reviewing", "integrating", "answering"):
++            with self.subTest(state=state):
++                doc, stage, job = self.staged(state=state, ended_at=self.ENDED)
++                view = model.stage_timing(stage, job, NOW)
++                self.assertEqual(view["invocation"], "ended")
++                self.assertEqual(view["running_seconds"], 15)
++                self.assertEqual(view["duration"], "provider ran 15s")
++                self.assertEqual(view["duration_note"], self.OPEN_NOTE)
++                for rendered in views(doc):
++                    self.assertIn("provider ran 15s", rendered)
++                    self.assertIn(self.OPEN_NOTE, rendered)
++                    # THE WORD THAT WAS WRONG.
++                    self.assertNotRegex(rendered, r"running\s+15s")
++                    # AND NOTHING HERE PROMOTES IT TO AN OUTCOME: the Job is
++                    # still in progress, the stage is still under its own
++                    # deadline, and no acceptance is claimed.
++                    self.assertIn("IN PROGRESS", rendered)
++                    self.assertIn("stage timeout in 1m00s", rendered)
++                    self.assertNotIn("COMPLETED", rendered)
++                    self.assertNotIn("timeout not applicable", rendered)
++                    self.assertNotIn("accepted", rendered)
++
++    def test_the_FROZEN_figure_does_not_grow_while_nothing_runs(self):
++        """The reason the word mattered. An ended invocation's figure is the
++        same an hour later; a label saying `running` beside it would have been
++        getting steadily more wrong."""
++        doc, stage, job = self.staged(ended_at=self.ENDED)
++        for observed in (NOW, "2026-11-19T18:05:00.000Z",
++                         "2026-11-20T18:00:00.000Z"):
++            with self.subTest(observed=observed):
++                view = model.stage_timing(stage, job, observed)
++                self.assertEqual(view["running_seconds"], 15)
++                self.assertEqual(view["duration"], "provider ran 15s")
++                self.assertEqual(view["ended_at"], self.ENDED)
++        # AND A CONTROL READING NOBODY REFRESHED IS STILL UNKNOWN TIMING, by
++        # the same 15-second rule: an honest duration label does not make a
++        # stale deadline current.
++        stale = model.stage_timing(stage, job, "2026-11-19T18:05:00.000Z")
++        self.assertEqual(stale["timeout"], "timeout unknown")
++        self.assertEqual(stale["deadlines"], [])
++
++    def test_the_ENDED_PROVIDER_DEADLINE_no_longer_limits_the_stage(self):
++        """An ended process cannot time out, and the stage's own admitted
++        deadline is what remains."""
++        doc, stage, job = self.staged(ended_at=self.ENDED)
++        view = model.stage_timing(stage, job, NOW)
++        self.assertEqual(view["limiting"], ["stage"])
++        self.assertTrue(view["complete"])
++        self.assertEqual(view["timeout"], "stage timeout in 1m00s")
++        for rendered in views(doc):
++            self.assertNotIn("provider timeout", rendered)
++            self.assertNotIn("provider timing unknown", rendered)
++
++    # -- a TERMINAL stage --------------------------------------------------
++
++    def test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE(self):
++        """The stage state and `timeout not applicable (stage ended)` already
++        say the stage ended, so the open-stage sentence would be false."""
++        for state in ("completed", "exceptional", "changes-requested"):
++            with self.subTest(state=state):
++                doc, stage, job = self.staged(state=state, ended_at=self.ENDED)
++                view = model.stage_timing(stage, job, NOW)
++                self.assertEqual(view["invocation"], "ended")
++                self.assertEqual(view["duration"], "provider ran 15s")
++                self.assertIsNone(view["duration_note"])
++                self.assertEqual(view["timeout"],
++                                 "timeout not applicable (stage ended)")
++                for rendered in views(doc):
++                    self.assertIn("provider ran 15s", rendered)
++                    self.assertNotRegex(rendered, r"running\s+15s")
++                    self.assertNotIn("has not ended", rendered)
++
++    def test_a_TERMINAL_stage_with_NO_RECORDED_END_stays_unknown(self):
++        """A terminal stage whose invocation never recorded an ending has no
++        duration to report, and an invented one is the thing this view
++        refuses everywhere else."""
++        doc, stage, job = self.staged(state="completed")
++        view = model.stage_timing(stage, job, NOW)
++        self.assertIsNone(view["invocation"])
++        self.assertIsNone(view["running_seconds"])
++        self.assertEqual(view["duration"], "running unknown")
++        self.assertIsNone(view["duration_note"])
++        for rendered in views(doc):
++            self.assertRegex(rendered, r"running\s+unknown")
++            self.assertNotIn("provider ran", rendered)
++
++    # -- missing and unqualified timing ------------------------------------
++
++    def test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label(self):
++        """Every qualification that already answered `unknown` still answers
++        `unknown`, and none of them acquires a past tense."""
++        spoiled = {"no invocation at all": {"invocation": False},
++                   "a foreign attempt": {"attempt_id": "retired-attempt"},
++                   "a start in the future": {"started_at": "2026-11-19T18:00:01Z"},
++                   "a malformed ending": {"ended_at": "bad"},
++                   "an ending before its start": {"ended_at": "2026-11-19T17:59:00Z"},
++                   "an ending after the observation": {"ended_at": "2026-11-19T18:00:01Z"},
++                   "another scope": {"scope": "dispatch"},
++                   "another operation": {"operation": "describe"},
++                   "another command": {"command_digest": "sha256:" + "a" * 64},
++                   "another sequence": {"sequence_id": "other-sequence"}}
++        for why, members in spoiled.items():
++            with self.subTest(why=why):
++                doc, stage, job = self.staged(**members)
++                view = model.stage_timing(stage, job, NOW)
++                self.assertIsNone(view["invocation"])
++                self.assertIsNone(view["running_seconds"])
++                self.assertEqual(view["running"], "unknown")
++                self.assertEqual(view["duration"], "running unknown")
++                self.assertIsNone(view["duration_note"])
++                self.assertIn("provider timing unknown (earliest known only)",
++                              view["timeout"])
++                for rendered in views(doc):
++                    self.assertRegex(rendered, r"running\s+unknown")
++                    self.assertNotIn("provider ran", rendered)
++                    self.assertNotIn("has not ended", rendered)
++
++    def test_a_stage_that_NEVER_STARTED_still_says_NOT_STARTED(self):
++        doc = document()
++        job = doc["jobs"][0]
++        job.update(Timing.job(None))
++        job["stages"] = [{"stage_id": "implementation",
++                          "kind": "implementation", "state": "queued"}]
++        view = model.stage_timing(job["stages"][0], job, NOW)
++        self.assertIsNone(view["invocation"])
++        self.assertEqual(view["duration"], "not started")
++        self.assertIsNone(view["duration_note"])
++        for rendered in views(doc):
++            self.assertIn("not started", rendered)
++            self.assertNotIn("provider ran", rendered)
++            self.assertNotRegex(rendered, r"running\s+\d")
++
++    # -- the three surfaces, word for word ---------------------------------
++
++    def test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD(self):
++        """One interpretation and no second wording. A surface that composed
++        its own label is a surface that can disagree with the other two on the
++        day it matters."""
++        for state, members, expected in (
++                ("running", {}, "running 30s"),
++                ("running", {"ended_at": self.ENDED}, "provider ran 15s"),
++                ("completed", {"ended_at": self.ENDED}, "provider ran 15s"),
++                ("running", {"ended_at": "bad"}, "running unknown")):
++            with self.subTest(expected=expected, state=state):
++                doc, stage, job = self.staged(state=state, **members)
++                self.assertEqual(model.stage_timing(stage, job, NOW)["duration"],
++                                 expected)
++                for rendered in views(doc):
++                    self.assertIn(expected, rendered)
++                    for other in ("running 30s", "provider ran 15s",
++                                  "running unknown"):
++                        if other != expected:
++                            self.assertNotIn(other, rendered)
++
++    def test_the_LIST_COLUMNS_keep_the_STAGE_ID_and_the_BANNER_its_AGE(self):
++        """Review R1's rule, held for the sentence this correction adds: the
++        variable-width fact goes on a continuation line, the fixed columns
++        keep the identity an operator opened the list to copy, and the
++        15-second freshness rule is untouched."""
++        doc, stage, job = self.staged(ended_at=self.ENDED)
++        status_text, listed, detail = views(doc)
++        for rendered in (status_text, listed, detail):
++            self.assertEqual(rendered.count("provider ran 15s"), 1)
++            self.assertIn(self.OPEN_NOTE, rendered)
++            self.assertNotIn("STALE", rendered)
++        row = next(one for one in listed.splitlines()
++                   if one.startswith("  implementation"))
++        self.assertLessEqual(len(row), 100)
++        self.assertTrue(row.endswith("implementation"))
++        self.assertIn("duration     provider ran 15s", detail)
++        # THE SAME DOCUMENT, UNREFRESHED, IS STILL CONSPICUOUSLY STALE.
++        snapshot = job_viewer.read_snapshot(doc, received_at=0)
++        stale = "\n".join(job_viewer.render_list(
++            snapshot, now=0, wall_now=EPOCH + model.STALE_SECONDS))
++        self.assertIn("!! STALE", stale)
++        self.assertIn("provider ran 15s", stale)
++        self.assertIn(self.OPEN_NOTE, stale)
++
++    def test_the_WORKER_DECLARED_CAUSE_still_reaches_an_OPEN_stage_line(self):
++        """The axes do not displace each other. A stage whose provider
++        invocation ended and whose diagnostics carry a declaration renders
++        both, and neither becomes the other's explanation."""
++        declared = TheWorkerDeclaredEndingReachesBothSurfaces(
++            "test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views")
++        doc, stage, job = self.staged(state="exceptional",
++                                      ended_at=self.ENDED)
++        stage["attempt_diagnostics"] = {
++            "schema": "baton.v12.attempt-failure-cause/1",
++            "attempt_id": stage["attempt_id"],
++            "worker_declaration": declared.wrapped(declared.FAILED)}
++        for rendered in views(doc):
++            self.assertIn("provider ran 15s", rendered)
++            self.assertIn("worker declared unable: its own verification "
++                          "command failed", rendered)
++            self.assertIn("verification ended 1", rendered)
++            self.assertNotIn("cause unknown", rendered)
++            self.assertNotRegex(rendered, r"running\s+15s")
++
+diff --git a/v12/python/tests/tools/test_job_viewer.py b/v12/python/tests/tools/test_job_viewer.py
+index 4269b2b6..cccd8606 100644
+--- a/v12/python/tests/tools/test_job_viewer.py
++++ b/v12/python/tests/tools/test_job_viewer.py
+@@ -1138,6 +1138,106 @@ if __name__ == "__main__":                                  # pragma: no cover
+     unittest.main()
+ 
+ 
++class TheDurationSaysWhetherItIsStillRunning(ViewerCase):
++    """W385431 -- the provider duration, rendered for what it is.
++
++    THE DEFECT: the worker records the provider PROCESS's own `ended_at` when
++    that process exits and only then runs its verification command, so the
++    duration stops moving while the stage is still open -- and both the list
++    row and the detail row said `running 15s`. A frozen figure under a live
++    word, getting more convincing as the clock moved.
++
++    THE DOCUMENT IS THE REAL ONE and the stage members are set on it, exactly
++    as the activity cases above do: this is about what the RENDERER does with
++    a published exchange, and the exchange reader's own correlation rules are
++    held by `tests/manager/test_exchange.py` against the real publisher.
++    """
++
++    ATTEMPT = "attempt-1"
++    STARTED = 30.0
++    SEQUENCE = "sequence-1"
++    DIGEST = "sha256:" + "c" * 64
++
++    def observed(self, *, state="running", ended=None, **spoiled):
++        """One status document whose first stage carries an invocation."""
++        document = self.document()
++        stage = document["jobs"][0]["stages"][0]
++        stage["state"] = state
++        stage["attempt_id"] = self.ATTEMPT
++        invocation = {"attempt_id": self.ATTEMPT, "operation": "work",
++                      "scope": "provider-process", "sequence_id": self.SEQUENCE,
++                      "command_digest": self.DIGEST,
++                      "started_at": _stamp(_epoch(NOW) - self.STARTED),
++                      "deadline_at": _stamp(_epoch(NOW) + 60.0),
++                      "ended_at": None if ended is None
++                                  else _stamp(_epoch(NOW) - ended)}
++        invocation.update(spoiled)
++        stage["exchange"] = {"transport": "baton.worker-exchange/1",
++                             "sequence_id": self.SEQUENCE, "state": "working",
++                             "command": {"sequence_id": self.SEQUENCE,
++                                         "command_digest": self.DIGEST},
++                             "invocation": invocation}
++        return document
++
++    def shown(self, document):
++        snapshot = read_snapshot(document, received_at=self.now)
++        return ("\n".join(render_list(snapshot, now=self.now)),
++                "\n".join(render_detail(snapshot, "job-a", now=self.now)))
++
++    def test_a_LIVE_invocation_is_the_only_one_called_running(self):
++        listed, detail = self.shown(self.observed())
++        self.assertIn("running 30s", mine(listed.splitlines()))
++        self.assertRegex(detail, r"duration\s+running 30s")
++        self.assertNotIn("provider ran", listed + detail)
++        self.assertNotIn("has not ended", listed + detail)
++
++    def test_an_ENDED_invocation_under_an_OPEN_stage_is_PAST_TENSE(self):
++        listed, detail = self.shown(self.observed(ended=15.0))
++        row = mine(listed.splitlines())
++        self.assertIn("provider ran 15s", row)
++        self.assertIn("provider invocation ended after 15s; this stage has "
++                      "not ended", row)
++        self.assertNotRegex(listed, r"running\s+15s")
++        self.assertRegex(detail, r"duration\s+provider ran 15s")
++        self.assertIn("provider invocation ended after 15s; this stage has "
++                      "not ended", detail)
++        # AND NOTHING SAYS THE STAGE OR THE JOB IS DONE.
++        self.assertIn("IN PROGRESS", listed)
++        self.assertNotIn("timeout not applicable", listed)
++
++    def test_the_FIXED_COLUMNS_still_carry_the_STAGE_ID(self):
++        """Review R1's rule: the variable-width sentence goes on its own
++        continuation line and the identity an operator came for survives the
++        100-column list."""
++        listed, _detail = self.shown(self.observed(ended=15.0))
++        row = [one for one in listed.splitlines()
++               if "job-a/implementation" in one and one.startswith("  ")][0]
++        self.assertLessEqual(len(row), 100)
++        self.assertTrue(row.endswith("job-a/implementation"))
++
++    def test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note(self):
++        for state in ("completed", "exceptional", "changes-requested"):
++            with self.subTest(state=state):
++                listed, detail = self.shown(self.observed(state=state,
++                                                          ended=15.0))
++                self.assertIn("provider ran 15s", mine(listed.splitlines()))
++                self.assertNotRegex(listed, r"running\s+15s")
++                self.assertNotIn("has not ended", listed + detail)
++                self.assertIn("timeout not applicable (stage ended)", listed)
++
++    def test_UNATTRIBUTED_or_MALFORMED_timing_keeps_its_unknown(self):
++        for why, spoiled in (("foreign attempt", {"attempt_id": "attempt-9"}),
++                             ("malformed ending", {"ended_at": "bad"}),
++                             ("another scope", {"scope": "dispatch"}),
++                             ("another command",
++                              {"command_digest": "sha256:" + "d" * 64})):
++            with self.subTest(why=why):
++                listed, detail = self.shown(self.observed(**spoiled))
++                self.assertIn("running unknown", mine(listed.splitlines()))
++                self.assertNotIn("provider ran", listed + detail)
++                self.assertNotIn("has not ended", listed + detail)
++
++
+ class TheTrustedActivityCountIsShownAndNeverEmbellished(ViewerCase):
+     """W61599's count reaches the view, and the one distinction that matters.
+ 
+diff --git a/v12/python/tools/job_observation.py b/v12/python/tools/job_observation.py
+index 53ae967c..c3ef0491 100644
+--- a/v12/python/tools/job_observation.py
++++ b/v12/python/tools/job_observation.py
+@@ -197,8 +197,35 @@ def job_age(job, observed_at):
+     return _duration(_elapsed(origin, None, observed_at))
+ 
+ 
++# W385431: HOW A DURATION IS LABELLED, and the single distinction the label
++# carries.
++#
++# THE DEFECT, measured on every shared surface: a provider invocation that had
++# RECORDED ITS OWN END still printed `running 15s`. The worker runs its own
++# verification command AFTER the provider process exits, so that figure is
++# frozen while the stage is genuinely still open -- and the word beside it said
++# two untrue things at once: that a provider turn was in progress, and that the
++# number was current. It got worse with time, exactly as a relative activity
++# age beside a terminal stage does.
++#
++# SO THE LABEL FOLLOWS THE INVOCATION AND NOTHING ELSE. `running` is said only
++# while no ending is recorded; a recorded ending reads `provider ran`, past
++# tense, naming the PROVIDER rather than the stage. Neither phrase says the
++# stage or the Job ended, completed, succeeded or was accepted -- those are
++# other owners' facts, and the state, timeout, reason and activity axes beside
++# this one report them.
++_INVOCATION_LABELS = {"active": "running ", "ended": "provider ran "}
++
++
+ def stage_timing(stage, job, observed_at):
+-    """Interpret only attributed process facts and original admitted deadlines."""
++    """Interpret only attributed process facts and original admitted deadlines.
++
++    `running`/`running_seconds` are the MEASURE and `duration` is what a
++    surface prints: an active invocation is `running 30s` and a recorded ended
++    one is `provider ran 15s`, which is the same measure with an honest label.
++    `duration_note` is the one sentence an ended invocation under a stage that
++    has NOT ended owes an operator, and `None` everywhere else.
++    """
+     state = stage.get("state")
+     never = (state in HELD_STATES and not stage.get("runtime") and not stage.get("exchange")
+              and not stage.get("receipts")
+@@ -208,7 +235,13 @@ def stage_timing(stage, job, observed_at):
+               "started_at": None, "ended_at": None, "scope": "provider-process",
+               "job_age": job_age(job or {}, observed_at), "deadlines": [],
+               "limiting": [], "remaining_seconds": None, "complete": False,
+-              "timeout": "timeout unknown", "observed_at": observed_at}
++              "timeout": "timeout unknown", "observed_at": observed_at,
++              # No invocation is attributed until one is, and an unattributed,
++              # malformed, foreign-attempt or future invocation keeps the
++              # qualification it already had rather than gaining a label that
++              # would read as a measurement.
++              "invocation": None, "duration_note": None,
++              "duration": "not started" if never else "running " + UNKNOWN}
+     try:
+         clock = _instant(observed_at)
+     except (ValueError, TypeError, OverflowError):
+@@ -226,8 +259,20 @@ def stage_timing(stage, job, observed_at):
+                 raise ValueError("invalid invocation chronology")
+             if end is not None or state not in TERMINAL_STATES:
+                 seconds = (clock if end is None else end) - start
++                recorded = "active" if end is None else "ended"
+                 result.update(running=_duration(seconds), running_seconds=seconds,
+-                              started_at=invocation["started_at"], ended_at=invocation.get("ended_at"))
++                              started_at=invocation["started_at"], ended_at=invocation.get("ended_at"),
++                              invocation=recorded,
++                              duration=_INVOCATION_LABELS[recorded] + _duration(seconds))
++                if recorded == "ended" and state not in TERMINAL_STATES:
++                    # THE ONE CASE AN OPERATOR CANNOT READ OFF THE OTHER
++                    # COLUMNS: the process ended and the stage did not, so the
++                    # figure is frozen and the stage is still open. Said in
++                    # words, because a non-terminal state beside a past-tense
++                    # label is exactly the pair that invites "so which is it".
++                    result["duration_note"] = ("provider invocation ended after "
++                                               + _duration(seconds)
++                                               + "; this stage has not ended")
+             # Once this process ended, its deadline no longer limits the stage.
+             provider = {"origin": invocation["started_at"], "deadline_at": invocation["deadline_at"]} if end is None else {}
+         except (ValueError, TypeError, OverflowError):
+@@ -286,7 +331,15 @@ def _stage_line(stage, observed_at, job=None):
+     timing = stage_timing(stage, job, observed_at)
+     held = {
+         "timing": timing,
++        # THE MEASURE AND THE LABELLED LINE ARE TWO KEYS. `running` is the
++        # bare figure for a caller that compares durations; `duration` is what
++        # every shared surface PRINTS, and it is the only one of the two that
++        # says whether the invocation is still in a turn. See
++        # `_INVOCATION_LABELS`.
+         "running": timing["running"],
++        "duration": timing["duration"],
++        "duration_note": timing["duration_note"],
++        "invocation": timing["invocation"],
+         "timeout": timing["timeout"],
+         "stage_id": stage.get("stage_id") or UNKNOWN,
+         "kind": stage.get("kind") or UNKNOWN,
+diff --git a/v12/python/tools/job_viewer.py b/v12/python/tools/job_viewer.py
+index 7985c009..a82b6ed2 100644
+--- a/v12/python/tools/job_viewer.py
++++ b/v12/python/tools/job_viewer.py
+@@ -253,9 +253,22 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
+         lines.append("  Job age " + job_observation.job_age(job, observed_at))
+         for stage in stages:
+             one = _stage_line(stage, observed_at, job)
++            # THE LABEL IS PART OF THE VALUE, because which label is honest
++            # depends on whether the invocation recorded an ending and a fixed
++            # format string cannot ask. See `job_observation._INVOCATION_LABELS`.
++            #
++            # NINETEEN COLUMNS is every spelling the labelled duration has
++            # under a hundred hours -- `running unknown`, `not started`,
++            # `running 45s` and `provider ran 59m59s` -- so the columns after
++            # it do not shift between two stages of the same Job.
+             lines.append(
+-                "  {kind:<16} {state:<16} running {running:<8} "
++                "  {kind:<16} {state:<16} {duration:<19} "
+                 "activity {activity:<8} {stage_id}".format(**one)[:width])
++            # BOUNDED AND ON ITS OWN LINE, for the reason the activity instant
++            # is: it is the sentence a frozen duration under an open stage
++            # owes, and the fixed columns above must keep the stage id.
++            if one["duration_note"]:
++                lines.append("      " + one["duration_note"])
+             # BOUNDED, AND NOT CUT BY THE LINE WIDTH. Both of its parts are
+             # already bounded at their source -- the count by its domain, the
+             # instant by `MAX_INSTANT_TEXT` -- so this cannot be the line that
+@@ -334,30 +347,35 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
+         one = _stage_line(stage, observed_at, job)
+         lines.append("")
+         lines.append("  STAGE " + one["stage_id"] + "  [" + one["state"] + "]")
+-        for label, value in (("work", one["work_id"]),
+-                             ("episode", one["episode"]),
+-                             ("offer", one["offer_id"]),
+-                             ("attempt", one["attempt_id"]),
+-                             ("operation", one["operation"]),
+-                             ("runtime", one["runtime_id"]),
+-                             ("engine", one["execution_runtime"]),
+-                             ("assigned to", one["assignment_participant"]),
+-                             ("assigned work", one["assignment_work"]),
+-                             ("assigned gen", one["assignment_generation"]),
+-                             ("reserved worker", one["allocation_worker"]),
+-                             ("reserved as", one["allocation_participant"]),
+-                             ("reservation", one["allocation_assignment"]),
+-                             ("reservation state", one["allocation_state"]),
+-                             ("lane", one["allocation_lane"]),
+-                             ("pool generation", one["allocation_generation"]),
+-                             ("selection", one["allocation_selection"]),
+-                             ("started", one["started_at"]),
+-                             ("running", one["running"]),
+-                             ("limit", one["timeout"]),
+-                             ("activity", one["activity"]
+-                              + ("" if not one["activity_when"]
+-                                 else " " + one["activity_when"])),
+-                             ("corrections", one["corrections"])):
++        rows = [("work", one["work_id"]),
++                ("episode", one["episode"]),
++                ("offer", one["offer_id"]),
++                ("attempt", one["attempt_id"]),
++                ("operation", one["operation"]),
++                ("runtime", one["runtime_id"]),
++                ("engine", one["execution_runtime"]),
++                ("assigned to", one["assignment_participant"]),
++                ("assigned work", one["assignment_work"]),
++                ("assigned gen", one["assignment_generation"]),
++                ("reserved worker", one["allocation_worker"]),
++                ("reserved as", one["allocation_participant"]),
++                ("reservation", one["allocation_assignment"]),
++                ("reservation state", one["allocation_state"]),
++                ("lane", one["allocation_lane"]),
++                ("pool generation", one["allocation_generation"]),
++                ("selection", one["allocation_selection"]),
++                ("started", one["started_at"]),
++                ("duration", one["duration"])]
++        # THE SENTENCE KEEPS THE DURATION'S COMPANY rather than trailing the
++        # stage, so the figure and what it does not say are read together.
++        if one["duration_note"]:
++            rows.append(("", one["duration_note"]))
++        rows.extend([("limit", one["timeout"]),
++                     ("activity", one["activity"]
++                      + ("" if not one["activity_when"]
++                         else " " + one["activity_when"])),
++                     ("corrections", one["corrections"])])
++        for label, value in rows:
+             lines.append("    {:<12} {}".format(label, value))
+         if one["reason"]:
+             lines.append("    {:<12} {}".format("reason", one["reason"]))
+diff --git a/v12/python/tools/stack.py b/v12/python/tools/stack.py
+index d462982a..3795a682 100644
+--- a/v12/python/tools/stack.py
++++ b/v12/python/tools/stack.py
+@@ -1161,7 +1161,11 @@ def _print_job_outcomes(published, stream):
+             reason = one["reason"]
+             detail = reason.removeprefix("failed: stage ended exceptionally; ").removeprefix("held: ")
+             print("  " + _status_text(stage.get("stage_id") or stage.get("kind")) + ": " + state + ("; " + detail if detail else ""), file=stream)
+-            print("    running " + one["running"] + "; " + one["timeout"], file=stream)
++            # The duration carries its own label: `running` only while the
++            # invocation has recorded no ending. See job_observation.
++            print("    " + one["duration"] + "; " + one["timeout"], file=stream)
++            if one["duration_note"]:
++                print("    " + one["duration_note"], file=stream)
+             print("    attempt " + _status_text(one["attempt_id"]) + "; operation " + one["operation"], file=stream)
+             print("    activity " + one["activity"] + ("; " + one["activity_when"] if one["activity_when"] else ""), file=stream)
+         cancellation = job.get("cancellation")

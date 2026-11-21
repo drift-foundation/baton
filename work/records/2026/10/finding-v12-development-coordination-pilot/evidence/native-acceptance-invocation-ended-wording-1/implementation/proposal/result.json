@@ -1,0 +1,59 @@
+{
+ "base": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+ "changed_paths": [
+  "v12/python/JOB-VIEWER.md",
+  "v12/python/tests/manager/test_exchange.py",
+  "v12/python/tests/tools/test_job_observation.py",
+  "v12/python/tests/tools/test_job_viewer.py",
+  "v12/python/tools/job_observation.py",
+  "v12/python/tools/job_viewer.py",
+  "v12/python/tools/stack.py"
+ ],
+ "collection": {
+  "excluded_ignored": [
+   "handoff/",
+   "v12/python/src/baton_v12/__pycache__/",
+   "v12/python/src/baton_v12/authority/__pycache__/",
+   "v12/python/src/baton_v12/contracts/__pycache__/",
+   "v12/python/src/baton_v12/integration/__pycache__/",
+   "v12/python/src/baton_v12/job_manager/__pycache__/",
+   "v12/python/src/baton_v12/source_profiles/__pycache__/",
+   "v12/python/src/baton_v12/worker_manager/__pycache__/",
+   "v12/python/tools/__pycache__/"
+  ],
+  "excluded_ignored_count": 9,
+  "excluded_special": [],
+  "excluded_special_count": 0,
+  "note": "these worktree paths were present while the task's verification ran and are NOT part of the delivered proposal; whether the verification relied on any of them is the integrator's question, disclosed rather than adjudicated here"
+ },
+ "disposition": "candidate",
+ "entry_head": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+ "head": "65098f4e9bd6762f44da6b0c7eecb24c6564b25e",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "seconds_bound_source": "job-default",
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "invocation-ended-wording-1",
+ "verification": {
+  "argv": [
+   "env",
+   "BATON_V12_STACK_TEST_ROOT=/scratch",
+   "BATON_V12_DISK_ROOT=/scratch",
+   "TMPDIR=/scratch",
+   "PYTHONPATH=v12/python/src:v12/python",
+   "python3",
+   "-m",
+   "unittest",
+   "-v",
+   "tests.manager.test_attempt_failure_cause",
+   "tests.tools.test_attempt_diagnostics",
+   "tests.tools.test_job_observation",
+   "tests.tools.test_job_viewer"
+  ],
+  "status": 0
+ },
+ "why": "the candidate changed the source and its own verification passed"
+}

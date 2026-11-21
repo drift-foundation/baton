@@ -1,0 +1,18 @@
+{
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "seconds_bound_source": "job-default",
+  "status": 0
+ },
+ "report_bytes": 9108,
+ "reviewed": {
+  "base": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+  "head": "65098f4e9bd6762f44da6b0c7eecb24c6564b25e",
+  "tree": "4ba7382ba700488b33dd0af4e100ed85271722c6"
+ },
+ "schema": "baton.review-log/1",
+ "task_id": "invocation-ended-wording-1",
+ "verdict": "accepted",
+ "verification": null
+}

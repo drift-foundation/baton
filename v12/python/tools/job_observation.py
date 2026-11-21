@@ -197,8 +197,35 @@ def job_age(job, observed_at):
     return _duration(_elapsed(origin, None, observed_at))
 
 
+# W385431: HOW A DURATION IS LABELLED, and the single distinction the label
+# carries.
+#
+# THE DEFECT, measured on every shared surface: a provider invocation that had
+# RECORDED ITS OWN END still printed `running 15s`. The worker runs its own
+# verification command AFTER the provider process exits, so that figure is
+# frozen while the stage is genuinely still open -- and the word beside it said
+# two untrue things at once: that a provider turn was in progress, and that the
+# number was current. It got worse with time, exactly as a relative activity
+# age beside a terminal stage does.
+#
+# SO THE LABEL FOLLOWS THE INVOCATION AND NOTHING ELSE. `running` is said only
+# while no ending is recorded; a recorded ending reads `provider ran`, past
+# tense, naming the PROVIDER rather than the stage. Neither phrase says the
+# stage or the Job ended, completed, succeeded or was accepted -- those are
+# other owners' facts, and the state, timeout, reason and activity axes beside
+# this one report them.
+_INVOCATION_LABELS = {"active": "running ", "ended": "provider ran "}
+
+
 def stage_timing(stage, job, observed_at):
-    """Interpret only attributed process facts and original admitted deadlines."""
+    """Interpret only attributed process facts and original admitted deadlines.
+
+    `running`/`running_seconds` are the MEASURE and `duration` is what a
+    surface prints: an active invocation is `running 30s` and a recorded ended
+    one is `provider ran 15s`, which is the same measure with an honest label.
+    `duration_note` is the one sentence an ended invocation under a stage that
+    has NOT ended owes an operator, and `None` everywhere else.
+    """
     state = stage.get("state")
     never = (state in HELD_STATES and not stage.get("runtime") and not stage.get("exchange")
              and not stage.get("receipts")
@@ -208,7 +235,13 @@ def stage_timing(stage, job, observed_at):
               "started_at": None, "ended_at": None, "scope": "provider-process",
               "job_age": job_age(job or {}, observed_at), "deadlines": [],
               "limiting": [], "remaining_seconds": None, "complete": False,
-              "timeout": "timeout unknown", "observed_at": observed_at}
+              "timeout": "timeout unknown", "observed_at": observed_at,
+              # No invocation is attributed until one is, and an unattributed,
+              # malformed, foreign-attempt or future invocation keeps the
+              # qualification it already had rather than gaining a label that
+              # would read as a measurement.
+              "invocation": None, "duration_note": None,
+              "duration": "not started" if never else "running " + UNKNOWN}
     try:
         clock = _instant(observed_at)
     except (ValueError, TypeError, OverflowError):
@@ -226,8 +259,20 @@ def stage_timing(stage, job, observed_at):
                 raise ValueError("invalid invocation chronology")
             if end is not None or state not in TERMINAL_STATES:
                 seconds = (clock if end is None else end) - start
+                recorded = "active" if end is None else "ended"
                 result.update(running=_duration(seconds), running_seconds=seconds,
-                              started_at=invocation["started_at"], ended_at=invocation.get("ended_at"))
+                              started_at=invocation["started_at"], ended_at=invocation.get("ended_at"),
+                              invocation=recorded,
+                              duration=_INVOCATION_LABELS[recorded] + _duration(seconds))
+                if recorded == "ended" and state not in TERMINAL_STATES:
+                    # THE ONE CASE AN OPERATOR CANNOT READ OFF THE OTHER
+                    # COLUMNS: the process ended and the stage did not, so the
+                    # figure is frozen and the stage is still open. Said in
+                    # words, because a non-terminal state beside a past-tense
+                    # label is exactly the pair that invites "so which is it".
+                    result["duration_note"] = ("provider invocation ended after "
+                                               + _duration(seconds)
+                                               + "; this stage has not ended")
             # Once this process ended, its deadline no longer limits the stage.
             provider = {"origin": invocation["started_at"], "deadline_at": invocation["deadline_at"]} if end is None else {}
         except (ValueError, TypeError, OverflowError):
@@ -286,7 +331,15 @@ def _stage_line(stage, observed_at, job=None):
     timing = stage_timing(stage, job, observed_at)
     held = {
         "timing": timing,
+        # THE MEASURE AND THE LABELLED LINE ARE TWO KEYS. `running` is the
+        # bare figure for a caller that compares durations; `duration` is what
+        # every shared surface PRINTS, and it is the only one of the two that
+        # says whether the invocation is still in a turn. See
+        # `_INVOCATION_LABELS`.
         "running": timing["running"],
+        "duration": timing["duration"],
+        "duration_note": timing["duration_note"],
+        "invocation": timing["invocation"],
         "timeout": timing["timeout"],
         "stage_id": stage.get("stage_id") or UNKNOWN,
         "kind": stage.get("kind") or UNKNOWN,

@@ -1,0 +1,66 @@
+{
+ "base": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+ "job": "invocation-ended-wording-1",
+ "native_head": "65098f4e9bd6762f44da6b0c7eecb24c6564b25e",
+ "paths": [
+  {
+   "base_sha256": "7b0ac7c8f1c4d2fe6f596f51738439ed61ff2101be288bd12a1d24baa5623e21",
+   "path": "v12/python/JOB-VIEWER.md",
+   "sha256": "9177a14060848a54aca8ca827642bdb14b375f295aa0bc5dcb021bf8f34b1df9",
+   "source": "native candidate exact (attempt-884fc250\u2026, head 65098f4e\u2026, patch applied to ac17a5ad)",
+   "state": "modified"
+  },
+  {
+   "base_sha256": "eadcd4a89de287bd8ea8fe01d2fc9827242e6a1f9e3728bc573ecf97dabaf60a",
+   "path": "v12/python/tests/manager/test_exchange.py",
+   "sha256": "cc4041ecda17e24dd980da748cd2716123e980d4228f70691c9533def553a274",
+   "source": "native candidate exact (attempt-884fc250\u2026, head 65098f4e\u2026, patch applied to ac17a5ad)",
+   "state": "modified"
+  },
+  {
+   "base_sha256": "6d13d60c56cf0fa6270c16e73f66da75f2b16792914c6fd5ab3c30c54d21ef68",
+   "path": "v12/python/tests/tools/test_job_observation.py",
+   "sha256": "2818e39e6d707471e7795195f5ac4c19f11c479a72613ee7e79ceaadd8ee4183",
+   "source": "native candidate exact (attempt-884fc250\u2026, head 65098f4e\u2026, patch applied to ac17a5ad)",
+   "state": "modified"
+  },
+  {
+   "base_sha256": "876aa5ef33fbdef3671ec35c772e84baf931f940846f72417231527a433cf8ee",
+   "path": "v12/python/tests/tools/test_job_viewer.py",
+   "sha256": "5dbca278377b161c1e554cca8f9bac512d6dd449fae0e52d5d17949fe9204359",
+   "source": "native candidate exact (attempt-884fc250\u2026, head 65098f4e\u2026, patch applied to ac17a5ad)",
+   "state": "modified"
+  },
+  {
+   "base_sha256": "aae42fbc47fe4e8fd6a856bf4b4e59c5e5cdf3da73b9f4f46cb788c5b323eebb",
+   "path": "v12/python/tools/job_observation.py",
+   "sha256": "a78bf16545cea5167357ca7945863b93057c896e1e743ca508dd9c12000cb242",
+   "source": "native candidate exact (attempt-884fc250\u2026, head 65098f4e\u2026, patch applied to ac17a5ad)",
+   "state": "modified"
+  },
+  {
+   "base_sha256": "8aaec44c48e3fde4a0f88b1c7ee7b74d06ce0df25146fc53f16663ecbc9d8cf6",
+   "path": "v12/python/tools/job_viewer.py",
+   "sha256": "c6021572ad130f3ce1e00eba1f69cc4f0ab51b744146e4f4cabc1b798a1c51fc",
+   "source": "native candidate exact (attempt-884fc250\u2026, head 65098f4e\u2026, patch applied to ac17a5ad)",
+   "state": "modified"
+  },
+  {
+   "base_sha256": "3afd8d45d8e5a3b9dc84a39d5d231f146e84620aa269e670d55217c5b0371c98",
+   "path": "v12/python/tools/stack.py",
+   "sha256": "d74753a983fa949408d54704c0db2202d91a7b5443bc80a6167c933eff410026",
+   "source": "native candidate exact (attempt-884fc250\u2026, head 65098f4e\u2026, patch applied to ac17a5ad)",
+   "state": "modified"
+  }
+ ],
+ "proposal": {
+  "change_patch_sha256": "10045d7278dea070d05a52d6e0d9d73b366102070f8efd62c598668e84ff73c1",
+  "objects_bundle_sha256": "e67e5b5b8e300d5189effdb10401fcc81cea03f9d351fbb36d784cf8ad422af7",
+  "result_json_sha256": "827b803c5e75f62164621306c79593d5dc1fd92b0d6e2a1089be1aa2970741af",
+  "sealed_proposal_content_digest": "sha256:61dd6e13e5eda075d"
+ },
+ "schema": "k.native-candidate/1",
+ "state": "native-reviewed-candidate-for-import-recommendation-not-imported",
+ "tree_sha256": "57dfac01727026e6a3093b5fcff286b1c3535bef060854a68642f8a84db9a247",
+ "work": "fd3e8b90-W1 (instance native-handoffs-3)"
+}

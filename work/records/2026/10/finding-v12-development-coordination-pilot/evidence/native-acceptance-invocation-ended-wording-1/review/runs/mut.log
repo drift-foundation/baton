@@ -1,0 +1,348 @@
+EEEEEEEEEEEEEEEEEEEEEEEE.EEEFF.FFFFF...F.
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='no invocation at all')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='a foreign attempt')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='a start in the future')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='a malformed ending')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='an ending before its start')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='an ending after the observation')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='another scope')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='another operation')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='another command')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label) (why='another sequence')
+Every qualification that already answered `unknown` still answers
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 588, in test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD) (expected='running 30s', state='running')
+One interpretation and no second wording. A surface that composed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 628, in test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD
+    self.assertEqual(model.stage_timing(stage, job, NOW)["duration"],
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'duration'
+
+======================================================================
+ERROR: test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD) (expected='provider ran 15s', state='running')
+One interpretation and no second wording. A surface that composed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 628, in test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD
+    self.assertEqual(model.stage_timing(stage, job, NOW)["duration"],
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'duration'
+
+======================================================================
+ERROR: test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD) (expected='provider ran 15s', state='completed')
+One interpretation and no second wording. A surface that composed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 628, in test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD
+    self.assertEqual(model.stage_timing(stage, job, NOW)["duration"],
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'duration'
+
+======================================================================
+ERROR: test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD) (expected='running unknown', state='running')
+One interpretation and no second wording. A surface that composed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 628, in test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD
+    self.assertEqual(model.stage_timing(stage, job, NOW)["duration"],
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'duration'
+
+======================================================================
+ERROR: test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE) (state='completed')
+The stage state and `timeout not applicable (stage ended)` already
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 545, in test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE
+    self.assertEqual(view["invocation"], "ended")
+                     ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE) (state='exceptional')
+The stage state and `timeout not applicable (stage ended)` already
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 545, in test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE
+    self.assertEqual(view["invocation"], "ended")
+                     ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE) (state='changes-requested')
+The stage state and `timeout not applicable (stage ended)` already
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 545, in test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE
+    self.assertEqual(view["invocation"], "ended")
+                     ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_a_TERMINAL_stage_with_NO_RECORDED_END_stays_unknown (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_a_TERMINAL_stage_with_NO_RECORDED_END_stays_unknown)
+A terminal stage whose invocation never recorded an ending has no
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 561, in test_a_TERMINAL_stage_with_NO_RECORDED_END_stays_unknown
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_a_stage_that_NEVER_STARTED_still_says_NOT_STARTED (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_a_stage_that_NEVER_STARTED_still_says_NOT_STARTED)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 607, in test_a_stage_that_NEVER_STARTED_still_says_NOT_STARTED
+    self.assertIsNone(view["invocation"])
+                      ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_an_ACTIVE_invocation_keeps_RUNNING_and_a_FIGURE_THAT_MOVES (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_an_ACTIVE_invocation_keeps_RUNNING_and_a_FIGURE_THAT_MOVES)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 459, in test_an_ACTIVE_invocation_keeps_RUNNING_and_a_FIGURE_THAT_MOVES
+    self.assertEqual(view["invocation"], "active")
+                     ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere) (state='running')
+The measured defect, across the states a stage is in while the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 487, in test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere
+    self.assertEqual(view["invocation"], "ended")
+                     ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere) (state='reviewing')
+The measured defect, across the states a stage is in while the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 487, in test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere
+    self.assertEqual(view["invocation"], "ended")
+                     ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere) (state='integrating')
+The measured defect, across the states a stage is in while the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 487, in test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere
+    self.assertEqual(view["invocation"], "ended")
+                     ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere) (state='answering')
+The measured defect, across the states a stage is in while the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 487, in test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere
+    self.assertEqual(view["invocation"], "ended")
+                     ~~~~^^^^^^^^^^^^^^
+KeyError: 'invocation'
+
+======================================================================
+ERROR: test_the_FROZEN_figure_does_not_grow_while_nothing_runs (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_the_FROZEN_figure_does_not_grow_while_nothing_runs) (observed='2026-11-19T18:00:00.000Z')
+The reason the word mattered. An ended invocation's figure is the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 515, in test_the_FROZEN_figure_does_not_grow_while_nothing_runs
+    self.assertEqual(view["duration"], "provider ran 15s")
+                     ~~~~^^^^^^^^^^^^
+KeyError: 'duration'
+
+======================================================================
+ERROR: test_the_FROZEN_figure_does_not_grow_while_nothing_runs (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_the_FROZEN_figure_does_not_grow_while_nothing_runs) (observed='2026-11-19T18:05:00.000Z')
+The reason the word mattered. An ended invocation's figure is the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 515, in test_the_FROZEN_figure_does_not_grow_while_nothing_runs
+    self.assertEqual(view["duration"], "provider ran 15s")
+                     ~~~~^^^^^^^^^^^^
+KeyError: 'duration'
+
+======================================================================
+ERROR: test_the_FROZEN_figure_does_not_grow_while_nothing_runs (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_the_FROZEN_figure_does_not_grow_while_nothing_runs) (observed='2026-11-20T18:00:00.000Z')
+The reason the word mattered. An ended invocation's figure is the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 515, in test_the_FROZEN_figure_does_not_grow_while_nothing_runs
+    self.assertEqual(view["duration"], "provider ran 15s")
+                     ~~~~^^^^^^^^^^^^
+KeyError: 'duration'
+
+======================================================================
+FAIL: test_the_LIST_COLUMNS_keep_the_STAGE_ID_and_the_BANNER_its_AGE (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_the_LIST_COLUMNS_keep_the_STAGE_ID_and_the_BANNER_its_AGE)
+Review R1's rule, held for the sentence this correction adds: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 645, in test_the_LIST_COLUMNS_keep_the_STAGE_ID_and_the_BANNER_its_AGE
+    self.assertEqual(rendered.count("provider ran 15s"), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_the_WORKER_DECLARED_CAUSE_still_reaches_an_OPEN_stage_line (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_the_WORKER_DECLARED_CAUSE_still_reaches_an_OPEN_stage_line)
+The axes do not displace each other. A stage whose provider
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_observation.py", line 674, in test_the_WORKER_DECLARED_CAUSE_still_reaches_an_OPEN_stage_line
+    self.assertIn("provider ran 15s", rendered)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider ran 15s' not found in 'Jobs (fresh, canonical):\nJob job-a: FAILED\n  Job age 1h00m\n  implementation: exceptional; worker declared unable: its own verification command failed; verification ended 1\n    running 15s; timeout not applicable (stage ended)\n    attempt new-attempt; operation work dispatched (reported; attempt association unverified)\n    activity unknown\n'
+
+======================================================================
+FAIL: test_a_LIVE_invocation_is_the_only_one_called_running (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_a_LIVE_invocation_is_the_only_one_called_running)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_viewer.py", line 1190, in test_a_LIVE_invocation_is_the_only_one_called_running
+    self.assertRegex(detail, r"duration\s+running 30s")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'duration\\s+running 30s' not found in 'observed at 2026-09-02T00:00:00.000Z   (age unknown, read 0s ago)   [the manager was NOT read: absences here mean nobody looked]\n\nJOB job-a   IN PROGRESS\n  submission   sub-1\n  input        sha256:1111111111111111111111111111111111111111111111111111111111111111\n  policy       sha256:2222222222222222222222222222222222222222222222222222222222222222\n  terminal     report-and-hold\n  Job age 0s\n\n  STAGE job-a/implementation  [running]\n    work         0000000a-W1\n    episode      1\n    offer        offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1\n    attempt      attempt-1\n    operation    unknown\n    runtime      unknown\n    engine       unknown\n    assigned to  unknown\n    assigned work unknown\n    assigned gen unknown\n    reserved worker unknown\n    reserved as  unknown\n    reservation  unknown\n    reservation state unknown\n    lane         unknown\n    pool generation unknown\n    selection    unknown\n    started      2026-09-01T23:59:30.000Z\n    running      30s\n    limit        provider timeout in 1m00s; Job/stage timing unknown (earliest known only)\n    activity     unknown\n    corrections  0\n    results      unavailable (no frozen output in this snapshot)\n\n  STAGE job-a/review  [blocked]\n    work         0000000a-W2\n    episode      1\n    offer        offer-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7\n    attempt      attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7\n    operation    unknown\n    runtime      unknown\n    engine       unknown\n    assigned to  unknown\n    assigned work unknown\n    assigned gen unknown\n    reserved worker unknown\n    reserved as  unknown\n    reservation  unknown\n    reservation state unknown\n    lane         unknown\n    pool generation unknown\n    selection    unknown\n    started      unknown\n    running      not started\n    limit        timeout unknown\n    activity     unknown\n    corrections  0\n    reason       held: waiting on job-a/implementation (queued)\n    results      unavailable (no frozen output in this snapshot)'
+
+======================================================================
+FAIL: test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note) (state='completed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_viewer.py", line 1223, in test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note
+    self.assertIn("provider ran 15s", mine(listed.splitlines()))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider ran 15s' not found in '  implementation   completed        running 15s      activity unknown  job-a/implementation\n      timeout not applicable (stage ended)\n      attempt attempt-1\n      operation unknown'
+
+======================================================================
+FAIL: test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note) (state='exceptional')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_viewer.py", line 1223, in test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note
+    self.assertIn("provider ran 15s", mine(listed.splitlines()))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider ran 15s' not found in '  implementation   exceptional      running 15s      activity unknown  job-a/implementation\n      timeout not applicable (stage ended)\n      attempt attempt-1\n      operation unknown\n      failed: stage ended exceptionally; cause unknown'
+
+======================================================================
+FAIL: test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note) (state='changes-requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_viewer.py", line 1223, in test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note
+    self.assertIn("provider ran 15s", mine(listed.splitlines()))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider ran 15s' not found in '  implementation   changes-requested running 15s      activity unknown  job-a/implementation\n      timeout not applicable (stage ended)\n      attempt attempt-1\n      operation unknown\n      operator action: changes requested'
+
+======================================================================
+FAIL: test_an_ENDED_invocation_under_an_OPEN_stage_is_PAST_TENSE (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_an_ENDED_invocation_under_an_OPEN_stage_is_PAST_TENSE)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/tools/test_job_viewer.py", line 1197, in test_an_ENDED_invocation_under_an_OPEN_stage_is_PAST_TENSE
+    self.assertIn("provider ran 15s", row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider ran 15s' not found in '  implementation   running          running 15s      activity unknown  job-a/implementation\n      timeout unknown\n      attempt attempt-1\n      operation unknown'
+
+======================================================================
+FAIL: test_real_publisher_ended_invocation_is_not_reported_as_running (tests.manager.test_exchange.InvocationTiming.test_real_publisher_ended_invocation_is_not_reported_as_running)
+W385431, from the producer rather than from a fixture: the worker
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/scratch/base/v12/python/tests/manager/test_exchange.py", line 3567, in test_real_publisher_ended_invocation_is_not_reported_as_running
+    self.assertIn("provider ran 8s",rendered)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider ran 8s' not found in 'Jobs (fresh, canonical):\nJob job-a: IN PROGRESS\n  Job age 12s\n  implementation: running\n    running 8s; stage timeout in 3m48s\n    attempt attempt-1; operation work dispatched (reported; attempt association unverified)\n    activity unknown\n'
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.086s
+
+FAILED (failures=8, errors=27)

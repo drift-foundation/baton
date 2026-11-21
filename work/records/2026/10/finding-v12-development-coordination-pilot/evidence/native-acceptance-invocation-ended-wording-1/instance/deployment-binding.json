@@ -1,0 +1,42 @@
+{
+ "job_bindings": [
+  {
+   "canonical_target_id": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+   "job_id": "invocation-ended-wording-1",
+   "job_work_id": "fd3e8b90-W1",
+   "line_declared_base": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+   "review_work_id": "fd3e8b90-W1",
+   "source_worker_id": "impl-a"
+  }
+ ],
+ "workers": [
+  {
+   "worker_id": "impl-a",
+   "participant": "baton.claude-native",
+   "image_digest": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4",
+   "outputs": [
+    "proposal",
+    "findings",
+    "logs",
+    "handoff",
+    "response"
+   ],
+   "role_instructions_digest": "sha256:03d28f918747b6f71a741cee12ecf9996f84e384769cdd95a3d25e51e79f210d"
+  },
+  {
+   "worker_id": "review-a",
+   "participant": "baton.reviewer-native",
+   "image_digest": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4",
+   "outputs": [
+    "proposal",
+    "findings",
+    "logs",
+    "handoff",
+    "response"
+   ],
+   "role_instructions_digest": "sha256:01569b952e932dcac09f58e3d4733b7db747ff6d7c9dee2d4167d61ad2b6e2d8"
+  }
+ ],
+ "line_declared_base": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+ "canonical_target_id": "ac17a5add7a58fcd845a8eee7485a633ef917de3"
+}

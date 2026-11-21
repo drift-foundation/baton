@@ -1161,7 +1161,11 @@ def _print_job_outcomes(published, stream):
             reason = one["reason"]
             detail = reason.removeprefix("failed: stage ended exceptionally; ").removeprefix("held: ")
             print("  " + _status_text(stage.get("stage_id") or stage.get("kind")) + ": " + state + ("; " + detail if detail else ""), file=stream)
-            print("    running " + one["running"] + "; " + one["timeout"], file=stream)
+            # The duration carries its own label: `running` only while the
+            # invocation has recorded no ending. See job_observation.
+            print("    " + one["duration"] + "; " + one["timeout"], file=stream)
+            if one["duration_note"]:
+                print("    " + one["duration_note"], file=stream)
             print("    attempt " + _status_text(one["attempt_id"]) + "; operation " + one["operation"], file=stream)
             print("    activity " + one["activity"] + ("; " + one["activity_when"] if one["activity_when"] else ""), file=stream)
         cancellation = job.get("cancellation")

@@ -1,0 +1,876 @@
+{
+  "deployment_obligation": "tools/stack_command.COMMANDS serves 'attempt-diagnostics' in source; an installed bundle must be rebuilt before the deployed command carries it, and this report rebuilds nothing",
+  "freshness_verdict": null,
+  "freshness_why": "no freshness policy has been selected for these facts, so this report states instants and declines to judge them",
+  "is_acceptance": false,
+  "opens_no_store": true,
+  "reads": "one status document, through tools/job_viewer.read_snapshot",
+  "reads_diagnostics": "baton.v12.attempt-failure-cause/1",
+  "rows": [
+    {
+      "absent_records": [
+        "attempt.cessation-*:expiry-reclaim",
+        "attempt.cessation-*:settlement",
+        "attempt.cessation-*:cancellation",
+        "resource-token.revoked:workspace:66306:1743270:1",
+        "runtime.start-failed",
+        "runtime.preparation-failed"
+      ],
+      "axes": {
+        "completion": {
+          "known": true,
+          "source": "diagnostics",
+          "value": true
+        },
+        "domain": {
+          "known": true,
+          "source": "diagnostics",
+          "value": "workspace:66306:1743270"
+        },
+        "generation": {
+          "known": true,
+          "source": "diagnostics",
+          "value": 1
+        },
+        "lifetime_seconds": {
+          "known": true,
+          "source": "diagnostics",
+          "value": 900
+        },
+        "preparation_failure_recorded": {
+          "known": true,
+          "source": "diagnostics",
+          "value": false
+        },
+        "preparation_failure_runtime_id": {
+          "known": false,
+          "value": null,
+          "why": "preparation_failure_runtime_id was not established by the diagnostic producer"
+        },
+        "renewal_limit": {
+          "known": true,
+          "source": "diagnostics",
+          "value": 4
+        },
+        "revocation": {
+          "known": false,
+          "value": null,
+          "why": "revocation was not established by the diagnostic producer"
+        },
+        "revoked_container": {
+          "known": false,
+          "value": null,
+          "why": "revoked_container was not established by the diagnostic producer"
+        },
+        "revoked_expired_at": {
+          "known": false,
+          "value": null,
+          "why": "revoked_expired_at was not established by the diagnostic producer"
+        },
+        "revoked_owner": {
+          "known": false,
+          "value": null,
+          "why": "revoked_owner was not established by the diagnostic producer"
+        },
+        "start_failure_recorded": {
+          "known": true,
+          "source": "diagnostics",
+          "value": false
+        },
+        "start_failure_runtime_id": {
+          "known": false,
+          "value": null,
+          "why": "start_failure_runtime_id was not established by the diagnostic producer"
+        }
+      },
+      "cause": null,
+      "completeness": {
+        "is_acceptance": false,
+        "missing": [
+          "cause"
+        ],
+        "proves_cessation": false,
+        "state": "incomplete",
+        "why": "this diagnostic records no component having ordered a cessation for this attempt; which component ended it, if any did, is unknown, and an absent record is not proof that nothing happened"
+      },
+      "diagnostic_degradation": {
+        "known": false,
+        "value": null,
+        "why": "no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded"
+      },
+      "diagnostics_unavailable": null,
+      "execution": {
+        "activity_at": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "2026-11-21T17:08:43.790Z"
+        },
+        "activity_bytes": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": 1208421
+        },
+        "cleanup": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "retained"
+        },
+        "execution_runtime": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "destroyed"
+        },
+        "observed_at": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "2026-11-21T17:08:54.424Z"
+        },
+        "runtime_id": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "3504acf97eb397c123af1ff6a2da7c45e18fe0ec952b5f8d2a60a5bf06163e79"
+        },
+        "token_bound_runtime_id": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "3504acf97eb397c123af1ff6a2da7c45e18fe0ec952b5f8d2a60a5bf06163e79"
+        }
+      },
+      "execution_limits": {
+        "boundaries": {
+          "host_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 300
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "compatibility"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 300
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "integration_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 1800
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "compatibility"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 1800
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "ordinary_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "compatibility"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "provider_turn": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 3600
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "compatibility"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 3600
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "provider_turn_seconds"
+            }
+          }
+        },
+        "envelope": {
+          "compatibility_generation": {
+            "known": true,
+            "source": "status",
+            "value": 1
+          },
+          "scope": {
+            "known": true,
+            "source": "status",
+            "value": "per-invocation"
+          },
+          "units": {
+            "known": true,
+            "source": "status",
+            "value": "seconds"
+          }
+        },
+        "requested": {
+          "provider_turn_seconds": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry provider_turn_seconds"
+          },
+          "verification_command_seconds": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry verification_command_seconds"
+          }
+        },
+        "unrecognised": [],
+        "why": null
+      },
+      "locators": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97"
+        },
+        "recorded_artifacts": {
+          "known": true,
+          "source": "status.artifacts",
+          "value": []
+        },
+        "supported_read": {
+          "command": "baton-v12-stack logs --logs <launch-home>/logs --attempt <attempt-id> locators",
+          "operator_must_supply": "<launch-home>",
+          "why": "the delivery root is a deployment fact and this report resolves no deployment document; a report that did would be a reader that can be pointed at a store"
+        },
+        "workspace_object": {
+          "device": {
+            "known": true,
+            "source": "diagnostics",
+            "value": 66306
+          },
+          "inode": {
+            "known": true,
+            "source": "diagnostics",
+            "value": 1743270
+          },
+          "is_a_locator": false,
+          "is_a_path": false,
+          "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+        }
+      },
+      "stage": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97"
+        },
+        "episode": {
+          "known": true,
+          "source": "status",
+          "value": 1
+        },
+        "job_id": {
+          "known": true,
+          "source": "status",
+          "value": "invocation-ended-wording-1"
+        },
+        "kind": {
+          "known": true,
+          "source": "status",
+          "value": "implementation"
+        },
+        "stage_id": {
+          "known": true,
+          "source": "status",
+          "value": "invocation-ended-wording-1/implementation"
+        },
+        "state": {
+          "known": true,
+          "source": "status",
+          "value": "completed"
+        }
+      },
+      "token": {
+        "acquired_expires_at": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "2026-11-21T18:45:36.363Z"
+        },
+        "activating": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": false
+        },
+        "container": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "3504acf97eb397c123af1ff6a2da7c45e18fe0ec952b5f8d2a60a5bf06163e79"
+        },
+        "expired": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": true
+        },
+        "expires_at": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "2026-11-21T18:45:36.363Z"
+        },
+        "expiry_judged_at": {
+          "known": false,
+          "value": null,
+          "why": "expiry_judged_at was not established by the diagnostic producer"
+        },
+        "launch": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "runtime.start:ee378de0313c6cd026808108b63d98df4352f703aa8a4257308f3988e4c940d6"
+        },
+        "owner": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "6362891f84b20d7c000a5fd7dcf73f10504244ca2ae254356817a8ec4d6da14a"
+        },
+        "renewals": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": 0
+        },
+        "renewals_remaining": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": 4
+        },
+        "renewed_at": {
+          "known": false,
+          "value": null,
+          "why": "renewed_at was not established by the diagnostic producer"
+        },
+        "returned": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": true
+        }
+      },
+      "unknown_why": "no durable cause was established for this attempt",
+      "unrecognised": [],
+      "worker_declaration": {
+        "declared_ending": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": "candidate"
+        },
+        "disposition": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": "completed"
+        },
+        "failure_reason": {
+          "known": false,
+          "value": null,
+          "why": "failure_reason was not established by the diagnostic producer"
+        },
+        "frozen_at": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": "2026-11-21T17:08:54.195Z"
+        },
+        "result_id": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": "result-attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97"
+        },
+        "seconds_bound": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": 3600
+        },
+        "seconds_bound_source": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": "job-default"
+        },
+        "verification_attempted": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": true
+        },
+        "verification_status": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": 0
+        }
+      }
+    },
+    {
+      "absent_records": [
+        "attempt.cessation-*:expiry-reclaim",
+        "attempt.cessation-*:settlement",
+        "attempt.cessation-*:cancellation",
+        "resource-token.revoked:workspace:66306:2003497:1",
+        "runtime.start-failed",
+        "runtime.preparation-failed"
+      ],
+      "axes": {
+        "completion": {
+          "known": true,
+          "source": "diagnostics",
+          "value": true
+        },
+        "domain": {
+          "known": true,
+          "source": "diagnostics",
+          "value": "workspace:66306:2003497"
+        },
+        "generation": {
+          "known": true,
+          "source": "diagnostics",
+          "value": 1
+        },
+        "lifetime_seconds": {
+          "known": true,
+          "source": "diagnostics",
+          "value": 900
+        },
+        "preparation_failure_recorded": {
+          "known": true,
+          "source": "diagnostics",
+          "value": false
+        },
+        "preparation_failure_runtime_id": {
+          "known": false,
+          "value": null,
+          "why": "preparation_failure_runtime_id was not established by the diagnostic producer"
+        },
+        "renewal_limit": {
+          "known": true,
+          "source": "diagnostics",
+          "value": 4
+        },
+        "revocation": {
+          "known": false,
+          "value": null,
+          "why": "revocation was not established by the diagnostic producer"
+        },
+        "revoked_container": {
+          "known": false,
+          "value": null,
+          "why": "revoked_container was not established by the diagnostic producer"
+        },
+        "revoked_expired_at": {
+          "known": false,
+          "value": null,
+          "why": "revoked_expired_at was not established by the diagnostic producer"
+        },
+        "revoked_owner": {
+          "known": false,
+          "value": null,
+          "why": "revoked_owner was not established by the diagnostic producer"
+        },
+        "start_failure_recorded": {
+          "known": true,
+          "source": "diagnostics",
+          "value": false
+        },
+        "start_failure_runtime_id": {
+          "known": false,
+          "value": null,
+          "why": "start_failure_runtime_id was not established by the diagnostic producer"
+        }
+      },
+      "cause": null,
+      "completeness": {
+        "is_acceptance": false,
+        "missing": [
+          "cause"
+        ],
+        "proves_cessation": false,
+        "state": "incomplete",
+        "why": "this diagnostic records no component having ordered a cessation for this attempt; which component ended it, if any did, is unknown, and an absent record is not proof that nothing happened"
+      },
+      "diagnostic_degradation": {
+        "known": false,
+        "value": null,
+        "why": "no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded"
+      },
+      "diagnostics_unavailable": null,
+      "execution": {
+        "activity_at": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "2026-11-21T17:15:26.158Z"
+        },
+        "activity_bytes": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": 471947
+        },
+        "cleanup": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "retained"
+        },
+        "execution_runtime": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "destroyed"
+        },
+        "observed_at": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "2026-11-21T17:15:36.744Z"
+        },
+        "runtime_id": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "1dc73f7dc75ee427faf0ac0117cfc4761880c3bc3677f609f8ef5de5187e27ab"
+        },
+        "token_bound_runtime_id": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "1dc73f7dc75ee427faf0ac0117cfc4761880c3bc3677f609f8ef5de5187e27ab"
+        }
+      },
+      "execution_limits": {
+        "boundaries": {
+          "host_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 300
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "compatibility"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 300
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "integration_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 1800
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "compatibility"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 1800
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "ordinary_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "compatibility"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "provider_turn": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 3600
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "compatibility"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 3600
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "provider_turn_seconds"
+            }
+          }
+        },
+        "envelope": {
+          "compatibility_generation": {
+            "known": true,
+            "source": "status",
+            "value": 1
+          },
+          "scope": {
+            "known": true,
+            "source": "status",
+            "value": "per-invocation"
+          },
+          "units": {
+            "known": true,
+            "source": "status",
+            "value": "seconds"
+          }
+        },
+        "requested": {
+          "provider_turn_seconds": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry provider_turn_seconds"
+          },
+          "verification_command_seconds": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry verification_command_seconds"
+          }
+        },
+        "unrecognised": [],
+        "why": null
+      },
+      "locators": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29"
+        },
+        "recorded_artifacts": {
+          "known": true,
+          "source": "status.artifacts",
+          "value": []
+        },
+        "supported_read": {
+          "command": "baton-v12-stack logs --logs <launch-home>/logs --attempt <attempt-id> locators",
+          "operator_must_supply": "<launch-home>",
+          "why": "the delivery root is a deployment fact and this report resolves no deployment document; a report that did would be a reader that can be pointed at a store"
+        },
+        "workspace_object": {
+          "device": {
+            "known": true,
+            "source": "diagnostics",
+            "value": 66306
+          },
+          "inode": {
+            "known": true,
+            "source": "diagnostics",
+            "value": 2003497
+          },
+          "is_a_locator": false,
+          "is_a_path": false,
+          "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+        }
+      },
+      "stage": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29"
+        },
+        "episode": {
+          "known": true,
+          "source": "status",
+          "value": 1
+        },
+        "job_id": {
+          "known": true,
+          "source": "status",
+          "value": "invocation-ended-wording-1"
+        },
+        "kind": {
+          "known": true,
+          "source": "status",
+          "value": "review"
+        },
+        "stage_id": {
+          "known": true,
+          "source": "status",
+          "value": "invocation-ended-wording-1/review"
+        },
+        "state": {
+          "known": true,
+          "source": "status",
+          "value": "completed"
+        }
+      },
+      "token": {
+        "acquired_expires_at": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "2026-11-21T19:11:04.798Z"
+        },
+        "activating": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": false
+        },
+        "container": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "1dc73f7dc75ee427faf0ac0117cfc4761880c3bc3677f609f8ef5de5187e27ab"
+        },
+        "expired": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": true
+        },
+        "expires_at": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "2026-11-21T19:11:04.798Z"
+        },
+        "expiry_judged_at": {
+          "known": false,
+          "value": null,
+          "why": "expiry_judged_at was not established by the diagnostic producer"
+        },
+        "launch": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "runtime.start:d608684bb7c6c159f11915c400760678aafb9fb30686d1cc94c3296dd7e6fbee"
+        },
+        "owner": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "a6b64813036115cb6747a669d9fca24f2c5466e417eb66c14f27c0aec82d06f9"
+        },
+        "renewals": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": 0
+        },
+        "renewals_remaining": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": 4
+        },
+        "renewed_at": {
+          "known": false,
+          "value": null,
+          "why": "renewed_at was not established by the diagnostic producer"
+        },
+        "returned": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": true
+        }
+      },
+      "unknown_why": "no durable cause was established for this attempt",
+      "unrecognised": [],
+      "worker_declaration": {
+        "declared_ending": {
+          "known": false,
+          "value": null,
+          "why": "declared_ending was not established by the diagnostic producer"
+        },
+        "disposition": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": "completed"
+        },
+        "failure_reason": {
+          "known": false,
+          "value": null,
+          "why": "failure_reason was not established by the diagnostic producer"
+        },
+        "frozen_at": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": "2026-11-21T17:15:36.607Z"
+        },
+        "result_id": {
+          "known": true,
+          "source": "diagnostics.worker_declaration",
+          "value": "result-attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29"
+        },
+        "seconds_bound": {
+          "known": false,
+          "value": null,
+          "why": "seconds_bound was not established by the diagnostic producer"
+        },
+        "seconds_bound_source": {
+          "known": false,
+          "value": null,
+          "why": "seconds_bound_source was not established by the diagnostic producer"
+        },
+        "verification_attempted": {
+          "known": false,
+          "value": null,
+          "why": "verification_attempted was not established by the diagnostic producer"
+        },
+        "verification_status": {
+          "known": false,
+          "value": null,
+          "why": "verification_status was not established by the diagnostic producer"
+        }
+      }
+    }
+  ],
+  "schema": "baton.v12.attempt-diagnostics/1",
+  "source_observed_at": {
+    "observed_at": {
+      "known": true,
+      "source": "status",
+      "value": "2026-11-21T19:44:55.450Z"
+    }
+  },
+  "source_time_why": "`source_observed_at` is when the status document was composed; a row's `execution.observed_at` is when its runtime was last looked at and `execution.activity_at` is when its stream last moved. Different facts, and no freshness verdict is derived from any of them. A cause carries NO instant of its own in this report"
+}

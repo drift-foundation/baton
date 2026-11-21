@@ -1,0 +1,7 @@
+v12/python/JOB-VIEWER.md
+v12/python/tests/manager/test_exchange.py
+v12/python/tests/tools/test_job_observation.py
+v12/python/tests/tools/test_job_viewer.py
+v12/python/tools/job_observation.py
+v12/python/tools/job_viewer.py
+v12/python/tools/stack.py

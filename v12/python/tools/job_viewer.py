@@ -253,9 +253,22 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
         lines.append("  Job age " + job_observation.job_age(job, observed_at))
         for stage in stages:
             one = _stage_line(stage, observed_at, job)
+            # THE LABEL IS PART OF THE VALUE, because which label is honest
+            # depends on whether the invocation recorded an ending and a fixed
+            # format string cannot ask. See `job_observation._INVOCATION_LABELS`.
+            #
+            # NINETEEN COLUMNS is every spelling the labelled duration has
+            # under a hundred hours -- `running unknown`, `not started`,
+            # `running 45s` and `provider ran 59m59s` -- so the columns after
+            # it do not shift between two stages of the same Job.
             lines.append(
-                "  {kind:<16} {state:<16} running {running:<8} "
+                "  {kind:<16} {state:<16} {duration:<19} "
                 "activity {activity:<8} {stage_id}".format(**one)[:width])
+            # BOUNDED AND ON ITS OWN LINE, for the reason the activity instant
+            # is: it is the sentence a frozen duration under an open stage
+            # owes, and the fixed columns above must keep the stage id.
+            if one["duration_note"]:
+                lines.append("      " + one["duration_note"])
             # BOUNDED, AND NOT CUT BY THE LINE WIDTH. Both of its parts are
             # already bounded at their source -- the count by its domain, the
             # instant by `MAX_INSTANT_TEXT` -- so this cannot be the line that
@@ -334,30 +347,35 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
         one = _stage_line(stage, observed_at, job)
         lines.append("")
         lines.append("  STAGE " + one["stage_id"] + "  [" + one["state"] + "]")
-        for label, value in (("work", one["work_id"]),
-                             ("episode", one["episode"]),
-                             ("offer", one["offer_id"]),
-                             ("attempt", one["attempt_id"]),
-                             ("operation", one["operation"]),
-                             ("runtime", one["runtime_id"]),
-                             ("engine", one["execution_runtime"]),
-                             ("assigned to", one["assignment_participant"]),
-                             ("assigned work", one["assignment_work"]),
-                             ("assigned gen", one["assignment_generation"]),
-                             ("reserved worker", one["allocation_worker"]),
-                             ("reserved as", one["allocation_participant"]),
-                             ("reservation", one["allocation_assignment"]),
-                             ("reservation state", one["allocation_state"]),
-                             ("lane", one["allocation_lane"]),
-                             ("pool generation", one["allocation_generation"]),
-                             ("selection", one["allocation_selection"]),
-                             ("started", one["started_at"]),
-                             ("running", one["running"]),
-                             ("limit", one["timeout"]),
-                             ("activity", one["activity"]
-                              + ("" if not one["activity_when"]
-                                 else " " + one["activity_when"])),
-                             ("corrections", one["corrections"])):
+        rows = [("work", one["work_id"]),
+                ("episode", one["episode"]),
+                ("offer", one["offer_id"]),
+                ("attempt", one["attempt_id"]),
+                ("operation", one["operation"]),
+                ("runtime", one["runtime_id"]),
+                ("engine", one["execution_runtime"]),
+                ("assigned to", one["assignment_participant"]),
+                ("assigned work", one["assignment_work"]),
+                ("assigned gen", one["assignment_generation"]),
+                ("reserved worker", one["allocation_worker"]),
+                ("reserved as", one["allocation_participant"]),
+                ("reservation", one["allocation_assignment"]),
+                ("reservation state", one["allocation_state"]),
+                ("lane", one["allocation_lane"]),
+                ("pool generation", one["allocation_generation"]),
+                ("selection", one["allocation_selection"]),
+                ("started", one["started_at"]),
+                ("duration", one["duration"])]
+        # THE SENTENCE KEEPS THE DURATION'S COMPANY rather than trailing the
+        # stage, so the figure and what it does not say are read together.
+        if one["duration_note"]:
+            rows.append(("", one["duration_note"]))
+        rows.extend([("limit", one["timeout"]),
+                     ("activity", one["activity"]
+                      + ("" if not one["activity_when"]
+                         else " " + one["activity_when"])),
+                     ("corrections", one["corrections"])])
+        for label, value in rows:
             lines.append("    {:<12} {}".format(label, value))
         if one["reason"]:
             lines.append("    {:<12} {}".format("reason", one["reason"]))

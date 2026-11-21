@@ -1,0 +1,43 @@
+{
+  "authority_uuid": "fd3e8b904bda4bf088bebda0082cf8b7",
+  "command": "/home/sl/baton-instances/native-handoffs-3/distro/baton-v12-stack",
+  "control_store": "/home/sl/baton-instances/native-handoffs-3/db/control.sqlite3",
+  "deployment": "/home/sl/baton-instances/native-handoffs-3/deployment.json",
+  "destination": "/home/sl/baton-instances/native-handoffs-3",
+  "identity": {
+    "build_stamp": {
+      "changed_entries": 64,
+      "commit": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+      "detail": null,
+      "dirty": true,
+      "excused_build_output": 0,
+      "schema": "baton.v12.build-stamp/1",
+      "source": "/home/sl/src/baton"
+    },
+    "command": "baton-v12-stack",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "frozen": true,
+    "machine": "x86_64",
+    "native_rpds": "/home/sl/src/baton/v12/python/build/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+    "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+    "python": "3.13.7",
+    "resources": "/home/sl/src/baton/v12/python/build/out/distro/_internal",
+    "schema_assets": {
+      "agent-session-1.0": 48212,
+      "input-manifest-template": 2990,
+      "worker-control-1.0": 51419
+    },
+    "sha256": "601ef8dff39522765a52a3dafaa8e23a94547735f1c3ef910627e89da8b85b12",
+    "version": "12.0.0"
+  },
+  "job_store": "/home/sl/baton-instances/native-handoffs-3/db/jobs.sqlite3",
+  "logs": "/home/sl/baton-instances/native-handoffs-3/logs",
+  "prepared_at": null,
+  "repository": "/home/sl/baton-instances/native-handoffs-3/repo",
+  "runtime": {
+    "digest": "54b8d9ea1af2393b0c031806e56ad2da5d31a97f40b8d3dab676af0caccc2533",
+    "files": 82
+  },
+  "schema": "baton.v12.stack-instance/1",
+  "state": "/home/sl/baton-instances/native-handoffs-3/state"
+}

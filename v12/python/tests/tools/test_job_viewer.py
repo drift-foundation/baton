@@ -1138,6 +1138,106 @@ if __name__ == "__main__":                                  # pragma: no cover
     unittest.main()
 
 
+class TheDurationSaysWhetherItIsStillRunning(ViewerCase):
+    """W385431 -- the provider duration, rendered for what it is.
+
+    THE DEFECT: the worker records the provider PROCESS's own `ended_at` when
+    that process exits and only then runs its verification command, so the
+    duration stops moving while the stage is still open -- and both the list
+    row and the detail row said `running 15s`. A frozen figure under a live
+    word, getting more convincing as the clock moved.
+
+    THE DOCUMENT IS THE REAL ONE and the stage members are set on it, exactly
+    as the activity cases above do: this is about what the RENDERER does with
+    a published exchange, and the exchange reader's own correlation rules are
+    held by `tests/manager/test_exchange.py` against the real publisher.
+    """
+
+    ATTEMPT = "attempt-1"
+    STARTED = 30.0
+    SEQUENCE = "sequence-1"
+    DIGEST = "sha256:" + "c" * 64
+
+    def observed(self, *, state="running", ended=None, **spoiled):
+        """One status document whose first stage carries an invocation."""
+        document = self.document()
+        stage = document["jobs"][0]["stages"][0]
+        stage["state"] = state
+        stage["attempt_id"] = self.ATTEMPT
+        invocation = {"attempt_id": self.ATTEMPT, "operation": "work",
+                      "scope": "provider-process", "sequence_id": self.SEQUENCE,
+                      "command_digest": self.DIGEST,
+                      "started_at": _stamp(_epoch(NOW) - self.STARTED),
+                      "deadline_at": _stamp(_epoch(NOW) + 60.0),
+                      "ended_at": None if ended is None
+                                  else _stamp(_epoch(NOW) - ended)}
+        invocation.update(spoiled)
+        stage["exchange"] = {"transport": "baton.worker-exchange/1",
+                             "sequence_id": self.SEQUENCE, "state": "working",
+                             "command": {"sequence_id": self.SEQUENCE,
+                                         "command_digest": self.DIGEST},
+                             "invocation": invocation}
+        return document
+
+    def shown(self, document):
+        snapshot = read_snapshot(document, received_at=self.now)
+        return ("\n".join(render_list(snapshot, now=self.now)),
+                "\n".join(render_detail(snapshot, "job-a", now=self.now)))
+
+    def test_a_LIVE_invocation_is_the_only_one_called_running(self):
+        listed, detail = self.shown(self.observed())
+        self.assertIn("running 30s", mine(listed.splitlines()))
+        self.assertRegex(detail, r"duration\s+running 30s")
+        self.assertNotIn("provider ran", listed + detail)
+        self.assertNotIn("has not ended", listed + detail)
+
+    def test_an_ENDED_invocation_under_an_OPEN_stage_is_PAST_TENSE(self):
+        listed, detail = self.shown(self.observed(ended=15.0))
+        row = mine(listed.splitlines())
+        self.assertIn("provider ran 15s", row)
+        self.assertIn("provider invocation ended after 15s; this stage has "
+                      "not ended", row)
+        self.assertNotRegex(listed, r"running\s+15s")
+        self.assertRegex(detail, r"duration\s+provider ran 15s")
+        self.assertIn("provider invocation ended after 15s; this stage has "
+                      "not ended", detail)
+        # AND NOTHING SAYS THE STAGE OR THE JOB IS DONE.
+        self.assertIn("IN PROGRESS", listed)
+        self.assertNotIn("timeout not applicable", listed)
+
+    def test_the_FIXED_COLUMNS_still_carry_the_STAGE_ID(self):
+        """Review R1's rule: the variable-width sentence goes on its own
+        continuation line and the identity an operator came for survives the
+        100-column list."""
+        listed, _detail = self.shown(self.observed(ended=15.0))
+        row = [one for one in listed.splitlines()
+               if "job-a/implementation" in one and one.startswith("  ")][0]
+        self.assertLessEqual(len(row), 100)
+        self.assertTrue(row.endswith("job-a/implementation"))
+
+    def test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note(self):
+        for state in ("completed", "exceptional", "changes-requested"):
+            with self.subTest(state=state):
+                listed, detail = self.shown(self.observed(state=state,
+                                                          ended=15.0))
+                self.assertIn("provider ran 15s", mine(listed.splitlines()))
+                self.assertNotRegex(listed, r"running\s+15s")
+                self.assertNotIn("has not ended", listed + detail)
+                self.assertIn("timeout not applicable (stage ended)", listed)
+
+    def test_UNATTRIBUTED_or_MALFORMED_timing_keeps_its_unknown(self):
+        for why, spoiled in (("foreign attempt", {"attempt_id": "attempt-9"}),
+                             ("malformed ending", {"ended_at": "bad"}),
+                             ("another scope", {"scope": "dispatch"}),
+                             ("another command",
+                              {"command_digest": "sha256:" + "d" * 64})):
+            with self.subTest(why=why):
+                listed, detail = self.shown(self.observed(**spoiled))
+                self.assertIn("running unknown", mine(listed.splitlines()))
+                self.assertNotIn("provider ran", listed + detail)
+                self.assertNotIn("has not ended", listed + detail)
+
+
 class TheTrustedActivityCountIsShownAndNeverEmbellished(ViewerCase):
     """W61599's count reaches the view, and the one distinction that matters.
 

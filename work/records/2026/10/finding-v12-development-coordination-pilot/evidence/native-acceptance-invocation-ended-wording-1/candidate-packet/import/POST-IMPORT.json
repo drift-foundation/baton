@@ -1,0 +1,63 @@
+{
+ "head_after": "ac17a5add7a58fcd845a8eee7485a633ef917de3",
+ "imported": [
+  "v12/python/JOB-VIEWER.md",
+  "v12/python/tests/manager/test_exchange.py",
+  "v12/python/tests/tools/test_job_observation.py",
+  "v12/python/tests/tools/test_job_viewer.py",
+  "v12/python/tools/job_observation.py",
+  "v12/python/tools/job_viewer.py",
+  "v12/python/tools/stack.py"
+ ],
+ "index_lock": false,
+ "paths": [
+  {
+   "mode": "0o644",
+   "path": "v12/python/JOB-VIEWER.md",
+   "sha256": "sha256:9177a14060848a54aca8ca827642bdb14b375f295aa0bc5dcb021bf8f34b1df9"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tests/manager/test_exchange.py",
+   "sha256": "sha256:cc4041ecda17e24dd980da748cd2716123e980d4228f70691c9533def553a274"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tests/tools/test_job_observation.py",
+   "sha256": "sha256:2818e39e6d707471e7795195f5ac4c19f11c479a72613ee7e79ceaadd8ee4183"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tests/tools/test_job_viewer.py",
+   "sha256": "sha256:5dbca278377b161c1e554cca8f9bac512d6dd449fae0e52d5d17949fe9204359"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tools/job_observation.py",
+   "sha256": "sha256:a78bf16545cea5167357ca7945863b93057c896e1e743ca508dd9c12000cb242"
+  },
+  {
+   "mode": "0o644",
+   "path": "v12/python/tools/job_viewer.py",
+   "sha256": "sha256:c6021572ad130f3ce1e00eba1f69cc4f0ab51b744146e4f4cabc1b798a1c51fc"
+  },
+  {
+   "mode": "0o664",
+   "path": "v12/python/tools/stack.py",
+   "sha256": "sha256:d74753a983fa949408d54704c0db2202d91a7b5443bc80a6167c933eff410026"
+  }
+ ],
+ "status_after": [
+  " M v12/python/JOB-VIEWER.md",
+  " M v12/python/tests/manager/test_exchange.py",
+  " M v12/python/tests/tools/test_job_observation.py",
+  " M v12/python/tests/tools/test_job_viewer.py",
+  " M v12/python/tools/job_observation.py",
+  " M v12/python/tools/job_viewer.py",
+  " M v12/python/tools/stack.py"
+ ],
+ "status_exactly_imported": true,
+ "tree_digest": "sha256:57dfac01727026e6a3093b5fcff286b1c3535bef060854a68642f8a84db9a247",
+ "tree_expected": "sha256:57dfac01727026e6a3093b5fcff286b1c3535bef060854a68642f8a84db9a247",
+ "tree_ok": true
+}

@@ -1,0 +1,62 @@
+observed at 2026-11-21T19:44:55.450Z   (1s old, read 0s ago)
+
+JOB invocation-ended-wording-1   COMPLETED
+  submission   sub-invocation-ended-wording-1
+  input        sha256:344ac15e6ee988a4d20c02270d34ca80ba6a22fc451945aa5059f20abc3a5236
+  policy       sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917
+  terminal     report-and-hold
+  Job age 3h01m
+
+  STAGE invocation-ended-wording-1/implementation  [completed]
+    work         fd3e8b90-W1
+    episode      1
+    offer        offer-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97
+    attempt      attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97
+    operation    unknown
+    runtime      3504acf97eb397c123af1ff6a2da7c45e18fe0ec952b5f8d2a60a5bf06163e79
+    engine       destroyed
+    assigned to  baton.claude-native
+    assigned work {'authority_uuid': 'fd3e8b904bda4bf088bebda0082cf8b7', 'work_id': 'fd3e8b90-W1'}
+    assigned gen 1
+    reserved worker impl-a
+    reserved as  baton.claude-native
+    reservation  attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97
+    reservation state released
+    lane         implementation
+    pool generation 1
+    selection    initial
+    started      unknown
+    running      unknown
+    limit        timeout not applicable (stage ended)
+    activity     1.15 MiB last at 2026-11-21T17:08:43.790Z
+    corrections  0
+    results
+      handoff                      69  file:///home/sl/baton-instances/native-handoffs-3/state/workspaces/.baton-review-lines/line-e6bb109df3b2275a7ab2fc1dd97efa8f5f9870a3ab007d2769a74a88515bce1c/custody/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97/handoff
+      proposal                  64019  file:///home/sl/baton-instances/native-handoffs-3/state/workspaces/.baton-review-lines/line-e6bb109df3b2275a7ab2fc1dd97efa8f5f9870a3ab007d2769a74a88515bce1c/custody/attempt-884fc2501a8dba8c7966a77ce77586b0f4b4c827c907eff21f50be0d2de60c97/proposal
+
+  STAGE invocation-ended-wording-1/review  [completed]
+    work         fd3e8b90-W1
+    episode      1
+    offer        offer-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29
+    attempt      attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29
+    operation    unknown
+    runtime      1dc73f7dc75ee427faf0ac0117cfc4761880c3bc3677f609f8ef5de5187e27ab
+    engine       destroyed
+    assigned to  baton.reviewer-native
+    assigned work {'authority_uuid': 'fd3e8b904bda4bf088bebda0082cf8b7', 'work_id': 'fd3e8b90-W1'}
+    assigned gen 2
+    reserved worker review-a
+    reserved as  baton.reviewer-native
+    reservation  attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    started      unknown
+    running      unknown
+    limit        timeout not applicable (stage ended)
+    activity     460.89 KiB last at 2026-11-21T17:15:26.158Z
+    corrections  0
+    results
+      findings                  18360  file:///home/sl/baton-instances/native-handoffs-3/state/workspaces/attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29/custody/attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29/findings
+      logs                        453  file:///home/sl/baton-instances/native-handoffs-3/state/workspaces/attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29/custody/attempt-6132dd1cb021b95f7dd23c7b46b1910541af4d22bf3061dfa96f3b4902b8ca29/logs
