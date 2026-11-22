@@ -1,0 +1,12 @@
+# E385615 correction response — M385614 / K E1–E6
+
+Ready for K short delta check, not implementation acceptance.
+
+- E1: M385612 owner publication approval replaces coordinator-only authority. Two distinct immutable JSON definition records pin exact values, clocks and zero retry/correction. Contract includes their identities/digests. Original contract, patch and manifest are preserved here; their incorrect authority statement is superseded, not erased. No installed profile changed.
+- E2: M385611 expiry after passed verification preserves evidence and holds to owner. Explicit linked review-only decision requires exact valid candidate/verifier/result lineage and cancellation/cessation/ownership checks. Expiry alone does not invalidate evidence. Invalid/unknown evidence refuses and reports; no blind repeat. Review-only uses the approved successor profile unchanged, with completed verification omitted explicitly in the admission stage set; no third profile, extra stage time or reset old clocks. Busy-reviewer wait, analysis expiry/cancellation/unknown cessation, repeated expiry, replay and late results are included in focused acceptance. K should check this precise reuse of approved bounds.
+- E3: delivered W16821 principal/scope and existing deployment decision capability, recording available provenance; no Stage 3 forest/grant prerequisite.
+- E4: declared analysis worker/profile wiring and concrete deployment identity; no Stage 4 pool-control prerequisite or hard-coded model/provider.
+- E5: unapplied REC-8 now links the decision record and states owner-selected immutable profiles, invalid candidate exclusion, no verification-output candidate, role/model separation and selected expiry handling.
+- E6: retain bounded serial 1-A/B/C; optional B1 decision surface/record then B2 admission/profile binding if review size warrants. No graph or ownership mutation.
+
+Static document checks: prior identities preserved; accepted consolidation/addendum hashes unchanged; single-hunk DESIGN patch matches current base and reconstructs one REC-8 in memory; product v12 diff empty. Tests/build/provider/live/instance/Git mutations: none, as assigned. No code or spec application. Concrete runtime analysis binding is still a deployment operand to validate, not a new product decision. Independent delta acceptance remains pending; no new unresolved owner choice identified within this correction.

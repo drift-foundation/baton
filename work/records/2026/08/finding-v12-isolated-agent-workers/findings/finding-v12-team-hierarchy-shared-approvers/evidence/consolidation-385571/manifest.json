@@ -1,0 +1,25 @@
+{
+  "work": "W9901",
+  "claim": "E385571",
+  "assignment": "M385570",
+  "canonical_decisions_through": "M385568",
+  "base": "9fa0ec37a244a388a55be108fd73cb854846245c",
+  "document": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/CONSOLIDATED-PLAN.md",
+  "sha256": "8afa444d4adcb96182e33654784a7e8f3423c17687359b4b2992f0781f745700",
+  "bytes": 42827,
+  "lines": 182,
+  "inputs_sha256": {
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/FINDING.md": "3ae068dba28de87afb174ea320a9a03b9fce91f1ea9bb0969a31e38414321ce3",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/PLAN.md": "c08f3cc977c8601c35f59eb47ca5d4a0e126d67da31772b018a90e8da4176068",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/review-2026-11-22T00-28-23Z.md": "b8d82640d3e095190120f38ec7d2cdbf39d5aaa0314cbfe0252a4425b414f302",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/native-planning-verification-failure-20261122/NATIVE-PLANNING.md": "dc2c516c298f0703f626361640f2caae44670e8e62956fd17cf328fe8cd618c4",
+    "v12/DESIGN.md": "879dbb3c8640fc245f11d392baed673b2b6ba01a523925ae700c374dd939e3e4"
+  },
+  "validation": {
+    "retained_candidate_unchanged": true,
+    "main_v12_diff_empty": true,
+    "slice_and_open_decision_references_present": true,
+    "kind": "document and source identity checks only; no tests/build/providers/live actions/Git mutations"
+  },
+  "review_status": "awaiting K independent review; not implementation acceptance"
+}

@@ -1,0 +1,27 @@
+{
+  "candidate": "7a030bc069ac570364c0d3e9e12d34b902ec2a44",
+  "base": "9fa0ec37a244a388a55be108fd73cb854846245c",
+  "direct_parent_verified": true,
+  "changed_paths": [
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md"
+  ],
+  "bytes": 72907,
+  "sha256": "dc2c516c298f0703f626361640f2caae44670e8e62956fd17cf328fe8cd618c4",
+  "bundle_commit_matches_extracted_document": true,
+  "patch_matches_commit_diff": true,
+  "malformed_argv_compile": {
+    "type": "SyntaxError",
+    "message": "unterminated string literal (detected at line 1)",
+    "line": 1
+  },
+  "corrected_argv_compiles": true,
+  "intended_heading_predicates": {
+    "Operator workflows": true,
+    "Capability and gap map": true,
+    "Migration inventory": true,
+    "Decision questions": true,
+    "Two-project proof plan": true
+  },
+  "duration_seconds": 0.005168411007616669,
+  "limits": "Read-only inspection/static checks, not native review or test-suite execution. Git import confined to independent disposable bare clone; no shared object store or protected Git mutations."
+}

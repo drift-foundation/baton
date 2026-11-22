@@ -1,0 +1,4 @@
+tools.bootstrap.held: accepted prepared input, no store or installer execution
+TASK.txt: 3963 characters <=4096
+Bash blocks: bash -n passed (syntax-check.txt)
+No Job submitted, no tests/build/install/provider/engine execution.

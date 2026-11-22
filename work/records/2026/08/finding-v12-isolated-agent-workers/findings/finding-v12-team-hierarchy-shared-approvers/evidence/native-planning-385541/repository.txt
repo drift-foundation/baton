@@ -1,0 +1,6 @@
+workspace      /home/sl/baton-instances/native-handoffs-3/repo/workspace -- inside this instance -- a repository (work tree) -- HEAD ref: refs/heads/main -- ac17a5add7a58fcd845a8eee7485a633ef917de3
+target         /home/sl/baton-instances/native-handoffs-3/repo/target.git -- inside this instance -- a repository (bare) -- HEAD ref: refs/heads/main -- that reference has no file here (packed or unborn)
+reference      not configured -- a reconciled result is imported at exactly one explicitly configured reference
+declared bases ac17a5add7a58fcd845a8eee7485a633ef917de3
+
+nothing was run and nothing was written; preparing the target is the owner's, and the read-only commands to check it are in OPERATOR-INDEPENDENT-REPOSITORY.md

@@ -1,0 +1,5 @@
+[
+  "python3",
+  "-c",
+  "from pathlib import Path; t=Path('work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md').read_text(); assert all(h in t for h in ['Operator\n  workflows','Capability and gap map','Migration inventory','Decision questions','Two-project proof plan']), 'missing planning section'"
+]

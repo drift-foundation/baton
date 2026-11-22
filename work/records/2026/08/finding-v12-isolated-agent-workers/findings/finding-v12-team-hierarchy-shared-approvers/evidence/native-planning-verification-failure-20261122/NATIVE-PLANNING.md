@@ -1,0 +1,972 @@
+# W9901 — native v12 multi-team/multi-project planning candidate
+
+Owning Work `b6988456-W1` (this planning Job), dossier
+`work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/`.
+Produced natively under template `baton.v12.job-template.implementation-review/3`
+(`v12/python/src/baton_v12/job_manager/role_contract.py:333`) — the handoff-capable
+workflow whose clarification/escalation path is the accepted W385331 slice. This Job
+is itself an instance of the mechanism it plans against.
+
+**What this document is.** A planning candidate: operator workflows, a capability and
+gap map, a read-only migration inventory, the unresolved product/UX decisions with
+options, and the smallest bounded two-project implementation sequence with a joined
+end-to-end acceptance. **What it is not:** it changes no product code, no test, no
+specification and no graph edge. Every normative change it proposes appears here as
+proposed text only (see *Proposed DESIGN deltas*). Owner selection M385539 supersedes
+the direct-host-planning default; this planning Job is not itself acceptance of the
+complete future workflow.
+
+## Evidence legend
+
+Every claim below carries one of three marks. Nothing is asserted without one.
+
+| Mark | Meaning |
+| --- | --- |
+| **[S]** supported | Verified by reading the exact source/tests in this tree at HEAD `9fa0ec37`, with file and line cited. |
+| **[P]** proposed | This plan's proposal. Not implemented, not decided, not a specification change. |
+| **[U]** unproved | Recorded elsewhere as a claim or a historical statement, not verified in this Job. Named as unproved rather than repeated as fact. |
+
+Absent marks on a scenario step mean the step is narrative framing, not a claim.
+
+## Method and limitations (truthful)
+
+* Read-only inspection of `v12/DESIGN.md`, this dossier's `FINDING.md`/`PLAN.md`,
+  `work/records/2026/11/finding-v12-native-agent-handoffs-discovery/{FINDING,PLAN,FIRST-NATIVE-SLICE}.md`
+  and `evidence/clarification-proof-385510/REPORT.md`, the v12 Python source under
+  `v12/python/src/baton_v12/` and `v12/python/tools/`, the v11 source under
+  `src/baton_work/`, and the repository's own record tree under `work/`.
+* **No tests were executed in this Job.** The bounded test-change scope is none and
+  no broad suite was run. Test counts quoted below are read from committed evidence
+  files, not re-measured here.
+* **No live-instance read or write, no backlog migration, no provider/engine call, no
+  host credential access and no canonical v11 store access.** The live v11 Work graph
+  is therefore *unknown* to this document; §Migration inventory states exactly which
+  facts are unknown and the exact supported queries that would later obtain them.
+  No count, team name, route or Work id of the live v11 deployment is invented here.
+* Source reading cannot certify dynamic behaviour. Where a property is proved by an
+  executed test, the evidence path is cited; where it is only read from code, it is
+  marked **[S]** as *current supported behaviour of the code as written*, which is a
+  narrower claim than "proved at runtime".
+
+## Milestone-ordering revalidation (required, not assumed)
+
+The task requires the old W1431/W1433/W9/W10 ordering be revalidated rather than
+silently treated as a current gate. Revalidated against the record tree:
+
+1. **W1431/W1433 are not current gates. [S]** They are pre-migration literal locators.
+   `.../finding-v12-team-hierarchy-shared-approvers/FINDING.md:327` states the
+   W1431/W1433 wording "records the pre-migration schedule and is superseded as a
+   literal locator"; `PLAN.md:49-50` repeats it. Their only surviving occurrences are
+   in historical narrative and retained document copies
+   (`work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md:1390,1395`,
+   `PLAN-HISTORY-W383239.md:772-777`, and `candidate-docs-183730/`/`base-docs-183730/`
+   snapshots). `PLAN.md:30,41` of this dossier still *spells* them in two
+   `[implementation-gated]` items; that spelling is stale text, not a live gate.
+2. **W9→W10 remains a retained historical edge, not a blocker here. [S]**
+   `work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md:12`: "Existing
+   milestone W3/W7/W8/W9/W10 relationships are retained, not interpreted as blockers
+   of initial native adoption." `RELEASE-CLASSIFICATION-165799.md:53,245` classifies
+   W10 as v13-hardening and keeps W9→W10 "pending their own v13 scope review";
+   `ADOPTION-RECONCILIATION-20261018.md:45` retains W10 as deferred backlog with
+   "revalidating current behavior before implementation".
+3. **The W9901 model is binding on foundations now. [S]** `FINDING.md` §"Cross-milestone
+   compatibility ruling — 2026-08-26": parking W9901 defers the M6 *feature*, not the
+   *applicability* of the approved model; earlier Work touching principals, scope,
+   grants, claim slots, approval receipts, runtime/capacity or inbox identity must
+   revalidate against it and preserve the representational seam.
+4. **The temporary W385517 stop is satisfied. [S]** Clean full-suite acceptance at
+   `73506123`, evidence committed at `9fa0ec37`:
+   `work/records/2026/11/finding-v12-full-suite-regressions-20261121/evidence/full-suite-20261121T233239Z-3923644/test-all.summary.json`
+   records collected 11844 / executed 11844 / passed 11842, 0 failed, 0 errors,
+   0 required skips, 0 unaccounted, 0 duplicates, `ok: true`, with exactly two
+   explicitly recorded optional skips (a bind-mount-capability proof and the
+   >64 MiB workspace proof) and phases parallel 11331 / serial 512 / supervised 1.
+5. **Conclusion.** No surviving ordering gate blocks this planning candidate or the
+   confirmed v12 team/project requirements. What does gate dependent *implementation*
+   is the decision set in §Decision questions, plus W385331's open discovery/dependency
+   milestone, which retains clarification/discovery implementation ownership.
+
+---
+
+## Operator workflows
+
+One human operator (Slawomir) runs several teams working concurrently across distinct
+Git repositories/root projects, reusing agent capacity with explicit ownership and
+execution isolation. The workflows below are written end to end, each separating what
+is **supported today [S]**, what is **proposed [P]**, and which gap (`G-*`, §Capability
+and gap map) stands between them. Two projects are used throughout: **A** (a feature
+team) and **B** (a platform team that owns a defect A depends on).
+
+### W0 — The cast, and the addresses that exist today
+
+* A deployment is **one installed instance**: one destination directory with one
+  Authority store, one Job store, one control store, one integration store and
+  **one repository directory** `repo/` (`v12/python/tools/instance.py:44,60-76`). **[S]**
+* **One Host Worker Manager per instance** (`v12/DESIGN.md` HOST-8); a second manager
+  for the same instance must refuse startup. **[S]**
+* Workers are configured per **role** out of exactly three —
+  `implementation`, `review`, `integration` (`tools/bootstrap.py:48`) — served on routes
+  `impl`, `rview`, `integration` (`tools/bootstrap.py:206`). **[S]**
+* A participant address is `team.member` by grammar
+  (`src/baton_v12/authority/identity.py:247-254`); the team part is opaque text that
+  authorizes nothing. The authority's own canonical identity is a **principal**
+  (`src/baton_v12/authority/principals.py`), and an endpoint maps to one principal
+  (`endpoint` table, `authority/schema.py:186`). **[S]**
+* The installed operator command is one binary with the subcommands
+  `bootstrap, start, stop, status, publish, monitor, repository, manager, view, logs,
+  record, disposition, work, identity, pool, attempt-diagnostics`
+  (`tools/stack_command.py:269-300`). **There is no `message` verb.** **[S]**
+* Native handoff routing is deployment policy with exactly two addresses —
+  `reviewer` and `decision_recipient`, which may not be equal
+  (`src/baton_v12/authority/messages.py:89,117-152`; installed by
+  `tools/bootstrap.py:175-204`). **[S]**
+
+### W1 — Team A files a defect/request with project B
+
+**The ask (confirmed requirement, `FINDING.md` 2026-11-21).** A may file with B; B owns
+triage; filing does not start execution and does not create a dependency.
+
+*Today* **[S]**: there is no supported act by which A creates Work in B's scope.
+`Authority.create_work` takes `work_id, route, operation_id, contract, phase, gate,
+scope, labels` and no parent, no filer, no cross-scope authorization
+(`authority/core.py:690-740`); its scope defaults to the single constant
+`scope:deployment` (`authority/principals.py:67`). The installed path that creates Work
+is the deployment's own bootstrap plus `manager create`, and the latter *derives* the
+Work from the installed workers and refuses if they disagree
+(`tools/creation_ports.py:114,218-233`) — so one instance's ordinary creation path
+binds **one** Work. Cross-instance filing would mean a second Authority, which DEP-4
+forbids as a second source of truth for the same Work authorization.
+
+*Proposed* **[P]**: a durable **filing act** addressed to a destination *scope* (not a
+participant), authorized by a filer-side capability, that creates a Work owned by B's
+scope with recorded provenance (filer principal, filer scope, operation id) and **no**
+dependency edge and **no** Job. Routed to B's configured triage route, it appears in
+B's inbox. Shape it as a scope-addressed sibling of the existing message request, so
+attribution is the authority's and never an operand's.
+
+*Gaps*: `G-SCOPE`, `G-FILE`, `G-TOPO`, `G-ROUTE`.
+
+### W2 — B triages and discovers recursively
+
+**The ask.** B may decompose the filed Work or discover other work recursively;
+containment is a tree, prerequisites are a separate graph, and containment alone is
+never a dependency.
+
+*Today* **[S]**: the implementer→reviewer *yield* exists. A handoff-capable
+implementation invocation returns a `handoff` output whose bounded document declares
+which of four things it was (`src/baton_v12/native_handoff.py:60-69`); the host
+classifies it **before** publication, review attachment, any `completed` projection and
+any dependent-gate satisfaction (`src/baton_v12/job_manager/native_handoffs.py:24-31`),
+and records a yield (`native.yield`) with the retained checkpoint and continuation
+(`:99,547`). The reviewer may answer (continuation) or escalate once (hold)
+(`authority/messages.py:369-512`; effects `continuation`/`held`,
+`authority/schema.py:696-710`). What the reviewer **cannot** do is any of the other
+three approved dispositions: there is **no containment column** on `work`
+(`authority/schema.py:196-215` — no parent), **no cross-Work dependency relation** at
+all, and the typed gate vocabulary is exactly `quiescence`, `contract-runtime`,
+`plan-revision` (`authority/core.py:74`) with no dependency kind. Searching the whole
+source for a prerequisite/blocking/nonblocking filing act finds none.
+
+*Proposed* **[P]**: the second W385331 slice as `FIRST-NATIVE-SLICE.md` already
+specifies it — the four reviewer dispositions (continue; file/link nonblocking Work and
+resume; file/link blocking prerequisite and hold; request an authorized design
+decision), with receipt + Work allocation + dependency edge + dependent hold +
+disposition result committed in **one** Authority transaction, validating self-edge,
+foreign-authority, closed/invalid endpoints, duplicate semantic edges and cycles under
+the same write transaction. Add a `containment` relation (parent, strict tree) and a
+separate `prerequisite` relation (typed edge, DAG) so "containment is a tree and
+dependencies a separate graph" is a fact about the schema rather than a rule a handler
+remembers.
+
+*Gaps*: `G-CONTAIN`, `G-DEPGRAPH`, `G-DISPOSE`.
+
+### W3 — A's feature waits on B's fix; B asks A; the clarification stays runnable
+
+**The ask (the hardest confirmed requirement).** A-feature waits on B-fix. B needs
+something from A, so B creates clarification Work addressed to A and waits on its
+answer. That clarification **must not inherit A-feature's blocker** — otherwise the
+exchange deadlocks. An answer satisfies the clarification obligation only; it does not
+satisfy the fix or the feature.
+
+*Today* **[S]**: the clarification exchange that is proved is *intra-Job*: one
+implementation stage yields a request addressed to **its own Job's** configured
+reviewer, and the reviewer answers under the **same Work and the same Job** —
+`messages.respond` refuses a reply whose request belongs to another Work or another Job
+by name (`authority/messages.py:434-452`). The gate that lets the reviewer run while the
+implementer is parked is a bounded reading of the *existing* stage gate, explicitly not
+a new dependency kind, and it is restricted to a `review` stage whose predecessor is in
+`awaiting-answer` (`job_manager/native_handoffs.py:668-706`, used at
+`job_manager/projection.py:777-778`). Stage dependencies may only name stages **inside
+the same submission** (`job_manager/documents.py:538-556`). So today there is no
+construct in which a *separate, independently runnable* clarification Work waits on an
+answer while a *different* Work waits on a fix.
+
+*Proposed* **[P]**: clarification is **its own Work** with its own route, its own
+eligibility and **no inherited prerequisite edge**. The dependency relation must carry
+the *condition* it waits for, so that:
+
+| Waiting Work | Waits on | Condition that satisfies it |
+| --- | --- | --- |
+| A-feature | B-fix | accepted implementation **and** integrated accepted base containing the exact candidate digests (SCH-5) |
+| B-fix | A-clarification | **answer only** |
+| A-clarification | nothing | runnable immediately |
+
+Satisfaction conditions are typed and distinct — `answered`, `accepted-implementation`,
+`integrated-base`, `usable-revision` — and rejection/cancellation **never** satisfies any
+of them. A question need not be a coding Job: filing the clarification Work does not
+launch an execution, and answering it is an act on that Work, not on the fix.
+
+*Gaps*: `G-DEPGRAPH`, `G-DEPCOND`, `G-FILE`, `G-ROUTE`.
+
+### W4 — Human interruption: an escalation reaches the owner and comes back
+
+**The ask.** Routine work proceeds with no human relay. Only a concrete unresolved
+decision, or an explicitly reserved owner action, reaches Slawomir — with evidence,
+options and a recommendation — and the execution stays held meanwhile.
+
+*Today, proved* **[S]**: a reviewer that cannot resolve a request records exactly one
+escalation addressed to the configured `decision_recipient`, which may not be the
+reviewer itself (`authority/messages.py:465-477`), earning a `held` effect; the
+execution stays held, mints no successor attempt, no continuation and no integration,
+and survives a serving restart. Executed evidence:
+`work/records/2026/11/finding-v12-native-agent-handoffs-discovery/evidence/clarification-proof-385510/REPORT.md`
+(`AGenuineAmbiguityEscalatesOnceAndStaysHeld`, `AnEscalationSurvivesServingRestart`),
+independently accepted in `review-2026-11-21T20-24-03Z.md` (baseline 14/14, candidate
+165/165, 0 failures/errors/skips).
+
+*The gap that breaks the loop* **[S]**: **the owner cannot read the escalation with any
+supported command.** `Authority` exposes `work_messages`, `work_message`,
+`work_message_reply`, `work_message_transition`, `pending_handoff_requests` and
+`handoff_escalations` (`authority/api.py:213-233`), and **no tool under
+`v12/python/tools/` calls any of them** — a repository-wide grep finds the names only
+in the test registry (`tools/parallel_test.py:131`). `disposition pending` reports the
+Work, dossier, proposals and receipts and explicitly declines a deployment-wide sweep
+("inventing a 'every Work waiting on a human' sweep would be a surface this Work did not
+select", `tools/disposition_command.py:693-701`) and carries no messages. The stage
+projection shows `awaiting-answer`/`answered` (`job_manager/projection.py:199-208`), so
+the operator can see *that* something is held but not *what was asked*. **Today the last
+metre of the escalation path still requires a courier** — a human or model reading the
+store out of band. That is the single most consequential operator-surface gap for the
+owner's "no courier" goal, and it is cheap to close.
+
+*Proposed* **[P]**: a read-only `baton-v12-stack message` surface (`list`, `read`,
+`pending`, `escalations`) over the existing read model, plus one participant-bound
+`answer` act for the configured decision recipient, so the owner's reply is an
+authorized durable act in the same relation and not a second channel. A deployment-wide
+"what is waiting on me" inbox keyed on the **principal** (see `G-INBOX`).
+
+*Gaps*: `G-READ`, `G-INBOX`.
+
+### W5 — Independent review, then retained restart
+
+*Today, proved* **[S]**: after a continuation, the resumed writer submits a genuine
+final proposal and the ordinary independent technical review runs — two implementation
+attempts, two review attempts, two messages, one continuation, zero correction rounds,
+no human act (`clarification-proof-385510/REPORT.md`,
+`test_zero_human_acts_to_the_ordinary_final_review`). Restart/retry preserves
+attribution without duplicate effects: an exact retry of the continuation returns the
+committed receipt; a fault between continuation commit and ending settlement duplicates
+nothing; a fresh serving object after yield and after answer rereads rather than
+re-mints. Durable restart at the Authority boundary (connection disposed and reopened,
+fresh sessions) replays request/answer/escalation exactly and refuses a changed-operand
+retry (`DurableRestartPreservesCorrespondence`). The finite policy is
+`native-handoff/1`: zero correction rounds, **one** continuation,
+4800/9960/3600/900 s (`job_manager/job_control.py:80-125`), and a continuation is
+invisible to `rounds_used_in` and resets no clock.
+Independent review is a hard separation constraint enforced at configuration:
+implementation and review may share no participant, and the configured native reviewer
+must be a review worker and must not be an implementation participant
+(`tools/bootstrap.py:537-544,617-625`).
+
+*Limits stated by the authors and confirmed by the reviewer, carried forward here*
+**[U-as-limit]**: provider scripted at its normal process seam, daemonless engine, no
+live model judgment, no worker-image qualification run, "restart" meaning a
+reconstructed serving object rather than an OS crash, and a partial Git trace.
+
+*Proposed for the two-project case* **[P]**: the same proof shape, extended so the
+reviewer that answers is **B's** configured reviewer in **B's** scope while the waiting
+Work is **A's**, which the current one-reviewer-per-deployment routing cannot express
+(`G-ROUTE`).
+
+### W6 — Refusal, cancellation and the outcomes that must not count as success
+
+*Today* **[S]**: refusals are typed and fail closed — an unconfigured routing admits no
+request at all (`authority/messages.py:317-323`); a request may be addressed only to the
+configured reviewer and never to its own author (`:324-333`); one pending request per
+assignment, a second refuses rather than queueing (`:335-344`); one reply per request,
+enforced by a partial unique index (`authority/schema.py:681-684`); a reply binds the
+request by **identity and digest and checkpoint and Work and Job** (`messages.py:421-452`);
+a capability is "not an invitation to answer somebody else's correspondence"
+(`:456-461`). Undeclared, mixed, missing or foreign worker output **holds** and never
+falls back to legacy success (`job_manager/native_handoffs.py:32-36`). A response mints
+no verification/review/approval/integration receipt (`:37-40`). Cancellation and
+deadline fencing are the Job-control path (`v12/DESIGN.md` LIM-5), and the connected
+suite exercises cross-Work/checkpoint/attempt/grant refusal, cancellation, finite
+allowance and unchanged deadlines (`clarification-proof-385510/REPORT.md`).
+
+*Proposed* **[P]**: extend exactly this discipline to the new dependency edge —
+rejection, cancellation, a superseded receipt, the wrong candidate or unknown
+accepted-base state **retains** the hold; satisfaction makes a stage *eligible*, never
+auto-launched, and admission rechecks cancellation, deadlines and capacity (SCH-4).
+
+*Gaps*: `G-DEPCOND`.
+
+### W7 — Capacity and context reuse are distinct
+
+*Today* **[S]**: deployment-wide claim capacity is keyed on the **principal**, not the
+endpoint — one principal holds at most one live claim across every address it acts
+through (`authority/schema.py:358-368`), which is precisely the W9901 property
+"one Slawomir approver has one capacity and runtime view across every scope". Context
+reuse is a different lifetime entirely (`v12/DESIGN.md` CTX-1..CTX-5), bound to producer,
+purpose, Job/Work line, provider/model/profile and protected context identity.
+**[S]** The two are already separate owners in the code; no change is needed to keep
+them separate, only to keep them separate *as the scope model grows*.
+
+*Gap*: `G-PRINCIPAL` — the mapping that would let one principal hold two endpoints
+exists (`Authority.bind_endpoint`, `authority/api.py:177`) but **no installed
+configuration surface uses it**: `tools/bootstrap.py:841-872` derives principals with
+`principal_for_endpoint`, i.e. strictly one principal per endpoint. The shared-principal
+seam is reachable from the API and unreachable from the product.
+
+---
+
+## Capability and gap map
+
+### What already conforms to the W9901 baseline (the seam is real)
+
+| W9901 baseline item | Current supported behaviour | Evidence |
+| --- | --- | --- |
+| Principal is a canonical identity distinct from the endpoint address | `principal`/`endpoint` tables; `principal:` and `scope:` grammars that no `team.member` can match | `authority/schema.py:178-190`; `authority/principals.py:44-124` **[S]** |
+| Every act records principal, effective scope, role, grant provenance and policy generation | One immutable `authorization_decision` row per act, keyed `(act, act_id)` | `authority/schema.py:402-416`; `authority/core.py:421-480` **[S]** |
+| Claim capacity is principal-global, not per endpoint spelling | `claim_slot` primary key is `principal_id`, endpoint kept beside it | `authority/schema.py:358-368` **[S]** |
+| Authority derives the effective scope from the target, never from a caller operand | `authorize()` takes the scope from the row the transition read; no exported surface accepts one | `authority/core.py:536-560` **[S]** |
+| The durable column admits inherited/masked provenance without a migration | `capability.provenance CHECK IN ('direct','inherited','masked')`, writes restricted to `direct` in code | `authority/schema.py:326-331`; `authority/principals.py:52-59` **[S]** |
+| Work carries its effective scope, not a derived one | `work.scope TEXT NOT NULL`, supplied at trusted creation | `authority/schema.py:214`; `authority/core.py:708-715` **[S]** |
+
+### What is missing, by gap
+
+| Id | Gap | Current state (cited) | Severity for the confirmed requirements |
+| --- | --- | --- | --- |
+| `G-SCOPE` | **No organizational forest.** None of `org_scope`, `membership`, `role`, `role_grant`, `role_mask`, `route`, `repository`, `approval_rule` exists; scope is a flat opaque string with one constant default. | Table list `authority/schema.py:130-710`; `DEPLOYMENT_SCOPE` `authority/principals.py:67` **[S]** | Blocks every multi-team property. |
+| `G-RESOLVE` | **No inheritance, no masks, no ambiguity refusal.** `authorize()` does one exact-tuple lookup `(principal, capability, scope)` with no ancestry walk and no mask evaluation. | `authority/core.py:563-570`; PK `authority/schema.py:329` **[S]** | Blocks subtree approvers and leaf masks. |
+| `G-PRINCIPAL` | **Shared principal unreachable from the product.** `bind_endpoint` exists in the API; installed configuration derives 1:1 principals and never calls it. | `authority/api.py:177`; `tools/bootstrap.py:841-872` **[S]** | Blocks the cross-team manager identity. |
+| `G-APPROVE` | **No one-of/all-of/threshold policy.** One approval receipt per proposal, enforced by a unique index; no attestation relation, no frozen eligible set, no policy generation freeze on a proposal. | `receipt_one_per_kind` `authority/schema.py:533-534`; receipt kinds `:513-531` **[S]**. (W16830 was opened for this correction; it is **not** present at HEAD.) | Blocks quorum/alternatives. |
+| `G-CONTAIN` | **No containment.** `work` has no parent column and no containment relation; OBS-4 forbids using directory ancestry for it. | `authority/schema.py:196-215` **[S]** | Blocks "containment is a tree". |
+| `G-DEPGRAPH` | **No cross-Work dependency graph.** Typed gates are exactly `quiescence`/`contract-runtime`/`plan-revision`; stage `depends_on` may only name stages in the same submission. | `authority/core.py:74`; `job_manager/documents.py:538-556` **[S]** | Blocks cross-project prerequisites. |
+| `G-DEPCOND` | **Satisfaction conditions are not typed.** A gate opens on predecessor `completed`, plus one bounded response window for a review stage; nothing distinguishes answer / accepted implementation / integrated base / usable revision. | `job_manager/projection.py:751-781`; `job_manager/native_handoffs.py:668-706` **[S]** | Blocks SCH-5 exactness and the A-waits-on-B case. |
+| `G-DISPOSE` | **Only two of four reviewer dispositions exist.** `continue` and `escalate` are implemented; file-nonblocking and file-blocking-prerequisite are not. | `authority/messages.py:60-70`; no prerequisite act anywhere in `src/` or `tools/` **[S]** | Blocks recursive discovery. |
+| `G-FILE` | **No cross-scope filing act.** `create_work` takes no filer, no destination scope authorization and no provenance of a filing; ordinary creation derives one Work per instance. | `authority/core.py:690-740`; `tools/creation_ports.py:114,218-233` **[S]** | Blocks "A may file with B". |
+| `G-ROUTE` | **One reviewer and one decision recipient per deployment.** Routing policy is a single object with two addresses; routes are the three fixed stage routes. | `authority/messages.py:89,117-152`; `tools/bootstrap.py:206` **[S]** | Blocks per-scope routing and B-answers-for-A. |
+| `G-READ` | **No operator read surface for messages.** No CLI verb calls `work_messages`/`handoff_escalations`; `disposition pending` is one-Work and carries no messages. | `tools/stack_command.py:269-300`; grep of `tools/`; `tools/disposition_command.py:693-730` **[S]** | **The remaining courier.** Blocks the owner loop. |
+| `G-INBOX` | **No principal-global inbox.** No union-of-obligations projection keyed on principal; `disposition pending` explicitly declines the sweep. | `tools/disposition_command.py:696-701` **[S]** | Blocks shared-approver UX and cross-team visibility. |
+| `G-VIS` | **Shared internal visibility is undefined.** There is no read model that answers "what is team B doing" without granting more; reads are per-Work or per-label within one Authority. | `authority/api.py:195-247` **[S]** | Blocks the confirmed visibility requirement. |
+| `G-TOPO` | **One instance = one repository = one manager.** Instance layout has a single `repo/`; HOST-8 permits one active manager per instance; multi-project in one instance means multiple Works in one managed workspace, and multi-instance means multiple Authorities. | `tools/instance.py:44,60-76`; `v12/DESIGN.md` HOST-8; multi-Job bindings `tools/stage_execution.py:717-734` **[S]** | The structural decision (see `D1`). |
+| `G-MIG` | **No migration inventory, mapping or importer, by selection.** DEP-4 forbids a second source of truth; no v11 reader exists in the v12 distribution and the packaging note states the host opens no v11 store. | `v12/python/pyproject.toml:10-18`; `v12/DESIGN.md` DEP-4 **[S]** | See §Migration inventory. |
+
+### Capability of the native handoff slice (what the two-project plan builds on)
+
+| Capability | State | Evidence |
+| --- | --- | --- |
+| Durable attributed Work message, author taken from the assignment and never an operand | supported | `authority/schema.py:648-684`; `authority/messages.py:279-366` **[S]** |
+| Separate transition receipt for the one effect a reply earns (`continuation`/`held`) | supported | `authority/schema.py:696-710` **[S]** |
+| `answer-handoff` as its own capability, not implied by `review` | supported | `authority/core.py:85-101`; `authority/messages.py:74-82` **[S]** |
+| Classification before publication / review attachment / completed projection / dependency satisfaction | supported | `job_manager/native_handoffs.py:25-31` **[S]** |
+| Yield / continuation / hold / answer journalled under their own kinds, episode-keyed | supported | `job_manager/native_handoffs.py:99-128` **[S]** |
+| Handoff-capable template `/3` with `handoff` and `response` declared outputs; `/1` and `/2` byte-unchanged; default still `/1` | supported | `job_manager/templates.py:273-321`; `job_manager/role_contract.py:320-400` **[S]** |
+| `native-handoff/1` finite profile: one continuation, zero correction rounds, no clock reset | supported | `job_manager/job_control.py:80-125` **[S]** |
+| Worker writes only a bounded `handoff/request.json`; no host store or credential reaches it | supported | `v12/worker/claude_agent.py:514-536,6182-6207` **[S]** |
+| End-to-end: question → authorized answer → same task resumes → final proposal → independent review, zero human acts | proved deterministically | `clarification-proof-385510/REPORT.md`; `review-2026-11-21T20-24-03Z.md` **[S]** |
+
+### Proposed DESIGN deltas (text only; proposed here, decided nowhere)
+
+These are **[P]** proposals for the owner to accept, amend or refuse. They are written as
+the sentences that would be added, so a later amendment is a copy rather than a rewrite.
+None is applied: `v12/DESIGN.md` is unchanged by this Job.
+
+* **ID-5a (organizational scope).** *"Organizational scopes form a strict forest: each
+  scope has zero or one parent, unique ids, no cycles and no multi-parent nodes. A node
+  independently declares whether it may own Work, routes or repositories; grouping-only
+  nodes declare none. Principals, scopes, memberships, role grants, role masks, routes,
+  repositories and approval policies are separate canonical entities. Membership never
+  implies a role; a repository never implies an organizational parent; a route never
+  invents a scope from its spelling. Organizational ancestry never implies Work
+  containment, dependency, scheduling order, repository ancestry or filesystem access."*
+* **ID-5b (resolution).** *"Grants applicable along the unique root-to-target chain
+  accumulate; a local grant augments and never silently overrides. Replacement requires
+  an explicit role- and extent-specific mask, which grants nothing. Resolution is
+  order-independent, inspectable, and refuses on missing or ambiguous authority.
+  Duplicate grants to one principal collapse by principal identity while every grant id
+  is retained as provenance."*
+* **ID-5c (approval policy).** *"Approval policy explicitly selects one-of, all-of or an
+  integer threshold. The rule and the resolved eligible-principal set are frozen at the
+  proposal's accepted policy generation. One principal contributes at most one approval
+  decision to one proposal, through at most one grant. Attestations are separate
+  immutable records from the one aggregate approval outcome. An unreachable threshold
+  remains visible and synthesizes nothing."*
+* **ID-5d (availability).** *"Eligibility resolves entirely from accepted grants, masks
+  and policy. Availability and capacity are operational facts: zero available eligible
+  principals produces an inspectable condition while Work stays at its configured route.
+  Absence never activates a masked grant, changes a threshold, reroutes Work or delegates
+  authority. Claim capacity, runtime inventory, offer state and the inbox key on the
+  global principal id."*
+* **SCH-4a (containment and prerequisites are different relations).** *"Containment is a
+  strict tree over Work and expresses organization only. Prerequisites form a separate
+  directed acyclic graph. Filing Work, containment, a shared repository, filesystem
+  ancestry or a role name never supplies a prerequisite. A prerequisite edge names the
+  stage it constrains and the satisfying condition it waits for."*
+* **SCH-4b (typed satisfaction).** *"A prerequisite edge carries exactly one required
+  condition: `answered`, `accepted-implementation`, `integrated-base` or
+  `usable-revision`. `integrated-base` requires the human-accepted integrated base
+  containing the exact candidate digests, canonical target/base proof and compatible
+  restored source; an approved receipt, a technical review, producer termination, file
+  presence or private retained bytes do not satisfy it. Rejection, cancellation, a
+  superseded receipt, the wrong candidate or unknown accepted-base state retains the
+  hold. Satisfaction makes a stage eligible; it never launches one."*
+* **SCH-2b (clarification independence).** *"A clarification Work is independently
+  runnable. It does not inherit the prerequisites of the Work whose execution prompted
+  it, and an answer satisfies only the clarification obligation — never the fix, the
+  feature or any specification revision."*
+* **SCH-2c (cross-scope filing).** *"One scope may file Work with another through a
+  durable authorized act that records the filing principal, the filing scope, the
+  destination scope and its operation identity. Filing creates no dependency, launches no
+  Job and transfers no execution ownership. The destination scope owns triage."*
+* **OBS-1a (the operator can read what is held).** *"Every durable request, response and
+  escalation is readable through the installed read-only command surface by the human and
+  by an authorized agent, from the same retained record. A deployment in which the
+  configured decision recipient cannot read an escalation addressed to it through a
+  supported command has not delivered the no-courier requirement. Reading changes no
+  state and no read receipt is a prerequisite for progress."*
+* **OBS-1b (principal inbox).** *"The inbox is the union of obligations, offers,
+  approvals and attention addressed to one principal, each row annotated with its
+  effective scope, role and source grant. Shared internal visibility of Work, findings,
+  decisions and dependency chains grants no mutation, execution, repository or credential
+  access."*
+
+---
+
+## Migration inventory
+
+**Boundary.** This inventory is built **only** from repository records in this tree.
+Live v11 graph access is unavailable in this worker; no canonical v11 store was opened
+and no count, name or identity of the live deployment is asserted. Everything the
+repository cannot answer is listed as unknown with the exact later supported query that
+would answer it.
+
+### 1. What the repository does establish
+
+**The v11 model (read from source, not from a running instance). [S]**
+`src/baton_work/authority.py` defines the canonical v11 relations:
+
+| v11 relation | Line | What it holds |
+| --- | --- | --- |
+| `teams` | 177 | flat team handles (no parent column — v11 has no hierarchy) |
+| `members`, `member_roles`, `member_capabilities`, `member_pickup` | 182, 222, 228, 195 | team-scoped participants, their roles and capabilities |
+| `roles`, `routes`, `route_handlers` | 202, 209, 216 | role definitions and route eligibility |
+| `kinds`, `kind_alternates` | 234, 246 | Work kinds and their default/alternate routes |
+| `work` | 259 | Work rows: team, title, origin, classification, phase, status, **`parent`** (containment), `gate_kind ∈ {work,message}`, `gate_work`, `gate_obligation`, route/handler/next triple, ready, outcome, rationale, `duplicate_of`, `follow_up_of`, priority, `episode_seq` |
+| `edges` | 352 | `(work, blocker)` dependency edges, optionally `via_obligation` |
+| `obligations` | 359 | directed obligations with team/kind/route/role/handlers, `flavor`, `trial`, `observation`, `evidence`, `accepted_into`, `thread`, status |
+| `trials`, `assessments` | 378, 390 | candidate trials and their assessments |
+| `threads`, `thread_labels`, `thread_participants`, `messages`, `seen` | 397, 403, 409, 473, 466 | the conversation layer and read cursors |
+| `roots`, `bindings`, `act_references` | 415, 420, 433 | **repositories** and the Work↔`root:path` dossier binding with revisions |
+| `operations`, `revisions`, `events` | 443, 453, 252 | the effectively-once journal, contract revisions and the event log |
+| `pokes`, `poke_answers`, `poke_answer_work` | 497, 536, 564 | the liveness-question layer |
+| `runtime_leases`, `runtime_facts`, `runtime_events`, `dispatch_control`, `dispatch_events`, `approval_incidents` | 591, 679, 698, 829, 850, 746 | runtime/dispatch operational state |
+
+**v11's own default visibility is team-scoped. [S]** `src/baton_work/cli.py:472-483`
+scopes `search` to the viewer's own team, and the comment at `:735-738` records that a
+Work owned by another team "had no locator anywhere" until `actionable-work` was added.
+Any cross-team visibility in v12 is therefore a new product decision (`D3`), not a
+migrated behaviour.
+
+**The v11 configuration shape. [S]** `conf/baton.example.json` shows the accepted
+document: `instance` (authority uuid, database, name), `protocol_version`, **`roots`**
+(repository roots with a base path and display), and **`teams`**, each carrying `kinds`,
+`participants` (with `roles` and `capabilities`), `roles` (with durable instructions)
+and `routes` (handlers + role). Teams are a flat map; there is no parent, subtree,
+grant, mask or approval-policy member anywhere in the document. `config_version` and
+`generation` are the only versioning.
+
+**The record tree, counted here (filesystem facts, not Work facts). [S]**
+
+| Measure | Count | Note |
+| --- | --- | --- |
+| `FINDING.md` dossier records under `work/` | 659 | includes 6 at `work/` top level |
+| …under `work/records/`, excluding retained `candidate-docs-*`/`base-docs-*` copies | 651 | the stable record set |
+| top-level month dossiers `work/records/2026/{08,09,10,11}/*` | 362 | 172 / 123 / 57 / 10 |
+| dossier children under a `findings/` directory | 235 | OBS-4 calls this ancestry a view, not authority |
+| `PLAN.md` records | 650 | |
+| `OWNER-*.md` owner decisions | 48 | the explicit decision set |
+| append-only `review-*.md` records | 2970 | |
+| symlinks in `work/open/` | 102 | a **disposable navigation index** (OBS-4), not lifecycle state; may be stale |
+
+**The participant addresses the records actually use. [S]** Extracted from `AGENTS.md`
+and the November records: `baton.prompt`, `baton.slaw`, `baton.claude`, `baton.codex`,
+`baton.codx`, `baton.codxpc`, `baton.rvpc`, `baton.impl`, `baton.bug`, `baton.ops`,
+`baton.merge`, `baton.tuner`, `baton.decide`, and the v12 native identities
+`baton.claude-native`, `baton.reviewer-native`. Every one is in the single team `baton`.
+`AGENTS.md:240-244,617,627` names the role bindings (`prompt`, `rview`, `impl`, `integ`,
+`approv`, `tuner`) and the two added pool members (`rview-pc`→`baton.rvpc`,
+`codx-pc`→`baton.codxpc`). **This is the roster the records discuss, not the roster the
+live authority holds.**
+
+### 2. What is unknown, and the exact later supported query for each
+
+Each row names a fact this document does **not** have and the exact supported command
+that would obtain it from the live v11 instance (`$BW` = the deployed
+`bin/baton`, `--config <home>/baton.json --participant <addr>`, per
+`docs/BATON-WORK.md`). All are read-only verbs defined in `src/baton_work/cli.py`.
+
+| Unknown canonical fact | Exact later supported query | Why it matters to this plan |
+| --- | --- | --- |
+| Which teams exist, their displays, kinds, routes, handlers and role instructions | `$BW teams` (roster: configured members, route coverage, held Work, runner status) | Supplies the real forest leaves for `D2`/`D3`; without it any scope tree is invented. |
+| Which participants exist and which capabilities they hold | `$BW teams`; per-Work `$BW detail work=<id>` | Decides which endpoints must collapse to one principal (`G-PRINCIPAL`). |
+| How many Work rows exist, by team/status/phase/priority | `$BW summary`; `$BW home`; `$BW search …` | Sizes the migration and the two-project pilot. |
+| The containment tree (`work.parent`) | `$BW tree [work=<id>]`, `$BW children work=<id>`, `$BW breadcrumb work=<id>` | The only source for the containment forest; §SCH-4a is a shape, not a dataset. |
+| The dependency edges (`edges`) and which are live | `$BW links work=<id>` (typed graph edges with far-row summaries) | The prerequisite graph to carry over, including `via_obligation` provenance. |
+| Pending obligations and their flavors | `$BW obligations`; `$BW inbox`; `$BW actionable-work` | Determines which obligations are clarifications vs decisions vs verification reports. |
+| Open trials and assessments | `$BW detail work=<id>` | Determines which Work has an in-flight candidate at cutover. |
+| Repository roots and Work↔`root:path` bindings | `$BW resolve locator=<root:path>`; `$BW revisions work=<id>`; `$BW detail work=<id>` | The **only** authoritative dossier↔Work mapping; the repository tree alone cannot supply it. |
+| The operation journal (for replay-safe re-execution) | `$BW operation-log` | Decides whether a migration can be replayed without duplicate effects. |
+| Runtime leases and dispatch mode at cutover | `$BW runtime`, `$BW runtime-history participant=<addr>`, `$BW dispatch`, `$BW incidents` | A cutover must not strand a live claim or a draining deployment. |
+| Open conversational pokes | `$BW pokes` | Pending liveness questions are obligations a cutover must not silently drop. |
+
+**On the v12 side**, the corresponding later queries are
+`baton-v12-stack record read --work <id>` / `--locator <path>`,
+`baton-v12-stack work labels --work <id>` and `work list --label …`,
+`baton-v12-stack disposition pending --work <id>`,
+`baton-v12-stack manager … status`, `baton-v12-stack monitor` and
+`baton-v12-stack attempt-diagnostics` (`tools/stack_command.py:269-300`;
+`tools/dossier_command.py:1086-1131`; `tools/work_command.py:293-297`). **[S]**
+
+### 3. Entity mapping (proposed target; no copy authorized)
+
+| v11 | v12 today | v12 target under this plan | Status |
+| --- | --- | --- | --- |
+| `teams` (flat) | opaque `team.` prefix in a participant address; flat `work.scope` string | `org_scope` strict forest + per-scope routes | `G-SCOPE` **[P]** |
+| `members` + `member_roles` | `endpoint`→`principal`, `capability(principal, capability, scope)` | `principal` + `membership` (roster only) + `role_grant(local|subtree)` + `role_mask` | `G-RESOLVE`, `G-PRINCIPAL` **[P]** |
+| `member_capabilities` (`config`, `dispatch`) | deployment-global capabilities granted in a Work's scope | scope-extent grants | `G-RESOLVE` **[P]** |
+| `routes` + `route_handlers` | three fixed stage routes + one handoff routing object | `route(route_id, owner_scope_id, role_id, selection_policy)` | `G-ROUTE` **[P]** |
+| `kinds` | template selection (`/1`, `/2`, `/3`) | unchanged; kinds are a v11 concept the v12 template subsumes | decided **[S]** |
+| `work.parent` | *absent* | containment relation (strict tree) | `G-CONTAIN` **[P]** |
+| `edges` (+ `via_obligation`) | *absent* | prerequisite relation (DAG) with typed condition | `G-DEPGRAPH`, `G-DEPCOND` **[P]** |
+| `obligations` (`flavor=response`) | `work_message` request/response/escalation + `work_message_transition` | unchanged shape, extended to cross-scope addressing | partially supported **[S]**/**[P]** |
+| `trials`/`assessments` | `proposal` + four receipts | unchanged | decided **[S]** |
+| `threads`/`messages`/`seen` | `work_message` with **no read cursor by design** | unchanged; no seen-flag (a read receipt must not become a prerequisite) | decided **[S]** |
+| `roots`/`bindings` | one `repo/` per instance; `work_dossier` + `work_dossier_evidence` | `repository(repository_id, owner_scope_id, root_binding)` | `G-TOPO` **[P]** |
+| `operations` | `operation` journal with signature/replay | unchanged | decided **[S]** |
+| `runtime_*`/`dispatch_*` | Worker Manager control store + read-only monitor | unchanged | decided **[S]** |
+| approval quorum | one approval receipt per proposal | attestations + frozen one-of/all-of/threshold | `G-APPROVE` **[P]** |
+
+### 4. What this inventory explicitly refuses to do
+
+* It performs **no** backlog copy and selects none. DEP-4 forbids a v12 Job store being a
+  second source of truth for the same Work authorization; the owner's 2026-11-21 ruling
+  states migration "is not a 1:1 copy or immediate dual-authority backlog".
+* It asserts **no** live count, team name, Work id, edge or obligation. Those rows are
+  unknown here and the queries above are how they become known — later, under an
+  explicit selection, by a participant with the authority to run them.
+* It proposes **no** importer. A migration mechanism is a separately selected outcome
+  with its own replay and identity safety, and naming one here would be designing it.
+
+---
+
+## Decision questions
+
+Each question gives the **scenario**, the **settled boundary** (what current accepted
+design and code already determine), the **options with tradeoffs**, and a
+**recommendation**. Per the owner's 2026-11-21 ambiguity ruling these are escalated, not
+decided: **this document chooses none of them and implements none of them.** Routine
+implementation details and already-confirmed decisions are deliberately absent.
+
+### D1 — One Authority for many projects, or one instance per project?
+
+**Scenario.** Teams A and B work in two distinct Git repositories under one operator.
+A files a defect with B; A's feature waits on B's fix; B asks A a question. All three
+cross the project boundary.
+
+**Settled.** One instance owns one `repo/`, one Authority, one Job store and one active
+manager (`tools/instance.py:44,60-76`; HOST-8) **[S]**. DEP-4 forbids a second source of
+truth for the same Work authorization. The multi-Job deployment document `/2` already
+binds several Jobs each with their own Work in one instance
+(`tools/stage_execution.py:717-734`) **[S]**, while ordinary `manager create` derives one
+agreed Work (`tools/creation_ports.py:114,218-233`) **[S]**. Cross-Work dependency does
+not exist in either shape (`G-DEPGRAPH`).
+
+**Options.**
+1. *One coordination Authority, many repositories.* Scope is the project; `repository`
+   becomes a canonical entity owned by a scope; one manager serves several source roots.
+   — Cross-project edges, filing, visibility and one inbox are all intra-store and
+   atomic. — Requires HOST-8 to be restated for "one manager per **instance**, serving
+   several repositories" and the workspace/confinement rules to be proved per repository.
+2. *One instance per project, one shared coordination Authority above them.* Execution
+   isolation per project; coordination in a separate Authority the executors read.
+   — Clean blast radius. — Creates exactly the second-source-of-truth shape DEP-4 warns
+   about unless the coordination Authority is the *only* Work authority and the per-project
+   stores hold no Work authorization at all.
+3. *One instance per project, no shared Authority; cross-project by message only.*
+   — Smallest change. — Cannot express a dependency edge, an atomic blocking disposition,
+   or one inbox; reintroduces a courier between Authorities. Contradicts the confirmed
+   dependency requirement.
+
+**Recommendation (not a decision).** Option 1, because the confirmed requirements —
+atomic blocking disposition, cross-project prerequisite graph, one principal inbox,
+shared visibility — are all statements about *one* coordination store, and options 2 and
+3 pay for isolation with exactly the courier the owner is removing. The isolation cost of
+Option 1 is bounded and testable: it is a per-repository confinement and mount question,
+not an authority question.
+
+### D2 — What is a project, and what is a team?
+
+**Scenario.** `pc` is a product team with its own repository. `infrastructure` groups
+`orch`, `tls`, `uflow`, which share one approver and may or may not share a repository.
+
+**Settled.** The approved baseline says organizational nodes may be grouping-only, own no
+repository and own no Work; repository ownership never implies an organizational parent;
+and the deployment chooses the topology — "Baton supplies the model and deterministic
+resolution; it does not prescribe either topology" (`FINDING.md` §Required properties,
+§Confirmed M6 baseline) **[S]**. Nothing in the code distinguishes "team" from "project"
+today (`G-SCOPE`).
+
+**Options.** (a) One concept, `scope`, with declared capabilities (`may own Work`,
+`may own routes`, `may own repositories`) — one resolver, one ancestry, the operator
+reads one tree. (b) Two concepts, `team` (people) × `project` (repository + Work), with
+an explicit many-to-many binding — matches how operators talk, but creates a second
+ancestry and a second ambiguity surface, and the baseline's refusal-on-ambiguity rule
+would have to be stated twice.
+
+**Recommendation.** (a), with the repository as an *attribute owned by* a scope rather
+than a parallel hierarchy. The approved record already names exactly one forest; adding a
+second hierarchy would reopen the strict-forest-versus-DAG question the owner closed.
+
+### D3 — Default visibility across teams: what exactly is shared?
+
+**Scenario.** A developer in A opens the operator view. B is mid-triage on a defect A
+filed, has decomposed it into three children and is blocked on a fourth team.
+
+**Settled.** "Teams have shared internal visibility of work, findings, decisions and
+dependency chains; this grants no cross-team mutation authority or implicit
+filesystem/credential access" (`FINDING.md` 2026-11-21) **[S]**. Shared visibility is
+therefore *confirmed*; what is unresolved is its **granularity and default**. No v12
+read model implements it (`G-VIS`). **And it is a change from v11, not a port of it:**
+v11's `search` "only reaches the viewer's own team", which is why `actionable-work` was
+added for Work "owned by another team [that] had no locator anywhere"
+(`src/baton_work/cli.py:735-738`) **[S]**. So there is no inherited default to carry
+forward and the owner is choosing a new one.
+
+**Options.** (a) Everything in the Authority is readable by any authenticated principal;
+only acts are scoped. — simplest, matches "shared internal visibility" literally; exposes
+every rationale and every escalation body to every agent. (b) Metadata-open,
+bodies-scoped: identity, route, status, phase, gate, containment and dependency edges are
+globally readable; message bodies, rationales and evidence citations require a grant in
+the owning scope. — preserves dependency-chain visibility, which is the stated purpose,
+while keeping an escalation's text inside its scope. (c) Opt-in per scope. — most control,
+most configuration, and a cross-project dependency chain becomes unreadable exactly when
+it matters.
+
+**Recommendation.** (b). The requirement names *work, findings, decisions and dependency
+chains* — all of which (b) exposes — while leaving a confidential clarification body a
+decision the owner can later widen. Widening a default is reversible; narrowing one after
+agents depend on it is not.
+
+### D4 — Which satisfaction conditions exist, and what exactly does each require?
+
+**Scenario.** A-feature waits on B-fix. B's reviewer accepts the candidate. Is A eligible?
+
+**Settled.** SCH-5 requires the **accepted base containing those exact results**;
+producer termination or technical review alone is insufficient; private retained
+directories are not implicit inputs **[S]**. `FIRST-NATIVE-SLICE.md` adds that an
+approved receipt alone is insufficient and names candidate/receipt identity plus the
+human-accepted integrated base with candidate digests, canonical target/base proof and
+compatible restored source. The owner's ruling names four distinctions: response,
+accepted implementation, integration and usable revision. Rejection/cancellation never
+satisfies **[S]**. What is unresolved is the **closed vocabulary** and whether
+`usable-revision` is a fifth condition or a property of `integrated-base`.
+
+**Options.** (a) Four conditions exactly as the owner's sentence lists them:
+`answered`, `accepted-implementation`, `integrated-base`, `usable-revision`. (b) Three,
+folding `usable-revision` into `integrated-base` with a "compatible restored source"
+predicate. (c) Two (`answered`, `integrated-base`), treating acceptance as an
+intermediate state that satisfies nothing.
+
+**Recommendation.** (a). The owner's confirmed sentence distinguishes four; collapsing
+any of them is a product decision this plan has no authority to take, and a closed
+four-member vocabulary is cheap to validate and expensive to reopen. Note for the owner:
+(a) requires defining what makes a revision "usable" to a *waiting* Work — plausibly
+"restorable onto the waiter's declared base without an unreviewed rebase" — and that
+definition is itself unresolved (see `D5`).
+
+### D5 — When B's fix lands on a base A cannot use, what happens?
+
+**Scenario.** B's fix is accepted and integrated, but onto a base that has diverged from
+A's declared base. A's retained checkpoint cannot be grafted without a rebase.
+
+**Settled.** `FIRST-NATIVE-SLICE.md`: "Do not graft an old partial candidate blindly onto
+a new base: invoke the supported reviewed rebase/restoration boundary or hold for an
+explicit new admission." Unknown accepted-base state retains the hold **[S]**. CTX-4
+requires explicit refusal rather than a silent fresh start **[S]**. What is unresolved is
+the **operator-visible outcome**.
+
+**Options.** (a) Hold, and surface a typed `base-incompatible` condition for the owner.
+(b) Automatically admit a fresh attempt from the new base, discarding the retained
+checkpoint as evidence only. (c) Automatically open a reviewed rebase Job.
+
+**Recommendation.** (a) for the first delivery. (b) silently loses a human-meaningful
+checkpoint; (c) is a new automatic stage, which REV-6 declines for integration and the
+same reasoning applies here. A typed held condition is honest, is already the pattern
+everywhere else in this system, and leaves (b) and (c) available as later explicit
+selections.
+
+### D6 — Who may answer a question that crosses a project boundary?
+
+**Scenario.** B's implementer needs a decision only A's reviewer can give.
+
+**Settled.** A request may be addressed **only** to the deployment's single configured
+`reviewer`, and a reply must name the same Work **and** the same Job as the request
+(`authority/messages.py:324-333,434-452`) **[S]**. An escalation goes to the single
+configured `decision_recipient`, which may not be the reviewer (`:117-152,465-477`) **[S]**.
+Unconfigured routing admits nothing — fail closed **[S]**. What is unresolved is how a
+*second* permitted destination is expressed.
+
+**Options.** (a) Routing becomes per-scope: each scope configures its own reviewer and
+decision recipient, and a request may be addressed to the reviewer of its own scope or of
+a scope it has an explicit `ask` grant in. (b) A request names a destination *scope* and
+the authority resolves the eligible answerer through the forest, with ambiguity refusing.
+(c) Keep one reviewer per deployment and require cross-project questions to escalate to
+the human.
+
+**Recommendation.** (b), because it is the same shape as every other resolution in the
+approved baseline (resolve from grants, refuse on ambiguity, record the resolved grant as
+provenance) and it keeps the "permitted recipient is the deployment's fact and not the
+requester's" rule intact. (c) is the status quo and reintroduces the human as the
+cross-project courier, which the owner's interruption boundary excludes for anything the
+design determines.
+
+### D7 — How does the owner see and answer what is waiting on them?
+
+**Scenario.** Three escalations are held across two projects. Slawomir sits down.
+
+**Settled.** Escalations are durable, attributed, survive restart and mint nothing
+(proved, `clarification-proof-385510/REPORT.md`) **[S]**. The owner has **no supported
+command to read them** (`G-READ`), and `disposition pending` deliberately offers no
+deployment-wide sweep (`tools/disposition_command.py:696-701`) **[S]**. Status must remain
+observable without demanding acknowledgment, and a read receipt must never become a
+prerequisite (`authority/schema.py:643-647`) **[S]**.
+
+**Options.** (a) Read-only `message list/read` verbs plus an existing-shaped `disposition`
+act for the answer. (b) A principal-keyed `inbox` verb spanning every scope, with the
+answer act beside it. (c) Both, with (a) as the minimum and (b) as the projection.
+
+**Recommendation.** (c), delivering (a) first: (a) is what removes the last courier and is
+a few hundred lines over an existing read model; (b) is the W9901 inbox property and is
+worth doing once the forest exists, not before, because its rows must be annotated with
+effective scope, role and source grant — none of which resolve yet.
+
+### D8 — Does filing Work into another scope require that scope's consent?
+
+**Scenario.** A files twenty defects with B in one afternoon.
+
+**Settled.** "Team A may file a defect/request with project B. B owns triage" and filing
+"does not start execution or create a dependency" (`FINDING.md` 2026-11-21) **[S]**.
+Fail-closed authorization is this system's standing direction (`messages.request` refuses
+an unconfigured destination rather than sending anywhere) **[S]**. What is unresolved is
+whether filing needs a grant in the *destination* scope, in the *filing* scope, or both.
+
+**Options.** (a) A `file-work` capability held in the **destination** scope, granted by B
+to A's principals — B controls its own intake. (b) A capability in the **filer's** scope
+plus an open intake on B — A's teams can always reach B, and abuse is an operational
+problem. (c) No capability: any authenticated principal may file anywhere.
+
+**Recommendation.** (a). It is the only option that makes "B owns triage" a fact about
+authorization rather than an etiquette, it matches the `answer-handoff` precedent (a new
+capability rather than implied by `review`), and a deployment that wants (b)'s openness
+expresses it by granting the capability at the root of its forest.
+
+### D9 — What does cancelling or rejecting a prerequisite do to its waiters?
+
+**Scenario.** B's fix is cancelled. Three Works across two projects wait on it.
+
+**Settled.** Rejection/cancellation never silently satisfies a condition; the hold is
+retained **[S]**. What is unresolved is the **notification and disposition**: the
+waiters are now held on something that will never be satisfied.
+
+**Options.** (a) The waiters stay held with a typed `prerequisite-terminal` condition and
+appear in the owner's inbox as needing disposition. (b) The cancelling act must name a
+replacement prerequisite or explicitly orphan each waiter, in the same transaction.
+(c) Waiters are automatically released to their route, becoming eligible with the
+prerequisite dropped.
+
+**Recommendation.** (a), with (b) available as an explicit operator act. (c) is the one
+option that can silently produce work on a base nobody delivered, which is the
+false-success class this design treats as a defect rather than a convenience.
+
+### D10 — Does a clarification consume the asking execution's finite allowance?
+
+**Scenario.** B's implementer asks A a question. A's answer takes a day. Meanwhile B's
+stage and Job deadlines run.
+
+**Settled.** A continuation is not a correction round, consumes its own allowance, resets
+no clock and moves no deadline (`job_manager/job_control.py:103-125`) **[S]**. Stage time
+starts at execution admission and Job time at durable accepted creation, including queue
+time, and admitted deadlines are never reset (LIM-5) **[S]**. So today, a long human
+answer burns the asker's Job clock. What is unresolved is whether *waiting on another
+scope* should be accounted differently from *waiting on this Job's own reviewer*.
+
+**Options.** (a) No change: deadlines are wall-clock and a held Job eventually exceeds
+them, reports honestly and is restarted by the supported fresh-attempt operation.
+(b) A held-on-external-prerequisite state that suspends the Job wall clock while held and
+resumes it on satisfaction, with the held interval recorded separately.
+(c) Per-condition allowances (e.g. `answered` holds suspend, `integrated-base` holds do
+not).
+
+**Recommendation.** (b), scoped narrowly to holds on a *cross-scope* prerequisite or
+escalation, with the suspended interval persisted and reported. (a) makes every
+cross-team question a race against a deadline the other team does not see, which will
+produce exactly the "timed out waiting for a human" failures LIM-4 says must not become
+an extra owner gate. (b) is a genuine change to LIM-5's accounting and therefore needs an
+explicit owner selection — it is listed here rather than assumed.
+
+---
+
+## Two-project proof plan
+
+The smallest bounded sequence that makes the complete native two-project workflow true
+end to end, and one joined acceptance that demonstrates automatic delivery with **no
+courier**. Every step is independently reviewable; none is started by this document.
+
+### Preconditions
+
+* The owner answers `D1`, `D2`, `D4`, `D6` and `D8` — the five that determine schema
+  shape. `D3`, `D5`, `D7`, `D9`, `D10` affect behaviour and surfaces, not the first
+  schema, and may be answered during the sequence.
+* W385331 retains clarification/discovery implementation ownership; steps **S2** and
+  **S3** below are its already-specified next slice and must be allocated under it, not
+  duplicated here (`FIRST-NATIVE-SLICE.md` §"Next slice").
+* Base: HEAD `9fa0ec37` with the accepted clean full-suite checkpoint at `73506123`.
+
+### Bounded implementation sequence
+
+| Step | Outcome | Owner | Why it is first |
+| --- | --- | --- | --- |
+| **S1** | **Read the held state.** Read-only `baton-v12-stack message {list,read,pending,escalations}` over the existing Authority reads, plus `disposition answer` for the configured decision recipient. No new store, no new read model, no acknowledgment, no read cursor. | new bounded Job | Closes `G-READ`. **Removes the last courier in the already-proved path** at the lowest cost and with no schema change; everything after it is observable. |
+| **S2** | **Discovery classification.** The reviewer's four dispositions, with receipt + Work allocation + prerequisite edge + dependent hold + disposition result in **one** Authority transaction; self-edge, foreign-authority, closed/invalid endpoint, duplicate-edge and cycle validation inside that same write; rollback leaves no orphan Work, receipt or runnable window; a deterministic operation key binds the whole disposition. | W385331 | Closes `G-DISPOSE`/`G-DEPGRAPH` for the *intra-scope* case first, where routing and grants already exist. |
+| **S3** | **Typed satisfaction and the Job-store reconciliation.** `SCH-4b`'s condition vocabulary; admission inhibit held until the Authority receipt and the Job continuation/hold are durably reconciled; cessation confirmed **before** the dependency hold is established under the fence; interrupted reconciliation stays held. | W385331 | Closes `G-DEPCOND`. This is where `D4`/`D5`/`D9` land. |
+| **S4** | **The scope forest and resolution.** `org_scope`, `membership`, `role_grant(local\|subtree)`, `role_mask`, `approval_rule` as canonical relations; `authorize()` gains the ancestry walk, the nearest-mask boundary and the ambiguity refusal; `capability` writes gain `inherited`/`masked` provenance (the column already admits them). Installed configuration gains the forest and binds endpoints to shared principals through `bind_endpoint`. | new bounded Job | Closes `G-SCOPE`/`G-RESOLVE`/`G-PRINCIPAL`. Deliberately **after** S2/S3 so the dependency machinery is proved in one scope before it is asked to cross two. |
+| **S5** | **Cross-scope filing and per-scope routing.** `SCH-2c`'s filing act with destination-scope authorization and recorded provenance; routing resolved per scope (`D6`); `repository` as a scope-owned canonical entity; containment relation (`SCH-4a`). | new bounded Job | Closes `G-FILE`/`G-ROUTE`/`G-CONTAIN`/`G-TOPO`. The first step that needs the forest. |
+| **S6** | **The principal inbox and cross-scope visibility projection.** Union of obligations, offers, approvals and attention keyed on principal, each row annotated with effective scope, role and source grant; the visibility boundary selected in `D3`. | new bounded Job | Closes `G-INBOX`/`G-VIS`. Last, because its rows cannot be annotated before S4 resolves them. |
+
+Deliberately **out** of this sequence and stated so rather than omitted: approval
+quorum/threshold (`G-APPROVE`) is not required by the two-project workflow and stays with
+M6; advanced scheduling, shared-capacity accounting and hardening remain v13; migration
+(`G-MIG`) is a separately selected outcome and is not a step here.
+
+### The joined end-to-end acceptance
+
+**One scenario, two projects, deterministic providers at their normal process seam, real
+Baton coordination, no live model and no live engine** — the same evidence class the
+accepted clarification proof established, extended rather than restated.
+
+*Setup.* One coordination Authority. Two scopes `scope:a` and `scope:b` under a
+grouping-only root that owns no Work and no repository. Two repositories, one per scope.
+Implementation and review workers per scope, sharing no participant. One human owner
+principal `baton.slaw` holding `answer`, `approve`, `integrate` and `close` at the root
+through a single **subtree** grant — so the proof exercises the shared approver, not two
+copies of a person.
+
+*The run, as one unbroken automatic chain.*
+
+1. **A files with B.** A's implementer files a defect into `scope:b`. Assert: the Work
+   exists, is owned by `scope:b`, records A's principal and A's scope as filing
+   provenance, sits on B's triage route, **has no prerequisite edge** and **has launched
+   no Job**.
+2. **B triages recursively.** B's reviewer decomposes it: one contained child (containment
+   edge, no dependency) and one discovered defect filed as a sibling. Assert: containment
+   is a tree edge; the sibling is **not** a prerequisite of anything; the two relations are
+   separate rows in separate relations.
+3. **A's feature waits on B's fix.** A's feature Work takes a prerequisite edge on B's fix
+   with condition `integrated-base`. Assert: A's implementation stage is held with a typed
+   condition naming both the predecessor and the condition; a `completed` predecessor
+   alone does **not** open it.
+4. **B asks A, and the clarification is independently runnable.** B's implementer yields a
+   clarification addressed to `scope:a`'s reviewer. A clarification Work is created in
+   `scope:a` **with no inherited prerequisite**. Assert: it is immediately eligible and
+   admitted while A's feature remains held — **the deadlock case, proved by both Works'
+   states in the same tick**.
+5. **A answers; only the clarification is satisfied.** A's reviewer answers. Assert: the
+   clarification obligation is satisfied; B's fix resumes on its retained checkpoint with
+   the exact answer bytes delivered read-only and the admitted task digest unchanged;
+   A's feature is **still held**; no receipt of any kind was minted by the answer.
+6. **A genuine ambiguity reaches the human once, and only once.** B's reviewer cannot
+   resolve a second question and escalates. Assert: exactly one escalation addressed to
+   the configured decision recipient; execution held; five further ticks mint nothing; the
+   owner **reads it through `message read` and answers through the supported act** (S1) —
+   and the Job resumes. **This is the step that proves no courier:** the owner's entire
+   participation is two supported commands against the installed instance.
+7. **Refusals.** In the same run: a request addressed to a scope with no configured
+   reviewer refuses before any runtime starts; a reply naming another Work or another Job
+   refuses; a second pending request from one assignment refuses rather than queueing; a
+   principal holding a capability in `scope:b` cannot answer `scope:a`'s correspondence;
+   a cross-scope grant resolved through two paths with no selection policy refuses as
+   ambiguous; a leaf mask on `approve` does not mask `review`, siblings or local grants.
+8. **Cancellation and rejection do not satisfy.** B's fix is first rejected, then
+   cancelled. Assert after each: A's prerequisite is **not** satisfied; the hold is
+   retained with a typed terminal condition; no successor attempt is prepared; the owner
+   sees it as needing disposition.
+9. **The real satisfaction.** B's fix is re-attempted, accepted by B's independent
+   reviewer, approved and integrated by the human onto the canonical base. Assert: only
+   when the accepted integrated base carries the exact candidate digests does A's
+   prerequisite satisfy; satisfaction makes A **eligible**, not launched; admission
+   rechecks cancellation, deadlines and capacity.
+10. **A completes through independent review.** A's implementation resumes on the new
+    base, verification runs, A's reviewer gives an ordinary technical verdict. Assert:
+    independent review separation held throughout (no shared participant, no shared
+    principal, no shared context); the delivered product is a reviewed proposal, not a
+    merge.
+11. **Restart and retry at every cut.** Replay the whole run with a fault injected at each
+    external-effect boundary: after the filing commit, after the prerequisite edge commit,
+    after the yield, after the message commit, after the continuation commit and before
+    ending settlement, after the escalation, and after the satisfaction. Assert at each:
+    no duplicate Work, no duplicate message, no duplicate edge, no second live writer, no
+    lost continuation, preserved attribution and ownership, exact-operand replay returning
+    the committed record and changed-operand replay refusing.
+12. **Capacity and context stay distinct.** The shared owner principal holds **one** claim
+    slot across both scopes throughout; context reuse is bound per line and never crosses
+    a scope; at no point does a scope's visibility of the other grant mutation, execution,
+    repository or credential access.
+13. **Human acts, counted.** Exactly the acts reserved to the human: one answer to the
+    genuine escalation (step 6), one approval and one integration (step 9). Assert the
+    count explicitly — **zero** acts for every routine handoff, triage, filing,
+    clarification, dependency satisfaction and review in the run.
+
+*Evidence contract.* One dossier under W385331's umbrella (or its allocated successor)
+carrying: the exact candidate manifest and base; per-ID collected/executed/passed ledgers
+with zero duplicates and zero unaccounted; the explicit human-act count from step 13; the
+Git trace confined to disposable roots; and a limitations section repeating, not
+softening, the standing limits — scripted provider, daemonless engine, reconstructed
+serving object rather than an OS crash, partial trace by construction, and no claim of
+live-model judgment or worker-image qualification.
+
+*Acceptance is joined.* No step is accepted alone. The complete automatic native handoff
+chain — filing, recursive discovery, independent clarification, human interruption and
+return, exact dependency satisfaction, independent review and retained restart — is the
+acceptance target, and a passing subset supports only its named claim.
+
+---
+
+## Truthful limitations of this planning candidate
+
+* No tests were run and no code was changed by this Job. Every **[S]** claim is a reading
+  of source at HEAD `9fa0ec37`; dynamic behaviour is cited only where an executed-evidence
+  path exists.
+* The live v11 Work graph is unknown here. Every v11 quantity in §Migration inventory is
+  either a count of files in this repository or a named unknown with its exact later query.
+  No team, route, Work id, edge or obligation of the live deployment is asserted.
+* The gap map is complete with respect to the confirmed requirements it enumerates; it is
+  not a claim that no other gap exists. In particular, `G-APPROVE` (quorum) is identified
+  but deliberately left out of the two-project sequence, and a decision to require quorum
+  for cross-project acceptance would reopen the sequencing.
+* Ten decisions are escalated unresolved (`D1`–`D10`). Five of them (`D1`, `D2`, `D4`,
+  `D6`, `D8`) determine the schema and therefore gate **S4** and **S5**. The sequence is
+  bounded; its start date is not something this document can set.
+* This planning Job is not acceptance of the complete future workflow, and nothing here
+  changes `v12/DESIGN.md`, any product file, any test or any graph gate.

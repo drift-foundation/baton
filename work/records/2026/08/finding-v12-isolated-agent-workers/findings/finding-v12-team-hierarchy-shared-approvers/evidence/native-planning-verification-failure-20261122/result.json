@@ -1,0 +1,35 @@
+{
+ "base": "9fa0ec37a244a388a55be108fd73cb854846245c",
+ "changed_paths": [
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md"
+ ],
+ "collection": {
+  "excluded_ignored": [
+   "handoff/"
+  ],
+  "excluded_ignored_count": 1,
+  "excluded_special": [],
+  "excluded_special_count": 0,
+  "note": "these worktree paths were present while the task's verification ran and are NOT part of the delivered proposal; whether the verification relied on any of them is the integrator's question, disclosed rather than adjudicated here"
+ },
+ "disposition": "verification-failed",
+ "entry_head": "9fa0ec37a244a388a55be108fd73cb854846245c",
+ "head": "7a030bc069ac570364c0d3e9e12d34b902ec2a44",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "seconds_bound_source": "job-default",
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "w9901-native-planning-1",
+ "verification": {
+  "argv": [
+   "python3",
+   "-c",
+   "from pathlib import Path; t=Path('work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md').read_text(); assert all(h in t for h in ['Operator\n  workflows','Capability and gap map','Migration inventory','Decision questions','Two-project proof plan']), 'missing planning section'"
+  ],
+  "status": 1
+ },
+ "why": "the task's own command ended 1"
+}

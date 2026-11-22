@@ -1,0 +1,468 @@
+{
+  "job_id": "w9901-native-planning-1",
+  "work_id": "b6988456-W1",
+  "submission_id": "sub-w9901-native-planning-1",
+  "resolution_digest": "sha256:ba4fa1c797d179604bd11d5a30d824747abde198471ac1a5b8095f049889a9d8",
+  "template": {
+    "version": "baton.v12.job-template.implementation-review/3",
+    "origin": "request",
+    "permitted_overrides": [
+      "execution_limits"
+    ]
+  },
+  "task": {
+    "job_id": "w9901-native-planning-1",
+    "work_id": "b6988456-W1",
+    "submission_id": "sub-w9901-native-planning-1",
+    "statement": "W9901 native planning only. Owner selection M385539 (supersedes the direct-host-planning default): deliver the complete native v12 workflow across teams/projects, including automatic questions, answers, findings, independent review, dependency satisfaction and retained continuation. No human or model may serve solely as a message courier. Human involvement is for unresolved decisions and exclusively human-owned mainline Git. Use this native implementation/review Job to produce a planning candidate, not product changes. The temporary W385517 stop is satisfied by clean full-suite acceptance at 73506123, evidence committed at 9fa0ec37. Old W1431/W1433/W9/W10 ordering must be revalidated, not silently treated as a current gate.\nRead v12/DESIGN.md and work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/{FINDING,PLAN}.md, plus work/records/2026/11/finding-v12-native-agent-handoffs-discovery/{FINDING,PLAN,FIRST-NATIVE-SLICE}.md and evidence/clarification-proof-385510/REPORT.md there. Inspect current source, supported CLI contracts and deterministic tests. W385331 retains clarification/discovery implementation ownership.\nPreserve the owner-approved strict scope forest; separate global principals/scopes/memberships/grants/masks/routes/repositories; augmenting inheritance with explicit role masks; frozen one-of/all-of/threshold approval eligibility; global principal inbox/runtime/capacity; authority-derived scope and grant provenance. Shared internal visibility does not grant mutation, execution, repository or credential access. Team A may file with B; B triages and discovers recursively. Containment is a tree and dependencies a separate graph. Filing/containment does not launch execution. Work is an obligation; Jobs execute it; a question need not be a coding Job. When A-feature waits on B-fix and B asks A, that clarification must remain independently runnable. An answer satisfies the question only. Dependency conditions distinguish answer, accepted implementation, integration and usable revision; rejection/cancellation do not satisfy success. Capacity and context reuse are distinct. These confirmed requirements remain v12; advanced scheduling/hardening stays v13.\nWrite only NATIVE-PLANNING.md in the W9901 dossier, with headings: Operator workflows; Capability and gap map; Migration inventory; Decision questions; Two-project proof plan. Cite code symbols, tests and exact evidence paths; distinguish current supported behavior, proposed behavior and unproved assertions. Give concrete two-project workflows through human interruption, recursive discovery, independent review and retained restart. Map a read-only migration inventory from repository records; live v11 graph access is unavailable in the worker, so identify unknown canonical state and exact later supported queries, never fabricate it. Identify the smallest bounded implementation sequence and joined end-to-end acceptance demonstrating automatic delivery without a courier, including refusal, cancellation, restart/retry, cross-scope authority and exact dependency satisfaction.\nFor every unresolved product/UX semantic, provide scenario, settled boundary, options/tradeoffs and recommendation; do not choose or implement it. Propose any normative DESIGN deltas as text in this planning document only. Use native clarification/decision escalation when necessary; preserve the retained checkpoint. No live-instance reads/writes, backlog migration, new launcher framework, product/spec edits, live provider/engine test calls or broad test suite. Do not access host credentials or canonical v11 stores. Native final submission must trigger independent review automatically; reviewers judge evidence and all required outcomes, not only the structural check. Return a retained digest-bound planning candidate with truthful limitations. This planning Job is not itself acceptance of the complete future workflow."
+  },
+  "source": {
+    "input_digest": "sha256:2c35190760afac9ddaf0d45632423562ddbe6cb6a7e380d436006f5afab0d25c",
+    "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917"
+  },
+  "scope": {
+    "work": [
+      "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md"
+    ],
+    "tests": []
+  },
+  "acceptance": [
+    "Evidence-backed workflows, capability/gap map, migration inventory, unresolved decision options and bounded two-project plan; complete\n  automatic native handoffs are the final acceptance target; no invented semantics or product/spec changes."
+  ],
+  "overrides": {},
+  "rules": {
+    "completion": {
+      "outcome": "accepted",
+      "deciding_role": "review",
+      "verdict_output": "findings",
+      "delivers": "proposal"
+    },
+    "correction": {
+      "outcome": "correction",
+      "episode_ending": "superseded-by-correction",
+      "repeats": [
+        "implementation",
+        "review"
+      ]
+    },
+    "failure": {
+      "outcome": "held",
+      "terminal_policy": "report-and-hold",
+      "stage_state": "exceptional",
+      "recovery_operation": "fresh_attempt.admit"
+    }
+  },
+  "execution_limits": {
+    "units": "seconds",
+    "scope": "per-invocation",
+    "compatibility_generation": 1,
+    "requested": {},
+    "boundaries": {
+      "host_verification": {
+        "seconds": 300,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 300
+      },
+      "integration_verification": {
+        "seconds": 1800,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 1800
+      },
+      "ordinary_verification": {
+        "seconds": 900,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 900
+      },
+      "provider_turn": {
+        "seconds": 3600,
+        "origin": "compatibility",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      }
+    }
+  },
+  "derivation": {
+    "work_id": "b6988456-W1",
+    "input_digest": "sha256:2c35190760afac9ddaf0d45632423562ddbe6cb6a7e380d436006f5afab0d25c",
+    "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+    "profiles": {
+      "implementation": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92"
+      },
+      "review": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92"
+      }
+    },
+    "declarations": {
+      "implementation": {
+        "impl-a": [
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream",
+                "text/plain"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "proposal",
+            "path": "proposal",
+            "required": false,
+            "type": "git-change-proposal"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "findings",
+            "path": "findings",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "logs",
+            "path": "logs",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "handoff",
+            "path": "handoff",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "response",
+            "path": "response",
+            "required": false,
+            "type": "directory-result"
+          }
+        ]
+      },
+      "review": {
+        "review-a": [
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream",
+                "text/plain"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "proposal",
+            "path": "proposal",
+            "required": false,
+            "type": "git-change-proposal"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "findings",
+            "path": "findings",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "logs",
+            "path": "logs",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "handoff",
+            "path": "handoff",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "response",
+            "path": "response",
+            "required": false,
+            "type": "directory-result"
+          }
+        ]
+      }
+    },
+    "task_document": "{\"declared_base\":\"9fa0ec37a244a388a55be108fd73cb854846245c\",\"instructions\":\"W9901 native planning only. Owner selection M385539 (supersedes the direct-host-planning default): deliver the complete native v12 workflow across teams/projects, including automatic questions, answers, findings, independent review, dependency satisfaction and retained continuation. No human or model may serve solely as a message courier. Human involvement is for unresolved decisions and exclusively human-owned mainline Git. Use this native implementation/review Job to produce a planning candidate, not product changes. The temporary W385517 stop is satisfied by clean full-suite acceptance at 73506123, evidence committed at 9fa0ec37. Old W1431/W1433/W9/W10 ordering must be revalidated, not silently treated as a current gate.\\nRead v12/DESIGN.md and work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/{FINDING,PLAN}.md, plus work/records/2026/11/finding-v12-native-agent-handoffs-discovery/{FINDING,PLAN,FIRST-NATIVE-SLICE}.md and evidence/clarification-proof-385510/REPORT.md there. Inspect current source, supported CLI contracts and deterministic tests. W385331 retains clarification/discovery implementation ownership.\\nPreserve the owner-approved strict scope forest; separate global principals/scopes/memberships/grants/masks/routes/repositories; augmenting inheritance with explicit role masks; frozen one-of/all-of/threshold approval eligibility; global principal inbox/runtime/capacity; authority-derived scope and grant provenance. Shared internal visibility does not grant mutation, execution, repository or credential access. Team A may file with B; B triages and discovers recursively. Containment is a tree and dependencies a separate graph. Filing/containment does not launch execution. Work is an obligation; Jobs execute it; a question need not be a coding Job. When A-feature waits on B-fix and B asks A, that clarification must remain independently runnable. An answer satisfies the question only. Dependency conditions distinguish answer, accepted implementation, integration and usable revision; rejection/cancellation do not satisfy success. Capacity and context reuse are distinct. These confirmed requirements remain v12; advanced scheduling/hardening stays v13.\\nWrite only NATIVE-PLANNING.md in the W9901 dossier, with headings: Operator workflows; Capability and gap map; Migration inventory; Decision questions; Two-project proof plan. Cite code symbols, tests and exact evidence paths; distinguish current supported behavior, proposed behavior and unproved assertions. Give concrete two-project workflows through human interruption, recursive discovery, independent review and retained restart. Map a read-only migration inventory from repository records; live v11 graph access is unavailable in the worker, so identify unknown canonical state and exact later supported queries, never fabricate it. Identify the smallest bounded implementation sequence and joined end-to-end acceptance demonstrating automatic delivery without a courier, including refusal, cancellation, restart/retry, cross-scope authority and exact dependency satisfaction.\\nFor every unresolved product/UX semantic, provide scenario, settled boundary, options/tradeoffs and recommendation; do not choose or implement it. Propose any normative DESIGN deltas as text in this planning document only. Use native clarification/decision escalation when necessary; preserve the retained checkpoint. No live-instance reads/writes, backlog migration, new launcher framework, product/spec edits, live provider/engine test calls or broad test suite. Do not access host credentials or canonical v11 stores. Native final submission must trigger independent review automatically; reviewers judge evidence and all required outcomes, not only the structural check. Return a retained digest-bound planning candidate with truthful limitations. This planning Job is not itself acceptance of the complete future workflow.\\n\\nAcceptance criteria:\\n  - Evidence-backed workflows, capability/gap map, migration inventory, unresolved decision options and bounded two-project plan; complete\\n  automatic native handoffs are the final acceptance target; no invented semantics or product/spec changes.\\n\\nSelected work scope (the paths this task covers):\\n  - work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md\\n\\nBounded test-change scope: none. This task changes no test.\\n\\nTemplate: baton.v12.job-template.implementation-review/3\\nWork: b6988456-W1\\n\",\"schema\":\"baton.dogfood-task/2\",\"source_profile\":\"git-line\",\"source_root\":\"source\",\"task_id\":\"w9901-native-planning-1\",\"verification\":[\"python3\",\"-c\",\"from pathlib import Path; t=Path('work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md').read_text(); assert all(h in t for h in ['Operator\\n  workflows','Capability and gap map','Migration inventory','Decision questions','Two-project proof plan']), 'missing planning section'\"]}",
+    "input_manifest": {
+      "assignment_contract": "v12-assignment-1",
+      "created_at": "2026-11-22T00:04:46.000Z",
+      "credential_policy_digest": "sha256:b192d53c96e1611b035f95c7f2d27ea3a6a48e2cd9499bfc45ba6b2ec6e6779c",
+      "extensions": {},
+      "human_contract": {
+        "artifact_id": "native-development-default",
+        "bytes": 5152,
+        "content_digest": "sha256:208f8cdc65ced6208a6d35783225d9d92c5b1ef1ccd256216f7ccab6399d6c2e",
+        "locator": "artifact://contracts/native-development-default",
+        "media_type": "application/json"
+      },
+      "manifest_digest": "sha256:3c4826ff2a31b58ab56e3ab1ebd960945868b7e26c272661701c172924e61134",
+      "manifest_id": "input-manifest-impl-a",
+      "mount_policy_digest": "sha256:e82b23a50fae74fc9d28201d3032dbcc8f2d838e80e050c90cd66abfb9c98b37",
+      "network_policy_digest": "sha256:5313a62ea6f521910530ff366b50747810eaf71a0a2f302c06e2013828c84e4d",
+      "outputs": [
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream",
+              "text/plain"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "proposal",
+          "path": "proposal",
+          "required": false,
+          "type": "git-change-proposal"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "findings",
+          "path": "findings",
+          "required": false,
+          "type": "directory-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "logs",
+          "path": "logs",
+          "required": false,
+          "type": "directory-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "handoff",
+          "path": "handoff",
+          "required": false,
+          "type": "directory-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "response",
+          "path": "response",
+          "required": false,
+          "type": "directory-result"
+        }
+      ],
+      "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+      "record_binding": {
+        "finding_digest": "sha256:6d108bf804100d3f9b46bd3a6a345068615e73f433972452ab514d2b7a291574",
+        "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers",
+        "plan_digest": "sha256:8fcec0442d24bb73179cca51b6f62dcea4bfcee1b81b575f30c310f0575b10de",
+        "root": "baton-repository"
+      },
+      "resource_policy_digest": "sha256:7205e02e37db76ba642de3a041bffeb435cf5985ac6a460290cc746d7858db97",
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "role_instructions_digest": "sha256:03d28f918747b6f71a741cee12ecf9996f84e384769cdd95a3d25e51e79f210d",
+      "runtime_profile_digest": "sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92",
+      "schema": "baton.worker-manifest/input",
+      "sources": [
+        {
+          "consumption": {
+            "baton.source-boundary/1": {
+              "delivery": "nominated-mount",
+              "profile": "git-line",
+              "workspace": "disk"
+            }
+          },
+          "content_manifest": {
+            "entries": [],
+            "entry_count": 0,
+            "total_bytes": 0,
+            "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "destination": "source",
+          "name": "source",
+          "required": true
+        }
+      ],
+      "tool_policy_digest": "sha256:f9549df6179c2d19dbc8f9966264e711d5f831ef2646b01bb569f80556dac186",
+      "toolchain_digest": "sha256:4e880b5d30c6a58207de98a0a6b67774e1ce82c5f69b5b81ede9601f6a56d637",
+      "version": {
+        "major": 1,
+        "minor": 0
+      },
+      "work_ref": {
+        "authority_uuid": "b6988456032943ddac4fd359d13da28c",
+        "work_id": "b6988456-W1"
+      },
+      "worker_image_digest": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4"
+    }
+  },
+  "work": {
+    "work_id": "b6988456-W1",
+    "state": "created",
+    "requested_labels": [],
+    "projection": {
+      "authority_uuid": "b6988456032943ddac4fd359d13da28c",
+      "work_id": "b6988456-W1",
+      "route": "impl",
+      "status": "open",
+      "phase": "queued",
+      "outcome": null,
+      "rationale": null,
+      "handler": null,
+      "contract": "v12-assignment-1",
+      "scope": "scope:deployment",
+      "labels": [],
+      "creation": {
+        "work_id": "b6988456-W1",
+        "operation_id": "template_job.create.work:sha256:f90330c46218d1d67e04ae00f4a1134ab1c336f775cc2347c4e034ac57841119",
+        "kind": "trusted-bootstrap",
+        "scope": "scope:deployment",
+        "at": "2026-11-22T00:05:25.285Z"
+      },
+      "close_decision": null,
+      "generation_counter": 0,
+      "live_generation": null,
+      "assignment": null,
+      "gate": null,
+      "fenced_generations": [],
+      "ready": true
+    }
+  },
+  "binding": {
+    "canonical_target_id": "9fa0ec37a244a388a55be108fd73cb854846245c",
+    "job_id": "w9901-native-planning-1",
+    "job_work_id": "b6988456-W1",
+    "line_declared_base": "9fa0ec37a244a388a55be108fd73cb854846245c",
+    "review_work_id": "b6988456-W1",
+    "source_worker_id": "impl-a"
+  },
+  "stages": [
+    "w9901-native-planning-1/implementation",
+    "w9901-native-planning-1/review"
+  ],
+  "servable": {
+    "implementation": [
+      "impl-a"
+    ],
+    "review": [
+      "review-a"
+    ]
+  },
+  "recorded_at": "2026-11-22T00:05:25.318Z",
+  "control": {
+    "profile": "native-handoff/1",
+    "resolved": {
+      "profile": "native-handoff/1",
+      "units": "seconds",
+      "correction_rounds": 0,
+      "stage_seconds": 4800,
+      "job_seconds": 9960,
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 900
+    }
+  }
+}

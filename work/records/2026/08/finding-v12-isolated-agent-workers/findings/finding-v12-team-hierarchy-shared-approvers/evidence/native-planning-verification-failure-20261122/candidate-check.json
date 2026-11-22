@@ -1,0 +1,13 @@
+{
+  "head": "7a030bc069ac570364c0d3e9e12d34b902ec2a44",
+  "base": "9fa0ec37a244a388a55be108fd73cb854846245c",
+  "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md",
+  "sha256": "dc2c516c298f0703f626361640f2caae44670e8e62956fd17cf328fe8cd618c4",
+  "heading_checks": {
+    "Operator workflows": true,
+    "Capability and gap map": true,
+    "Migration inventory": true,
+    "Decision questions": true,
+    "Two-project proof plan": true
+  }
+}

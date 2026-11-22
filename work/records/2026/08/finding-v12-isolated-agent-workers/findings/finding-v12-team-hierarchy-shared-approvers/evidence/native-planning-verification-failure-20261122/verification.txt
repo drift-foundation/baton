@@ -1,0 +1,14 @@
+$ python3 -c from pathlib import Path; t=Path('work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md').read_text(); assert all(h in t for h in ['Operator
+  workflows','Capability and gap map','Migration inventory','Decision questions','Two-project proof plan']), 'missing planning section'
+exit: 1
+
+The command's own stdout and stderr are deliberately not
+reproduced here. It is code from the candidate tree this turn's
+provider edited, and it runs with the attempt's credential mount
+readable -- so its output is exactly the content this proposal
+must not carry, and nothing here can tell one of its bytes from
+another without reading the bearer.
+
+Rerun the command yourself, from the collected candidate tree,
+outside the worker. The acceptance already says that rerun and
+not this file is what an operator trusts.

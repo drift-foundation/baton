@@ -1,0 +1,54 @@
+--- DESIGN-stage1-r1.patch
++++ DESIGN-stage1.patch
+@@ -1,6 +1,6 @@
+ --- a/v12/DESIGN.md
+ +++ b/v12/DESIGN.md
+-@@ -859,6 +859,36 @@
++@@ -859,6 +859,52 @@
+  before implementing the manager operation. Exact syntax is an implementation
+  choice; preserve deterministic verification and independent acceptance.
+  
+@@ -8,11 +8,15 @@
+ +A failed required verification with successful provider output and a validated
+ +retained candidate MUST produce one attributable analysis per execution failure
+ +and an owner-facing diagnosis, options and decision item. The analysis role uses
+-+configured agent-pool assignment and may inspect evidence and author its report;
+++declared worker/profile configuration, without binding the role to a provider
+++or model, and may inspect evidence and author its report;
+ +it cannot change the candidate, verifier or execution, or authorize recovery.
+-+Analysis failure retains partial evidence and goes directly to the owner, without
+++Analysis failure, expiry or cancellation retains partial evidence and goes directly to the owner, without
+ +automatic retry or recursive analysis. Duplicate ending delivery is not a new
+ +failure and MUST NOT create another analysis or decision item.
+++
+++A candidate failing identity or digest validation MUST be reported and is not
+++recovery input. Verification output MUST NOT become a new candidate.
+ +
+ +The owner approves the exact verifier correction and linked verification/review
+ +scope against the retained candidate identity and digest. The manager admits a
+@@ -24,6 +28,15 @@
+ +Renewed verification failure produces one new analysis and owner item; another
+ +successor requires a new owner decision, never an automatic recovery loop.
+ +
+++Expiry after successful verification but before review completion MUST preserve
+++that evidence and hold an owner item, not trigger verification-failure analysis
+++or automatic retry. The owner may authorize a new linked review-only execution
+++against still-valid exact candidate/verification evidence. Neither implementation
+++nor verification is repeated while that evidence remains valid; invalid or unknown
+++evidence requires explicit disposition, not blind re-verification. Old deadlines
+++remain unchanged. Analysis and successor profiles MUST be owner-selected before
+++use, with immutable identities/digests; the owner selects any subsequent change.
+++
+ +Admission, effects and handoffs MUST preserve exact input/decision bindings and
+ +stable replay identities across restart, with intent before external effects.
+ +Compose authority, custody and runtime/resource exclusion through their owners
+@@ -34,6 +47,9 @@
+ +classification remains a separately delivered capability, not an expansion of
+ +this first verification-failure trigger.
+ +
+++Decision record: [W9901 Stage 1 rulings](../work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/FINDING.md#owner-selected-stage-1-analysis-role--2026-11-22),
+++including retained recovery, post-verification expiry and approved finite profiles.
+++
+  ## 13. Security, credentials and trust
+  
+  **SEC-1.** This v12 deployment uses trusted selected worker images with strict

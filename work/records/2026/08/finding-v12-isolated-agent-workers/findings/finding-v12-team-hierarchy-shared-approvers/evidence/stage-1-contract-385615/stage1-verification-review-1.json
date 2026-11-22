@@ -1,0 +1,24 @@
+{
+  "automatic_corrections": 0,
+  "automatic_retries": 0,
+  "each_stage": {
+    "origin": "stage_admission",
+    "seconds": 4800
+  },
+  "identity": "stage1-verification-review/1",
+  "overall_job": {
+    "includes_queue": true,
+    "origin": "accepted_admission",
+    "seconds": 9960
+  },
+  "publication_authority": "M385612; FINDING.md: Owner-approved Stage 1 finite profiles \u2014 2026-11-22",
+  "review_provider_invocation": {
+    "origin": "invocation_start",
+    "seconds": 3600
+  },
+  "verification_command": {
+    "includes_required_review_verification": true,
+    "origin": "command_start",
+    "seconds": 900
+  }
+}

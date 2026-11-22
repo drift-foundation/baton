@@ -1,0 +1,95 @@
+{
+  "work": "W9901",
+  "claim": "E385615",
+  "assignment": "M385614",
+  "utc": "2026-11-22T05:15:16.976756+00:00",
+  "source_head": "9fa0ec37a244a388a55be108fd73cb854846245c",
+  "supersedes": "E385604 packet authority and expiry claims; prior evidence preserved unchanged",
+  "inputs": [
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/FINDING.md",
+      "bytes": 63679,
+      "sha256": "d3e004aac10248aade64c3a0930d922d55ab144fe9de51965698bcd8041a949f"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/PLAN.md",
+      "bytes": 34429,
+      "sha256": "74080aaa5379f84fe85718aec3f280fdf00cc733db62e70b5c83dffcf4b51c43"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/review-2026-11-22T04-35-09Z.md",
+      "bytes": 10310,
+      "sha256": "ff966c1aabfcfaf2f12ef884f18e364f93b35288a2e7d6c46866cd5bf5672d29"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/CONSOLIDATED-PLAN.md",
+      "bytes": 53601,
+      "sha256": "76aa436a578c3d488c878ff22e0f33c2c0acda462fb95534128f0a1286a947d0"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CLARIFICATIONS.md",
+      "bytes": 5872,
+      "sha256": "b6adc6bfda18af3626f7ee4cd6dc63f64a059419c0e9604b34684eb39229a5df"
+    },
+    {
+      "path": "v12/DESIGN.md",
+      "bytes": 89916,
+      "sha256": "879dbb3c8640fc245f11d392baed673b2b6ba01a523925ae700c374dd939e3e4"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CONTRACT.md",
+      "bytes": 21951,
+      "sha256": "52c2c640fdbb791e70ae61edf7ef7db7190bacd767d6d044f678517d2e09e1bc"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/DESIGN-stage1-r1.patch",
+      "bytes": 2443,
+      "sha256": "b9e6ccab1c3a6e630cb94dde0df2edaf06f11ea3c8c9477a8b3adace4c150c65"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/DESIGN-stage1.patch",
+      "bytes": 3633,
+      "sha256": "f3f32e0772aade644b4490b8aaf73db87a5ca73d4ca0677b7b728f0c2d918e90"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/RESPONSE.md",
+      "bytes": 2412,
+      "sha256": "9f81a020496aeaa0c227fff5065b3acb10783fa72277c891964ab0b720d42b7d"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/STAGE-1-CONTRACT-r1.md",
+      "bytes": 17364,
+      "sha256": "c6d93cfe8248625aac114bc807a9243b4281fa2c3a581e3374ec129f3926576b"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/contract-r1-to-r2.diff",
+      "bytes": 21265,
+      "sha256": "978d07d1f1c18d10d203dceb83408d9447f6039f6c3bc32eee898e7e8410536e"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/manifest-r1.json",
+      "bytes": 2884,
+      "sha256": "ddbaa117cb43effabc0cdf12c1023bdeef3f35965ae0fcaa2d545ea48f6a4fa1"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/patch-r1-to-r2.diff",
+      "bytes": 3196,
+      "sha256": "e3989a011907a9fc320977c9d66e4fb90e017f2e88e20ffe5ed152c03545d024"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-analysis-1.json",
+      "bytes": 467,
+      "sha256": "a4be8b48e098efc47f770a8b7f941b80eadd22b23c48eebf67863d3a4dc824ab"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-verification-review-1.json",
+      "bytes": 624,
+      "sha256": "5a6a420e416caab0942f9709939ae01f1f2d9dabbd13e09ff3b03ea08d2932fb"
+    }
+  ],
+  "proposed_design_sha256": "230a6ed66db91fd03c3a6d9c5021680269fcfd0b67431dfba097a10715a240f8",
+  "checks": "See RESPONSE.md; documentation checks only, no tests or execution",
+  "remaining": "K short delta check; no coding yet. Deployment binding must be validated before execution."
+}

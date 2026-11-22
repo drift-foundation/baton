@@ -1,0 +1,29 @@
+{
+  "work": "W9901",
+  "claim": "E385587",
+  "assignment": [
+    "M385585",
+    "M385586"
+  ],
+  "document": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/CONSOLIDATED-PLAN.md",
+  "sha256": "76aa436a578c3d488c878ff22e0f33c2c0acda462fb95534128f0a1286a947d0",
+  "bytes": 53601,
+  "base": "9fa0ec37a244a388a55be108fd73cb854846245c",
+  "previous_sha256": "8afa444d4adcb96182e33654784a7e8f3423c17687359b4b2992f0781f745700",
+  "delta_sha256": "4ad3106e5ba15f6bb481fcf3ba53fdad7fb650b088f761b00ec0d3f0ce8cf030",
+  "inputs": {
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/FINDING.md": "b387e2e4431b97e4782dbf256cfdb72da4ba5715618997b27227d96836173bf8",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/PLAN.md": "6be00b988249cd78dab952500a57482e3bd30d875c0e1e955179603ad2e5849b",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/review-2026-11-22T03-50-15Z.md": "8cddda08783683ff1ac728617425b6d25715ea1daf325f388f952e09659bf850",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/review-2026-11-22T00-28-23Z.md": "b8d82640d3e095190120f38ec7d2cdbf39d5aaa0314cbfe0252a4425b414f302",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/native-planning-verification-failure-20261122/NATIVE-PLANNING.md": "dc2c516c298f0703f626361640f2caae44670e8e62956fd17cf328fe8cd618c4",
+    "v12/DESIGN.md": "879dbb3c8640fc245f11d392baed673b2b6ba01a523925ae700c374dd939e3e4"
+  },
+  "canonical_work_observations_at_385587": {
+    "W16821": "closed satisfying",
+    "W16823": "closed satisfying",
+    "W16830": "open, block, blocked_by W3, route baton.impl, handler null"
+  },
+  "validation": "Document/reference/digest checks only; no tests, provider/build/live/instance/product/spec/Git mutations. Retained native candidate and prior consolidation verified unchanged; v12 diff empty.",
+  "status": "awaiting K delta review; no implementation acceptance"
+}

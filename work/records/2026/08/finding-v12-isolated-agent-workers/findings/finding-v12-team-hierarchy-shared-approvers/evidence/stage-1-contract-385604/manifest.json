@@ -1,0 +1,60 @@
+{
+  "work": "W9901",
+  "claim": "E385604",
+  "assignment": "M385603",
+  "source_head": "9fa0ec37a244a388a55be108fd73cb854846245c",
+  "prepared_utc": "2026-11-22T04:31:53.427298+00:00",
+  "status": "proposed contract for independent check; no implementation",
+  "inputs": [
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/CONSOLIDATED-PLAN.md",
+      "bytes": 53601,
+      "sha256": "76aa436a578c3d488c878ff22e0f33c2c0acda462fb95534128f0a1286a947d0"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CLARIFICATIONS.md",
+      "bytes": 5872,
+      "sha256": "b6adc6bfda18af3626f7ee4cd6dc63f64a059419c0e9604b34684eb39229a5df"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/review-2026-11-22T04-21-24Z.md",
+      "bytes": 3770,
+      "sha256": "20e54160dc347f60dd58200b963315fa7dd2dcb6eb6ffb73e0df996af2ec05ae"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/FINDING.md",
+      "bytes": 60456,
+      "sha256": "1468ab7d826221d58e62a116b4c46f1ce1d611ea53ff61ffe984d218364f9ef6"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/PLAN.md",
+      "bytes": 33160,
+      "sha256": "4abed4193018da1f6c473a2f903a21eb0d4259c78cf2a29d54d40133d2c3a05d"
+    },
+    {
+      "path": "v12/DESIGN.md",
+      "bytes": 89916,
+      "sha256": "879dbb3c8640fc245f11d392baed673b2b6ba01a523925ae700c374dd939e3e4"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CONTRACT.md",
+      "bytes": 17364,
+      "sha256": "c6d93cfe8248625aac114bc807a9243b4281fa2c3a581e3374ec129f3926576b"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385604/DESIGN-stage1.patch",
+      "bytes": 2443,
+      "sha256": "b9e6ccab1c3a6e630cb94dde0df2edaf06f11ea3c8c9477a8b3adace4c150c65"
+    }
+  ],
+  "proposed_design_sha256": "43063cedc0f7f80f5585d3bc518d9988bfe4a70bbc5107106df7c1a4557f004d",
+  "checks": [
+    "accepted consolidation and addendum digests unchanged",
+    "v12 working diff empty",
+    "DESIGN amendment generated against exact current bytes; unapplied"
+  ],
+  "tests": "none: documentation preparation only; no build/provider/live recovery",
+  "remaining": "K independent check; reviewed finite profile and concrete configured analysis binding to pin before execution. No newly identified unresolved product behavior in this narrow slice."
+}

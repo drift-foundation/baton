@@ -1,0 +1,4 @@
+  File "<string>", line 1
+    from pathlib import Path; t=Path('work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/NATIVE-PLANNING.md').read_text(); assert all(h in t for h in ['Operator
+                                                                                                                                                                                                                 ^
+SyntaxError: unterminated string literal (detected at line 1)

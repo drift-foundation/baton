@@ -1,0 +1,19 @@
+{
+  "automatic_corrections": 0,
+  "automatic_retries": 0,
+  "identity": "stage1-analysis/1",
+  "overall_job": {
+    "includes_queue": true,
+    "origin": "accepted_admission",
+    "seconds": 4800
+  },
+  "provider_invocation": {
+    "origin": "invocation_start",
+    "seconds": 3600
+  },
+  "publication_authority": "M385612; FINDING.md: Owner-approved Stage 1 finite profiles \u2014 2026-11-22",
+  "stage": {
+    "origin": "stage_admission",
+    "seconds": 4800
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "base": "9fa0ec37a244a388a55be108fd73cb854846245c",
+  "files": {
+    "v12/DESIGN.md": "879dbb3c8640fc245f11d392baed673b2b6ba01a523925ae700c374dd939e3e4",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/FINDING.md": "69d9ff7360c9590fc1ce4ea995100e5bec9fce8d19b43209cf59eee553ecc9eb",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/PLAN.md": "d6599e9b06ee4c93debc0caccd88ebf29dba20170579ff9beb0e14883650cc2d",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/native-planning-385541/TASK.txt": "2e9cf3dcd440f6907d1ba207f3f7071f27cd35e7f135a72dbec41337b3df993b",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/native-planning-385541/bootstrap-inputs.json": "41d6728ad010b8e95860540c6bf977002c357ff602fde8146705d075ad06cb6f",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/native-planning-385541/installed-task.json": "b7260f060a3c39b3ac2e12e6a6446fcfab18e4a7e16f84f8c058f6a6018d9b67"
+  }
+}

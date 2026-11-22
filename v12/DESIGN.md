@@ -859,6 +859,52 @@ required. This supersedes completing a pilot script's duplicate admission checks
 before implementing the manager operation. Exact syntax is an implementation
 choice; preserve deterministic verification and independent acceptance.
 
+**REC-8. Retained verification-failure recovery (owner 2026-11-22).**
+A failed required verification with successful provider output and a validated
+retained candidate MUST produce one attributable analysis per execution failure
+and an owner-facing diagnosis, options and decision item. The analysis role uses
+declared worker/profile configuration, without binding the role to a provider
+or model, and may inspect evidence and author its report;
+it cannot change the candidate, verifier or execution, or authorize recovery.
+Analysis failure, expiry or cancellation retains partial evidence and goes directly to the owner, without
+automatic retry or recursive analysis. Duplicate ending delivery is not a new
+failure and MUST NOT create another analysis or decision item.
+
+A candidate failing identity or digest validation MUST be reported and is not
+recovery input. Verification output MUST NOT become a new candidate.
+
+The owner approves the exact verifier correction and linked verification/review
+scope against the retained candidate identity and digest. The manager admits a
+new isolated verification/review-only successor, preserving the original task,
+candidate and failure and never redispatching implementation. This is distinct
+from REC-7's specification-preserving fresh attempt. Successful verification
+MUST hand the same candidate and attributable evidence to independent substantive
+review automatically; structural checks alone cannot establish acceptance.
+Renewed verification failure produces one new analysis and owner item; another
+successor requires a new owner decision, never an automatic recovery loop.
+
+Expiry after successful verification but before review completion MUST preserve
+that evidence and hold an owner item, not trigger verification-failure analysis
+or automatic retry. The owner may authorize a new linked review-only execution
+against still-valid exact candidate/verification evidence. Neither implementation
+nor verification is repeated while that evidence remains valid; invalid or unknown
+evidence requires explicit disposition, not blind re-verification. Old deadlines
+remain unchanged. Analysis and successor profiles MUST be owner-selected before
+use, with immutable identities/digests; the owner selects any subsequent change.
+
+Admission, effects and handoffs MUST preserve exact input/decision bindings and
+stable replay identities across restart, with intent before external effects.
+Compose authority, custody and runtime/resource exclusion through their owners
+under DB-3 through DB-5 and REC-1 through REC-6. Cancellation and unknown prior
+cessation cannot authorize conflicting execution. Persist explicit finite limits
+and clock origins for each new admission under LIM-5; do not reset or extend old
+admitted deadlines or silently change a phase plan. General exceptional-ending
+classification remains a separately delivered capability, not an expansion of
+this first verification-failure trigger.
+
+Decision record: [W9901 Stage 1 rulings](../work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/FINDING.md#owner-selected-stage-1-analysis-role--2026-11-22),
+including retained recovery, post-verification expiry and approved finite profiles.
+
 ## 13. Security, credentials and trust
 
 **SEC-1.** This v12 deployment uses trusted selected worker images with strict
