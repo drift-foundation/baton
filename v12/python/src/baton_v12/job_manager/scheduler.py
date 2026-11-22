@@ -879,6 +879,9 @@ class PooledManagerOperations:
         return intent
 
     def admit(self, stage, job):
+        from .retained_recovery import execution_gate
+        if execution_gate(self.store, stage["job_id"]) is not None:
+            raise ContractRefusal("refused", "precondition", "retained recovery requires a validated candidate execution handoff")
         allocation = self._allocation(stage, create=True)
         worker = self.workers[(allocation["generation"],
                                allocation["worker_id"])]

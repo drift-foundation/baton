@@ -1,0 +1,415 @@
+diff --git a/v12/python/src/baton_v12/job_manager/documents.py b/v12/python/src/baton_v12/job_manager/documents.py
+index dafe7043..48509506 100644
+--- a/v12/python/src/baton_v12/job_manager/documents.py
++++ b/v12/python/src/baton_v12/job_manager/documents.py
+@@ -81,7 +81,7 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
+            "SUBMISSION_LIMITS_SCHEMAS",
+            "SUBMISSION_MEMBERS", "SUBMISSION_SCHEMA", "SUBMISSION_SCHEMAS",
+            "TERMINAL_POLICIES",
+-           "TERMINAL_STAGE_STATES", "act", "correction", "dependency_gate",
++           "TERMINAL_STAGE_STATES", "act", "correction", "dependency_gate", "recovery_gate",
+            "job_status",
+            "owned_submission", "read_submission", "receipt", "reconciliation",
+            "stage_episode", "stage_id", "stage_launch", "stage_status",
+@@ -641,6 +641,7 @@ CONTRACTS = {
+     "stage.receipt": (("stage_id", "episode", "act", "operation_id", "state",
+                        "recorded_at", "detail"), ()),
+     "stage.dependency-gate": (("stage_id", "state", "open"), ()),
++    "stage.recovery-gate": (("job_id", "open", "reason", "decision_id", "candidate", "lineage"), ()),
+     # One attempt at admitting one stage. `ended_state` is null while it is
+     # live, and the three ending members travel together because an ending
+     # nobody can order against the next assertion is not one.
+@@ -866,6 +867,10 @@ def receipt(**members):
+     return _emit("stage.receipt", members)
+ 
+ 
++def recovery_gate(**members):
++    return _emit("stage.recovery-gate", members)
++
++
+ def dependency_gate(**members):
+     return _emit("stage.dependency-gate", members)
+ 
+diff --git a/v12/python/src/baton_v12/job_manager/fresh_attempt.py b/v12/python/src/baton_v12/job_manager/fresh_attempt.py
+index ede7b479..10105ff5 100644
+--- a/v12/python/src/baton_v12/job_manager/fresh_attempt.py
++++ b/v12/python/src/baton_v12/job_manager/fresh_attempt.py
+@@ -469,6 +469,7 @@ def _prior(store, prior_job_id):
+             "integrity", "schema",
+             f"submission {name_value(held['submission_id'])} records Job "
+             f"{name_value(prior_job_id)} and its document does not carry it")
++    job_control.require_ordinary_profile(entry.get("control"))
+     works = {stage["work_id"] for stage in stages}
+     if len(works) != 1:
+         # EVERY STAGE OF ONE JOB SHARES ONE WORK in every configuration this
+diff --git a/v12/python/src/baton_v12/job_manager/job_control.py b/v12/python/src/baton_v12/job_manager/job_control.py
+index 45bc18d1..bea85e43 100644
+--- a/v12/python/src/baton_v12/job_manager/job_control.py
++++ b/v12/python/src/baton_v12/job_manager/job_control.py
+@@ -56,7 +56,7 @@ __all__ = ["CONTINUATIONS", "CONTROL_KIND", "EXPIRY_KIND",
+            "advance_watermark", "observe", "job_origin_in",
+            "stage_origin_in",
+            "evaluate", "closing", "closed_of", "refuse_closed",
+-           "refuse_uncertain",
++           "refuse_uncertain", "require_ordinary_profile",
+            "closed_message", "rounds_used_in",
+            "refuse_round", "expire", "reported", "report"]
+ 
+@@ -90,6 +90,12 @@ HEAVY_NATIVE_HANDOFF_PROFILE = "native-handoff-heavy/1"
+ # control profile is the policy it was ADMITTED under, and two different owner
+ # approvals sharing one name would make the admitted policy unattributable.
+ SUCCESSOR_RECOVERY_PROFILE = "stage1-verification-review/1"
++def require_ordinary_profile(control):
++    """Recovery policy is admitted only by the retained-successor owner."""
++    if control and control.get("profile") == SUCCESSOR_RECOVERY_PROFILE:
++        raise ContractRefusal("refused", "precondition", "stage1-verification-review/1 requires retained-recovery successor admission")
++
++
+ PROFILES = {
+     "documentation/1": {"correction_rounds": 0, "stage_seconds": 4800,
+                         "job_seconds": 9960, "provider_turn_seconds": 3600,
+diff --git a/v12/python/src/baton_v12/job_manager/projection.py b/v12/python/src/baton_v12/job_manager/projection.py
+index 40d73728..0ec44b03 100644
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -496,6 +496,7 @@ def materialized(store, stages=None):
+     whatever rows were handed in, and only the remaining tables are read.
+     """
+     from .integration_capacity import failed_integration_of
++    from .retained_recovery import execution_gate
+ 
+     with store.read_snapshot():
+         rows = stages if stages is not None else submission.stage_rows(store)
+@@ -511,6 +512,7 @@ def materialized(store, stages=None):
+             live = episodes.live_of(store, stage_id)
+             owned[stage_id] = {
+                 "stage": stage, "episode": live,
++                "recovery_gate": execution_gate(store, stage["job_id"]),
+                 "attempt": (episodes.attempting(stage, live)
+                             if live is not None else None),
+                 "history": episodes.episodes_of(store, stage_id),
+@@ -750,7 +752,8 @@ def stage_states(store, operations, stages=None, snapshot=None):
+ 
+ def gates_of(stage, held):
+     """This stage's dependency gates, each with the state that decides it."""
+-    gates = []
++    recovery = held.get(stage["stage_id"], {}).get("recovery_gate")
++    gates = [] if recovery is None else [recovery]
+     for gate in json.loads(stage["depends_on"]):
+         stage_id = documents.stage_id(gate["job_id"], gate["kind"])
+         found = held.get(stage_id)
+diff --git a/v12/python/src/baton_v12/job_manager/retained_recovery.py b/v12/python/src/baton_v12/job_manager/retained_recovery.py
+index 1db5d3c4..15c5d521 100644
+--- a/v12/python/src/baton_v12/job_manager/retained_recovery.py
++++ b/v12/python/src/baton_v12/job_manager/retained_recovery.py
+@@ -114,7 +114,7 @@ __all__ = ["SUCCESSOR_PROFILE", "SUCCESSOR_DEFINITION",
+            "SUCCESSOR_DISPOSITIONS", "successor_disposition",
+            "READ_SCHEMA", "owner_item_read", "expected_facts",
+            "review_stage_id", "successor_readiness",
+-           "decide", "admit_successor"]
++           "decide", "admit_successor", "execution_gate"]
+ 
+ 
+ def _refuse(message, *, category="refused", code="precondition"):
+@@ -1704,7 +1704,13 @@ def _owned(store, *, prior, decision, operands, document,
+ 
+     # -- CUT C: the submission, and the completion that closes the intent.
+     try:
+-        recorded = submission.submit(store, document)
++        intent = successor_intent_of(store, decision["decision_id"])
++        if intent is None or intent["job_id"] != job_id or intent["candidate"] != candidate:
++            _refuse("successor submission requires its exact retained reservation")
++        expected = _composed(prior, decision, job_id=job_id, submission_id=operands["submission_id"])
++        if document != expected:
++            _refuse("successor submission differs from its approved decision")
++        recorded = submission._submit_owned(store, document)
+     except ContractRefusal as refusal:
+         if refusal.code == "operation-collision":
+             _refuse(f"the submission for this successor collided with an "
+@@ -1999,18 +2005,21 @@ def successor_readiness(record):
+     stages = tuple(record["stages"])
+     if stages == REVIEW_ONLY_STAGES:
+         return {"verification": "omitted",
+-                "review": "owed",
++                "review": "blocked",
+                 "owed_by": "the verifier execution and review handoff slice",
++            "execution": "blocked: retained candidate handoff unavailable",
+                 "detail": "the approved profile's verification stage is "
+                           "omitted under this decision; the passed "
+                           "verification named in the lineage stands and is "
+                           "not repeated"}
+-    return {"verification": "owed", "review": "owed",
++    return {"verification": "owed", "review": "blocked",
+             "owed_by": "the verifier execution and review handoff slice",
++            "execution": "blocked: retained candidate handoff unavailable",
+             "detail": "this admission reserved the isolated verification's "
+                       "identity and executed nothing; the retained candidate "
+                       "is unchanged and the review stage consumes the same "
+-                      "candidate once that verification passes"}
++                      "candidate only after passed verification AND the "
++                      "supported execution handoff; this build keeps it blocked"}
+ 
+ 
+ def _completed(store, operands, *, decision, candidate, bounds, evidence,
+@@ -2059,3 +2068,23 @@ def _completed(store, operands, *, decision, candidate, bounds, evidence,
+     return store.transact(admit_operation_id(operands["decision_id"]),
+                           SUCCESSOR_KIND,
+                           job_signature(SUCCESSOR_KIND, operands), act)
++
++
++def execution_gate(store, job_id):
++    """Keep recovery blocked until Stage1-C supplies a validated handoff.
++
++    A passed account alone cannot open review. The exact reservation remains
++    visible across restart, including review-only recovery. Stage1-C must
++    replace this hold with validated custody and execution binding; this
++    slice exposes no switch that bypasses the missing execution contract.
++    """
++    control = job_control.control_of(store, job_id)
++    if control is None or control["profile"] != SUCCESSOR_PROFILE:
++        return None
++    intents = [one for one in _records_of(store, SUCCESSOR_INTENT_KIND, INTENT_MEMBERS) if one["job_id"] == job_id]
++    held = intents[0] if len(intents) == 1 else None
++    return documents.recovery_gate(
++        job_id=job_id, open=False, reason="retained-candidate-execution-handoff-unavailable",
++        decision_id=None if held is None else held["decision_id"],
++        candidate=None if held is None else held["candidate"],
++        lineage=None if held is None else held["lineage"])
+diff --git a/v12/python/src/baton_v12/job_manager/scheduler.py b/v12/python/src/baton_v12/job_manager/scheduler.py
+index 0ca02f49..29987a47 100644
+--- a/v12/python/src/baton_v12/job_manager/scheduler.py
++++ b/v12/python/src/baton_v12/job_manager/scheduler.py
+@@ -879,6 +879,9 @@ class PooledManagerOperations:
+         return intent
+ 
+     def admit(self, stage, job):
++        from .retained_recovery import execution_gate
++        if execution_gate(self.store, stage["job_id"]) is not None:
++            raise ContractRefusal("refused", "precondition", "retained recovery requires a validated candidate execution handoff")
+         allocation = self._allocation(stage, create=True)
+         worker = self.workers[(allocation["generation"],
+                                allocation["worker_id"])]
+diff --git a/v12/python/src/baton_v12/job_manager/submission.py b/v12/python/src/baton_v12/job_manager/submission.py
+index 97ce1051..db618764 100644
+--- a/v12/python/src/baton_v12/job_manager/submission.py
++++ b/v12/python/src/baton_v12/job_manager/submission.py
+@@ -46,6 +46,14 @@ def submit(store, document):
+     afterwards.
+     """
+     owned = documents.owned_submission(document)
++    for job in owned["jobs"]:
++        job_control.require_ordinary_profile(job.get("control"))
++    return _submit_owned(store, owned)
++
++
++def _submit_owned(store, owned):
++    # Internal normalized submission; recovery validates its exact reserved
++    # document before reaching this shared atomic writer.
+     submission_id = owned["submission_id"]
+     # THE NORMALIZED DOCUMENT IS THE OPERANDS, not a member wrapping it. The
+     # canonical serialization is bounded by depth, and one decorative level of
+diff --git a/v12/python/src/baton_v12/job_manager/templates.py b/v12/python/src/baton_v12/job_manager/templates.py
+index d402ef8c..f1c77838 100644
+--- a/v12/python/src/baton_v12/job_manager/templates.py
++++ b/v12/python/src/baton_v12/job_manager/templates.py
+@@ -722,6 +722,7 @@ def resolve(request, *, configuration=None):
+     # refused there as "neither", like the override member one line up.
+     control = (job_control.owned_control(taken["control"])
+                if "control" in taken else None)
++    job_control.require_ordinary_profile(control)
+     stages = _stages(definition, task, held["profiles"])
+     submission = _submission(definition, task, source, scope, stages,
+                              overrides, control)
+diff --git a/v12/python/tests/job_manager/test_retained_recovery_admission.py b/v12/python/tests/job_manager/test_retained_recovery_admission.py
+index b1c22914..4f1648a1 100644
+--- a/v12/python/tests/job_manager/test_retained_recovery_admission.py
++++ b/v12/python/tests/job_manager/test_retained_recovery_admission.py
+@@ -575,7 +575,7 @@ class TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor(RecoveryCase):
+                          9960)
+         # AND IT SAYS WHAT IS STILL OWED rather than implying it happened.
+         self.assertEqual(successor["readiness"]["verification"], "owed")
+-        self.assertEqual(successor["readiness"]["review"], "owed")
++        self.assertEqual(successor["readiness"]["review"], "blocked")
+         self.assertEqual(successor["verification_attempt_id"],
+                          "verification-recovery-D1")
+ 
+@@ -1204,7 +1204,7 @@ class ReviewOnlyRecoveryNeedsExactlyValidEvidence(RecoveryCase):
+         self.assertEqual(successor["job_id"], "recovery-D2")
+         self.assertEqual(successor["stages"], ["review"])
+         self.assertEqual(successor["readiness"]["verification"], "omitted")
+-        self.assertEqual(successor["readiness"]["review"], "owed")
++        self.assertEqual(successor["readiness"]["review"], "blocked")
+         # THE SAME APPROVED PROFILE AND DIGEST, with the verification stage
+         # omitted rather than a third profile invented.
+         self.assertEqual(successor["bounds"]["profile"],
+@@ -1620,3 +1620,134 @@ class TheCommandRefusesAnIncompleteRequestBeforeItOpensAnything(RecoveryCase):
+ 
+ if __name__ == "__main__":                                # pragma: no cover
+     unittest.main()
++
++
++class RecoveryAdmissionIsNotRunnable(RecoveryCase):
++    """Real manager ticks honor the unsupported Stage1-C boundary."""
++    verified = ReviewOnlyRecoveryNeedsExactlyValidEvidence.verified
++    expired = ReviewOnlyRecoveryNeedsExactlyValidEvidence.expired
++    lineage = ReviewOnlyRecoveryNeedsExactlyValidEvidence.lineage
++    review_only = ReviewOnlyRecoveryNeedsExactlyValidEvidence.review_only
++
++    def setUp(self):
++        super().setUp()
++        self.key = self.delivered()["key"]
++        self.item = self.read(self.key)
++        self.assertEqual(self.decide(self.key, self.item)[0], 0)
++
++    def assert_no_offer(self, job_id="recovery-D1", now=NOW):
++        from baton_v12.job_manager import projection, sweep
++        from tests.job_manager.fixtures import FakeOperations
++        operations = FakeOperations(authority_uuid=self.AUTHORITY)
++        report = sweep(self.jobs, operations, now=now)
++        self.assertFalse([act for act in report["acts"] if job_id in json.dumps(act)])
++        state = projection.stage_states(self.jobs, operations)[job_id + "/review"]
++        self.assertNotIn(state["state"], ("queued", "offered"))
++        gate = projection.gates_of(state["stage"], {job_id + "/review": state})[0]
++        self.assertFalse(gate["open"])
++        self.assertEqual(gate["reason"], "retained-candidate-execution-handoff-unavailable")
++        intent = retained_recovery.successor_intent_of(self.jobs, gate["decision_id"])
++        self.assertEqual(gate["candidate"], intent["candidate"])
++        self.assertEqual(gate["lineage"], intent["lineage"])
++        self.assertFalse([call for call in operations.calls if job_id in json.dumps(call)])
++
++    def test_unknown_verification_and_restart_never_offer_review(self):
++        self.assert_no_offer()
++        with JobStore.open(self.jobs.database, authority_uuid=self.AUTHORITY, incarnation="restarted", clock=lambda: NOW) as restarted:
++            original, self.jobs = self.jobs, restarted
++            try:
++                self.assert_no_offer()
++            finally:
++                self.jobs = original
++
++    def test_failed_verification_never_offers_review(self):
++        self.verified(outcome="failed", exit_status=1)
++        self.assert_no_offer()
++
++    def test_passed_account_without_candidate_handoff_stays_blocked(self):
++        self.verified()
++        self.assert_no_offer()
++
++    def test_review_only_keeps_exact_lineage_but_cannot_bypass_missing_handoff(self):
++        self.verified()
++        self.expired()
++        (code, answer), _ = self.review_only()
++        self.assertEqual(code, 0, answer)
++        self.assert_no_offer("recovery-D2", now=AFTER)
++
++    def test_cancelled_successor_never_offers_review(self):
++        cancellation.request(self.jobs, job_id="recovery-D1", reason="owner stopped")
++        self.assert_no_offer()
++
++    def test_expired_successor_never_offers_review(self):
++        self.expired()
++        self.assert_no_offer(now=AFTER)
++
++    def test_ordinary_submit_cannot_replay_even_exact_recovery_document(self):
++        row = submission.submission_of(self.jobs, submission.job_of(self.jobs, "recovery-D1")["submission_id"])
++        with self.assertRaisesRegex(ContractRefusal, "requires retained-recovery"):
++            submission.submit(self.jobs, json.loads(row["document"]))
++
++    def test_public_submit_command_refuses_the_recovery_profile(self):
++        from tools import job_manager
++        row = submission.submission_of(self.jobs, submission.job_of(self.jobs, "recovery-D1")["submission_id"])
++        document = pathlib.Path(self.root) / "ordinary-submit.json"
++        document.write_text(row["document"])
++        with self.assertRaisesRegex(ContractRefusal, "requires retained-recovery"):
++            job_manager.main(["--store", self.jobs.database, "--authority-uuid", self.AUTHORITY, "--incarnation", "ordinary-cli", "submit", "--document", str(document)], clock=lambda: NOW, stream=io.StringIO())
++
++    def test_generic_fresh_attempt_refuses_before_owner_effects(self):
++        from baton_v12.job_manager import fresh_attempt
++        ports = self.stand_ins()
++        with self.assertRaisesRegex(ContractRefusal, "requires retained-recovery"):
++            fresh_attempt.admit(self.jobs, None, prior_job_id="recovery-D1", exclusion=ports["exclusion"], authorization=WorkPort(self.authority), binding=ports["binding"], ownership=ports["ownership"])
++
++    def test_ordinary_create_refuses_the_recovery_only_profile(self):
++        from tests.job_manager import test_creation
++        case = test_creation.CreationCase("setUp")
++        case.setUp()
++        try:
++            with self.assertRaisesRegex(ContractRefusal, "requires retained-recovery"):
++                case.created(request=test_creation.request(control={"profile": retained_recovery.SUCCESSOR_PROFILE}))
++        finally:
++            case.doCleanups()
++
++
++from tests.tools.test_bootstrap import ValidFixture as _InstalledFixture
++
++
++class ShippedOwnersComposeOverAnInstalledInstance(_InstalledFixture):
++    def test_default_factory_reaches_owner_item_and_rejects_foreign_stores(self):
++        from contextlib import redirect_stderr
++        from baton_v12.worker_manager import ControlStore
++        from tools import bootstrap, job_manager
++        prepared = self.prepared()
++        places = bootstrap.layout(self.state)
++        uuid = prepared["configuration"]["authority_uuid"]
++        with JobStore.open(places["job_store"], authority_uuid=uuid, incarnation="fixture", clock=lambda: NOW):
++            pass
++        with ControlStore.open(places["control_store"], incarnation="fixture", clock=lambda: NOW):
++            pass
++        argv = ["recovery-item", "--instance", self.state, "--store", places["job_store"], "--control", places["control_store"], "--authority", places["authority_store"], "--authority-uuid", uuid, "--incarnation", "read-default-owners", "--participant", "baton.approver", "--failure", "not-yet-recorded"]
++        said = io.StringIO()
++        with redirect_stderr(said):
++            code = job_manager.main(argv, clock=lambda: NOW, stream=io.StringIO())
++        self.assertEqual(code, 1)
++        self.assertIn("holds no retained failure", said.getvalue())
++        for flag in ("--store", "--control", "--authority"):
++            with self.subTest(flag=flag):
++                other = os.path.join(self.root, "other-" + flag[2:] + ".sqlite3")
++                if flag == "--store":
++                    with JobStore.open(other, authority_uuid=uuid, incarnation="other", clock=lambda: NOW):
++                        pass
++                elif flag == "--control":
++                    with ControlStore.open(other, incarnation="other", clock=lambda: NOW):
++                        pass
++                changed = list(argv)
++                changed[changed.index(flag) + 1] = other
++                said = io.StringIO()
++                with redirect_stderr(said):
++                    code = job_manager.main(changed, clock=lambda: NOW, stream=io.StringIO())
++                self.assertEqual(code, 1)
++                self.assertIn("owns", said.getvalue())
++                self.assertNotIn("holds no retained failure", said.getvalue())
+diff --git a/work/records/2026/11/finding-v12-retained-recovery-admission/FINDING.md b/work/records/2026/11/finding-v12-retained-recovery-admission/FINDING.md
+index b43b7201..cc9eb55e 100644
+--- a/work/records/2026/11/finding-v12-retained-recovery-admission/FINDING.md
++++ b/work/records/2026/11/finding-v12-retained-recovery-admission/FINDING.md
+@@ -124,3 +124,7 @@ test, no full-suite run, no Git mutation and no host import. Stage 1-A's five
+ records, the original failure, its candidate, its task, its command, its
+ deadlines and its Job are byte-identical across the whole path, proved on the
+ control store's own bytes and on the Job store's rows.
++
++## Independent source review corrections — baton.codxpc E385713, 2026-11-22
++
++M385710 selects F1/F2/F3 correction on preserved5bc260b6. The real scheduler now holds recovery review with an explicit closed gate carrying exact reserved candidate/decision/lineage; a passed account alone cannot open missing Stage1-C execution. Ordinary submit/template create/fresh-attempt reject stage1-verification-review/1; intended successor admission uses its validated exact reservation. Default production owners composition is exercised over a bootstrapped disposable instance, including foreign-store refusals. No cap/REC-9 changes. Review remains source-only, not native custody or failed Job success. W385625 owns the supported execution handoff plus post-verification-expiry owner item (T385625 M385714).
+diff --git a/work/records/2026/11/finding-v12-retained-recovery-admission/PLAN.md b/work/records/2026/11/finding-v12-retained-recovery-admission/PLAN.md
+index d20258e5..361f624a 100644
+--- a/work/records/2026/11/finding-v12-retained-recovery-admission/PLAN.md
++++ b/work/records/2026/11/finding-v12-retained-recovery-admission/PLAN.md
+@@ -83,3 +83,7 @@ module its change bears on (`tests.tools.test_parallel_runner`, the execution
+ registry and declared consumed inputs) is verified completely instead. A
+ reviewer or integrator on a host with real storage outside the checkout should
+ run `just test-group tools-pure` and `just test-group job_manager` there.
++
++## F1/F2/F3 correction awaiting delta review — E385713
++
++No recovery review is runnable in this Stage1-B build, including review-only with valid lineage: Stage1-C must supply exact verification/candidate custody and execution handoff. The closed recovery gate is durable through the admitted profile and reserved identity, rederived on every restart; no bypass switch. Ordinary profile misuse refuses before external admission effects. Focused final verification764/764 (149 recovery/status/CLI plus615 affected compatibility/source-identity), zero failures/errors/skips. New test coverage11 cases; two prior readiness expectations now explicitly say blocked. Independent delta/cumulative byte review required; no native rerun/import selected.
+diff --git a/work/records/2026/11/finding-v12-retained-recovery-admission/PROGRESS.md b/work/records/2026/11/finding-v12-retained-recovery-admission/PROGRESS.md
+index cda6fb58..b68f4319 100644
+--- a/work/records/2026/11/finding-v12-retained-recovery-admission/PROGRESS.md
++++ b/work/records/2026/11/finding-v12-retained-recovery-admission/PROGRESS.md
+@@ -28,3 +28,7 @@ manager admission/readback.
+ - Test paths changed and their reasons are in PLAN; two existing expectations
+   moved, both additive to exhaustive registries.
+ - Pending: owner Git checkpoint for this slice, carried in PLAN.
++
++## 2026-11-22 — baton.codxpc E385713 review correction
++
++Corrected isolated exact5bc260b6 under M385710: F1 actual projection/sweep hold plus scheduler admission defense, with decision/candidate/lineage visible; F2 recovery profile limited to exact successor submission, ordinary submit/create/fresh-attempt refused; F3 shipped default owners factory over bootstrapped disposable instance. Only existing test_retained_recovery_admission.py changed:11 additive tests and two owed-to-blocked expectation corrections, preserving earlier identity/authorization/replay/cancellation/lineage guarantees. Final149/149 in7.468s and615/615 in21.430s, zero failures/errors/skips; source-identity archive limitation resolved using isolated Git metadata. Intermediate test-only errors/expectations fixed, logs retained in author evidence. Stage1-C handoff remains unavailable and non-runnable; no implementation/verifier/provider or native Job rerun. Candidate returned for independent review, not accepted.

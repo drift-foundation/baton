@@ -167,6 +167,35 @@ class Authority:
         asked BEFORE such a Work is created (W321608, native-labels-3)."""
         return self._core.authorize(participant, route=route) is not None
 
+    def authorize_capability(self, participant, capability, *, scope=None):
+        """W16821's ONE DECISION SEAM, as the document it answers with.
+
+        W385624. `holds_capability` above answers a BOOLEAN, which is exactly
+        what W16821 corrected: a boolean cannot be recorded beside the act it
+        authorized -- it does not say who acted, in which scope, or by which
+        grant -- and before this method the decision document was reachable
+        only through `Core.authorize`, which this face deliberately does not
+        expose. So an owner-facing consumer that must RETAIN its authorization
+        provenance (DESIGN REC-8: "Bind owner identity/provenance ...") had a
+        choice between composing the document itself out of `principal_of`,
+        `grants_of` and `policy_generation` -- provenance the caller wrote --
+        and reaching past this face. This is the third answer.
+
+        IT DECIDES ONE CAPABILITY AND NEVER A ROUTE. `Core.authorize` takes
+        exactly one of the two and a caller that could name either here would
+        be able to ask this surface a question whose answer it then reads as
+        the other. Route membership is `handles_route`'s, unchanged.
+
+        THE SCOPE IS THE CALLER'S OPERAND HERE and the Work's row is where its
+        callers read it from. That is the same posture `holds_capability` has
+        had since W16821 -- it is a READ, and holding a capability is not
+        using it -- and every transition that PERFORMS an act still resolves
+        its own scope from the row it read inside its own transaction.
+        """
+        held = self._core.authorize(participant, capability=capability,
+                                    scope=scope)
+        return None if held is None else held.as_document()
+
     # -- the principal mapping (W16821) --------------------------------------
     #
     # ON THIS FACE AND NOT ON THE SESSION, for the reason the two faces exist

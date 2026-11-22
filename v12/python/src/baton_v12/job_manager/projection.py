@@ -496,6 +496,7 @@ def materialized(store, stages=None):
     whatever rows were handed in, and only the remaining tables are read.
     """
     from .integration_capacity import failed_integration_of
+    from .retained_recovery import execution_gate
 
     with store.read_snapshot():
         rows = stages if stages is not None else submission.stage_rows(store)
@@ -511,6 +512,7 @@ def materialized(store, stages=None):
             live = episodes.live_of(store, stage_id)
             owned[stage_id] = {
                 "stage": stage, "episode": live,
+                "recovery_gate": execution_gate(store, stage["job_id"]),
                 "attempt": (episodes.attempting(stage, live)
                             if live is not None else None),
                 "history": episodes.episodes_of(store, stage_id),
@@ -750,7 +752,8 @@ def stage_states(store, operations, stages=None, snapshot=None):
 
 def gates_of(stage, held):
     """This stage's dependency gates, each with the state that decides it."""
-    gates = []
+    recovery = held.get(stage["stage_id"], {}).get("recovery_gate")
+    gates = [] if recovery is None else [recovery]
     for gate in json.loads(stage["depends_on"]):
         stage_id = documents.stage_id(gate["job_id"], gate["kind"])
         found = held.get(stage_id)

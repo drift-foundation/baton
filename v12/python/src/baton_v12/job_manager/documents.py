@@ -81,13 +81,13 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "SUBMISSION_LIMITS_SCHEMAS",
            "SUBMISSION_MEMBERS", "SUBMISSION_SCHEMA", "SUBMISSION_SCHEMAS",
            "TERMINAL_POLICIES",
-           "TERMINAL_STAGE_STATES", "act", "correction", "dependency_gate",
+           "TERMINAL_STAGE_STATES", "act", "correction", "dependency_gate", "recovery_gate",
            "job_status",
            "owned_submission", "read_submission", "receipt", "reconciliation",
            "stage_episode", "stage_id", "stage_launch", "stage_status",
            "status",
            "fresh_attempt_admitted",
-           "recovery_analysis",
+           "recovery_analysis", "recovery_successor",
            "submission_recorded", "submission_signature", "sweep_report",
            "template_job_created"]
 
@@ -641,6 +641,7 @@ CONTRACTS = {
     "stage.receipt": (("stage_id", "episode", "act", "operation_id", "state",
                        "recorded_at", "detail"), ()),
     "stage.dependency-gate": (("stage_id", "state", "open"), ()),
+    "stage.recovery-gate": (("job_id", "open", "reason", "decision_id", "candidate", "lineage"), ()),
     # One attempt at admitting one stage. `ended_state` is null while it is
     # live, and the three ending members travel together because an ending
     # nobody can order against the next assertion is not one.
@@ -786,6 +787,25 @@ CONTRACTS = {
     # refusal's prose and never a worker's message.
     "recovery.analysis": (("failure_key", "stage_id", "act", "outcome"),
                           ("detail",)),
+    # W385624 / REC-8: THE ONE LINKED VERIFICATION/REVIEW-ONLY SUCCESSOR one
+    # approved owner decision admitted. Every member is a BINDING rather than
+    # a copy: the failure and the decision it consumed, the retained
+    # candidate's own base/head/digests, the exact approved corrected command
+    # and its execution context digest, the selected stage set, the
+    # owner-approved finite bounds and the LIM-5 control the submission
+    # journalled, the host evidence the admission rested on, and `readiness`
+    # -- which names the acts still OWED so an answer carrying a Job id
+    # cannot read as a recovery that happened. `fence` is the target Job's own
+    # expiry when it has one and NULL when it has none -- required rather
+    # than optional, because "this admission looked and found no fence" and
+    # "nobody looked" are different facts and an absent member says the
+    # second one.
+    "recovery.successor": (("failure_key", "decision_id", "job_id",
+                            "prior_job_id", "work_id", "submission_id",
+                            "stages", "work", "binding", "candidate",
+                            "correction", "bounds", "control", "exclusion",
+                            "fence", "readiness", "stage_ids",
+                            "verification_attempt_id", "recorded_at"), ()),
     # One live attempt's runtime refresh. `state` is what the reconciliation
     # recorded, or null when this tick could not ask. `detail` carries only
     # what this manager itself can name: a contained refusal's typed category
@@ -847,6 +867,10 @@ def receipt(**members):
     return _emit("stage.receipt", members)
 
 
+def recovery_gate(**members):
+    return _emit("stage.recovery-gate", members)
+
+
 def dependency_gate(**members):
     return _emit("stage.dependency-gate", members)
 
@@ -899,6 +923,11 @@ def sweep_report(**members):
 def recovery_analysis(**members):
     """W385623: one act of the retained-failure recovery pass."""
     return _emit("recovery.analysis", members)
+
+
+def recovery_successor(**members):
+    """W385624: the one linked successor an owner decision admitted."""
+    return _emit("recovery.successor", members)
 
 
 def job_cancellation(**members):

@@ -1,0 +1,35 @@
+..........F......F..F....
+======================================================================
+FAIL: test_a_TWO_STORE_status_refusal_says_WHICH_store_it_could_not_read (tests.job_manager.test_tool.TheStatusSurfaceOpensBothStoresReadOnly.test_a_TWO_STORE_status_refusal_says_WHICH_store_it_could_not_read)
+A status names two stores, and the refusal used to name neither.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/output/v12/python/tests/job_manager/test_tool.py", line 727, in test_a_TWO_STORE_status_refusal_says_WHICH_store_it_could_not_read
+    self.assertIn("jobs.sqlite3", said)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'jobs.sqlite3' not found in "the Job store at '/output/work/scratch/t/v12-job-manager-k4gkafil/jobs.sqlite… could not be read through its non-writing opener (OperationalError/SQLITE_READONLY_DIRECTORY: 'attempt to write a readonly database'); no write-capable fallback was attempted and nothing was changed. This process may read and may write the store, and may not write its directory '/output/work/scratch/t/v12-job-manager-k4gkafil'; the SQLite sidecars beside it are none. SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE: a read-only connection to a database in WAL mode must create the wal-index shared-memory file beside the store, and it could not. If that is this store's condition, reading a stable copy of it, or granting this process write access to the directory, is what makes it readable; neither is something a status will do for itself, and it will not open the store writably instead."
+
+======================================================================
+FAIL: test_the_CONTROL_STORE_refusal_also_names_its_own_store (tests.job_manager.test_tool.TheStatusSurfaceOpensBothStoresReadOnly.test_the_CONTROL_STORE_refusal_also_names_its_own_store)
+And the control store's own refusal named NO path whatever.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/output/v12/python/tests/job_manager/test_tool.py", line 809, in test_the_CONTROL_STORE_refusal_also_names_its_own_store
+    self.assertIn("control.sqlite3", said)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'control.sqlite3' not found in "the existing manager store at '/output/work/scratch/t/v12-job-manager-5rdhgzbh/control.sql… could not be read through its non-writing opener (OperationalError/SQLITE_READONLY_DIRECTORY: 'attempt to write a readonly database'); no write-capable fallback was attempted and nothing was changed. This process may read and may write the store, and may not write its directory '/output/work/scratch/t/v12-job-manager-5rdhgzbh'; the SQLite sidecars beside it are none. SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE: a read-only connection to a database in WAL mode must create the wal-index shared-memory file beside the store, and it could not. If that is this store's condition, reading a stable copy of it, or granting this process write access to the directory, is what makes it readable; neither is something a status will do for itself, and it will not open the store writably instead."
+
+======================================================================
+FAIL: test_a_failed_read_reports_SQLITES_WORDS_and_the_MEASURED_condition (tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle.test_a_failed_read_reports_SQLITES_WORDS_and_the_MEASURED_condition)
+W316915. The refusal used to carry the exception CLASS and no more.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/output/v12/python/tests/job_manager/test_store_readonly.py", line 365, in test_a_failed_read_reports_SQLITES_WORDS_and_the_MEASURED_condition
+    self.assertIn("jobs.sqlite3", said)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'jobs.sqlite3' not found in "the Job store at '/output/work/scratch/t/v12-job-manager-kfvs606n/jobs.sqlite… could not be read through its non-writing opener (DatabaseError/SQLITE_NOTADB: 'file is not a database'); no write-capable fallback was attempted and nothing was changed. This process may read and may write the store, and may write its directory '/output/work/scratch/t/v12-job-manager-kfvs606n'; the SQLite sidecars beside it are none."
+
+----------------------------------------------------------------------
+Ran 25 tests in 4.900s
+
+FAILED (failures=3)

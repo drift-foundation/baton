@@ -1,0 +1,73 @@
+{
+ "base": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+ "changed_paths": [
+  "v12/python/src/baton_v12/authority/api.py",
+  "v12/python/src/baton_v12/job_manager/__init__.py",
+  "v12/python/src/baton_v12/job_manager/documents.py",
+  "v12/python/src/baton_v12/job_manager/fresh_attempt.py",
+  "v12/python/src/baton_v12/job_manager/job_control.py",
+  "v12/python/src/baton_v12/job_manager/retained_recovery.py",
+  "v12/python/tests/authority/test_boundary.py",
+  "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+  "v12/python/tests/job_manager/test_retained_recovery_admission.py",
+  "v12/python/tools/job_manager.py",
+  "v12/python/tools/parallel_test.py",
+  "v12/python/tools/recovery_decision.py",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/FINDING.md",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/PLAN.md",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/PROGRESS.md",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/COUNTS.md",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/REPORT.md",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/authority.log",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/baseline-fresh-attempt.log",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/baseline-path-messages-candidate.log",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/baseline-path-messages.log",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/candidate.sha256",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/evidence.sha256",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/focused-repeat.log",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/focused.log",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/job_manager.log",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/manifest.json",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/parallel-runner.log",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/scans.log",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/tools-pure-partial.log"
+ ],
+ "collection": {
+  "excluded_ignored": [
+   "handoff/",
+   "v12/python/src/baton_v12/__pycache__/",
+   "v12/python/src/baton_v12/authority/__pycache__/",
+   "v12/python/src/baton_v12/contracts/__pycache__/",
+   "v12/python/src/baton_v12/integration/__pycache__/",
+   "v12/python/src/baton_v12/job_manager/__pycache__/",
+   "v12/python/src/baton_v12/source_profiles/__pycache__/",
+   "v12/python/src/baton_v12/worker_manager/__pycache__/",
+   "v12/python/tools/__pycache__/",
+   "work/scratch/"
+  ],
+  "excluded_ignored_count": 10,
+  "excluded_special": [],
+  "excluded_special_count": 0,
+  "note": "these worktree paths were present while the task's verification ran and are NOT part of the delivered proposal; whether the verification relied on any of them is the integrator's question, disclosed rather than adjudicated here"
+ },
+ "disposition": "candidate",
+ "entry_head": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+ "head": "5bc260b6dcbe970c8729424fa826b88dbc1a9d0f",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 7200,
+  "seconds_bound_source": "job-selected",
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "w385624-native-admission-1",
+ "verification": {
+  "argv": [
+   "bash",
+   "-c",
+   "set -euo pipefail; mkdir -p work/scratch/w385624-verification; export BATON_V12_DISK_ROOT=\"$PWD/work/scratch/w385624-verification\"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_recovery_admission"
+  ],
+  "status": 0
+ },
+ "why": "the candidate changed the source and its own verification passed"
+}

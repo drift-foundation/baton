@@ -81,6 +81,24 @@ from .failure_analysis import DECLARATION_SCHEMA \
     as ANALYSIS_DECLARATION_SCHEMA
 from .failure_analysis import OWNER_OUTCOMES as ANALYSIS_OWNER_OUTCOMES
 from .failure_analysis import owner_item_of as recovery_owner_item_of
+# W385624 / DESIGN REC-8: the owner decision and the one linked
+# verification/review-only successor it admits. THE TWO OPERATIONS, THE READ
+# AND THE CONFIGURATION CONTRACT, and deliberately not the whole module: a
+# deployment and its CLI need the surface, the approved profile identity and
+# its digest, the selectable stage sets and the capability a decision is
+# authorized by; the journal identities, the record readers and the
+# review-only evidence rules are read through
+# `job_manager.retained_recovery` by the cases and the owner-facing readers
+# that want them, exactly as `cancellation`'s and `job_control`'s detail is.
+from .retained_recovery import (FULL_STAGES, OWNER_CAPABILITY,
+                                REVIEW_ONLY_STAGES, SELECTED_STAGE_SETS,
+                                SUCCESSOR_PROFILE, SUCCESSOR_PROFILE_DIGEST,
+                                admit_successor, owned_stages,
+                                owner_item_read, record_verification)
+from .retained_recovery import DISPOSITIONS as RECOVERY_DISPOSITIONS
+from .retained_recovery import decide as decide_recovery
+from .retained_recovery import decision_of as recovery_decision_of
+from .retained_recovery import successor_of as recovery_successor_of
 from .episodes import (CORRECT_KIND, advance_correction, attempting,
                        correction_operation_id, episode_by_offer, episode_of,
                        episodes_of, live_of)
@@ -139,6 +157,12 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
            "ANALYSIS_SEAM", "WORKER_DECLARED", "advance_recovery",
            "check_analysis_declaration", "declared_analysis_worker",
            "recovery_disposition", "recovery_owner_item_of",
+           "FULL_STAGES", "OWNER_CAPABILITY", "REVIEW_ONLY_STAGES",
+           "RECOVERY_DISPOSITIONS", "SELECTED_STAGE_SETS",
+           "SUCCESSOR_PROFILE", "SUCCESSOR_PROFILE_DIGEST",
+           "admit_successor", "decide_recovery", "owned_stages",
+           "owner_item_read", "record_verification",
+           "recovery_decision_of", "recovery_successor_of",
            "attempting", "canonical_operation",
            "check_binding", "correction_operation_id", "end_implementation",
            "end_review", "episode_by_offer", "episode_of", "episodes_of",

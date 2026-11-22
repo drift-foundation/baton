@@ -87,6 +87,7 @@ from .store import job_signature
 
 __all__ = ["ACQUIRE_KIND", "INTENT_KIND", "ADMIT_KIND", "admit",
            "admit_fresh_attempt",
+           "CEASED_RUNTIME", "SETTLED_CLEANUP", "one_instance",
            "fresh_attempt_of", "fresh_attempt_rows", "successor_of",
            "successors_of"]
 
@@ -468,6 +469,7 @@ def _prior(store, prior_job_id):
             "integrity", "schema",
             f"submission {name_value(held['submission_id'])} records Job "
             f"{name_value(prior_job_id)} and its document does not carry it")
+    job_control.require_ordinary_profile(entry.get("control"))
     works = {stage["work_id"] for stage in stages}
     if len(works) != 1:
         # EVERY STAGE OF ONE JOB SHARES ONE WORK in every configuration this
@@ -1084,6 +1086,21 @@ def successors_of(store, prior_job_id):
                 "SELECT * FROM fresh_attempts WHERE prior_job_id = ? "
                 "ORDER BY intended_at, job_id", (prior_job_id,)).fetchall()]
 
+
+# WHAT THE SIBLING RECOVERY ADMISSION READS OUT OF THIS MODULE, and three
+# public names rather than three copies. W385624's retained-recovery successor
+# composes the same four owners under REC-8 as this composes under REC-7, so it
+# asks the same questions: do every owner's facts describe ONE instance, which
+# host runtime states mean "over", and where has resource accounting stopped
+# moving. Restating any of the three there would be a second guess at a
+# vocabulary the Worker Manager owns and a second implementation of review
+# R14/R17/R18's instance rule -- and the first one to drift would be the one
+# that admits an execution beside an unresolved writer. The spellings below
+# are deliberately plain aliases: nothing about this module's behaviour
+# changes, and the private names stay as every existing reader has them.
+CEASED_RUNTIME = _CEASED_RUNTIME
+SETTLED_CLEANUP = _SETTLED_CLEANUP
+one_instance = _one_instance
 
 # THE NAME THE PACKAGE EXPORTS. Inside this module the operation is `admit`,
 # because the module says what is being admitted; `baton_v12.job_manager`

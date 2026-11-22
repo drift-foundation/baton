@@ -1,0 +1,18 @@
+{
+  "bundle-verification.txt": "aa8b83ae2f87d757a9bfc1b79feef9d5209080cb850ad607cd98349f5bed0ed8",
+  "candidate.tar": "9bd90a0e78aad8305523abe592ef007ac24f31d350592568495a8f7de40bd549",
+  "container-state.json": "12c51ba97813dd8c6ce5224139cf16a98ca4035b0fd03800d6abd7094a7bc962",
+  "handoff/handoff.json": "54cc11b40d8e0de07f4f500df6fa862d7682d4060dada06278c1d097568133fc",
+  "invocation.json": "222964792101cfbe2d52265e1b621eb886fb1a46c1f9f1e37ab22bc7389e8211",
+  "proposal/change.patch": "c857457ab0bc29d11a312da0b6b27a6d102bf7d22e9cc431b312ada5073b4ae9",
+  "proposal/objects.bundle": "6448deda482342c55908b1fc51112a28dde6ccea57a0a3fe1592bb92a3217356",
+  "proposal/result.json": "0d4ce68e0a2582c72e21eb9ceb2ed7b3ddff8210ac0b9387d6c80f78466a2adf",
+  "proposal/verification.txt": "0070a4e3c7d5f60c221e3ad386027494421982e98f70b9e9048ba2b22ab19c23",
+  "provider.stderr.log": "e705bbf8982385da2b1a03725921d0a6c6730bbaadd22c8f9168522573d067e0",
+  "receipt.json": "a11a7231859d9800fe395e1dba63df7815fa50d5b6d1f7285a30d8a038699755",
+  "state-work.json": "17694b053497f69d91156d7e322cfe2a658457f3a8e77896ef16e7a51db43320",
+  "status.json": "98d137209c3e32a65ba43fde0ae2eeb91b17af75f92635224e670f1065303ca9",
+  "terminal.json": "0e04b76c61f0d27e48304fe533212e6fb1bb883607e672193e5d376e4a810aab",
+  "verification.stderr.log": "24fe09fabd5d93523933b79982a869fc6bcf9d266b0ce1e74ddc7a131784ce37",
+  "verification.stdout.log": "d483a7fe2432c5f651c880850fd99b72aeed14615ad1c88dc971eb612a032e9f"
+}

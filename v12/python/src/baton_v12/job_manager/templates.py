@@ -722,6 +722,7 @@ def resolve(request, *, configuration=None):
     # refused there as "neither", like the override member one line up.
     control = (job_control.owned_control(taken["control"])
                if "control" in taken else None)
+    job_control.require_ordinary_profile(control)
     stages = _stages(definition, task, held["profiles"])
     submission = _submission(definition, task, source, scope, stages,
                              overrides, control)

@@ -1,0 +1,22 @@
+{
+  "reviewer": "baton.prompt (K), independent source delta review, no claim",
+  "request": "M385717 (T321608); correction M385715 / E385713",
+  "candidate_identity": "sha256:82e1cd871d73b0ee3724105516231a4d08b39903a06b74779bb4e5bdacf18cfc",
+  "prior_candidate": "5bc260b6dcbe970c8729424fa826b88dbc1a9d0f",
+  "base": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+  "integrity": {
+    "packet_hashes": {"REPORT.md": "6bb16ff3 OK", "evidence-manifest.json": "61bebeff OK", "delta-manifest.json": "b19a5113 OK", "cumulative-manifest.json": "82e1cd87 OK (= candidate identity)"},
+    "delta": "12 paths; every base_sha256 equals K's independently reconstructed 5bc260b6 tree; before/after copies and delta.patch hash OK",
+    "cumulative": "34 paths; after overlaying delta on K's 5bc260b6 tree, all 34 base (ce6e1b2b archive) and candidate hashes match; cumulative.patch hash OK",
+    "tree": "/var/tmp/baton-k-w385624/cand2 = K 5bc260b6 archive + delta/after overlay; v12 diff vs base = 16 paths"
+  },
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "env": {"TMPDIR": "/var/tmp/baton-k-w385624/tmp", "BATON_V12_DISK_ROOT": "/var/tmp/baton-k-w385624/tmp", "PYTHONPATH": "src (probes: src:.:probe dir)"},
+  "results": {
+    "focused_and_compat": {"modules": ["test_retained_recovery_admission", "test_status", "tools.test_job_control_command", "test_documents", "test_submission", "test_templates", "test_creation", "test_fresh_attempt", "test_sweep", "test_scheduling", "test_job_control", "test_retained_failure_analysis", "test_native_handoffs", "tools.test_bootstrap"], "ran": 1146, "failures": 0, "errors": 0, "skipped": 0, "wall_seconds": 56.9},
+    "group_job_manager": {"collected": 1943, "passed": 1940, "failures": 3, "errors": 0, "unaccounted": 0, "note": "same 3 path-message ids that fail identically at base (prior review evidence base-path-messages-K.log); +11 = new cases"},
+    "tools.test_job_observation": "OK",
+    "probes": {"C1": "two real sweeps: zero successor acts/ops calls; state blocked; closed recovery gate with exact candidate", "C2": "PooledManagerOperations.admit refuses recovery stage; ordinary stage passes guard", "C3": "operator status text renders 'held: waiting on unknown (unknown)'", "C4": "ordinary template create refused, precondition"}
+  },
+  "not_run": ["full suite", "build/package", "live provider", "import", "main Git mutation", "source_identity real-tree checks (author ran with Git metadata)"]
+}

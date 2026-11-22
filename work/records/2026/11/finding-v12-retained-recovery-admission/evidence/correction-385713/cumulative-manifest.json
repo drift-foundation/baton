@@ -1,0 +1,211 @@
+{
+  "base": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+  "patch_sha256": "6c0e3bf9d307a0088955f6e52ef99511aa405dd2315005221b04f9a7b4eaa09f",
+  "paths": [
+    {
+      "base_sha256": "5bc4c0bb6cf536673292018df23fcf09d6f74729db49e332af25ec08c29cf851",
+      "bytes": 21087,
+      "candidate_sha256": "b558f89679f54ac9facc411d17877ea2248878693667b55189e3fece1d9fed49",
+      "path": "v12/python/src/baton_v12/authority/api.py"
+    },
+    {
+      "base_sha256": "88ef704bee1ce09f29c6426829b567fe8a4884ea4acdc3ace67261ce9d52ef5f",
+      "bytes": 11109,
+      "candidate_sha256": "e6176a0654046d777ba91c040b9ed8ac0ebcc4a28da8a6cbfa820597d91099d3",
+      "path": "v12/python/src/baton_v12/job_manager/__init__.py"
+    },
+    {
+      "base_sha256": "98ecc49e4c1703294e218f7dbcfb40e2f9229b4513ed6c5690d995181b5ceb22",
+      "bytes": 51184,
+      "candidate_sha256": "ef107a87bf6a61cfd1f976d5a220198dde74ef23d97ac650743f59a2b613d720",
+      "path": "v12/python/src/baton_v12/job_manager/documents.py"
+    },
+    {
+      "base_sha256": "276dd31a3584e1789ce9d9fd7bcf4629a1fa07d46de8c4c524d9dc8dbf7d6cab",
+      "bytes": 58537,
+      "candidate_sha256": "92689d928d440d200fe8defb35ab674fc1b3fb1ed8230158879de23f12148edb",
+      "path": "v12/python/src/baton_v12/job_manager/fresh_attempt.py"
+    },
+    {
+      "base_sha256": "dce5fcda7d6b2f1723dea8bb82a4385671b7551ec12e02168d89c9c7389eb613",
+      "bytes": 35255,
+      "candidate_sha256": "eb0bc34d8fa1898ab4ca7f71e4f06e99e4cbea55633013e8605e8e95ff6fc4d4",
+      "path": "v12/python/src/baton_v12/job_manager/job_control.py"
+    },
+    {
+      "base_sha256": "c5320624e7e94bdb2d25b5847ba2ff80b7a461b24ba07602d4b9ca524504b63b",
+      "bytes": 64401,
+      "candidate_sha256": "c8ee5f01c92126a10641a19a0ae1e26c9ebb503d429bf34ab3f795bc8506ef63",
+      "path": "v12/python/src/baton_v12/job_manager/projection.py"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 111066,
+      "candidate_sha256": "0315b3569cfaed7c69392818f9c97414a9d02b56923c21a742ee9b557a2cf570",
+      "path": "v12/python/src/baton_v12/job_manager/retained_recovery.py"
+    },
+    {
+      "base_sha256": "520ba1e2c1d44ca327feece0cde8a014a882852746a40ea7fd5ecac834691556",
+      "bytes": 50450,
+      "candidate_sha256": "ee00decf9717cb93f1d0942786feb19b4f8e2db80cfc01dac6ee4b46257c678e",
+      "path": "v12/python/src/baton_v12/job_manager/scheduler.py"
+    },
+    {
+      "base_sha256": "2210e1ae8d25ac2eb0cad188eea495d6673c2c91c84cd3ea9ab73fe95e9a35ad",
+      "bytes": 24942,
+      "candidate_sha256": "c4a283406e7a01e1f47bd5d9f9779742ad85d85686c9bfd4991d95d7c0a1d93f",
+      "path": "v12/python/src/baton_v12/job_manager/submission.py"
+    },
+    {
+      "base_sha256": "cd168ef65143a379200753cecc201b36b69d5987398d8ac6f6c502bea44cab7b",
+      "bytes": 79989,
+      "candidate_sha256": "f992bfaf855eff8e3cafe7292cb5b2e1a06112dd342f97368fcf6b05c949b29d",
+      "path": "v12/python/src/baton_v12/job_manager/templates.py"
+    },
+    {
+      "base_sha256": "c7a00e8d5426cac6ac4b3ff016c0324148cf608ecd240a67f7715772a7df52a1",
+      "bytes": 81540,
+      "candidate_sha256": "68bf9652869588393dc88c9240872433fc59962870539e240217e8b6d3342cef",
+      "path": "v12/python/tests/authority/test_boundary.py"
+    },
+    {
+      "base_sha256": "9a810f47e7bbb2ba2a2dab5c12ae509955f93e438a4fc28d001d4a9cf81b8954",
+      "bytes": 141055,
+      "candidate_sha256": "fa61b714611e489f37da7c75642664686c1f21efa9dfb028f04a3c8f5f0f0373",
+      "path": "v12/python/tests/job_manager/test_retained_failure_analysis.py"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 85828,
+      "candidate_sha256": "663b54d9f191ddad9448ba4f3a8d43523375c79d623aab64a3fa1f6bce8ab2c3",
+      "path": "v12/python/tests/job_manager/test_retained_recovery_admission.py"
+    },
+    {
+      "base_sha256": "71f74d15eea461e56dbcf6d5ab24dc4b0a52a07b18ea20c97fca5105bd417392",
+      "bytes": 85996,
+      "candidate_sha256": "32b38076f701f5683c9d05a83d7282b80aed56ae8e6edbc2dfd6b10cfd316bca",
+      "path": "v12/python/tools/job_manager.py"
+    },
+    {
+      "base_sha256": "b93b69fa1242f867be2457bf8bee86c557d8d4ef9395f6d8131577ee37b92760",
+      "bytes": 108611,
+      "candidate_sha256": "3980be61b2350ca7fdf38344ceb2446fd451cbf4e6b59bbdecb7730efeb03395",
+      "path": "v12/python/tools/parallel_test.py"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 28222,
+      "candidate_sha256": "74dd5067a97898442208f6d9a54612e2f6efb3ae3a6c61860076224d6d8a7bfe",
+      "path": "v12/python/tools/recovery_decision.py"
+    },
+    {
+      "base_sha256": "ea0f2592e9f17c39de6ac5947541e83d69ff8d00d5eeebd28e987daaf0e7a4c0",
+      "bytes": 9198,
+      "candidate_sha256": "e135820fca433a3e8014913b242d5fa5a8f0b29edb2cc3292b79f32b538d7e20",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/FINDING.md"
+    },
+    {
+      "base_sha256": "631def2873113affbc6dfcfb4d671af2ba7f4f485d83c1a20b3d89f94d26ed98",
+      "bytes": 5958,
+      "candidate_sha256": "b1d3752be5ddbe42c5cb346545510948cdf25b873dc3f10b6695b71528bc86b8",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/PLAN.md"
+    },
+    {
+      "base_sha256": "fd046e3582f059c9cc0106cc9f2ec5903ee909d7cf12413a56ac1919c91fac61",
+      "bytes": 2744,
+      "candidate_sha256": "7f6f1f894a217779ff6259a4b21de79228245db9db18131a0dcb152629ebef99",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/PROGRESS.md"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 5248,
+      "candidate_sha256": "879603635ee3e5fd34cc87833029fd2bc576a9accde86ac1159883b0335d39a3",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/COUNTS.md"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 5154,
+      "candidate_sha256": "42c8bf3affcc67b19ba07469772989c01fff76532eb04b122aeb457d3131c52f",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/REPORT.md"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 27435,
+      "candidate_sha256": "a5c8802fdba4c4f9f6f1e89c701d8ef239603a3e63d0ca4276782afeb3c462ea",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/authority.log"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 237026,
+      "candidate_sha256": "49b0f80c758140162fb54781f30d9995347bff330f13aff185f53db9ec6d1d9a",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/baseline-fresh-attempt.log"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 4466,
+      "candidate_sha256": "a4e65c2469751bb6bc0f6dd5098c4593d363fe905514f4829252379cc3ec403f",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/baseline-path-messages-candidate.log"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 4571,
+      "candidate_sha256": "c243d426f2259d8e9f69d807d8809c33908382b4d820b34a5bd2a1c9f75c3625",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/baseline-path-messages.log"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 1373,
+      "candidate_sha256": "9018290cfd18827f7b747e13c6859a50ca196c329f2cda87bc47fce8063576af",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/candidate.sha256"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 2482,
+      "candidate_sha256": "40db915d409e05b7964bca650a69cc726dba1de0a5452dd0e073b468b2aeda3d",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/evidence.sha256"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 59593,
+      "candidate_sha256": "73094ae942f79dca94636520a7e10c97f9636fc7f484a966d0ba2cb70d64e566",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/focused-repeat.log"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 60180,
+      "candidate_sha256": "7aceaaf2ca6c04251830d8a8e75a5b64c1e875766bbcc21e6f0659455badbdd3",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/focused.log"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 175552,
+      "candidate_sha256": "14d35c599dcd92f00cc7027adae5c034d0a7a4cc9c94c94deec3dca1b49d827e",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/job_manager.log"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 2297,
+      "candidate_sha256": "fbb24e07f180d29068430382dbf7ccfda54cc613c623ee6d2dcc71af3f35e0a0",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/manifest.json"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 173,
+      "candidate_sha256": "6f0af3c537242deefc57a503ea8122bb03728f08ec916121f5ca2b69e45c89ea",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/parallel-runner.log"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 32763,
+      "candidate_sha256": "38fe3fe9517e0fbd4e0ca009b0318724b79b418730fef50de038a43ea7d8b4f6",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/scans.log"
+    },
+    {
+      "base_sha256": null,
+      "bytes": 108018,
+      "candidate_sha256": "fd4f6a27db1068a31624b71fcbcc374275b00cb10baac0c977e67bed4fec4dc1",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/tools-pure-partial.log"
+    }
+  ],
+  "prior_candidate": "5bc260b6dcbe970c8729424fa826b88dbc1a9d0f"
+}

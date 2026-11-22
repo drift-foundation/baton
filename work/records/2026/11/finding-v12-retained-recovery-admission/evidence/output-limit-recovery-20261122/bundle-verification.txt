@@ -1,0 +1,6 @@
+The bundle contains this ref:
+5bc260b6dcbe970c8729424fa826b88dbc1a9d0f HEAD
+The bundle requires this ref:
+ce6e1b2bf12519a84a3792f06562b7727dfe3021 
+The bundle uses this hash algorithm: sha1
+/home/sl/src/baton/work/records/2026/11/finding-v12-retained-recovery-admission/evidence/output-limit-recovery-20261122/proposal/objects.bundle is okay

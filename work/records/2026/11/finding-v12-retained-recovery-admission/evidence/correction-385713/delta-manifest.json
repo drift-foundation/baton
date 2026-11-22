@@ -1,0 +1,79 @@
+{
+  "base": "5bc260b6dcbe970c8729424fa826b88dbc1a9d0f",
+  "patch_sha256": "29682a893fe19b04b7967c488b270c46f27468fb0c44d44c656e10e688d86b88",
+  "paths": [
+    {
+      "base_sha256": "5be234c021aaa8a6055506b3e1e61374fc8272cbc9c229662cc7015022ff0473",
+      "bytes": 51184,
+      "candidate_sha256": "ef107a87bf6a61cfd1f976d5a220198dde74ef23d97ac650743f59a2b613d720",
+      "path": "v12/python/src/baton_v12/job_manager/documents.py"
+    },
+    {
+      "base_sha256": "6b8fba4bd5c84a855f3e3850f7aec6efb6ce4a681a4fbca4653a57aa2aaefdce",
+      "bytes": 58537,
+      "candidate_sha256": "92689d928d440d200fe8defb35ab674fc1b3fb1ed8230158879de23f12148edb",
+      "path": "v12/python/src/baton_v12/job_manager/fresh_attempt.py"
+    },
+    {
+      "base_sha256": "fd9ecc03d5e7c9b89322b5ba499f55e0e8a8995f3782c349053dae83cf0d79e2",
+      "bytes": 35255,
+      "candidate_sha256": "eb0bc34d8fa1898ab4ca7f71e4f06e99e4cbea55633013e8605e8e95ff6fc4d4",
+      "path": "v12/python/src/baton_v12/job_manager/job_control.py"
+    },
+    {
+      "base_sha256": "c5320624e7e94bdb2d25b5847ba2ff80b7a461b24ba07602d4b9ca524504b63b",
+      "bytes": 64401,
+      "candidate_sha256": "c8ee5f01c92126a10641a19a0ae1e26c9ebb503d429bf34ab3f795bc8506ef63",
+      "path": "v12/python/src/baton_v12/job_manager/projection.py"
+    },
+    {
+      "base_sha256": "cb81412c371e0674c40ef208c4d7d3706d06d4bbe2e13bd66767f7165feaf724",
+      "bytes": 111066,
+      "candidate_sha256": "0315b3569cfaed7c69392818f9c97414a9d02b56923c21a742ee9b557a2cf570",
+      "path": "v12/python/src/baton_v12/job_manager/retained_recovery.py"
+    },
+    {
+      "base_sha256": "520ba1e2c1d44ca327feece0cde8a014a882852746a40ea7fd5ecac834691556",
+      "bytes": 50450,
+      "candidate_sha256": "ee00decf9717cb93f1d0942786feb19b4f8e2db80cfc01dac6ee4b46257c678e",
+      "path": "v12/python/src/baton_v12/job_manager/scheduler.py"
+    },
+    {
+      "base_sha256": "2210e1ae8d25ac2eb0cad188eea495d6673c2c91c84cd3ea9ab73fe95e9a35ad",
+      "bytes": 24942,
+      "candidate_sha256": "c4a283406e7a01e1f47bd5d9f9779742ad85d85686c9bfd4991d95d7c0a1d93f",
+      "path": "v12/python/src/baton_v12/job_manager/submission.py"
+    },
+    {
+      "base_sha256": "cd168ef65143a379200753cecc201b36b69d5987398d8ac6f6c502bea44cab7b",
+      "bytes": 79989,
+      "candidate_sha256": "f992bfaf855eff8e3cafe7292cb5b2e1a06112dd342f97368fcf6b05c949b29d",
+      "path": "v12/python/src/baton_v12/job_manager/templates.py"
+    },
+    {
+      "base_sha256": "eab38b52b1e8b77342a4414dbdf41404c0c2b908964bfca9f0f5dd9dd417763a",
+      "bytes": 85828,
+      "candidate_sha256": "663b54d9f191ddad9448ba4f3a8d43523375c79d623aab64a3fa1f6bce8ab2c3",
+      "path": "v12/python/tests/job_manager/test_retained_recovery_admission.py"
+    },
+    {
+      "base_sha256": "be6d4c3dd2623a65787aea2e12b4581207f92863c9c09006438a0563cf224b24",
+      "bytes": 9198,
+      "candidate_sha256": "e135820fca433a3e8014913b242d5fa5a8f0b29edb2cc3292b79f32b538d7e20",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/FINDING.md"
+    },
+    {
+      "base_sha256": "0c534673d858c883230dd1cfd3921666485b76c56932bbf1a10b8a6dbccbbfcb",
+      "bytes": 5958,
+      "candidate_sha256": "b1d3752be5ddbe42c5cb346545510948cdf25b873dc3f10b6695b71528bc86b8",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/PLAN.md"
+    },
+    {
+      "base_sha256": "b79b8031f298aada05ee43fc3b20b22645c6a372bacc6971fc7afd7fc18c129b",
+      "bytes": 2744,
+      "candidate_sha256": "7f6f1f894a217779ff6259a4b21de79228245db9db18131a0dcb152629ebef99",
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/PROGRESS.md"
+    }
+  ],
+  "prior_candidate": "5bc260b6dcbe970c8729424fa826b88dbc1a9d0f"
+}

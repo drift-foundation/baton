@@ -194,6 +194,14 @@ class ExportedSurface(unittest.TestCase):
                     # landed with the native-labels slice and this enumeration
                     # was not updated with it.
                     "handles_route",
+                    # W385624: the same question for a CAPABILITY, answered
+                    # with W16821's decision document rather than with a
+                    # boolean, because an owner-facing consumer that must
+                    # RETAIN its authorization provenance cannot record a
+                    # boolean beside the act it authorized. A READ: deciding
+                    # one capability performs no transition, exactly as
+                    # `holds_capability` beside it does not.
+                    "authorize_capability",
                     # W385331: the native handoff READS and the configured
                     # routing. On this face because "what did this Work's
                     # participants say to each other" is asked by operators,

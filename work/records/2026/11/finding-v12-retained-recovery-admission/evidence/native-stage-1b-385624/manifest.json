@@ -1,0 +1,51 @@
+{
+  "acceptance_command": "cd v12/python; PYTHONPATH=src python3 -m unittest -v tests.job_manager.test_retained_recovery_admission",
+  "acceptance_entry": "tests.job_manager.test_retained_recovery_admission",
+  "approved_profile": {
+    "enforced_by": "v12/python/src/baton_v12/job_manager/job_control.py PROFILES",
+    "held_by": "v12/python/src/baton_v12/job_manager/retained_recovery.py",
+    "identity": "stage1-verification-review/1",
+    "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-verification-review-1.json",
+    "sha256": "5a6a420e416caab0942f9709939ae01f1f2d9dabbd13e09ff3b03ea08d2932fb"
+  },
+  "candidate_digests": "candidate.sha256",
+  "contract": {
+    "accepted_by": "review-2026-11-22T05-18-37Z.md",
+    "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CONTRACT.md",
+    "sha256": "52c2c640fdbb791e70ae61edf7ef7db7190bacd767d6d044f678517d2e09e1bc"
+  },
+  "counts": "COUNTS.md",
+  "execution_boundaries": {
+    "courier_acts": 0,
+    "engine_or_container": false,
+    "full_suite_checkpoint": false,
+    "git_mutation": false,
+    "host_import": false,
+    "implementation_redispatch": false,
+    "live_model": false,
+    "live_provider": false,
+    "verifier_executed": false
+  },
+  "logs": {
+    "authority_group": "authority.log",
+    "baseline_fresh_attempt": "baseline-fresh-attempt.log",
+    "baseline_path_messages": "baseline-path-messages.log",
+    "candidate_path_messages": "baseline-path-messages-candidate.log",
+    "focused": "focused.log",
+    "focused_repeat": "focused-repeat.log",
+    "job_manager_group": "job_manager.log",
+    "parallel_runner": "parallel-runner.log",
+    "scans_group": "scans.log",
+    "tools_pure_group_partial": "tools-pure-partial.log"
+  },
+  "not_delivered": [
+    "W385625 Stage 1-C verifier execution adapter",
+    "W385625 Stage 1-C retained-review handoff",
+    "W385625 Stage 1-C joined loop consumer"
+  ],
+  "report": "REPORT.md",
+  "schema": "baton.v12.stage-1b-evidence/1",
+  "slice": "Stage 1-B: owner decision and retained successor admission",
+  "source_commit": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+  "work": "2b077949-W385624"
+}

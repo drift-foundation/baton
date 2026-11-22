@@ -1,0 +1,9 @@
+{
+  "candidate_identity": "sha256:82e1cd871d73b0ee3724105516231a4d08b39903a06b74779bb4e5bdacf18cfc",
+  "identity_definition": "SHA256 of cumulative-manifest.json; complete changed bytes over pinned base",
+  "base": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+  "prior_candidate": "5bc260b6dcbe970c8729424fa826b88dbc1a9d0f",
+  "delta_manifest_sha256": "b19a51139c20fab3060ceead48bd8c5ba7ac8b48cdbc9a98b8d84cc59d36b21a",
+  "scratch": "/home/sl/src/baton/work/scratch/w385624-correction-385713",
+  "uncommitted_isolated_candidate": true
+}

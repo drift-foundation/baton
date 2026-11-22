@@ -1,0 +1,1114 @@
+[collect] start 1/54 tests.tools.test_stack
+[collect] start 2/54 tests.tools.test_environment
+[collect] start 3/54 tests.tools.test_bootstrap
+[collect] start 4/54 tests.tools.test_instance
+[collect] start 5/54 tests.tools.test_version
+[collect] start 6/54 tests.tools.test_dogfood_operator
+[collect] start 7/54 tests.tools.test_user_credentials
+[collect] start 8/54 tests.tools.test_parallel_runner
+[collect] start 9/54 tests.tools.test_worker_image_build
+[collect] start 10/54 tests.tools.test_single_worker
+[collect] start 11/54 tests.tools.test_stage_execution
+[collect] start 12/54 tests.tools.test_native_handoffs
+[collect] start 13/54 tests.tools.test_integration_bundle
+[collect] start 14/54 tests.tools.test_integration_worker
+[collect] start 15/54 tests.tools.test_quiescent_assignment_finalization
+[collect] start 16/54 tests.tools.test_execution_limits
+[collect] start 17/54 tests.tools.test_job_observation
+[collect] start 18/54 tests.tools.test_job_viewer
+[collect] start 19/54 tests.tools.test_live_ab
+[collect] start 20/54 tests.tools.test_managed_integration
+[collect] start 21/54 tests.tools.test_managed_preparation
+[collect] start 22/54 tests.tools.test_scheduler_trace
+[collect] start 23/54 tests.tools.test_stage_execution_hardening
+[collect] start 24/54 tests.tools.test_stage_execution_status_hardening
+[collect] start 25/54 tests.tools.test_job_cancellation_command
+[collect] start 26/54 tests.tools.test_job_control_command
+[collect] start 27/54 tests.tools.test_standalone_ab
+[collect] start 28/54 tests.tools.test_accepted_base
+[collect] start 29/54 tests.tools.test_attempt_diagnostics
+[collect] start 30/54 tests.tools.test_attempt_logs_command
+[collect] start 31/54 tests.tools.test_connected_creation
+[collect] start 32/54 tests.tools.test_connected_startup
+[collect] done  1/54 tests.tools.test_accepted_base rc=0 in 6.26s
+[collect] start 33/54 tests.tools.test_correction_restart
+[collect] done  2/54 tests.tools.test_single_worker rc=0 in 7.27s
+[collect] done  3/54 tests.tools.test_attempt_logs_command rc=0 in 7.26s
+[collect] start 34/54 tests.tools.test_creation_ports
+[collect] start 35/54 tests.tools.test_disposition_command
+[collect] done  4/54 tests.tools.test_integration_worker rc=0 in 7.27s
+[collect] done  5/54 tests.tools.test_quiescent_assignment_finalization rc=0 in 7.27s
+[collect] start 36/54 tests.tools.test_dossier_command
+[collect] start 37/54 tests.tools.test_dossier_recovery
+[collect] done  6/54 tests.tools.test_execution_limits rc=0 in 7.27s
+[collect] start 38/54 tests.tools.test_fresh_retry_line_recovery
+[collect] done  7/54 tests.tools.test_bootstrap rc=0 in 7.47s
+[collect] start 39/54 tests.tools.test_job_task_delivery
+[collect] done  8/54 tests.tools.test_environment rc=0 in 7.67s
+[collect] done  9/54 tests.tools.test_parallel_runner rc=0 in 7.67s
+[collect] done  10/54 tests.tools.test_managed_preparation rc=0 in 7.66s
+[collect] start 40/54 tests.tools.test_joined_workflow
+[collect] start 41/54 tests.tools.test_managed_apply
+[collect] start 42/54 tests.tools.test_next_run
+[collect] done  11/54 tests.tools.test_stack rc=0 in 7.87s
+[collect] done  12/54 tests.tools.test_live_ab rc=0 in 7.87s
+[collect] start 43/54 tests.tools.test_next_run_flow
+[collect] start 44/54 tests.tools.test_next_run_managed
+[collect] done  13/54 tests.tools.test_job_viewer rc=0 in 8.06s
+[collect] done  14/54 tests.tools.test_stage_execution_status_hardening rc=0 in 8.06s
+[collect] start 45/54 tests.tools.test_next_run_recovery
+[collect] start 46/54 tests.tools.test_operator_verification_view
+[collect] done  15/54 tests.tools.test_version rc=0 in 8.17s
+[collect] done  16/54 tests.tools.test_integration_bundle rc=0 in 8.17s
+[collect] start 47/54 tests.tools.test_pool
+[collect] start 48/54 tests.tools.test_retry_task_lineage
+[collect] done  17/54 tests.tools.test_job_observation rc=0 in 8.26s
+[collect] start 49/54 tests.tools.test_startup_prerequisites
+[collect] done  18/54 tests.tools.test_user_credentials rc=0 in 8.37s
+[collect] done  19/54 tests.tools.test_stage_execution_hardening rc=0 in 8.36s
+[collect] done  20/54 tests.tools.test_job_cancellation_command rc=0 in 8.36s
+[collect] done  21/54 tests.tools.test_connected_startup rc=0 in 8.36s
+[collect] start 50/54 tests.tools.test_stopped_settlement_command
+[collect] start 51/54 tests.tools.test_stopped_settlement_joined
+[collect] start 52/54 tests.tools.test_work_command
+[collect] start 53/54 tests.tools.test_worker_visibility
+[collect] done  22/54 tests.tools.test_scheduler_trace rc=0 in 8.46s
+[collect] start 54/54 tests.tools.test_source_identity
+[collect] done  23/54 tests.tools.test_standalone_ab rc=0 in 8.56s
+[collect] done  24/54 tests.tools.test_instance rc=0 in 8.67s
+[collect] done  25/54 tests.tools.test_dogfood_operator rc=0 in 8.67s
+[collect] done  26/54 tests.tools.test_worker_image_build rc=0 in 8.67s
+[collect] done  27/54 tests.tools.test_stage_execution rc=0 in 8.67s
+[collect] done  28/54 tests.tools.test_job_control_command rc=0 in 8.66s
+[collect] done  29/54 tests.tools.test_attempt_diagnostics rc=0 in 8.66s
+[collect] done  30/54 tests.tools.test_native_handoffs rc=0 in 8.87s
+[collect] done  31/54 tests.tools.test_connected_creation rc=0 in 8.86s
+[collect] done  32/54 tests.tools.test_managed_integration rc=0 in 8.96s
+[collect] done  33/54 tests.tools.test_dossier_recovery rc=0 in 2.81s
+[collect] done  34/54 tests.tools.test_dossier_command rc=0 in 2.91s
+[collect] done  35/54 tests.tools.test_fresh_retry_line_recovery rc=0 in 3.01s
+[collect] done  36/54 tests.tools.test_work_command rc=0 in 2.31s
+[collect] done  37/54 tests.tools.test_next_run_flow rc=0 in 2.91s
+[collect] done  38/54 tests.tools.test_stopped_settlement_command rc=0 in 2.50s
+[collect] done  39/54 tests.tools.test_creation_ports rc=0 in 3.61s
+[collect] done  40/54 tests.tools.test_managed_apply rc=0 in 3.21s
+[collect] done  41/54 tests.tools.test_operator_verification_view rc=0 in 2.90s
+[collect] done  42/54 tests.tools.test_correction_restart rc=0 in 4.71s
+[collect] done  43/54 tests.tools.test_next_run_recovery rc=0 in 2.91s
+[collect] done  44/54 tests.tools.test_source_identity rc=0 in 2.60s
+[collect] done  45/54 tests.tools.test_next_run rc=0 in 3.41s
+[collect] done  46/54 tests.tools.test_retry_task_lineage rc=0 in 2.91s
+[collect] done  47/54 tests.tools.test_disposition_command rc=0 in 3.90s
+[collect] done  48/54 tests.tools.test_worker_visibility rc=0 in 2.80s
+[collect] done  49/54 tests.tools.test_next_run_managed rc=0 in 3.31s
+[collect] done  50/54 tests.tools.test_pool rc=0 in 3.02s
+[collect] done  51/54 tests.tools.test_startup_prerequisites rc=0 in 2.92s
+[collect] done  52/54 tests.tools.test_job_task_delivery rc=0 in 3.73s
+[collect] done  53/54 tests.tools.test_joined_workflow rc=0 in 3.53s
+[collect] done  54/54 tests.tools.test_stopped_settlement_joined rc=0 in 2.84s
+[parallel] start 1/504 tests.tools.test_accepted_base.AcceptedBaseCase
+[parallel] start 2/504 tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport
+[parallel] start 3/504 tests.tools.test_attempt_diagnostics.RealStatusReportSeam
+[parallel] start 4/504 tests.tools.test_attempt_diagnostics.TheCommandTableServesAndDispatchesIt
+[parallel] start 5/504 tests.tools.test_attempt_diagnostics.TheReportIsAPureProjection
+[parallel] start 6/504 tests.tools.test_attempt_diagnostics.TheWorkerDeclaredEndingIsItsOwnAxis
+[parallel] start 7/504 tests.tools.test_attempt_logs_command.FollowDRAINSBeforeItDecidesAnything
+[parallel] start 8/504 tests.tools.test_attempt_logs_command.SmallBoundsAlwaysMakePROGRESS
+[parallel] start 9/504 tests.tools.test_attempt_logs_command.TheCommandReachesNothingItShouldNot
+[parallel] start 10/504 tests.tools.test_attempt_logs_command.TheOperatorCanSeeAnAttemptWithoutAStoreOrAnEngine
+[parallel] start 11/504 tests.tools.test_bootstrap.AFreshInstallHasZeroJobs
+[parallel] start 12/504 tests.tools.test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames
+[parallel] start 13/504 tests.tools.test_bootstrap.AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade
+[parallel] start 14/504 tests.tools.test_bootstrap.AnInstanceMayNameItsSourceWithoutAJob
+[parallel] start 15/504 tests.tools.test_bootstrap.AnInstanceWithNoCAPACITY_FAILS_CLOSED
+[parallel] start 16/504 tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE
+[parallel] start 17/504 tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused
+[parallel] start 18/504 tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce
+[parallel] start 19/504 tests.tools.test_bootstrap.RepeatingIt
+[parallel] start 20/504 tests.tools.test_bootstrap.TheAssetInventoryIsOneInventory
+[parallel] start 21/504 tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing
+[parallel] start 22/504 tests.tools.test_bootstrap.TheEstablishedRootAdmitsNewJobsAtTheCurrentTarget
+[parallel] start 23/504 tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED
+[parallel] start 24/504 tests.tools.test_bootstrap.TheFreshInstallStillNeedsTheWORKERSToBeSeparable
+[parallel] start 25/504 tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE
+[parallel] start 26/504 tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY
+[parallel] start 27/504 tests.tools.test_bootstrap.TheInputContractIsClosed
+[parallel] start 28/504 tests.tools.test_bootstrap.TheInstallPathRefusesBadBasesBeforeAnyEffect
+[parallel] start 29/504 tests.tools.test_bootstrap.TheInstallerOperandNeverReachesTheManager
+[parallel] start 30/504 tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity
+[parallel] start 31/504 tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere
+[parallel] start 32/504 tests.tools.test_bootstrap.WhatItComposesOnTheAuthority
+[parallel] done  1/504 tests.tools.test_attempt_diagnostics.TheWorkerDeclaredEndingIsItsOwnAxis rc=0 in 5.91s
+[parallel] start 33/504 tests.tools.test_bootstrap.WhatItDerives
+[parallel] done  2/504 tests.tools.test_bootstrap.TheInputContractIsClosed rc=0 in 6.00s
+[parallel] start 34/504 tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything
+[parallel] done  3/504 tests.tools.test_attempt_diagnostics.TheCommandTableServesAndDispatchesIt rc=0 in 6.61s
+[parallel] start 35/504 tests.tools.test_bootstrap.WhatItTELLSYouToDoNext
+[parallel] done  4/504 tests.tools.test_attempt_diagnostics.TheReportIsAPureProjection rc=0 in 6.71s
+[parallel] done  5/504 tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused rc=1 in 6.70s
+[parallel] done  6/504 tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED rc=1 in 6.70s
+[parallel] start 36/504 tests.tools.test_connected_creation.AnInterruptedPublicationIsRecoverable
+[parallel] start 37/504 tests.tools.test_connected_creation.CreateTimeWorkLabelsThroughTheRealCommand
+[parallel] start 38/504 tests.tools.test_connected_creation.TheConnectedCreation
+[parallel] done  7/504 tests.tools.test_bootstrap.TheInstallerOperandNeverReachesTheManager rc=1 in 6.80s
+[parallel] start 39/504 tests.tools.test_connected_creation.TheInstallKeepsTheDocumentItConsumed
+[parallel] done  8/504 tests.tools.test_bootstrap.AnInstanceMayNameItsSourceWithoutAJob rc=1 in 6.90s
+[parallel] start 40/504 tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused
+[parallel] done  9/504 tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce rc=0 in 7.00s
+[parallel] start 41/504 tests.tools.test_connected_creation.TheNativeRoutingThroughTheRealInstaller
+[parallel] done  10/504 tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing rc=1 in 7.01s
+[parallel] start 42/504 tests.tools.test_connected_creation.ThePackagedResourcesResolve
+[parallel] done  11/504 tests.tools.test_attempt_logs_command.TheCommandReachesNothingItShouldNot rc=0 in 7.21s
+[parallel] done  12/504 tests.tools.test_bootstrap.AFreshInstallHasZeroJobs rc=1 in 7.21s
+[parallel] start 43/504 tests.tools.test_connected_creation.TheRefusalsAreTruthful
+[parallel] start 44/504 tests.tools.test_connected_creation.TheReusableInstanceComposesHandoffCapableWorkers
+[parallel] done  13/504 tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE rc=1 in 7.30s
+[parallel] start 45/504 tests.tools.test_connected_creation.TheReusableInstanceServesDefinedJobs
+[parallel] done  14/504 tests.tools.test_bootstrap.AnInstanceWithNoCAPACITY_FAILS_CLOSED rc=1 in 7.40s
+[parallel] done  15/504 tests.tools.test_bootstrap.TheEstablishedRootAdmitsNewJobsAtTheCurrentTarget rc=1 in 7.40s
+[parallel] done  16/504 tests.tools.test_bootstrap.TheFreshInstallStillNeedsTheWORKERSToBeSeparable rc=1 in 7.40s
+[parallel] start 46/504 tests.tools.test_connected_creation.TheSameIntentConverges
+[parallel] start 47/504 tests.tools.test_connected_startup.TheCorrectionStartIsMeasured
+[parallel] start 48/504 tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured
+[parallel] done  17/504 tests.tools.test_bootstrap.AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade rc=1 in 7.41s
+[parallel] start 49/504 tests.tools.test_connected_startup.TheIntervalsAreReportedWithTheirEndpoints
+[parallel] done  18/504 tests.tools.test_bootstrap.WhatItComposesOnTheAuthority rc=1 in 7.40s
+[parallel] start 50/504 tests.tools.test_correction_restart.CountedReopen
+[parallel] done  19/504 tests.tools.test_attempt_logs_command.SmallBoundsAlwaysMakePROGRESS rc=0 in 7.61s
+[parallel] done  20/504 tests.tools.test_bootstrap.TheInstallPathRefusesBadBasesBeforeAnyEffect rc=1 in 7.60s
+[parallel] start 51/504 tests.tools.test_correction_restart.CountedReopenInvalidEvidence
+[parallel] start 52/504 tests.tools.test_correction_restart.TransactionBoundaryThroughTheConnectedPath
+[parallel] done  21/504 tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY rc=1 in 7.70s
+[parallel] start 53/504 tests.tools.test_correction_restart.UsefulCorrection
+[parallel] done  22/504 tests.tools.test_bootstrap.RepeatingIt rc=1 in 7.80s
+[parallel] start 54/504 tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence
+[parallel] done  23/504 tests.tools.test_attempt_logs_command.FollowDRAINSBeforeItDecidesAnything rc=0 in 7.91s
+[parallel] start 55/504 tests.tools.test_creation_ports.TheDerivationsOwnRefusals
+[parallel] done  24/504 tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere rc=1 in 7.90s
+[parallel] start 56/504 tests.tools.test_creation_ports.TheDerivedJobIsServable
+[parallel] done  25/504 tests.tools.test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames rc=1 in 8.01s
+[parallel] start 57/504 tests.tools.test_creation_ports.TheFourDerivedFacts
+[parallel] done  26/504 tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE rc=1 in 8.20s
+[parallel] start 58/504 tests.tools.test_creation_ports.TheOwnerRefusesIncoherenceBeforeThePortSeesIt
+[parallel] done  27/504 tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity rc=0 in 8.30s
+[parallel] start 59/504 tests.tools.test_creation_ports.TheRequestedTaskDoesNotReachTheWorker
+[parallel] done  28/504 tests.tools.test_bootstrap.TheAssetInventoryIsOneInventory rc=0 in 8.60s
+[parallel] start 60/504 tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool
+[parallel] done  29/504 tests.tools.test_attempt_logs_command.TheOperatorCanSeeAnAttemptWithoutAStoreOrAnEngine rc=0 in 8.91s
+[parallel] start 61/504 tests.tools.test_disposition_command.TheClosure
+[parallel] done  30/504 tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport rc=0 in 9.71s
+[parallel] start 62/504 tests.tools.test_disposition_command.TheFailureMatrix
+[parallel] done  31/504 tests.tools.test_bootstrap.WhatItDerives rc=1 in 5.80s
+[parallel] start 63/504 tests.tools.test_disposition_command.TheHumanIntegration
+[parallel] done  32/504 tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything rc=0 in 5.80s
+[parallel] start 64/504 tests.tools.test_disposition_command.TheInstalledSurface
+[parallel] done  33/504 tests.tools.test_connected_creation.AnInterruptedPublicationIsRecoverable rc=1 in 6.10s
+[parallel] start 65/504 tests.tools.test_disposition_command.TheOwnerDecision
+[parallel] done  34/504 tests.tools.test_bootstrap.WhatItTELLSYouToDoNext rc=1 in 6.20s
+[parallel] start 66/504 tests.tools.test_disposition_command.ThePublicationInventory
+[parallel] done  35/504 tests.tools.test_connected_creation.TheInstallKeepsTheDocumentItConsumed rc=1 in 6.20s
+[parallel] start 67/504 tests.tools.test_disposition_command.WhatIsDue
+[parallel] done  36/504 tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused rc=1 in 6.40s
+[parallel] done  37/504 tests.tools.test_connected_creation.TheNativeRoutingThroughTheRealInstaller rc=1 in 6.30s
+[parallel] done  38/504 tests.tools.test_connected_creation.TheReusableInstanceComposesHandoffCapableWorkers rc=1 in 6.10s
+[parallel] start 68/504 tests.tools.test_disposition_command.WhatJUSTIFIESSkippingValidation
+[parallel] start 69/504 tests.tools.test_disposition_command.WhatOneIdentityMEANS
+[parallel] start 70/504 tests.tools.test_disposition_command.WhatTheREQUESTBindingDecides
+[parallel] done  39/504 tests.tools.test_connected_creation.TheConnectedCreation rc=1 in 6.90s
+[parallel] done  40/504 tests.tools.test_connected_startup.TheIntervalsAreReportedWithTheirEndpoints rc=1 in 6.20s
+[parallel] start 71/504 tests.tools.test_dogfood_operator.ARecoveryThatBeganAlwaysLeavesAnAccount
+[parallel] start 72/504 tests.tools.test_dogfood_operator.AnOwnerDefectIsNotABadGrant
+[parallel] done  41/504 tests.tools.test_connected_creation.CreateTimeWorkLabelsThroughTheRealCommand rc=1 in 7.01s
+[parallel] done  42/504 tests.tools.test_connected_creation.ThePackagedResourcesResolve rc=1 in 6.70s
+[parallel] done  43/504 tests.tools.test_connected_creation.TheReusableInstanceServesDefinedJobs rc=1 in 6.41s
+[parallel] start 73/504 tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding
+[parallel] start 74/504 tests.tools.test_dogfood_operator.OneSession
+[parallel] start 75/504 tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision
+[parallel] done  44/504 tests.tools.test_connected_creation.TheSameIntentConverges rc=1 in 6.50s
+[parallel] start 76/504 tests.tools.test_dogfood_operator.TheArcIsEffectivelyOnceAndAFreshAttemptIsFresh
+[parallel] done  45/504 tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured rc=1 in 6.51s
+[parallel] start 77/504 tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation
+[parallel] done  46/504 tests.tools.test_connected_creation.TheRefusalsAreTruthful rc=1 in 6.90s
+[parallel] start 78/504 tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment
+[parallel] done  47/504 tests.tools.test_connected_startup.TheCorrectionStartIsMeasured rc=1 in 7.00s
+[parallel] done  48/504 tests.tools.test_creation_ports.TheFourDerivedFacts rc=0 in 6.40s
+[parallel] start 79/504 tests.tools.test_dogfood_operator.TheChannelDrainsAndNoLongerCountsAnything
+[parallel] start 80/504 tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore
+[parallel] done  49/504 tests.tools.test_attempt_diagnostics.RealStatusReportSeam rc=0 in 14.62s
+[parallel] start 81/504 tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges
+[parallel] done  50/504 tests.tools.test_creation_ports.TheDerivedJobIsServable rc=0 in 7.40s
+[parallel] done  51/504 tests.tools.test_creation_ports.TheOwnerRefusesIncoherenceBeforeThePortSeesIt rc=0 in 7.10s
+[parallel] start 82/504 tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile
+[parallel] start 83/504 tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState
+[parallel] done  52/504 tests.tools.test_creation_ports.TheRequestedTaskDoesNotReachTheWorker rc=0 in 7.20s
+[parallel] start 84/504 tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable
+[parallel] done  53/504 tests.tools.test_creation_ports.TheDerivationsOwnRefusals rc=0 in 7.80s
+[parallel] start 85/504 tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn
+[parallel] done  54/504 tests.tools.test_disposition_command.TheInstalledSurface rc=0 in 4.01s
+[parallel] start 86/504 tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment
+[parallel] done  55/504 tests.tools.test_dogfood_operator.AnOwnerDefectIsNotABadGrant rc=0 in 3.40s
+[parallel] start 87/504 tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect
+[parallel] done  56/504 tests.tools.test_dogfood_operator.ARecoveryThatBeganAlwaysLeavesAnAccount rc=0 in 3.50s
+[parallel] done  57/504 tests.tools.test_dogfood_operator.OneSession rc=0 in 3.39s
+[parallel] start 88/504 tests.tools.test_dogfood_operator.TheIdentityHoldIsAppliedTwice
+[parallel] start 89/504 tests.tools.test_dogfood_operator.TheIndependentDerivationReadsReceiptLocators
+[parallel] done  58/504 tests.tools.test_disposition_command.ThePublicationInventory rc=0 in 4.50s
+[parallel] start 90/504 tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures
+[parallel] done  59/504 tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision rc=0 in 3.99s
+[parallel] start 91/504 tests.tools.test_dogfood_operator.TheLocatorGrammarHasONEOwner
+[parallel] done  60/504 tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding rc=0 in 4.19s
+[parallel] start 92/504 tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS
+[parallel] done  61/504 tests.tools.test_dogfood_operator.TheChannelDrainsAndNoLongerCountsAnything rc=0 in 3.91s
+[parallel] start 93/504 tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged
+[parallel] done  62/504 tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable rc=0 in 3.10s
+[parallel] start 94/504 tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere
+[parallel] done  63/504 tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn rc=0 in 3.01s
+[parallel] start 95/504 tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt
+[parallel] done  64/504 tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect rc=0 in 2.70s
+[parallel] start 96/504 tests.tools.test_dogfood_operator.ThePublicRetryRunsFromRealDurableState
+[parallel] done  65/504 tests.tools.test_dogfood_operator.TheIdentityHoldIsAppliedTwice rc=0 in 2.70s
+[parallel] start 97/504 tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration
+[parallel] done  66/504 tests.tools.test_dogfood_operator.TheIndependentDerivationReadsReceiptLocators rc=0 in 2.80s
+[parallel] start 98/504 tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState
+[parallel] done  67/504 tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool rc=0 in 11.30s
+[parallel] start 99/504 tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime
+[parallel] done  68/504 tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment rc=0 in 6.20s
+[parallel] done  69/504 tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS rc=0 in 2.40s
+[parallel] start 100/504 tests.tools.test_dogfood_operator.TheSourceIsStagedBoundedAndOnce
+[parallel] start 101/504 tests.tools.test_dogfood_operator.TheStatedCeilingsAreACeiling
+[parallel] done  70/504 tests.tools.test_dogfood_operator.TheLocatorGrammarHasONEOwner rc=0 in 2.70s
+[parallel] start 102/504 tests.tools.test_dogfood_operator.TheTaskIsHeldEverywhereItIsBelieved
+[parallel] done  71/504 tests.tools.test_dogfood_operator.TheArcIsEffectivelyOnceAndAFreshAttemptIsFresh rc=0 in 6.70s
+[parallel] start 103/504 tests.tools.test_dossier_command.ItBindsAndReadsThroughTheCommand
+[parallel] done  72/504 tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere rc=0 in 2.40s
+[parallel] start 104/504 tests.tools.test_dossier_command.ItCitesEvidenceByDigestingIt
+[parallel] done  73/504 tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged rc=0 in 2.89s
+[parallel] start 105/504 tests.tools.test_dossier_command.TheRecordVerbIsPartOfTheInstalledCommand
+[parallel] done  74/504 tests.tools.test_disposition_command.WhatIsDue rc=0 in 8.61s
+[parallel] start 106/504 tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly
+[parallel] done  75/504 tests.tools.test_accepted_base.AcceptedBaseCase rc=0 in 21.71s
+[parallel] start 107/504 tests.tools.test_dossier_recovery.ContainedEvidence
+[parallel] done  76/504 tests.tools.test_disposition_command.WhatTheREQUESTBindingDecides rc=0 in 8.90s
+[parallel] start 108/504 tests.tools.test_dossier_recovery.TheClosedRecoverySet
+[parallel] done  77/504 tests.tools.test_dogfood_operator.TheSourceIsStagedBoundedAndOnce rc=0 in 2.60s
+[parallel] start 109/504 tests.tools.test_dossier_recovery.ThePARENTReplacementRaceIsClosed
+[parallel] done  78/504 tests.tools.test_dogfood_operator.TheStatedCeilingsAreACeiling rc=0 in 2.70s
+[parallel] start 110/504 tests.tools.test_environment.AnInterruptedSetupResumes
+[parallel] done  79/504 tests.tools.test_disposition_command.TheOwnerDecision rc=0 in 10.40s
+[parallel] start 111/504 tests.tools.test_environment.NamingTheInterpreter
+[parallel] done  80/504 tests.tools.test_dogfood_operator.TheTaskIsHeldEverywhereItIsBelieved rc=0 in 3.00s
+[parallel] start 112/504 tests.tools.test_environment.PreparingIt
+[parallel] done  81/504 tests.tools.test_dogfood_operator.ThePublicRetryRunsFromRealDurableState rc=1 in 4.00s
+[parallel] start 113/504 tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper
+[parallel] done  82/504 tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation rc=1 in 10.29s
+[parallel] start 114/504 tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator
+[parallel] done  83/504 tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile rc=0 in 9.10s
+[parallel] start 115/504 tests.tools.test_environment.TheGateCannotSkip
+[parallel] done  84/504 tests.tools.test_dossier_command.ItBindsAndReadsThroughTheCommand rc=0 in 3.90s
+[parallel] start 116/504 tests.tools.test_environment.TheInterpreterOverrideIsExecutable
+[parallel] done  85/504 tests.tools.test_dossier_command.TheRecordVerbIsPartOfTheInstalledCommand rc=0 in 3.40s
+[parallel] start 117/504 tests.tools.test_environment.TheRecipesRefuseAChangedRuntime
+[parallel] done  86/504 tests.tools.test_dossier_command.ItCitesEvidenceByDigestingIt rc=0 in 3.90s
+[parallel] start 118/504 tests.tools.test_environment.TheRecipesUseIt
+[parallel] done  87/504 tests.tools.test_disposition_command.TheHumanIntegration rc=0 in 13.41s
+[parallel] done  88/504 tests.tools.test_disposition_command.WhatJUSTIFIESSkippingValidation rc=0 in 11.81s
+[parallel] start 119/504 tests.tools.test_environment.WhatItSeesThere
+[parallel] start 120/504 tests.tools.test_environment.WhereItLives
+[parallel] done  89/504 tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore rc=1 in 11.00s
+[parallel] done  90/504 tests.tools.test_dossier_recovery.ThePARENTReplacementRaceIsClosed rc=0 in 2.50s
+[parallel] start 121/504 tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout
+[parallel] start 122/504 tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches
+[parallel] done  91/504 tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures rc=0 in 8.21s
+[parallel] start 123/504 tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched
+[parallel] done  92/504 tests.tools.test_dossier_recovery.ContainedEvidence rc=0 in 4.20s
+[parallel] start 124/504 tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured
+[parallel] done  93/504 tests.tools.test_environment.NamingTheInterpreter rc=0 in 2.90s
+[parallel] start 125/504 tests.tools.test_execution_limits.TheAdmittedFailureMatrix
+[parallel] done  94/504 tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper rc=1 in 2.60s
+[parallel] start 126/504 tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling
+[parallel] done  95/504 tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly rc=0 in 5.09s
+[parallel] start 127/504 tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches
+[parallel] done  96/504 tests.tools.test_environment.AnInterruptedSetupResumes rc=0 in 3.90s
+[parallel] start 128/504 tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion
+[parallel] done  97/504 tests.tools.test_environment.PreparingIt rc=0 in 3.60s
+[parallel] start 129/504 tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob
+[parallel] done  98/504 tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt rc=1 in 8.49s
+[parallel] done  99/504 tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator rc=0 in 3.00s
+[parallel] start 130/504 tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling
+[parallel] start 131/504 tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling
+[parallel] done  100/504 tests.tools.test_disposition_command.TheClosure rc=0 in 18.40s
+[parallel] start 132/504 tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary
+[parallel] done  101/504 tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration rc=0 in 7.80s
+[parallel] start 133/504 tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery
+[parallel] done  102/504 tests.tools.test_environment.TheRecipesRefuseAChangedRuntime rc=1 in 3.01s
+[parallel] start 134/504 tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically
+[parallel] done  103/504 tests.tools.test_environment.TheInterpreterOverrideIsExecutable rc=1 in 3.40s
+[parallel] start 135/504 tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther
+[parallel] done  104/504 tests.tools.test_environment.TheRecipesUseIt rc=0 in 3.10s
+[parallel] start 136/504 tests.tools.test_fresh_retry_line_recovery.ALegitimatePendingReviewStillRefuses
+[parallel] done  105/504 tests.tools.test_disposition_command.TheFailureMatrix rc=0 in 18.40s
+[parallel] done  106/504 tests.tools.test_environment.TheGateCannotSkip rc=0 in 3.70s
+[parallel] start 137/504 tests.tools.test_fresh_retry_line_recovery.TheEndingReleasesTheLineItHeld
+[parallel] start 138/504 tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesACandidateBeforeAnyFreeze
+[parallel] done  107/504 tests.tools.test_environment.WhereItLives rc=0 in 3.39s
+[parallel] start 139/504 tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesUnsettledAndForeignExecution
+[parallel] done  108/504 tests.tools.test_environment.WhatItSeesThere rc=0 in 3.69s
+[parallel] start 140/504 tests.tools.test_fresh_retry_line_recovery.TheReleaseReplaysAfterALaterCheckpoint
+[parallel] done  109/504 tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout rc=0 in 4.00s
+[parallel] start 141/504 tests.tools.test_fresh_retry_line_recovery.TheReleaseSurvivesAnInterruptedWrite
+[parallel] done  110/504 tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured rc=0 in 4.00s
+[parallel] start 142/504 tests.tools.test_fresh_retry_line_recovery.TheReleasedEndingIsReEnterable
+[parallel] done  111/504 tests.tools.test_execution_limits.TheAdmittedFailureMatrix rc=0 in 3.90s
+[parallel] start 143/504 tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses
+[parallel] done  112/504 tests.tools.test_disposition_command.WhatOneIdentityMEANS rc=0 in 17.11s
+[parallel] start 144/504 tests.tools.test_instance.EveryPathIsDerived
+[parallel] done  113/504 tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob rc=0 in 4.20s
+[parallel] start 145/504 tests.tools.test_instance.PublicationRefusesToReplace
+[parallel] done  114/504 tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary rc=0 in 4.20s
+[parallel] start 146/504 tests.tools.test_instance.TheAdmissionDecidesBeforeAnythingHappens
+[parallel] done  115/504 tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling rc=0 in 4.40s
+[parallel] start 147/504 tests.tools.test_instance.TheAdmissionIsCarriedNotRepeated
+[parallel] done  116/504 tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion rc=0 in 4.70s
+[parallel] start 148/504 tests.tools.test_instance.TheBootstrapPreparesTheRepositories
+[parallel] done  117/504 tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther rc=0 in 4.20s
+[parallel] start 149/504 tests.tools.test_instance.TheCREATEStepFailureIsProvedConnected
+[parallel] done  118/504 tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically rc=0 in 4.99s
+[parallel] start 150/504 tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile
+[parallel] done  119/504 tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery rc=0 in 5.60s
+[parallel] start 151/504 tests.tools.test_instance.TheDestinationIsAskedAboutAgain
+[parallel] done  120/504 tests.tools.test_instance.EveryPathIsDerived rc=0 in 3.49s
+[parallel] start 152/504 tests.tools.test_instance.TheDestinationOwnsItsWorkspace
+[parallel] done  121/504 tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState rc=1 in 18.90s
+[parallel] start 153/504 tests.tools.test_instance.TheIdentityHasToMeanSomething
+[parallel] done  122/504 tests.tools.test_instance.PublicationRefusesToReplace rc=0 in 3.11s
+[parallel] start 154/504 tests.tools.test_instance.TheRunningCommandIsBoundToo
+[parallel] done  123/504 tests.tools.test_instance.TheAdmissionIsCarriedNotRepeated rc=1 in 3.00s
+[parallel] start 155/504 tests.tools.test_instance.TheRuntimeIsBoundWhole
+[parallel] done  124/504 tests.tools.test_instance.TheAdmissionDecidesBeforeAnythingHappens rc=1 in 3.60s
+[parallel] start 156/504 tests.tools.test_instance.WhatARecipeAsksAnInstance
+[parallel] done  125/504 tests.tools.test_instance.TheCREATEStepFailureIsProvedConnected rc=1 in 3.20s
+[parallel] start 157/504 tests.tools.test_instance.WhatAnInstanceDerives
+[parallel] done  126/504 tests.tools.test_instance.TheBootstrapPreparesTheRepositories rc=0 in 4.20s
+[parallel] start 158/504 tests.tools.test_integration_bundle.TheAuthorityAccountComesFromRealOwners
+[parallel] done  127/504 tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile rc=1 in 3.50s
+[parallel] start 159/504 tests.tools.test_integration_bundle.TheBundleBoundsAreDerivedAndReconciled
+[parallel] done  128/504 tests.tools.test_instance.TheDestinationIsAskedAboutAgain rc=1 in 3.80s
+[parallel] start 160/504 tests.tools.test_integration_bundle.TheCustodyRootIsHeldAndNotResolved
+[parallel] done  129/504 tests.tools.test_instance.TheDestinationOwnsItsWorkspace rc=0 in 3.20s
+[parallel] start 161/504 tests.tools.test_integration_bundle.TheExtractionIsBoundToOneDirectory
+[parallel] done  130/504 tests.tools.test_instance.TheIdentityHasToMeanSomething rc=1 in 4.10s
+[parallel] done  131/504 tests.tools.test_instance.TheRunningCommandIsBoundToo rc=0 in 3.99s
+[parallel] start 162/504 tests.tools.test_integration_bundle.TheManifestIsRepresentableBeforeAnythingIsPublished
+[parallel] start 163/504 tests.tools.test_integration_bundle.ThePathTableRefusesWhatItCannotAccountFor
+[parallel] done  132/504 tests.tools.test_instance.TheRuntimeIsBoundWhole rc=0 in 3.90s
+[parallel] start 164/504 tests.tools.test_integration_bundle.TheProducerComposesFromRealOwners
+[parallel] done  133/504 tests.tools.test_instance.WhatAnInstanceDerives rc=0 in 4.10s
+[parallel] start 165/504 tests.tools.test_integration_bundle.TheProducerLooksAgainAfterItHasRead
+[parallel] done  134/504 tests.tools.test_instance.WhatARecipeAsksAnInstance rc=0 in 4.51s
+[parallel] start 166/504 tests.tools.test_integration_bundle.TheProviderReportIsBoundedAndClosed
+[parallel] done  135/504 tests.tools.test_integration_bundle.TheBundleBoundsAreDerivedAndReconciled rc=0 in 4.40s
+[parallel] start 167/504 tests.tools.test_integration_bundle.TheReaderProvesEveryComponentAndNotJustTheLast
+[parallel] done  136/504 tests.tools.test_integration_bundle.ThePathTableRefusesWhatItCannotAccountFor rc=0 in 4.20s
+[parallel] start 168/504 tests.tools.test_integration_bundle.TheReviewedPathTableComesFromRetainedObjects
+[parallel] done  137/504 tests.tools.test_integration_bundle.TheProviderReportIsBoundedAndClosed rc=0 in 3.50s
+[parallel] start 169/504 tests.tools.test_integration_bundle.TheRootIsTraversedAndNotJustOpened
+[parallel] done  138/504 tests.tools.test_dossier_recovery.TheClosedRecoverySet rc=0 in 21.60s
+[parallel] start 170/504 tests.tools.test_integration_bundle.TheSharedContentIsChargedOnce
+[parallel] done  139/504 tests.tools.test_integration_bundle.TheReaderProvesEveryComponentAndNotJustTheLast rc=0 in 3.60s
+[parallel] start 171/504 tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree
+[parallel] done  140/504 tests.tools.test_integration_bundle.TheReviewedPathTableComesFromRetainedObjects rc=0 in 3.20s
+[parallel] start 172/504 tests.tools.test_integration_bundle.TheWorkerReadsOnlyWhatTheEnvelopeNames
+[parallel] done  141/504 tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches rc=0 in 20.50s
+[parallel] start 173/504 tests.tools.test_integration_bundle.TheWorkerReadsTheAuthorityAccount
+[parallel] done  142/504 tests.tools.test_integration_bundle.TheRootIsTraversedAndNotJustOpened rc=0 in 3.19s
+[parallel] start 174/504 tests.tools.test_integration_worker.TheLiveMarkerIsBookkeepingAndNeverAuthority
+[parallel] done  143/504 tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges rc=1 in 32.29s
+[parallel] start 175/504 tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners
+[parallel] done  144/504 tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree rc=0 in 3.80s
+[parallel] start 176/504 tests.tools.test_integration_worker.TheStartRefusesBeforeAnythingIsExposed
+[parallel] done  145/504 tests.tools.test_integration_bundle.TheWorkerReadsOnlyWhatTheEnvelopeNames rc=0 in 4.50s
+[parallel] start 177/504 tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort
+[parallel] done  146/504 tests.tools.test_integration_bundle.TheWorkerReadsTheAuthorityAccount rc=0 in 4.31s
+[parallel] start 178/504 tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands
+[parallel] done  147/504 tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState rc=1 in 31.41s
+[parallel] start 179/504 tests.tools.test_job_cancellation_command.TheCommandBoundary
+[parallel] done  148/504 tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches rc=0 in 26.30s
+[parallel] start 180/504 tests.tools.test_job_cancellation_command.TheRequestWhileServing
+[parallel] done  149/504 tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment rc=1 in 40.09s
+[parallel] start 181/504 tests.tools.test_job_control_command.TheCorrectionAndTheCommand
+[parallel] done  150/504 tests.tools.test_fresh_retry_line_recovery.TheEndingReleasesTheLineItHeld rc=0 in 31.80s
+[parallel] start 182/504 tests.tools.test_job_control_command.TheDeadlineWhileServing
+[parallel] done  151/504 tests.tools.test_fresh_retry_line_recovery.ALegitimatePendingReviewStillRefuses rc=0 in 33.70s
+[parallel] start 183/504 tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne
+[parallel] done  152/504 tests.tools.test_fresh_retry_line_recovery.TheReleasedEndingIsReEnterable rc=0 in 32.41s
+[parallel] start 184/504 tests.tools.test_job_observation.InvocationClocks
+[parallel] done  153/504 tests.tools.test_integration_bundle.TheExtractionIsBoundToOneDirectory rc=0 in 26.00s
+[parallel] start 185/504 tests.tools.test_job_observation.SharedObservation
+[parallel] done  154/504 tests.tools.test_correction_restart.TransactionBoundaryThroughTheConnectedPath rc=1 in 57.80s
+[parallel] start 186/504 tests.tools.test_job_observation.TheFailureCauseAndTimingShareOneStageLine
+[parallel] done  155/504 tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne rc=0 in 4.20s
+[parallel] done  156/504 tests.tools.test_job_observation.InvocationClocks rc=0 in 3.59s
+[parallel] start 187/504 tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces
+[parallel] start 188/504 tests.tools.test_job_observation.Timing
+[parallel] done  157/504 tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched rc=0 in 40.60s
+[parallel] start 189/504 tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt
+[parallel] done  158/504 tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence rc=1 in 58.60s
+[parallel] start 190/504 tests.tools.test_job_task_delivery.EachJobCarriesItsOwnVerification
+[parallel] done  159/504 tests.tools.test_correction_restart.CountedReopen rc=1 in 59.50s
+[parallel] start 191/504 tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity
+[parallel] done  160/504 tests.tools.test_job_observation.SharedObservation rc=0 in 3.81s
+[parallel] start 192/504 tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished
+[parallel] done  161/504 tests.tools.test_correction_restart.CountedReopenInvalidEvidence rc=1 in 60.10s
+[parallel] done  162/504 tests.tools.test_job_control_command.TheCorrectionAndTheCommand rc=0 in 11.80s
+[parallel] start 193/504 tests.tools.test_job_task_delivery.TheConnectedPreparationPath
+[parallel] start 194/504 tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop
+[parallel] done  163/504 tests.tools.test_job_observation.TheFailureCauseAndTimingShareOneStageLine rc=0 in 3.40s
+[parallel] done  164/504 tests.tools.test_job_observation.Timing rc=0 in 2.90s
+[parallel] start 195/504 tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved
+[parallel] start 196/504 tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce
+[parallel] done  165/504 tests.tools.test_job_cancellation_command.TheCommandBoundary rc=0 in 17.79s
+[parallel] start 197/504 tests.tools.test_job_task_delivery.TheReaderOverARealStore
+[parallel] done  166/504 tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces rc=0 in 3.40s
+[parallel] start 198/504 tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask
+[parallel] done  167/504 tests.tools.test_integration_bundle.TheSharedContentIsChargedOnce rc=0 in 25.70s
+[parallel] start 199/504 tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop
+[parallel] done  168/504 tests.tools.test_job_task_delivery.EachJobCarriesItsOwnVerification rc=0 in 4.71s
+[parallel] start 200/504 tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity
+[parallel] done  169/504 tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses rc=0 in 41.30s
+[parallel] start 201/504 tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop
+[parallel] done  170/504 tests.tools.test_integration_bundle.TheProducerLooksAgainAfterItHasRead rc=0 in 32.10s
+[parallel] start 202/504 tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes
+[parallel] done  171/504 tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished rc=0 in 5.89s
+[parallel] start 203/504 tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool
+[parallel] done  172/504 tests.tools.test_job_task_delivery.TheReaderOverARealStore rc=0 in 4.41s
+[parallel] start 204/504 tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop
+[parallel] done  173/504 tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved rc=0 in 4.90s
+[parallel] start 205/504 tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView
+[parallel] done  174/504 tests.tools.test_integration_bundle.TheCustodyRootIsHeldAndNotResolved rc=0 in 38.30s
+[parallel] done  175/504 tests.tools.test_integration_worker.TheLiveMarkerIsBookkeepingAndNeverAuthority rc=0 in 29.00s
+[parallel] start 206/504 tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException
+[parallel] start 207/504 tests.tools.test_job_viewer.NothingIsInvented
+[parallel] done  176/504 tests.tools.test_job_task_delivery.TheConnectedPreparationPath rc=0 in 8.70s
+[parallel] start 208/504 tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh
+[parallel] done  177/504 tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes rc=0 in 5.50s
+[parallel] start 209/504 tests.tools.test_job_viewer.TheBoundsAreHonest
+[parallel] done  178/504 tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView rc=0 in 4.40s
+[parallel] start 210/504 tests.tools.test_job_viewer.TheCanonicalReaderIsExercised
+[parallel] done  179/504 tests.tools.test_job_viewer.NothingIsInvented rc=0 in 4.01s
+[parallel] start 211/504 tests.tools.test_job_viewer.TheCommandIsOrdinary
+[parallel] done  180/504 tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException rc=0 in 4.40s
+[parallel] start 212/504 tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries
+[parallel] done  181/504 tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh rc=0 in 3.80s
+[parallel] start 213/504 tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics
+[parallel] done  182/504 tests.tools.test_job_viewer.TheBoundsAreHonest rc=0 in 4.50s
+[parallel] start 214/504 tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning
+[parallel] done  183/504 tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask rc=0 in 12.40s
+[parallel] start 215/504 tests.tools.test_job_viewer.TheIntervalIsFiniteAndPositive
+[parallel] done  184/504 tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool rc=0 in 9.00s
+[parallel] start 216/504 tests.tools.test_job_viewer.TheKnownIdentitiesAreShown
+[parallel] done  185/504 tests.tools.test_job_viewer.TheCanonicalReaderIsExercised rc=0 in 4.00s
+[parallel] start 217/504 tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView
+[parallel] done  186/504 tests.tools.test_integration_bundle.TheManifestIsRepresentableBeforeAnythingIsPublished rc=0 in 43.81s
+[parallel] start 218/504 tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView
+[parallel] done  187/504 tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop rc=0 in 15.40s
+[parallel] start 219/504 tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished
+[parallel] done  188/504 tests.tools.test_integration_worker.TheStartRefusesBeforeAnythingIsExposed rc=0 in 35.30s
+[parallel] start 220/504 tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge
+[parallel] done  189/504 tests.tools.test_job_viewer.TheCommandIsOrdinary rc=0 in 3.99s
+[parallel] start 221/504 tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere
+[parallel] done  190/504 tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries rc=0 in 5.20s
+[parallel] start 222/504 tests.tools.test_job_viewer.TheViewerPerformsNoAct
+[parallel] done  191/504 tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics rc=0 in 5.80s
+[parallel] start 223/504 tests.tools.test_job_viewer.TheWorkerDeclaredEndingIsRenderedFromTheRealProjection
+[parallel] done  192/504 tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning rc=0 in 5.61s
+[parallel] start 224/504 tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected
+[parallel] done  193/504 tests.tools.test_job_viewer.TheIntervalIsFiniteAndPositive rc=0 in 5.70s
+[parallel] done  194/504 tests.tools.test_job_viewer.TheKnownIdentitiesAreShown rc=0 in 5.60s
+[parallel] start 225/504 tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully
+[parallel] start 226/504 tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything
+[parallel] done  195/504 tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge rc=0 in 5.50s
+[parallel] done  196/504 tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere rc=0 in 5.40s
+[parallel] start 227/504 tests.tools.test_live_ab.LiveProviderPreparation
+[parallel] start 228/504 tests.tools.test_managed_apply.AnOrdinaryManagedIntegration
+[parallel] done  197/504 tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView rc=0 in 7.60s
+[parallel] start 229/504 tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary
+[parallel] done  198/504 tests.tools.test_job_viewer.TheViewerPerformsNoAct rc=0 in 4.90s
+[parallel] start 230/504 tests.tools.test_managed_apply.TheLocalReceiptOwnerComposesWithPlacement
+[parallel] done  199/504 tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished rc=0 in 6.80s
+[parallel] start 231/504 tests.tools.test_managed_apply.ThePreparationHandoffRetainsItsGitObjects
+[parallel] done  200/504 tests.tools.test_job_viewer.TheWorkerDeclaredEndingIsRenderedFromTheRealProjection rc=0 in 4.50s
+[parallel] start 232/504 tests.tools.test_managed_apply.TheTargetEffectAndReceiptAreOneTransaction
+[parallel] done  201/504 tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime rc=1 in 71.80s
+[parallel] start 233/504 tests.tools.test_managed_integration.APublicationKeepsItsOwnDurableAccount
+[parallel] done  202/504 tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary rc=0 in 5.90s
+[parallel] start 234/504 tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects
+[parallel] done  203/504 tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners rc=0 in 48.80s
+[parallel] start 235/504 tests.tools.test_managed_integration.ARecoveryIsNotACompletionCheck
+[parallel] done  204/504 tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop rc=0 in 23.19s
+[parallel] start 236/504 tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution
+[parallel] done  205/504 tests.tools.test_managed_apply.TheTargetEffectAndReceiptAreOneTransaction rc=0 in 7.51s
+[parallel] start 237/504 tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication
+[parallel] done  206/504 tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt rc=0 in 32.30s
+[parallel] start 238/504 tests.tools.test_managed_integration.TheEntryThisSettlesIsThisSubmissionsOwn
+[parallel] done  207/504 tests.tools.test_managed_apply.TheLocalReceiptOwnerComposesWithPlacement rc=0 in 9.10s
+[parallel] start 239/504 tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite
+[parallel] done  208/504 tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity rc=0 in 28.80s
+[parallel] start 240/504 tests.tools.test_managed_integration.TheGrantIsProvedAtTheMutationBoundary
+[parallel] done  209/504 tests.tools.test_job_control_command.TheDeadlineWhileServing rc=0 in 44.70s
+[parallel] start 241/504 tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct
+[parallel] done  210/504 tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution rc=0 in 11.40s
+[parallel] start 242/504 tests.tools.test_managed_integration.ThePublicationRowIsNotAnAccountWithoutItsActs
+[parallel] done  211/504 tests.tools.test_managed_integration.TheGrantIsProvedAtTheMutationBoundary rc=0 in 8.69s
+[parallel] start 243/504 tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired
+[parallel] done  212/504 tests.tools.test_managed_integration.ARecoveryIsNotACompletionCheck rc=0 in 13.10s
+[parallel] start 244/504 tests.tools.test_managed_integration.TheWholeRequestIsOwnedBeforeAnyEffect
+[parallel] done  213/504 tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects rc=0 in 14.30s
+[parallel] start 245/504 tests.tools.test_managed_integration.WhateverIsCheckedLastIsWhatIsTrue
+[parallel] done  214/504 tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication rc=0 in 18.89s
+[parallel] start 246/504 tests.tools.test_managed_preparation.ASelectedDeploymentComposesTheManagedPath
+[parallel] done  215/504 tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite rc=0 in 27.60s
+[parallel] start 247/504 tests.tools.test_managed_preparation.OneManagedPreparationCompletes
+[parallel] done  216/504 tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce rc=0 in 58.80s
+[parallel] start 248/504 tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker
+[parallel] done  217/504 tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct rc=0 in 24.50s
+[parallel] start 249/504 tests.tools.test_managed_preparation.TheCoordinatorHostNeverPrepares
+[parallel] done  218/504 tests.tools.test_managed_integration.TheWholeRequestIsOwnedBeforeAnyEffect rc=0 in 20.60s
+[parallel] start 250/504 tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers
+[parallel] done  219/504 tests.tools.test_live_ab.LiveProviderPreparation rc=1 in 40.90s
+[parallel] start 251/504 tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds
+[parallel] done  220/504 tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands rc=0 in 80.99s
+[parallel] start 252/504 tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly
+[parallel] done  221/504 tests.tools.test_managed_integration.APublicationKeepsItsOwnDurableAccount rc=0 in 42.40s
+[parallel] start 253/504 tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct
+[parallel] done  222/504 tests.tools.test_managed_integration.WhateverIsCheckedLastIsWhatIsTrue rc=0 in 25.80s
+[parallel] start 254/504 tests.tools.test_native_handoffs.AFindingContinuesTheSameWay
+[parallel] done  223/504 tests.tools.test_managed_preparation.ASelectedDeploymentComposesTheManagedPath rc=0 in 19.00s
+[parallel] start 255/504 tests.tools.test_native_handoffs.AGenuineAmbiguityEscalatesOnceAndStaysHeld
+[parallel] done  224/504 tests.tools.test_managed_integration.ThePublicationRowIsNotAnAccountWithoutItsActs rc=0 in 32.40s
+[parallel] start 256/504 tests.tools.test_native_handoffs.AMalformedRequestIsRefusedNotPublished
+[parallel] done  225/504 tests.tools.test_managed_preparation.TheCoordinatorHostNeverPrepares rc=0 in 11.80s
+[parallel] start 257/504 tests.tools.test_native_handoffs.ARestartBetweenTheCutsDuplicatesNothing
+[parallel] done  226/504 tests.tools.test_job_cancellation_command.TheRequestWhileServing rc=0 in 89.00s
+[parallel] start 258/504 tests.tools.test_native_handoffs.AZeroEditYieldContinuesTheSameWay
+[parallel] done  227/504 tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly rc=0 in 12.40s
+[parallel] start 259/504 tests.tools.test_native_handoffs.AnEscalationSurvivesServingRestart
+[parallel] done  228/504 tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop rc=0 in 72.50s
+[parallel] start 260/504 tests.tools.test_native_handoffs.AnUnconfiguredDeploymentRefusesBeforeATurnIsSpent
+[parallel] done  229/504 tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity rc=0 in 79.20s
+[parallel] start 261/504 tests.tools.test_native_handoffs.AnUnsolicitedResponseAnswersNothing
+[parallel] done  230/504 tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop rc=0 in 78.20s
+[parallel] start 262/504 tests.tools.test_next_run.NextRun
+[parallel] done  231/504 tests.tools.test_managed_integration.TheEntryThisSettlesIsThisSubmissionsOwn rc=0 in 50.19s
+[parallel] start 263/504 tests.tools.test_next_run_flow.JoinedFlow
+[parallel] done  232/504 tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds rc=0 in 21.60s
+[parallel] start 264/504 tests.tools.test_next_run_managed.ManagedAllocation
+[parallel] done  233/504 tests.tools.test_native_handoffs.AMalformedRequestIsRefusedNotPublished rc=0 in 13.70s
+[parallel] start 265/504 tests.tools.test_next_run_recovery.OwnerCessation
+[parallel] done  234/504 tests.tools.test_native_handoffs.AnUnconfiguredDeploymentRefusesBeforeATurnIsSpent rc=0 in 10.61s
+[parallel] start 266/504 tests.tools.test_next_run_recovery.ProcessEvidence
+[parallel] done  235/504 tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired rc=0 in 47.50s
+[parallel] start 267/504 tests.tools.test_operator_verification_view.BothEndsAgreeOnTheNewConstants
+[parallel] done  236/504 tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker rc=1 in 29.20s
+[parallel] start 268/504 tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView
+[parallel] done  237/504 tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesUnsettledAndForeignExecution rc=0 in 128.40s
+[parallel] start 269/504 tests.tools.test_operator_verification_view.TheOperatorsViewRefusesWhatThePacketSays
+[parallel] done  238/504 tests.tools.test_integration_bundle.TheProducerComposesFromRealOwners rc=0 in 120.11s
+[parallel] start 270/504 tests.tools.test_operator_verification_view.TheSealIsOneMeasurement
+[parallel] done  239/504 tests.tools.test_next_run_recovery.ProcessEvidence rc=0 in 4.39s
+[parallel] start 271/504 tests.tools.test_operator_verification_view.TheTransportsPrerequisitesAreRequiredNotAssumed
+[parallel] done  240/504 tests.tools.test_integration_bundle.TheAuthorityAccountComesFromRealOwners rc=0 in 124.21s
+[parallel] start 272/504 tests.tools.test_parallel_runner.AClassFixtureThatNeverStartsItsTestsLeavesThemUnaccounted
+[parallel] done  241/504 tests.tools.test_operator_verification_view.BothEndsAgreeOnTheNewConstants rc=0 in 4.90s
+[parallel] start 273/504 tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind
+[parallel] done  242/504 tests.tools.test_next_run_recovery.OwnerCessation rc=0 in 7.30s
+[parallel] start 274/504 tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases
+[parallel] done  243/504 tests.tools.test_operator_verification_view.TheOperatorsViewRefusesWhatThePacketSays rc=0 in 6.91s
+[parallel] start 275/504 tests.tools.test_parallel_runner.AGroupSelectsExactlyItsModules
+[parallel] done  244/504 tests.tools.test_operator_verification_view.TheSealIsOneMeasurement rc=0 in 6.29s
+[parallel] start 276/504 tests.tools.test_parallel_runner.AShardThatDiesWithoutAReportIsAFailure
+[parallel] done  245/504 tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers rc=0 in 35.90s
+[parallel] start 277/504 tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan
+[parallel] done  246/504 tests.tools.test_operator_verification_view.TheTransportsPrerequisitesAreRequiredNotAssumed rc=0 in 7.81s
+[parallel] start 278/504 tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan
+[parallel] done  247/504 tests.tools.test_parallel_runner.AShardThatDiesWithoutAReportIsAFailure rc=0 in 6.00s
+[parallel] done  248/504 tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan rc=0 in 5.60s
+[parallel] start 279/504 tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind
+[parallel] start 280/504 tests.tools.test_parallel_runner.CollectionRefusesAModuleItCannotLoad
+[parallel] done  249/504 tests.tools.test_native_handoffs.AFindingContinuesTheSameWay rc=0 in 35.60s
+[parallel] start 281/504 tests.tools.test_parallel_runner.CollectionRefusesAModuleThatBindsAnotherModulesTests
+[parallel] done  250/504 tests.tools.test_parallel_runner.AGroupSelectsExactlyItsModules rc=0 in 7.89s
+[parallel] start 282/504 tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder
+[parallel] done  251/504 tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind rc=0 in 11.10s
+[parallel] start 283/504 tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing
+[parallel] done  252/504 tests.tools.test_native_handoffs.AZeroEditYieldContinuesTheSameWay rc=0 in 32.50s
+[parallel] start 284/504 tests.tools.test_parallel_runner.SubtestOutcomesBindToTheirParent
+[parallel] done  253/504 tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases rc=0 in 13.90s
+[parallel] start 285/504 tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed
+[parallel] done  254/504 tests.tools.test_parallel_runner.AClassFixtureThatNeverStartsItsTestsLeavesThemUnaccounted rc=0 in 16.59s
+[parallel] start 286/504 tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead
+[parallel] done  255/504 tests.tools.test_parallel_runner.CollectionRefusesAModuleThatBindsAnotherModulesTests rc=0 in 6.81s
+[parallel] start 287/504 tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree
+[parallel] done  256/504 tests.tools.test_parallel_runner.CollectionRefusesAModuleItCannotLoad rc=0 in 7.90s
+[parallel] start 288/504 tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly
+[parallel] done  257/504 tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing rc=0 in 6.91s
+[parallel] start 289/504 tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree
+[parallel] done  258/504 tests.tools.test_parallel_runner.SubtestOutcomesBindToTheirParent rc=0 in 8.21s
+[parallel] start 290/504 tests.tools.test_parallel_runner.TheRegistryFailsClosed
+[parallel] done  259/504 tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree rc=0 in 6.29s
+[parallel] start 291/504 tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing
+[parallel] done  260/504 tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly rc=0 in 5.90s
+[parallel] done  261/504 tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree rc=0 in 5.69s
+[parallel] start 292/504 tests.tools.test_pool.AValidWorkerIsAdmitted
+[parallel] start 293/504 tests.tools.test_pool.AnExistingWorkerIdIsRefused
+[parallel] done  262/504 tests.tools.test_native_handoffs.AGenuineAmbiguityEscalatesOnceAndStaysHeld rc=0 in 49.80s
+[parallel] start 294/504 tests.tools.test_pool.AnImageDigestDisagreeingWithItsManifestIsRefused
+[parallel] done  263/504 tests.tools.test_native_handoffs.ARestartBetweenTheCutsDuplicatesNothing rc=0 in 45.50s
+[parallel] start 295/504 tests.tools.test_pool.ComposingAWorkerForASelectedTemplate
+[parallel] done  264/504 tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan rc=0 in 20.39s
+[parallel] start 296/504 tests.tools.test_pool.ComposingAWorkerForThisInstance
+[parallel] done  265/504 tests.tools.test_next_run_flow.JoinedFlow rc=1 in 39.20s
+[parallel] start 297/504 tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout
+[parallel] done  266/504 tests.tools.test_parallel_runner.TheRegistryFailsClosed rc=0 in 5.09s
+[parallel] start 298/504 tests.tools.test_pool.ItPreparesNoJobAndTouchesNoWork
+[parallel] done  267/504 tests.tools.test_native_handoffs.AnEscalationSurvivesServingRestart rc=0 in 44.80s
+[parallel] start 299/504 tests.tools.test_pool.NothingElseInTheConfigurationChanges
+[parallel] done  268/504 tests.tools.test_pool.AnExistingWorkerIdIsRefused rc=1 in 5.60s
+[parallel] start 300/504 tests.tools.test_pool.TheCommandLine
+[parallel] done  269/504 tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder rc=0 in 18.91s
+[parallel] start 301/504 tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer
+[parallel] done  270/504 tests.tools.test_pool.AValidWorkerIsAdmitted rc=1 in 6.11s
+[parallel] start 302/504 tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker
+[parallel] done  271/504 tests.tools.test_pool.AnImageDigestDisagreeingWithItsManifestIsRefused rc=1 in 5.70s
+[parallel] start 303/504 tests.tools.test_quiescent_assignment_finalization.AReplayedDecisionIsProvedBeforeTheAuthorityIsAsked
+[parallel] done  272/504 tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed rc=0 in 16.50s
+[parallel] start 304/504 tests.tools.test_quiescent_assignment_finalization.EveryRecordedTerminalDispositionReachesIt
+[parallel] done  273/504 tests.tools.test_pool.ComposingAWorkerForASelectedTemplate rc=1 in 6.70s
+[parallel] done  274/504 tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout rc=1 in 5.30s
+[parallel] start 305/504 tests.tools.test_quiescent_assignment_finalization.ItIsEffectivelyOnceAcrossRetriesAndRestarts
+[parallel] start 306/504 tests.tools.test_quiescent_assignment_finalization.OnlyAPositivelyQuiescentRuntimeReachesIt
+[parallel] done  275/504 tests.tools.test_pool.ComposingAWorkerForThisInstance rc=1 in 6.11s
+[parallel] start 307/504 tests.tools.test_quiescent_assignment_finalization.TheDeploymentExposesOneExplicitModeForIt
+[parallel] done  276/504 tests.tools.test_pool.NothingElseInTheConfigurationChanges rc=1 in 5.30s
+[parallel] start 308/504 tests.tools.test_quiescent_assignment_finalization.TheQuiescentAssignmentIsEndedAndNothingElseIs
+[parallel] done  277/504 tests.tools.test_pool.ItPreparesNoJobAndTouchesNoWork rc=1 in 6.60s
+[parallel] start 309/504 tests.tools.test_quiescent_assignment_finalization.TheRunningCancellationIsUnchanged
+[parallel] done  278/504 tests.tools.test_pool.TheCommandLine rc=1 in 4.90s
+[parallel] start 310/504 tests.tools.test_quiescent_assignment_finalization.TheWrongIdentityNeverReachesTheAuthority
+[parallel] done  279/504 tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing rc=0 in 11.00s
+[parallel] start 311/504 tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask
+[parallel] done  280/504 tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer rc=1 in 4.99s
+[parallel] start 312/504 tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask
+[parallel] done  281/504 tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView rc=1 in 39.81s
+[parallel] start 313/504 tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust
+[parallel] done  282/504 tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker rc=1 in 6.59s
+[parallel] start 314/504 tests.tools.test_retry_task_lineage.TheLineageRefusesWhatItCannotRead
+[parallel] done  283/504 tests.tools.test_next_run.NextRun rc=0 in 49.90s
+[parallel] start 315/504 tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask
+[parallel] done  284/504 tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind rc=0 in 28.10s
+[parallel] start 316/504 tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes
+[parallel] done  285/504 tests.tools.test_quiescent_assignment_finalization.AReplayedDecisionIsProvedBeforeTheAuthorityIsAsked rc=0 in 8.30s
+[parallel] start 317/504 tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions
+[parallel] done  286/504 tests.tools.test_quiescent_assignment_finalization.TheRunningCancellationIsUnchanged rc=0 in 6.10s
+[parallel] done  287/504 tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask rc=1 in 4.90s
+[parallel] start 318/504 tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries
+[parallel] start 319/504 tests.tools.test_scheduler_trace.TheExtractorPreservesRefusedOwnerActs
+[parallel] done  288/504 tests.tools.test_quiescent_assignment_finalization.EveryRecordedTerminalDispositionReachesIt rc=0 in 8.71s
+[parallel] start 320/504 tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps
+[parallel] done  289/504 tests.tools.test_quiescent_assignment_finalization.ItIsEffectivelyOnceAcrossRetriesAndRestarts rc=0 in 9.00s
+[parallel] done  290/504 tests.tools.test_quiescent_assignment_finalization.TheQuiescentAssignmentIsEndedAndNothingElseIs rc=0 in 8.40s
+[parallel] start 321/504 tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners
+[parallel] start 322/504 tests.tools.test_scheduler_trace.TheThirdScheduleReopensAtADurableBoundary
+[parallel] done  291/504 tests.tools.test_quiescent_assignment_finalization.OnlyAPositivelyQuiescentRuntimeReachesIt rc=0 in 9.40s
+[parallel] start 323/504 tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces
+[parallel] done  292/504 tests.tools.test_quiescent_assignment_finalization.TheWrongIdentityNeverReachesTheAuthority rc=0 in 7.51s
+[parallel] start 324/504 tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt
+[parallel] done  293/504 tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling rc=0 in 176.10s
+[parallel] start 325/504 tests.tools.test_single_worker.ALiveTaskTOKENOwnsTheRootsUntilItIsReturned
+[parallel] done  294/504 tests.tools.test_quiescent_assignment_finalization.TheDeploymentExposesOneExplicitModeForIt rc=0 in 10.40s
+[parallel] start 326/504 tests.tools.test_single_worker.APreparationFailureEndsInTheOwnersJournal
+[parallel] done  295/504 tests.tools.test_scheduler_trace.TheExtractorPreservesRefusedOwnerActs rc=0 in 5.20s
+[parallel] start 327/504 tests.tools.test_single_worker.ARealStartRefusalKeepsItsOwnAccount
+[parallel] done  296/504 tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries rc=0 in 6.00s
+[parallel] start 328/504 tests.tools.test_single_worker.AnABRUPTDeathLeavesTheWindowStandingAndLaunchesNothing
+[parallel] done  297/504 tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps rc=0 in 7.90s
+[parallel] start 329/504 tests.tools.test_single_worker.AnEndingIsReachedEvenWhenTheAccountCannotBeCarried
+[parallel] done  298/504 tests.tools.test_scheduler_trace.TheThirdScheduleReopensAtADurableBoundary rc=0 in 7.40s
+[parallel] start 330/504 tests.tools.test_single_worker.AnUntrustedBearerIsNeverAllowedToWedgeTheManager
+[parallel] done  299/504 tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces rc=0 in 8.20s
+[parallel] start 331/504 tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst
+[parallel] done  300/504 tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners rc=0 in 9.51s
+[parallel] start 332/504 tests.tools.test_single_worker.EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld
+[parallel] done  301/504 tests.tools.test_single_worker.ARealStartRefusalKeepsItsOwnAccount rc=0 in 9.71s
+[parallel] start 333/504 tests.tools.test_single_worker.IdentificationIsOwedUntilItIsDone
+[parallel] done  302/504 tests.tools.test_single_worker.AnABRUPTDeathLeavesTheWindowStandingAndLaunchesNothing rc=0 in 10.20s
+[parallel] start 334/504 tests.tools.test_single_worker.LostTaskRepliesKeepTheExternalExecution
+[parallel] done  303/504 tests.tools.test_single_worker.AnEndingIsReachedEvenWhenTheAccountCannotBeCarried rc=0 in 8.90s
+[parallel] start 335/504 tests.tools.test_single_worker.OnlyTheHOLDEROfAPreparationMayContinueIt
+[parallel] done  304/504 tests.tools.test_fresh_retry_line_recovery.TheReleaseSurvivesAnInterruptedWrite rc=0 in 188.30s
+[parallel] start 336/504 tests.tools.test_single_worker.OptionalIntegrationContextDeclaration
+[parallel] done  305/504 tests.tools.test_single_worker.APreparationFailureEndsInTheOwnersJournal rc=0 in 14.49s
+[parallel] start 337/504 tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore
+[parallel] done  306/504 tests.tools.test_single_worker.AnUntrustedBearerIsNeverAllowedToWedgeTheManager rc=0 in 8.50s
+[parallel] start 338/504 tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop
+[parallel] done  307/504 tests.tools.test_native_handoffs.AnUnsolicitedResponseAnswersNothing rc=0 in 74.90s
+[parallel] start 339/504 tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners
+[parallel] done  308/504 tests.tools.test_retry_task_lineage.TheLineageRefusesWhatItCannotRead rc=0 in 24.50s
+[parallel] start 340/504 tests.tools.test_single_worker.TheAuthorityBindingIsProvedBeforeAnythingIsConfigured
+[parallel] done  309/504 tests.tools.test_single_worker.OptionalIntegrationContextDeclaration rc=0 in 6.10s
+[parallel] start 341/504 tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper
+[parallel] done  310/504 tests.tools.test_single_worker.ALiveTaskTOKENOwnsTheRootsUntilItIsReturned rc=0 in 20.70s
+[parallel] start 342/504 tests.tools.test_single_worker.TheCertifiedWorkerReachesTheDeliveredTask
+[parallel] done  311/504 tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop rc=0 in 9.20s
+[parallel] start 343/504 tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed
+[parallel] done  312/504 tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore rc=0 in 9.30s
+[parallel] start 344/504 tests.tools.test_single_worker.TheConnectedHANDOFFIsProvedEndToEnd
+[parallel] done  313/504 tests.tools.test_single_worker.TheAuthorityBindingIsProvedBeforeAnythingIsConfigured rc=0 in 7.20s
+[parallel] start 345/504 tests.tools.test_single_worker.TheContextConfigurationIsRequiredAndClosed
+[parallel] done  314/504 tests.tools.test_single_worker.OnlyTheHOLDEROfAPreparationMayContinueIt rc=0 in 12.19s
+[parallel] start 346/504 tests.tools.test_single_worker.TheDeploymentCanStopWhatItStarted
+[parallel] done  315/504 tests.tools.test_correction_restart.UsefulCorrection rc=1 in 224.20s
+[parallel] start 347/504 tests.tools.test_single_worker.TheEndingAndTheNamingAreOneAct
+[parallel] done  316/504 tests.tools.test_single_worker.TheCertifiedWorkerReachesTheDeliveredTask rc=0 in 8.20s
+[parallel] start 348/504 tests.tools.test_single_worker.TheFailedStartEndingCommitsWithItsNaming
+[parallel] done  317/504 tests.tools.test_single_worker.TheContextConfigurationIsRequiredAndClosed rc=0 in 6.90s
+[parallel] start 349/504 tests.tools.test_single_worker.TheHistoricalEntryTakesNoLiveEvidence
+[parallel] done  318/504 tests.tools.test_single_worker.TheDeploymentCanStopWhatItStarted rc=0 in 7.41s
+[parallel] start 350/504 tests.tools.test_single_worker.TheHostPreparationIsAccountedForBeforeAnyTaskStart
+[parallel] done  319/504 tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper rc=0 in 15.40s
+[parallel] start 351/504 tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode
+[parallel] done  320/504 tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst rc=0 in 28.70s
+[parallel] start 352/504 tests.tools.test_single_worker.TheLayoutSelectionReachesTheRuntimeVector
+[parallel] done  321/504 tests.tools.test_single_worker.TheHistoricalEntryTakesNoLiveEvidence rc=0 in 5.50s
+[parallel] start 353/504 tests.tools.test_single_worker.TheManagerClaimSessionMapsOneRefusalAndNothingElse
+[parallel] done  322/504 tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners rc=0 in 22.31s
+[parallel] start 354/504 tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored
+[parallel] done  323/504 tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed rc=0 in 17.30s
+[parallel] start 355/504 tests.tools.test_single_worker.ThePreparationMatrixIsClosedInBothDirections
+[parallel] done  324/504 tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt rc=0 in 42.30s
+[parallel] start 356/504 tests.tools.test_single_worker.ThePreparationOWNSTheRootsForItsWholeWriterLifetime
+[parallel] done  325/504 tests.tools.test_single_worker.TheManagerClaimSessionMapsOneRefusalAndNothingElse rc=0 in 4.60s
+[parallel] start 357/504 tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe
+[parallel] done  326/504 tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort rc=0 in 196.81s
+[parallel] start 358/504 tests.tools.test_single_worker.TheREENTRYBesideALiveTaskIsAREVALIDATION
+[parallel] done  327/504 tests.tools.test_single_worker.TheLayoutSelectionReachesTheRuntimeVector rc=0 in 9.50s
+[parallel] start 359/504 tests.tools.test_single_worker.TheRecordedRuntimeAdapterPerformsNothing
+[parallel] done  328/504 tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask rc=0 in 56.10s
+[parallel] start 360/504 tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition
+[parallel] done  329/504 tests.tools.test_single_worker.TheRecordedRuntimeAdapterPerformsNothing rc=0 in 4.40s
+[parallel] start 361/504 tests.tools.test_single_worker.TheWorkerSessionForwardsGateDischarge
+[parallel] done  330/504 tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead rc=0 in 77.00s
+[parallel] start 362/504 tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair
+[parallel] done  331/504 tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode rc=0 in 15.80s
+[parallel] start 363/504 tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages
+[parallel] done  332/504 tests.tools.test_single_worker.TheHostPreparationIsAccountedForBeforeAnyTaskStart rc=0 in 18.09s
+[parallel] start 364/504 tests.tools.test_single_worker.WhatNoRuntimeReceivedIsThisCompositionsToEnd
+[parallel] done  333/504 tests.tools.test_single_worker.LostTaskRepliesKeepTheExternalExecution rc=0 in 39.31s
+[parallel] done  334/504 tests.tools.test_single_worker.ThePreparationMatrixIsClosedInBothDirections rc=0 in 11.51s
+[parallel] start 365/504 tests.tools.test_source_identity.DisposableRepository
+[parallel] start 366/504 tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist
+[parallel] done  335/504 tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask rc=0 in 61.60s
+[parallel] start 367/504 tests.tools.test_stack.Admission
+[parallel] done  336/504 tests.tools.test_single_worker.IdentificationIsOwedUntilItIsDone rc=0 in 44.69s
+[parallel] done  337/504 tests.tools.test_single_worker.TheFailedStartEndingCommitsWithItsNaming rc=0 in 27.90s
+[parallel] start 368/504 tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo
+[parallel] start 369/504 tests.tools.test_stack.Boundary
+[parallel] done  338/504 tests.tools.test_single_worker.TheWorkerSessionForwardsGateDischarge rc=0 in 7.50s
+[parallel] start 370/504 tests.tools.test_stack.Configuration
+[parallel] done  339/504 tests.tools.test_single_worker.TheREENTRYBesideALiveTaskIsAREVALIDATION rc=0 in 14.29s
+[parallel] start 371/504 tests.tools.test_stack.EveryFailedAdmissionUnwinds
+[parallel] done  340/504 tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages rc=0 in 7.30s
+[parallel] start 372/504 tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback
+[parallel] done  341/504 tests.tools.test_stack.Admission rc=0 in 5.90s
+[parallel] start 373/504 tests.tools.test_stack.Identity
+[parallel] done  342/504 tests.tools.test_single_worker.WhatNoRuntimeReceivedIsThisCompositionsToEnd rc=0 in 10.40s
+[parallel] start 374/504 tests.tools.test_stack.JobOutcomesFirst
+[parallel] done  343/504 tests.tools.test_single_worker.TheConnectedHANDOFFIsProvedEndToEnd rc=0 in 38.50s
+[parallel] start 375/504 tests.tools.test_stack.Lifecycle
+[parallel] done  344/504 tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition rc=0 in 14.50s
+[parallel] done  345/504 tests.tools.test_stack.Configuration rc=0 in 5.20s
+[parallel] start 376/504 tests.tools.test_stack.MalformedSnapshots
+[parallel] start 377/504 tests.tools.test_stack.Publication
+[parallel] done  346/504 tests.tools.test_single_worker.ThePreparationOWNSTheRootsForItsWholeWriterLifetime rc=0 in 21.29s
+[parallel] start 378/504 tests.tools.test_stack.Readiness
+[parallel] done  347/504 tests.tools.test_stack.Boundary rc=0 in 6.30s
+[parallel] start 379/504 tests.tools.test_stack.RuntimeBoundary
+[parallel] done  348/504 tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo rc=0 in 6.60s
+[parallel] start 380/504 tests.tools.test_stack.ServingAcknowledgement
+[parallel] done  349/504 tests.tools.test_source_identity.DisposableRepository rc=0 in 10.81s
+[parallel] start 381/504 tests.tools.test_stack.SpawnedArgv
+[parallel] done  350/504 tests.tools.test_stack.EveryFailedAdmissionUnwinds rc=0 in 5.81s
+[parallel] start 382/504 tests.tools.test_stack.Status
+[parallel] done  351/504 tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback rc=0 in 6.10s
+[parallel] start 383/504 tests.tools.test_stack.TheChildrenAreTheOneCommand
+[parallel] done  352/504 tests.tools.test_single_worker.TheEndingAndTheNamingAreOneAct rc=0 in 39.00s
+[parallel] start 384/504 tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced
+[parallel] done  353/504 tests.tools.test_stack.JobOutcomesFirst rc=0 in 6.60s
+[parallel] start 385/504 tests.tools.test_stack.TheInstalledMonitor
+[parallel] done  354/504 tests.tools.test_stack.Identity rc=0 in 7.00s
+[parallel] start 386/504 tests.tools.test_stack.UnknownOwnership
+[parallel] done  355/504 tests.tools.test_stack.Publication rc=0 in 6.50s
+[parallel] start 387/504 tests.tools.test_stack.ValidIdleComposition
+[parallel] done  356/504 tests.tools.test_stack.MalformedSnapshots rc=0 in 6.71s
+[parallel] start 388/504 tests.tools.test_stack.VisibilityLostDuringCleanup
+[parallel] done  357/504 tests.tools.test_stack.RuntimeBoundary rc=0 in 6.81s
+[parallel] start 389/504 tests.tools.test_stack.WhatTheRepositoryIS
+[parallel] done  358/504 tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist rc=0 in 17.21s
+[parallel] done  359/504 tests.tools.test_stack.SpawnedArgv rc=0 in 6.49s
+[parallel] start 390/504 tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores
+[parallel] start 391/504 tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery
+[parallel] done  360/504 tests.tools.test_stack.Lifecycle rc=0 in 7.80s
+[parallel] start 392/504 tests.tools.test_stage_execution.AGenerationOutsideTheInteroperableRangeIsRefused
+[parallel] done  361/504 tests.tools.test_stack.Status rc=0 in 6.79s
+[parallel] start 393/504 tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget
+[parallel] done  362/504 tests.tools.test_stack.ServingAcknowledgement rc=0 in 7.71s
+[parallel] start 394/504 tests.tools.test_stage_execution.APRJobSettlesAtItsReviewAndSurvivesRestart
+[parallel] done  363/504 tests.tools.test_stack.TheChildrenAreTheOneCommand rc=0 in 6.21s
+[parallel] start 395/504 tests.tools.test_stage_execution.ARefusedPoolGenerationLeavesThePoolAlone
+[parallel] done  364/504 tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced rc=1 in 5.00s
+[parallel] start 396/504 tests.tools.test_stage_execution.CheckpointIdentityAtHostAdmission
+[parallel] done  365/504 tests.tools.test_stack.UnknownOwnership rc=0 in 4.91s
+[parallel] start 397/504 tests.tools.test_stage_execution.ConstructionFailureReleasesWhatItOpened
+[parallel] done  366/504 tests.tools.test_stack.TheInstalledMonitor rc=0 in 5.01s
+[parallel] start 398/504 tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine
+[parallel] done  367/504 tests.tools.test_stack.ValidIdleComposition rc=1 in 5.00s
+[parallel] start 399/504 tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation
+[parallel] done  368/504 tests.tools.test_stack.VisibilityLostDuringCleanup rc=0 in 5.99s
+[parallel] start 400/504 tests.tools.test_stage_execution.EveryStageHasExactlyOneWorker
+[parallel] done  369/504 tests.tools.test_stack.WhatTheRepositoryIS rc=0 in 5.89s
+[parallel] start 401/504 tests.tools.test_stage_execution.IndependenceIsRefusedBeforeAnythingIsOpened
+[parallel] done  370/504 tests.tools.test_stage_execution.AGenerationOutsideTheInteroperableRangeIsRefused rc=0 in 7.90s
+[parallel] start 402/504 tests.tools.test_stage_execution.MutableStateStaysOutsideTheCheckout
+[parallel] done  371/504 tests.tools.test_stage_execution.ConstructionFailureReleasesWhatItOpened rc=0 in 5.60s
+[parallel] start 403/504 tests.tools.test_stage_execution.NothingIsOpenedBeforeTheConfigurationIsProved
+[parallel] done  372/504 tests.tools.test_stage_execution.ARefusedPoolGenerationLeavesThePoolAlone rc=0 in 8.19s
+[parallel] start 404/504 tests.tools.test_stage_execution.OneJobsReviewIsOverItsOwnImplementation
+[parallel] done  373/504 tests.tools.test_stage_execution.EveryStageHasExactlyOneWorker rc=0 in 5.80s
+[parallel] done  374/504 tests.tools.test_stage_execution.IndependenceIsRefusedBeforeAnythingIsOpened rc=0 in 5.40s
+[parallel] start 405/504 tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone
+[parallel] start 406/504 tests.tools.test_stage_execution.OrdinaryTerminalLifecycle
+[parallel] done  375/504 tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored rc=0 in 42.49s
+[parallel] start 407/504 tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication
+[parallel] done  376/504 tests.tools.test_stage_execution.MutableStateStaysOutsideTheCheckout rc=0 in 6.31s
+[parallel] start 408/504 tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord
+[parallel] done  377/504 tests.tools.test_stage_execution.OneJobsReviewIsOverItsOwnImplementation rc=0 in 5.70s
+[parallel] start 409/504 tests.tools.test_stage_execution.TheComposedHandoffCarriesItsOwnQuiescenceEvidence
+[parallel] done  378/504 tests.tools.test_stage_execution.NothingIsOpenedBeforeTheConfigurationIsProved rc=0 in 6.79s
+[parallel] start 410/504 tests.tools.test_stage_execution.TheComposedImplementationHalfRunsOnOrdinaryTicks
+[parallel] done  379/504 tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication rc=0 in 5.50s
+[parallel] start 411/504 tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance
+[parallel] done  380/504 tests.tools.test_single_worker.EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld rc=0 in 84.60s
+[parallel] start 412/504 tests.tools.test_stage_execution.TheComposedLifecycleRunsOverRealStores
+[parallel] done  381/504 tests.tools.test_stack.Readiness rc=0 in 31.61s
+[parallel] start 413/504 tests.tools.test_stage_execution.TheConfigurationCarriesNoCredentialBytes
+[parallel] done  382/504 tests.tools.test_stage_execution.APRJobSettlesAtItsReviewAndSurvivesRestart rc=0 in 25.99s
+[parallel] start 414/504 tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated
+[parallel] done  383/504 tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully rc=0 in 215.00s
+[parallel] start 415/504 tests.tools.test_stage_execution.TheDeploymentAnswersTheAcceptedReplayHalves
+[parallel] done  384/504 tests.tools.test_stage_execution.TheConfigurationCarriesNoCredentialBytes rc=0 in 4.90s
+[parallel] start 416/504 tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed
+[parallel] done  385/504 tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair rc=0 in 50.61s
+[parallel] start 417/504 tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner
+[parallel] done  386/504 tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine rc=0 in 27.99s
+[parallel] start 418/504 tests.tools.test_stage_execution.TheDischargeReceiptIsCommittedWithItsOwnKind
+[parallel] done  387/504 tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe rc=0 in 59.91s
+[parallel] start 419/504 tests.tools.test_stage_execution.TheDriverFacingMembersComeFromTheConfiguration
+[parallel] done  388/504 tests.tools.test_stage_execution.TheComposedLifecycleRunsOverRealStores rc=0 in 11.19s
+[parallel] start 420/504 tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores
+[parallel] done  389/504 tests.tools.test_stage_execution.TheDeploymentAnswersTheAcceptedReplayHalves rc=0 in 5.20s
+[parallel] start 421/504 tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld
+[parallel] done  390/504 tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed rc=0 in 6.19s
+[parallel] start 422/504 tests.tools.test_stage_execution.TheFactoryReadsOnlyItsNamedConfiguration
+[parallel] done  391/504 tests.tools.test_stage_execution.TheDriverFacingMembersComeFromTheConfiguration rc=0 in 5.59s
+[parallel] start 423/504 tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage
+[parallel] done  392/504 tests.tools.test_stage_execution.TheComposedHandoffCarriesItsOwnQuiescenceEvidence rc=0 in 24.30s
+[parallel] start 424/504 tests.tools.test_stage_execution.TheFocusedChecksItemFourNames
+[parallel] done  393/504 tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner rc=0 in 8.79s
+[parallel] start 425/504 tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle
+[parallel] done  394/504 tests.tools.test_stage_execution.TheFactoryReadsOnlyItsNamedConfiguration rc=0 in 4.90s
+[parallel] start 426/504 tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort
+[parallel] done  395/504 tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated rc=0 in 20.40s
+[parallel] start 427/504 tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes
+[parallel] done  396/504 tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage rc=0 in 11.10s
+[parallel] start 428/504 tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator
+[parallel] done  397/504 tests.tools.test_stage_execution.TheComposedImplementationHalfRunsOnOrdinaryTicks rc=0 in 34.50s
+[parallel] start 429/504 tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly
+[parallel] done  398/504 tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort rc=0 in 10.70s
+[parallel] start 430/504 tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint
+[parallel] done  399/504 tests.tools.test_stage_execution.TheDischargeReceiptIsCommittedWithItsOwnKind rc=0 in 20.70s
+[parallel] start 431/504 tests.tools.test_stage_execution.ThePublicFactoryResolvesEveryRequiredSession
+[parallel] done  400/504 tests.tools.test_stage_execution.TheFocusedChecksItemFourNames rc=0 in 13.50s
+[parallel] start 432/504 tests.tools.test_stage_execution.ThePublicationSeamIsTwoAcceptedOperations
+[parallel] done  401/504 tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView rc=0 in 244.49s
+[parallel] start 433/504 tests.tools.test_stage_execution.TheRECOVEREDReviewLineCarriesItsOwnCapability
+[parallel] done  402/504 tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery rc=0 in 54.30s
+[parallel] start 434/504 tests.tools.test_stage_execution.TheReceiptActorsAreAuthorizedAndNotMerelyShaped
+[parallel] done  403/504 tests.tools.test_stage_execution.TheRECOVEREDReviewLineCarriesItsOwnCapability rc=0 in 4.61s
+[parallel] start 435/504 tests.tools.test_stage_execution.TheRestartOverAnAdvancedPoolPreservesSettledHistory
+[parallel] done  404/504 tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint rc=0 in 7.11s
+[parallel] start 436/504 tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup
+[parallel] done  405/504 tests.tools.test_stage_execution.ThePublicationSeamIsTwoAcceptedOperations rc=0 in 6.00s
+[parallel] start 437/504 tests.tools.test_stage_execution.TheReviewersVerdictHasNoChannelAndIsNotInvented
+[parallel] done  406/504 tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly rc=0 in 9.70s
+[parallel] start 438/504 tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers
+[parallel] done  407/504 tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation rc=0 in 57.90s
+[parallel] done  408/504 tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores rc=0 in 28.00s
+[parallel] start 439/504 tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper
+[parallel] start 440/504 tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity
+[parallel] done  409/504 tests.tools.test_stage_execution.ThePublicFactoryResolvesEveryRequiredSession rc=0 in 10.40s
+[parallel] start 441/504 tests.tools.test_stage_execution.TheTargetSurvivesACapacityChangeOverRetainedHistory
+[parallel] done  410/504 tests.tools.test_stage_execution.TheReviewersVerdictHasNoChannelAndIsNotInvented rc=0 in 5.30s
+[parallel] start 442/504 tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit
+[parallel] done  411/504 tests.tools.test_stage_execution.TheReceiptActorsAreAuthorizedAndNotMerelyShaped rc=0 in 10.10s
+[parallel] start 443/504 tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep
+[parallel] done  412/504 tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity rc=0 in 6.80s
+[parallel] start 444/504 tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection
+[parallel] done  413/504 tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator rc=0 in 20.10s
+[parallel] start 445/504 tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep
+[parallel] done  414/504 tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord rc=0 in 55.19s
+[parallel] start 446/504 tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt
+[parallel] done  415/504 tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit rc=0 in 5.70s
+[parallel] start 447/504 tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles
+[parallel] done  416/504 tests.tools.test_stage_execution.TheTargetSurvivesACapacityChangeOverRetainedHistory rc=0 in 9.40s
+[parallel] start 448/504 tests.tools.test_stage_execution_status_hardening.HeldIntegrationStatus
+[parallel] done  417/504 tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone rc=0 in 64.80s
+[parallel] start 449/504 tests.tools.test_standalone_ab.FinalCommittedView
+[parallel] done  418/504 tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper rc=0 in 14.20s
+[parallel] start 450/504 tests.tools.test_standalone_ab.ScenarioEarlyFailures
+[parallel] done  419/504 tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles rc=0 in 9.30s
+[parallel] start 451/504 tests.tools.test_standalone_ab.SyntheticProvider
+[parallel] done  420/504 tests.tools.test_standalone_ab.ScenarioEarlyFailures rc=0 in 5.50s
+[parallel] start 452/504 tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener
+[parallel] done  421/504 tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers rc=0 in 21.90s
+[parallel] start 453/504 tests.tools.test_startup_prerequisites.TheCreationHasProvenance
+[parallel] done  422/504 tests.tools.test_stage_execution.TheRestartOverAnAdvancedPoolPreservesSettledHistory rc=0 in 25.69s
+[parallel] start 454/504 tests.tools.test_startup_prerequisites.TheOwnershipRacesTheReviewReproduced
+[parallel] done  423/504 tests.tools.test_standalone_ab.FinalCommittedView rc=0 in 10.31s
+[parallel] start 455/504 tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade
+[parallel] done  424/504 tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener rc=0 in 5.30s
+[parallel] start 456/504 tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly
+[parallel] done  425/504 tests.tools.test_startup_prerequisites.TheCreationHasProvenance rc=1 in 5.41s
+[parallel] start 457/504 tests.tools.test_startup_prerequisites.TheRuntimeCopyOwnsEveryObjectItMakes
+[parallel] done  426/504 tests.tools.test_startup_prerequisites.TheOwnershipRacesTheReviewReproduced rc=0 in 5.00s
+[parallel] start 458/504 tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames
+[parallel] done  427/504 tests.tools.test_stage_execution.CheckpointIdentityAtHostAdmission rc=0 in 88.20s
+[parallel] start 459/504 tests.tools.test_stopped_settlement_command.InstalledSettlement
+[parallel] done  428/504 tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly rc=0 in 5.30s
+[parallel] start 460/504 tests.tools.test_stopped_settlement_joined.JoinedSettlement
+[parallel] done  429/504 tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade rc=0 in 7.49s
+[parallel] start 461/504 tests.tools.test_user_credentials.AFailedResolutionUnwindsExactlyItsOwnRoot
+[parallel] done  430/504 tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct rc=0 in 234.10s
+[parallel] start 462/504 tests.tools.test_user_credentials.ALargeOpaqueSelectionIsExactAndIsNeverQuotedBack
+[parallel] done  431/504 tests.tools.test_startup_prerequisites.TheRuntimeCopyOwnsEveryObjectItMakes rc=0 in 7.59s
+[parallel] start 463/504 tests.tools.test_user_credentials.AmbiguityRefusesRatherThanChoosing
+[parallel] done  432/504 tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames rc=0 in 7.00s
+[parallel] start 464/504 tests.tools.test_user_credentials.BothEndingModesRefuseTheOperandBeforeAnyBuilderActs
+[parallel] done  433/504 tests.tools.test_standalone_ab.SyntheticProvider rc=1 in 16.60s
+[parallel] start 465/504 tests.tools.test_user_credentials.EveryReadIsProvedAtTheDescriptor
+[parallel] done  434/504 tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep rc=0 in 34.51s
+[parallel] start 466/504 tests.tools.test_user_credentials.NeitherContentNorSourcePathIsEverPublished
+[parallel] done  435/504 tests.tools.test_user_credentials.AFailedResolutionUnwindsExactlyItsOwnRoot rc=0 in 5.60s
+[parallel] start 467/504 tests.tools.test_user_credentials.NothingIsReadBeforeTheDeliveryIsMaterialized
+[parallel] done  436/504 tests.tools.test_user_credentials.AmbiguityRefusesRatherThanChoosing rc=0 in 5.60s
+[parallel] start 468/504 tests.tools.test_user_credentials.SelectionIsExactAndHasNoFallback
+[parallel] done  437/504 tests.tools.test_user_credentials.ALargeOpaqueSelectionIsExactAndIsNeverQuotedBack rc=0 in 5.90s
+[parallel] start 469/504 tests.tools.test_user_credentials.TheOperandIsDeclaredOnceAndReadThroughThatDeclaration
+[parallel] done  438/504 tests.tools.test_user_credentials.EveryReadIsProvedAtTheDescriptor rc=0 in 5.41s
+[parallel] start 470/504 tests.tools.test_user_credentials.TheOrdinaryCommandInjectsThisReader
+[parallel] done  439/504 tests.tools.test_user_credentials.BothEndingModesRefuseTheOperandBeforeAnyBuilderActs rc=0 in 6.21s
+[parallel] start 471/504 tests.tools.test_user_credentials.TheReaderAgreesWithTheProfileTheManagerResolves
+[parallel] done  440/504 tests.tools.test_user_credentials.NeitherContentNorSourcePathIsEverPublished rc=0 in 5.19s
+[parallel] start 472/504 tests.tools.test_user_credentials.TheRegistryIsClosedAndBounded
+[parallel] done  441/504 tests.tools.test_user_credentials.NothingIsReadBeforeTheDeliveryIsMaterialized rc=0 in 5.60s
+[parallel] start 473/504 tests.tools.test_user_credentials.TwoInvocationContextsConsumeDistinctEverything
+[parallel] done  442/504 tests.tools.test_user_credentials.TheOperandIsDeclaredOnceAndReadThroughThatDeclaration rc=0 in 4.90s
+[parallel] start 474/504 tests.tools.test_version.TheBannerSaysWhatIsKnown
+[parallel] done  443/504 tests.tools.test_user_credentials.SelectionIsExactAndHasNoFallback rc=0 in 4.91s
+[parallel] start 475/504 tests.tools.test_version.TheCommandAnswersWithoutAnythingElse
+[parallel] done  444/504 tests.tools.test_user_credentials.TheOrdinaryCommandInjectsThisReader rc=0 in 5.09s
+[parallel] start 476/504 tests.tools.test_version.TheStampIsCapturedFromTheCheckout
+[parallel] done  445/504 tests.tools.test_user_credentials.TheReaderAgreesWithTheProfileTheManagerResolves rc=0 in 5.19s
+[parallel] start 477/504 tests.tools.test_version.TheVersionIsWrittenOnce
+[parallel] done  446/504 tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep rc=0 in 38.60s
+[parallel] start 478/504 tests.tools.test_work_command.MutationsAreAuthorizedOrTheyDoNotHappen
+[parallel] done  447/504 tests.tools.test_user_credentials.TheRegistryIsClosedAndBounded rc=0 in 5.60s
+[parallel] start 479/504 tests.tools.test_work_command.ReplayConvergenceAndCollision
+[parallel] done  448/504 tests.tools.test_version.TheCommandAnswersWithoutAnythingElse rc=0 in 4.90s
+[parallel] start 480/504 tests.tools.test_work_command.TerminalWorkStaysLabellable
+[parallel] done  449/504 tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup rc=0 in 52.69s
+[parallel] done  450/504 tests.tools.test_user_credentials.TwoInvocationContextsConsumeDistinctEverything rc=0 in 6.10s
+[parallel] start 481/504 tests.tools.test_work_command.TheCommandIsBundledAndItsVocabularyIsItsOwn
+[parallel] start 482/504 tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys
+[parallel] done  451/504 tests.tools.test_version.TheBannerSaysWhatIsKnown rc=0 in 5.70s
+[parallel] start 483/504 tests.tools.test_work_command.TheReadVerbs
+[parallel] done  452/504 tests.tools.test_version.TheStampIsCapturedFromTheCheckout rc=0 in 5.60s
+[parallel] start 484/504 tests.tools.test_work_command.TheStoreSelectionIsCompared
+[parallel] done  453/504 tests.tools.test_version.TheVersionIsWrittenOnce rc=0 in 5.50s
+[parallel] start 485/504 tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves
+[parallel] done  454/504 tests.tools.test_work_command.MutationsAreAuthorizedOrTheyDoNotHappen rc=0 in 7.50s
+[parallel] start 486/504 tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten
+[parallel] done  455/504 tests.tools.test_work_command.TerminalWorkStaysLabellable rc=0 in 6.30s
+[parallel] start 487/504 tests.tools.test_worker_image_build.TheBuildVectorIsClosed
+[parallel] done  456/504 tests.tools.test_work_command.TheCommandIsBundledAndItsVocabularyIsItsOwn rc=0 in 6.50s
+[parallel] done  457/504 tests.tools.test_work_command.TheStoreSelectionIsCompared rc=0 in 5.60s
+[parallel] start 488/504 tests.tools.test_worker_image_build.TheReceiptsAreRemovedAndTheContentIsNot
+[parallel] start 489/504 tests.tools.test_worker_image_build.TwoBuildsReachOneIdentity
+[parallel] done  458/504 tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves rc=0 in 5.50s
+[parallel] start 490/504 tests.tools.test_worker_visibility.AnAssignedStageShowsItsWorker
+[parallel] done  459/504 tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten rc=0 in 4.40s
+[parallel] start 491/504 tests.tools.test_worker_visibility.EveryCurrentStageGetsARow
+[parallel] done  460/504 tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys rc=0 in 8.90s
+[parallel] start 492/504 tests.tools.test_worker_visibility.FreshnessIsNotDecidedHere
+[parallel] done  461/504 tests.tools.test_work_command.ReplayConvergenceAndCollision rc=0 in 10.60s
+[parallel] start 493/504 tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt
+[parallel] done  462/504 tests.tools.test_work_command.TheReadVerbs rc=0 in 9.30s
+[parallel] start 494/504 tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse
+[parallel] done  463/504 tests.tools.test_worker_image_build.TheBuildVectorIsClosed rc=0 in 4.89s
+[parallel] start 495/504 tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON
+[parallel] done  464/504 tests.tools.test_worker_image_build.TheReceiptsAreRemovedAndTheContentIsNot rc=0 in 4.40s
+[parallel] start 496/504 tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported
+[parallel] done  465/504 tests.tools.test_worker_image_build.TwoBuildsReachOneIdentity rc=0 in 4.80s
+[parallel] start 497/504 tests.tools.test_worker_visibility.TheExchangeIsReportedAsItWasAnswered
+[parallel] done  466/504 tests.tools.test_worker_visibility.AnAssignedStageShowsItsWorker rc=0 in 6.20s
+[parallel] start 498/504 tests.tools.test_worker_visibility.TheProducerShapeIsWhatThisViewWasBuiltAgainst
+[parallel] done  467/504 tests.tools.test_worker_visibility.FreshnessIsNotDecidedHere rc=0 in 6.71s
+[parallel] start 499/504 tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed
+[parallel] done  468/504 tests.tools.test_worker_visibility.EveryCurrentStageGetsARow rc=0 in 6.90s
+[parallel] start 500/504 tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface
+[parallel] done  469/504 tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt rc=0 in 7.80s
+[parallel] start 501/504 tests.tools.test_worker_visibility.TheSnapshotsOwnInstantIsOnlyEverTheQueryTime
+[parallel] done  470/504 tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON rc=0 in 6.80s
+[parallel] start 502/504 tests.tools.test_worker_visibility.TheSweptPipelineIsReportedToo
+[parallel] done  471/504 tests.tools.test_worker_visibility.TheExchangeIsReportedAsItWasAnswered rc=0 in 6.40s
+[parallel] start 503/504 tests.tools.test_worker_visibility.TheUnreadManagerIsNotAQuietDeployment
+[parallel] done  472/504 tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported rc=0 in 7.11s
+[parallel] start 504/504 tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll
+[parallel] done  473/504 tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse rc=0 in 8.70s
+[parallel] done  474/504 tests.tools.test_worker_visibility.TheProducerShapeIsWhatThisViewWasBuiltAgainst rc=0 in 5.30s
+[parallel] done  475/504 tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed rc=0 in 6.09s
+[parallel] done  476/504 tests.tools.test_worker_visibility.TheSweptPipelineIsReportedToo rc=0 in 4.80s
+[parallel] done  477/504 tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface rc=0 in 6.60s
+[parallel] done  478/504 tests.tools.test_worker_visibility.TheUnreadManagerIsNotAQuietDeployment rc=0 in 5.10s
+[parallel] done  479/504 tests.tools.test_worker_visibility.TheSnapshotsOwnInstantIsOnlyEverTheQueryTime rc=0 in 6.01s
+[parallel] done  480/504 tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll rc=0 in 5.40s
+[parallel] done  481/504 tests.tools.test_stopped_settlement_command.InstalledSettlement rc=0 in 48.10s
+[parallel] done  482/504 tests.tools.test_stopped_settlement_joined.JoinedSettlement rc=0 in 67.80s
+[parallel] done  483/504 tests.tools.test_next_run_managed.ManagedAllocation rc=1 in 282.91s
+[parallel] done  484/504 tests.tools.test_stage_execution_status_hardening.HeldIntegrationStatus rc=0 in 96.31s
+[parallel] done  485/504 tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything rc=0 in 356.71s
+[parallel] done  486/504 tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance rc=0 in 160.81s
+[parallel] done  487/504 tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle rc=0 in 155.21s
+[parallel] done  488/504 tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes rc=0 in 161.41s
+[parallel] done  489/504 tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust rc=0 in 285.69s
+[parallel] done  490/504 tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt rc=0 in 149.71s
+[parallel] done  491/504 tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesACandidateBeforeAnyFreeze rc=0 in 513.21s
+[parallel] done  492/504 tests.tools.test_stage_execution.OrdinaryTerminalLifecycle rc=1 in 269.20s
+[parallel] done  493/504 tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected rc=0 in 492.99s
+[parallel] done  494/504 tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld rc=0 in 279.62s
+[parallel] done  495/504 tests.tools.test_managed_apply.ThePreparationHandoffRetainsItsGitObjects rc=1 in 507.32s
+[parallel] done  496/504 tests.tools.test_fresh_retry_line_recovery.TheReleaseReplaysAfterALaterCheckpoint rc=0 in 572.42s
+[parallel] done  497/504 tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes rc=0 in 557.83s
+[parallel] done  498/504 tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions rc=0 in 586.01s
+[parallel] done  499/504 tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores rc=0 in 540.50s
+[parallel] done  500/504 tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection rc=0 in 471.84s
+[parallel] done  501/504 tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget rc=1 in 540.96s
+[parallel] done  502/504 tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling rc=0 in 840.08s

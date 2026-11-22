@@ -1,0 +1,234 @@
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+
+Read one retained verification failure's owner item, or decide it. An approval
+asks the manager to admit the one linked verification/review-only successor; a
+denial or a hold launches nothing.
+
+positional arguments:
+  {recovery-item,recovery-decide}
+
+options:
+  -h, --help            show this help message and exit
+  --store STORE         the Job store the recovery records live in
+  --authority-uuid AUTHORITY_UUID
+                        the 32-lowercase-hex Authority this Job store belongs
+                        to
+  --incarnation INCARNATION
+                        this process's incarnation, which is what restart
+                        recovery distinguishes managers by
+  --control CONTROL     the Worker Manager control store, opened READ-ONLY:
+                        the retained candidate and the delivered diagnosis are
+                        read through their owner, and a decision must not be
+                        able to change the evidence it is judging
+  --authority AUTHORITY
+                        the Authority store whose Work this failure ran under;
+                        it resolves the deciding participant's principal and
+                        the Work's own effective scope, and this command
+                        writes nothing to it
+  --instance INSTANCE   the deployment's state root, whose own layout and
+                        emitted configuration say which stores and which
+                        Authority it owns and whose selector is asked whether
+                        a worker can serve the successor's review stage
+  --owners OWNERS       the deployment's owner-port factory as
+                        module:attribute; it composes the owner authorization,
+                        the host exclusion, the Work authorization, the
+                        deployment binding and the instance guard over this
+                        instance's own stores
+  --failure FAILURE     the failure key Stage 1-A attributed this ending under
+
+recovery-item:
+  --participant PARTICIPANT
+                        the acting participant. On recovery-item it is
+                        optional and reports whether that address holds the
+                        decision capability in the Work's own scope; on
+                        recovery-decide it is required and there is
+                        deliberately no --actor
+  --control-report      also report the failed Job's own LIM-5 control and
+                        whichever fence closed it
+
+recovery-decide:
+  --decision-id DECISION_ID
+                        the owner's own operation key. The same key with the
+                        same operands replays the committed decision; with
+                        different operands it collides, and a later
+                        disposition is a NEW key and a new attributable act
+  --approve             approve the exact correction and the
+                        verification/review-only scope below
+  --deny                deny it; nothing is launched
+  --hold                hold it for a later explicit disposition; nothing is
+                        launched
+  --expect-failure-digest EXPECT_FAILURE_DIGEST
+                        the fixed input digest the delivered analysis was
+                        admitted on
+  --expect-report-digest EXPECT_REPORT_DIGEST
+                        the delivered diagnosis's own digest; omitted for a
+                        finite analysis ending, which delivered partial
+                        evidence and no report
+  --expect-candidate-base EXPECT_CANDIDATE_BASE
+  --expect-candidate-head EXPECT_CANDIDATE_HEAD
+  --expect-candidate-digest EXPECT_CANDIDATE_DIGEST
+                        the retained candidate's measured content digest; a
+                        commit name alone is not a candidate
+  --original-verification WORD
+                        one argument word of the command that FAILED,
+                        repeatable in order (write a word that starts with a
+                        dash as --original-verification=-m)
+  --corrected-verification WORD
+                        one argument word of the APPROVED corrected command,
+                        repeatable in order. Approving the command that failed
+                        is refused as the generic retry it is
+  --context-digest CONTEXT_DIGEST
+                        the approved execution context's digest; a command
+                        string must not hide a changed working directory,
+                        environment or tool selection
+  --profile PROFILE     the owner-approved finite profile identity
+  --profile-digest PROFILE_DIGEST
+                        that profile definition's exact digest; admission
+                        checks exact agreement
+  --stage STAGE         one selected stage word, repeatable in order:
+                        verification then review, or review alone under a
+                        review-only decision. implementation is refused by
+                        name
+  --prior-successor PRIOR_SUCCESSOR
+                        the expired successor a review-only decision follows
+  --prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT
+                        that successor's verification attempt identity
+  --prior-verification-digest PRIOR_VERIFICATION_DIGEST
+                        the digest of its journalled passed verification
+                        account
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+
+Read one retained verification failure's owner item, or decide it. An approval
+asks the manager to admit the one linked verification/review-only successor; a
+denial or a hold launches nothing.
+
+positional arguments:
+  {recovery-item,recovery-decide}
+
+options:
+  -h, --help            show this help message and exit
+  --store STORE         the Job store the recovery records live in
+  --authority-uuid AUTHORITY_UUID
+                        the 32-lowercase-hex Authority this Job store belongs
+                        to
+  --incarnation INCARNATION
+                        this process's incarnation, which is what restart
+                        recovery distinguishes managers by
+  --control CONTROL     the Worker Manager control store, opened READ-ONLY:
+                        the retained candidate and the delivered diagnosis are
+                        read through their owner, and a decision must not be
+                        able to change the evidence it is judging
+  --authority AUTHORITY
+                        the Authority store whose Work this failure ran under;
+                        it resolves the deciding participant's principal and
+                        the Work's own effective scope, and this command
+                        writes nothing to it
+  --instance INSTANCE   the deployment's state root, whose own layout and
+                        emitted configuration say which stores and which
+                        Authority it owns and whose selector is asked whether
+                        a worker can serve the successor's review stage
+  --owners OWNERS       the deployment's owner-port factory as
+                        module:attribute; it composes the owner authorization,
+                        the host exclusion, the Work authorization, the
+                        deployment binding and the instance guard over this
+                        instance's own stores
+  --failure FAILURE     the failure key Stage 1-A attributed this ending under
+
+recovery-item:
+  --participant PARTICIPANT
+                        the acting participant. On recovery-item it is
+                        optional and reports whether that address holds the
+                        decision capability in the Work's own scope; on
+                        recovery-decide it is required and there is
+                        deliberately no --actor
+  --control-report      also report the failed Job's own LIM-5 control and
+                        whichever fence closed it
+
+recovery-decide:
+  --decision-id DECISION_ID
+                        the owner's own operation key. The same key with the
+                        same operands replays the committed decision; with
+                        different operands it collides, and a later
+                        disposition is a NEW key and a new attributable act
+  --approve             approve the exact correction and the
+                        verification/review-only scope below
+  --deny                deny it; nothing is launched
+  --hold                hold it for a later explicit disposition; nothing is
+                        launched
+  --expect-failure-digest EXPECT_FAILURE_DIGEST
+                        the fixed input digest the delivered analysis was
+                        admitted on
+  --expect-report-digest EXPECT_REPORT_DIGEST
+                        the delivered diagnosis's own digest; omitted for a
+                        finite analysis ending, which delivered partial
+                        evidence and no report
+  --expect-candidate-base EXPECT_CANDIDATE_BASE
+  --expect-candidate-head EXPECT_CANDIDATE_HEAD
+  --expect-candidate-digest EXPECT_CANDIDATE_DIGEST
+                        the retained candidate's measured content digest; a
+                        commit name alone is not a candidate
+  --original-verification WORD
+                        one argument word of the command that FAILED,
+                        repeatable in order (write a word that starts with a
+                        dash as --original-verification=-m)
+  --corrected-verification WORD
+                        one argument word of the APPROVED corrected command,
+                        repeatable in order. Approving the command that failed
+                        is refused as the generic retry it is
+  --context-digest CONTEXT_DIGEST
+                        the approved execution context's digest; a command
+                        string must not hide a changed working directory,
+                        environment or tool selection
+  --profile PROFILE     the owner-approved finite profile identity
+  --profile-digest PROFILE_DIGEST
+                        that profile definition's exact digest; admission
+                        checks exact agreement
+  --stage STAGE         one selected stage word, repeatable in order:
+                        verification then review, or review alone under a
+                        review-only decision. implementation is refused by
+                        name
+  --prior-successor PRIOR_SUCCESSOR
+                        the expired successor a review-only decision follows
+  --prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT
+                        that successor's verification attempt identity
+  --prior-verification-digest PRIOR_VERIFICATION_DIGEST
+                        the digest of its journalled passed verification
+                        account

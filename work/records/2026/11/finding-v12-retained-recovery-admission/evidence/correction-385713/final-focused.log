@@ -1,0 +1,759 @@
+test_a_candidate_that_no_longer_validates_is_reported (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_candidate_that_no_longer_validates_is_reported)
+REC-8: an invalid candidate is reported and is not recovery input. ... refused: integrity/digest: the retained candidate of failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… no longer validates (integrity/digest: this manager's recorded artifact row and its retained result manifest disagree about the frozen candidate, so neither is read as validated recovery input); an invalid candidate is reported and is not recovery input
+ok
+test_a_correction_with_no_execution_context_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_correction_with_no_execution_context_is_refused)
+A COMMAND STRING MUST NOT HIDE ITS EXECUTION CONTEXT. ... refused: integrity/schema: the approved execution context digest is durable text; this is ''
+ok
+test_a_denial_and_a_hold_launch_nothing (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_denial_and_a_hold_launch_nothing) ... ok
+test_a_full_successor_naming_a_lineage_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_full_successor_naming_a_lineage_is_refused) ... refused: refused/precondition: a ["verification", "review"] successor verifies the candidate itself and reuses no prior verification; this decision names a review-only lineage
+ok
+test_a_grant_in_another_scope_does_not_authorize_this_act (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_grant_in_another_scope_does_not_authorize_this_act) ... refused: policy/denied: 'baton.slaw' holds no 'approve' capability in 'scope:w385624-recovery', which is Work '0000000a-W1''s own effective scope; a retained recovery is authorized by the deployment's decision grant and never by reading the owner item, by handling a route or by an analysis recommendation
+ok
+test_a_participant_without_the_decision_capability_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_participant_without_the_decision_capability_is_refused)
+THE AUTHORITY'S OWN SEAM, and `review` in the same scope is not ... refused: policy/denied: 'baton.claude' holds no 'approve' capability in 'scope:w385624-recovery', which is Work '0000000a-W1''s own effective scope; a retained recovery is authorized by the deployment's decision grant and never by reading the owner item, by handling a route or by an analysis recommendation
+ok
+test_a_profile_digest_that_is_not_the_approved_one_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_profile_digest_that_is_not_the_approved_one_is_refused) ... refused: integrity/digest: the decision names profile digest 'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb… and 'stage1-verification-review/1' digests to 'sha256:5a6a420e416caab0942f9709939ae01f1f2d9dabbd13e09ff3b0…; the owner's decision names the profile and admission checks exact agreement
+ok
+test_a_profile_this_build_does_not_hold_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_profile_this_build_does_not_hold_is_refused) ... refused: integrity/schema: a retained-recovery successor profile is one of stage1-verification-review/1; this is 'documentation/1'. A profile this build does not hold is a finite control it cannot enforce
+ok
+test_a_stage_set_this_contract_does_not_offer_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_stage_set_this_contract_does_not_offer_is_refused) ... refused: integrity/schema: a retained-recovery successor selects ["verification", "review"] or ["review"]; this is ["review", "verification"]
+refused: integrity/schema: a retained-recovery successor selects ["verification", "review"] or ["review"]; this is ["verification"]
+refused: integrity/schema: a retained-recovery successor selects ["verification", "review"] or ["review"]; this is ["integration"]
+refused: integrity/schema: a retained-recovery successor selects ["verification", "review"] or ["review"]; this is ["review", "review"]
+ok
+test_a_wrong_account_of_the_original_verifier_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_wrong_account_of_the_original_verifier_is_refused)
+AN OWNER DECIDES ON THE COMMAND THAT ACTUALLY FAILED. ... refused: policy/denied: the approved correction is the command that failed ('bash', '-c', 'exec python3 -m unittest -v x'); a retained-recovery decision approves an EXACT verifier correction, and repeating the original verification is the generic retry this contract refuses
+ok
+test_a_wrong_candidate_base_or_head_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_wrong_candidate_base_or_head_is_refused) ... refused: integrity/digest: this decision expects candidate_base '"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"' and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"'; an owner decides on the exact failure, report, candidate and verifier they actually read
+refused: integrity/digest: this decision expects candidate_head '"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"' and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"ffffffffffffffffffffffffffffffffffffffff"'; an owner decides on the exact failure, report, candidate and verifier they actually read
+ok
+test_a_wrong_failure_report_or_candidate_digest_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_a_wrong_failure_report_or_candidate_digest_is_refused) ... refused: integrity/digest: this decision expects failure_digest '"sha256:000000000000000000000000000000000000000000000000000… and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"sha256:1da57fd94257382ae575419ed46ed69a8b9597413c93f002a8a…; an owner decides on the exact failure, report, candidate and verifier they actually read
+refused: integrity/digest: this decision expects report_digest '"sha256:000000000000000000000000000000000000000000000000000… and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"sha256:a5ccd814e273f2108594249e91599d375f3a28bc17c9ebcbc94…; an owner decides on the exact failure, report, candidate and verifier they actually read
+refused: integrity/digest: this decision expects candidate_content_digest '"sha256:000000000000000000000000000000000000000000000000000… and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"sha256:77995351eb3781c868df17b1ae6976a5c3a7607decfb6429684…; an owner decides on the exact failure, report, candidate and verifier they actually read
+ok
+test_an_admission_without_an_approved_decision_is_denied (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_an_admission_without_an_approved_decision_is_denied) ... ok
+test_an_implementation_stage_is_refused_by_name (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_an_implementation_stage_is_refused_by_name) ... refused: policy/denied: the selected stage set names 'implementation'; a retained-recovery successor verifies and reviews an EXISTING candidate and never redispatches the work that produced it
+refused: policy/denied: the selected stage set names 'implementation'; a retained-recovery successor verifies and reviews an EXISTING candidate and never redispatches the work that produced it
+refused: policy/denied: the selected stage set names 'implementation'; a retained-recovery successor verifies and reviews an EXISTING candidate and never redispatches the work that produced it
+ok
+test_an_undelivered_failure_cannot_be_decided (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_an_undelivered_failure_cannot_be_decided)
+STAGE 1-A DELIVERS THE ITEM AND THIS DECIDES IT, in that order. ... refused: refused/precondition: failure 'sha256:96a52044b6ee5682e3d531375909fa44cd60ee28ec5009763169… has delivered no owner item; the decision surface presents a DELIVERED diagnosis or finite ending, and deciding before Stage 1-A has delivered one would be deciding about evidence nobody was shown
+ok
+test_approving_the_command_that_failed_is_the_generic_retry (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_approving_the_command_that_failed_is_the_generic_retry) ... refused: policy/denied: the approved correction is the command that failed ('bash', '-c', 'exec python3 -m unittest -v x\n'); a retained-recovery decision approves an EXACT verifier correction, and repeating the original verification is the generic retry this contract refuses
+ok
+test_evidence_that_changed_under_the_owner_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_evidence_that_changed_under_the_owner_is_refused)
+THE ONE CHECK THE OWNER CANNOT MAKE FOR THEMSELVES. ... refused: integrity/digest: the original evidence of failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… now digests to 'sha256:2dd71c4d7ca0ec02ab502c74c10c7f85f61368f9f7d6b023e984… and its delivered analysis was admitted on 'sha256:5f2b6c3de2c75af43414b5d26578db15e66bd7c6fef52e06cb5c…; a decision is not recorded against evidence that changed under it
+ok
+test_review_only_without_a_lineage_is_refused (tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything.test_review_only_without_a_lineage_is_refused) ... refused: refused/precondition: a ["review"] successor is the post-verification disposition and names the expired successor, its verification attempt and the passed result it reuses; this decision names no lineage
+ok
+test_a_control_store_the_host_port_does_not_own_refuses (tests.job_manager.test_retained_recovery_admission.EveryCutBetweenTheOwnersResumes.test_a_control_store_the_host_port_does_not_own_refuses) ... ok
+test_a_crash_before_the_decision_leaves_nothing_to_carry_out (tests.job_manager.test_retained_recovery_admission.EveryCutBetweenTheOwnersResumes.test_a_crash_before_the_decision_leaves_nothing_to_carry_out)
+THE FIRST CUT: no decision, so no admission is reachable. ... ok
+test_a_lost_completion_reply_resumes_without_redoing_anything (tests.job_manager.test_retained_recovery_admission.EveryCutBetweenTheOwnersResumes.test_a_lost_completion_reply_resumes_without_redoing_anything)
+THE CUT AFTER THE SUBMISSION AND BEFORE THE COMPLETION. ... ok
+test_a_refusal_past_the_reservation_names_it_and_then_resumes (tests.job_manager.test_retained_recovery_admission.EveryCutBetweenTheOwnersResumes.test_a_refusal_past_the_reservation_names_it_and_then_resumes) ... refused: refused/precondition: no configured worker can serve Job 'recovery-D1''s 'review' stage under its own submitted input, policy and profile; a successor that cannot be selected is a Job that would sit queued forever. The successor identity 'recovery-D1' is already RESERVED in this store and this admission is incomplete rather than undone: correct what is named above and run the same request again, which resumes from the reservation. A different request under this decision is refused as the collision it is
+ok
+test_owner_ports_answering_for_two_deployments_refuse (tests.job_manager.test_retained_recovery_admission.EveryCutBetweenTheOwnersResumes.test_owner_ports_answering_for_two_deployments_refuse)
+THE MANAGER'S OWN INSTANCE CHECK, independent of the composition. ... ok
+test_no_successor_carries_an_implementation_stage_or_an_effect (tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal.test_no_successor_carries_an_implementation_stage_or_an_effect) ... ok
+test_stage_1_a_s_five_records_are_exactly_as_they_were (tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal.test_stage_1_a_s_five_records_are_exactly_as_they_were) ... ok
+test_the_command_holds_no_rule_and_delegates_both_acts (tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal.test_the_command_holds_no_rule_and_delegates_both_acts)
+REC-7: THE CLI REQUESTS THE OPERATION AND REPORTS ITS OUTCOME. ... ok
+test_the_control_report_is_available_and_optional (tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal.test_the_control_report_is_available_and_optional) ... ok
+test_the_failed_job_its_stages_and_its_submission_are_untouched (tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal.test_the_failed_job_its_stages_and_its_submission_are_untouched) ... ok
+test_the_read_reports_what_has_already_been_decided (tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal.test_the_read_reports_what_has_already_been_decided) ... ok
+test_the_successors_state_is_derived_and_never_stored_twice (tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal.test_the_successors_state_is_derived_and_never_stored_twice)
+THIS JOURNAL HAS NO UPDATE, so the current state is derived. ... ok
+test_the_verbs_are_served_by_the_installed_manager_command (tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal.test_the_verbs_are_served_by_the_installed_manager_command)
+REACHABLE FROM THE DEPLOYED BUNDLE, not only from a checkout. ... usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+
+Read one retained verification failure's owner item, or decide it. An approval
+asks the manager to admit the one linked verification/review-only successor; a
+denial or a hold launches nothing.
+
+positional arguments:
+  {recovery-item,recovery-decide}
+
+options:
+  -h, --help            show this help message and exit
+  --store STORE         the Job store the recovery records live in
+  --authority-uuid AUTHORITY_UUID
+                        the 32-lowercase-hex Authority this Job store belongs
+                        to
+  --incarnation INCARNATION
+                        this process's incarnation, which is what restart
+                        recovery distinguishes managers by
+  --control CONTROL     the Worker Manager control store, opened READ-ONLY:
+                        the retained candidate and the delivered diagnosis are
+                        read through their owner, and a decision must not be
+                        able to change the evidence it is judging
+  --authority AUTHORITY
+                        the Authority store whose Work this failure ran under;
+                        it resolves the deciding participant's principal and
+                        the Work's own effective scope, and this command
+                        writes nothing to it
+  --instance INSTANCE   the deployment's state root, whose own layout and
+                        emitted configuration say which stores and which
+                        Authority it owns and whose selector is asked whether
+                        a worker can serve the successor's review stage
+  --owners OWNERS       the deployment's owner-port factory as
+                        module:attribute; it composes the owner authorization,
+                        the host exclusion, the Work authorization, the
+                        deployment binding and the instance guard over this
+                        instance's own stores
+  --failure FAILURE     the failure key Stage 1-A attributed this ending under
+
+recovery-item:
+  --participant PARTICIPANT
+                        the acting participant. On recovery-item it is
+                        optional and reports whether that address holds the
+                        decision capability in the Work's own scope; on
+                        recovery-decide it is required and there is
+                        deliberately no --actor
+  --control-report      also report the failed Job's own LIM-5 control and
+                        whichever fence closed it
+
+recovery-decide:
+  --decision-id DECISION_ID
+                        the owner's own operation key. The same key with the
+                        same operands replays the committed decision; with
+                        different operands it collides, and a later
+                        disposition is a NEW key and a new attributable act
+  --approve             approve the exact correction and the
+                        verification/review-only scope below
+  --deny                deny it; nothing is launched
+  --hold                hold it for a later explicit disposition; nothing is
+                        launched
+  --expect-failure-digest EXPECT_FAILURE_DIGEST
+                        the fixed input digest the delivered analysis was
+                        admitted on
+  --expect-report-digest EXPECT_REPORT_DIGEST
+                        the delivered diagnosis's own digest; omitted for a
+                        finite analysis ending, which delivered partial
+                        evidence and no report
+  --expect-candidate-base EXPECT_CANDIDATE_BASE
+  --expect-candidate-head EXPECT_CANDIDATE_HEAD
+  --expect-candidate-digest EXPECT_CANDIDATE_DIGEST
+                        the retained candidate's measured content digest; a
+                        commit name alone is not a candidate
+  --original-verification WORD
+                        one argument word of the command that FAILED,
+                        repeatable in order (write a word that starts with a
+                        dash as --original-verification=-m)
+  --corrected-verification WORD
+                        one argument word of the APPROVED corrected command,
+                        repeatable in order. Approving the command that failed
+                        is refused as the generic retry it is
+  --context-digest CONTEXT_DIGEST
+                        the approved execution context's digest; a command
+                        string must not hide a changed working directory,
+                        environment or tool selection
+  --profile PROFILE     the owner-approved finite profile identity
+  --profile-digest PROFILE_DIGEST
+                        that profile definition's exact digest; admission
+                        checks exact agreement
+  --stage STAGE         one selected stage word, repeatable in order:
+                        verification then review, or review alone under a
+                        review-only decision. implementation is refused by
+                        name
+  --prior-successor PRIOR_SUCCESSOR
+                        the expired successor a review-only decision follows
+  --prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT
+                        that successor's verification attempt identity
+  --prior-verification-digest PRIOR_VERIFICATION_DIGEST
+                        the digest of its journalled passed verification
+                        account
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+
+Read one retained verification failure's owner item, or decide it. An approval
+asks the manager to admit the one linked verification/review-only successor; a
+denial or a hold launches nothing.
+
+positional arguments:
+  {recovery-item,recovery-decide}
+
+options:
+  -h, --help            show this help message and exit
+  --store STORE         the Job store the recovery records live in
+  --authority-uuid AUTHORITY_UUID
+                        the 32-lowercase-hex Authority this Job store belongs
+                        to
+  --incarnation INCARNATION
+                        this process's incarnation, which is what restart
+                        recovery distinguishes managers by
+  --control CONTROL     the Worker Manager control store, opened READ-ONLY:
+                        the retained candidate and the delivered diagnosis are
+                        read through their owner, and a decision must not be
+                        able to change the evidence it is judging
+  --authority AUTHORITY
+                        the Authority store whose Work this failure ran under;
+                        it resolves the deciding participant's principal and
+                        the Work's own effective scope, and this command
+                        writes nothing to it
+  --instance INSTANCE   the deployment's state root, whose own layout and
+                        emitted configuration say which stores and which
+                        Authority it owns and whose selector is asked whether
+                        a worker can serve the successor's review stage
+  --owners OWNERS       the deployment's owner-port factory as
+                        module:attribute; it composes the owner authorization,
+                        the host exclusion, the Work authorization, the
+                        deployment binding and the instance guard over this
+                        instance's own stores
+  --failure FAILURE     the failure key Stage 1-A attributed this ending under
+
+recovery-item:
+  --participant PARTICIPANT
+                        the acting participant. On recovery-item it is
+                        optional and reports whether that address holds the
+                        decision capability in the Work's own scope; on
+                        recovery-decide it is required and there is
+                        deliberately no --actor
+  --control-report      also report the failed Job's own LIM-5 control and
+                        whichever fence closed it
+
+recovery-decide:
+  --decision-id DECISION_ID
+                        the owner's own operation key. The same key with the
+                        same operands replays the committed decision; with
+                        different operands it collides, and a later
+                        disposition is a NEW key and a new attributable act
+  --approve             approve the exact correction and the
+                        verification/review-only scope below
+  --deny                deny it; nothing is launched
+  --hold                hold it for a later explicit disposition; nothing is
+                        launched
+  --expect-failure-digest EXPECT_FAILURE_DIGEST
+                        the fixed input digest the delivered analysis was
+                        admitted on
+  --expect-report-digest EXPECT_REPORT_DIGEST
+                        the delivered diagnosis's own digest; omitted for a
+                        finite analysis ending, which delivered partial
+                        evidence and no report
+  --expect-candidate-base EXPECT_CANDIDATE_BASE
+  --expect-candidate-head EXPECT_CANDIDATE_HEAD
+  --expect-candidate-digest EXPECT_CANDIDATE_DIGEST
+                        the retained candidate's measured content digest; a
+                        commit name alone is not a candidate
+  --original-verification WORD
+                        one argument word of the command that FAILED,
+                        repeatable in order (write a word that starts with a
+                        dash as --original-verification=-m)
+  --corrected-verification WORD
+                        one argument word of the APPROVED corrected command,
+                        repeatable in order. Approving the command that failed
+                        is refused as the generic retry it is
+  --context-digest CONTEXT_DIGEST
+                        the approved execution context's digest; a command
+                        string must not hide a changed working directory,
+                        environment or tool selection
+  --profile PROFILE     the owner-approved finite profile identity
+  --profile-digest PROFILE_DIGEST
+                        that profile definition's exact digest; admission
+                        checks exact agreement
+  --stage STAGE         one selected stage word, repeatable in order:
+                        verification then review, or review alone under a
+                        review-only decision. implementation is refused by
+                        name
+  --prior-successor PRIOR_SUCCESSOR
+                        the expired successor a review-only decision follows
+  --prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT
+                        that successor's verification attempt identity
+  --prior-verification-digest PRIOR_VERIFICATION_DIGEST
+                        the digest of its journalled passed verification
+                        account
+ok
+test_the_whole_path_writes_nothing_to_the_control_store (tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal.test_the_whole_path_writes_nothing_to_the_control_store)
+NO CANDIDATE, NO VERIFIER INPUT, NO EXECUTION STATE. ... ok
+test_a_restarted_incarnation_reads_the_same_admission (tests.job_manager.test_retained_recovery_admission.OneDecisionProducesOneEffectHoweverOftenItIsAsked.test_a_restarted_incarnation_reads_the_same_admission) ... ok
+test_a_second_full_approval_of_one_failure_is_fenced (tests.job_manager.test_retained_recovery_admission.OneDecisionProducesOneEffectHoweverOftenItIsAsked.test_a_second_full_approval_of_one_failure_is_fenced)
+ONE RETAINED FAILURE HAS ONE VERIFICATION/REVIEW SUCCESSOR. ... refused: policy/denied: failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… already reserved the verification/review successor 'recovery-D1' under decision 'D1'; one retained failure has one such successor, and a further round is a new owner decision on new evidence rather than a second admission of this one
+ok
+test_the_exact_same_request_replays_both_durable_acts (tests.job_manager.test_retained_recovery_admission.OneDecisionProducesOneEffectHoweverOftenItIsAsked.test_the_exact_same_request_replays_both_durable_acts) ... ok
+test_the_same_key_with_changed_operands_collides (tests.job_manager.test_retained_recovery_admission.OneDecisionProducesOneEffectHoweverOftenItIsAsked.test_the_same_key_with_changed_operands_collides) ... refused: refused/operation-collision: operation 'recovery.owner-decision:D1' is already recorded with a different kind or signature; reusing an id with different operands changes nothing
+refused: refused/precondition: a ["review"] successor is the post-verification disposition and names the expired successor, its verification attempt and the passed result it reuses; this decision names no lineage
+refused: refused/operation-collision: operation 'recovery.owner-decision:D1' is already recorded with a different kind or signature; reusing an id with different operands changes nothing
+ok
+test_two_concurrent_decisions_admit_exactly_one_successor (tests.job_manager.test_retained_recovery_admission.OneDecisionProducesOneEffectHoweverOftenItIsAsked.test_two_concurrent_decisions_admit_exactly_one_successor)
+THE RACE, SYNCHRONIZED PAST THE POINT A READ WOULD HAVE DECIDED. ... refused: policy/denied: failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… already reserved the verification/review successor 'recovery-C2' under decision 'C2'; one retained failure has one such successor, and a further round is a new owner decision on new evidence rather than a second admission of this one
+ok
+test_cancelled_successor_never_offers_review (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_cancelled_successor_never_offers_review) ... ok
+test_expired_successor_never_offers_review (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_expired_successor_never_offers_review) ... ok
+test_failed_verification_never_offers_review (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_failed_verification_never_offers_review) ... ok
+test_generic_fresh_attempt_refuses_before_owner_effects (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_generic_fresh_attempt_refuses_before_owner_effects) ... ok
+test_ordinary_create_refuses_the_recovery_only_profile (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_ordinary_create_refuses_the_recovery_only_profile) ... ok
+test_ordinary_submit_cannot_replay_even_exact_recovery_document (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_ordinary_submit_cannot_replay_even_exact_recovery_document) ... ok
+test_passed_account_without_candidate_handoff_stays_blocked (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_passed_account_without_candidate_handoff_stays_blocked) ... ok
+test_public_submit_command_refuses_the_recovery_profile (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_public_submit_command_refuses_the_recovery_profile) ... ok
+test_review_only_keeps_exact_lineage_but_cannot_bypass_missing_handoff (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_review_only_keeps_exact_lineage_but_cannot_bypass_missing_handoff) ... ok
+test_unknown_verification_and_restart_never_offer_review (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_unknown_verification_and_restart_never_offer_review) ... ok
+test_a_cancelled_successor_is_never_revived (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_a_cancelled_successor_is_never_revived) ... refused: refused/precondition: successor 'recovery-D1' was cancelled at 2026-09-02T00:00:00.000Z (the owner stopped the successor); a cancelled execution is never revived and its review is not admitted under a new identity
+ok
+test_a_candidate_that_changed_under_the_evidence_is_refused (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_a_candidate_that_changed_under_the_evidence_is_refused) ... refused: integrity/digest: the original evidence of failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… now digests to 'sha256:c968742c99e1bd1e5095a8e54a40e747064a99add75a0e81277f… and its delivered analysis was admitted on 'sha256:dbd33bd7eabd47bc1f0c49e4a94e9abb98865a2900a86ed02df1…; a decision is not recorded against evidence that changed under it
+ok
+test_a_correction_the_verification_did_not_run_is_refused (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_a_correction_the_verification_did_not_run_is_refused)
+OMITTING A STAGE PRESERVES THE VERIFICATION THAT ACTUALLY RAN. ... refused: integrity/schema: the passed verification of successor 'recovery-D1' ran 'bash', '-c', 'exec python3 -m unittest -v x' and this decision approves 'bash', '-c', 'exec true'; omitting a verification stage preserves the verification that actually ran rather than claiming a different one
+refused: integrity/schema: the passed verification of successor 'recovery-D1' ran 'bash', '-c', 'exec python3 -m unittest -v x' and this decision approves 'bash', '-c', 'exec python3 -m unittest -v x'; omitting a verification stage preserves the verification that actually ran rather than claiming a different one
+ok
+test_a_failed_verification_is_disposed_of_and_not_reviewed (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_a_failed_verification_is_disposed_of_and_not_reviewed) ... refused: refused/precondition: successor 'recovery-D1''s verification is 'failed' (exit 1); a review-only admission reuses a PASSED verification, and a failed or unaccounted one is disposed of explicitly rather than reviewed
+ok
+test_a_lineage_naming_other_evidence_is_refused (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_a_lineage_naming_other_evidence_is_refused) ... refused: integrity/digest: this decision names verification result 'sha256:7777777777777777777777777777777777777777777777777777… and the journalled account digests to 'sha256:988c2e582775e92d5be660c3835b88f1439e59cdd72b4ac74123…; the evidence a review-only admission reuses is exact
+refused: integrity/schema: this decision names verification attempt 'verification-somebody-else' and successor 'recovery-D1' journalled 'verification-recovery-D1'; a late result of another execution cannot satisfy this one by identity substitution
+refused: refused/precondition: failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… reserved no successor 'recovery-D9'; a review-only admission follows THIS failure's own expired successor
+ok
+test_a_passed_verification_is_reviewed_without_being_repeated (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_a_passed_verification_is_reviewed_without_being_repeated) ... ok
+test_a_verification_account_replays_and_collides (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_a_verification_account_replays_and_collides) ... ok
+test_an_unaccounted_verification_refuses_and_never_reverifies (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_an_unaccounted_verification_refuses_and_never_reverifies) ... refused: refused/precondition: a review-only recovery names the expired successor, its verification attempt and the passed result it reuses; this one names no verification_result_digest
+ok
+test_an_unexpired_successor_is_not_reviewed_under_a_new_identity (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_an_unexpired_successor_is_not_reviewed_under_a_new_identity) ... refused: refused/precondition: successor 'recovery-D1' is neither expired nor cancelled; a review-only admission is the disposition for a successor whose verification PASSED and whose review did not complete before it expired, and admitting one beside a live successor would review one candidate twice
+ok
+test_one_expired_successor_earns_one_review_only_successor (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_one_expired_successor_earns_one_review_only_successor) ... refused: policy/denied: the expired successor 'recovery-D1' already has the review-only successor 'recovery-D2' under decision 'D2'; a second one would review one candidate twice on one owner decision
+ok
+test_the_verification_account_is_held_to_what_was_approved (tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence.test_the_verification_account_is_held_to_what_was_approved) ... ok
+test_default_factory_reaches_owner_item_and_rejects_foreign_stores (tests.job_manager.test_retained_recovery_admission.ShippedOwnersComposeOverAnInstalledInstance.test_default_factory_reaches_owner_item_and_rejects_foreign_stores) ... ok
+test_a_decision_naming_no_participant_is_refused (tests.job_manager.test_retained_recovery_admission.TheCommandRefusesAnIncompleteRequestBeforeItOpensAnything.test_a_decision_naming_no_participant_is_refused) ... usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --participant
+ok
+test_a_decision_without_an_explicit_disposition_is_refused (tests.job_manager.test_retained_recovery_admission.TheCommandRefusesAnIncompleteRequestBeforeItOpensAnything.test_a_decision_without_an_explicit_disposition_is_refused) ... usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs one of --approve, --deny or --hold; an owner disposition is an explicit act
+ok
+test_every_bound_operand_is_required (tests.job_manager.test_retained_recovery_admission.TheCommandRefusesAnIncompleteRequestBeforeItOpensAnything.test_every_bound_operand_is_required) ... usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --decision-id
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --expect-failure-digest
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --expect-candidate-base
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --expect-candidate-head
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --expect-candidate-digest
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --context-digest
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --profile
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --profile-digest
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --original-verification
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --corrected-verification
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --stage
+ok
+test_half_a_review_only_lineage_is_refused_as_incomplete (tests.job_manager.test_retained_recovery_admission.TheCommandRefusesAnIncompleteRequestBeforeItOpensAnything.test_half_a_review_only_lineage_is_refused_as_incomplete) ... refused: refused/precondition: a review-only recovery names the expired successor, its verification attempt and the passed result it reuses; this one names no verification_attempt_id, verification_result_digest
+ok
+test_the_read_needs_no_participant_and_still_answers (tests.job_manager.test_retained_recovery_admission.TheCommandRefusesAnIncompleteRequestBeforeItOpensAnything.test_the_read_needs_no_participant_and_still_answers) ... ok
+test_a_finite_analysis_ending_is_decidable_with_no_report (tests.job_manager.test_retained_recovery_admission.TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor.test_a_finite_analysis_ending_is_decidable_with_no_report)
+THE FOUR ENDINGS STAGE 1-A DELIVERS DIRECTLY TO THE OWNER. ... refused: integrity/digest: this decision expects report_digest '"sha256:555555555555555555555555555555555555555555555555555… and failure 'sha256:16c653734cf0e63bdf0e8c7eb1abc1a4731cb59dfb0fc5d7d072… records 'null'; an owner decides on the exact failure, report, candidate and verifier they actually read
+ok
+test_one_approval_admits_one_durable_review_only_successor (tests.job_manager.test_retained_recovery_admission.TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor.test_one_approval_admits_one_durable_review_only_successor) ... ok
+test_the_admission_asked_its_owners_the_submitted_specification (tests.job_manager.test_retained_recovery_admission.TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor.test_the_admission_asked_its_owners_the_submitted_specification) ... ok
+test_the_held_definition_is_the_bytes_the_owner_published (tests.job_manager.test_retained_recovery_admission.TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor.test_the_held_definition_is_the_bytes_the_owner_published)
+THE PRODUCT'S COPY AND THE DOSSIER RECORD, compared. ... ok
+test_the_read_presents_every_fact_a_decision_must_bind (tests.job_manager.test_retained_recovery_admission.TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor.test_the_read_presents_every_fact_a_decision_must_bind) ... ok
+test_the_read_says_whether_the_asker_may_decide_at_all (tests.job_manager.test_retained_recovery_admission.TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor.test_the_read_says_whether_the_asker_may_decide_at_all) ... ok
+test_a_runtime_the_host_cannot_account_for_holds (tests.job_manager.test_retained_recovery_admission.UnknownIsAHoldAndACancelledExecutionIsNeverRevived.test_a_runtime_the_host_cannot_account_for_holds) ... refused: refused/precondition: the host returned no evidence about attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…; an execution nobody can account for is unknown, and unknown is not permission to verify the same candidate against the same resources
+refused: refused/precondition: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s runtime is 'uncertain' and cessation is not-started, quiescent, destroyed; stop it and let the host record the outcome before a successor is admitted
+refused: refused/precondition: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s cleanup is 'pending' and this host still owes it; a successor admitted now would compete with an accounting that has not finished
+refused: refused/precondition: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1… still holds its workspace resource: the token is outstanding. A returned resource is what makes the workspace free for another execution
+ok
+test_a_terminal_work_cannot_carry_a_recovery (tests.job_manager.test_retained_recovery_admission.UnknownIsAHoldAndACancelledExecutionIsNeverRevived.test_a_terminal_work_cannot_carry_a_recovery) ... refused: refused/precondition: Work '0000000a-W1' is 'closed' and a recovery decision is taken under an open authorization; deciding on somebody else's terminal Work is not this operation's to do
+ok
+test_an_expired_original_is_admissible_and_the_fence_is_reported (tests.job_manager.test_retained_recovery_admission.UnknownIsAHoldAndACancelledExecutionIsNeverRevived.test_an_expired_original_is_admissible_and_the_fence_is_reported)
+EXPIRED ORIGINAL DEADLINES REMAIN EXPIRED AND UNCHANGED. ... ok
+test_an_explicitly_cancelled_job_is_not_recovered (tests.job_manager.test_retained_recovery_admission.UnknownIsAHoldAndACancelledExecutionIsNeverRevived.test_an_explicitly_cancelled_job_is_not_recovered) ... refused: refused/precondition: Job 'job-a' was cancelled at 2026-09-02T00:00:00.000Z (the owner stopped it); an approved recovery decision is not admitted after an explicit cancellation, and a cancelled execution is never revived
+ok
+test_a_completed_account_survives_a_later_uncertain_refresh (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_completed_account_survives_a_later_uncertain_refresh)
+[2]. A completed integration is HISTORICAL evidence about the fixed ... ok
+test_a_failed_start_still_answers_first (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_failed_start_still_answers_first) ... ok
+test_a_foreign_exchange_cannot_move_an_integration (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_foreign_exchange_cannot_move_an_integration)
+An integration attempt writes no worker exchange, so one that ... ok
+test_a_foreign_frozen_output_cannot_complete_an_integration (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_foreign_frozen_output_cannot_complete_an_integration)
+The same rule the other way: an integration still working is not ... ok
+test_a_held_document_is_not_turned_into_an_owed_ending (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_held_document_is_not_turned_into_an_owed_ending)
+[3]. The generic rules answered first about evidence that was never ... ok
+test_a_supplied_document_for_another_kind_refuses_at_the_status (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_supplied_document_for_another_kind_refuses_at_the_status)
+[1], through the public projection rather than the binding alone. ... ok
+test_an_uncertain_runtime_holds_the_three_that_earn_an_act (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_an_uncertain_runtime_holds_the_three_that_earn_an_act)
+No automatic conclude follows an uncertain runtime. ... ok
+test_answered_is_answering_whatever_the_runtime_is_doing (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_answered_is_answering_whatever_the_runtime_is_doing)
+Concluding changes no Job state by itself; the next observation is ... ok
+test_completed_is_completed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_completed_is_completed) ... ok
+test_held_is_a_visible_exceptional_stage (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_held_is_a_visible_exceptional_stage) ... ok
+test_pending_or_answered_without_a_runtime_fails_closed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_or_answered_without_a_runtime_fails_closed) ... ok
+test_pending_with_a_quiet_runtime_is_answering (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_with_a_quiet_runtime_is_answering)
+So `conclude` reaches the driver and the DRIVER decides what a ... ok
+test_pending_with_a_running_runtime_is_integrating (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_with_a_running_runtime_is_integrating) ... ok
+test_unstarted_beside_a_started_runtime_fails_closed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_unstarted_beside_a_started_runtime_fails_closed) ... ok
+test_unstarted_is_claimed_and_still_owes_its_launch (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_unstarted_is_claimed_and_still_owes_its_launch) ... ok
+test_a_FAILING_observation_also_leaves_no_boundary_behind (tests.job_manager.test_status.ConcurrentSubmission.test_a_FAILING_observation_also_leaves_no_boundary_behind)
+DB-1 is not satisfied by the happy path. An observation that raises ... ok
+test_a_caller_s_own_boundary_is_neither_nested_nor_ended (tests.job_manager.test_status.ConcurrentSubmission.test_a_caller_s_own_boundary_is_neither_nested_nor_ended)
+SQLite has no nested transactions, and ending one here would commit ... ok
+test_a_concurrent_advancement_leaves_the_derivation_coherent_too (tests.job_manager.test_status.ConcurrentSubmission.test_a_concurrent_advancement_leaves_the_derivation_coherent_too)
+`stage_states` on its own -- the pass the sweep and the owed-act ... ok
+test_a_populated_store_reads_the_same_through_both_handles (tests.job_manager.test_status.ConcurrentSubmission.test_a_populated_store_reads_the_same_through_both_handles) ... ok
+test_a_submission_committed_INSIDE_the_materialization_is_coherent (tests.job_manager.test_status.ConcurrentSubmission.test_a_submission_committed_INSIDE_the_materialization_is_coherent)
+The same race one layer in: the writer commits between the stage ... ok
+test_a_submission_committed_between_the_two_reads_no_longer_raises (tests.job_manager.test_status.ConcurrentSubmission.test_a_submission_committed_between_the_two_reads_no_longer_raises)
+The minimal baseline from the finding, end to end. ... ok
+test_an_empty_store_still_reads_empty_through_the_reader (tests.job_manager.test_status.ConcurrentSubmission.test_an_empty_store_still_reads_empty_through_the_reader) ... ok
+test_an_episode_advancing_mid_status_is_not_mixed_with_the_next_one (tests.job_manager.test_status.ConcurrentSubmission.test_an_episode_advancing_mid_status_is_not_mixed_with_the_next_one)
+A stage whose live episode ends and is replaced WHILE the status is ... ok
+test_every_reported_stage_has_its_Job_and_every_Job_its_stages (tests.job_manager.test_status.ConcurrentSubmission.test_every_reported_stage_has_its_Job_and_every_Job_its_stages)
+The invariant the `KeyError` was the symptom of, asserted directly ... ok
+test_reading_through_the_read_only_handle_changes_no_row (tests.job_manager.test_status.ConcurrentSubmission.test_reading_through_the_read_only_handle_changes_no_row) ... ok
+test_the_authority_and_schema_checks_still_guard_the_reader (tests.job_manager.test_status.ConcurrentSubmission.test_the_authority_and_schema_checks_still_guard_the_reader)
+The new boundary is not a way around the opener's proofs. ... ok
+test_the_materialization_cannot_reach_another_store_at_all (tests.job_manager.test_status.ConcurrentSubmission.test_the_materialization_cannot_reach_another_store_at_all)
+The enforcement is structural rather than a comment: the function ... ok
+test_the_new_stages_are_reported_by_the_NEXT_read_and_not_lost (tests.job_manager.test_status.ConcurrentSubmission.test_the_new_stages_are_reported_by_the_NEXT_read_and_not_lost)
+An earlier coherent moment is not a silent omission. The submission ... ok
+test_the_other_store_is_read_with_no_Job_transaction_open (tests.job_manager.test_status.ConcurrentSubmission.test_the_other_store_is_read_with_no_Job_transaction_open) ... ok
+test_the_read_view_is_released_even_when_the_body_raises (tests.job_manager.test_status.ConcurrentSubmission.test_the_read_view_is_released_even_when_the_body_raises) ... ok
+test_the_whole_status_shape_survives_the_new_boundary (tests.job_manager.test_status.ConcurrentSubmission.test_the_whole_status_shape_survives_the_new_boundary)
+The document's contract is closed, so the composition is compared ... ok
+test_a_frozen_result_reports_the_managers_own_artifact_locators (tests.job_manager.test_status.Locators.test_a_frozen_result_reports_the_managers_own_artifact_locators) ... ok
+test_a_running_stage_reports_its_runtime_identity_and_activity (tests.job_manager.test_status.Locators.test_a_running_stage_reports_its_runtime_identity_and_activity) ... ok
+test_a_stage_with_no_runtime_reports_absence_rather_than_zero (tests.job_manager.test_status.Locators.test_a_stage_with_no_runtime_reports_absence_rather_than_zero) ... ok
+test_the_recorded_receipts_travel_with_the_stage (tests.job_manager.test_status.Locators.test_the_recorded_receipts_travel_with_the_stage) ... ok
+test_a_CLOSED_handle_reports_this_distributions_refusal (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_a_CLOSED_handle_reports_this_distributions_refusal)
+`read_snapshot` asked `in_transaction` ahead of its own `try`, so a ... ok
+test_a_status_inside_the_callers_own_read_view_observes_NOTHING (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_a_status_inside_the_callers_own_read_view_observes_NOTHING)
+The measured case, asserted by what the other store was asked. ... ok
+test_an_EMPTY_store_refuses_identically (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_EMPTY_store_refuses_identically)
+Nothing to observe is not the same as nothing to refuse. A check ... ok
+test_an_UNOBSERVED_derivation_refuses_on_the_same_rule (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_UNOBSERVED_derivation_refuses_on_the_same_rule)
+`Unobserved` performs no I/O, so this one is about the rule rather ... ok
+test_an_observation_that_would_itself_FAIL_is_never_attempted (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_observation_that_would_itself_FAIL_is_never_attempted)
+The point is not which refusal wins. It is that the external read ... ok
+test_materialized_is_STILL_served_inside_the_callers_boundary (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_materialized_is_STILL_served_inside_the_callers_boundary)
+The refusal is scoped to the passes that go on to observe. ... ok
+test_stage_states_called_from_inside_a_boundary_refuses_too (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_stage_states_called_from_inside_a_boundary_refuses_too)
+`stage_states` is the pass the sweep and the owed-act derivation ... ok
+test_stage_states_leaves_the_writers_pending_change_alone_too (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_stage_states_leaves_the_writers_pending_change_alone_too) ... ok
+test_the_SAME_status_succeeds_once_the_boundary_is_released (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_SAME_status_succeeds_once_the_boundary_is_released)
+The refusal is about WHEN it was asked, and says so by being ... ok
+test_the_callers_transaction_can_still_be_COMMITTED_afterwards (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_callers_transaction_can_still_be_COMMITTED_afterwards)
+The other half: a caller that meant to keep its change keeps it. ... ok
+test_the_callers_transaction_is_still_open_and_still_PENDING (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_callers_transaction_is_still_open_and_still_PENDING)
+Neither committed nor discarded. The refusal decides nothing about ... ok
+test_the_question_itself_is_the_stores_own_and_is_public (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_question_itself_is_the_stores_own_and_is_public)
+`holds_transaction` is asked of the owner rather than read off its ... ok
+test_the_refusal_names_what_was_done_and_what_to_do_instead (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_refusal_names_what_was_done_and_what_to_do_instead) ... ok
+test_a_projection_with_no_control_store_says_nobody_looked (tests.job_manager.test_status.Shape.test_a_projection_with_no_control_store_says_nobody_looked) ... ok
+test_an_empty_store_projects_an_empty_pipeline (tests.job_manager.test_status.Shape.test_an_empty_store_projects_an_empty_pipeline) ... ok
+test_reading_a_status_writes_nothing (tests.job_manager.test_status.Shape.test_reading_a_status_writes_nothing) ... ok
+test_the_document_names_its_schema_and_what_it_observed (tests.job_manager.test_status.Shape.test_the_document_names_its_schema_and_what_it_observed) ... ok
+test_the_job_carries_its_immutable_identities_and_bounded_scope (tests.job_manager.test_status.Shape.test_the_job_carries_its_immutable_identities_and_bounded_scope) ... ok
+test_a_blocked_stage_names_the_gate_holding_it (tests.job_manager.test_status.States.test_a_blocked_stage_names_the_gate_holding_it) ... ok
+test_a_cancelled_or_unable_ending_is_exceptional (tests.job_manager.test_status.States.test_a_cancelled_or_unable_ending_is_exceptional) ... ok
+test_a_claimed_stage_with_no_runtime_is_claimed (tests.job_manager.test_status.States.test_a_claimed_stage_with_no_runtime_is_claimed) ... ok
+test_a_completed_stage_opens_its_successor_s_gate (tests.job_manager.test_status.States.test_a_completed_stage_opens_its_successor_s_gate) ... ok
+test_a_disposition_this_build_does_not_know_is_not_read_as_benign (tests.job_manager.test_status.States.test_a_disposition_this_build_does_not_know_is_not_read_as_benign) ... ok
+test_a_rejected_review_is_changes_requested (tests.job_manager.test_status.States.test_a_rejected_review_is_changes_requested) ... ok
+test_a_rejection_on_a_stage_that_is_not_a_review_is_exceptional (tests.job_manager.test_status.States.test_a_rejection_on_a_stage_that_is_not_a_review_is_exceptional) ... ok
+test_a_submitted_pipeline_is_queued_and_blocked (tests.job_manager.test_status.States.test_a_submitted_pipeline_is_queued_and_blocked) ... ok
+test_an_admitted_stage_is_offered (tests.job_manager.test_status.States.test_an_admitted_stage_is_offered) ... ok
+test_an_uncertain_runtime_is_exceptional_and_never_running (tests.job_manager.test_status.States.test_an_uncertain_runtime_is_exceptional_and_never_running) ... ok
+test_each_kind_names_its_own_running_state (tests.job_manager.test_status.States.test_each_kind_names_its_own_running_state) ... ok
+test_every_projected_state_is_in_the_closed_vocabulary (tests.job_manager.test_status.States.test_every_projected_state_is_in_the_closed_vocabulary) ... ok
+test_a_changes_requested_verdict_opens_no_round_under_the_profile (tests.tools.test_job_control_command.TheCorrectionAndTheCommand.test_a_changes_requested_verdict_opens_no_round_under_the_profile) ... ok
+test_a_stale_profile_is_refused_at_submit_and_nothing_is_recorded (tests.tools.test_job_control_command.TheCorrectionAndTheCommand.test_a_stale_profile_is_refused_at_submit_and_nothing_is_recorded) ... ok
+test_cancel_status_reports_the_control_read_only_and_the_dispatch_carries_it (tests.tools.test_job_control_command.TheCorrectionAndTheCommand.test_cancel_status_reports_the_control_read_only_and_the_dispatch_carries_it) ... ok
+test_a_claimed_stage_is_fenced_and_never_started_after_the_deadline (tests.tools.test_job_control_command.TheDeadlineWhileServing.test_a_claimed_stage_is_fenced_and_never_started_after_the_deadline) ... ok
+test_a_clock_rollback_holds_admission_and_is_reported (tests.tools.test_job_control_command.TheDeadlineWhileServing.test_a_clock_rollback_holds_admission_and_is_reported) ... ok
+test_a_queued_job_is_retired_at_the_job_deadline_and_reserves_nothing (tests.tools.test_job_control_command.TheDeadlineWhileServing.test_a_queued_job_is_retired_at_the_job_deadline_and_reserves_nothing) ... ok
+test_a_running_stage_is_stopped_at_its_stage_deadline_through_the_composition (tests.tools.test_job_control_command.TheDeadlineWhileServing.test_a_running_stage_is_stopped_at_its_stage_deadline_through_the_composition) ... ok
+test_an_operator_request_before_the_deadline_is_the_fence (tests.tools.test_job_control_command.TheDeadlineWhileServing.test_an_operator_request_before_the_deadline_is_the_fence) ... ok
+test_an_unresolved_shutdown_retains_the_hold_and_keeps_asking (tests.tools.test_job_control_command.TheDeadlineWhileServing.test_an_unresolved_shutdown_retains_the_hold_and_keeps_asking) ... ok
+test_the_fence_and_the_elapsed_time_survive_a_restart (tests.tools.test_job_control_command.TheDeadlineWhileServing.test_the_fence_and_the_elapsed_time_survive_a_restart) ... ok
+
+----------------------------------------------------------------------
+Ran 149 tests in 7.468s
+
+OK

@@ -1,0 +1,30 @@
+{
+  "reviewer": "baton.prompt (K), independent source review, no claim",
+  "request": "M385693 (T321608)",
+  "candidate_commit": "5bc260b6dcbe970c8729424fa826b88dbc1a9d0f",
+  "base_commit": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+  "integrity": {
+    "output_limit_recovery_manifest": "16/16 sha256 OK",
+    "bundle_verify": "objects.bundle okay; head 5bc260b6, requires ce6e1b2b",
+    "commit": "5bc260b6 parent ce6e1b2b tree c7374ddba97fb0fcfd8e5e9b3dc82fe0a15c7a77",
+    "diff_vs_retained_change_patch": "byte-identical (sha256 c857457a...)",
+    "main_head": "ce6e1b2b (base)",
+    "scratch_candidate_v12_vs_K_archive": "identical"
+  },
+  "trees": {
+    "base": "git archive ce6e1b2b (main repo, read-only) -> /var/tmp/baton-k-w385624/base",
+    "candidate": "git archive 5bc260b6 (author scratch objects.git, read-only) -> /var/tmp/baton-k-w385624/cand",
+    "changed_paths": "12 v12 + 18 dossier, matching result.json"
+  },
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python (prepared; just test-group for groups)",
+  "env": {"TMPDIR": "/var/tmp/baton-k-w385624/tmp", "BATON_V12_DISK_ROOT": "/var/tmp/baton-k-w385624/tmp", "PYTHONPATH": "src (probes: src:.:probe dir)"},
+  "results": {
+    "focused_candidate": {"modules": ["tests.job_manager.test_retained_recovery_admission", "tests.job_manager.test_retained_failure_analysis", "tests.job_manager.test_job_control", "tests.job_manager.test_fresh_attempt", "tests.authority.test_boundary", "tests.tools.test_job_control_command"], "ran": 449, "failures": 0, "errors": 0, "skipped": 0, "wall_seconds": 32.2},
+    "group_job_manager": {"collected": 1932, "passed": 1929, "failures": 3, "errors": 0, "optional_skips": 0, "unaccounted": 0, "wall_seconds": 17.3, "failures_classified": "3 path-message sampling ids; identical 3 failures at base with same TMPDIR (base-path-messages-K.log)"},
+    "group_authority": {"collected": 511, "passed": 511, "verdict": "OK", "wall_seconds": 2.6},
+    "group_scans": {"collected": 494, "passed": 492, "optional_skips": 2, "failures": 0, "errors": 0, "verdict": "OK", "wall_seconds": 102.5},
+    "group_tools_pure": "started, backgrounded by operator before completion; NOT reported",
+    "probes": {"P1": "successor review stage depends_on [] -> gates open -> queued", "P2": "ordinary template create admitted implementation+review Job under stage1-verification-review/1", "P3": "real manager.sweep with FakeOperations issued offer.issue admit for recovery-D1/review immediately after admission; state offered"}
+  },
+  "not_run": ["full suite", "build/package", "live provider/model", "Docker", "import into checkout", "native retry", "Git mutation of main", "instance change"]
+}

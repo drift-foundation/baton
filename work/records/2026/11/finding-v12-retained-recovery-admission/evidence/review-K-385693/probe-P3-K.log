@@ -1,0 +1,9 @@
+test_P3_real_sweep_offers_the_successor_review (probe_k624.P3.test_P3_real_sweep_offers_the_successor_review) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.083s
+
+OK
+P3-SWEEP-ACTS [{"act": "admit", "episode": 1, "operation_id": "offer.issue:offer-b49198fe1cb8a04485abda4721228137452b91b7120370abfc983ad92475d7a8", "outcome": "performed", "stage_id": "recovery-D1/review"}]
+P3-OPS-CALLS [["admit", "recovery-D1/review"]]
+P3-STATE {"recovery-D1/review": "offered"}

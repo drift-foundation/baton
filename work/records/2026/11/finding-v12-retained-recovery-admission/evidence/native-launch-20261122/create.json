@@ -1,0 +1,474 @@
+{
+  "job_id": "w385624-native-admission-1",
+  "work_id": "e9580eb1-W1",
+  "submission_id": "sub-w385624-native-admission-1",
+  "resolution_digest": "sha256:0d50b2bab3a71177683fd327e3a8b60b024dc961d75339489ccfea8fd224e488",
+  "template": {
+    "version": "baton.v12.job-template.implementation-review/3",
+    "origin": "request",
+    "permitted_overrides": [
+      "execution_limits"
+    ]
+  },
+  "task": {
+    "job_id": "w385624-native-admission-1",
+    "work_id": "e9580eb1-W1",
+    "submission_id": "sub-w385624-native-admission-1",
+    "statement": "Implement W385624 / Stage1-B in an isolated native candidate, then independent native review. Source ce6e1b2bf12519a84a3792f06562b7727dfe3021 includes delivered Stage1-A. Read AGENTS.md, v12/DESIGN.md REC-8, v12/python/TESTING.md and own FINDING/PLAN at work/records/2026/11/finding-v12-retained-recovery-admission. Parent contract: work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CONTRACT.md SHA25652c2c640fdbb791e70ae61edf7ef7db7190bacd767d6d044f678517d2e09e1bc; accepted review-2026-11-22T05-18-37Z.md. This task carries M385681 preparation scope, overriding historical not-yet-assigned prose once this Job is selected.\nDeliver ACTUAL supported owner read/decision command plus manager-owned linked retained successor admission, not helper-only APIs. Consume Stage1-A owner item/report through existing owners. Present original failed verifier and exact proposed correction/context, failure/report/candidate/base digests and scope before approval. Use delivered principal/scope and deployment decision capability for Slawomir, no future hierarchy/pool prerequisite. Bind owner identity/provenance, operation key, immutable inputs, exact approved profile identity/digest and selected stages. Reject unauthorized decision, generic retry, changed inputs and stale evidence. Denial/hold launches nothing.\nNew verification/review-only successor identity, never fresh-attempt or implementation redispatch. Persist intent before effects and reconcile partial owner operations; no cross-store transaction fiction. Validate custody/candidate bytes, cancellation, prior cessation/resource exclusion, ownership and limits through owning APIs. Unknown holds; replay exact operands returns one effect, changed operands collide. Concurrent owner decisions must not duplicate admission; crash after reservation/binding or lost reply must not redispatch blindly. Original failure/task/candidate and admitted clocks remain intact.\nProduct profile stage1-verification-review/1 is the approved definition at parent evidence/stage-1-contract-385615/stage1-verification-review-1.json, SHA2565a6a420e416caab0942f9709939ae01f1f2d9dabbd13e09ff3b03ea08d2932fb: Job9960 incl queue, stages4800, review provider3600, commands900, no automatic retry/correction. This is NOT this development Job heavy7200/9000/21600/900. Persist/check exact profile and stage set. Post-passed-verification expiry preserves evidence and holds owner item; explicit new review-only decision can omit verification with unchanged profile bounds only if exact candidate/verifier/result evidence remains valid. Expiry alone does not invalidate evidence; invalid/unknown refuses, no blind reverify or reset.\nAdd focused acceptance entry tests.job_manager.test_retained_recovery_admission. Drive the real supported owner command over disposable stores through production authorization and manager admission/readback, not patched command handlers or direct library-only tests. Use deterministic fake execution/host ports at normal boundaries. Prove positive path plus wrong actor/scope/digest/argv/context/profile/stages, duplicate/concurrent decisions, restart/fault cuts, cancel/unknown cessation and review-only valid/invalid evidence. Verify one actual durable successor and no implementation stage/effect. Preserve Stage1-A behavior; record counts, failures/skips and measured durations.\nStage1-C W385625 owns verifier execution and final loop; do not claim it delivered or launch unsupported stages. Expose truthful readiness/refusal at the admission/execution boundary. No broad refactor, general editor/launcher, live recovery/model tests, full suite, main Git mutation or host import. Implementer chooses needed files; shared ownership serial. Existing /3 clarification and independent review apply; escalate only genuine unresolved authority/product decisions. Return exact digest-bound candidate and evidence in own dossier; reviewer checks actual command/admission connectivity and prior guarantees."
+  },
+  "source": {
+    "input_digest": "sha256:fee880ae6dcc9b6cf0fbd4e9c438721ed7cade27397e96976ed087bd7fe4c3e7",
+    "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917"
+  },
+  "scope": {
+    "work": [
+      "W385624 Stage1-B only: necessary v12 command/admission/schema/tests and owning dossier evidence; no Stage1-C execution, broader pools or unrelated changes."
+    ],
+    "tests": []
+  },
+  "acceptance": [
+    "Stage1-B real owner read/decision command through authorized manager admission/readback, exact retained inputs/profile/stages, replay/cancel/cessation and review-only safety; no implementation redispatch; deterministic connected evidence and independent review."
+  ],
+  "overrides": {
+    "execution_limits": {
+      "provider_turn_seconds": 7200
+    }
+  },
+  "rules": {
+    "completion": {
+      "outcome": "accepted",
+      "deciding_role": "review",
+      "verdict_output": "findings",
+      "delivers": "proposal"
+    },
+    "correction": {
+      "outcome": "correction",
+      "episode_ending": "superseded-by-correction",
+      "repeats": [
+        "implementation",
+        "review"
+      ]
+    },
+    "failure": {
+      "outcome": "held",
+      "terminal_policy": "report-and-hold",
+      "stage_state": "exceptional",
+      "recovery_operation": "fresh_attempt.admit"
+    }
+  },
+  "execution_limits": {
+    "units": "seconds",
+    "scope": "per-invocation",
+    "compatibility_generation": 1,
+    "requested": {
+      "provider_turn_seconds": 7200
+    },
+    "boundaries": {
+      "host_verification": {
+        "seconds": 300,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 300
+      },
+      "integration_verification": {
+        "seconds": 1800,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 1800
+      },
+      "ordinary_verification": {
+        "seconds": 900,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 900
+      },
+      "provider_turn": {
+        "seconds": 7200,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      }
+    }
+  },
+  "derivation": {
+    "work_id": "e9580eb1-W1",
+    "input_digest": "sha256:fee880ae6dcc9b6cf0fbd4e9c438721ed7cade27397e96976ed087bd7fe4c3e7",
+    "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+    "profiles": {
+      "implementation": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92"
+      },
+      "review": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92"
+      }
+    },
+    "declarations": {
+      "implementation": {
+        "impl-a": [
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream",
+                "text/plain"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "proposal",
+            "path": "proposal",
+            "required": false,
+            "type": "git-change-proposal"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "findings",
+            "path": "findings",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "logs",
+            "path": "logs",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "handoff",
+            "path": "handoff",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "response",
+            "path": "response",
+            "required": false,
+            "type": "directory-result"
+          }
+        ]
+      },
+      "review": {
+        "review-a": [
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream",
+                "text/plain"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "proposal",
+            "path": "proposal",
+            "required": false,
+            "type": "git-change-proposal"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "findings",
+            "path": "findings",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "logs",
+            "path": "logs",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "handoff",
+            "path": "handoff",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "response",
+            "path": "response",
+            "required": false,
+            "type": "directory-result"
+          }
+        ]
+      }
+    },
+    "task_document": "{\"declared_base\":\"ce6e1b2bf12519a84a3792f06562b7727dfe3021\",\"instructions\":\"Implement W385624 / Stage1-B in an isolated native candidate, then independent native review. Source ce6e1b2bf12519a84a3792f06562b7727dfe3021 includes delivered Stage1-A. Read AGENTS.md, v12/DESIGN.md REC-8, v12/python/TESTING.md and own FINDING/PLAN at work/records/2026/11/finding-v12-retained-recovery-admission. Parent contract: work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CONTRACT.md SHA25652c2c640fdbb791e70ae61edf7ef7db7190bacd767d6d044f678517d2e09e1bc; accepted review-2026-11-22T05-18-37Z.md. This task carries M385681 preparation scope, overriding historical not-yet-assigned prose once this Job is selected.\\nDeliver ACTUAL supported owner read/decision command plus manager-owned linked retained successor admission, not helper-only APIs. Consume Stage1-A owner item/report through existing owners. Present original failed verifier and exact proposed correction/context, failure/report/candidate/base digests and scope before approval. Use delivered principal/scope and deployment decision capability for Slawomir, no future hierarchy/pool prerequisite. Bind owner identity/provenance, operation key, immutable inputs, exact approved profile identity/digest and selected stages. Reject unauthorized decision, generic retry, changed inputs and stale evidence. Denial/hold launches nothing.\\nNew verification/review-only successor identity, never fresh-attempt or implementation redispatch. Persist intent before effects and reconcile partial owner operations; no cross-store transaction fiction. Validate custody/candidate bytes, cancellation, prior cessation/resource exclusion, ownership and limits through owning APIs. Unknown holds; replay exact operands returns one effect, changed operands collide. Concurrent owner decisions must not duplicate admission; crash after reservation/binding or lost reply must not redispatch blindly. Original failure/task/candidate and admitted clocks remain intact.\\nProduct profile stage1-verification-review/1 is the approved definition at parent evidence/stage-1-contract-385615/stage1-verification-review-1.json, SHA2565a6a420e416caab0942f9709939ae01f1f2d9dabbd13e09ff3b03ea08d2932fb: Job9960 incl queue, stages4800, review provider3600, commands900, no automatic retry/correction. This is NOT this development Job heavy7200/9000/21600/900. Persist/check exact profile and stage set. Post-passed-verification expiry preserves evidence and holds owner item; explicit new review-only decision can omit verification with unchanged profile bounds only if exact candidate/verifier/result evidence remains valid. Expiry alone does not invalidate evidence; invalid/unknown refuses, no blind reverify or reset.\\nAdd focused acceptance entry tests.job_manager.test_retained_recovery_admission. Drive the real supported owner command over disposable stores through production authorization and manager admission/readback, not patched command handlers or direct library-only tests. Use deterministic fake execution/host ports at normal boundaries. Prove positive path plus wrong actor/scope/digest/argv/context/profile/stages, duplicate/concurrent decisions, restart/fault cuts, cancel/unknown cessation and review-only valid/invalid evidence. Verify one actual durable successor and no implementation stage/effect. Preserve Stage1-A behavior; record counts, failures/skips and measured durations.\\nStage1-C W385625 owns verifier execution and final loop; do not claim it delivered or launch unsupported stages. Expose truthful readiness/refusal at the admission/execution boundary. No broad refactor, general editor/launcher, live recovery/model tests, full suite, main Git mutation or host import. Implementer chooses needed files; shared ownership serial. Existing /3 clarification and independent review apply; escalate only genuine unresolved authority/product decisions. Return exact digest-bound candidate and evidence in own dossier; reviewer checks actual command/admission connectivity and prior guarantees.\\n\\nAcceptance criteria:\\n  - Stage1-B real owner read/decision command through authorized manager admission/readback, exact retained inputs/profile/stages, replay/cancel/cessation and review-only safety; no implementation redispatch; deterministic connected evidence and independent review.\\n\\nSelected work scope (the paths this task covers):\\n  - W385624 Stage1-B only: necessary v12 command/admission/schema/tests and owning dossier evidence; no Stage1-C execution, broader pools or unrelated changes.\\n\\nBounded test-change scope: none. This task changes no test.\\n\\nTemplate: baton.v12.job-template.implementation-review/3\\nWork: e9580eb1-W1\\n\",\"schema\":\"baton.dogfood-task/2\",\"source_profile\":\"git-line\",\"source_root\":\"source\",\"task_id\":\"w385624-native-admission-1\",\"verification\":[\"bash\",\"-c\",\"set -euo pipefail; mkdir -p work/scratch/w385624-verification; export BATON_V12_DISK_ROOT=\\\"$PWD/work/scratch/w385624-verification\\\"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_recovery_admission\"]}",
+    "input_manifest": {
+      "assignment_contract": "v12-assignment-1",
+      "created_at": "2026-11-22T17:43:17.000Z",
+      "credential_policy_digest": "sha256:b192d53c96e1611b035f95c7f2d27ea3a6a48e2cd9499bfc45ba6b2ec6e6779c",
+      "extensions": {},
+      "human_contract": {
+        "artifact_id": "native-development-default",
+        "bytes": 5163,
+        "content_digest": "sha256:93230c18ebe3fa06e556e3c5757800dcca31f1542742c267d45b3bd4dfa3b47b",
+        "locator": "artifact://contracts/native-development-default",
+        "media_type": "application/json"
+      },
+      "manifest_digest": "sha256:5c64df855ce888f31e93fe188df001788c1ef06770f2982b0f34b92b632a8cab",
+      "manifest_id": "input-manifest-impl-a",
+      "mount_policy_digest": "sha256:e82b23a50fae74fc9d28201d3032dbcc8f2d838e80e050c90cd66abfb9c98b37",
+      "network_policy_digest": "sha256:5313a62ea6f521910530ff366b50747810eaf71a0a2f302c06e2013828c84e4d",
+      "outputs": [
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream",
+              "text/plain"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "proposal",
+          "path": "proposal",
+          "required": false,
+          "type": "git-change-proposal"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "findings",
+          "path": "findings",
+          "required": false,
+          "type": "directory-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "logs",
+          "path": "logs",
+          "required": false,
+          "type": "directory-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "handoff",
+          "path": "handoff",
+          "required": false,
+          "type": "directory-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "response",
+          "path": "response",
+          "required": false,
+          "type": "directory-result"
+        }
+      ],
+      "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+      "record_binding": {
+        "finding_digest": "sha256:ea0f2592e9f17c39de6ac5947541e83d69ff8d00d5eeebd28e987daaf0e7a4c0",
+        "path": "work/records/2026/11/finding-v12-retained-recovery-admission",
+        "plan_digest": "sha256:631def2873113affbc6dfcfb4d671af2ba7f4f485d83c1a20b3d89f94d26ed98",
+        "root": "baton-repository"
+      },
+      "resource_policy_digest": "sha256:7205e02e37db76ba642de3a041bffeb435cf5985ac6a460290cc746d7858db97",
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "role_instructions_digest": "sha256:03d28f918747b6f71a741cee12ecf9996f84e384769cdd95a3d25e51e79f210d",
+      "runtime_profile_digest": "sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92",
+      "schema": "baton.worker-manifest/input",
+      "sources": [
+        {
+          "consumption": {
+            "baton.source-boundary/1": {
+              "delivery": "nominated-mount",
+              "profile": "git-line",
+              "workspace": "disk"
+            }
+          },
+          "content_manifest": {
+            "entries": [],
+            "entry_count": 0,
+            "total_bytes": 0,
+            "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "destination": "source",
+          "name": "source",
+          "required": true
+        }
+      ],
+      "tool_policy_digest": "sha256:f9549df6179c2d19dbc8f9966264e711d5f831ef2646b01bb569f80556dac186",
+      "toolchain_digest": "sha256:4e880b5d30c6a58207de98a0a6b67774e1ce82c5f69b5b81ede9601f6a56d637",
+      "version": {
+        "major": 1,
+        "minor": 0
+      },
+      "work_ref": {
+        "authority_uuid": "e9580eb1104c444b8e679de24fdc4e21",
+        "work_id": "e9580eb1-W1"
+      },
+      "worker_image_digest": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4"
+    }
+  },
+  "work": {
+    "work_id": "e9580eb1-W1",
+    "state": "created",
+    "requested_labels": [],
+    "projection": {
+      "authority_uuid": "e9580eb1104c444b8e679de24fdc4e21",
+      "work_id": "e9580eb1-W1",
+      "route": "impl",
+      "status": "open",
+      "phase": "queued",
+      "outcome": null,
+      "rationale": null,
+      "handler": null,
+      "contract": "v12-assignment-1",
+      "scope": "scope:deployment",
+      "labels": [],
+      "creation": {
+        "work_id": "e9580eb1-W1",
+        "operation_id": "template_job.create.work:sha256:d3561a4e9e0d6a8b07ac84a352e6d4901e7af52fdf8082853cdc48ad825cc71d",
+        "kind": "trusted-bootstrap",
+        "scope": "scope:deployment",
+        "at": "2026-11-22T17:43:25.152Z"
+      },
+      "close_decision": null,
+      "generation_counter": 0,
+      "live_generation": null,
+      "assignment": null,
+      "gate": null,
+      "fenced_generations": [],
+      "ready": true
+    }
+  },
+  "binding": {
+    "canonical_target_id": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+    "job_id": "w385624-native-admission-1",
+    "job_work_id": "e9580eb1-W1",
+    "line_declared_base": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+    "review_work_id": "e9580eb1-W1",
+    "source_worker_id": "impl-a"
+  },
+  "stages": [
+    "w385624-native-admission-1/implementation",
+    "w385624-native-admission-1/review"
+  ],
+  "servable": {
+    "implementation": [
+      "impl-a"
+    ],
+    "review": [
+      "review-a"
+    ]
+  },
+  "recorded_at": "2026-11-22T17:43:25.185Z",
+  "control": {
+    "profile": "native-handoff-heavy/1",
+    "resolved": {
+      "profile": "native-handoff-heavy/1",
+      "units": "seconds",
+      "correction_rounds": 0,
+      "stage_seconds": 9000,
+      "job_seconds": 21600,
+      "provider_turn_seconds": 7200,
+      "verification_command_seconds": 900
+    }
+  }
+}

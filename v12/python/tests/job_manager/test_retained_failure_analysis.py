@@ -1689,8 +1689,16 @@ class TheFiniteProfileIsTheOwnersExactPublishedDefinition(unittest.TestCase):
         """The analysis profile is the product, not this Job's control."""
         self.assertNotIn(failure_analysis.ANALYSIS_PROFILE,
                          job_control.PROFILES)
+        # W385624 ADDED A FOURTH ENTRY and this expectation moved with it:
+        # `stage1-verification-review/1` is the owner-approved finite control
+        # of a RETAINED-RECOVERY successor, which does run verification
+        # commands and so does belong in this table. What the case is about
+        # is unchanged and is still checked below -- the ANALYSIS profile is
+        # not here, and no existing entry's numbers moved.
         self.assertEqual(sorted(job_control.PROFILES),
-                         ["documentation/1", "native-handoff-heavy/1", "native-handoff/1"])
+                         ["documentation/1", "native-handoff-heavy/1",
+                          "native-handoff/1",
+                          "stage1-verification-review/1"])
         self.assertEqual(job_control.PROFILES["documentation/1"],
                          {"correction_rounds": 0, "stage_seconds": 4800,
                           "job_seconds": 9960, "provider_turn_seconds": 3600,
@@ -1705,6 +1713,13 @@ class TheFiniteProfileIsTheOwnersExactPublishedDefinition(unittest.TestCase):
                          {"correction_rounds": 0, "stage_seconds": 9000,
                           "job_seconds": 21600, "provider_turn_seconds": 7200,
                           "verification_command_seconds": 900})
+        # M385612 separately approved the recovery successor's own bounds;
+        # it does not move the analysis definition into Job control either.
+        self.assertEqual(
+            job_control.PROFILES["stage1-verification-review/1"],
+            {"correction_rounds": 0, "stage_seconds": 4800,
+             "job_seconds": 9960, "provider_turn_seconds": 3600,
+             "verification_command_seconds": 900})
 
 
 

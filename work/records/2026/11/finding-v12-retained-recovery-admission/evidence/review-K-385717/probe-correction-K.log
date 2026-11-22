@@ -1,0 +1,17 @@
+test_C1_real_sweep_twice_no_offer_and_state (probe_k624c.C.test_C1_real_sweep_twice_no_offer_and_state) ... ok
+test_C2_scheduler_admit_guard (probe_k624c.C.test_C2_scheduler_admit_guard) ... ok
+test_C3_status_text_for_recovery_gate (probe_k624c.C.test_C3_status_text_for_recovery_gate) ... ok
+test_C4_ordinary_create_refused (probe_k624c.C.test_C4_ordinary_create_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.267s
+
+OK
+C1-ACTS []
+C1-ACTS []
+C1-STATE blocked [{"candidate": {"artifact_id": "writer-attempt-1:proposal", "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "content_digest": "sha256:77995351eb3781c868df17b1ae6976a5c3a7607decfb6429684f5bf61daa3db7", "entry_count": 1, "head": "ffffffffffffffffffffffffffffffffffffffff", "locator": "file:///var/tmp/baton-k-w385624/tmp/v12-w71917-99d16rgw/storage/custody/writer-attempt-1--proposal", "output": "p
+C1-OPS []
+C2-RECOVERY refused retained recovery requires a validated candidate execution handoff
+C2-ORDINARY passed guard (reached allocation): 'types.SimpleNamespace' object has no attribute '_allocation'
+C3-STATUS-TEXT 'held: waiting on unknown (unknown)'
+C4 refused precondition stage1-verification-review/1 requires retained-recovery successor admission

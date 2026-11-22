@@ -45,7 +45,8 @@ from ..worker_manager import boundaries
 from .store import job_signature
 
 __all__ = ["CONTINUATIONS", "CONTROL_KIND", "EXPIRY_KIND",
-           "NATIVE_HANDOFF_PROFILE", "HEAVY_NATIVE_HANDOFF_PROFILE", "PROFILES", "PROFILE_MEMBERS",
+           "NATIVE_HANDOFF_PROFILE", "HEAVY_NATIVE_HANDOFF_PROFILE",
+           "SUCCESSOR_RECOVERY_PROFILE", "PROFILES", "PROFILE_MEMBERS",
            "continuation_allowance", "continuations_used_in",
            "refuse_continuation",
            "TRIGGERS", "TIMING", "WATERMARK_KEY", "control_operation_id",
@@ -55,7 +56,7 @@ __all__ = ["CONTINUATIONS", "CONTROL_KIND", "EXPIRY_KIND",
            "advance_watermark", "observe", "job_origin_in",
            "stage_origin_in",
            "evaluate", "closing", "closed_of", "refuse_closed",
-           "refuse_uncertain",
+           "refuse_uncertain", "require_ordinary_profile",
            "closed_message", "rounds_used_in",
            "refuse_round", "expire", "reported", "report"]
 
@@ -79,6 +80,22 @@ PROFILE_MEMBERS = ("correction_rounds", "stage_seconds", "job_seconds",
 # The one profile W385331 adds, named once so no caller spells it twice.
 NATIVE_HANDOFF_PROFILE = "native-handoff/1"
 HEAVY_NATIVE_HANDOFF_PROFILE = "native-handoff-heavy/1"
+# W385624 / DESIGN REC-8: the finite control of one RETAINED-RECOVERY
+# verification/review successor. Owner M385612 approved the definition record
+# `stage1-verification-review/1` (`a4be8b48`'s sibling,
+# `5a6a420e416caab0942f9709939ae01f1f2d9dabbd13e09ff3b03ea08d2932fb`), and
+# `retained_recovery` holds those exact bytes and proves at import that this
+# entry states the same five bounds. A NEW immutable entry rather than a reuse
+# of `documentation/1`, which happens to carry the same numbers: a Job's
+# control profile is the policy it was ADMITTED under, and two different owner
+# approvals sharing one name would make the admitted policy unattributable.
+SUCCESSOR_RECOVERY_PROFILE = "stage1-verification-review/1"
+def require_ordinary_profile(control):
+    """Recovery policy is admitted only by the retained-successor owner."""
+    if control and control.get("profile") == SUCCESSOR_RECOVERY_PROFILE:
+        raise ContractRefusal("refused", "precondition", "stage1-verification-review/1 requires retained-recovery successor admission")
+
+
 PROFILES = {
     "documentation/1": {"correction_rounds": 0, "stage_seconds": 4800,
                         "job_seconds": 9960, "provider_turn_seconds": 3600,
@@ -104,6 +121,17 @@ PROFILES = {
                                    "job_seconds": 21600,
                                    "provider_turn_seconds": 7200,
                                    "verification_command_seconds": 900},
+    # Owner M385612, through STAGE-1-CONTRACT.md section 5: overall 9960 s
+    # including queue from the accepted successor admission, 4800 s per stage
+    # from each stage's own execution admission, 3600 s per review provider
+    # invocation, 900 s per verification command (the approved corrected
+    # verifier and the review's own required verification alike), and ZERO
+    # automatic corrections and retries.
+    SUCCESSOR_RECOVERY_PROFILE: {"correction_rounds": 0,
+                                 "stage_seconds": 4800,
+                                 "job_seconds": 9960,
+                                 "provider_turn_seconds": 3600,
+                                 "verification_command_seconds": 900},
 }
 CONTROL_MEMBERS = ("profile",)
 
@@ -130,7 +158,13 @@ CONTROL_MEMBERS = ("profile",)
 # exactly what the slice selects: one more implementation invocation and its
 # necessary response invocation, and still no code-correction round.
 CONTINUATIONS = {"documentation/1": 0, NATIVE_HANDOFF_PROFILE: 1,
-                 HEAVY_NATIVE_HANDOFF_PROFILE: 1}
+                 HEAVY_NATIVE_HANDOFF_PROFILE: 1,
+                 # W385624: ZERO, written out rather than defaulted, because
+                 # "this profile permits no continuation" is the owner's
+                 # policy statement and a missing key is not one. The approved
+                 # definition says zero automatic retries and zero automatic
+                 # corrections; a recovery round is a new owner decision.
+                 SUCCESSOR_RECOVERY_PROFILE: 0}
 
 
 def _refuse(message, *, category="refused", code="precondition"):
@@ -282,18 +316,31 @@ def watermark_in(connection):
 
 
 def advance_watermark(connection, now):
-    """Record `now` as observed, never moving the watermark backwards."""
+    """Record `now` as observed, never moving the watermark backwards.
+
+    ONE STATEMENT, because two observers reach this concurrently. W385624
+    found it: the first cut READ the row, inserted when it was absent and
+    updated when `now` was later, so two concurrent admissions against one
+    store both found no watermark and both inserted -- and the loser died on
+    `UNIQUE constraint failed: meta.key` inside a caller's transaction, which
+    is a FAULT rather than the refusal that caller was entitled to. A
+    read-then-write check is not a check when somebody else may write between
+    the two; the upsert below decides it in the database, which is where both
+    writers actually meet.
+
+    THE SEMANTICS ARE UNCHANGED and the comparison is the same one: the row
+    moves only when the new instant is LATER, and what is answered is the
+    EFFECTIVE watermark -- `now` when it advanced and the standing value when
+    it did not. Instants compare lexicographically by the frozen grammar
+    `boundaries.instant` holds `now` to, which is what makes SQLite's own text
+    comparison the same answer Python's `>` was.
+    """
     boundaries.instant(now, "a control evaluation instant")
-    held = watermark_in(connection)
-    if held is None:
-        connection.execute("INSERT INTO meta (key, value) VALUES (?, ?)",
-                           (WATERMARK_KEY, now))
-        return now
-    if now > held:
-        connection.execute("UPDATE meta SET value = ? WHERE key = ?",
-                           (now, WATERMARK_KEY))
-        return now
-    return held
+    connection.execute(
+        "INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO "
+        "UPDATE SET value = excluded.value WHERE excluded.value > meta.value",
+        (WATERMARK_KEY, now))
+    return watermark_in(connection)
 
 
 def observe(store, now):

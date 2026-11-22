@@ -1,0 +1,5 @@
+[
+  "bash",
+  "-c",
+  "set -euo pipefail; mkdir -p work/scratch/w385624-verification; export BATON_V12_DISK_ROOT=\"$PWD/work/scratch/w385624-verification\"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_recovery_admission"
+]

@@ -476,6 +476,14 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     # case class by module attribute -- the same composition
     # `test_native_handoffs` uses -- and binds none of its test classes.
     "tests.job_manager.test_retained_failure_analysis",
+    # W385624: the owner's decision on a retained verification failure and
+    # the one linked verification/review-only successor it admits. PARALLEL
+    # for `test_retained_failure_analysis`'s reasons, whose fixture it
+    # derives from by module attribute: a disposable Job store, control store
+    # and Authority per case, a real custody tree under this case's own
+    # disk-backed root, stand-in host/deployment/instance ports, no engine
+    # and no provider. It binds none of that module's test classes.
+    "tests.job_manager.test_retained_recovery_admission",
     # W383215: the Job-store cancellation owner and its fences. PARALLEL: real
     # disposable stores per case, fake session and operations, no engine.
     "tests.job_manager.test_job_cancellation",
@@ -633,6 +641,13 @@ CONSUMED_INPUTS = (
     # consumed: one definition file, not the contract dossier around it.
     {"path": _TEAM_HIERARCHY + "/evidence/stage-1-contract-385615/stage1-analysis-1.json",
      "consumers": ("tests.job_manager.test_retained_failure_analysis",)},
+    # W385624: the owner-approved `stage1-verification-review/1` definition
+    # record, read for the same reason its sibling above is -- the product's
+    # held copy is compared to the bytes M385612 published rather than only
+    # to its own digest. One definition file, not the contract dossier
+    # around it.
+    {"path": _TEAM_HIERARCHY + "/evidence/stage-1-contract-385615/stage1-verification-review-1.json",
+     "consumers": ("tests.job_manager.test_retained_recovery_admission",)},
 )
 
 

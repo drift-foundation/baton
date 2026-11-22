@@ -46,6 +46,14 @@ def submit(store, document):
     afterwards.
     """
     owned = documents.owned_submission(document)
+    for job in owned["jobs"]:
+        job_control.require_ordinary_profile(job.get("control"))
+    return _submit_owned(store, owned)
+
+
+def _submit_owned(store, owned):
+    # Internal normalized submission; recovery validates its exact reserved
+    # document before reaching this shared atomic writer.
     submission_id = owned["submission_id"]
     # THE NORMALIZED DOCUMENT IS THE OPERANDS, not a member wrapping it. The
     # canonical serialization is bounded by depth, and one decorative level of

@@ -1,0 +1,43 @@
+Initialized empty Git repository in /home/sl/src/baton/work/scratch/w385624-recovery-385690/objects.git/
+From file:///home/sl/src/baton
+ * branch              ce6e1b2bf12519a84a3792f06562b7727dfe3021 -> FETCH_HEAD
+/home/sl/src/baton/work/records/2026/11/finding-v12-retained-recovery-admission/evidence/output-limit-recovery-20261122/proposal/objects.bundle is okay
+The bundle contains this ref:
+5bc260b6dcbe970c8729424fa826b88dbc1a9d0f HEAD
+The bundle requires this ref:
+ce6e1b2bf12519a84a3792f06562b7727dfe3021 
+The bundle uses this hash algorithm: sha1
+From /home/sl/src/baton/work/records/2026/11/finding-v12-retained-recovery-admission/evidence/output-limit-recovery-20261122/proposal/objects.bundle
+ * branch              HEAD       -> FETCH_HEAD
+5bc260b6dcbe970c8729424fa826b88dbc1a9d0f
+ce6e1b2bf12519a84a3792f06562b7727dfe3021
+v12/python/src/baton_v12/authority/api.py
+v12/python/src/baton_v12/job_manager/__init__.py
+v12/python/src/baton_v12/job_manager/documents.py
+v12/python/src/baton_v12/job_manager/fresh_attempt.py
+v12/python/src/baton_v12/job_manager/job_control.py
+v12/python/src/baton_v12/job_manager/retained_recovery.py
+v12/python/tests/authority/test_boundary.py
+v12/python/tests/job_manager/test_retained_failure_analysis.py
+v12/python/tests/job_manager/test_retained_recovery_admission.py
+v12/python/tools/job_manager.py
+v12/python/tools/parallel_test.py
+v12/python/tools/recovery_decision.py
+work/records/2026/11/finding-v12-retained-recovery-admission/FINDING.md
+work/records/2026/11/finding-v12-retained-recovery-admission/PLAN.md
+work/records/2026/11/finding-v12-retained-recovery-admission/PROGRESS.md
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/COUNTS.md
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/REPORT.md
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/authority.log
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/baseline-fresh-attempt.log
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/baseline-path-messages-candidate.log
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/baseline-path-messages.log
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/candidate.sha256
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/evidence.sha256
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/focused-repeat.log
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/focused.log
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/job_manager.log
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/manifest.json
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/parallel-runner.log
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/scans.log
+work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-stage-1b-385624/tools-pure-partial.log

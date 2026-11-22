@@ -1,0 +1,33 @@
+test_cancelled_successor_never_offers_review (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_cancelled_successor_never_offers_review) ... ERROR
+test_expired_successor_never_offers_review (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_expired_successor_never_offers_review) ... ok
+test_failed_verification_never_offers_review (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_failed_verification_never_offers_review) ... ok
+test_generic_fresh_attempt_refuses_before_owner_effects (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_generic_fresh_attempt_refuses_before_owner_effects) ... ERROR
+test_ordinary_create_refuses_the_recovery_only_profile (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_ordinary_create_refuses_the_recovery_only_profile) ... ok
+test_ordinary_submit_cannot_replay_even_exact_recovery_document (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_ordinary_submit_cannot_replay_even_exact_recovery_document) ... ok
+test_passed_account_without_candidate_handoff_stays_blocked (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_passed_account_without_candidate_handoff_stays_blocked) ... ok
+test_review_only_keeps_exact_lineage_but_cannot_bypass_missing_handoff (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_review_only_keeps_exact_lineage_but_cannot_bypass_missing_handoff) ... ok
+test_unknown_verification_and_restart_never_offer_review (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_unknown_verification_and_restart_never_offer_review) ... ok
+test_default_factory_reaches_owner_item_and_rejects_foreign_stores (tests.job_manager.test_retained_recovery_admission.ShippedOwnersComposeOverAnInstalledInstance.test_default_factory_reaches_owner_item_and_rejects_foreign_stores) ... ok
+
+======================================================================
+ERROR: test_cancelled_successor_never_offers_review (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_cancelled_successor_never_offers_review)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385624-correction-385713/v12/python/tests/job_manager/test_retained_recovery_admission.py", line 1679, in test_cancelled_successor_never_offers_review
+    cancellation.request_cancel(self.jobs, job_id="recovery-D1", reason="owner stopped", operation_id="cancel-recovery", now=NOW)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'baton_v12.job_manager.cancellation' has no attribute 'request_cancel'
+
+======================================================================
+ERROR: test_generic_fresh_attempt_refuses_before_owner_effects (tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable.test_generic_fresh_attempt_refuses_before_owner_effects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385624-correction-385713/v12/python/tests/job_manager/test_retained_recovery_admission.py", line 1695, in test_generic_fresh_attempt_refuses_before_owner_effects
+    fresh_attempt.admit(self.jobs, None, prior_job_id="recovery-D1", exclusion=ports["exclusion"], authorization=ports["authorization"], binding=ports["binding"], ownership=ports["ownership"])
+                                                                                                                 ~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'authorization'
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.784s
+
+FAILED (errors=2)

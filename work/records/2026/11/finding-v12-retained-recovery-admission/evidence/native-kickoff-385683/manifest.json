@@ -1,0 +1,87 @@
+{
+  "work": "W385624",
+  "claim": "E385683",
+  "assignment": "M385681",
+  "prepared_at": "2026-11-22T17:38:14.792411+00:00",
+  "source": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+  "status": "prepared; no implementation or launch",
+  "runtime_inputs": [
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/packaging-ce6e1b2b/RESULT.md",
+      "bytes": 736,
+      "sha256": "a0b7ac9eec09bfa3fe7496967831b1960a85f8da1aa6649ecfb3eebe3f00e23c"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/packaging-ce6e1b2b/identity.json",
+      "bytes": 921,
+      "sha256": "a52a95818a0572023b56266dd5229158f942b8b455e05698c810006e2cd1a969"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/packaging-ce6e1b2b/runtime-files.json",
+      "bytes": 10722,
+      "sha256": "700fb3f703edb0b50fb0df89267945e34cd4b4cc75f238cee89c9ca53030c306"
+    }
+  ],
+  "planning_inputs": [
+    {
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/FINDING.md",
+      "bytes": 1166,
+      "sha256": "ea0f2592e9f17c39de6ac5947541e83d69ff8d00d5eeebd28e987daaf0e7a4c0"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/PLAN.md",
+      "bytes": 3018,
+      "sha256": "7004a9a9dca2485d063aa4e8acdb1579a24edb7603ee6e4df020ed291e42caed"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-kickoff-385683/KICKOFF.md",
+      "bytes": 10489,
+      "sha256": "4c413652076987363eef52d85eeb3ca04bbe6e7c4d4586f27db5c2d230eee6cc"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-kickoff-385683/TASK.txt",
+      "bytes": 4028,
+      "sha256": "e5f7fa3c301f4e3c9ac63555b91df5e109c8cd8a7d91166df8784ae366370ca4"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-kickoff-385683/bootstrap-inputs.json",
+      "bytes": 1025,
+      "sha256": "06fac854801cb09d022fd1a4c2c08eca13470a5fec1449481044cc0f78e66457"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-kickoff-385683/installed-task.json",
+      "bytes": 671,
+      "sha256": "a83ec93cc21151ce67bd9c32e125fe81a2f46eb4c5bd2516ef986a58b74ed1ba"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-kickoff-385683/source-inputs.json",
+      "bytes": 1236,
+      "sha256": "8231b3347cda670c1a80aa59bd8a6d3ff075d57e14f4f6dd93166abe340d725b"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/native-kickoff-385683/verification-argv.json",
+      "bytes": 277,
+      "sha256": "8fb9260b5a6561786c641a420516903e9b5a947e935d580686142c82659c6045"
+    }
+  ],
+  "checks": {
+    "task_characters": 4028,
+    "statement_limit": 4096,
+    "runtime_hashes_matched": 82,
+    "shell_blocks_parsed": 3,
+    "embedded_python_compiled": true,
+    "verification_argv_parsed": true,
+    "tests_run": 0,
+    "repeated_stage1a_verification": false,
+    "main_v12_diff": "empty"
+  },
+  "limitations": [
+    "same-family exception not yet selected for this Job; no supported alternate-family composer operand",
+    "build stamp dirty=true/changed_entries5 retained as qualified; v12 clean",
+    "runtime credential/access/readiness only checked during future execution",
+    "new acceptance module must be implemented; verification was not run"
+  ],
+  "source_materialization": "owner-only disposable exact source checkout; current main PLAN has coordinator changes; no source repin/rebuild required"
+}

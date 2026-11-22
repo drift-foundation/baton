@@ -1,0 +1,13 @@
+{
+  "declared_base": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+  "instructions": "Execute the ordinary Job instructions supplied by manager create. This installed task is the reusable delivery template, not an assigned Job.",
+  "schema": "baton.dogfood-task/2",
+  "source_profile": "git-line",
+  "source_root": "source",
+  "task_id": "native-development-default",
+  "verification": [
+    "bash",
+    "-c",
+    "set -euo pipefail; mkdir -p work/scratch/w385624-verification; export BATON_V12_DISK_ROOT=\"$PWD/work/scratch/w385624-verification\"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_recovery_admission"
+  ]
+}

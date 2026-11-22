@@ -1,0 +1,12 @@
+test_P1_successor_review_stage_is_immediately_queued (probe_k624.P.test_P1_successor_review_stage_is_immediately_queued) ... ok
+test_P2_ordinary_create_may_select_recovery_profile (probe_k624.P.test_P2_ordinary_create_may_select_recovery_profile) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.157s
+
+OK
+P1-ROWS [{"stage_id": "recovery-D1/review", "kind": "review", "depends_on": "[]"}]
+P1-READINESS {"detail": "this admission reserved the isolated verification's identity and executed nothing; the retained candidate is unchanged and the review stage consumes the same candidate once that verification passes", "owed_by": "the verifier execution and review handoff slice", "review": "owed", "verification": "owed"}
+P1-PROJECTION-ERROR AttributeError 'NoneType' object has no attribute 'canonical'
+P1-GATES [] => queued
+P2-ADMITTED stage1-verification-review/1 ['implementation', 'review']
