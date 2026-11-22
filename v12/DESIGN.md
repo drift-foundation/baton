@@ -972,6 +972,16 @@ replace that expiry. A changes-requested verdict remains a verdict, not acceptan
 or authority to open a prohibited successor. Reuse existing correction-policy
 owners where applicable.
 
+Owner 2026-11-22 additionally selects immutable `native-handoff-heavy/1` for
+future implementation/review Jobs: 7200 seconds per provider invocation,
+9000 seconds per stage and 21600 seconds per Job including queue time; ordinary
+verification remains 900 seconds. Preserve the existing clock origins, zero
+correction rounds, one resolved clarification continuation, retry and shutdown
+policies. Select the matching per-Job provider override through existing
+admission; do not change verification defaults or reinterpret any old admission.
+The existing `native-handoff/1` and Stage 1 recovery profiles remain unchanged.
+Decision: [approved heavy profile](../work/records/2026/11/finding-v12-heavy-native-profile/FINDING.md).
+
 The first deadline or explicit cancellation MUST durably fence future admission
 and order cessation of the exact active execution through existing owning APIs.
 Expose installed instance/Job-addressed cancellation: pending/queued cancellation

@@ -1,0 +1,21 @@
+test_P1_resolved_bytes_of_old_profiles (probe_k.K.test_P1_resolved_bytes_of_old_profiles) ... ok
+test_P2_cli_request_shape (probe_k.K.test_P2_cli_request_shape) ... ok
+test_P3_connected_discriminates (probe_k.K.test_P3_connected_discriminates) ... ok
+test_P4_runner_reads_delivered_document (probe_k.K.test_P4_runner_reads_delivered_document) ... ok
+test_P5_cli_request_through_real_creation (probe_k.K.test_P5_cli_request_through_real_creation) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.067s
+
+OK
+P1-BYTES {"continuations_old":{"documentation/1":0,"native-handoff/1":1},"documentation/1":{"correction_rounds":0,"job_seconds":9960,"profile":"documentation/1","provider_turn_seconds":3600,"stage_seconds":4800,"units":"seconds","verification_command_seconds":900},"generations":{"0":{"host_verification":300,"integration_verification":1800,"ordinary_verification":900,"provider_turn":3600},"1":{"host_verification":300,"integration_verification":1800,"ordinary_verification":900,"provider_turn":3600}},"native-handoff/1":{"correction_rounds":0,"job_seconds":9960,"profile":"native-handoff/1","provider_turn_seconds":3600,"stage_seconds":4800,"units":"seconds","verification_command_seconds":900}}
+P2-CLI {"control": {"profile": "native-handoff-heavy/1"}, "overrides": {"execution_limits": {"provider_turn_seconds": 7200}}}
+P3-HEAVY {"implementation": [7200, 900], "implementation-token": 10920, "job_seconds": 21600, "review": [7200, 900], "review-token": 10920, "stage_seconds": 9000}
+P3-NATIVE {"implementation": [3600, 900], "implementation-token": 7320, "job_seconds": 9960, "review": [3600, 900], "review-token": 7320, "stage_seconds": 4800}
+P4-TAMPER-REFUSED ContractRefusal a launch document's execution limits are not what the Job owner resolves from their own requested settings and generation; a worker handed a configuration nobody resolved has been handed numbers nobody agreed to
+P5 native-handoff-heavy/1 {'provider_turn_seconds': 7200} admitted {"correction_rounds": 0, "job_seconds": 21600, "profile": "native-handoff-heavy/1", "provider_turn_seconds": 7200, "stage_seconds": 9000, "units": "seconds", "verification_command_seconds": 900}
+P5 native-handoff-heavy/1 None refused control profile 'native-handoff-heavy/1' pins provider_turn_seconds at 7200 seconds and this Job resolves provider_turn to 3600; a Job is admitted under one acc
+P5 native-handoff-heavy/1 {'provider_turn_seconds': 7199} refused control profile 'native-handoff-heavy/1' pins provider_turn_seconds at 7200 seconds and this Job resolves provider_turn to 7199; a Job is admitted under one acc
+P5 native-handoff-heavy/1 {'provider_turn_seconds': 7200, 'verification_command_seconds': 900} admitted {"correction_rounds": 0, "job_seconds": 21600, "profile": "native-handoff-heavy/1", "provider_turn_seconds": 7200, "stage_seconds": 9000, "units": "seconds", "verification_command_seconds": 900}
+P5 native-handoff/1 {'provider_turn_seconds': 7200} refused control profile 'native-handoff/1' pins provider_turn_seconds at 3600 seconds and this Job resolves provider_turn to 7200; a Job is admitted under one account o
+P5 native-handoff-heavy/2 {'provider_turn_seconds': 7200} refused a Job's control profile is one of documentation/1, native-handoff-heavy/1, native-handoff/1; this is 'native-handoff-heavy/2'. A profile this build does not hol

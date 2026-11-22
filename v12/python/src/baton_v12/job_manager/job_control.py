@@ -45,7 +45,7 @@ from ..worker_manager import boundaries
 from .store import job_signature
 
 __all__ = ["CONTINUATIONS", "CONTROL_KIND", "EXPIRY_KIND",
-           "NATIVE_HANDOFF_PROFILE", "PROFILES", "PROFILE_MEMBERS",
+           "NATIVE_HANDOFF_PROFILE", "HEAVY_NATIVE_HANDOFF_PROFILE", "PROFILES", "PROFILE_MEMBERS",
            "continuation_allowance", "continuations_used_in",
            "refuse_continuation",
            "TRIGGERS", "TIMING", "WATERMARK_KEY", "control_operation_id",
@@ -78,6 +78,7 @@ PROFILE_MEMBERS = ("correction_rounds", "stage_seconds", "job_seconds",
 
 # The one profile W385331 adds, named once so no caller spells it twice.
 NATIVE_HANDOFF_PROFILE = "native-handoff/1"
+HEAVY_NATIVE_HANDOFF_PROFILE = "native-handoff-heavy/1"
 PROFILES = {
     "documentation/1": {"correction_rounds": 0, "stage_seconds": 4800,
                         "job_seconds": 9960, "provider_turn_seconds": 3600,
@@ -97,6 +98,12 @@ PROFILES = {
                              "job_seconds": 9960,
                              "provider_turn_seconds": 3600,
                              "verification_command_seconds": 900},
+    # Owner M385638: a new immutable duration selection, not an extension
+    # of any admitted Job. Clarification/correction policy stays unchanged.
+    HEAVY_NATIVE_HANDOFF_PROFILE: {"correction_rounds": 0, "stage_seconds": 9000,
+                                   "job_seconds": 21600,
+                                   "provider_turn_seconds": 7200,
+                                   "verification_command_seconds": 900},
 }
 CONTROL_MEMBERS = ("profile",)
 
@@ -122,7 +129,8 @@ CONTROL_MEMBERS = ("profile",)
 # A profile with one continuation and zero correction rounds is therefore
 # exactly what the slice selects: one more implementation invocation and its
 # necessary response invocation, and still no code-correction round.
-CONTINUATIONS = {"documentation/1": 0, NATIVE_HANDOFF_PROFILE: 1}
+CONTINUATIONS = {"documentation/1": 0, NATIVE_HANDOFF_PROFILE: 1,
+                 HEAVY_NATIVE_HANDOFF_PROFILE: 1}
 
 
 def _refuse(message, *, category="refused", code="precondition"):

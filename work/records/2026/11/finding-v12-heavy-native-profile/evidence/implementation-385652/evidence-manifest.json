@@ -1,0 +1,14 @@
+{
+  "ITERATIONS.md": "296cea9dc1de4e640ce8b0d214875c902f1100a4438e3ca4eae78e7d0b4cbaa1",
+  "REPORT.md": "ad5cec82eedc86473bb8958dfec5c0b24f8b69878d9735f7993dfaf65a46dabc",
+  "base/v12/DESIGN.md": "230a6ed66db91fd03c3a6d9c5021680269fcfd0b67431dfba097a10715a240f8",
+  "base/v12/python/src/baton_v12/job_manager/job_control.py": "74e6f0f8a7e7a1617ee45b663c7531dddb087ac037c3118fd5a270c561349df7",
+  "base/v12/python/tests/job_manager/test_job_control.py": "b6074840054e295f99df6f0fd5d0f716a270f7386ae15b339c1eb25ad9b63e27",
+  "candidate/v12/DESIGN.md": "cae46338fad94ed600cb526cd098c605cd559bb736a3fce86271cbbce4d4ed21",
+  "candidate/v12/python/src/baton_v12/job_manager/job_control.py": "dce5fcda7d6b2f1723dea8bb82a4385671b7551ec12e02168d89c9c7389eb613",
+  "candidate/v12/python/tests/job_manager/test_job_control.py": "184e0e522965b8775236d02c6253b51aa0c5d5b3c1f26a1b04847df625a34966",
+  "candidate-manifest.json": "d07b7b02c67a115e0e63673d499853a33edd9902be433935c3ccf2d4f8ff09a1",
+  "candidate.patch": "4b2ecf11f0c37d298f44e74d7d29ec743620d4d85fe5db6f56c725af1cfa3a0e",
+  "focused.log": "d2335518a0a1dc219b2ea3e6a9c710beddb780e37a210add442f1111911b75ec",
+  "run.json": "d9f7328255c0c663948d17ede97e752bfa915424b1d36253cbd3c94904bdb82b"
+}

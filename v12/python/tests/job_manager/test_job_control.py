@@ -1063,3 +1063,130 @@ class TheCreationPath(unittest.TestCase):
                          {"profile": PROFILE})
         taken.control_profile = None
         self.assertNotIn("control", cli._creation_request(taken))
+
+
+class TheHeavyNativeProfile(ControlCase):
+    """The separately approved profile uses existing admission and fences."""
+
+    def heavy(self):
+        return controlled(profile="native-handoff-heavy/1", limits={"provider_turn_seconds": 7200})
+
+    def test_exact_selection_and_old_profile_bytes_remain_unchanged(self):
+        expected = {"correction_rounds": 0, "stage_seconds": 4800, "job_seconds": 9960,
+                    "provider_turn_seconds": 3600, "verification_command_seconds": 900}
+        for profile in ("documentation/1", "native-handoff/1"):
+            self.assertEqual(job_control.resolved(profile), dict(expected, profile=profile, units="seconds"))
+        self.assertEqual(job_control.resolved("native-handoff-heavy/1"), dict(expected,
+            profile="native-handoff-heavy/1", units="seconds", stage_seconds=9000,
+            job_seconds=21600, provider_turn_seconds=7200))
+        self.assertEqual(job_control.continuation_allowance("native-handoff-heavy/1"), 1)
+        self.assertEqual(job_control.continuation_allowance("native-handoff/1"), 1)
+        self.assertEqual(job_control.continuation_allowance("documentation/1"), 0)
+
+    def test_missing_or_mismatched_override_refuses_before_admission(self):
+        for limits in (None, {"provider_turn_seconds": 3600},
+                       {"provider_turn_seconds": 7200, "verification_command_seconds": 901}):
+            with self.subTest(limits=limits), self.assertRaises(ContractRefusal):
+                self.submit(controlled(profile="native-handoff-heavy/1", limits=limits))
+        self.assertEqual(self.operations("job.control"), 0)
+        with self.assertRaises(ContractRefusal):
+            self.submit(controlled(profile="native-handoff/1", limits={"provider_turn_seconds": 7200}))
+        self.submit(self.heavy())
+
+    def test_replay_restart_and_old_admission_keep_their_own_clocks(self):
+        self.submit(controlled(job_id="old", profile="native-handoff/1", submission_id="old-sub"))
+        old = job_control.control_of(self.jobs, "old")
+        self.instants.append(at(100))
+        first = self.submit(self.heavy())
+        self.instants.append(at(200))
+        self.assertEqual(self.submit(self.heavy()), first)
+        reopened = JobStore.open(self.job_path, authority_uuid=UUID, incarnation="heavy-restart", clock=self.clock)
+        self.addCleanup(reopened.close)
+        self.assertEqual(job_control.control_of(reopened, "old"), old)
+        self.assertEqual(job_control.evaluate(reopened._connection, "job-a", at(300))["job"]["deadline_at"], at(21700))
+        self.assertEqual(job_control.evaluate(reopened._connection, "old", at(300))["job"]["deadline_at"], at(9960))
+        with self.assertRaises(ContractRefusal):
+            self.submit(controlled(profile="native-handoff/1"))
+        with self.assertRaises(ContractRefusal):
+            job_control.refuse_round(reopened._connection, "job-a")
+
+    def test_queued_heavy_job_expires_without_admitting_work(self):
+        self.submit(self.heavy())
+        report = self.tick(21600)
+        self.assertEqual(report["expired"][0]["trigger"], "job-deadline")
+        self.assertEqual(report["acts"], [])
+        self.assertEqual(self.acts.calls, [])
+
+    def test_stage_expiry_uses_owner_origin_and_unchanged_shutdown(self):
+        self.submit(self.heavy())
+        self.acts.settled = at(100)
+        self.running(seconds=500)
+        self.assertEqual(self.evaluation(seconds=500)["stages"][0]["deadline_at"], at(9100))
+        report = self.tick(9100)
+        self.assertEqual(report["expired"][0]["trigger"], "stage-deadline")
+        self.assertEqual(len(self.acts.cancelled), 1)
+        self.assertEqual(self.projected(seconds=9130)["cancellation"]["shutdown"], "within-bound")
+        self.assertEqual(self.projected(seconds=9221)["cancellation"]["shutdown"], "unresolved")
+
+    def test_real_creation_delivers_heavy_limits_to_both_worker_roles(self):
+        from tests.job_manager import test_creation as c
+        from tests.tools import test_execution_limits as worker
+        from tools import single_worker
+        from baton_v12.worker_manager import launch
+
+        case = c.CreationCase("setUp")
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        request = c.request(control={"profile": "native-handoff-heavy/1"},
+                            overrides={"execution_limits": {"provider_turn_seconds": 7200}})
+        created = case.created(request=request)
+        self.assertEqual(case.created(request=request), created)
+        self.assertEqual(created["control"]["resolved"]["job_seconds"], 21600)
+        given = {"input_manifest": {"manifest_digest": "sha256:" + "3" * 64},
+                 "policy_digest": "sha256:" + "2" * 64}
+        reader = SimpleNamespace(execution_context=single_worker.job_execution_reader(case.jobs),
+                                 given=given, _given_for=lambda stage: given)
+        adapter = worker.TheAdapterHandsTheCommandWhatWasConfigured()
+        for role in ("implementation", "review"):
+            with self.subTest(role=role):
+                context = single_worker._SingleWorker._job_execution(reader,
+                    {"job_id": created["job_id"], "attempt_id": "attempt-" + role})
+                limits = context["execution_limits"]["boundaries"]
+                self.assertEqual([limits[x]["seconds"] for x in
+                    ("provider_turn", "ordinary_verification", "integration_verification", "host_verification")],
+                    [7200, 900, 1800, 300])
+                delivery = launch.launch_document(session="heavy-" + role, contract="heavy-task",
+                                                  role=role, transport=None, job_execution=context)
+                seen = worker.baton_worker.launched(delivery, place="/run/baton/launch.json")
+                agent, captured = adapter.production(seen)
+                agent._provider({"verification": ["fake-verification"]}, "/unused", "/unused", {}, prompt="fixed fake prompt")
+                agent._verify({"verification": ["fake-verification"]}, "/unused", {}, ())
+                self.assertEqual(captured, [7200, 900])
+
+    def test_heavy_profile_preserves_one_real_resolved_continuation(self):
+        from tests.job_manager import test_native_handoffs as handoffs
+
+        for method in ("test_ONE_continuation_and_the_second_is_refused",
+                       "test_a_continuation_spends_NO_CORRECTION_ROUND",
+                       "test_the_original_deadlines_are_PRESERVED_by_a_continuation"):
+            with self.subTest(method=method):
+                case = handoffs.TheContinuationIsTheSameAdmittedTask(method)
+                original = case.submission
+                def heavy_submission():
+                    held = original(profile="native-handoff-heavy/1")
+                    held["jobs"][0]["execution_limits"] = {"provider_turn_seconds": 7200}
+                    return held
+                case.submission = heavy_submission
+                try:
+                    case.setUp()
+                    if method == "test_the_original_deadlines_are_PRESERVED_by_a_continuation":
+                        before = job_control.evaluate(case.jobs._connection, "job-a", handoffs.NOW)
+                        case.resumed()
+                        after = job_control.evaluate(case.jobs._connection, "job-a", handoffs.NOW)
+                        self.assertEqual(after["profile"], "native-handoff-heavy/1")
+                        self.assertEqual(after["job"], before["job"])
+                        self.assertEqual(after["continuations"], {"allowance": 1, "used": 1})
+                    else:
+                        getattr(case, method)()
+                finally:
+                    case.doCleanups()

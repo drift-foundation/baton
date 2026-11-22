@@ -1,0 +1,7 @@
+test_P1_resolved_bytes_of_old_profiles (probe_k.K.test_P1_resolved_bytes_of_old_profiles) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+P1-BYTES {"continuations_old":{"documentation/1":0,"native-handoff/1":1},"documentation/1":{"correction_rounds":0,"job_seconds":9960,"profile":"documentation/1","provider_turn_seconds":3600,"stage_seconds":4800,"units":"seconds","verification_command_seconds":900},"generations":{"0":{"host_verification":300,"integration_verification":1800,"ordinary_verification":900,"provider_turn":3600},"1":{"host_verification":300,"integration_verification":1800,"ordinary_verification":900,"provider_turn":3600}},"native-handoff/1":{"correction_rounds":0,"job_seconds":9960,"profile":"native-handoff/1","provider_turn_seconds":3600,"stage_seconds":4800,"units":"seconds","verification_command_seconds":900}}

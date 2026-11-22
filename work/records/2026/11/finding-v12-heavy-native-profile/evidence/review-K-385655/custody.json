@@ -1,0 +1,20 @@
+{
+  "reviewer": "baton.prompt (K), independent source review, no claim",
+  "request": "M385655",
+  "candidate_identity": "sha256:5771ed8d538c7782ddb72902bc14835e618669475c59e6ff27524ece32e555d5",
+  "identity_recomputed": true,
+  "base_commit": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+  "base_tree": "git archive of base_commit (read-only) at /var/tmp/baton-k-w385649/base",
+  "candidate_tree": "same archive with the three packet candidate files overlaid at /var/tmp/baton-k-w385649/cand; diff -rq shows exactly the three paths",
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python (prepared; tools.environment interpreter)",
+  "env": {"PYTHONPATH": "src (probes: src:.:probe dir)", "TMPDIR": "/var/tmp/baton-k-w385649/tmp", "BATON_V12_DISK_ROOT": "/var/tmp/baton-k-w385649/tmp"},
+  "selection": ["tests.job_manager.test_job_control", "tests.tools.test_job_control_command", "tests.tools.test_execution_limits", "tests.job_manager.test_native_handoffs", "tests.job_manager.test_creation", "tests.job_manager.test_templates"],
+  "results": {
+    "candidate": {"ran": 514, "failures": 0, "errors": 0, "skipped": 0, "exit": 0, "wall_seconds": 144.4},
+    "base": {"ran": 507, "failures": 0, "errors": 0, "skipped": 0, "exit": 0, "wall_seconds": 144.0},
+    "id_delta": "candidate = base + exactly the 7 TheHeavyNativeProfile ids",
+    "probes": "probe_k.py 5/5 pass on candidate; base P1 bytes identical; base refuses native-handoff-heavy/1"
+  },
+  "environment_incident": "first attempt archived only v12/; 127 setUp errors from missing work/records vectors.json fixture (FileNotFoundError), not product. Re-ran on full-tree archive; that run is the evidence.",
+  "not_run": ["full suite", "build/package", "live provider", "Docker", "import into checkout", "main Git mutation"]
+}

@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_job_control",
+    "tests.tools.test_job_control_command",
+    "tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured",
+    "tests.job_manager.test_native_handoffs.TheContinuationIsTheSameAdmittedTask"
+  ],
+  "seconds": 3.448467164009344,
+  "exit": 0,
+  "env": {
+    "PYTHONPATH": "src",
+    "TMPDIR": "/home/sl/src/baton/work/scratch/h649",
+    "BATON_V12_DISK_ROOT": "/home/sl/src/baton/work/scratch/h649"
+  }
+}

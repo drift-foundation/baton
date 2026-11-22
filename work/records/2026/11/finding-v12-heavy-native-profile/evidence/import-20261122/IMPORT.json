@@ -1,0 +1,25 @@
+{
+  "candidate_identity": "sha256:5771ed8d538c7782ddb72902bc14835e618669475c59e6ff27524ece32e555d5",
+  "review": "review-2026-11-22T13-03-28Z.md",
+  "head": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+  "paths": [
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "cae46338fad94ed600cb526cd098c605cd559bb736a3fce86271cbbce4d4ed21",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/job_control.py",
+      "sha256": "dce5fcda7d6b2f1723dea8bb82a4385671b7551ec12e02168d89c9c7389eb613",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_job_control.py",
+      "sha256": "184e0e522965b8775236d02c6253b51aa0c5d5b3c1f26a1b04847df625a34966",
+      "mode": "0o664"
+    }
+  ],
+  "preflight": "all target base bytes, regular-file types and owner-write permissions checked before any write",
+  "postflight": "all candidate bytes and existing modes verified",
+  "git_mutation": false
+}
