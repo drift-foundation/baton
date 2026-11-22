@@ -1,0 +1,12 @@
+{
+  "v12/DESIGN.md": "230a6ed66db91fd03c3a6d9c5021680269fcfd0b67431dfba097a10715a240f8",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/FINDING.md": "54c3aeb2c69753bf010148b851a23888fd7db38817eee36e6cfac1738efbf155",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/PLAN.md": "548ec98bfa666c6871cfb9338ca8d6e255763f91ab5737248fa310300d894a11",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CONTRACT.md": "52c2c640fdbb791e70ae61edf7ef7db7190bacd767d6d044f678517d2e09e1bc",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/review-2026-11-22T05-18-37Z.md": "a2346faa809d78a955c464fa4d639e01a974fe859fa049a5947318da2a0988fd",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-analysis-1.json": "a4be8b48e098efc47f770a8b7f941b80eadd22b23c48eebf67863d3a4dc824ab",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/TASK.txt": "41888451a1c7ff9afbf02ae6cca46caafec2787ef9ec3b9d46694b1424ce1212",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/verification-argv.json": "17562ae04d818d82e9df1c46781043c29fce12625c8ac5fe6e88866ad924a786",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/bootstrap-inputs.template.json": "1c97b4bee9d864a61a46e12393e33145957cd1a89289cc693ea13ea0e8b544b9",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/installed-task.template.json": "4ae30f617668cc869a846eef692022be09d3b50e7458b6950dfee31a16f6ae24"
+}

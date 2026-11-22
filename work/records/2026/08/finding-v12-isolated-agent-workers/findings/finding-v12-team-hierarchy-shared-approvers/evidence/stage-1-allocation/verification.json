@@ -1,0 +1,10 @@
+{
+  "kind": "create_work",
+  "operation": {
+    "id": "w9901-stage1-create-verification-v1",
+    "state": "committed"
+  },
+  "seq": 385625,
+  "thread": "2b077949-T385625",
+  "work_id": "2b077949-W385625"
+}

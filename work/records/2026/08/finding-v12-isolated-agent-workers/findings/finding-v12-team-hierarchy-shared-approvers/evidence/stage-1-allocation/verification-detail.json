@@ -1,0 +1,191 @@
+{
+  "agent": null,
+  "available_transitions": [
+    "add_dependency",
+    "classify",
+    "close",
+    "create_child",
+    "create_trial",
+    "pass",
+    "prioritize",
+    "remove_dependency",
+    "request",
+    "reroute"
+  ],
+  "binding": {
+    "actor": "baton.slaw",
+    "created_ts": "2026-11-22T05:26:47Z",
+    "git_provenance": null,
+    "path": "work/records/2026/11/finding-v12-retained-recovery-verification",
+    "prior": 0,
+    "rationale": null,
+    "revision": 1,
+    "root": "baton",
+    "seq": 385625
+  },
+  "binding_count": 1,
+  "bindings": [
+    {
+      "actor": "baton.slaw",
+      "created_ts": "2026-11-22T05:26:47Z",
+      "git_provenance": null,
+      "path": "work/records/2026/11/finding-v12-retained-recovery-verification",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 385625
+    }
+  ],
+  "bindings_next_after": null,
+  "bindings_truncated": false,
+  "blocking": false,
+  "breadcrumb": [
+    {
+      "id": "2b077949-W9901",
+      "title": "V12 M6: Model hierarchical teams and shared approvers"
+    },
+    {
+      "id": "2b077949-W385625",
+      "title": "V12 recovery: isolated verification and independent review"
+    }
+  ],
+  "claimed_at": null,
+  "classification": "design-choice",
+  "duplicate_of": null,
+  "episode_seq": 385625,
+  "first_open_blocker": "W385623",
+  "follow_up_of": null,
+  "gate": {
+    "kind": "work",
+    "message": null,
+    "obligation": null,
+    "selector": "W385623",
+    "started_at": "2026-11-22T05:26:47.454Z",
+    "started_seq": 385627,
+    "work": "2b077949-W385623"
+  },
+  "handler": null,
+  "handoff_at": null,
+  "heartbeat_at": null,
+  "id": "2b077949-W385625",
+  "last_change_seq": 385627,
+  "last_changed_at": "2026-11-22T05:26:47.454Z",
+  "links": {
+    "blocked_by": [
+      {
+        "handler": null,
+        "id": "2b077949-W385623",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.decide",
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv",
+          "route": "approv"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12 recovery: automatic retained-failure analysis",
+        "via_obligation": null
+      },
+      {
+        "handler": null,
+        "id": "2b077949-W385624",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.decide",
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv",
+          "route": "approv"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12 recovery: owner decision and successor admission",
+        "via_obligation": null
+      }
+    ],
+    "blocks": [],
+    "contains": [],
+    "duplicate_of": null,
+    "duplicates": [],
+    "follow_up_of": null,
+    "follow_ups": [],
+    "id": "2b077949-W385625",
+    "parent": {
+      "handler": null,
+      "id": "2b077949-W9901",
+      "outcome": null,
+      "route": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "title": "V12 M6: Model hierarchical teams and shared approvers"
+    }
+  },
+  "local_id": "W385625",
+  "message_count": 1,
+  "my_pending_obligations": 0,
+  "new": 1,
+  "new_breakdown": {
+    "children": [],
+    "id": "2b077949-W385625",
+    "overlap": 0,
+    "own": 1,
+    "snapshot_seq": 385628,
+    "subtree_total": 1
+  },
+  "next": null,
+  "obligations": [],
+  "open_blockers": 2,
+  "open_dependents": 0,
+  "origin": "decomposition",
+  "outcome": null,
+  "phase": "block",
+  "pickup": null,
+  "priority": "high",
+  "progress": {
+    "children": 0,
+    "closed": 0
+  },
+  "rationale": null,
+  "ready": false,
+  "revision": null,
+  "revision_count": 0,
+  "revisions": [],
+  "revisions_next_after": null,
+  "revisions_truncated": false,
+  "route": {
+    "endpoint": "baton.decide",
+    "handlers": [
+      "slaw"
+    ],
+    "role": "approv",
+    "route": "approv"
+  },
+  "status": "open",
+  "team": "baton",
+  "thread_count": 1,
+  "threads": [
+    {
+      "added_seq": 385625,
+      "id": "2b077949-T385625",
+      "last_seq": 385625,
+      "new": 1,
+      "subject": "V12 recovery: isolated verification and independent review"
+    }
+  ],
+  "threads_next_after": null,
+  "threads_truncated": false,
+  "title": "V12 recovery: isolated verification and independent review",
+  "trials": []
+}

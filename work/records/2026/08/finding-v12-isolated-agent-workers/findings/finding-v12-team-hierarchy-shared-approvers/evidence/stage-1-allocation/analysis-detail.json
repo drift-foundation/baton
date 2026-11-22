@@ -1,0 +1,184 @@
+{
+  "agent": null,
+  "available_transitions": [
+    "add_dependency",
+    "claim",
+    "classify",
+    "close",
+    "create_child",
+    "create_trial",
+    "pass",
+    "prioritize",
+    "request",
+    "reroute",
+    "set_phase"
+  ],
+  "binding": {
+    "actor": "baton.slaw",
+    "created_ts": "2026-11-22T05:26:47Z",
+    "git_provenance": null,
+    "path": "work/records/2026/11/finding-v12-retained-failure-analysis",
+    "prior": 0,
+    "rationale": null,
+    "revision": 1,
+    "root": "baton",
+    "seq": 385623
+  },
+  "binding_count": 1,
+  "bindings": [
+    {
+      "actor": "baton.slaw",
+      "created_ts": "2026-11-22T05:26:47Z",
+      "git_provenance": null,
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 385623
+    }
+  ],
+  "bindings_next_after": null,
+  "bindings_truncated": false,
+  "blocking": true,
+  "breadcrumb": [
+    {
+      "id": "2b077949-W9901",
+      "title": "V12 M6: Model hierarchical teams and shared approvers"
+    },
+    {
+      "id": "2b077949-W385623",
+      "title": "V12 recovery: automatic retained-failure analysis"
+    }
+  ],
+  "claimed_at": null,
+  "classification": "design-choice",
+  "duplicate_of": null,
+  "episode_seq": 385623,
+  "first_open_blocker": null,
+  "follow_up_of": null,
+  "gate": null,
+  "handler": null,
+  "handoff_at": null,
+  "heartbeat_at": null,
+  "id": "2b077949-W385623",
+  "last_change_seq": 385623,
+  "last_changed_at": "2026-11-22T05:26:47.081Z",
+  "links": {
+    "blocked_by": [],
+    "blocks": [
+      {
+        "handler": null,
+        "id": "2b077949-W385624",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.decide",
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv",
+          "route": "approv"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12 recovery: owner decision and successor admission",
+        "via_obligation": null
+      },
+      {
+        "handler": null,
+        "id": "2b077949-W385625",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.decide",
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv",
+          "route": "approv"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12 recovery: isolated verification and independent review",
+        "via_obligation": null
+      }
+    ],
+    "contains": [],
+    "duplicate_of": null,
+    "duplicates": [],
+    "follow_up_of": null,
+    "follow_ups": [],
+    "id": "2b077949-W385623",
+    "parent": {
+      "handler": null,
+      "id": "2b077949-W9901",
+      "outcome": null,
+      "route": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "title": "V12 M6: Model hierarchical teams and shared approvers"
+    }
+  },
+  "local_id": "W385623",
+  "message_count": 1,
+  "my_pending_obligations": 0,
+  "new": 1,
+  "new_breakdown": {
+    "children": [],
+    "id": "2b077949-W385623",
+    "overlap": 0,
+    "own": 1,
+    "snapshot_seq": 385628,
+    "subtree_total": 1
+  },
+  "next": null,
+  "obligations": [],
+  "open_blockers": 0,
+  "open_dependents": 2,
+  "origin": "decomposition",
+  "outcome": null,
+  "phase": "queued",
+  "pickup": null,
+  "priority": "high",
+  "progress": {
+    "children": 0,
+    "closed": 0
+  },
+  "rationale": null,
+  "ready": true,
+  "revision": null,
+  "revision_count": 0,
+  "revisions": [],
+  "revisions_next_after": null,
+  "revisions_truncated": false,
+  "route": {
+    "endpoint": "baton.decide",
+    "handlers": [
+      "slaw"
+    ],
+    "role": "approv",
+    "route": "approv"
+  },
+  "status": "open",
+  "team": "baton",
+  "thread_count": 1,
+  "threads": [
+    {
+      "added_seq": 385623,
+      "id": "2b077949-T385623",
+      "last_seq": 385623,
+      "new": 1,
+      "subject": "V12 recovery: automatic retained-failure analysis"
+    }
+  ],
+  "threads_next_after": null,
+  "threads_truncated": false,
+  "title": "V12 recovery: automatic retained-failure analysis",
+  "trials": []
+}

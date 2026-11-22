@@ -1,0 +1,74 @@
+{
+  "work": "W385623",
+  "claim": "E385631",
+  "assignment": "M385630",
+  "prepared_at": "2026-11-22T05:31:45.295551+00:00",
+  "source_head": "9f4fbb2e215f95e34241938cfbf27dc04e9ec9cd",
+  "state": "kickoff prepared; binding selection and source checkpoint pending; not launched",
+  "required_uncheckpointed_or_mismatched": [
+    "work/records/2026/11/finding-v12-retained-failure-analysis/FINDING.md",
+    "work/records/2026/11/finding-v12-retained-failure-analysis/PLAN.md",
+    "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/TASK.txt",
+    "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/verification-argv.json",
+    "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/bootstrap-inputs.template.json",
+    "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/installed-task.template.json"
+  ],
+  "artifacts": [
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/KICKOFF.md",
+      "bytes": 11030,
+      "sha256": "b9e06c6cdfc14efc18b8ab4e32eee4e8a9a06f54ab6e95eec110034f9bbc79ec"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/REPORT.md",
+      "bytes": 2517,
+      "sha256": "2c30d7b1065ec67a3e0e9009ef5bca33be5fb6247e3251f6ec71b78852e648c5"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/TASK.txt",
+      "bytes": 4336,
+      "sha256": "41888451a1c7ff9afbf02ae6cca46caafec2787ef9ec3b9d46694b1424ce1212"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/binding-observations.json",
+      "bytes": 1845,
+      "sha256": "e2cdebc4773b776253baa5dda4e260fd1b1290f10b899a7cf7c9a66324d37db3"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/bootstrap-inputs.template.json",
+      "bytes": 1012,
+      "sha256": "1c97b4bee9d864a61a46e12393e33145957cd1a89289cc693ea13ea0e8b544b9"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/installed-task.template.json",
+      "bytes": 663,
+      "sha256": "4ae30f617668cc869a846eef692022be09d3b50e7458b6950dfee31a16f6ae24"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/required-inputs.json",
+      "bytes": 1770,
+      "sha256": "0779a2a193f0ed714f92fed8e27fc9625609880aa189c40a1cbfcb0ac2d005b3"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/verification-argv.json",
+      "bytes": 275,
+      "sha256": "17562ae04d818d82e9df1c46781043c29fce12625c8ac5fe6e88866ad924a786"
+    }
+  ],
+  "validation": {
+    "operator_shell_blocks_parsed": 4,
+    "embedded_python_compiled": 5,
+    "verification_argv_shell_parsed": true,
+    "product_tests_run": 0,
+    "live_actions": 0,
+    "runtime_readiness": "not established"
+  },
+  "source_seams": [
+    "v12/python/tools/pool.py:compose_worker/main",
+    "v12/python/tools/next_run_bindings.py:deployment_identities",
+    "v12/worker/dogfood_entry.py:ClaudeAgent",
+    "v12/python/tools/job_manager.py:create",
+    "v12/worker/claude_agent.py:_verify/_scratch",
+    "v12/python/tests/manager/disk_roots.py:disk_backed_root"
+  ]
+}

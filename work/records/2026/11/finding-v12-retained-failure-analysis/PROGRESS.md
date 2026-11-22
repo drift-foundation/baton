@@ -1,0 +1,5 @@
+# Progress
+
+## 2026-11-22 — baton.codxpc E385631 native kickoff preparation
+
+M385630 preparation completed at evidence/native-kickoff-385631/KICKOFF.md, TASK.txt, verification-argv.json, required-inputs.json, immutable input templates, binding-observations.json, REPORT.md and manifest.json. Native implementation outcome remains unimplemented. Existing tools and /3 native review are used; no bespoke launcher. Different-family composition unavailable on inspected hard-coded Claude/Opus path; explicit supported alternate or owner same-family selection is required, not inferred. Required allocation/task bytes await owner checkpoint; exact paths and hashes retained, and final source is selected once after checkpoint without evidence-only repin loops. Commands remain conditional and unexecuted. Literal verification argv and shell/Python syntax mechanically checked; disk-backed host parent roots/image/source compatibility inspected. No tests/build/provider/instance/credential/Git/graph mutation or host feature changes. Return to baton.decide with exact blockers for kickoff selection; W385624/W385625 remain separate dependent outcomes.

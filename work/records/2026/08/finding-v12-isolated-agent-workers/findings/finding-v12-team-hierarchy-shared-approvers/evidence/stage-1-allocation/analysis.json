@@ -1,0 +1,10 @@
+{
+  "kind": "create_work",
+  "operation": {
+    "id": "w9901-stage1-create-analysis-v1",
+    "state": "committed"
+  },
+  "seq": 385623,
+  "thread": "2b077949-T385623",
+  "work_id": "2b077949-W385623"
+}

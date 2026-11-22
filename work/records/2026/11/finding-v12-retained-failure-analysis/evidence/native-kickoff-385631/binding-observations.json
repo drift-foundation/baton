@@ -1,0 +1,59 @@
+[
+  {
+    "instance": "native-handoffs-2",
+    "workers": [
+      {
+        "id": "impl-a",
+        "role": "implementation",
+        "participant": "baton.claude-native",
+        "profile_name": "claude-fresh-implementation",
+        "image_digest": "sha256:edb4677887db67cc252ca206d3b4ca894762637628d26e0de9293bdedcff5627"
+      },
+      {
+        "id": "review-a",
+        "role": "review",
+        "participant": "baton.reviewer-native",
+        "profile_name": "claude-fresh-implementation",
+        "image_digest": "sha256:edb4677887db67cc252ca206d3b4ca894762637628d26e0de9293bdedcff5627"
+      }
+    ]
+  },
+  {
+    "instance": "native-w9901-planning-1",
+    "workers": [
+      {
+        "id": "impl-a",
+        "role": "implementation",
+        "participant": "baton.claude-native",
+        "profile_name": "claude-fresh-implementation",
+        "image_digest": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4"
+      },
+      {
+        "id": "review-a",
+        "role": "review",
+        "participant": "baton.reviewer-native",
+        "profile_name": "claude-fresh-implementation",
+        "image_digest": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4"
+      }
+    ]
+  },
+  {
+    "instance": "native-handoffs-3",
+    "workers": [
+      {
+        "id": "impl-a",
+        "role": "implementation",
+        "participant": "baton.claude-native",
+        "profile_name": "claude-fresh-implementation",
+        "image_digest": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4"
+      },
+      {
+        "id": "review-a",
+        "role": "review",
+        "participant": "baton.reviewer-native",
+        "profile_name": "claude-fresh-implementation",
+        "image_digest": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4"
+      }
+    ]
+  }
+]

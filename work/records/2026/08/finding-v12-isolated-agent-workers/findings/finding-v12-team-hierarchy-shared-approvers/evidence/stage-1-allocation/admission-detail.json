@@ -1,0 +1,192 @@
+{
+  "agent": null,
+  "available_transitions": [
+    "add_dependency",
+    "classify",
+    "close",
+    "create_child",
+    "create_trial",
+    "pass",
+    "prioritize",
+    "remove_dependency",
+    "request",
+    "reroute"
+  ],
+  "binding": {
+    "actor": "baton.slaw",
+    "created_ts": "2026-11-22T05:26:47Z",
+    "git_provenance": null,
+    "path": "work/records/2026/11/finding-v12-retained-recovery-admission",
+    "prior": 0,
+    "rationale": null,
+    "revision": 1,
+    "root": "baton",
+    "seq": 385624
+  },
+  "binding_count": 1,
+  "bindings": [
+    {
+      "actor": "baton.slaw",
+      "created_ts": "2026-11-22T05:26:47Z",
+      "git_provenance": null,
+      "path": "work/records/2026/11/finding-v12-retained-recovery-admission",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 385624
+    }
+  ],
+  "bindings_next_after": null,
+  "bindings_truncated": false,
+  "blocking": false,
+  "breadcrumb": [
+    {
+      "id": "2b077949-W9901",
+      "title": "V12 M6: Model hierarchical teams and shared approvers"
+    },
+    {
+      "id": "2b077949-W385624",
+      "title": "V12 recovery: owner decision and successor admission"
+    }
+  ],
+  "claimed_at": null,
+  "classification": "design-choice",
+  "duplicate_of": null,
+  "episode_seq": 385624,
+  "first_open_blocker": "W385623",
+  "follow_up_of": null,
+  "gate": {
+    "kind": "work",
+    "message": null,
+    "obligation": null,
+    "selector": "W385623",
+    "started_at": "2026-11-22T05:26:47.363Z",
+    "started_seq": 385626,
+    "work": "2b077949-W385623"
+  },
+  "handler": null,
+  "handoff_at": null,
+  "heartbeat_at": null,
+  "id": "2b077949-W385624",
+  "last_change_seq": 385626,
+  "last_changed_at": "2026-11-22T05:26:47.363Z",
+  "links": {
+    "blocked_by": [
+      {
+        "handler": null,
+        "id": "2b077949-W385623",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.decide",
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv",
+          "route": "approv"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12 recovery: automatic retained-failure analysis",
+        "via_obligation": null
+      }
+    ],
+    "blocks": [
+      {
+        "handler": null,
+        "id": "2b077949-W385625",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.decide",
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv",
+          "route": "approv"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12 recovery: isolated verification and independent review",
+        "via_obligation": null
+      }
+    ],
+    "contains": [],
+    "duplicate_of": null,
+    "duplicates": [],
+    "follow_up_of": null,
+    "follow_ups": [],
+    "id": "2b077949-W385624",
+    "parent": {
+      "handler": null,
+      "id": "2b077949-W9901",
+      "outcome": null,
+      "route": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "title": "V12 M6: Model hierarchical teams and shared approvers"
+    }
+  },
+  "local_id": "W385624",
+  "message_count": 1,
+  "my_pending_obligations": 0,
+  "new": 1,
+  "new_breakdown": {
+    "children": [],
+    "id": "2b077949-W385624",
+    "overlap": 0,
+    "own": 1,
+    "snapshot_seq": 385628,
+    "subtree_total": 1
+  },
+  "next": null,
+  "obligations": [],
+  "open_blockers": 1,
+  "open_dependents": 1,
+  "origin": "decomposition",
+  "outcome": null,
+  "phase": "block",
+  "pickup": null,
+  "priority": "high",
+  "progress": {
+    "children": 0,
+    "closed": 0
+  },
+  "rationale": null,
+  "ready": false,
+  "revision": null,
+  "revision_count": 0,
+  "revisions": [],
+  "revisions_next_after": null,
+  "revisions_truncated": false,
+  "route": {
+    "endpoint": "baton.decide",
+    "handlers": [
+      "slaw"
+    ],
+    "role": "approv",
+    "route": "approv"
+  },
+  "status": "open",
+  "team": "baton",
+  "thread_count": 1,
+  "threads": [
+    {
+      "added_seq": 385624,
+      "id": "2b077949-T385624",
+      "last_seq": 385624,
+      "new": 1,
+      "subject": "V12 recovery: owner decision and successor admission"
+    }
+  ],
+  "threads_next_after": null,
+  "threads_truncated": false,
+  "title": "V12 recovery: owner decision and successor admission",
+  "trials": []
+}
