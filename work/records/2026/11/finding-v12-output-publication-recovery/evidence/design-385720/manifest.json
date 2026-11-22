@@ -1,0 +1,10 @@
+{
+  "contract": "work/records/2026/11/finding-v12-output-publication-recovery/CONTRACT-PROPOSED-385720.md",
+  "sha256": "8bd467f6668b38063dbdff53403cd2eb24ccacc4e3cedf4753a3d922b34cd152",
+  "previous_contract_sha256": "3a5446e55995311b00e8e7f20692f07b9e3d31eba3eefa524cccdc148b830ab8",
+  "source": "ce6e1b2bf12519a84a3792f06562b7727dfe3021",
+  "review": "review-2026-11-22T19-49-30Z.md",
+  "status": "proposed-awaiting-independent-delta-check",
+  "tests_run": 0,
+  "spec_product_live_changes": false
+}

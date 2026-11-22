@@ -1085,6 +1085,14 @@ class TheReusableInstanceComposesHandoffCapableWorkers(
         return code, said.getvalue()
 
     def test_install_supported_composition_repeat_and_an_ordinary_3_creation(self):
+        self.assert_supported_creation()
+
+    def test_install_supported_composition_and_100m_creation(self):
+        from baton_v12.job_manager import role_contract
+        self.HANDOFF = role_contract.PROPOSAL100M_TEMPLATE
+        self.assert_supported_creation()
+
+    def assert_supported_creation(self):
         from baton_v12.authority import messages
         from baton_v12.job_manager import native_handoffs, role_contract
 
@@ -1104,6 +1112,7 @@ class TheReusableInstanceComposesHandoffCapableWorkers(
             self.assertIn("template  " + self.HANDOFF, said)
             worker = json.loads(Path(into).read_text())
             manifest = worker["deployment"]["input_manifest"]
+            self.assertEqual(manifest["outputs"], role_contract.contract_for(self.HANDOFF)["outputs"])
             # THE DECLARATION IS THE TEMPLATE'S UNION, none required, and
             # the role-instructions identity names the selected template.
             self.assertEqual(
@@ -1136,7 +1145,7 @@ class TheReusableInstanceComposesHandoffCapableWorkers(
         store, _creation = self.rows()
         self.assertTrue(native_handoffs.handoff_capable(store, held["job_id"]))
         self.assertEqual(native_handoffs.template_of(store, held["job_id"]),
-                         role_contract.HANDOFF_TEMPLATE)
+                         self.HANDOFF)
         authority = self.authority()
         scope = authority.project_work(held["work_id"])["scope"]
         self.assertTrue(authority.holds_capability(

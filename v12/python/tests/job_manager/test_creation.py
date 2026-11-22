@@ -496,6 +496,22 @@ class TheSelectedResultContractIsAdmittedBeforeAnyEffect(CreationCase):
 
     HANDOFF = "baton.v12.job-template.implementation-review/3"
 
+    def test_new_revision_requires_new_lane_declarations_and_replays(self):
+        from baton_v12.job_manager import role_contract
+        version = role_contract.PROPOSAL100M_TEMPLATE
+        caught = self.refused(request=request(template=version), derivation=self.stating(self.contract_declarations()))
+        self.assertIn("declares a different result contract", str(caught))
+        self.nothing_happened()
+        self.HANDOFF = version
+        selected = request(template=version)
+        derivation = self.stating(self.contract_declarations())
+        first = self.created(request=selected, derivation=derivation)
+        second = self.created(request=selected, derivation=derivation)
+        self.assertEqual(first, second)
+        self.assertEqual(first["template"]["version"], version)
+        self.assertEqual(len(self.rows()), 1)
+        self.assertEqual(set(self.binding.templates), {version})
+
     def contract_declarations(self):
         from baton_v12.job_manager import role_contract
 

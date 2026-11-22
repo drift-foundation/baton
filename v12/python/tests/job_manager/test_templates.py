@@ -677,7 +677,8 @@ class TheFrozenTable(unittest.TestCase):
                           # W385331: and the handoff-capable third revision.
                           # The inventory stays EXACT -- what grew is the set
                           # of registered revisions, not this case's rule.
-                          templates.IMPLEMENTATION_REVIEW_3])
+                          templates.IMPLEMENTATION_REVIEW_3,
+                          templates.IMPLEMENTATION_REVIEW_4])
         for version, definition in TEMPLATES.items():
             self.assertEqual(version, definition["version"])
             check_template(definition)
@@ -1168,7 +1169,8 @@ class TheRegisteredTemplateCannotBeWrittenTo(ResolverCase):
                           # W385331: and the handoff-capable third revision.
                           # The inventory stays EXACT -- what grew is the set
                           # of registered revisions, not this case's rule.
-                          templates.IMPLEMENTATION_REVIEW_3])
+                          templates.IMPLEMENTATION_REVIEW_3,
+                          templates.IMPLEMENTATION_REVIEW_4])
         with self.assertRaises(TypeError):
             del templates.template_of(
                 templates.IMPLEMENTATION_REVIEW_2)["failure"]

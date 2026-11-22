@@ -65,6 +65,8 @@ __all__ = ["CONTRACT_SCHEMA", "CONTRACT_MEMBERS", "CONSTRAINT_MEMBERS",
            # W385331
            "HANDOFF_CONTRACT_SCHEMA", "HANDOFF_DIGEST", "HANDOFF_OUTPUT",
            "HANDOFF_TEMPLATE", "RESPONSE_OUTPUT",
+           "PROPOSAL100M_CONTRACT_SCHEMA", "PROPOSAL100M_TEMPLATE",
+           "MAX_PROPOSAL_BYTES",
            "check_any_role_contract", "check_handoff_role_contract",
            "handoff_document", "is_handoff_capable"]
 
@@ -196,10 +198,10 @@ def _exact_integer(value, wanted, what):
     return value
 
 
-def _constraints(value, media, what):
+def _constraints(value, media, what, *, max_bytes=MAX_OUTPUT_BYTES):
     """One output's limits, every member at its exact approved value."""
     taken = _exactly(value, CONSTRAINT_MEMBERS, what)
-    _exact_integer(taken["max_bytes"], MAX_OUTPUT_BYTES, f"{what}'s max_bytes")
+    _exact_integer(taken["max_bytes"], max_bytes, f"{what}'s max_bytes")
     _exact_integer(taken["max_entries"], MAX_OUTPUT_ENTRIES,
                    f"{what}'s max_entries")
     _exact_list(taken["allowed_media_types"], media,
@@ -239,7 +241,7 @@ def _output(value, declared, what):
                 f"declaration, and what a role must publish for a successful "
                 f"stage is its own required_for_success")
     _constraints(taken["constraints"], declared["media"],
-                 f"{what}'s constraints")
+                 f"{what}'s constraints", max_bytes=declared.get("max_bytes", MAX_OUTPUT_BYTES))
     return taken
 
 
@@ -394,10 +396,21 @@ _HANDOFF = {"schema": HANDOFF_CONTRACT_SCHEMA, "template": HANDOFF_TEMPLATE,
             "source_profile": BASELINE_SOURCE_PROFILE,
             "outputs": _HANDOFF_OUTPUTS, "roles": _HANDOFF_ROLES}
 
+# W385694: explicit opt-in revision; only proposal bytes change.
+PROPOSAL100M_CONTRACT_SCHEMA = "baton.v12.development-role-contract.native-handoff.proposal100m/1"
+PROPOSAL100M_TEMPLATE = "baton.v12.job-template.implementation-review/4"
+MAX_PROPOSAL_BYTES = 104857600
+_PROPOSAL100M = dict(_HANDOFF, schema=PROPOSAL100M_CONTRACT_SCHEMA,
+                    template=PROPOSAL100M_TEMPLATE,
+                    outputs=tuple(dict(one, max_bytes=MAX_PROPOSAL_BYTES)
+                                  if one["name"] == CANDIDATE_OUTPUT else dict(one)
+                                  for one in _HANDOFF_OUTPUTS))
+
 # EVERY REVISION THIS BUILD CARRIES, keyed by its own schema name. Closed, so a
 # descriptor naming a schema that is not a key refuses as a VERSION.
 _REVISIONS = {CONTRACT_SCHEMA: _BASELINE,
-              HANDOFF_CONTRACT_SCHEMA: _HANDOFF}
+              HANDOFF_CONTRACT_SCHEMA: _HANDOFF,
+              PROPOSAL100M_CONTRACT_SCHEMA: _PROPOSAL100M}
 
 
 def _authored(revision):
@@ -410,7 +423,7 @@ def _authored(revision):
         "outputs": [
             {"name": one["name"], "type": one["type"], "path": one["name"],
              "required": False,
-             "constraints": {"max_bytes": MAX_OUTPUT_BYTES,
+             "constraints": {"max_bytes": one.get("max_bytes", MAX_OUTPUT_BYTES),
                              "max_entries": MAX_OUTPUT_ENTRIES,
                              "allowed_media_types": list(one["media"]),
                              "link_policy": LINK_POLICY,
@@ -612,12 +625,13 @@ def check_any_role_contract(document,
 #
 # `/1` IS ABSENT ON PURPOSE AND `contract_for` SAYS SO. Absence is the legacy
 # answer, which is what preserves every Job already resolved against `/1`.
-TEMPLATE_CONTRACTS = (BASELINE_TEMPLATE, HANDOFF_TEMPLATE)
+TEMPLATE_CONTRACTS = (BASELINE_TEMPLATE, HANDOFF_TEMPLATE, PROPOSAL100M_TEMPLATE)
 
 # WHICH REVISION EACH BOUND TEMPLATE RESOLVES TO. One entry per bound version,
 # so adding a template without choosing its descriptor is a KeyError at import
 # rather than a deployment resolving a template to nothing.
-_BY_TEMPLATE = {BASELINE_TEMPLATE: _BASELINE, HANDOFF_TEMPLATE: _HANDOFF}
+_BY_TEMPLATE = {BASELINE_TEMPLATE: _BASELINE, HANDOFF_TEMPLATE: _HANDOFF,
+                PROPOSAL100M_TEMPLATE: _PROPOSAL100M}
 
 
 def contract_for(version):
@@ -649,7 +663,7 @@ def is_handoff_capable(version):
     exactly as it did.
     """
     boundaries.text(version, "a job template version")
-    return _BY_TEMPLATE.get(version) is _HANDOFF
+    return version in (HANDOFF_TEMPLATE, PROPOSAL100M_TEMPLATE)
 
 
 # -- what this module is held to at import ------------------------------------

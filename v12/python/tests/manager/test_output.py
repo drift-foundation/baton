@@ -779,6 +779,18 @@ class TheDeclaredLimitsAreEnforcedWhereTheyAreDecidable(OutputCase):
                                  sealed=self.result(outputs=outputs))
         return caught.exception
 
+    def test_proposal100m_does_not_relax_media_or_artifact_bound(self):
+        from baton_v12.job_manager import role_contract
+        declaration = role_contract.contract_for(role_contract.PROPOSAL100M_TEMPLATE)["outputs"][0]
+        self.redeclared(outputs=[declaration])
+        self.attempt()
+        for outputs, code in ((self.present(media_type="application/x-thing"), "denied"),
+                              (self.present(artifact_bytes=104857601), "limit")):
+            outputs[0]["type"] = declaration["type"]
+            with self.subTest(code=code), self.assertRaises(ContractRefusal) as caught:
+                record_frozen_result(self.store, attempt_id=ATTEMPT, sealed=self.result(outputs=outputs))
+            self.assertEqual(caught.exception.code, code)
+
     def test_an_oversized_tree_is_refused(self):
         failure = self.refusing(self.present(bytes_=2 * 1024 * 1024,
                                              artifact_bytes=64))

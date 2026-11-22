@@ -1,0 +1,73 @@
+{
+  "base": "2578aa70a44cc1e639b32cee9680b2151ed5a1c3",
+  "claim": "E385742",
+  "files": [
+    {
+      "base_sha256": "39e26a3cca45d639c1dc28c961bb8f57db41cdc4d2220859cc826e4b16a89e1f",
+      "mode": "0o664",
+      "path": "v12/STACK.md",
+      "sha256": "8d8c9c3a234b5e061eada83ba75a11a20bba4782deff7df373271b378784b032"
+    },
+    {
+      "base_sha256": "122e8b9c5b874b19597015c89b50727826dc06ede344f4cbb6f86dbab96fb47d",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/role_contract.py",
+      "sha256": "b5f1ef034c6bd9a46915cea03dbdfa9ec5b089634da34d95bf100b1a21808914"
+    },
+    {
+      "base_sha256": "f992bfaf855eff8e3cafe7292cb5b2e1a06112dd342f97368fcf6b05c949b29d",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/templates.py",
+      "sha256": "36f7f6ac69d3b41d99ba547d9886810629f61d63f0ca9a080ecd2e76f13c51fc"
+    },
+    {
+      "base_sha256": "7da1f36af88127c14df8b806b12a9be833833aabc499d786de3df099b7133e87",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_creation.py",
+      "sha256": "6221f3736efc20d1d03888218a3a0adcadb8d5e15c7b3cacd5bb6cb4e3809499"
+    },
+    {
+      "base_sha256": null,
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_proposal_output_limit.py",
+      "sha256": "c866d3cace1fa0713d9b86fdc5f334aff7e9c4af9a33e17a90a56ea84bfb56a4"
+    },
+    {
+      "base_sha256": "7d7c1c6b2929f238da9ea8ed75fcb757183629ad3bae997247a72cc9e0f336fd",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_role_contract.py",
+      "sha256": "bae7b35e02d83bff1fa93ee6049b10d3f28397f526ab7f32d85602fffddf2b31"
+    },
+    {
+      "base_sha256": "eb723d88ddc5112e7b77dee613b9bc4811f6fa74ca595f0900e3c258579d1d3f",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_templates.py",
+      "sha256": "eb0e68985ad225a549ac4741cf330c91e75313e97ff01260c87301c02f84b704"
+    },
+    {
+      "base_sha256": "b0e5d9839fcada66668eedca82a0912560cf13ec7ccf359e9b195a968c131b80",
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/test_output.py",
+      "sha256": "786ab8ba91ff497c83dbe0c40f8ce6357f38ff5d5f5a45e441c3cde4cbad5c38"
+    },
+    {
+      "base_sha256": "58e806a730237b95bdb78b5bfa0cc22ef34eddb459ed48a2912ab66ef71011c2",
+      "mode": "0o664",
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "sha256": "1e7f6517f782d59ae3f4f9534f49eb96de284e63fa0fbd51f80b6636552ca1e3"
+    },
+    {
+      "base_sha256": "d8c6658be64684541da591952993beab1f0c22bd4efa04b857871d506bb5fe4c",
+      "mode": "0o664",
+      "path": "v12/python/tests/tools/test_pool.py",
+      "sha256": "5018a9ff4f3933a7c1dba947d2718fa13ef455e3b1588a9a548eaaec4d5e6591"
+    },
+    {
+      "base_sha256": "3980be61b2350ca7fdf38344ceb2446fd451cbf4e6b59bbdecb7730efeb03395",
+      "mode": "0o664",
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "37144b95712f3a195ac54704e1964846feafa3ed7f3a81bb6feec350033096f3"
+    }
+  ],
+  "work": "W385694"
+}

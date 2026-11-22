@@ -1,0 +1,14 @@
+test_P1_real_w385624_proposal_old_refuses_new_accepts (probe_k694.K.test_P1_real_w385624_proposal_old_refuses_new_accepts) ... ok
+test_P2_cross_revision_exactness (probe_k694.K.test_P2_cross_revision_exactness) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.006s
+
+OK
+P1-REAL-BYTES 1147926
+P1-OLD-WORKER refused: this output declares at most 1048576 bytes and carries more
+P1-OLD-MANAGER refused: limit
+P1-NEW 1147926 True
+P2 3-with-100M refused schema
+P2 4-with-1M refused schema
+P2 4-other-output-100M refused schema

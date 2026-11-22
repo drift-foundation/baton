@@ -1,0 +1,42 @@
+test_old_registered_bytes_and_new_descriptor_identity_are_pinned (tests.job_manager.test_proposal_output_limit.ProposalRevision.test_old_registered_bytes_and_new_descriptor_identity_are_pinned) ... ok
+test_only_proposal_bytes_and_explicit_identities_change (tests.job_manager.test_proposal_output_limit.ProposalRevision.test_only_proposal_bytes_and_explicit_identities_change) ... ok
+test_wrong_revision_or_limit_is_refused (tests.job_manager.test_proposal_output_limit.ProposalRevision.test_wrong_revision_or_limit_is_refused) ... ok
+test_entry_and_link_limits_still_refuse_at_both_boundaries (tests.job_manager.test_proposal_output_limit.WorkerAndManagerMeasurement.test_entry_and_link_limits_still_refuse_at_both_boundaries) ... ok
+test_new_proposal_accepts_above_legacy_and_exact_ceiling (tests.job_manager.test_proposal_output_limit.WorkerAndManagerMeasurement.test_new_proposal_accepts_above_legacy_and_exact_ceiling) ... ok
+test_old_ceiling_and_new_overflow_are_enforced_by_both (tests.job_manager.test_proposal_output_limit.WorkerAndManagerMeasurement.test_old_ceiling_and_new_overflow_are_enforced_by_both) ... ok
+test_old_proposal_exact_ceiling_remains_valid (tests.job_manager.test_proposal_output_limit.WorkerAndManagerMeasurement.test_old_proposal_exact_ceiling_remains_valid) ... ok
+test_other_outputs_remain_at_one_mib (tests.job_manager.test_proposal_output_limit.WorkerAndManagerMeasurement.test_other_outputs_remain_at_one_mib) ... ok
+test_every_declared_input_is_present_and_outside_the_scope (tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope) ... ERROR
+test_the_declared_command_line_agrees_with_the_library (tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_the_declared_command_line_agrees_with_the_library) ... FAIL
+test_the_supervisor_is_derived_from_the_supervised_registry (tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_the_supervisor_is_derived_from_the_supervised_registry) ... ok
+
+======================================================================
+ERROR: test_every_declared_input_is_present_and_outside_the_scope (tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385694-385742/v12/python/tests/tools/test_source_identity.py", line 174, in test_every_declared_input_is_present_and_outside_the_scope
+    found = source_identity.identity(str(REPOSITORY), ["v12"], declared)
+  File "/home/sl/src/baton/work/scratch/w385694-385742/v12/python/tools/source_identity.py", line 120, in identity
+    for git, path in input_files(repo, declared):
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385694-385742/v12/python/tools/source_identity.py", line 92, in input_files
+    raise MissingInput(f"declared consumed input {path!r} has no file in this checkout "
+                       "(absent, or gitignored); the run cannot identify what it would consume")
+tools.source_identity.MissingInput: declared consumed input 'work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py' has no file in this checkout (absent, or gitignored); the run cannot identify what it would consume
+
+======================================================================
+FAIL: test_the_declared_command_line_agrees_with_the_library (tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_the_declared_command_line_agrees_with_the_library)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385694-385742/v12/python/tests/tools/test_source_identity.py", line 190, in test_the_declared_command_line_agrees_with_the_library
+    self.assertEqual(answer.returncode, 0, answer.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : source identity refused: declared consumed input 'work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py' has no file in this checkout (absent, or gitignored); the run cannot identify what it would consume
+
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.358s
+
+FAILED (failures=1, errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

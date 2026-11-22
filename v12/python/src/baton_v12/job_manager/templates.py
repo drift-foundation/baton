@@ -105,7 +105,7 @@ __all__ = ["ACCEPTANCE_LIMIT", "CANDIDATE_OUTPUT", "CONFIGURATION_MEMBERS",
            "RESOLVED_TASK_MEMBERS", "ROLE_MEMBERS", "RULE_MEMBERS",
            "SELECTION_MEMBERS", "SELECTION_ORIGINS", "SOURCE_MEMBERS",
            "SCOPE_MEMBERS", "TASK_MEMBERS", "TASK_OPTIONAL", "TEMPLATES",
-           "IMPLEMENTATION_REVIEW_2", "IMPLEMENTATION_REVIEW_3",
+           "IMPLEMENTATION_REVIEW_2", "IMPLEMENTATION_REVIEW_3", "IMPLEMENTATION_REVIEW_4",
            "check_template", "owned_resolution", "resolution_digest",
            "resolve", "submission_for_admission", "submission_id_for",
            "template_document", "template_of"]
@@ -315,6 +315,9 @@ _AUTHORED[role_contract.HANDOFF_TEMPLATE] = dict(
 # `IMPLEMENTATION_REVIEW_2` is: there is ONE spelling of this string, and it is
 # the descriptor's own.
 IMPLEMENTATION_REVIEW_3 = role_contract.HANDOFF_TEMPLATE
+IMPLEMENTATION_REVIEW_4 = role_contract.PROPOSAL100M_TEMPLATE
+_AUTHORED[IMPLEMENTATION_REVIEW_4] = dict(
+    _AUTHORED[IMPLEMENTATION_REVIEW_3], version=IMPLEMENTATION_REVIEW_4)
 
 # WHICH TEMPLATE A BARE REQUEST MEANS WHEN A DEPLOYMENT CONFIGURES NOTHING.
 # It is still RESOLVED and still SHOWN: the saving is typing, not visibility.
@@ -577,11 +580,12 @@ del _version, _definition
 assert role_contract.contract_for(IMPLEMENTATION_REVIEW) is None
 assert set(role_contract.TEMPLATE_CONTRACTS) <= set(TEMPLATES)
 assert DEFAULT_TEMPLATE == IMPLEMENTATION_REVIEW
-# W385331: AND ONLY `/3` IS HANDOFF-CAPABLE. Asserted in both directions, so a
+# W385694: `/3` and `/4` are handoff-capable. Asserted in both directions, so a
 # descriptor binding that drifted onto an older revision would fail here rather
 # than let an already admitted `/1` or `/2` Job yield a handoff its consumers
 # have no branch for.
 assert role_contract.is_handoff_capable(IMPLEMENTATION_REVIEW_3)
+assert role_contract.is_handoff_capable(IMPLEMENTATION_REVIEW_4)
 assert not any(role_contract.is_handoff_capable(_one) for _one in
                (IMPLEMENTATION_REVIEW, IMPLEMENTATION_REVIEW_2))
 

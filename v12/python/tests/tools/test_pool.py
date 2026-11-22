@@ -906,6 +906,19 @@ class ComposingAWorkerForASelectedTemplate(ComposingCase):
         return answer["worker"]["deployment"]["input_manifest"][
             "role_instructions_digest"]
 
+    def test_proposal100m_cli_selects_exact_new_declaration(self):
+        from baton_v12.job_manager import role_contract
+        self.record_in(self.checkout)
+        into = os.path.join(self.root, "composed", "impl-c-4.json")
+        said = io.StringIO()
+        version = role_contract.PROPOSAL100M_TEMPLATE
+        self.assertEqual(pool.main(self.argv(into, "--template", version), stream=said), 0, said.getvalue())
+        manifest = json.loads(Path(into).read_text())["deployment"]["input_manifest"]
+        self.assertEqual(manifest["outputs"], role_contract.contract_for(version)["outputs"])
+        self.assertEqual(manifest["outputs"][0]["constraints"]["max_bytes"], 104857600)
+        self.assertIn("template  " + version, said.getvalue())
+        self.unchanged()
+
     def test_the_default_is_byte_identical_whether_omitted_or_named(self):
         omitted = self.composing()
         named = self.composing(template_version=pool.TEMPLATE_VERSION)

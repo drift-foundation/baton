@@ -1225,6 +1225,18 @@ same compatibility again when it selects a worker for a `/3` stage. `/1` and
 `/2` Jobs ask nothing new. A template this build does not carry is refused by
 name before anything is written.
 
+**100 MiB proposals.** Select `baton.v12.job-template.implementation-review/4`
+for both `pool compose-worker --template` and `manager create --template`.
+Its descriptor is
+`baton.v12.development-role-contract.native-handoff.proposal100m/1`.
+It preserves `/3`'s workflow and increases only the proposal output's total byte
+limit to 104857600. Other outputs retain their 1048576-byte limits; the
+100-entry ceiling, allowed media types and forbidden-link policy are unchanged.
+Both worker publication and manager custody enforce the declared limit. A `/3`
+worker cannot serve a `/4` Job; compose both implementation and review workers
+for the selected revision. Defaults and previously admitted Jobs do not change.
+This selection does not retry or repair publication of an already failed Job.
+
 **Configuration.** The bootstrap input selects the routing once, as the
 optional object `native_handoff_routing` with `reviewer` (a configured review
 worker's own participant, never an implementation participant) and

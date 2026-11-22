@@ -560,7 +560,8 @@ class TheRegistryBindsTwoRevisionsAndPreservesTheFirst(unittest.TestCase):
             sorted(templates.TEMPLATES),
             ["baton.v12.job-template.implementation-review/1",
              "baton.v12.job-template.implementation-review/2",
-             "baton.v12.job-template.implementation-review/3"])
+             "baton.v12.job-template.implementation-review/3",
+             "baton.v12.job-template.implementation-review/4"])
 
     def test_the_configured_default_is_still_the_first_revision(self):
         """"Do not change the configured default implicitly"."""
