@@ -64,6 +64,23 @@ from .creation import (CREATE_KIND, DERIVATION_MEMBERS, INSTALLED_SOURCE,
 from .fresh_attempt import (ADMIT_KIND, INTENT_KIND, admit_fresh_attempt,
                             fresh_attempt_of, fresh_attempt_rows,
                             successor_of, successors_of)
+# W385623 / DESIGN REC-8: the retained verification-failure recovery path.
+# THE OPERATION AND ITS CONFIGURATION CONTRACT, and deliberately not the whole
+# module: a deployment needs the seam's member list, the declaration producer
+# and the pass; the records, the trigger reader and the five journal
+# identities are read through `job_manager.failure_analysis` by the cases and
+# the owner-facing readers that want them, exactly as `cancellation`'s and
+# `job_control`'s detail is.
+from .failure_analysis import (ANALYSIS_PROFILE, ANALYSIS_PROFILE_DIGEST,
+                               ANALYSIS_ROLE, ANALYSIS_SEAM,
+                               WORKER_DECLARED, advance_recovery,
+                               check_analysis_declaration,
+                               declared_analysis_worker,
+                               recovery_disposition)
+from .failure_analysis import DECLARATION_SCHEMA \
+    as ANALYSIS_DECLARATION_SCHEMA
+from .failure_analysis import OWNER_OUTCOMES as ANALYSIS_OWNER_OUTCOMES
+from .failure_analysis import owner_item_of as recovery_owner_item_of
 from .episodes import (CORRECT_KIND, advance_correction, attempting,
                        correction_operation_id, episode_by_offer, episode_of,
                        episodes_of, live_of)
@@ -117,6 +134,11 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
            "resolution_of",
            "fresh_attempt_of", "fresh_attempt_rows", "successor_of",
            "successors_of",
+           "ANALYSIS_DECLARATION_SCHEMA", "ANALYSIS_OWNER_OUTCOMES",
+           "ANALYSIS_PROFILE", "ANALYSIS_PROFILE_DIGEST", "ANALYSIS_ROLE",
+           "ANALYSIS_SEAM", "WORKER_DECLARED", "advance_recovery",
+           "check_analysis_declaration", "declared_analysis_worker",
+           "recovery_disposition", "recovery_owner_item_of",
            "attempting", "canonical_operation",
            "check_binding", "correction_operation_id", "end_implementation",
            "end_review", "episode_by_offer", "episode_of", "episodes_of",

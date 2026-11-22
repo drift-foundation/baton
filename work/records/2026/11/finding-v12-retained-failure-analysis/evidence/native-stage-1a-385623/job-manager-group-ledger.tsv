@@ -1,0 +1,31 @@
+tests.job_manager.test_accepted_offer_retirement	Ran 11 test	OK	exit=0	1.03s
+tests.job_manager.test_creation	Ran 106 test	OK	exit=0	1.41s
+tests.job_manager.test_delegation	Ran 44 test	OK	exit=0	0.62s
+tests.job_manager.test_documents	Ran 31 test	OK	exit=0	0.46s
+tests.job_manager.test_ending	Ran 54 test	OK	exit=0	0.97s
+tests.job_manager.test_exchange	Ran 46 test	OK	exit=0	0.91s
+tests.job_manager.test_execution_limits	Ran 37 test	OK	exit=0	0.63s
+tests.job_manager.test_final_allocation_release	Ran 14 test	OK	exit=0	0.74s
+tests.job_manager.test_fresh_attempt	Ran 159 test	FAILED (failures=85)	exit=1	1.29s
+tests.job_manager.test_job_cancellation	Ran 27 test	OK	exit=0	0.99s
+tests.job_manager.test_job_control	Ran 45 test	OK	exit=0	1.25s
+tests.job_manager.test_launch	Ran 16 test	OK	exit=0	0.69s
+tests.job_manager.test_managed_integration_capacity	Ran 140 test	OK	exit=0	3.82s
+tests.job_manager.test_native_handoffs	Ran 82 test	OK	exit=0	4.95s
+tests.job_manager.test_native_permission	Ran 20 test	FAILED (errors=1)	exit=1	2.62s
+tests.job_manager.test_native_stop_restart	Ran 6 test	OK	exit=0	0.75s
+tests.job_manager.test_recovery	Ran 56 test	OK	exit=0	3.34s
+tests.job_manager.test_restart	Ran 23 test	OK	exit=0	0.79s
+tests.job_manager.test_retained_failure_analysis	Ran 87 test	OK	exit=0	3.62s
+tests.job_manager.test_review_driver	Ran 163 test	OK	exit=0	9.89s
+tests.job_manager.test_role_capability	Ran 72 test	OK	exit=0	1.48s
+tests.job_manager.test_role_contract	Ran 77 test	OK	exit=0	1.89s
+tests.job_manager.test_scheduling	Ran 72 test	OK	exit=0	1.23s
+tests.job_manager.test_serving_renewal	Ran 14 test	OK	exit=0	1.02s
+tests.job_manager.test_status	Ran 65 test	OK	exit=0	0.94s
+tests.job_manager.test_store	Ran 47 test	OK	exit=0	1.00s
+tests.job_manager.test_store_readonly	Ran 31 test	FAILED (failures=1)	exit=1	0.61s
+tests.job_manager.test_submission	Ran 22 test	OK	exit=0	0.55s
+tests.job_manager.test_sweep	Ran 48 test	OK	exit=0	1.05s
+tests.job_manager.test_templates	Ran 122 test	OK	exit=0	0.69s
+tests.job_manager.test_tool	Ran 72 test	FAILED (failures=2)	exit=1	1.64s

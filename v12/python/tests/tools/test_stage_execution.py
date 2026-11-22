@@ -10174,6 +10174,246 @@ class TwoBoundJobsTraverseServingAndCorrection(
                          ("refused", "precondition"))
         self.assertIn("already configures", held.message)
 
+    # -- W385623: the declared retained-failure analysis worker -------------
+
+    ANALYSIS_WORK = "0000000a-W6"
+    ANALYST = "baton.analysis"
+
+    def analysis_execution(self, **changed):
+        """One configured retained-failure analysis execution.
+
+        W385623 / REC-8. A COMPLETE `single_worker` deployment, exactly as a
+        judgment is and for the judgment's reason: an analysis of a retained
+        failure is attributable to its own participant under its own
+        principal, with its own Work, homes and input manifest. Nothing is
+        borrowed from a stage worker, because an analyst that was also this
+        Job's coder or reviewer would make the explanation of a failure
+        attributable to whoever caused it.
+        """
+        from baton_v12.authority import Authority
+        from tests.job_manager import fixtures as job_fixtures
+
+        if "_analysis_work" not in self.__dict__:
+            authority = Authority.open(
+                self.authority_path,
+                expected_authority_uuid=self.config["authority_uuid"])
+            try:
+                authority.add_route_handler(job_fixtures.ROUTE, self.ANALYST)
+                authority.create_work(
+                    self.ANALYSIS_WORK, job_fixtures.ROUTE,
+                    contract="v12-assignment-1",
+                    operation_id="create-analysis-work")
+            finally:
+                authority.dispose()
+            self.__dict__["_analysis_work"] = self.ANALYSIS_WORK
+        authority = Authority.open_readonly(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            principal = authority.principal_of(self.ANALYST)
+        finally:
+            authority.dispose()
+        deployment = copy.deepcopy(self.config)
+        deployment["launch_role"] = stage_execution.ANALYSIS_LAUNCH_ROLE
+        deployment["participant"] = self.ANALYST
+        deployment["principal"] = principal
+        deployment["input_manifest"] = self.manifest_over(
+            self.ANALYSIS_WORK, self.analysis_task_bytes())
+        deployment["task_document"] = self.analysis_task_document()
+        for name in ("launch_home", "credential_home"):
+            place = os.path.join(self.root, f"analysis-{name}")
+            os.makedirs(place, exist_ok=True)
+            deployment[name] = place
+        held = {"worker_id": "recovery-analysis-worker",
+                "principal": "principal:recovery-analysis",
+                "capability_digest": "sha256:" + "c" * 64,
+                "owner_destination": "baton.slaw",
+                "deployment": deployment}
+        held.update(changed)
+        return held
+
+    def analysis_task_bytes(self):
+        return json.dumps(
+            {"schema": "baton.dogfood-task/2",
+             "task_id": "w385623-retained-analysis",
+             "instructions": ("Analyse one retained verification failure. "
+                              "Read /input/analysis-input.json for the exact "
+                              "fixed evidence. Write the diagnosis, options "
+                              "and recommendation; change nothing."),
+             "source_root": "source", "source_profile": "git-line",
+             "declared_base": self.base,
+             "verification": ["python3", "harness.py"]},
+            sort_keys=True).encode("utf-8")
+
+    def analysis_task_document(self):
+        place = os.path.join(self.root, "analysis-task.json")
+        with open(place, "wb") as writing:
+            writing.write(self.analysis_task_bytes())
+        return place
+
+    def analysing(self, **changed):
+        return self.traversing(analysis_worker=self.analysis_execution(
+            **changed))
+
+    def held_analysis(self, **changed):
+        return stage_execution.held_configuration(
+            self.composed_document(line_declared_base=self.base,
+                                   **self.two_jobs(**self.analysing(
+                                       **changed))),
+            checkout=self.checkout)
+
+    def refused_analysis(self, **changed):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.held_analysis(**changed)
+        return caught.exception
+
+    def test_the_declared_analysis_worker_is_held_and_its_declaration_made(
+            self):
+        """W385623: the DEPLOYMENT PRODUCER, proved before anything is opened.
+
+        What the operator says is who analyses; what this deployment produces
+        is the `baton.v12.recovery-analysis-worker/1` declaration the Job
+        manager's recovery pass will accept -- with the schema, the role, the
+        owner-approved profile, that profile's digest and the permitted output
+        set filled in from the definition `failure_analysis` holds.
+        """
+        from baton_v12.job_manager import failure_analysis
+
+        given = self.held_analysis()
+        held = given["analysis_worker"]
+        self.assertEqual(held["worker_id"], "recovery-analysis-worker")
+        self.assertEqual(held["owner_destination"], "baton.slaw")
+        self.assertEqual(held["deployment"]["participant"], self.ANALYST)
+        self.assertEqual(held["deployment"]["launch_role"],
+                         stage_execution.ANALYSIS_LAUNCH_ROLE)
+        # THE HELD FORM, not the bytes that were written.
+        self.assertIn("credential_resolution", held["deployment"])
+        # ITS OWN WORK.
+        self.assertEqual(
+            held["deployment"]["input_manifest"]["work_ref"]["work_id"],
+            self.ANALYSIS_WORK)
+        self.assertNotEqual(
+            held["deployment"]["input_manifest"]["work_ref"]["work_id"],
+            self.work)
+        # AND THE PRODUCED DECLARATION IS EXACTLY THE PRODUCT'S.
+        self.assertEqual(
+            held["declaration"],
+            failure_analysis.declared_analysis_worker(
+                {"worker_id": "recovery-analysis-worker",
+                 "participant": self.ANALYST,
+                 "principal": "principal:recovery-analysis",
+                 "capability_digest": "sha256:" + "c" * 64}))
+        self.assertEqual(held["declaration"]["schema"],
+                         "baton.v12.recovery-analysis-worker/1")
+        self.assertEqual(held["declaration"]["role"], "analysis")
+        self.assertEqual(held["declaration"]["profile"],
+                         failure_analysis.ANALYSIS_PROFILE)
+        self.assertEqual(held["declaration"]["profile_digest"],
+                         failure_analysis.ANALYSIS_PROFILE_DIGEST)
+        self.assertEqual(held["declaration"]["permitted_outputs"],
+                         ["analysis", "partial"])
+        # THE STAGE-WORKER CONTRACT IS UNTOUCHED and the analyst leaked into
+        # none of the three stage roles.
+        self.assertEqual({one["role"] for one in given["workers"]},
+                         set(stage_execution.ROLES))
+        self.assertNotIn("recovery-analysis-worker",
+                         {one["worker_id"] for one in given["workers"]})
+
+    def test_a_deployment_that_declares_no_analyst_is_unchanged(self):
+        """Absent is an answer, and every accepted document predates this."""
+        given = stage_execution.held_configuration(
+            self.composed_document(line_declared_base=self.base,
+                                   **self.two_jobs(**self.traversing())),
+            checkout=self.checkout)
+        self.assertIsNone(given["analysis_worker"])
+
+    def test_an_analyst_that_serves_a_stage_is_refused(self):
+        """An analysis is not attributed to the participant that produced the
+        failure it explains."""
+        from baton_v12.authority import Authority
+
+        held = self.analysis_execution()
+        who = self.document()["workers"][0]["deployment"]["participant"]
+        authority = Authority.open_readonly(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            principal = authority.principal_of(who)
+        finally:
+            authority.dispose()
+        held["deployment"]["participant"] = who
+        held["deployment"]["principal"] = principal
+        refused = self.refused_analysis(deployment=held["deployment"])
+        self.assertEqual((refused.category, refused.code),
+                         ("policy", "denied"))
+        self.assertIn("serves a stage", refused.message)
+
+    def test_an_analysis_identity_that_collides_with_a_stage_worker_refuses(
+            self):
+        refused = self.refused_analysis(worker_id="review-worker")
+        self.assertEqual((refused.category, refused.code),
+                         ("refused", "precondition"))
+        self.assertIn("already configures", refused.message)
+
+    def test_an_analyst_that_launches_another_role_is_refused(self):
+        held = self.analysis_execution()
+        held["deployment"]["launch_role"] = "implementation"
+        refused = self.refused_analysis(deployment=held["deployment"])
+        # REFUSED BY `single_worker`'S OWN VALIDATOR, which this deployment
+        # hands the document to with exactly the one admissible role -- so a
+        # second copy of that rule here would be a second opinion about
+        # somebody else's contract.
+        self.assertEqual((refused.category, refused.code),
+                         ("policy", "denied"))
+        self.assertIn("implementation", refused.message)
+
+    def test_an_analysis_report_that_is_not_retained_is_refused(self):
+        held = self.analysis_execution()
+        held["deployment"]["retention_disposition"] = "discard-after-intake"
+        refused = self.refused_analysis(deployment=held["deployment"])
+        self.assertIn("retained", refused.message)
+
+    def test_a_missing_declared_fact_refuses_before_anything_is_opened(self):
+        for name in ("worker_id", "principal", "capability_digest",
+                     "owner_destination", "deployment"):
+            held = self.analysis_execution()
+            del held[name]
+            with self.subTest(member=name):
+                with self.assertRaises(ContractRefusal) as caught:
+                    stage_execution.held_configuration(
+                        self.composed_document(
+                            line_declared_base=self.base,
+                            **self.two_jobs(**self.traversing(
+                                analysis_worker=held))),
+                        checkout=self.checkout)
+                self.assertIn("analysis worker", caught.exception.message)
+
+    def test_a_declared_analyst_composes_and_exposes_the_recovery_seam(self):
+        """W385623: THE SEAM THE JOB MANAGER'S TICK ACTUALLY REACHES.
+
+        `manager._analyse` finds it with `getattr(operations,
+        "recovery_analysis", None)`, so what this proves is that a real
+        composition of this deployment answers that name with a seam the
+        product's own validator accepts -- and that a deployment declaring no
+        analyst answers `None`, which is what leaves every accepted
+        deployment in this tree unchanged.
+        """
+        from baton_v12.job_manager import failure_analysis
+
+        _job, _control, composed = self.serving_two(**self.analysing())
+        seam = composed.recovery_analysis
+        self.assertIsNotNone(seam)
+        held = failure_analysis.check_analysis_seam(seam)
+        self.assertIs(held["control"], composed.deployment.control)
+        self.assertEqual(held["destination"], "baton.slaw")
+        self.assertEqual(held["declaration"]["participant"], self.ANALYST)
+        self.assertEqual(held["declaration"]["profile_digest"],
+                         failure_analysis.ANALYSIS_PROFILE_DIGEST)
+
+    def test_a_deployment_without_an_analyst_exposes_no_seam(self):
+        _job, _control, composed = self.serving_two(**self.traversing())
+        self.assertIsNone(composed.recovery_analysis)
+
     def test_the_judgment_subject_is_the_derived_candidate(self):
         """W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own
         custody record rather than composed by a caller.

@@ -1,0 +1,474 @@
+{
+  "job_id": "w385623-native-correction-1",
+  "work_id": "7782b07c-W1",
+  "submission_id": "sub-w385623-native-correction-1",
+  "resolution_digest": "sha256:a7b83cef860f3fae0d9cf118baa888f981efdd8af8d4a9d9bd70dd3393d41fe4",
+  "template": {
+    "version": "baton.v12.job-template.implementation-review/3",
+    "origin": "request",
+    "permitted_overrides": [
+      "execution_limits"
+    ]
+  },
+  "task": {
+    "job_id": "w385623-native-correction-1",
+    "work_id": "7782b07c-W1",
+    "submission_id": "sub-w385623-native-correction-1",
+    "statement": "W385623 bounded correction, then independent native review. Start from exact retained candidate f13e0b1255cfd43e145fe2ced565704e888e3e17 (original base72e1093dccb3ded9763fd2c42f0f713a7ff2c88f), not original base. Prior native Job w385623-native-analysis-1 completed execution but review changes-requested. This new Job is a separate execution of that correction, not a restart or acceptance of the old Job; do not change old clocks/allowance. Canonical owner Work remains W385623/T385623.\nRead AGENTS.md, v12/DESIGN.md REC-8, own FINDING/PLAN and original evidence/native-kickoff-385631/TASK.txt, parent STAGE-1-CONTRACT.md and its accepted review. Own dossier: work/records/2026/11/finding-v12-retained-failure-analysis. Parent: work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers.\nOwner M385639 selects correction of the independent review finding: failure_analysis.py is library-only. No production caller triggers observe_terminal_failure/admit_dispatch/deliver_analysis/deliver_endpoint and no deployment producer supplies baton.v12.recovery-analysis-worker/1. Connect the automatic ending/observation -> analysis dispatch -> owner report path and declared worker/profile production through existing owners, without broad scheduler/pool/hierarchy work. Export the package operation as appropriate. Existing tools/stage_execution.py conclude/review_driver ending seam is a concrete starting point, not a mandatory file restriction. Merely calling helpers from tests is insufficient. Demonstrate the real configured seam without manual courier; cover actual dispatch and delivery as well as trigger, including failure/restart paths. Preserve exact approved profile, validated immutable evidence, task attribution, role limits, cancellation/expiry/unknown cessation and no retry/recursive analysis. Fix the previous REPORT/manifest module-count claim from32 to31 (30 existing+1 new); preserve prior evidence and clearly identify corrections.\nPreserve the prior 87 focused passes and underlying coverage; extend tests.job_manager.test_retained_failure_analysis or connected tests for actual production behavior. Use deterministic fake/replay providers at the normal boundary, real affected authority/control/custody/dispatch; no nested live calls, full suite or daemon campaign. Record per-ID counts/failures/skips, measured duration and remaining environmental failures; existing unrelated failures are not acceptance of new behavior. Independent reviewer must verify real automatic delivery, exact retained lineage and prior guarantees, not green exit alone.\nNo Stage1-B/C, import, main Git mutation, live configuration changes or unrelated W385635 task-preflight implementation. Use existing /3 clarification and retained continuation; escalate only genuine scope/authority choices. Implementation and review have separate identities/contexts. Submit the complete retained-base-to-final candidate and attributable evidence. New owner-approved native-handoff-heavy/1 governs this Job: provider7200s, stage9000s, overall21600s including queue; verification900s and continuation/correction/retry/shutdown policies unchanged; no silent retry or budget increase. Return changes-requested honestly if incomplete."
+  },
+  "source": {
+    "input_digest": "sha256:d8365a27c808ea3c76e2a390e9c9408fb04a340a8cc49d13db4876034816f438",
+    "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917"
+  },
+  "scope": {
+    "work": [
+      "W385623 Stage1-A correction only from retained candidate; no Stage1-B/C, W385635, live instance changes or mainline import."
+    ],
+    "tests": []
+  },
+  "acceptance": [
+    "Correct f13e0b12: real automatic failure trigger/analysis dispatch/owner delivery and declared worker producer, preserve prior guarantees, correct group accounting, deterministic connected evidence and independent substantive review."
+  ],
+  "overrides": {
+    "execution_limits": {
+      "provider_turn_seconds": 7200
+    }
+  },
+  "rules": {
+    "completion": {
+      "outcome": "accepted",
+      "deciding_role": "review",
+      "verdict_output": "findings",
+      "delivers": "proposal"
+    },
+    "correction": {
+      "outcome": "correction",
+      "episode_ending": "superseded-by-correction",
+      "repeats": [
+        "implementation",
+        "review"
+      ]
+    },
+    "failure": {
+      "outcome": "held",
+      "terminal_policy": "report-and-hold",
+      "stage_state": "exceptional",
+      "recovery_operation": "fresh_attempt.admit"
+    }
+  },
+  "execution_limits": {
+    "units": "seconds",
+    "scope": "per-invocation",
+    "compatibility_generation": 1,
+    "requested": {
+      "provider_turn_seconds": 7200
+    },
+    "boundaries": {
+      "host_verification": {
+        "seconds": 300,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 300
+      },
+      "integration_verification": {
+        "seconds": 1800,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 1800
+      },
+      "ordinary_verification": {
+        "seconds": 900,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 900
+      },
+      "provider_turn": {
+        "seconds": 7200,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      }
+    }
+  },
+  "derivation": {
+    "work_id": "7782b07c-W1",
+    "input_digest": "sha256:d8365a27c808ea3c76e2a390e9c9408fb04a340a8cc49d13db4876034816f438",
+    "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+    "profiles": {
+      "implementation": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92"
+      },
+      "review": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92"
+      }
+    },
+    "declarations": {
+      "implementation": {
+        "impl-a": [
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream",
+                "text/plain"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "proposal",
+            "path": "proposal",
+            "required": false,
+            "type": "git-change-proposal"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "findings",
+            "path": "findings",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "logs",
+            "path": "logs",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "handoff",
+            "path": "handoff",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "response",
+            "path": "response",
+            "required": false,
+            "type": "directory-result"
+          }
+        ]
+      },
+      "review": {
+        "review-a": [
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream",
+                "text/plain"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "proposal",
+            "path": "proposal",
+            "required": false,
+            "type": "git-change-proposal"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "findings",
+            "path": "findings",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "logs",
+            "path": "logs",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "handoff",
+            "path": "handoff",
+            "required": false,
+            "type": "directory-result"
+          },
+          {
+            "constraints": {
+              "allowed_media_types": [
+                "application/octet-stream"
+              ],
+              "link_policy": "forbid",
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "validator_digest": null
+            },
+            "name": "response",
+            "path": "response",
+            "required": false,
+            "type": "directory-result"
+          }
+        ]
+      }
+    },
+    "task_document": "{\"declared_base\":\"f13e0b1255cfd43e145fe2ced565704e888e3e17\",\"instructions\":\"W385623 bounded correction, then independent native review. Start from exact retained candidate f13e0b1255cfd43e145fe2ced565704e888e3e17 (original base72e1093dccb3ded9763fd2c42f0f713a7ff2c88f), not original base. Prior native Job w385623-native-analysis-1 completed execution but review changes-requested. This new Job is a separate execution of that correction, not a restart or acceptance of the old Job; do not change old clocks/allowance. Canonical owner Work remains W385623/T385623.\\nRead AGENTS.md, v12/DESIGN.md REC-8, own FINDING/PLAN and original evidence/native-kickoff-385631/TASK.txt, parent STAGE-1-CONTRACT.md and its accepted review. Own dossier: work/records/2026/11/finding-v12-retained-failure-analysis. Parent: work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers.\\nOwner M385639 selects correction of the independent review finding: failure_analysis.py is library-only. No production caller triggers observe_terminal_failure/admit_dispatch/deliver_analysis/deliver_endpoint and no deployment producer supplies baton.v12.recovery-analysis-worker/1. Connect the automatic ending/observation -> analysis dispatch -> owner report path and declared worker/profile production through existing owners, without broad scheduler/pool/hierarchy work. Export the package operation as appropriate. Existing tools/stage_execution.py conclude/review_driver ending seam is a concrete starting point, not a mandatory file restriction. Merely calling helpers from tests is insufficient. Demonstrate the real configured seam without manual courier; cover actual dispatch and delivery as well as trigger, including failure/restart paths. Preserve exact approved profile, validated immutable evidence, task attribution, role limits, cancellation/expiry/unknown cessation and no retry/recursive analysis. Fix the previous REPORT/manifest module-count claim from32 to31 (30 existing+1 new); preserve prior evidence and clearly identify corrections.\\nPreserve the prior 87 focused passes and underlying coverage; extend tests.job_manager.test_retained_failure_analysis or connected tests for actual production behavior. Use deterministic fake/replay providers at the normal boundary, real affected authority/control/custody/dispatch; no nested live calls, full suite or daemon campaign. Record per-ID counts/failures/skips, measured duration and remaining environmental failures; existing unrelated failures are not acceptance of new behavior. Independent reviewer must verify real automatic delivery, exact retained lineage and prior guarantees, not green exit alone.\\nNo Stage1-B/C, import, main Git mutation, live configuration changes or unrelated W385635 task-preflight implementation. Use existing /3 clarification and retained continuation; escalate only genuine scope/authority choices. Implementation and review have separate identities/contexts. Submit the complete retained-base-to-final candidate and attributable evidence. New owner-approved native-handoff-heavy/1 governs this Job: provider7200s, stage9000s, overall21600s including queue; verification900s and continuation/correction/retry/shutdown policies unchanged; no silent retry or budget increase. Return changes-requested honestly if incomplete.\\n\\nAcceptance criteria:\\n  - Correct f13e0b12: real automatic failure trigger/analysis dispatch/owner delivery and declared worker producer, preserve prior guarantees, correct group accounting, deterministic connected evidence and independent substantive review.\\n\\nSelected work scope (the paths this task covers):\\n  - W385623 Stage1-A correction only from retained candidate; no Stage1-B/C, W385635, live instance changes or mainline import.\\n\\nBounded test-change scope: none. This task changes no test.\\n\\nTemplate: baton.v12.job-template.implementation-review/3\\nWork: 7782b07c-W1\\n\",\"schema\":\"baton.dogfood-task/2\",\"source_profile\":\"git-line\",\"source_root\":\"source\",\"task_id\":\"w385623-native-correction-1\",\"verification\":[\"bash\",\"-c\",\"set -euo pipefail; mkdir -p work/scratch/w385623-verification; export BATON_V12_DISK_ROOT=\\\"$PWD/work/scratch/w385623-verification\\\"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_failure_analysis\"]}",
+    "input_manifest": {
+      "assignment_contract": "v12-assignment-1",
+      "created_at": "2026-11-22T13:12:53.000Z",
+      "credential_policy_digest": "sha256:b192d53c96e1611b035f95c7f2d27ea3a6a48e2cd9499bfc45ba6b2ec6e6779c",
+      "extensions": {},
+      "human_contract": {
+        "artifact_id": "native-development-default",
+        "bytes": 4341,
+        "content_digest": "sha256:075440812ecc02163d93819f3145678995ecd65a07d2b344e6efe1028b82019b",
+        "locator": "artifact://contracts/native-development-default",
+        "media_type": "application/json"
+      },
+      "manifest_digest": "sha256:675a9cfba1b24958b6843fd81ad091428682c593ba7f9c21b0df9e87d07983cd",
+      "manifest_id": "input-manifest-impl-a",
+      "mount_policy_digest": "sha256:e82b23a50fae74fc9d28201d3032dbcc8f2d838e80e050c90cd66abfb9c98b37",
+      "network_policy_digest": "sha256:5313a62ea6f521910530ff366b50747810eaf71a0a2f302c06e2013828c84e4d",
+      "outputs": [
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream",
+              "text/plain"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "proposal",
+          "path": "proposal",
+          "required": false,
+          "type": "git-change-proposal"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "findings",
+          "path": "findings",
+          "required": false,
+          "type": "directory-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "logs",
+          "path": "logs",
+          "required": false,
+          "type": "directory-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "handoff",
+          "path": "handoff",
+          "required": false,
+          "type": "directory-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "response",
+          "path": "response",
+          "required": false,
+          "type": "directory-result"
+        }
+      ],
+      "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+      "record_binding": {
+        "finding_digest": "sha256:54c3aeb2c69753bf010148b851a23888fd7db38817eee36e6cfac1738efbf155",
+        "path": "work/records/2026/11/finding-v12-retained-failure-analysis",
+        "plan_digest": "sha256:548ec98bfa666c6871cfb9338ca8d6e255763f91ab5737248fa310300d894a11",
+        "root": "baton-repository"
+      },
+      "resource_policy_digest": "sha256:7205e02e37db76ba642de3a041bffeb435cf5985ac6a460290cc746d7858db97",
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "role_instructions_digest": "sha256:03d28f918747b6f71a741cee12ecf9996f84e384769cdd95a3d25e51e79f210d",
+      "runtime_profile_digest": "sha256:5de41afb239b9bd565f8eac452b853cc442258f67fe67b2dc72c7ed3f4ae1c92",
+      "schema": "baton.worker-manifest/input",
+      "sources": [
+        {
+          "consumption": {
+            "baton.source-boundary/1": {
+              "delivery": "nominated-mount",
+              "profile": "git-line",
+              "workspace": "disk"
+            }
+          },
+          "content_manifest": {
+            "entries": [],
+            "entry_count": 0,
+            "total_bytes": 0,
+            "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "destination": "source",
+          "name": "source",
+          "required": true
+        }
+      ],
+      "tool_policy_digest": "sha256:f9549df6179c2d19dbc8f9966264e711d5f831ef2646b01bb569f80556dac186",
+      "toolchain_digest": "sha256:4e880b5d30c6a58207de98a0a6b67774e1ce82c5f69b5b81ede9601f6a56d637",
+      "version": {
+        "major": 1,
+        "minor": 0
+      },
+      "work_ref": {
+        "authority_uuid": "7782b07cde9c4327a967d6dbb717debe",
+        "work_id": "7782b07c-W1"
+      },
+      "worker_image_digest": "sha256:19eb459b44478f60ee16a61fcc32c2c99dd0132d7d93675adf9fb7afbe5a92b4"
+    }
+  },
+  "work": {
+    "work_id": "7782b07c-W1",
+    "state": "created",
+    "requested_labels": [],
+    "projection": {
+      "authority_uuid": "7782b07cde9c4327a967d6dbb717debe",
+      "work_id": "7782b07c-W1",
+      "route": "impl",
+      "status": "open",
+      "phase": "queued",
+      "outcome": null,
+      "rationale": null,
+      "handler": null,
+      "contract": "v12-assignment-1",
+      "scope": "scope:deployment",
+      "labels": [],
+      "creation": {
+        "work_id": "7782b07c-W1",
+        "operation_id": "template_job.create.work:sha256:30f508c6ab93fef9e596e3008c21708b3b1b23619a5d180126eb081e5ed7f8c4",
+        "kind": "trusted-bootstrap",
+        "scope": "scope:deployment",
+        "at": "2026-11-22T13:14:25.679Z"
+      },
+      "close_decision": null,
+      "generation_counter": 0,
+      "live_generation": null,
+      "assignment": null,
+      "gate": null,
+      "fenced_generations": [],
+      "ready": true
+    }
+  },
+  "binding": {
+    "canonical_target_id": "f13e0b1255cfd43e145fe2ced565704e888e3e17",
+    "job_id": "w385623-native-correction-1",
+    "job_work_id": "7782b07c-W1",
+    "line_declared_base": "f13e0b1255cfd43e145fe2ced565704e888e3e17",
+    "review_work_id": "7782b07c-W1",
+    "source_worker_id": "impl-a"
+  },
+  "stages": [
+    "w385623-native-correction-1/implementation",
+    "w385623-native-correction-1/review"
+  ],
+  "servable": {
+    "implementation": [
+      "impl-a"
+    ],
+    "review": [
+      "review-a"
+    ]
+  },
+  "recorded_at": "2026-11-22T13:14:25.713Z",
+  "control": {
+    "profile": "native-handoff-heavy/1",
+    "resolved": {
+      "profile": "native-handoff-heavy/1",
+      "units": "seconds",
+      "correction_rounds": 0,
+      "stage_seconds": 9000,
+      "job_seconds": 21600,
+      "provider_turn_seconds": 7200,
+      "verification_command_seconds": 900
+    }
+  }
+}

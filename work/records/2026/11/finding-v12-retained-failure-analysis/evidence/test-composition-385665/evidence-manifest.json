@@ -1,0 +1,10 @@
+{
+  "REPORT.md": "4059bcb3bb2702c8d769f415f8c4ef34520b78c49e145ee0689fcc4cf98d9214",
+  "base-test.py": "88dbd90aa85da975d022926f18a093f5c66a6f8a13437a0fedc0347f6d8834c2",
+  "candidate-manifest.json": "21c3920abf4c7f70b71fe5a6a7fb8d3f3c76e88bebffdfebf6e1bc14df0f77b9",
+  "candidate-test.py": "9a810f47e7bbb2ba2a2dab5c12ae509955f93e438a4fc28d001d4a9cf81b8954",
+  "candidate.patch": "b22fa61a2519f30c2a644486612b3a3f73c5f38bcea626c5a860ce9e617a9f58",
+  "focused.log": "212ab285afc072f6b06c53d2eb84b2a5cef73a2fdb5209316c78905557288dcc",
+  "joined-base.json": "c6296faadbed3b4a2880b59342b4be34ae1d9e7fdf8a7a0967278e65451d96b4",
+  "run.json": "db6e911588e3f3888a96a83388916b5ddb7bad3113dfa9cc4b9a67144754911c"
+}

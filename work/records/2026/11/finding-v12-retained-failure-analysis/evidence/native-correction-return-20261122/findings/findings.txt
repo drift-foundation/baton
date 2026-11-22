@@ -1,0 +1,154 @@
+VERDICT: accepted.
+
+Independent review of candidate 7d686bf09200692dec7faf1a20baf062e0638c3f at retained base
+f13e0b1255cfd43e145fe2ced565704e888e3e17 (whose own parent is 72e1093dccb3ded9763fd2c42f0f713a7ff2c88f).
+Everything below was substantiated by reading the tree at /input/source and by running commands in a
+writable copy of it; nothing in /input/source was modified, no provider/model was invoked, no Git state
+was mutated and no live configuration was touched.
+
+== 1. Lineage is exactly the retained candidate ==
+git parentage checked: 7d686bf0 -> f13e0b12 -> 72e1093d. The three paths the prior candidate added are
+present at f13e0b12 with exactly the digests the REPORT/manifest claim:
+failure_analysis.py dd20652e..., test_retained_failure_analysis.py e3512ff3...,
+tools/parallel_test.py b93b69fa... (and parallel_test.py is byte-identical at HEAD, so no registry entry
+was owed or taken). All nine changed product/test files match the REPORT's sha256 and line counts
+byte-for-byte as recomputed by me (failure_analysis 93ea0d63/2370, manager 81d248e4/1418,
+documents 98ecc49e/944, delegation 09540d55/1338, __init__ 88ef704b/157,
+stage_execution 29527776/7920, single_worker a84abfb4/4475,
+test_retained_failure_analysis 88dbd90a/2729, test_stage_execution dcad80a5/13559).
+proposal/result.json declares base f13e0b12 and head 7d686bf0; output.json declares verification status 0.
+
+== 2. The reviewed finding is really closed: the path is automatic, with no courier ==
+I traced the whole configured seam in the source, not just the tests:
+  * tools/job_manager.py loads a deployment factory via `--operations module:attribute`
+    (_operations_from -> factory(store, control)); tools/stage_execution.factory calls operations_from
+    and returns the composed StageExecution object.
+  * operations_from (stage_execution.py:~7343) sets composed.recovery_analysis = RecoveryAnalysis(...)
+    whenever the new optional `analysis_worker` configuration member is present, with the worker's
+    provider obtained through the same single_worker.worker_preflight every other worker uses.
+  * manager.serve (manager.py:1165) and manager.reconcile (manager.py:103) both call manager.sweep;
+    sweep now calls _analyse (manager.py:~220 and ~292), which discovers the seam with
+    getattr(operations, "recovery_analysis", None) and calls failure_analysis.advance_recovery.
+  * advance_recovery (failure_analysis.py section 10) is level-triggered from durable state:
+    settled_trigger_endings reads the Job store's own settled `implementation`/`unable` ending records
+    through submission.stage_rows/episodes.episodes_of/ending.ending_of, triggered_ending asks the
+    consequence-free question, and the pass then calls observe_terminal_failure, admit_dispatch,
+    deliver_analysis and deliver_endpoint itself. The dispatch intent is journalled by admit_dispatch
+    BEFORE seam["launch"](...) is called, and the analysis attempt identity is derived from the failure
+    key by analysis_attempt_id (verified by direct call: sha256:aaa... -> analysis-aaa...), so a restart
+    re-enters the same execution rather than minting a second one.
+  * ManagerOperations gained `recovery_analysis` as an optional, default-None public capability
+    (delegation.py), and StageExecution binds self.recovery_analysis = None in __init__ so a deployment
+    that declares no analyst answers None instead of raising out of __getattr__ delegation. A sweep with
+    no seam adds no `analysed` member; I confirmed tests.job_manager.test_sweep (48) and
+    test_delegation (44) still pass unchanged.
+  * The declared worker/profile is PRODUCED, not transcribed: failure_analysis.declared_analysis_worker
+    takes only the four operator facts and fills schema/role/profile/profile_digest/permitted_outputs
+    from the definition the module holds. I called it directly: it emits
+    baton.v12.recovery-analysis-worker/1, role "analysis", profile stage1-analysis/1,
+    digest sha256:a4be8b48e098efc47f770a8b7f941b80eadd22b23c48eebf67863d3a4dc824ab,
+    permitted_outputs ["analysis","partial"], and no provider/model/adapter member; adding a `profile`
+    member is refused ("unexpected profile"). stage_execution._held_analysis validates the member and
+    produces that declaration before anything is opened.
+I also mechanically confirmed the claim that the acceptance module's new section does NOT call the four
+operations by hand: the only occurrences of observe_terminal_failure / admit_dispatch /
+deliver_analysis / deliver_endpoint after line 1700 of the acceptance module are the two comment lines
+that say so.
+
+== 3. The named verification command, run by me ==
+I copied the tree (minus .git) to a writable location and ran the task's command verbatim:
+  bash -c 'set -euo pipefail; mkdir -p work/scratch/w385623-verification;
+    export BATON_V12_DISK_ROOT="$PWD/work/scratch/w385623-verification";
+    cd v12/python; export PYTHONPATH=src;
+    exec python3 -m unittest -v tests.job_manager.test_retained_failure_analysis'
+Result: Ran 140 tests in 3.277s - OK, exit 0. 140 collected / 140 passed / 0 failures / 0 errors /
+0 skips. (The submitted logs report 3.312 s and 3.288 s; same counts.)
+Preservation checked by name, not by count: I extracted the 87 test ids from the prior run's
+native-stage-1a-385623/submitted-verification.log and the 140 from my own run - zero prior ids are
+missing, and exactly 53 are new. The new ids include the ones that matter for this correction, and all
+passed in my run: test_three_ticks_observe_dispatch_and_deliver_one_owner_item,
+test_the_real_operations_surface_drives_the_whole_path (real ManagerOperations over an Authority-bound
+port), test_the_resume_path_reaches_the_same_pass (manager.reconcile),
+test_a_second_incarnation_continues_from_the_durable_records (restart),
+test_an_in_flight_analysis_is_re_entered_under_one_identity,
+test_a_lost_launch_holds_and_then_reports_unknown_cessation,
+test_an_analysis_that_never_landed_expires_on_its_own_bound,
+test_a_misconfigured_seam_is_a_condition_and_not_a_fault, plus the failure/cancel/expiry endpoints,
+the no-mutation comparison and both recursion exclusions.
+
+== 4. Connected modules, run by me ==
+tests.tools.test_stage_execution: Ran 508 in 335.7 s, FAILED (failures=8). The 8 failing ids are
+IDENTICAL to both the submitted baseline log (481 collected, 8 failures) and the submitted candidate log
+(508, 8) - all OrdinaryTerminalLifecycle / ANewJobCreatedAfterA integration-stage lifecycle cases that
+need engine/target facts this environment does not supply, i.e. pre-existing and orthogonal. All 27
+collected ids from the 9 new analysis-configuration cases are present and none is in the failure list.
+Also run by me, all matching the claims: tests.tools.test_single_worker 255 OK (23.7 s),
+tests.tools.test_job_task_delivery 87 OK (10.6 s), tests.tools.test_parallel_runner 73 OK (16.5 s),
+tests.manager.test_attempt_failure_cause 117 OK (0.80 s), tests.job_manager.test_sweep 48 OK (0.34 s),
+tests.job_manager.test_delegation 44 OK, tests.job_manager.test_documents 31 OK.
+Environmental shortfall independently probed rather than taken: with BATON_V12_STACK_TEST_ROOT pointed
+at a disk-backed directory outside the checkout, tests.job_manager.test_native_permission goes 20/20 OK
+(it is 1 error in the submitted ledger), and the single remaining test_store_readonly failure is a
+long-TMPDIR path-truncation assertion ('jobs.sqlite3' not in a truncated message) with no relation to
+this change. So the "environmental, not waived" characterisation holds and no OPTIONAL_SKIPS entry was
+added (parallel_test.py is unchanged).
+
+== 5. Group accounting correction is right ==
+job-manager-group-ledger.tsv has exactly 31 rows; summing its per-module counts gives 1862 collected;
+27 rows are OK and 4 are FAILED (test_fresh_attempt 85 failures, test_native_permission 1 error,
+test_store_readonly 1 failure, test_tool 2 failures = 89 non-passes = 88 + 1). The tree really has 31
+test modules under tests/job_manager, and tools/parallel_test.py really registers 31 tests.job_manager
+modules (group mapped by the "tests.job_manager" prefix). So 32 -> 31 and 28 -> 27 are correct.
+The prior evidence directory was corrected without rewriting measurements: the only changed files there
+are REPORT.md (corrected paragraph plus an appended, explicitly labelled "Correction" section) and
+manifest.json (owning_group.modules 32 -> 31, modules_ok added as 27, plus a `corrections` array naming
+member/was/now/why/by/result). Every prior log and the prior ledger are byte-identical.
+
+== 6. Prior guarantees preserved ==
+failure_analysis.py has exactly three diff hunks against the retained base: the import line, __all__, and
+the appended section 10. Sections 1-9 are untouched, so nothing reviewed before was weakened; the new code
+only decides WHEN to call them. The approved profile is exact: the module's held definition digests to
+a4be8b48e098efc47f770a8b7f941b80eadd22b23c48eebf67863d3a4dc824ab, which I confirmed equals the sha256 of
+the owner-approved stage1-analysis-1.json in the parent dossier, and its values (overall 4800 s queue
+included, stage 4800 s, provider 3600 s, 0 retries/corrections) match M385612 and the accepted parent
+review. Immutable evidence is revalidated by _fixed_input before the launch as well as before delivery
+(digest mismatch refuses). Role limits, cancellation/expiry/unknown-cessation endpoints and the
+no-retry/no-recursion rules are all exercised from the production entry point. Scope held: fresh_attempt.py,
+review_driver.py, job_control.py, episodes.py and cancellation.py are unchanged; no DESIGN, conf/,
+instance-inputs or W385635 change; no Stage 1-B/1-C behaviour; no mainline import.
+The test-file edits are additive - the three fixture helpers gained optional operands with every prior
+default unchanged, and analysis_outputs was extracted verbatim - which the 87-by-name pass corroborates.
+The template's generic "bounded test-change scope: none" is openly reconciled in the REPORT against the
+assignment's explicit instruction to extend the tests and AGENTS.md's standing test-change authority
+(owner ruling 2026-09-13, which I read and which does cover this); that is the right call and it was
+disclosed rather than assumed.
+
+== 7. Non-blocking observations ==
+a) Accounting imprecision in the REPORT changed-paths table and in manifest.json
+   (candidate/.../test_stage_execution.py.change): both say "9 ids added" for
+   tests/tools/test_stage_execution.py. Nine test METHODS were added, but the class they were added to
+   has two subclasses, so 27 collected ids were added (481 -> 508). The headline measured figures
+   (508 collected, 8 failures) and the ledger are correct, and elsewhere in these documents "ids" means
+   collected ids (87/53/140), so this one line reads lower than reality. Worth fixing in a later edit;
+   it does not affect the owning-group accounting this Job was asked to correct, and I verified the true
+   number myself.
+b) AnalysisExecution.poll - the container half of the analysis turn - is not directly exercised, as the
+   REPORT states in its own open items. It composes the accepted single_worker.worker_operations
+   lifecycle that JudgmentExecution already uses, and driving a real container is excluded by this task's
+   no-daemon-campaign constraint. The orchestration above it (dispatch intent before effect, one derived
+   identity, re-entry, frozen-result reading, all four finite endings) is proven.
+c) The pass re-reports a permanently refusing ending (e.g. an invalid retained candidate) on every tick.
+   That is deliberate and matches REC-8's "MUST be reported", but it is a standing log cost worth knowing.
+d) _fenced reaches the cancellation fence through store._connection, a private attribute. Consistent with
+   the surrounding module's existing practice; noted only for tidiness.
+None of (a)-(d) changes behaviour or the acceptance criteria.
+
+== Conclusion ==
+The acceptance criterion is met. The automatic failure trigger, the analysis dispatch and the owner
+delivery are reached by the real manager tick from a real settled ending with no manual courier; the
+declared worker and the owner-approved profile are produced by an existing owner
+(tools/stage_execution.py + failure_analysis.declared_analysis_worker) and exported from the package; the
+prior guarantees and the exact retained lineage are intact; the group accounting is now correct and the
+correction is clearly identified without rewriting prior measurements; and the evidence is deterministic
+and reproducible - I reproduced the acceptance command (140/140, exit 0) and every connected-module count
+myself rather than relying on a green exit.

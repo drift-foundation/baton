@@ -468,6 +468,14 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     "tests.job_manager.test_native_handoffs",
     "tests.job_manager.test_native_permission",
     "tests.job_manager.test_native_stop_restart",
+    # W385623: the retained verification failure, its one automatic analysis
+    # and the owner item it delivers. PARALLEL: a disposable Job store and
+    # control store per case, a real custody tree under this case's own
+    # disk-backed root, a fake profile and fence port, no engine and no
+    # provider. It derives its fixture from `test_review_driver`'s serial
+    # case class by module attribute -- the same composition
+    # `test_native_handoffs` uses -- and binds none of its test classes.
+    "tests.job_manager.test_retained_failure_analysis",
     # W383215: the Job-store cancellation owner and its fences. PARALLEL: real
     # disposable stores per case, fake session and operations, no engine.
     "tests.job_manager.test_job_cancellation",
@@ -565,6 +573,8 @@ SUPERVISED_MODULES = ({
 _LAUNCH_MISMATCH = "work/records/2026/09/finding-v12-worker-launch-version-mismatch"
 _WORKER_CONTRACT = ("work/records/2026/08/finding-v12-isolated-agent-workers/findings/"
                     "finding-v12-worker-contract/findings")
+_TEAM_HIERARCHY = ("work/records/2026/08/finding-v12-isolated-agent-workers/findings/"
+                   "finding-v12-team-hierarchy-shared-approvers")
 _ADMISSION_PLAN = ("work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/"
                    "finding-template-adapter-admission-plan")
 CONSUMED_INPUTS = (
@@ -617,6 +627,12 @@ CONSUMED_INPUTS = (
      "consumers": ("tests.authority.test_catalog",)},
     {"path": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
      "consumers": ("tests.tools.test_correction_restart",)},
+    # W385623: the owner-approved `stage1-analysis/1` definition record, read
+    # so the product's held copy is compared to the bytes M385612 published
+    # rather than only to its own digest. The smallest path actually
+    # consumed: one definition file, not the contract dossier around it.
+    {"path": _TEAM_HIERARCHY + "/evidence/stage-1-contract-385615/stage1-analysis-1.json",
+     "consumers": ("tests.job_manager.test_retained_failure_analysis",)},
 )
 
 

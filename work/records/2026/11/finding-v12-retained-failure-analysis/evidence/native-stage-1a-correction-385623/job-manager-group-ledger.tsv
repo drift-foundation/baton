@@ -1,0 +1,31 @@
+tests.job_manager.test_accepted_offer_retirement	Ran 11 test	OK
+tests.job_manager.test_creation	Ran 106 test	OK
+tests.job_manager.test_delegation	Ran 44 test	OK
+tests.job_manager.test_documents	Ran 31 test	OK
+tests.job_manager.test_ending	Ran 54 test	OK
+tests.job_manager.test_exchange	Ran 46 test	OK
+tests.job_manager.test_execution_limits	Ran 37 test	OK
+tests.job_manager.test_final_allocation_release	Ran 14 test	OK
+tests.job_manager.test_fresh_attempt	Ran 159 test	FAILED (failures=85)
+tests.job_manager.test_job_cancellation	Ran 27 test	OK
+tests.job_manager.test_job_control	Ran 45 test	OK
+tests.job_manager.test_launch	Ran 16 test	OK
+tests.job_manager.test_managed_integration_capacity	Ran 140 test	OK
+tests.job_manager.test_native_handoffs	Ran 82 test	OK
+tests.job_manager.test_native_permission	Ran 20 test	FAILED (errors=1)
+tests.job_manager.test_native_stop_restart	Ran 6 test	OK
+tests.job_manager.test_recovery	Ran 56 test	OK
+tests.job_manager.test_restart	Ran 23 test	OK
+tests.job_manager.test_retained_failure_analysis	Ran 140 test	OK
+tests.job_manager.test_review_driver	Ran 163 test	OK
+tests.job_manager.test_role_capability	Ran 72 test	OK
+tests.job_manager.test_role_contract	Ran 77 test	OK
+tests.job_manager.test_scheduling	Ran 72 test	OK
+tests.job_manager.test_serving_renewal	Ran 14 test	OK
+tests.job_manager.test_status	Ran 65 test	OK
+tests.job_manager.test_store	Ran 47 test	OK
+tests.job_manager.test_store_readonly	Ran 31 test	FAILED (failures=1)
+tests.job_manager.test_submission	Ran 22 test	OK
+tests.job_manager.test_sweep	Ran 48 test	OK
+tests.job_manager.test_templates	Ran 122 test	OK
+tests.job_manager.test_tool	Ran 72 test	FAILED (failures=2)

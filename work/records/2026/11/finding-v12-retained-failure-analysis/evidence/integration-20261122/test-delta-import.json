@@ -1,0 +1,8 @@
+{
+  "candidate": "sha256:35de2ca2eff9f6daef003d3deee4fba1bb352c0daaa539d0ef56aa6e053e4a90",
+  "path": "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+  "sha256": "9a810f47e7bbb2ba2a2dab5c12ae509955f93e438a4fc28d001d4a9cf81b8954",
+  "review": "review-2026-11-22T17-27-08Z.md",
+  "preflight": "regular owner-writable file, exact base",
+  "postflight": "exact accepted bytes, unchanged mode"
+}

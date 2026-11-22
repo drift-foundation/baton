@@ -1,0 +1,43 @@
+.............E......
+======================================================================
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/output/v12/python/tests/job_manager/test_native_permission.py", line 346, in test_the_native_factory_delivers_the_policy_to_both_stage_workers
+    composed = stage_execution.factory(job, control)
+  File "/output/v12/python/tools/stage_execution.py", line 7452, in factory
+    return operations_from(configuration, job_store, control_store,
+                           lifetime_policy=native_lifetime_policy(
+                               configuration))
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/output/v12/python/tests/job_manager/test_native_permission.py", line 338, in compose
+    return actual(configuration, job_store, control_store,
+                  credential_provider=lambda provider, reference:
+                  self.secret, **named)
+  File "/output/v12/python/tools/stage_execution.py", line 6978, in operations_from
+    given = held_configuration(document, checkout=checkout)
+  File "/output/v12/python/tools/stage_execution.py", line 606, in held_configuration
+    _outside(given[name], here, f"the configured {name}")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/output/v12/python/tools/stage_execution.py", line 486, in _outside
+    _refuse(f"{what} at {place!r} is inside the checkout at {checkout!r}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"mutable deployment state belongs outside the working tree",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="policy", code="denied")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/output/v12/python/tools/stage_execution.py", line 411, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the configured integration_store at '/output/work/scratch/w385623-verification/v12-w71917-xoftbx9y/integration.sqlite3' is inside the checkout at '/output'; mutable deployment state belongs outside the working tree
+
+----------------------------------------------------------------------
+Ran 20 tests in 1.892s
+
+FAILED (errors=1)

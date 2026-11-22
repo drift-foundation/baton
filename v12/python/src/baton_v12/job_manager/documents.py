@@ -87,6 +87,7 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "stage_episode", "stage_id", "stage_launch", "stage_status",
            "status",
            "fresh_attempt_admitted",
+           "recovery_analysis",
            "submission_recorded", "submission_signature", "sweep_report",
            "template_job_created"]
 
@@ -767,8 +768,24 @@ CONTRACTS = {
     # this tick, present only when it acted on one.
     # W383217: `expired` names every Job the control pass decided about this
     # tick (a journalled expiry, a replay, or a hold), present only then.
+    # W385623: `analysed` names every act the retained-verification-failure
+    # recovery pass performed, held or reported this tick, present only when
+    # a deployment configures an analysis seam and the pass answered at all.
     "sweep": (("observed_at", "recovered", "observed", "replaced", "acts",
-               "started", "spoken", "refreshed"), ("cancelled", "expired")),
+               "started", "spoken", "refreshed"),
+              ("analysed", "cancelled", "expired")),
+    # W385623: one act of the retained-failure recovery pass. `act` is
+    # `observe`, `dispatch` or `deliver`; `outcome` is the same closed set
+    # every other level-triggered pass answers with -- did this tick perform
+    # it, hold it, or find it refused. `failure_key` is null for an ending
+    # whose evidence refused before a key could be derived from it, which is
+    # the reported invalid-candidate case and not a silent skip. `detail`
+    # carries only closed words this manager owns: a contained refusal's
+    # typed category and code, the recovery disposition the act reached, the
+    # owner item's own outcome, or the reconciled dispatch state. Never a
+    # refusal's prose and never a worker's message.
+    "recovery.analysis": (("failure_key", "stage_id", "act", "outcome"),
+                          ("detail",)),
     # One live attempt's runtime refresh. `state` is what the reconciliation
     # recorded, or null when this tick could not ask. `detail` carries only
     # what this manager itself can name: a contained refusal's typed category
@@ -877,6 +894,11 @@ def stage_refresh(**members):
 
 def sweep_report(**members):
     return _emit("sweep", members)
+
+
+def recovery_analysis(**members):
+    """W385623: one act of the retained-failure recovery pass."""
+    return _emit("recovery.analysis", members)
 
 
 def job_cancellation(**members):

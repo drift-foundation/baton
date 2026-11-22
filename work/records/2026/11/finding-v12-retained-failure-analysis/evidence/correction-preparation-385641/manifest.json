@@ -1,0 +1,81 @@
+{
+  "work": "W385623",
+  "claim": "E385641",
+  "assignment": "M385639",
+  "utc": "2026-11-22T12:21:08.028186+00:00",
+  "state": "prepared conditional alternative; same-Job continuation unsupported; no live launch",
+  "source_head": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+  "retained_candidate": "f13e0b1255cfd43e145fe2ced565704e888e3e17",
+  "retained_base": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+  "inputs": [
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-return-20261122/manifest.json",
+      "bytes": 758,
+      "sha256": "742a289ef07325889dc2dde9d86ede5e79bf41458b16444b0dc8d72745c19368"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-return-20261122/proposal/result.json",
+      "bytes": 3298,
+      "sha256": "8e2a4bec78ad1cf19e5bc36ca3bf27eb563d0d80c9f0922e19fd51793b326cdf"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-return-20261122/findings/report.json",
+      "bytes": 10947,
+      "sha256": "47897e62b393ecc0f7aacf5336dadfff2874df7d9a4ae9552d7a375c04fcc02d"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/FINDING.md",
+      "bytes": 2721,
+      "sha256": "92fc6bb2d7733ad633b23ab6fe051682b6cfeaf30342c388988e201be6ee352e"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/PLAN.md",
+      "bytes": 3039,
+      "sha256": "7ca332117cb0d4158056cbb572280b9355583592921f36089868916d0fdcf517"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/correction-preparation-385641/COMMANDS.md",
+      "bytes": 11302,
+      "sha256": "0c1b938debd3ac4ac2c695b1cd6d502a169ee69c0be2ad254c95f64f24e6f39c"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/correction-preparation-385641/REPORT.md",
+      "bytes": 4134,
+      "sha256": "265aa00c5554139c239fa4788cc02c330854afd43bb30f804c75616b7f0e437e"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/correction-preparation-385641/TASK.txt",
+      "bytes": 3127,
+      "sha256": "7be5b0e2bd970bec980cbc9c2f4feaec20c0988216a115e7c65abe54be49fb9d"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/correction-preparation-385641/bootstrap-inputs.json",
+      "bytes": 1026,
+      "sha256": "444a0f777d0f5d1a8780e6feddb1cd1d2ab3dcb1a13044c36f666a103011d93e"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/correction-preparation-385641/installed-task.json",
+      "bytes": 669,
+      "sha256": "88b562ede12ce98f9fc9dc846569c130b03e4443419b28fc925518c92e4ed56e"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/correction-preparation-385641/published-status.json",
+      "bytes": 39130,
+      "sha256": "253c2668911d1a5d96d859320c51fe9d61c1b78d0a2cbd95ad93850cdb309e29"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/correction-preparation-385641/state-summary.json",
+      "bytes": 477,
+      "sha256": "eb1125f6dbfa6c0d1d720f90128fc8a2e3fef9d8dccd81180093453a03214c9f"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/correction-preparation-385641/verification-argv.json",
+      "bytes": 275,
+      "sha256": "17562ae04d818d82e9df1c46781043c29fce12625c8ac5fe6e88866ad924a786"
+    }
+  ],
+  "tests_run": 0,
+  "live_mutations": 0
+}

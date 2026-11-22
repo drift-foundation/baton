@@ -1,0 +1,57 @@
+{
+ "base": "f13e0b1255cfd43e145fe2ced565704e888e3e17",
+ "changed_paths": [
+  "v12/python/src/baton_v12/job_manager/__init__.py",
+  "v12/python/src/baton_v12/job_manager/delegation.py",
+  "v12/python/src/baton_v12/job_manager/documents.py",
+  "v12/python/src/baton_v12/job_manager/failure_analysis.py",
+  "v12/python/src/baton_v12/job_manager/manager.py",
+  "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+  "v12/python/tests/tools/test_stage_execution.py",
+  "v12/python/tools/single_worker.py",
+  "v12/python/tools/stage_execution.py",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/PLAN.md",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/PROGRESS.md",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/REPORT.md",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/manifest.json",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/REPORT.md",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/acceptance-command.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/baseline-stage-execution.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/candidate-single-worker.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/candidate-stage-execution.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/job-manager-group-ledger.tsv",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/manifest.json",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/submitted-verification.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/touched-seam-ledger.tsv"
+ ],
+ "collection": {
+  "excluded_ignored": [
+   "handoff/",
+   "work/scratch/"
+  ],
+  "excluded_ignored_count": 2,
+  "excluded_special": [],
+  "excluded_special_count": 0,
+  "note": "these worktree paths were present while the task's verification ran and are NOT part of the delivered proposal; whether the verification relied on any of them is the integrator's question, disclosed rather than adjudicated here"
+ },
+ "disposition": "candidate",
+ "entry_head": "f13e0b1255cfd43e145fe2ced565704e888e3e17",
+ "head": "7d686bf09200692dec7faf1a20baf062e0638c3f",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 7200,
+  "seconds_bound_source": "job-selected",
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "w385623-native-correction-1",
+ "verification": {
+  "argv": [
+   "bash",
+   "-c",
+   "set -euo pipefail; mkdir -p work/scratch/w385623-verification; export BATON_V12_DISK_ROOT=\"$PWD/work/scratch/w385623-verification\"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_failure_analysis"
+  ],
+  "status": 0
+ },
+ "why": "the candidate changed the source and its own verification passed"
+}

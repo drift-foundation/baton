@@ -1,0 +1,9 @@
+{
+  "findings/findings.txt": "7dd42b1c97bfd4056e4be2cb4613b40a540abd37b15d8a74f491335b9d81477c",
+  "findings/report.json": "78a10eb4a5b8ce2a982aea26a1adfe5403c7efe6b90db8b1141936f268c53149",
+  "proposal/change.patch": "07a59a2b613ff3762a64ddff0e029a2e401e2919d4d554332c4918bc590e8bd8",
+  "proposal/objects.bundle": "c010bb5b1dee8b8c8a880cf91e90dd61b11cfd9995d6d25863f13c8e3b774232",
+  "proposal/result.json": "a649dda7d80510f2308ec7957c5952b4dd0895d17b738c1d37f54436a8afad9e",
+  "proposal/verification.txt": "2f9c6618403ee3c5a1387f8043683a9d866bda4e597ec022da773a4be9776d78",
+  "status.json": "db38fab237de6a4fbb44f7cdc9e83f9dd28d374b36ac69c9f54d14c9f40cd329"
+}

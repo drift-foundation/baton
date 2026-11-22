@@ -1,0 +1,24 @@
+--- a/v12/python/tests/job_manager/test_retained_failure_analysis.py
++++ b/v12/python/tests/job_manager/test_retained_failure_analysis.py
+@@ -1690,10 +1690,20 @@
+         self.assertNotIn(failure_analysis.ANALYSIS_PROFILE,
+                          job_control.PROFILES)
+         self.assertEqual(sorted(job_control.PROFILES),
+-                         ["documentation/1", "native-handoff/1"])
++                         ["documentation/1", "native-handoff-heavy/1", "native-handoff/1"])
+         self.assertEqual(job_control.PROFILES["documentation/1"],
+                          {"correction_rounds": 0, "stage_seconds": 4800,
+                           "job_seconds": 9960, "provider_turn_seconds": 3600,
++                          "verification_command_seconds": 900})
++        self.assertEqual(job_control.PROFILES["native-handoff/1"],
++                         {"correction_rounds": 0, "stage_seconds": 4800,
++                          "job_seconds": 9960, "provider_turn_seconds": 3600,
++                          "verification_command_seconds": 900})
++        # M385638 separately approved this implementation/review profile;
++        # it does not move the analysis definition into Job control.
++        self.assertEqual(job_control.PROFILES["native-handoff-heavy/1"],
++                         {"correction_rounds": 0, "stage_seconds": 9000,
++                          "job_seconds": 21600, "provider_turn_seconds": 7200,
+                           "verification_command_seconds": 900})
+ 
+ 

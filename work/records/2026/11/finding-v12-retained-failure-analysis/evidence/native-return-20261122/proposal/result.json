@@ -1,0 +1,53 @@
+{
+ "base": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+ "changed_paths": [
+  "v12/python/src/baton_v12/job_manager/failure_analysis.py",
+  "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+  "v12/python/tools/parallel_test.py",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/PROGRESS.md",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/REPORT.md",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-fresh-attempt-without-change.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-native-permission-without-change.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-store-readonly-without-change.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-tool-without-change.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-fresh-attempt-with-change.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-native-permission-with-change.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-store-readonly-with-change.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-tool-with-change.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/job-manager-group-ledger.tsv",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/manifest.json",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/regression-attempt-failure-cause.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/regression-parallel-runner.log",
+  "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/submitted-verification.log"
+ ],
+ "collection": {
+  "excluded_ignored": [
+   "handoff/",
+   "work/scratch/"
+  ],
+  "excluded_ignored_count": 2,
+  "excluded_special": [],
+  "excluded_special_count": 0,
+  "note": "these worktree paths were present while the task's verification ran and are NOT part of the delivered proposal; whether the verification relied on any of them is the integrator's question, disclosed rather than adjudicated here"
+ },
+ "disposition": "candidate",
+ "entry_head": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+ "head": "f13e0b1255cfd43e145fe2ced565704e888e3e17",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "seconds_bound_source": "job-default",
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "w385623-native-analysis-1",
+ "verification": {
+  "argv": [
+   "bash",
+   "-c",
+   "set -euo pipefail; mkdir -p work/scratch/w385623-verification; export BATON_V12_DISK_ROOT=\"$PWD/work/scratch/w385623-verification\"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_failure_analysis"
+  ],
+  "status": 0
+ },
+ "why": "the candidate changed the source and its own verification passed"
+}

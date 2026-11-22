@@ -1,0 +1,87 @@
+{
+  "work": "W385623",
+  "claim": "E385646",
+  "assignment": "M385644",
+  "owner_ruling": "M385638",
+  "prepared_at": "2026-11-22T12:27:18.683516+00:00",
+  "state": "conditional preparation; profile prerequisite unimplemented and bundle unavailable",
+  "source_head": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+  "inputs": [
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/FINDING.md",
+      "bytes": 3737,
+      "sha256": "e142eb085ef054357089467a6ad282d762945bbbc1e1cc228ee3cd90af688a50"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/PLAN.md",
+      "bytes": 3555,
+      "sha256": "54cf523da818f3d2ea4bad77c5ef4de4616443762485ba64686bade724c9ce0b"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/correction-preparation-385641/COMMANDS.md",
+      "bytes": 11302,
+      "sha256": "0c1b938debd3ac4ac2c695b1cd6d502a169ee69c0be2ad254c95f64f24e6f39c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/job_control.py",
+      "bytes": 31484,
+      "sha256": "74e6f0f8a7e7a1617ee45b663c7531dddb087ac037c3118fd5a270c561349df7"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/execution_limits.py",
+      "bytes": 14763,
+      "sha256": "24f27d7769e7f1ddbc7ee5b3477245cd51833c5dda53ecf78cf8ebe309a3f1c6"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/heavy-profile-preparation-385646/COMMANDS.md",
+      "bytes": 12290,
+      "sha256": "6c4f99d70b8011c6bcd6f15dd003670e100c468a42c27dd2d04db7f060c23604"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/heavy-profile-preparation-385646/PREREQUISITE.md",
+      "bytes": 9650,
+      "sha256": "8654cd44bea49eeb7b318372986fdb08ae1195012c9d07750e9c56ddd4f74a12"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/heavy-profile-preparation-385646/PROFILE-DEFINITION.json",
+      "bytes": 732,
+      "sha256": "25b45962a2c785ceff8f0ebb53bc3778e29c54de3bb10e3a75027b800e1769cb"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/heavy-profile-preparation-385646/TASK.txt",
+      "bytes": 3268,
+      "sha256": "7eb0869cd66e4f18dd81b271f1789aa7ff5fb1ee5faccd40f21683761fafb20a"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/heavy-profile-preparation-385646/bootstrap-inputs.json",
+      "bytes": 1026,
+      "sha256": "444a0f777d0f5d1a8780e6feddb1cd1d2ab3dcb1a13044c36f666a103011d93e"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/heavy-profile-preparation-385646/commands-delta.diff",
+      "bytes": 7906,
+      "sha256": "7b6f1c72300c35c57094876f4c190c1afeea7f72b226dd27d338294d39a48bf2"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/heavy-profile-preparation-385646/installed-task.json",
+      "bytes": 669,
+      "sha256": "88b562ede12ce98f9fc9dc846569c130b03e4443419b28fc925518c92e4ed56e"
+    },
+    {
+      "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/heavy-profile-preparation-385646/verification-argv.json",
+      "bytes": 275,
+      "sha256": "17562ae04d818d82e9df1c46781043c29fce12625c8ac5fe6e88866ad924a786"
+    }
+  ],
+  "checks": [
+    "prior packet unchanged",
+    "v12 diff empty",
+    "six shell blocks parsed; embedded command Python compiled",
+    "3268-character correction statement below4096"
+  ],
+  "tests_run": 0,
+  "candidate_verification_repeated": false,
+  "runtime_or_git_mutations": false
+}

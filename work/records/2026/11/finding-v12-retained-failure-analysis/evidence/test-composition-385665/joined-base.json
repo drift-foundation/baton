@@ -1,0 +1,66 @@
+{
+  "head": "5d5e79a4317c8f067d1c79f21c331afbd9aef900",
+  "accepted_candidate": "7d686bf09200692dec7faf1a20baf062e0638c3f",
+  "overlay": [
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/__init__.py",
+      "target": "v12/python/src/baton_v12/job_manager/__init__.py",
+      "sha256": "88ef704bee1ce09f29c6426829b567fe8a4884ea4acdc3ace67261ce9d52ef5f",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "target": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "09540d55ae1bf3348c52abc5f58ca46458bcc72431187549076486e6d7ff0915",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "target": "v12/python/src/baton_v12/job_manager/documents.py",
+      "sha256": "98ecc49e4c1703294e218f7dbcfb40e2f9229b4513ed6c5690d995181b5ceb22",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/failure_analysis.py",
+      "target": "v12/python/src/baton_v12/job_manager/failure_analysis.py",
+      "sha256": "93ea0d63b26b93ba91d7b4da2bcb20dcf80a61d0d310be9082636711219b692b",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/manager.py",
+      "target": "v12/python/src/baton_v12/job_manager/manager.py",
+      "sha256": "81d248e45382f2ce31f1266501e2beab6d4764ecbe2bea4eba9c1ee07a8d8dba",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+      "target": "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+      "sha256": "88dbd90aa85da975d022926f18a093f5c66a6f8a13437a0fedc0347f6d8834c2",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "v12/python/tests/tools/test_stage_execution.py",
+      "target": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "dcad80a5266e5660a01f8f3acdf0458b24ce726c8804aee2d9eb888f4685ce9c",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/tools/parallel_test.py",
+      "target": "v12/python/tools/parallel_test.py",
+      "sha256": "b93b69fa1242f867be2457bf8bee86c557d8d4ef9395f6d8131577ee37b92760",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "v12/python/tools/single_worker.py",
+      "target": "v12/python/tools/single_worker.py",
+      "sha256": "a84abfb4cd4b5b2dd3363332c0d1c16ee2a7bd47be44acf1c5705655194e8efb",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/tools/stage_execution.py",
+      "target": "v12/python/tools/stage_execution.py",
+      "sha256": "29527776391475b18277836e96ca4f68660d064cdddf4c7cf9b4830f83958fa6",
+      "mode": "0o664"
+    }
+  ]
+}

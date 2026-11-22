@@ -1,0 +1,219 @@
+{
+  "original_base": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+  "candidate": "7d686bf09200692dec7faf1a20baf062e0638c3f",
+  "main_head": "5d5e79a4317c8f067d1c79f21c331afbd9aef900",
+  "entries": [
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/__init__.py",
+      "target": "v12/python/src/baton_v12/job_manager/__init__.py",
+      "sha256": "88ef704bee1ce09f29c6426829b567fe8a4884ea4acdc3ace67261ce9d52ef5f",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "target": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "09540d55ae1bf3348c52abc5f58ca46458bcc72431187549076486e6d7ff0915",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "target": "v12/python/src/baton_v12/job_manager/documents.py",
+      "sha256": "98ecc49e4c1703294e218f7dbcfb40e2f9229b4513ed6c5690d995181b5ceb22",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/failure_analysis.py",
+      "target": "v12/python/src/baton_v12/job_manager/failure_analysis.py",
+      "sha256": "93ea0d63b26b93ba91d7b4da2bcb20dcf80a61d0d310be9082636711219b692b",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "v12/python/src/baton_v12/job_manager/manager.py",
+      "target": "v12/python/src/baton_v12/job_manager/manager.py",
+      "sha256": "81d248e45382f2ce31f1266501e2beab6d4764ecbe2bea4eba9c1ee07a8d8dba",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+      "target": "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+      "sha256": "88dbd90aa85da975d022926f18a093f5c66a6f8a13437a0fedc0347f6d8834c2",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "v12/python/tests/tools/test_stage_execution.py",
+      "target": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "dcad80a5266e5660a01f8f3acdf0458b24ce726c8804aee2d9eb888f4685ce9c",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/tools/parallel_test.py",
+      "target": "v12/python/tools/parallel_test.py",
+      "sha256": "b93b69fa1242f867be2457bf8bee86c557d8d4ef9395f6d8131577ee37b92760",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "v12/python/tools/single_worker.py",
+      "target": "v12/python/tools/single_worker.py",
+      "sha256": "a84abfb4cd4b5b2dd3363332c0d1c16ee2a7bd47be44acf1c5705655194e8efb",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "v12/python/tools/stage_execution.py",
+      "target": "v12/python/tools/stage_execution.py",
+      "sha256": "29527776391475b18277836e96ca4f68660d064cdddf4c7cf9b4830f83958fa6",
+      "mode": "0o664"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/PLAN.md",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/integration-20261122/retained-records/PLAN.md",
+      "sha256": "aa7ff912c4c7c984b29f298b8656938061aea65d072c5231af922e8ce8bb8084",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/PROGRESS.md",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/integration-20261122/retained-records/PROGRESS.md",
+      "sha256": "18fc4513072d02c1435bcc6eecd09bb6286ae13eff85eda7c1a435fb8ecd0001",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/REPORT.md",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/REPORT.md",
+      "sha256": "26875e14c43ce6e8418d5a4bd067bdbb553ed74ac12b834bd0a55baa5f6ea6d5",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-fresh-attempt-without-change.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-fresh-attempt-without-change.log",
+      "sha256": "4ceb76775ad7ad296ee77e09212414766ae230c40143004ed62195ab9825a237",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-native-permission-without-change.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-native-permission-without-change.log",
+      "sha256": "950b11dc9841b7666ac122ae98600fa9b614d1d10ae4c45e35da096c4e3f235c",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-store-readonly-without-change.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-store-readonly-without-change.log",
+      "sha256": "395c6aa3492e11b6a799f5fc3c9c32bbd492931f0db0be982c510b9e789fcd87",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-tool-without-change.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/baseline-tool-without-change.log",
+      "sha256": "3c939c5008365ed3a641d65e194fc2d0a16c0ae82872a0a62585498c200b0dd8",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-fresh-attempt-with-change.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-fresh-attempt-with-change.log",
+      "sha256": "d1e87ab728cd037a89eef3a6886c8515569adf0902e380aa063ea241954380da",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-native-permission-with-change.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-native-permission-with-change.log",
+      "sha256": "5806c3a686746e08240cc176772409db918605db87061b0548b9a88d0fa26f40",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-store-readonly-with-change.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-store-readonly-with-change.log",
+      "sha256": "8c74233ac77fd68430bc947ba93f580b269d4e39786d823c1cebcc012876ef54",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-tool-with-change.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/candidate-tool-with-change.log",
+      "sha256": "9abad203e93929083349699fc657d8fe365127bce0b95f31f2b0f44705d9eca3",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/job-manager-group-ledger.tsv",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/job-manager-group-ledger.tsv",
+      "sha256": "4f0bb4abee31c8e1f4b01e605e15a8dde1da27970c8b79a64404d0481e0480d1",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/manifest.json",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/manifest.json",
+      "sha256": "9b60d468f9edf5b148120ec9b6e41a185d03297bd9f86dfe4d0603b66ca6a149",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/regression-attempt-failure-cause.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/regression-attempt-failure-cause.log",
+      "sha256": "7e58d614bbe9543d686ed1e795c4f43d940a4da9b1313f91f21d0862975c31a8",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/regression-parallel-runner.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/regression-parallel-runner.log",
+      "sha256": "2c2e358138de2295daeeee7b25c44e8a0a30260e4540ef18444bc5a573f101cb",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/submitted-verification.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-385623/submitted-verification.log",
+      "sha256": "3bf52f6381682ce08147701fd7f534793b41d1edbef6a996a27ea938e66e20c6",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/REPORT.md",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/REPORT.md",
+      "sha256": "1d7221374cdab2958637f80518e66605bd4e9a07359904a3b72230cfdb7299dd",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/acceptance-command.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/acceptance-command.log",
+      "sha256": "cff7737ed17350e131d4930e1fbba3900bd7317d720dcfcc42965b31ebca995b",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/baseline-stage-execution.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/baseline-stage-execution.log",
+      "sha256": "4a7c04bd431184e2de5d1e702f9277b980439d7a6d32d224d9e14a71be674d6c",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/candidate-single-worker.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/candidate-single-worker.log",
+      "sha256": "1231af7d55ea0333ffc9573c427dfd6418e8c0b87f6148efe9bf6ba015feffba",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/candidate-stage-execution.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/candidate-stage-execution.log",
+      "sha256": "a873f3dd395e75b8a2fe2e49fc461d14c5cb4e9e6df75511c9865f98a2115e64",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/job-manager-group-ledger.tsv",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/job-manager-group-ledger.tsv",
+      "sha256": "3d1606b29ff46061292a40cb46486edb871c65c330dbe78f2779b29f1f5dd554",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/manifest.json",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/manifest.json",
+      "sha256": "89acabd74cb62c8939b531e29b6d377cabde2e203266960a68aa615c66deae61",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/submitted-verification.log",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/submitted-verification.log",
+      "sha256": "32376d5e22acdb990a24598223d78016bf7ebd41bc96c1baeb6a6258d4ad9ca7",
+      "mode": "0o644"
+    },
+    {
+      "candidate_path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/touched-seam-ledger.tsv",
+      "target": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-stage-1a-correction-385623/touched-seam-ledger.tsv",
+      "sha256": "84b51e8de31f42d3de9f7187788ba46a032b6629a75e5a8f5035f1a86f2aec45",
+      "mode": "0o644"
+    }
+  ],
+  "git_mutation": false,
+  "incident": "First import stopped on new file mode0664 from umask; resumed after whole-set byte checks, assigning planned0644 only to new files. Existing file modes preserved."
+}

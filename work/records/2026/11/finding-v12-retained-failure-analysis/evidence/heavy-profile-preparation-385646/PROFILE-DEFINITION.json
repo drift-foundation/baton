@@ -1,0 +1,21 @@
+{
+  "automatic_retry": false,
+  "clock_origins": {
+    "job": "accepted_admission_including_queue",
+    "provider": "actual_invocation_start",
+    "stage": "stage_admission"
+  },
+  "control": {
+    "correction_rounds": 0,
+    "job_seconds": 21600,
+    "provider_turn_seconds": 7200,
+    "stage_seconds": 9000,
+    "verification_command_seconds": 900
+  },
+  "identity": "native-handoff-heavy/1",
+  "publication_authority": "M385638; W9901 FINDING Owner-approved heavy implementation/review profile \u2014 2026-11-22",
+  "resolved_continuations": 1,
+  "shutdown_policy": "unchanged; no extension of work time",
+  "units": "seconds",
+  "verification_policy": "no execution-limit override; retain existing generation boundary values"
+}

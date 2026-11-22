@@ -1,0 +1,22 @@
+{
+  "observed_at": "2026-11-22T12:21:05.774Z",
+  "canonical": true,
+  "stages": [
+    {
+      "stage_id": "w385623-native-analysis-1/implementation",
+      "state": "completed",
+      "runtime": "destroyed",
+      "allocation_state": "released"
+    },
+    {
+      "stage_id": "w385623-native-analysis-1/review",
+      "state": "completed",
+      "runtime": "destroyed",
+      "allocation_state": "released"
+    }
+  ],
+  "corrections": {
+    "allowance": 0,
+    "used": 0
+  }
+}

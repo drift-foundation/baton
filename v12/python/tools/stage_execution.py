@@ -63,6 +63,7 @@ from baton_v12.integration import admission, driver
 from baton_v12.integration.driver import admit_authorized_result
 from baton_v12.integration.git_profile import GitIntegrationProfile
 from baton_v12.job_manager import (ending, execution_limits,
+                                   failure_analysis,
                                    native_handoffs, review_driver,
                                    role_capability, role_contract, scheduler)
 from baton_v12.job_manager.delegation import INTEGRATION_OBSERVATION_SCHEMA
@@ -81,6 +82,8 @@ from . import single_worker
 
 __all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "CONFIG_SCHEMAS",
            "MULTI_CONFIG_SCHEMA", "ROLES", "StageExecution",
+           "ANALYSIS_INPUT_DOCUMENT", "ANALYSIS_LAUNCH_ROLE",
+           "AnalysisExecution", "RecoveryAnalysis",
            "factory", "observation_from", "observing_factory",
            "operations_from"]
 
@@ -162,7 +165,50 @@ _OPTIONAL_MEMBERS = ("job_bindings", "integration_target",
                      "integration_instructions",
                      "integration_preparation",
                      "result_judgment_workers",
+                     "analysis_worker",
                      "correction_policy")
+
+# W385623 / DESIGN REC-8: THE DECLARED RETAINED-FAILURE ANALYSIS WORKER, and
+# it is OPTIONAL for `result_judgment_workers`' reason -- every accepted
+# document in this tree predates it, and a deployment that declares no analyst
+# analyses nothing rather than analysing with somebody else's worker.
+#
+# WHY IT IS NOT A FOURTH ENTRY IN `ROLES`. `ROLES` names the three stages a Job
+# HAS; the pool gives one worker per role and `scheduler.own_pool` counts
+# capacity over them. A retained failure's analyst serves no Job stage and
+# takes no stage allocation -- the failure it is about has already ENDED -- so
+# adding it to `ROLES` would make every accepted deployment refuse for want of
+# a fourth worker and would put this execution in the pool that serializes
+# stage capacity. The accepted precedent is `result_judgment_workers`, and this
+# follows it exactly.
+#
+# WHY IT IS ONE WORKER AND NOT A MAPPING BY JOB. A judgment is about one Job's
+# derived candidate, so it is configured per Job. An analysis is about a
+# TERMINAL ENDING, and the declared analysis responsibility is one
+# deployment-wide role with one participant and one principal -- the contract's
+# section 2 -- so a per-Job analyst would be a second answer to "who analyses".
+#
+# WHAT IT DOES NOT CARRY, and each absence is a ruling: no adapter name, no
+# image, no model and no provider, because REC-8 forbids binding the role to
+# one; and no profile and no permitted-output set, because M385612 approved
+# exactly `stage1-analysis/1` and those are read out of the definition
+# `failure_analysis` holds and digested at import. An operator transcribing
+# `a4be8b48...` into a configuration file is the one transcription that
+# silently drifts.
+_ANALYSIS_MEMBERS = ("worker_id", "principal", "capability_digest",
+                     "owner_destination", "deployment")
+# THE LAUNCH CONTRACT IT REUSES, for `JUDGMENT_LAUNCH_ROLE`'s reason: an
+# analysis IS a review -- of retained evidence rather than of a candidate --
+# so this execution is configured under the accepted `review` launch role
+# rather than under a new protocol word nothing else reads. The ROLE the
+# declaration carries is still the dedicated `analysis` one; what is shared is
+# how a container is launched, not who is responsible.
+ANALYSIS_LAUNCH_ROLE = "review"
+# AND THE NAME THE FIXED ANALYSIS INPUT IS DELIVERED UNDER. Not
+# `judgment.json`: an analysis image reading that path for a verification
+# failure would be reading a path that lies about what is in it. See
+# `single_worker.WORKLOAD_DOCUMENT`.
+ANALYSIS_INPUT_DOCUMENT = "analysis-input.json"
 
 # WHETHER A `changes-requested` VERDICT OPENS THE NEXT ROUND IN THIS JOB STORE.
 #
@@ -624,7 +670,108 @@ def held_configuration(document, *, checkout=None):
         empty_ok=binds_nothing)
     given["job_bindings"] = _held_bindings(given)
     given["result_judgment_workers"] = _held_judgments(given, here)
+    given["analysis_worker"] = _held_analysis(given, here)
     return given
+
+
+def _held_analysis(given, checkout):
+    """The declared retained-failure analysis worker, held before use.
+
+    W385623 / REC-8. WHAT THIS PROVES, and each one is a fault a later moment
+    would describe from the wrong place -- the whole reason
+    `held_configuration` exists:
+
+      the member carries exactly its five facts;
+      the worker identity collides with no stage worker and no judgment;
+      the deployment is a complete one, held by `single_worker`'s own
+        validator rather than by a second copy of its rules here;
+      it names THIS Authority;
+      it launches the accepted `review` launch contract;
+      its participant is NOT one of this deployment's stage participants,
+        because an analyst that is also this Job's coder or reviewer would
+        make the analysis of a failure attributable to whoever caused it;
+      it retains its report, because an owner item names evidence that must
+        still be there when the owner reads it;
+      it uses the manager's one configured workspace storage; and
+      every path it names lies outside the checkout, exactly as a stage
+        worker's must.
+
+    AND THE DECLARATION IS PRODUCED HERE, through the product's own producer,
+    so a document this function returns has already been proved to be a
+    `baton.v12.recovery-analysis-worker/1` that the Job manager will accept.
+    A configuration that could not produce one is refused while nothing is
+    open rather than at the first retained failure, which may be days later.
+
+    ABSENT IS AN ANSWER. A deployment that declares no analyst exposes no
+    recovery seam, the Job manager's pass is never reached, and every accepted
+    document in this tree keeps meaning exactly what it meant.
+    """
+    configured = given.get("analysis_worker")
+    if configured is None:
+        return None
+    one = _document(configured, "the declared analysis worker",
+                    _ANALYSIS_MEMBERS)
+    worker_id = _text(one["worker_id"], "the analysis worker's id")
+    identities = {held["worker_id"] for held in given["workers"]}
+    for judges in (given.get("result_judgment_workers") or {}).values():
+        identities.update(held["worker_id"] for held in judges.values())
+    if worker_id in identities:
+        _refuse(f"the declared analysis worker names {worker_id!r}, which "
+                f"this deployment already configures; an analysis execution "
+                f"is its own identity and not a stage worker's or a judge's",
+                category="refused", code="precondition")
+    deployment = single_worker._held(one["deployment"],
+                                     roles=(ANALYSIS_LAUNCH_ROLE,))
+    if deployment["authority_uuid"] != given["authority_uuid"]:
+        _refuse(f"the declared analysis worker names Authority "
+                f"{deployment['authority_uuid']!r} and this deployment is "
+                f"configured for {given['authority_uuid']!r}",
+                category="refused", code="capability")
+    if deployment["launch_role"] != ANALYSIS_LAUNCH_ROLE:
+        _refuse(f"the declared analysis worker launches the "
+                f"{deployment['launch_role']!r} role; an analysis reuses the "
+                f"accepted {ANALYSIS_LAUNCH_ROLE!r} launch contract",
+                category="refused", code="precondition")
+    # THE ANALYST IS NOBODY WHO SERVES THIS JOB'S STAGES. `INDEPENDENT`
+    # already forbids the implementation and review stages sharing a
+    # participant; this is the same rule for the actor that explains why one
+    # of them failed, and it fails closed before anything is opened.
+    stages = {held["deployment"]["participant"] for held in given["workers"]}
+    if deployment["participant"] in stages:
+        _refuse(f"the declared analysis worker executes as "
+                f"{deployment['participant']!r}, which serves a stage of this "
+                f"deployment; an analysis of a retained failure is not "
+                f"attributed to the participant that produced it",
+                category="policy", code="denied")
+    if deployment["retention_disposition"] != "retain":
+        _refuse("an analysis report must be retained for the owner item that "
+                "names it", category="refused", code="precondition")
+    if given["workers"] and deployment["workspace_storage"] != \
+            given["workers"][0]["deployment"]["workspace_storage"]:
+        _refuse("the analysis worker uses the manager's one configured "
+                "workspace storage", category="refused", code="precondition")
+    for name in ("workspace_storage", "launch_home", "credential_home"):
+        _outside(deployment[name], checkout,
+                 f"the declared analysis worker's {name}")
+    held = {"worker_id": worker_id,
+            "principal": _text(one["principal"],
+                               "the analysis worker's principal"),
+            "capability_digest": _digest(
+                one["capability_digest"],
+                "the analysis worker's capability digest"),
+            "owner_destination": _text(
+                one["owner_destination"],
+                "the analysis owner item's destination"),
+            "deployment": deployment}
+    # PRODUCED AND VALIDATED WHILE NOTHING IS OPEN. The product owns what a
+    # declaration is; this names the four facts that are the deployment's.
+    held["declaration"] = failure_analysis.declared_analysis_worker(
+        {"worker_id": worker_id,
+         "participant": deployment["participant"],
+         "principal": held["principal"],
+         "capability_digest": held["capability_digest"]},
+        what="the declared analysis worker")
+    return held
 
 
 def _held_judgments(given, checkout):
@@ -5024,6 +5171,13 @@ class StageExecution:
         # name to the pooled surface and a partially constructed deployment
         # must be able to answer this one as its own.
         self.activity = None
+        # W385623: THE CONFIGURED RETAINED-FAILURE ANALYSIS SEAM, or `None`.
+        # BOUND IN `__init__` for `activity`'s reason: `__getattr__` delegates
+        # every unbound name to the pooled surface, and `manager._analyse`
+        # discovers this one with `getattr(operations, ..., None)` -- so a
+        # deployment that declares no analyst must answer `None` here rather
+        # than raise out of a delegation.
+        self.recovery_analysis = None
         self.authority = authority
         self.integration = integration
         self.workers = workers
@@ -7189,6 +7343,24 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                     code="operation-collision")
         if idle:
             composed.no_capacity_stores = (job_store, control_store)
+        # W385623 / REC-8: THE DECLARED ANALYSIS SEAM, composed last and only
+        # when one is configured. Its provider runs the SAME preflight every
+        # other worker in this deployment runs -- engine, image, network,
+        # workspace group, control store -- through the accepted parameterized
+        # half rather than a second opinion about any of them.
+        #
+        # ABSENT MEANS ABSENT: `composed.recovery_analysis` stays `None`, the
+        # Job manager's pass is never reached, and no retained failure is
+        # observed because no analyst was declared to observe it.
+        analyst = given.get("analysis_worker")
+        if analyst is not None:
+            composed.recovery_analysis = RecoveryAnalysis(
+                analyst, control=control_store, authority=composed.authority,
+                provider=single_worker.worker_preflight(
+                    analyst["deployment"], control_store,
+                    credential_provider=credential_provider,
+                    engine_run=engine_run),
+                jobs=job_store, engine_run=engine_run, clock=clock)
         composed.pooled = PooledManagerOperations(
             job_store,
             {} if idle else _attached_workers(job_store, generation,
@@ -7438,6 +7610,166 @@ def native_lifetime_policy(deployment):
 
     del deployment
     return select
+
+
+class AnalysisExecution:
+    """One declared analysis worker, using the ordinary worker lifecycle.
+
+    W385623 / REC-8. THE SAME SHAPE AS `single_worker.JudgmentExecution`, and
+    deliberately so: an analysis is a non-stage execution that reads a fixed
+    subject and writes a report, which is what that class already composes.
+    What differs is only what it is about -- a retained verification failure
+    rather than a derived candidate -- so nothing here is a second launch
+    protocol, a second credential posture or a second mount rule.
+
+    THE IDENTITY IS THE JOB MANAGER'S AND NOT THIS CLASS'S. `attempt_id` is
+    derived from the failure key by `failure_analysis.analysis_attempt_id` and
+    was committed in a dispatch intent BEFORE this object existed, so a
+    restarted process composes the same execution rather than minting a second
+    one. Everything else in the intent is derived from it or read off the
+    configured deployment.
+
+    `poll` IS RE-ENTERED ON EVERY TICK and performs whatever the lifecycle
+    still owes: admission, claim, start, command, ending. It adopts its own
+    receipts, so a tick that already admitted does not admit again.
+    """
+
+    def __init__(self, given, control, authority, provider, *,
+                 attempt_id, job_id, document, engine_run=None, clock=None,
+                 execution_context=None):
+        self.control = control
+        self.given = given
+        self.attempt_id = attempt_id
+        self.document = document
+        self.intent = {
+            "stage_id": attempt_id, "attempt_id": attempt_id,
+            # DERIVED FROM THE ATTEMPT IDENTITY, which is derived from the
+            # failure key: one failure has one offer, and a re-entry after a
+            # restart asks about the offer it already issued.
+            "offer_id": "analysis-offer-" + attempt_id.partition("-")[2],
+            "kind": ANALYSIS_LAUNCH_ROLE,
+            "work_id": given["input_manifest"]["work_ref"]["work_id"],
+            "profile_name": given["profile_name"],
+            "profile_digest": given["profile_digest"],
+            # THE JOB THIS ANALYSIS'S SUBJECT NAMES, for `JudgmentExecution`'s
+            # reason: a non-stage execution has no stage row to read one from,
+            # and the owning Job is the one whose retained ending is being
+            # analysed. It rides on the intent because the intent is what the
+            # launch is composed from.
+            "job_id": job_id}
+        # W202663's rule, unchanged: what `_matches` reads as a Job is the
+        # Job-scoped input identity, and what the LAUNCH states as the runtime
+        # half is composed separately from the configured manifest digest.
+        self.input = {"input_digest": job_input_identity(
+                          given["input_manifest"],
+                          what="this analysis execution's configured input"),
+                      "policy_digest": given["policy_digest"]}
+        self.operations = single_worker.worker_operations(
+            given, control, authority, provider, engine_run=engine_run,
+            dispose=lambda: None, judgment_document=document,
+            # AND UNDER ITS OWN NAME. See `ANALYSIS_INPUT_DOCUMENT`.
+            workload_document_name=ANALYSIS_INPUT_DOCUMENT,
+            clock=clock, execution_context=execution_context)
+
+    def poll(self):
+        """Advance this analysis's own lifecycle by whatever it still owes.
+
+        Answers `None` while the turn is in flight. The Job manager's recovery
+        pass reads the FROZEN RESULT out of the control store rather than a
+        value returned here, which is the whole reason this answers nothing
+        useful: what an analysis concluded is its own frozen declaration, and
+        a report handed back through this call would be this composition's
+        account of somebody else's output.
+        """
+        operations, intent = self.operations, self.intent
+        for act in ("admit", "claim"):
+            if operations.receipt_of(
+                    operations.canonical_operation(
+                        act, intent["offer_id"])) is None:
+                if act == "admit":
+                    operations.admit(intent, self.input)
+                else:
+                    operations.claim(intent)
+        view = operations.observe(intent)
+        state = view["runtime"]
+        if state is not None and state["cleanup"] in ("complete", "retained"):
+            return None
+        if view["start_failure"] is not None \
+                or view["preparation_failure"] is not None:
+            _refuse("the declared analysis worker failed preparation or start",
+                    category="refused", code="precondition")
+        if state is None or state["runtime_id"] is None:
+            operations.launch(intent, self.input)
+        operations.dispatch(intent, self.input)
+        operations.refresh_runtime(intent)
+        terminal = (operations.observe(intent)["exchange"] or {}).get(
+            "terminal")
+        if terminal is None:
+            return None
+        # THE ENDING IS PERFORMED WHATEVER THE TERMINAL SAYS, and that is the
+        # difference from a judgment. A judgment that did not answer its
+        # command is refused, because there is no verdict to adopt. An
+        # analysis that failed, was cancelled or stopped mid-turn is one of
+        # this contract's FINITE ENDINGS: the ending is what freezes and takes
+        # custody of whatever partial material exists, and the recovery pass
+        # reads that frozen disposition and delivers the owner item it names.
+        # Refusing here would discard exactly the partial evidence the owner
+        # is owed.
+        operations.conclude(intent, self.input)
+        return None
+
+
+class RecoveryAnalysis:
+    """The configured seam `manager._analyse` reaches, and nothing more.
+
+    W385623. IT CARRIES CONFIGURATION AND ONE CAPABILITY. The control store
+    the evidence lives in, the produced
+    `baton.v12.recovery-analysis-worker/1` declaration, the owner item's
+    destination and the launch. `failure_analysis.check_analysis_seam` owns
+    what those must be and proves them before the pass spends anything.
+
+    IT DECIDES NOTHING. Whether a failure is observed, whether an analysis is
+    dispatched, what its deadline is and which owner item is delivered are all
+    the Job manager's, derived from durable state. This object answers "order
+    this attempt's turn over this document" and holds one execution per
+    attempt identity so a re-entry drives the same lifecycle.
+    """
+
+    def __init__(self, given, *, control, authority, provider, jobs,
+                 engine_run=None, clock=None):
+        self.given = given
+        self.control = control
+        self.declaration = given["declaration"]
+        self.destination = given["owner_destination"]
+        self._authority = authority
+        self._provider = provider
+        self._jobs = jobs
+        self._engine_run = engine_run
+        self._clock = clock
+        self._executions = {}
+
+    def launch(self, *, attempt_id, document, intent):
+        """Order or re-enter THIS attempt's analysis turn.
+
+        ONE EXECUTION PER ATTEMPT IDENTITY, held for the life of this process
+        and rebuilt from the same operands after a restart. The document is
+        the Job manager's own fixed input, serialized canonically so a
+        re-entry delivers byte-for-byte what the first order did --
+        `single_worker` PROVES the delivered workload against its own copy on
+        every restart, and a differently ordered dump would refuse there.
+        """
+        held = self._executions.get(attempt_id)
+        if held is None:
+            held = self._executions[attempt_id] = AnalysisExecution(
+                self.given["deployment"], self.control, self._authority,
+                self._provider,
+                attempt_id=attempt_id, job_id=intent["job_id"],
+                document=json.dumps(document, sort_keys=True,
+                                    separators=(",", ":")).encode(),
+                engine_run=self._engine_run, clock=self._clock,
+                execution_context=single_worker.job_execution_reader(
+                    self._jobs))
+        return held.poll()
 
 
 def factory(job_store, control_store):

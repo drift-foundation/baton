@@ -769,7 +769,8 @@ class ManagerOperations:
                  "_deliver_bearer", "_start_runtime", "_observe_exchange",
                  "_observe_integration",
                  "_dispatch_exchange", "_conclude_attempt",
-                 "_refresh_runtime", "_diagnostic_degradations")
+                 "_refresh_runtime", "_diagnostic_degradations",
+                 "recovery_analysis")
 
     # THE CANONICAL STORE IS OPEN. A status document says so, because a
     # projection assembled without the manager can only report what was
@@ -781,7 +782,7 @@ class ManagerOperations:
                  events=None, start_runtime=None, observe_exchange=None,
                  observe_integration=None,
                  dispatch_exchange=None, conclude_attempt=None,
-                 refresh_runtime=None):
+                 refresh_runtime=None, recovery_analysis=None):
         self._diagnostic_degradations = set()
         self.control = control
         self.port = port
@@ -848,6 +849,27 @@ class ManagerOperations:
                                  else boundaries.capability(
                                      refresh_runtime,
                                      "the deployment's runtime refresh"))
+        # W385623 / REC-8: THE CONFIGURED RETAINED-FAILURE ANALYSIS SEAM, and
+        # it is PUBLIC and UNTYPED HERE on purpose.
+        #
+        # PUBLIC, because `manager._analyse` discovers it the way the sweep
+        # discovers `settle_offer` and `reclaim` -- by name, on whatever
+        # operations object a deployment supplied, including one that is not
+        # this class at all. A private slot with an accessor would make the
+        # capability reachable only through this implementation.
+        #
+        # UNTYPED HERE, because `failure_analysis.check_analysis_seam` owns
+        # what a seam must carry: a control store, the produced
+        # `baton.v12.recovery-analysis-worker/1` declaration, the owner
+        # destination and the launch capability. Validating a subset of that
+        # here would be a second opinion about somebody else's contract, and
+        # the pass validates it before it spends anything.
+        #
+        # OPTIONAL FOR THE RUNTIME START'S REASON. A control plane that
+        # declares no analysis worker is a real deployment: it admits, claims,
+        # observes, ends and reports exactly as it always did, and no retained
+        # failure is analysed because none was configured to be.
+        self.recovery_analysis = recovery_analysis
 
     def canonical_operation(self, act, offer_id):
         return canonical_operation(act, offer_id)

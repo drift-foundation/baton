@@ -137,6 +137,16 @@ TASK_DOCUMENT = "task.json"
 # no-follow exactly as it reads the task; an attempt with none delivered has
 # an input root byte for byte what it always was.
 HANDOFF_DOCUMENT = "handoff.json"
+# W103068's own one, and W385623 made it a NAME rather than a literal. A
+# non-stage execution -- a derived-result judge, a retained-failure analyst --
+# is delivered exactly one extra workload document beside the task, at one
+# fixed path it reads bounded and no-follow. `judgment.json` is the accepted
+# default and remains the byte-for-byte behaviour of every deployment that
+# names nothing; a composer serving a DIFFERENT non-stage subject says so by
+# naming the document, because a future analysis image reading
+# `/input/judgment.json` for a verification failure would be reading a path
+# that lies about what is in it.
+WORKLOAD_DOCUMENT = "judgment.json"
 SOURCE_DESTINATION = "source"
 # THE WORKER'S OWN READ CEILING. `claude_agent._task` reads at most 1 MiB and
 # a document wider than that is one it will never see whole, so this refuses it
@@ -1320,6 +1330,7 @@ class _SingleWorker:
     def __init__(self, given, control, port, *, credential_provider,
                  engine_run, session=None, clock=None, checkpoint=None,
                  stage=None, judgment_document=None,
+                 workload_document_name=None,
                  execution_context=None, job_task=None, activity=None,
                  permission_policy=None,
                  lifetime_policy=None):
@@ -1381,6 +1392,10 @@ class _SingleWorker:
         # below.
         self.stage = stage
         self.judgment_document = judgment_document
+        # W385623: AND THE NAME IT IS DELIVERED UNDER, defaulting to the
+        # accepted one. Absence is exactly today's behaviour.
+        self.workload_document_name = (workload_document_name
+                                       or WORKLOAD_DOCUMENT)
         self.control = control
         self.port = port
         # W81857: THE SESSION, FOR THE ONE ACT THE PORT DOES NOT CARRY. It is
@@ -1715,7 +1730,8 @@ class _SingleWorker:
             # rather than repairs.
             self._published_task(roots["inputs"], content=task)
             if self.judgment_document is not None:
-                self._published_task(roots["inputs"], name="judgment.json",
+                self._published_task(roots["inputs"],
+                                     name=self.workload_document_name,
                                      content=self.judgment_document)
             handoff = self._handoff_document(stage)
             if handoff is not None:
@@ -1756,7 +1772,8 @@ class _SingleWorker:
         # looked at.
         self._proved_task(roots["inputs"], content=task)
         if self.judgment_document is not None:
-            self._proved_task(roots["inputs"], name="judgment.json",
+            self._proved_task(roots["inputs"],
+                              name=self.workload_document_name,
                               content=self.judgment_document)
         handoff = self._handoff_document(stage)
         if handoff is not None:
@@ -2407,7 +2424,7 @@ class _SingleWorker:
         # second preparation.
         workspaces.record_preparation(
             self.control, attempt_id, roots,
-            (TASK_DOCUMENT,) + (("judgment.json",)
+            (TASK_DOCUMENT,) + ((self.workload_document_name,)
                                 if self.judgment_document is not None else ())
             + ((HANDOFF_DOCUMENT,)
                if self._handoff_document(stage) is not None else ()))
@@ -3930,6 +3947,7 @@ def worker_preflight(given, control_store, *, credential_provider=None,
 def worker_operations(given, control_store, authority, provider, *,
                       engine_run=None, clock=None, checkpoint=None,
                       dispose=None, stage=None, judgment_document=None,
+                      workload_document_name=None,
                       execution_context=None, job_task=None, activity=None,
                       permission_policy=None,
                       lifetime_policy=None):
@@ -3977,6 +3995,7 @@ def worker_operations(given, control_store, authority, provider, *,
         clock=clock,
         checkpoint=checkpoint, stage=stage,
         judgment_document=judgment_document,
+        workload_document_name=workload_document_name,
         execution_context=execution_context, job_task=job_task,
         permission_policy=permission_policy,
         lifetime_policy=lifetime_policy,

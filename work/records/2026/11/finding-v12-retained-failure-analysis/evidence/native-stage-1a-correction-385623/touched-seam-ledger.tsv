@@ -1,0 +1,6 @@
+tests.tools.test_stage_execution	Ran 508 test	FAILED (failures=8)
+tests.tools.test_single_worker	Ran 255 test	OK
+tests.tools.test_parallel_runner	Ran 73 test	OK
+tests.manager.test_attempt_failure_cause	Ran 117 test	OK
+tests.tools.test_job_task_delivery	Ran 87 test	OK
+tests.job_manager.test_sweep	Ran 48 test	OK

@@ -1,0 +1,9 @@
+{
+  "reason": "Full task exceeds CLI 4096-character statement bound; submission references complete committed task without modifying it.",
+  "full_task_sha256": "41888451a1c7ff9afbf02ae6cca46caafec2787ef9ec3b9d46694b1424ce1212",
+  "full_task_characters": 4336,
+  "submission_characters": 1835,
+  "submission_sha256": "94054d9f8830e4a80191fac5ef73fe06ae3ca0b5d4995c7eb607cf10ecbd6411",
+  "source": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+  "no_rebuild_required": true
+}

@@ -1,0 +1,4 @@
+f13e0b1255cfd43e145fe2ced565704e888e3e17:v12/python/src/baton_v12/job_manager/failure_analysis.py:110:           "observe_terminal_failure", "admit_dispatch", "deliver_analysis",
+f13e0b1255cfd43e145fe2ced565704e888e3e17:v12/python/src/baton_v12/job_manager/failure_analysis.py:1462:def observe_terminal_failure(store, control, *, stage_id, episode, attempt_id,
+f13e0b1255cfd43e145fe2ced565704e888e3e17:v12/python/tests/job_manager/test_retained_failure_analysis.py:369:        return failure_analysis.observe_terminal_failure(
+f13e0b1255cfd43e145fe2ced565704e888e3e17:v12/python/tests/job_manager/test_retained_failure_analysis.py:1594:            failure_analysis.observe_terminal_failure, self.jobs,

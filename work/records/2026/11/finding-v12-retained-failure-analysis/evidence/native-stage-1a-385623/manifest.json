@@ -1,0 +1,144 @@
+{
+  "assignment": {
+    "path": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-kickoff-385631/TASK.txt",
+    "sha256": "41888451a1c7ff9afbf02ae6cca46caafec2787ef9ec3b9d46694b1424ce1212"
+  },
+  "authorities": {
+    "accepted_review": "a2346faa809d78a955c464fa4d639e01a974fe859fa049a5947318da2a0988fd",
+    "design": "230a6ed66db91fd03c3a6d9c5021680269fcfd0b67431dfba097a10715a240f8",
+    "stage1_analysis_1": "a4be8b48e098efc47f770a8b7f941b80eadd22b23c48eebf67863d3a4dc824ab",
+    "stage_1_contract": "52c2c640fdbb791e70ae61edf7ef7db7190bacd767d6d044f678517d2e09e1bc"
+  },
+  "boundaries_kept": {
+    "courier_acts": 0,
+    "docker_daemon": "not reached",
+    "existing_tests_edited": 0,
+    "git_mutation": "none",
+    "implementation_redispatches": 0,
+    "live_run": "none",
+    "optional_skips_added": 0,
+    "provider_invocations": 0,
+    "w385624_or_w385625_implemented": false
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/job_manager/failure_analysis.py": {
+      "change": "added",
+      "reason": "the Stage 1-A owner: trigger, failure key, fixed input, declared analysis authority, five durable records, finite endings and the automatic path",
+      "sha256": "dd20652ee9e96fae7b5b7e1548c300cbddb4c9902b2ef15371c9f57be770d815"
+    },
+    "v12/python/tests/job_manager/test_retained_failure_analysis.py": {
+      "change": "added",
+      "reason": "the submitted focused acceptance module the assignment names",
+      "sha256": "e3512ff352dafc8d33c1c1f3afc280320c61876d5b368348f5860f8abe786610"
+    },
+    "v12/python/tools/parallel_test.py": {
+      "change": "modified",
+      "reason": "TESTING.md 6 and 9: the new module into exactly one execution registry, and the one consumed owner-approved profile definition into CONSUMED_INPUTS; additive only, no existing entry edited",
+      "sha256": "b93b69fa1242f867be2457bf8bee86c557d8d4ef9395f6d8131577ee37b92760"
+    }
+  },
+  "canonical_work": "2b077949-W385623",
+  "control_profile": "native-handoff/1",
+  "corrections": [
+    {
+      "also": "owning_group.modules_ok is added as 27 and REPORT.md's group paragraph is corrected in place with an appended Correction section; no measured count, log or ledger byte changed",
+      "by": "W385623 correction Job (2b077949-W385623 / T385623)",
+      "corrected": "2026-11-22",
+      "member": "owning_group.modules",
+      "now": 31,
+      "result": "../native-stage-1a-correction-385623/REPORT.md",
+      "was": 32,
+      "why": "the owning job_manager group holds 31 modules in total -- 30 existing plus the one this Work adds -- and the original accounting double-counted the new module; job-manager-group-ledger.tsv has 31 rows summing to 1809 collected ids, 4 of them FAILED, so 27 modules were OK rather than 28"
+    }
+  ],
+  "declared_base": "72e1093dccb3ded9763fd2c42f0f713a7ff2c88f",
+  "environment": {
+    "disk_root": "work/scratch/w385623-verification",
+    "disk_root_empty_after_run": true,
+    "jsonschema": "4.19.2",
+    "python": "3.13.5",
+    "tmp_filesystem": "tmpfs 32MiB"
+  },
+  "not_run": {
+    "accounted_runner": "just is not installed and the prepared interpreter at ~/.local/state/baton-v12-venv is absent, so just test-group/test-all, the JSON ledger and the content-bound source identity are unavailable in this candidate",
+    "excluded_by_assignment": [
+      "full suite",
+      "Docker-daemon fixture campaign",
+      "nested live-provider tests",
+      "live-instance changes",
+      "main-checkout Git mutation"
+    ]
+  },
+  "owning_group": {
+    "collected": 1809,
+    "environmental_shortfall": {
+      "cause": "these cases require a disk-backed directory outside the checkout; the candidate checkout is /output, /var/tmp and ~/.cache are unwritable by this process and /tmp is a tmpfs the workspace boundary refuses. BATON_V12_STACK_TEST_ROOT, which the refusal names as the fix, cannot be satisfied here.",
+      "logs": [
+        "baseline-fresh-attempt-without-change.log",
+        "candidate-fresh-attempt-with-change.log",
+        "baseline-native-permission-without-change.log",
+        "candidate-native-permission-with-change.log",
+        "baseline-store-readonly-without-change.log",
+        "candidate-store-readonly-with-change.log",
+        "baseline-tool-without-change.log",
+        "candidate-tool-with-change.log"
+      ],
+      "modules": [
+        "tests.job_manager.test_fresh_attempt",
+        "tests.job_manager.test_native_permission",
+        "tests.job_manager.test_store_readonly",
+        "tests.job_manager.test_tool"
+      ],
+      "orthogonality_proof": "each module run in this candidate with failure_analysis.py and the acceptance module moved aside and tools/parallel_test.py restored from the declared base; the failing id sets are identical in both directions"
+    },
+    "errors": 1,
+    "failed": 88,
+    "group": "job_manager",
+    "ledger": "job-manager-group-ledger.tsv",
+    "modules": 31,
+    "modules_ok": 27,
+    "passed": 1720,
+    "skipped": 0
+  },
+  "regressions": [
+    {
+      "collected": 73,
+      "errors": 0,
+      "failed": 0,
+      "id": "tests.tools.test_parallel_runner",
+      "log": "regression-parallel-runner.log",
+      "passed": 73,
+      "reason": "the registry, group and consumed-input sweep over the real tree",
+      "seconds": 16.34,
+      "skipped": 0
+    },
+    {
+      "collected": 117,
+      "errors": 0,
+      "failed": 0,
+      "id": "tests.manager.test_attempt_failure_cause",
+      "log": "regression-attempt-failure-cause.log",
+      "passed": 117,
+      "reason": "the typed worker declaration and cessation axis this module reads",
+      "seconds": 0.78,
+      "skipped": 0
+    }
+  ],
+  "template": "baton.v12.job-template.implementation-review/3",
+  "verification": {
+    "argv": [
+      "bash",
+      "-c",
+      "set -euo pipefail; mkdir -p work/scratch/w385623-verification; export BATON_V12_DISK_ROOT=\"$PWD/work/scratch/w385623-verification\"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_failure_analysis"
+    ],
+    "collected": 87,
+    "errors": 0,
+    "exit_status": 0,
+    "failed": 0,
+    "log": "submitted-verification.log",
+    "passed": 87,
+    "seconds": 1.546,
+    "skipped": 0
+  },
+  "work": "905166b2-W1"
+}

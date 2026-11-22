@@ -39,7 +39,8 @@ from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from ..worker_manager import events
 from . import (cancellation, delegation, documents, ending, episodes,
-               job_control, projection, scheduler, submission)
+               failure_analysis, job_control, projection, scheduler,
+               submission)
 from .store import job_signature
 
 __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
@@ -216,6 +217,25 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # on; the pass above answers for the current attempt and is the wrong
     # place to ask about a previous one.
     spoken.extend(_recover_endings(store, operations, spoken))
+    # W385623 / REC-8: AND THE RETAINED-VERIFICATION-FAILURE RECOVERY PASS,
+    # AFTER THE ENDINGS AND BEFORE THE CAPACITY IS SETTLED.
+    #
+    # AFTER, because what it derives from is a SETTLED ending: the pass above
+    # is what finishes an ending no live projection could reach, and a
+    # recovery pass in front of it would walk past a failure whose own
+    # settlement this same tick was about to write. A terminal ending is
+    # "durably attributed" when its settlement is committed, not when a
+    # worker's disposition is observed.
+    #
+    # LEVEL-TRIGGERED LIKE EVERY PASS AROUND IT. It reads the ending journal
+    # and the recovery records rather than an edge this process happened to
+    # see, which is the whole reason the analysis of a failure survives the
+    # restart that interrupted it.
+    #
+    # AND ABSENT IS AN ANSWER. A deployment that configures no analysis seam
+    # reaches none of this and its report carries no `analysed` member, which
+    # is what preserves every accepted operations object in this tree.
+    analysed = _analyse(store, operations, now)
     # W316918: AND THE CAPACITY IS SETTLED FROM THE STATE THIS TICK LEAVES,
     # not from the state it began with.
     #
@@ -248,10 +268,44 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
                                   observed=observed, replaced=replaced,
                                   acts=acts, started=started, spoken=spoken,
                                   refreshed=refreshed,
+                                  **({"analysed": analysed} if analysed
+                                     else {}),
                                   **({"cancelled": cancelled} if cancelled
                                      else {}),
                                   **({"expired": expired} if expired
                                      else {}))
+
+
+def _analyse(store, operations, now):
+    """Run the configured retained-failure recovery pass, or nothing.
+
+    W385623. THE ONE PRODUCTION CALLER of `failure_analysis`'s automatic path,
+    and it is this loop for the reason every other pass is: what a Job manager
+    owns is WHEN to ask, derived from durable state on every tick including
+    the first one after a restart.
+
+    THE SEAM IS AN OPTIONAL CAPABILITY, discovered exactly as `settle_offer`
+    and `reclaim` are. A deployment that declares an analysis worker supplies
+    it; `ManagerOperations` carries `None` by default, the read-only status
+    surface holds none, and a fake in a test that names nothing reaches none
+    of this.
+
+    A CONTAINED REFUSAL IS A CONDITION. The pass already treats a single
+    failure's refusal as one and keeps going; what is caught HERE is a refusal
+    of the seam ITSELF -- a declaration a deployment composed wrongly, or a
+    capability that cannot be called -- because a misconfigured recovery path
+    must not stop a tick that is otherwise serving Jobs correctly. It is
+    reported in the same typed shape the pass reports its own with.
+    """
+    seam = getattr(operations, "recovery_analysis", None)
+    if seam is None:
+        return []
+    try:
+        return failure_analysis.advance_recovery(store, seam, now=now)
+    except ContractRefusal as refusal:
+        return [documents.recovery_analysis(
+            failure_key=None, stage_id=None, act="observe", outcome="refused",
+            detail={"category": refusal.category, "code": refusal.code})]
 
 
 def _converse(store, operations, held):

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_retained_failure_analysis",
+    "tests.job_manager.test_job_control",
+    "tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured"
+  ],
+  "exit": 0,
+  "wall_seconds": 6.9933714950457215,
+  "env": {
+    "PYTHONPATH": "src",
+    "TMPDIR": "/home/sl/src/baton/work/scratch/h665",
+    "BATON_V12_DISK_ROOT": "/home/sl/src/baton/work/scratch/h665"
+  }
+}

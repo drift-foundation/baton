@@ -1,0 +1,9 @@
+{"reviewer":"baton.prompt (K), narrow delta review, no claim","request":"M385668","delta":"M385666",
+ "candidate_identity":"sha256:35de2ca2eff9f6daef003d3deee4fba1bb352c0daaa539d0ef56aa6e053e4a90","identity_recomputed":true,
+ "joined_base":{"head":"5d5e79a4317c8f067d1c79f21c331afbd9aef900","joined_base_json_sha256":"c6296faadbed3b4a2880b59342b4be34ae1d9e7fdf8a7a0967278e65451d96b4","overlay_from_host_paths_hash_checked":10},
+ "tree":"git archive 5d5e79a4 + 10 overlay files copied from host at /var/tmp/baton-k-w385623-tc/tree; test file swapped base/candidate",
+ "interpreter":"/home/sl/.local/state/baton-v12-venv/bin/python","env":{"PYTHONPATH":"src","TMPDIR":"/var/tmp/baton-k-w385623-tc/tmp","BATON_V12_DISK_ROOT":"/var/tmp/baton-k-w385623-tc/tmp"},
+ "selection":["tests.job_manager.test_retained_failure_analysis","tests.job_manager.test_job_control","tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured"],
+ "results":{"joined_base":{"ran":201,"failures":1,"errors":0,"skipped":0,"failing_id":"TheFiniteProfileIsTheOwnersExactPublishedDefinition.test_the_implementation_jobs_own_control_profile_is_untouched","wall_seconds":7.1},
+            "candidate":{"ran":201,"failures":0,"errors":0,"skipped":0,"wall_seconds":6.6},"id_sets":"identical 201"},
+ "not_run":["full suite","build/package","live","host import","Git mutation"]}
