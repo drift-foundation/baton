@@ -1,0 +1,9 @@
+{
+  "source": "/home/sl/baton-instances/native-w385625-verification-1/state/workspaces/.baton-review-lines/line-d82a94295950da46c1018402f2e3268bae9b3bcf394fc87a9468ffdec61cda31/custody/attempt-c25647748f8c595ecfdaf26a31e36ba202884c79505fa8d2fe81eedea1d745dd/proposal",
+  "files": {
+    "objects.bundle": "b61133f95126990fd8cd797a8587c8a1d25191e275510327ee51b35886a1f939",
+    "verification.txt": "c6ba2d8d343f3010160655e213a0aeb2502994bd1406085e01eac9c734c1d0a0",
+    "result.json": "9211b3e105d88aa32aa93654becede47a267f62d3296572f80d859e90b27c853",
+    "change.patch": "63f8f787dce599acb066e8d4783512fac96725108a2091035f81801fafc737d4"
+  }
+}

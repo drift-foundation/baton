@@ -99,6 +99,22 @@ from .retained_recovery import DISPOSITIONS as RECOVERY_DISPOSITIONS
 from .retained_recovery import decide as decide_recovery
 from .retained_recovery import decision_of as recovery_decision_of
 from .retained_recovery import successor_of as recovery_successor_of
+# W385625 / DESIGN REC-8: the approved verifier run on the exact retained
+# candidate, and the same candidate handed to independent review. THE FIVE
+# ACTS, THE PASS AND THE CONFIGURATION CONTRACT, and deliberately not the
+# whole module: a deployment needs the seam's member list, the runner port's,
+# the execution-context document and its digest, and the pass; the journal
+# identities, the record readers and the renewed-failure rules are read
+# through `job_manager.retained_verification` by the cases and the
+# owner-facing readers that want them, exactly as its two sibling slices' is.
+from .retained_verification import (CONTEXT_MEMBERS, CONTEXT_SCHEMA,
+                                    RUNNER_PORT, VERIFICATION_SEAM,
+                                    WORKSPACE_ROOTS, advance_verification,
+                                    check_verification_seam, context_digest,
+                                    execute, hand_off, hold, materialize,
+                                    owned_context, renew)
+from .retained_verification import handoff_of as recovery_handoff_of
+from .retained_verification import owner_items_of as recovery_owner_items_of
 from .episodes import (CORRECT_KIND, advance_correction, attempting,
                        correction_operation_id, episode_by_offer, episode_of,
                        episodes_of, live_of)
@@ -163,6 +179,11 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
            "admit_successor", "decide_recovery", "owned_stages",
            "owner_item_read", "record_verification",
            "recovery_decision_of", "recovery_successor_of",
+           "CONTEXT_MEMBERS", "CONTEXT_SCHEMA", "RUNNER_PORT",
+           "VERIFICATION_SEAM", "WORKSPACE_ROOTS", "advance_verification",
+           "check_verification_seam", "context_digest", "execute",
+           "hand_off", "hold", "materialize", "owned_context", "renew",
+           "recovery_handoff_of", "recovery_owner_items_of",
            "attempting", "canonical_operation",
            "check_binding", "correction_operation_id", "end_implementation",
            "end_review", "episode_by_offer", "episode_of", "episodes_of",

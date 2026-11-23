@@ -113,7 +113,8 @@ __all__ = ["SUCCESSOR_PROFILE", "SUCCESSOR_DEFINITION",
            "successor_intent_of", "successor_of", "successors_for",
            "SUCCESSOR_DISPOSITIONS", "successor_disposition",
            "READ_SCHEMA", "owner_item_read", "expected_facts",
-           "review_stage_id", "successor_readiness",
+           "review_stage_id", "successor_readiness", "candidate_now",
+           "GATE_UNAVAILABLE", "GATE_VALIDATED", "GATE_REASONS",
            "decide", "admit_successor", "execution_gate"]
 
 
@@ -966,7 +967,15 @@ def owner_item_read(store, control, key, *, authorization=None, now=None):
 
 
 def _successor_read(store, intent):
+    from .retained_verification import execution_readiness, successor_execution
+
     held = verification_of(store, intent["job_id"])
+    admitted = successor_of(store, intent["decision_id"])
+    # W385625: THE EXECUTION HALF, BESIDE THE ADMISSION AND NOT MERGED INTO
+    # IT. What was materialized, what ran, what was handed to review and
+    # which of the two finite endings this successor reached are facts the
+    # owner needs in order to choose the next act -- and an item that showed
+    # a Job id and an admitted flag would send them looking for the rest.
     return {"decision_id": intent["decision_id"], "job_id": intent["job_id"],
             "state": intent["state"], "stages": intent["stages"],
             "disposition": successor_disposition(store,
@@ -978,7 +987,12 @@ def _successor_read(store, intent):
             "fence": cancellation.fence_of(store, intent["job_id"]),
             "verification": held,
             "verification_result_digest": (None if held is None
-                                           else digest(held))}
+                                           else digest(held)),
+            "execution": (None if admitted is None
+                          else successor_execution(store, intent["job_id"])),
+            "execution_readiness": (None if admitted is None
+                                    else execution_readiness(store,
+                                                             admitted))}
 
 
 def _evidence_now(store, control, key, failure):
@@ -1322,6 +1336,18 @@ def _candidate_now(store, control, key, *, expected):
                     f"before and after a recovery is one candidate",
                     category="integrity", code="digest")
     return dict(current)
+
+
+# THE NAME THE SIBLING EXECUTION SLICE READS THIS BY, and a plain alias
+# rather than a second copy. W385625 materializes and hands off the exact
+# retained candidate and must ask the SAME question this admission asks --
+# "is the candidate still the bytes this operation is bound to" -- through the
+# one reader that composes the trigger's own validated custody read with the
+# comparison against what was bound. A second implementation there would be
+# the first one to drift, and the drifting one would be the one that
+# materializes a candidate nobody approved. `fresh_attempt.one_instance`'s
+# precedent, for its reason.
+candidate_now = _candidate_now
 
 
 def _review_only_evidence(store, control, key, lineage, *, candidate,
@@ -2007,19 +2033,20 @@ def successor_readiness(record):
         return {"verification": "omitted",
                 "review": "blocked",
                 "owed_by": "the verifier execution and review handoff slice",
-            "execution": "blocked: retained candidate handoff unavailable",
+            "execution": "owed: the retained candidate handoff",
                 "detail": "the approved profile's verification stage is "
                           "omitted under this decision; the passed "
-                          "verification named in the lineage stands and is "
-                          "not repeated"}
+                          "verification named in the lineage stands, is not "
+                          "repeated, and the review stage is released only "
+                          "once the same candidate's handoff is validated"}
     return {"verification": "owed", "review": "blocked",
             "owed_by": "the verifier execution and review handoff slice",
-            "execution": "blocked: retained candidate handoff unavailable",
+            "execution": "owed: materialize the exact retained candidate",
             "detail": "this admission reserved the isolated verification's "
                       "identity and executed nothing; the retained candidate "
                       "is unchanged and the review stage consumes the same "
                       "candidate only after passed verification AND the "
-                      "supported execution handoff; this build keeps it blocked"}
+                      "validated execution handoff"}
 
 
 def _completed(store, operands, *, decision, candidate, bounds, evidence,
@@ -2070,21 +2097,38 @@ def _completed(store, operands, *, decision, candidate, bounds, evidence,
                           job_signature(SUCCESSOR_KIND, operands), act)
 
 
-def execution_gate(store, job_id):
-    """Keep recovery blocked until Stage1-C supplies a validated handoff.
+GATE_UNAVAILABLE = "retained-candidate-execution-handoff-unavailable"
+GATE_VALIDATED = "retained-candidate-execution-handoff-validated"
+GATE_REASONS = (GATE_UNAVAILABLE, GATE_VALIDATED)
 
-    A passed account alone cannot open review. The exact reservation remains
-    visible across restart, including review-only recovery. Stage1-C must
-    replace this hold with validated custody and execution binding; this
-    slice exposes no switch that bypasses the missing execution contract.
+
+def execution_gate(store, job_id):
+    """Keep recovery blocked until a VALIDATED candidate handoff exists.
+
+    A PASSED ACCOUNT ALONE CANNOT OPEN REVIEW, which is the whole of this
+    function and the correction Stage 1-B's own review asked for. What opens
+    it is W385625's committed `recovery.candidate-handoff` -- the record that
+    re-measured the materialized candidate against the bound digest, bound the
+    reused passed verification by identity and digest, and named the exact
+    review stage. A verification that merely exited 0 is an account of a
+    command; the handoff is the proved delivery of the candidate the review is
+    about, and there is no switch here that substitutes one for the other.
+
+    THE EXACT RESERVATION STAYS VISIBLE EITHER WAY, across restart and for
+    review-only recovery: the decision, the candidate and the lineage come off
+    the durable intent rather than off a live process's memory, so a reader
+    asking why a review is held gets the same answer every incarnation.
     """
     control = job_control.control_of(store, job_id)
     if control is None or control["profile"] != SUCCESSOR_PROFILE:
         return None
     intents = [one for one in _records_of(store, SUCCESSOR_INTENT_KIND, INTENT_MEMBERS) if one["job_id"] == job_id]
     held = intents[0] if len(intents) == 1 else None
+    from .retained_verification import handoff_of
+    handoff = None if held is None else handoff_of(store, job_id)
     return documents.recovery_gate(
-        job_id=job_id, open=False, reason="retained-candidate-execution-handoff-unavailable",
+        job_id=job_id, open=handoff is not None,
+        reason=(GATE_VALIDATED if handoff is not None else GATE_UNAVAILABLE),
         decision_id=None if held is None else held["decision_id"],
         candidate=None if held is None else held["candidate"],
         lineage=None if held is None else held["lineage"])

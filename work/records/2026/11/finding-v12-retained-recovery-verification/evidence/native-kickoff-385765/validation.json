@@ -1,0 +1,13 @@
+{
+  "command": [
+    "bash",
+    "/tmp/baton-w385625-kickoff.sh",
+    "check"
+  ],
+  "exit": 0,
+  "stdout": "Pinned inputs/runtime/image verified. Provider selection and live execution authority remain separate.\n",
+  "stderr": "",
+  "embedded_python_blocks_compiled": 4,
+  "task_characters": 3954,
+  "tests_builds_launches": 0
+}

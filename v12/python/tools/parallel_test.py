@@ -484,6 +484,19 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     # disk-backed root, stand-in host/deployment/instance ports, no engine
     # and no provider. It binds none of that module's test classes.
     "tests.job_manager.test_retained_recovery_admission",
+    # W385625: the approved verifier run on the exact retained candidate, and
+    # the same candidate handed to independent review. PARALLEL for
+    # `test_retained_recovery_admission`'s reasons, whose fixture it derives
+    # from by module attribute: a disposable Job store, control store and
+    # Authority per case, a real custody tree and a real PRIVATE verification
+    # workspace under this case's own disk-backed root, and one disposable
+    # installed instance for the joined acceptance. It starts a real CHILD
+    # PROCESS -- the approved corrected verifier, a bounded `python3 -c` over
+    # the materialized candidate -- which reaches no daemon, no engine, no
+    # image and no provider, and runs in a workspace of its own; so it shares
+    # no suite-global name with anything and binds none of the test classes
+    # it derives its fixture from.
+    "tests.job_manager.test_retained_recovery_execution",
     # W383215: the Job-store cancellation owner and its fences. PARALLEL: real
     # disposable stores per case, fake session and operations, no engine.
     "tests.job_manager.test_job_cancellation",
@@ -648,7 +661,8 @@ CONSUMED_INPUTS = (
     # to its own digest. One definition file, not the contract dossier
     # around it.
     {"path": _TEAM_HIERARCHY + "/evidence/stage-1-contract-385615/stage1-verification-review-1.json",
-     "consumers": ("tests.job_manager.test_retained_recovery_admission",)},
+     "consumers": ("tests.job_manager.test_retained_recovery_admission",
+                   "tests.job_manager.test_retained_recovery_execution")},
 )
 
 

@@ -1,0 +1,118 @@
+{
+  "schema": "baton.v12.development-role-contract.native-handoff.proposal100m/1",
+  "template": "baton.v12.job-template.implementation-review/4",
+  "task_schema": "baton.dogfood-task/2",
+  "source_profile": "git-line",
+  "outputs": [
+    {
+      "name": "proposal",
+      "type": "git-change-proposal",
+      "path": "proposal",
+      "required": false,
+      "constraints": {
+        "max_bytes": 104857600,
+        "max_entries": 100,
+        "allowed_media_types": [
+          "application/octet-stream",
+          "text/plain"
+        ],
+        "link_policy": "forbid",
+        "validator_digest": null
+      }
+    },
+    {
+      "name": "findings",
+      "type": "directory-result",
+      "path": "findings",
+      "required": false,
+      "constraints": {
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "allowed_media_types": [
+          "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "validator_digest": null
+      }
+    },
+    {
+      "name": "logs",
+      "type": "directory-result",
+      "path": "logs",
+      "required": false,
+      "constraints": {
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "allowed_media_types": [
+          "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "validator_digest": null
+      }
+    },
+    {
+      "name": "handoff",
+      "type": "directory-result",
+      "path": "handoff",
+      "required": false,
+      "constraints": {
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "allowed_media_types": [
+          "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "validator_digest": null
+      }
+    },
+    {
+      "name": "response",
+      "type": "directory-result",
+      "path": "response",
+      "required": false,
+      "constraints": {
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "allowed_media_types": [
+          "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "validator_digest": null
+      }
+    }
+  ],
+  "roles": [
+    {
+      "role": "implementation",
+      "consumes": [],
+      "produces": [
+        "proposal",
+        "handoff"
+      ],
+      "required_for_success": [
+        "handoff"
+      ],
+      "consumer": "git-proposal/1"
+    },
+    {
+      "role": "review",
+      "consumes": [
+        {
+          "role": "implementation",
+          "output": "proposal",
+          "delivery": "frozen-checkpoint"
+        }
+      ],
+      "produces": [
+        "findings",
+        "logs",
+        "response"
+      ],
+      "required_for_success": [
+        "findings",
+        "logs"
+      ],
+      "consumer": "checkpoint-review/1"
+    }
+  ]
+}

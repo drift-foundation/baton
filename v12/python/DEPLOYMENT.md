@@ -1824,3 +1824,26 @@ runtime again. A genuine receipt uses the ordinary cleanup and gate-discharge
 owners instead. An attempt proved never to have started uses the existing
 six-fact no-start cancellation proof; it does not fabricate runtime absence or
 a gate discharge.
+
+## Retained verification recovery
+
+An install document may declare `recovery_verification` with exactly three
+members: `context`, `declaration`, and `destination`. `context` is the
+`baton.v12.recovery-verification-context/1` document (working directory,
+environment, tool and runtime identities) whose digest the owner approves;
+`declaration` is the existing validated recovery-analysis worker declaration;
+`destination` names the owner for renewed failure items. Unknown members and
+context revisions are refused before installation effects.
+
+Bootstrap preserves this configuration when adding successor bindings. The
+shipped stage composition constructs the verification runner over the instance's
+own stores and private `recovery-verification/` directory. Ordinary manager
+sweeps and restart reconciliation drive materialization, execution and the
+durable review handoff. Without this explicit configuration the verification
+pass is disabled. Compute an approval digest with
+`python3 -m tools.recovery_execution context.json`; changing the declared context
+after approval cannot authorize execution in the changed context.
+
+A committed verifier result with a missing recovery account is reconciled on
+the next pass without rerunning the child. An intent with no committed result
+remains unknown; reconciliation does not invent a result or open the review gate.

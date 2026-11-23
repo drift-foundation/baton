@@ -1,0 +1,14 @@
+{
+  "AGENTS.md": "5ba3d6fd6e0150adc874b0735ade09dbb616f21272a2f9573441159a2e48622c",
+  "v12/DESIGN.md": "5d8dd34bbe00dae2a1a267ca7fdcc42ab523f3b1822378fb12ec0e798a09089f",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/FINDING.md": "439824bb294d49646d3333909275ea2c1f2be8f592c46fd5e542baf1654d599a",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/PLAN.md": "55af32f0ae7c13b2c1b45ede29db3814ac205f61664adc64c3d7cd1d0b443a1b",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CONTRACT.md": "52c2c640fdbb791e70ae61edf7ef7db7190bacd767d6d044f678517d2e09e1bc",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/review-2026-11-22T05-18-37Z.md": "a2346faa809d78a955c464fa4d639e01a974fe859fa049a5947318da2a0988fd",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-verification-review-1.json": "5a6a420e416caab0942f9709939ae01f1f2d9dabbd13e09ff3b03ea08d2932fb",
+  "v12/worker/verifier-layout-marker.json": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648",
+  "v12/python/src/baton_v12/job_manager/job_control.py": "eb0bc34d8fa1898ab4ca7f71e4f06e99e4cbea55633013e8605e8e95ff6fc4d4",
+  "v12/python/src/baton_v12/job_manager/role_contract.py": "b5f1ef034c6bd9a46915cea03dbdfa9ec5b089634da34d95bf100b1a21808914",
+  "v12/python/tools/next_run_bindings.py": "f352cec20d82a9d14aaf9186c1be930f66cb98b38e1bd31b62c06f86a8612296",
+  "work/records/2026/11/finding-v12-retained-recovery-admission/review-2026-11-22T20-13-18Z.md": "9044cd27c87f5c6bf599014c16022664c76025515b3b20d075469ef45e428dba"
+}

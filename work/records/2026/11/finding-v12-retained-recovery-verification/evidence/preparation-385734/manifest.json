@@ -1,0 +1,20 @@
+{
+  "work": "W385625",
+  "assignment": "M385732",
+  "claim": "E385734",
+  "base": "2578aa70a44cc1e639b32cee9680b2151ed5a1c3",
+  "task_characters": 3825,
+  "artifacts": {
+    "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/preparation-385734/TASK.txt": "68f906a0402c268ed1221672b542d68f619813307a80c425472d9395f4398ee3",
+    "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/preparation-385734/PACKET.md": "3fdf753dc5a3f3a6010b7047c19fb41cb7e8b60c1ea310b1a674fd79ceae8960"
+  },
+  "inputs": {
+    "v12/DESIGN.md": "cae46338fad94ed600cb526cd098c605cd559bb736a3fce86271cbbce4d4ed21",
+    "v12/python/src/baton_v12/job_manager/role_contract.py": "122e8b9c5b874b19597015c89b50727826dc06ede344f4cbb6f86dbab96fb47d",
+    "v12/python/src/baton_v12/job_manager/retained_recovery.py": "0315b3569cfaed7c69392818f9c97414a9d02b56923c21a742ee9b557a2cf570",
+    "v12/python/tools/stage_execution.py": "29527776391475b18277836e96ca4f68660d064cdddf4c7cf9b4830f83958fa6",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/STAGE-1-CONTRACT.md": "52c2c640fdbb791e70ae61edf7ef7db7190bacd767d6d044f678517d2e09e1bc",
+    "work/records/2026/11/finding-v12-retained-recovery-admission/review-2026-11-22T20-13-18Z.md": "9044cd27c87f5c6bf599014c16022664c76025515b3b20d075469ef45e428dba",
+    "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/packaging-2578aa70/identity.json": "d6011a6ba7a48d4e8c0a2799b4dd17e04174331713f37dbe802ee3d8e8c10ed0"
+  }
+}

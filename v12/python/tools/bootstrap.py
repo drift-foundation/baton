@@ -91,7 +91,7 @@ _PROFILE = ("profile_kind", "profile_version", "integrator_participant",
 OPTIONAL = ("integration_target", "integration_target_reference",
             "integration_workspace", "integration_observer",
             "integration_instructions", "integration_preparation",
-            "result_judgment_workers",
+            "result_judgment_workers", "recovery_verification",
             # W321608: THE INSTANCE'S OWN SOURCE SELECTION, named once. A
             # reusable instance is installed with no Job, and the first
             # ordinary `manager create` on it binds that Job to the base and

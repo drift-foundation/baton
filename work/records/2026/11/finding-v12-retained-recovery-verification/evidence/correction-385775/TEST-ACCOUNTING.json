@@ -1,0 +1,172 @@
+[
+  {
+    "log": "compatibility-focused.log",
+    "summary": [
+      "215",
+      "18.938"
+    ],
+    "wall_seconds": null,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_bootstrap",
+      "tests.job_manager.test_delegation",
+      "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers",
+      "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_declared_analysis_worker_is_held_and_its_declaration_made",
+      "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_declared_analyst_composes_and_exposes_the_recovery_seam"
+    ],
+    "returncode": 0,
+    "seconds": 19.182295019971207,
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 215 tests in 18.938s",
+      "",
+      "OK"
+    ]
+  },
+  {
+    "log": "composition.log",
+    "summary": null,
+    "wall_seconds": null,
+    "outcome": "timed out; incomplete, no suite verdict",
+    "timeout_seconds": 240,
+    "completed_ok_lines": 461,
+    "fail_lines": 0,
+    "error_lines": 0,
+    "continuation": [
+      "test_the_ENDING_INTENT_is_the_only_one_that_skips (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_ENDING_INTENT_is_the_only_one_that_skips)",
+      "The same worker, the same state, the two intents: one refuses and ... "
+    ],
+    "wall_qualification": "240-second subprocess timeout observed; exact elapsed wall not persisted by initial harness"
+  },
+  {
+    "log": "concurrency.log",
+    "summary": [
+      "10",
+      "0.676"
+    ],
+    "wall_seconds": null,
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 10 tests in 0.676s",
+      "",
+      "OK"
+    ]
+  },
+  {
+    "log": "focused-final.log",
+    "summary": [
+      "167",
+      "8.220"
+    ],
+    "wall_seconds": null,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.job_manager.test_retained_recovery_execution",
+      "tests.job_manager.test_retained_recovery_admission"
+    ],
+    "returncode": 0,
+    "seconds": 8.472543862008024,
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 167 tests in 8.220s",
+      "",
+      "OK"
+    ]
+  },
+  {
+    "log": "focused-sealed.log",
+    "summary": [
+      "168",
+      "8.339"
+    ],
+    "wall_seconds": null,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.job_manager.test_retained_recovery_execution",
+      "tests.job_manager.test_retained_recovery_admission"
+    ],
+    "returncode": 0,
+    "seconds": 8.571806545020081,
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 168 tests in 8.339s",
+      "",
+      "OK"
+    ]
+  },
+  {
+    "log": "focused.log",
+    "summary": [
+      "167",
+      "8.216"
+    ],
+    "wall_seconds": null,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.job_manager.test_retained_recovery_execution",
+      "tests.job_manager.test_retained_recovery_admission"
+    ],
+    "returncode": 1,
+    "seconds": 8.471794278011657,
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 167 tests in 8.216s",
+      "",
+      "FAILED (errors=2)"
+    ]
+  },
+  {
+    "log": "initial.log",
+    "summary": [
+      "14",
+      "1.090"
+    ],
+    "wall_seconds": null,
+    "tail": [
+      "",
+      "FAILED (errors=3)",
+      "error: Recipe `test-one` failed with exit code 1",
+      "error: Recipe `test-one` failed on line 22 with exit code 1"
+    ]
+  },
+  {
+    "log": "joined-third.log",
+    "summary": [
+      "1",
+      "0.192"
+    ],
+    "wall_seconds": null,
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 1 test in 0.192s",
+      "",
+      "OK"
+    ]
+  },
+  {
+    "log": "second.log",
+    "summary": [
+      "14",
+      "1.182"
+    ],
+    "wall_seconds": null,
+    "tail": [
+      "",
+      "FAILED (errors=1)",
+      "error: Recipe `test-one` failed with exit code 1",
+      "error: Recipe `test-one` failed on line 22 with exit code 1"
+    ]
+  }
+]

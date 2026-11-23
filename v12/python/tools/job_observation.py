@@ -530,6 +530,26 @@ def _declared_ending(stage):
     return said + "; whether verification ran is unknown"
 
 
+def _gate_text(gate):
+    """One closed gate, named by the fact that actually decides it.
+
+    W385625 (review note M1): the gate list carries TWO document shapes and
+    this reader only knew one. A `stage.dependency-gate` is decided by another
+    stage's state, so it is named by that stage and that state. A
+    `stage.recovery-gate` has no predecessor stage and no state -- what it
+    waits on is a validated retained-candidate execution handoff -- so
+    reading it through the dependency members rendered `unknown (unknown)`,
+    which told an operator nothing while the status document beside it carried
+    the truthful reason all along. A recovery gate is named by its Job and its
+    own closed reason.
+    """
+    if gate.get("reason") is not None and gate.get("stage_id") is None:
+        return (_status_text(gate.get("job_id")) + " (" +
+                _status_text(gate.get("reason")) + ")")
+    return (_status_text(gate.get("stage_id")) + " (" +
+            _status_text(gate.get("state")) + ")")
+
+
 def _reason(stage, state):
     if state == "exceptional":
         exchange = stage.get("exchange")
@@ -551,7 +571,7 @@ def _reason(stage, state):
     gates = stage.get("gates")
     closed = [one for one in gates if isinstance(one, dict) and one.get("open") is False] if type(gates) is list else []
     if closed:
-        named = ", ".join(_status_text(one.get("stage_id")) + " (" + _status_text(one.get("state")) + ")" for one in closed[:3])
+        named = ", ".join(_gate_text(one) for one in closed[:3])
         more = "" if len(closed) <= 3 else " and " + str(len(closed) - 3) + " more"
         return "held: waiting on " + named + more
     if state == "blocked":

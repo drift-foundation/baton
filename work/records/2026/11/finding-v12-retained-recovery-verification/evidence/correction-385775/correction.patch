@@ -1,0 +1,361 @@
+diff --git a/v12/python/DEPLOYMENT.md b/v12/python/DEPLOYMENT.md
+index d2bfd7a2..592eb41b 100644
+--- a/v12/python/DEPLOYMENT.md
++++ b/v12/python/DEPLOYMENT.md
+@@ -1824,3 +1824,26 @@ runtime again. A genuine receipt uses the ordinary cleanup and gate-discharge
+ owners instead. An attempt proved never to have started uses the existing
+ six-fact no-start cancellation proof; it does not fabricate runtime absence or
+ a gate discharge.
++
++## Retained verification recovery
++
++An install document may declare `recovery_verification` with exactly three
++members: `context`, `declaration`, and `destination`. `context` is the
++`baton.v12.recovery-verification-context/1` document (working directory,
++environment, tool and runtime identities) whose digest the owner approves;
++`declaration` is the existing validated recovery-analysis worker declaration;
++`destination` names the owner for renewed failure items. Unknown members and
++context revisions are refused before installation effects.
++
++Bootstrap preserves this configuration when adding successor bindings. The
++shipped stage composition constructs the verification runner over the instance's
++own stores and private `recovery-verification/` directory. Ordinary manager
++sweeps and restart reconciliation drive materialization, execution and the
++durable review handoff. Without this explicit configuration the verification
++pass is disabled. Compute an approval digest with
++`python3 -m tools.recovery_execution context.json`; changing the declared context
++after approval cannot authorize execution in the changed context.
++
++A committed verifier result with a missing recovery account is reconciled on
++the next pass without rerunning the child. An intent with no committed result
++remains unknown; reconciliation does not invent a result or open the review gate.
+diff --git a/v12/python/src/baton_v12/job_manager/delegation.py b/v12/python/src/baton_v12/job_manager/delegation.py
+index fb0efcfe..68ef2156 100644
+--- a/v12/python/src/baton_v12/job_manager/delegation.py
++++ b/v12/python/src/baton_v12/job_manager/delegation.py
+@@ -770,7 +770,7 @@ class ManagerOperations:
+                  "_observe_integration",
+                  "_dispatch_exchange", "_conclude_attempt",
+                  "_refresh_runtime", "_diagnostic_degradations",
+-                 "recovery_analysis")
++                 "recovery_analysis", "recovery_verification")
+ 
+     # THE CANONICAL STORE IS OPEN. A status document says so, because a
+     # projection assembled without the manager can only report what was
+@@ -782,7 +782,7 @@ class ManagerOperations:
+                  events=None, start_runtime=None, observe_exchange=None,
+                  observe_integration=None,
+                  dispatch_exchange=None, conclude_attempt=None,
+-                 refresh_runtime=None, recovery_analysis=None):
++                 refresh_runtime=None, recovery_analysis=None, recovery_verification=None):
+         self._diagnostic_degradations = set()
+         self.control = control
+         self.port = port
+@@ -870,6 +870,7 @@ class ManagerOperations:
+         # observes, ends and reports exactly as it always did, and no retained
+         # failure is analysed because none was configured to be.
+         self.recovery_analysis = recovery_analysis
++        self.recovery_verification = recovery_verification
+ 
+     def canonical_operation(self, act, offer_id):
+         return canonical_operation(act, offer_id)
+diff --git a/v12/python/src/baton_v12/job_manager/retained_verification.py b/v12/python/src/baton_v12/job_manager/retained_verification.py
+index d039f33a..d52cd591 100644
+--- a/v12/python/src/baton_v12/job_manager/retained_verification.py
++++ b/v12/python/src/baton_v12/job_manager/retained_verification.py
+@@ -742,6 +742,11 @@ def execution_readiness(store, held):
+     handoff = handoff_of(store, job_id)
+     verification = retained_recovery.verification_of(store, job_id)
+     material = materialization_of(store, job_id)
++    result = execution_result_of(store, job_id)
++    if verification is None and result is not None:
++        return {"state": "unaccounted", "owed": "execute", "review": "blocked",
++                "verification": result["outcome"],
++                "detail": "the verifier result is committed; reconcile its missing account without running another child"}
+     if _cancelled(fence):
+         return {"state": "cancelled", "owed": None, "review": "blocked",
+                 "verification": ("omitted" if review_only else "abandoned"),
+@@ -1180,7 +1185,7 @@ def execute(store, seam, *, decision_id, now=None):
+     job_id = held["job_id"]
+     recorded = execution_result_of(store, job_id)
+     if recorded is not None:
+-        return recorded
++        return _reconcile_account(store, taken, recorded)
+     if tuple(held["stages"]) == retained_recovery.REVIEW_ONLY_STAGES:
+         _denied(f"successor {name_value(job_id)} was admitted for "
+                 f"{json.dumps(held['stages'])}: the approved profile's "
+@@ -1215,7 +1220,7 @@ def execute(store, seam, *, decision_id, now=None):
+         # whose answer was settled by whoever held it first.
+         recorded = execution_result_of(store, job_id)
+         if recorded is not None:
+-            return recorded
++            return _reconcile_account(store, taken, recorded)
+         intended = execution_intent_of(store, job_id)
+         if intended is not None:
+             # THE ONE UNCERTAIN WINDOW IN THIS SLICE, AND IT HOLDS. An intent
+@@ -1342,13 +1347,18 @@ def _accounted(store, taken, *, held, decision_id, candidate, root, context,
+     # supported boundary Stage 1-B published for exactly this adapter. Second,
+     # because that record is what a later review-only admission trusts and it
+     # must never exist for an execution whose own account did not commit.
++    return _reconcile_account(store, taken, journalled)
++
++
++def _reconcile_account(store, taken, result):
++    """Complete the second journal cut from the committed execution result."""
+     retained_recovery.record_verification(
+-        store, taken["control"], decision_id=decision_id, outcome=outcome,
+-        exit_status=answer["exit_status"], argv=argv,
+-        context_digest=approved,
+-        result_digest=journalled["retained"]["result_digest"],
+-        now=journalled["concluded_at"])
+-    return journalled
++        store, taken["control"], decision_id=result["decision_id"],
++        outcome=result["outcome"], exit_status=result["exit_status"],
++        argv=result["argv"], context_digest=result["context_digest"],
++        result_digest=result["retained"]["result_digest"],
++        now=result["concluded_at"])
++    return result
+ 
+ 
+ # -- 9. act three: hand the SAME candidate to independent review ---------------
+diff --git a/v12/python/tests/job_manager/test_retained_recovery_execution.py b/v12/python/tests/job_manager/test_retained_recovery_execution.py
+index a3b08e6b..0f506ff0 100644
+--- a/v12/python/tests/job_manager/test_retained_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_retained_recovery_execution.py
+@@ -1314,6 +1314,68 @@ class ReviewOnlyRecoveryReusesTheEvidenceAndNeverReVerifies(ExecutionCase):
+ class EveryCutBetweenTheActsResumesAndRepeatsNoEffect(ExecutionCase):
+     """Fault cuts: materialize, run, handoff, review handoff."""
+ 
++    def interrupted_account(self, status, concurrent=False, cancelled=False):
++        import sys
++        from unittest import mock
++        self.admitted(corrected=[sys.executable, "-c", f"raise SystemExit({status})"])
++        self.materialize()
++        with mock.patch.object(retained_recovery, "record_verification", side_effect=RuntimeError("account cut")):
++            with self.assertRaisesRegex(RuntimeError, "account cut"):
++                self.execute()
++        self.assertEqual(len(self.ran.calls), 1)
++        self.assertIsNone(retained_recovery.verification_of(self.jobs, "recovery-D1"))
++        self.assertFalse(self.gate()["open"])
++        if cancelled:
++            from baton_v12.job_manager import cancellation
++            cancellation.request(self.jobs, job_id="recovery-D1", reason="cancel after committed result")
++        restarted = self.reopened()
++        if concurrent:
++            import concurrent.futures
++            from baton_v12.worker_manager import ControlStore
++            barrier = threading.Barrier(2, timeout=30)
++            def replay(number):
++                with JobStore.open(self.jobs.database, authority_uuid=self.AUTHORITY,
++                                   incarnation=f"account-{number}", clock=lambda: LATER) as store:
++                    with ControlStore.open_readonly(self.control.database,
++                                                   incarnation=f"account-{number}", clock=lambda: LATER) as control:
++                        seam = Seam(control=control, context=self.context,
++                                    workspaces=self.workspaces, runner=self.runner,
++                                    declaration=self.declaration)
++                        barrier.wait()
++                        return retained_verification.execute(store, seam, decision_id="D1", now=LATER)
++            with concurrent.futures.ThreadPoolExecutor(2) as pool:
++                answers = list(pool.map(replay, (1, 2)))
++            self.assertEqual(answers[0], answers[1])
++        else:
++            self.resumed(restarted, self.ticked)
++        self.assertEqual(len(self.ran.calls), 1)
++        self.assertEqual(retained_recovery.verification_of(restarted, "recovery-D1")["outcome"], "passed" if status == 0 else "failed")
++        self.assertFalse(self.gate()["open"])
++        self.resumed(restarted, self.ticked)
++        self.resumed(restarted, self.ticked)
++        self.assertEqual(len(self.ran.calls), 1)
++        self.assertEqual(bool(retained_verification.handoff_of(restarted, "recovery-D1")), status == 0 and not cancelled)
++        if cancelled:
++            self.assertFalse(self.gate()["open"])
++            self.assertIsNone(retained_verification.renewed_item_of(restarted, "recovery-D1"))
++        elif status:
++            self.assertIsNotNone(retained_verification.renewed_item_of(restarted, "recovery-D1"))
++
++    def test_committed_pass_is_accounted_on_restart_without_another_child(self):
++        self.interrupted_account(0)
++
++    def test_committed_failure_is_accounted_on_restart_without_another_child(self):
++        self.interrupted_account(1)
++
++    def test_concurrent_pass_account_replays_do_not_repeat_the_child(self):
++        self.interrupted_account(0, concurrent=True)
++
++    def test_concurrent_failure_account_replays_do_not_repeat_the_child(self):
++        self.interrupted_account(1, concurrent=True)
++
++    def test_account_reconciliation_after_cancellation_does_not_release_review(self):
++        self.interrupted_account(0, cancelled=True)
++
+     def reopened(self, incarnation="execution-2"):
+         store = JobStore.open(self.jobs.database,
+                               authority_uuid=self.AUTHORITY,
+@@ -1773,7 +1835,10 @@ class TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance(
+         # composes the Authority, creates the Work in its own scope, grants
+         # the selected owner `approve` there, and emits the one deployment
+         # configuration the five shipped ports read.
+-        self.install_document = self.document(owner_participant=INSTANCE_OWNER)
++        self.install_document = self.document(owner_participant=INSTANCE_OWNER,
++            recovery_verification={"context": context_of(),
++                                   "declaration": stage_a.analysis_declaration(),
++                                   "destination": INSTANCE_OWNER})
+         with open(os.devnull, "w") as quiet:
+             self.installed = bootstrap.prepare(self.install_document,
+                                                stream=quiet)
+@@ -2100,6 +2165,31 @@ class TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance(
+ 
+     # -- the joined proof ---------------------------------------------------
+ 
++    def serving_recovery(self):
++        from tools import stage_execution
++        from tests.tools.test_single_worker import Engine
++        given = json.loads(pathlib.Path(self.places["configuration"]).read_text())
++        operations = stage_execution.operations_from(
++            given, self.jobs, self.control, engine_run=Engine(),
++            credential_provider=lambda provider, reference: self.secret,
++            clock=lambda: LATER, checkout=self.checkout)
++        self.addCleanup(operations.close)
++        self.assertIsNotNone(operations.recovery_verification)
++        operations.recovery_verification.runner._run = self.ran
++        return operations
++
++    def test_configuration_refuses_unknown_members_and_context_revision(self):
++        import copy
++        from tools import bootstrap
++        for changed in ("member", "revision"):
++            given = copy.deepcopy(self.install_document)
++            if changed == "member":
++                given["recovery_verification"]["unexpected"] = True
++            else:
++                given["recovery_verification"]["context"]["schema"] = "unknown/99"
++            with self.subTest(changed=changed), self.assertRaises(bootstrap.BootstrapRefusal):
++                bootstrap.validated(given)
++
+     def test_the_whole_loop_runs_on_the_instance_through_its_own_owners(self):
+         item = self.read("--participant", INSTANCE_OWNER)
+         # THE OWNER IS AUTHORIZED BY THE INSTANCE'S OWN AUTHORITY, in the
+@@ -2126,13 +2216,18 @@ class TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance(
+                          {"review": ["review-a"]})
+         self.assertEqual(successor["work"]["disposition"], "reused")
+ 
+-        # THE THREE ACTS, DRIVEN BY THE PASS, AGAINST A REAL CHILD PROCESS.
+-        acts = []
+-        for _ in range(3):
+-            acts.extend(retained_verification.advance_verification(
+-                self.jobs, self.seam, now=LATER))
+-        self.assertEqual([one["act"] for one in acts],
+-                         ["materialize", "execute", "hand-off"])
++        # Drive the shipped composition and the actual manager restart/tick path.
++        from baton_v12.job_manager import manager
++        self.instants.append(LATER)
++        # The retained-failure fixture has no live original execution. Fence
++        # its otherwise queued placeholder before exercising the real server.
++        from baton_v12.job_manager import cancellation
++        cancellation.request(self.jobs, job_id="job-a", reason="fixture retained original has ended")
++        for ordinal in range(3):
++            operations = self.serving_recovery()
++            manager.reconcile(self.jobs, operations, now=LATER)
++            operations.close()
++            self.assertEqual(retained_recovery.execution_gate(self.jobs, "recovery-D1")["open"], ordinal == 2)
+         self.assertEqual(len(self.ran.calls), 1)
+         self.assertEqual(self.ran.calls[0]["argv"], CORRECTED)
+ 
+@@ -2148,8 +2243,9 @@ class TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance(
+                          directory_manifest(
+                              self.custody_place)["tree_digest"])
+ 
+-        # AND THE ORDINARY TICK ADMITS THE CONFIGURED INDEPENDENT REVIEW OF
+-        # THAT SAME CANDIDATE, automatically.
++        # Separate scheduler contract check: FakeOperations records admission.
++        # The real serving/restart proof above ends at the durable handoff;
++        # no reviewer container is launched by this fixture.
+         gate = retained_recovery.execution_gate(self.jobs, "recovery-D1")
+         self.assertTrue(gate["open"])
+         self.assertEqual(gate["reason"], retained_recovery.GATE_VALIDATED)
+diff --git a/v12/python/tools/bootstrap.py b/v12/python/tools/bootstrap.py
+index 14e2320e..d2d6aa35 100644
+--- a/v12/python/tools/bootstrap.py
++++ b/v12/python/tools/bootstrap.py
+@@ -91,7 +91,7 @@ _PROFILE = ("profile_kind", "profile_version", "integrator_participant",
+ OPTIONAL = ("integration_target", "integration_target_reference",
+             "integration_workspace", "integration_observer",
+             "integration_instructions", "integration_preparation",
+-            "result_judgment_workers",
++            "result_judgment_workers", "recovery_verification",
+             # W321608: THE INSTANCE'S OWN SOURCE SELECTION, named once. A
+             # reusable instance is installed with no Job, and the first
+             # ordinary `manager create` on it binds that Job to the base and
+diff --git a/v12/python/tools/recovery_execution.py b/v12/python/tools/recovery_execution.py
+index c9808619..cccdf6de 100644
+--- a/v12/python/tools/recovery_execution.py
++++ b/v12/python/tools/recovery_execution.py
+@@ -209,10 +209,22 @@ def declared_context(configured, *, what="a declared execution context"):
+         _refuse(f"{what} is one closed object", category="integrity",
+                 code="schema")
+     return retained_verification.owned_context(
+-        dict(configured, schema=retained_verification.CONTEXT_SCHEMA),
++        dict({"schema": retained_verification.CONTEXT_SCHEMA}, **configured),
+         what=what)
+ 
+ 
++def configured_verification(document):
++    """Validate explicit deployment inputs before opening stores or workspaces."""
++    from baton_v12.worker_manager import boundaries
++    from baton_v12.job_manager import failure_analysis
++
++    held = boundaries.document(document, "recovery verification configuration",
++                               required=("context", "declaration", "destination"))
++    return {"context": declared_context(held["context"]),
++            "declaration": failure_analysis.check_analysis_declaration(held["declaration"]),
++            "destination": boundaries.identity(held["destination"], "the recovery owner")}
++
++
+ def workspaces_root(instance_root):
+     """The private workspace root of one instance, created if absent."""
+     place = os.path.join(os.path.realpath(str(instance_root)),
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index e6cb405c..0c1cee54 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -165,7 +165,7 @@ _OPTIONAL_MEMBERS = ("job_bindings", "integration_target",
+                      "integration_instructions",
+                      "integration_preparation",
+                      "result_judgment_workers",
+-                     "analysis_worker",
++                     "analysis_worker", "recovery_verification",
+                      "correction_policy")
+ 
+ # W385623 / DESIGN REC-8: THE DECLARED RETAINED-FAILURE ANALYSIS WORKER, and
+@@ -671,6 +671,9 @@ def held_configuration(document, *, checkout=None):
+     given["job_bindings"] = _held_bindings(given)
+     given["result_judgment_workers"] = _held_judgments(given, here)
+     given["analysis_worker"] = _held_analysis(given, here)
++    if given.get("recovery_verification") is not None:
++        from tools.recovery_execution import configured_verification
++        given["recovery_verification"] = configured_verification(given["recovery_verification"])
+     return given
+ 
+ 
+@@ -5178,6 +5181,7 @@ class StageExecution:
+         # deployment that declares no analyst must answer `None` here rather
+         # than raise out of a delegation.
+         self.recovery_analysis = None
++        self.recovery_verification = None
+         self.authority = authority
+         self.integration = integration
+         self.workers = workers
+@@ -7361,6 +7365,13 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+                     credential_provider=credential_provider,
+                     engine_run=engine_run),
+                 jobs=job_store, engine_run=engine_run, clock=clock)
++        if given.get("recovery_verification") is not None:
++            from tools.recovery_execution import verification_seam
++            composed.recovery_verification = verification_seam(
++                dict(given["recovery_verification"],
++                     instance=os.path.dirname(given["state_root"]),
++                     control_handle=control_store,
++                     clock=clock or getattr(control_store, "_now", None) or _now))
+         composed.pooled = PooledManagerOperations(
+             job_store,
+             {} if idle else _attached_workers(job_store, generation,

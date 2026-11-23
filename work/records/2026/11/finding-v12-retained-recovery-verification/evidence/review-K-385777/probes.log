@@ -1,0 +1,24 @@
+test_K1_unaccounted_readiness_is_truthful_and_one_tick_completes (tests_k.probe_k625.K.test_K1_unaccounted_readiness_is_truthful_and_one_tick_completes) ... ok
+test_K2_persistent_account_refusal_is_reported_not_silent (tests_k.probe_k625.K.test_K2_persistent_account_refusal_is_reported_not_silent) ... ok
+test_K3_intent_without_result_stays_unknown_and_runs_nothing (tests_k.probe_k625.K.test_K3_intent_without_result_stays_unknown_and_runs_nothing) ... ok
+test_K4_state_vocabulary (tests_k.probe_k625.K.test_K4_state_vocabulary) ... ok
+test_K5_configuration_is_closed (tests_k.probe_k625.K.test_K5_configuration_is_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.409s
+
+OK
+
+K1 readiness: {'state': 'unaccounted', 'owed': 'execute', 'review': 'blocked', 'verification': 'passed', 'detail': 'the verifier result is committed; reconcile its missing account without running another child'}
+K1 acts: [{'failure_key': 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a8786eebbcbf8', 'job_id': 'recovery-D1', 'act': 'execute', 'outcome': 'executed', 'detail': {'outcome': 'passed', 'exit_status': 0}}]
+
+K2 acts: [{'failure_key': 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a8786eebbcbf8', 'job_id': 'recovery-D1', 'act': 'execute', 'outcome': 'refused', 'detail': {'category': 'integrity', 'code': 'digest'}}]
+
+K2 acts: [{'failure_key': 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a8786eebbcbf8', 'job_id': 'recovery-D1', 'act': 'execute', 'outcome': 'refused', 'detail': {'category': 'integrity', 'code': 'digest'}}]
+
+K2 acts: [{'failure_key': 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a8786eebbcbf8', 'job_id': 'recovery-D1', 'act': 'execute', 'outcome': 'refused', 'detail': {'category': 'integrity', 'code': 'digest'}}]
+
+K3 readiness: {'state': 'unknown', 'owed': None, 'review': 'blocked', 'verification': 'unknown', 'detail': 'this successor journalled the intent to run its approved verification and journalled no account of it; whether that command ran is UNKNOWN, this manager never starts a second one, and the retained output is reconciled through its owner or disposed of by a new owner decision'}
+
+K4 EXECUTION_STATES: ('unmaterialized', 'materialized', 'unknown', 'verified', 'failed', 'handed-off', 'renewed', 'held', 'cancelled', 'expired')
+K4 'unaccounted' declared: False

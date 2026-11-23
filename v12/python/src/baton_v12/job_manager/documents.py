@@ -82,6 +82,7 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "SUBMISSION_MEMBERS", "SUBMISSION_SCHEMA", "SUBMISSION_SCHEMAS",
            "TERMINAL_POLICIES",
            "TERMINAL_STAGE_STATES", "act", "correction", "dependency_gate", "recovery_gate",
+           "recovery_verification",
            "job_status",
            "owned_submission", "read_submission", "receipt", "reconciliation",
            "stage_episode", "stage_id", "stage_launch", "stage_status",
@@ -787,6 +788,18 @@ CONTRACTS = {
     # refusal's prose and never a worker's message.
     "recovery.analysis": (("failure_key", "stage_id", "act", "outcome"),
                           ("detail",)),
+    # W385625 / REC-8: one act of the retained VERIFICATION pass. `act` is
+    # `materialize`, `execute`, `hand-off`, `renew` or `hold`; `outcome` is
+    # the same closed set every other level-triggered pass answers with --
+    # did this tick perform it, hold it, or find it refused. `job_id` is the
+    # SUCCESSOR's, because that is the execution being advanced, and the
+    # failure key beside it is the original ending the whole recovery is
+    # about. `detail` carries only closed words this manager owns: a
+    # contained refusal's typed category and code, the measured candidate
+    # digest, the verification's own outcome and exit status, or the renewed
+    # failure key. Never a refusal's prose, never a command's output.
+    "recovery.verification": (("failure_key", "job_id", "act", "outcome"),
+                              ("detail",)),
     # W385624 / REC-8: THE ONE LINKED VERIFICATION/REVIEW-ONLY SUCCESSOR one
     # approved owner decision admitted. Every member is a BINDING rather than
     # a copy: the failure and the decision it consumed, the retained
@@ -918,6 +931,10 @@ def stage_refresh(**members):
 
 def sweep_report(**members):
     return _emit("sweep", members)
+
+
+def recovery_verification(**members):
+    return _emit("recovery.verification", members)
 
 
 def recovery_analysis(**members):

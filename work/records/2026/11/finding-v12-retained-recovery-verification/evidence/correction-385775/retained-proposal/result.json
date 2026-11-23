@@ -1,0 +1,61 @@
+{
+ "base": "14276917cf4eceaf494dc04fe158aaad2440e7d6",
+ "changed_paths": [
+  "v12/python/src/baton_v12/job_manager/__init__.py",
+  "v12/python/src/baton_v12/job_manager/documents.py",
+  "v12/python/src/baton_v12/job_manager/fresh_attempt.py",
+  "v12/python/src/baton_v12/job_manager/manager.py",
+  "v12/python/src/baton_v12/job_manager/retained_recovery.py",
+  "v12/python/src/baton_v12/job_manager/retained_verification.py",
+  "v12/python/src/baton_v12/job_manager/scheduler.py",
+  "v12/python/tests/job_manager/test_retained_recovery_execution.py",
+  "v12/python/tools/job_observation.py",
+  "v12/python/tools/parallel_test.py",
+  "v12/python/tools/recovery_execution.py",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/PLAN.md",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/PROGRESS.md",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/COUNTS.md",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/REPORT.md",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/authority.log",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/baseline-environment-failures.log",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/candidate-environment-failures.log",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/evidence.sha256",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/focused-repeat.log",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/focused.log",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/job_manager.log",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/manifest.json",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/provenance.txt",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/scans.log",
+  "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/native-stage-1c-385625/tools-affected.log"
+ ],
+ "collection": {
+  "excluded_ignored": [
+   "handoff/",
+   "work/scratch/"
+  ],
+  "excluded_ignored_count": 2,
+  "excluded_special": [],
+  "excluded_special_count": 0,
+  "note": "these worktree paths were present while the task's verification ran and are NOT part of the delivered proposal; whether the verification relied on any of them is the integrator's question, disclosed rather than adjudicated here"
+ },
+ "disposition": "candidate",
+ "entry_head": "14276917cf4eceaf494dc04fe158aaad2440e7d6",
+ "head": "4e869a1db07d1063b988704a3c892bfbfac1f2fa",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 7200,
+  "seconds_bound_source": "job-selected",
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "w385625-native-verification-1",
+ "verification": {
+  "argv": [
+   "bash",
+   "-c",
+   "set -euo pipefail; mkdir -p work/scratch/w385625-verification; export BATON_V12_DISK_ROOT=\"$PWD/work/scratch/w385625-verification\"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_recovery_execution tests.job_manager.test_retained_recovery_admission"
+  ],
+  "status": 0
+ },
+ "why": "the candidate changed the source and its own verification passed"
+}

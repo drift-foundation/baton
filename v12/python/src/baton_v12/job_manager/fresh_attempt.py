@@ -550,7 +550,18 @@ def _over(entry, state, held):
     if state != "blocked":
         return False
     gates = projection.gates_of(entry["stage"], held)
-    return bool(gates) and all(gate["state"] in _NEVER_OPENS
+    # W385625 (review note M3): THE GATE LIST CARRIES TWO DOCUMENT SHAPES and
+    # only one of them has a predecessor state. A `stage.dependency-gate`
+    # names the stage it waits on and that stage's state; a
+    # `stage.recovery-gate` names a Job, a reason and no state at all, because
+    # what it waits on is a candidate handoff rather than another stage. So
+    # the state is READ DEFENSIVELY and a gate that has none is not "never
+    # opens": a recovery gate that may still be opened by a validated handoff
+    # means this stage is not finished, which is the conservative answer. This
+    # path stays unreachable for a recovery Job -- `_prior` refuses that
+    # control profile before a fresh attempt gets here, and a case proves it
+    # -- and that is exactly why it must not fault if it is ever reached.
+    return bool(gates) and all(gate.get("state") in _NEVER_OPENS
                                for gate in gates)
 
 

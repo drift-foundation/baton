@@ -1,0 +1,3 @@
+delta==declared True
+retained v12 paths 11 manifest-has-all True extra ['v12/python/DEPLOYMENT.md', 'v12/python/src/baton_v12/job_manager/delegation.py', 'v12/python/tools/bootstrap.py', 'v12/python/tools/stage_execution.py']
+mismatches 0 files 15

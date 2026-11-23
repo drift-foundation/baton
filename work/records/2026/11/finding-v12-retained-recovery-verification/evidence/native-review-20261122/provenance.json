@@ -1,0 +1,9 @@
+{
+  "source": "/home/sl/baton-instances/native-w385625-verification-1/state/workspaces/attempt-389c9af44dcec8845cf7150a5dc823b0ea380c6a6f4f593ebda67053a1e88eea/custody/attempt-389c9af44dcec8845cf7150a5dc823b0ea380c6a6f4f593ebda67053a1e88eea/findings",
+  "attempt": "attempt-389c9af44dcec8845cf7150a5dc823b0ea380c6a6f4f593ebda67053a1e88eea",
+  "sha256": {
+    "report.json": "71e7a22f675254d0f924ec043b9277ba4236447f94cb4fc67be9ff16ae02eb15",
+    "findings.txt": "756d44469ab93463599ebbea94d89402ba35dd78edde1ca1d20ced4266d99fc1"
+  },
+  "qualification": "Copied retained review custody; candidate custody validation remains required before correction."
+}

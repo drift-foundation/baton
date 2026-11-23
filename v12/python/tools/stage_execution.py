@@ -165,7 +165,7 @@ _OPTIONAL_MEMBERS = ("job_bindings", "integration_target",
                      "integration_instructions",
                      "integration_preparation",
                      "result_judgment_workers",
-                     "analysis_worker",
+                     "analysis_worker", "recovery_verification",
                      "correction_policy")
 
 # W385623 / DESIGN REC-8: THE DECLARED RETAINED-FAILURE ANALYSIS WORKER, and
@@ -671,6 +671,9 @@ def held_configuration(document, *, checkout=None):
     given["job_bindings"] = _held_bindings(given)
     given["result_judgment_workers"] = _held_judgments(given, here)
     given["analysis_worker"] = _held_analysis(given, here)
+    if given.get("recovery_verification") is not None:
+        from tools.recovery_execution import configured_verification
+        given["recovery_verification"] = configured_verification(given["recovery_verification"])
     return given
 
 
@@ -5178,6 +5181,7 @@ class StageExecution:
         # deployment that declares no analyst must answer `None` here rather
         # than raise out of a delegation.
         self.recovery_analysis = None
+        self.recovery_verification = None
         self.authority = authority
         self.integration = integration
         self.workers = workers
@@ -7361,6 +7365,13 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                     credential_provider=credential_provider,
                     engine_run=engine_run),
                 jobs=job_store, engine_run=engine_run, clock=clock)
+        if given.get("recovery_verification") is not None:
+            from tools.recovery_execution import verification_seam
+            composed.recovery_verification = verification_seam(
+                dict(given["recovery_verification"],
+                     instance=os.path.dirname(given["state_root"]),
+                     control_handle=control_store,
+                     clock=clock or getattr(control_store, "_now", None) or _now))
         composed.pooled = PooledManagerOperations(
             job_store,
             {} if idle else _attached_workers(job_store, generation,

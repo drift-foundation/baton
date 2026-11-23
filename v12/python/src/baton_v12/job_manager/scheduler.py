@@ -879,9 +879,24 @@ class PooledManagerOperations:
         return intent
 
     def admit(self, stage, job):
+        # W385625: A RECOVERY STAGE IS ADMITTED ONLY THROUGH ITS OWN OPEN
+        # GATE. The gate exists for every Job admitted under the retained-
+        # recovery profile, and what decides is whether it is OPEN -- the
+        # committed candidate handoff, which re-measured the materialized
+        # candidate against the bound digest and bound the reused passed
+        # verification. Refusing on the gate's EXISTENCE would have made the
+        # handoff unreachable once it was built; refusing on anything weaker
+        # than the handoff would release a review with no proved delivery of
+        # the candidate it is about. The reason travels with the refusal so an
+        # operator is told which of the two it is.
         from .retained_recovery import execution_gate
-        if execution_gate(self.store, stage["job_id"]) is not None:
-            raise ContractRefusal("refused", "precondition", "retained recovery requires a validated candidate execution handoff")
+        gate = execution_gate(self.store, stage["job_id"])
+        if gate is not None and not gate["open"]:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"retained recovery requires a validated candidate execution "
+                f"handoff; stage {name_value(stage['stage_id'])} is held at "
+                f"{name_value(gate['reason'])}")
         allocation = self._allocation(stage, create=True)
         worker = self.workers[(allocation["generation"],
                                allocation["worker_id"])]

@@ -1,0 +1,115 @@
+{
+  "assignment": "M385773",
+  "base_checkpoint": "14276917cf4eceaf494dc04fe158aaad2440e7d6",
+  "candidate_kind": "filesystem correction; no new commit",
+  "claim": "E385775",
+  "correction.patch_sha256": "c3ca7412b3b1cdb8e2f735440b7b65d3cb6174f8c2886c6038cb0d401b3e4cc0",
+  "cumulative.patch_sha256": "8db91aa7d2e28c8e1a67f8fc77acf3c06682f97e7cf1a3cb8cb371eda4584ae3",
+  "cumulative_paths": [
+    "v12/python/DEPLOYMENT.md",
+    "v12/python/src/baton_v12/job_manager/__init__.py",
+    "v12/python/src/baton_v12/job_manager/delegation.py",
+    "v12/python/src/baton_v12/job_manager/documents.py",
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py",
+    "v12/python/src/baton_v12/job_manager/manager.py",
+    "v12/python/src/baton_v12/job_manager/retained_recovery.py",
+    "v12/python/src/baton_v12/job_manager/retained_verification.py",
+    "v12/python/src/baton_v12/job_manager/scheduler.py",
+    "v12/python/tests/job_manager/test_retained_recovery_execution.py",
+    "v12/python/tools/bootstrap.py",
+    "v12/python/tools/job_observation.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tools/recovery_execution.py",
+    "v12/python/tools/stage_execution.py"
+  ],
+  "delta_paths": [
+    "v12/python/DEPLOYMENT.md",
+    "v12/python/src/baton_v12/job_manager/delegation.py",
+    "v12/python/src/baton_v12/job_manager/retained_verification.py",
+    "v12/python/tests/job_manager/test_retained_recovery_execution.py",
+    "v12/python/tools/bootstrap.py",
+    "v12/python/tools/recovery_execution.py",
+    "v12/python/tools/stage_execution.py"
+  ],
+  "files": {
+    "v12/python/DEPLOYMENT.md": {
+      "base_sha256": "6ae96ce73c261977de94e0b79410a9aa96a05378f4a0dd07fa40a6464308f08f",
+      "candidate_sha256": "922da0d1004b41db6d4f89bf0e2489b20431321eace09a9cce6ddb23c0bc2dfa",
+      "retained_sha256": "6ae96ce73c261977de94e0b79410a9aa96a05378f4a0dd07fa40a6464308f08f"
+    },
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "base_sha256": "e6176a0654046d777ba91c040b9ed8ac0ebcc4a28da8a6cbfa820597d91099d3",
+      "candidate_sha256": "c72aa41b611f64e5e4590a956ad5cfff20ec2fe68f0fb86753613213056d6206",
+      "retained_sha256": "c72aa41b611f64e5e4590a956ad5cfff20ec2fe68f0fb86753613213056d6206"
+    },
+    "v12/python/src/baton_v12/job_manager/delegation.py": {
+      "base_sha256": "09540d55ae1bf3348c52abc5f58ca46458bcc72431187549076486e6d7ff0915",
+      "candidate_sha256": "e142c2e7617ea0c823a88a730e860b36f1db4bc8ede3bb34af3a550cbfc4e008",
+      "retained_sha256": "09540d55ae1bf3348c52abc5f58ca46458bcc72431187549076486e6d7ff0915"
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "base_sha256": "ef107a87bf6a61cfd1f976d5a220198dde74ef23d97ac650743f59a2b613d720",
+      "candidate_sha256": "90b3dd5e8dec7151b60bed9288ca42e170d2ff85333664252bfb7dfe0211023c",
+      "retained_sha256": "90b3dd5e8dec7151b60bed9288ca42e170d2ff85333664252bfb7dfe0211023c"
+    },
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": {
+      "base_sha256": "92689d928d440d200fe8defb35ab674fc1b3fb1ed8230158879de23f12148edb",
+      "candidate_sha256": "c6c218f454b92f0195d8272c116c6d151e5a8a0351f4e96f8e52f48430ff3019",
+      "retained_sha256": "c6c218f454b92f0195d8272c116c6d151e5a8a0351f4e96f8e52f48430ff3019"
+    },
+    "v12/python/src/baton_v12/job_manager/manager.py": {
+      "base_sha256": "81d248e45382f2ce31f1266501e2beab6d4764ecbe2bea4eba9c1ee07a8d8dba",
+      "candidate_sha256": "9f9d11c776ab42190d230f0843e982e80bfd077e72e5b56a33abc61e92769051",
+      "retained_sha256": "9f9d11c776ab42190d230f0843e982e80bfd077e72e5b56a33abc61e92769051"
+    },
+    "v12/python/src/baton_v12/job_manager/retained_recovery.py": {
+      "base_sha256": "0315b3569cfaed7c69392818f9c97414a9d02b56923c21a742ee9b557a2cf570",
+      "candidate_sha256": "289a1c506f2f87f10c817d0a4b1b09d23ae70cb92bb2c21c0bcabdc07fcffa06",
+      "retained_sha256": "289a1c506f2f87f10c817d0a4b1b09d23ae70cb92bb2c21c0bcabdc07fcffa06"
+    },
+    "v12/python/src/baton_v12/job_manager/retained_verification.py": {
+      "base_sha256": null,
+      "candidate_sha256": "d8dbffbc02882ffb5c604bb51fa740823ba47df8942543013d08e413f8a06392",
+      "retained_sha256": "21fba000028a703973f1ac73f5ab5a455626325f5c49a6503153e971c2bd82c5"
+    },
+    "v12/python/src/baton_v12/job_manager/scheduler.py": {
+      "base_sha256": "ee00decf9717cb93f1d0942786feb19b4f8e2db80cfc01dac6ee4b46257c678e",
+      "candidate_sha256": "a57768ad33be5ad60860457f920fe67a457a2c293bcb1455a32d26b5461af825",
+      "retained_sha256": "a57768ad33be5ad60860457f920fe67a457a2c293bcb1455a32d26b5461af825"
+    },
+    "v12/python/tests/job_manager/test_retained_recovery_execution.py": {
+      "base_sha256": null,
+      "candidate_sha256": "8c05d8cf5b4067fe56a3609ff162ba1d494b7f272856c19cea9d017c2bd909d3",
+      "retained_sha256": "38f1014ec9236e2c487e3194b836c9305d37946151b4fad32c784edfd11c7ef7"
+    },
+    "v12/python/tools/bootstrap.py": {
+      "base_sha256": "75c462593f2780670d816ed8746188dd7fa2388b3d6db64be958083a838d8d22",
+      "candidate_sha256": "cbf5ad82ac9ba78019fcd42d5ec24e454ba725ef6d7692179eab80723286325c",
+      "retained_sha256": "75c462593f2780670d816ed8746188dd7fa2388b3d6db64be958083a838d8d22"
+    },
+    "v12/python/tools/job_observation.py": {
+      "base_sha256": "a78bf16545cea5167357ca7945863b93057c896e1e743ca508dd9c12000cb242",
+      "candidate_sha256": "b40292d23e87ae8f2c9c79c41093cdde7c3b363831111bf1715d70f312e969fe",
+      "retained_sha256": "b40292d23e87ae8f2c9c79c41093cdde7c3b363831111bf1715d70f312e969fe"
+    },
+    "v12/python/tools/parallel_test.py": {
+      "base_sha256": "37144b95712f3a195ac54704e1964846feafa3ed7f3a81bb6feec350033096f3",
+      "candidate_sha256": "a3d1d8471f0ee1af4f04c9c5e54463933108ba298e13654e1877f8302f2d86bd",
+      "retained_sha256": "a3d1d8471f0ee1af4f04c9c5e54463933108ba298e13654e1877f8302f2d86bd"
+    },
+    "v12/python/tools/recovery_execution.py": {
+      "base_sha256": null,
+      "candidate_sha256": "a29c186063aa3022d2c0d21278b140cb0fdfe580b2a838ae478d3582a2beb20e",
+      "retained_sha256": "d2260bfeb725f32cc70d973c3730ba88c42e070a43db4f33a98fb4521fbe1493"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "base_sha256": "29527776391475b18277836e96ca4f68660d064cdddf4c7cf9b4830f83958fa6",
+      "candidate_sha256": "93a557430fbbec1549d8c15f92fd6d63a18bd653fc3295ac4b0fa7ebdf6d5be5",
+      "retained_sha256": "29527776391475b18277836e96ca4f68660d064cdddf4c7cf9b4830f83958fa6"
+    }
+  },
+  "retained_candidate": "4e869a1db07d1063b988704a3c892bfbfac1f2fa",
+  "schema": "baton-review-candidate/1",
+  "scope": "Cumulative product/docs candidate; original native dossier evidence remains in retained-proposal bundle, not silently overwritten into current records.",
+  "work": "W385625"
+}

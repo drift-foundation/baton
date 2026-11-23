@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_bootstrap",
+    "tests.job_manager.test_delegation",
+    "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_declared_analysis_worker_is_held_and_its_declaration_made",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_declared_analyst_composes_and_exposes_the_recovery_seam"
+  ],
+  "returncode": 0,
+  "seconds": 19.182295019971207
+}

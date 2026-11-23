@@ -1,0 +1,16 @@
+test_a_crash_after_the_command_resumes_at_the_handoff (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_a_crash_after_the_command_resumes_at_the_handoff) ... ok
+test_a_crash_after_the_materialization_resumes_at_the_command (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_a_crash_after_the_materialization_resumes_at_the_command) ... ok
+test_a_dispatch_replay_of_the_review_admits_it_once (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_a_dispatch_replay_of_the_review_admits_it_once) ... ok
+test_a_restart_before_the_handoff_never_starts_a_second_process (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_a_restart_before_the_handoff_never_starts_a_second_process) ... ok
+test_committed_failure_is_accounted_on_restart_without_another_child (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_committed_failure_is_accounted_on_restart_without_another_child) ... ok
+test_committed_pass_is_accounted_on_restart_without_another_child (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_committed_pass_is_accounted_on_restart_without_another_child) ... ok
+test_concurrent_failure_account_replays_do_not_repeat_the_child (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_concurrent_failure_account_replays_do_not_repeat_the_child) ... ok
+test_concurrent_pass_account_replays_do_not_repeat_the_child (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_concurrent_pass_account_replays_do_not_repeat_the_child) ... ok
+test_the_whole_loop_is_byte_stable_across_a_replayed_tick (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_the_whole_loop_is_byte_stable_across_a_replayed_tick) ... ok
+test_two_concurrent_passes_perform_each_act_once (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_two_concurrent_passes_perform_each_act_once)
+THE RACE, SYNCHRONIZED PAST THE POINT A READ WOULD HAVE DECIDED. ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.676s
+
+OK

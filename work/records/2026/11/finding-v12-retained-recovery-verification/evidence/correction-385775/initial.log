@@ -1,0 +1,124 @@
+test_a_crash_after_the_command_resumes_at_the_handoff (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_a_crash_after_the_command_resumes_at_the_handoff) ... ok
+test_a_crash_after_the_materialization_resumes_at_the_command (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_a_crash_after_the_materialization_resumes_at_the_command) ... ok
+test_a_dispatch_replay_of_the_review_admits_it_once (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_a_dispatch_replay_of_the_review_admits_it_once) ... ok
+test_a_restart_before_the_handoff_never_starts_a_second_process (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_a_restart_before_the_handoff_never_starts_a_second_process) ... ok
+test_committed_failure_is_accounted_on_restart_without_another_child (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_committed_failure_is_accounted_on_restart_without_another_child) ... ERROR
+test_committed_pass_is_accounted_on_restart_without_another_child (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_committed_pass_is_accounted_on_restart_without_another_child) ... ERROR
+test_the_whole_loop_is_byte_stable_across_a_replayed_tick (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_the_whole_loop_is_byte_stable_across_a_replayed_tick) ... ok
+test_two_concurrent_passes_perform_each_act_once (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_two_concurrent_passes_perform_each_act_once)
+THE RACE, SYNCHRONIZED PAST THE POINT A READ WOULD HAVE DECIDED. ... ok
+test_an_unauthorized_participant_is_refused_by_the_real_authority (tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance.test_an_unauthorized_participant_is_refused_by_the_real_authority) ... ok
+test_host_settlement_alone_does_not_end_the_authority_assignment (tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance.test_host_settlement_alone_does_not_end_the_authority_assignment)
+K W385695 D4, as it applies to this joined acceptance. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-18dmq27i/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-18dmq27i/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-18dmq27i/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-18dmq27i/bootstrap-deployment/deployment.json"
+ok
+test_the_admission_rests_on_positive_cessation_and_a_returned_token (tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance.test_the_admission_rests_on_positive_cessation_and_a_returned_token)
+Unknown holds: the one fact removed is the one that refuses. ... ok
+test_the_default_factory_refuses_a_store_the_instance_does_not_own (tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance.test_the_default_factory_refuses_a_store_the_instance_does_not_own)
+The shipped `_agreeing` checks, over a real installed instance. ... ok
+test_the_shipped_seam_factory_composes_over_this_instance (tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance.test_the_shipped_seam_factory_composes_over_this_instance)
+`tools.recovery_execution.verification_seam`, over the real root. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-o9p6ib1n/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-o9p6ib1n/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-o9p6ib1n/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-o9p6ib1n/bootstrap-deployment/deployment.json"
+ok
+test_the_whole_loop_runs_on_the_instance_through_its_own_owners (tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance.test_the_whole_loop_runs_on_the_instance_through_its_own_owners) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-00nm75ch/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-00nm75ch/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-00nm75ch/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-00nm75ch/bootstrap-deployment/deployment.json"
+ERROR
+
+======================================================================
+ERROR: test_committed_failure_is_accounted_on_restart_without_another_child (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_committed_failure_is_accounted_on_restart_without_another_child)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385625-correction-385775/v12/python/tests/job_manager/test_retained_recovery_execution.py", line 1343, in test_committed_failure_is_accounted_on_restart_without_another_child
+    self.interrupted_account(1)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/home/sl/src/baton/work/scratch/w385625-correction-385775/v12/python/tests/job_manager/test_retained_recovery_execution.py", line 1319, in interrupted_account
+    self.admitted(corrected=[sys.executable, "-c", f"raise SystemExit({status})"])
+                             ^^^
+NameError: name 'sys' is not defined. Did you forget to import 'sys'?
+
+======================================================================
+ERROR: test_committed_pass_is_accounted_on_restart_without_another_child (tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect.test_committed_pass_is_accounted_on_restart_without_another_child)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385625-correction-385775/v12/python/tests/job_manager/test_retained_recovery_execution.py", line 1340, in test_committed_pass_is_accounted_on_restart_without_another_child
+    self.interrupted_account(0)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/home/sl/src/baton/work/scratch/w385625-correction-385775/v12/python/tests/job_manager/test_retained_recovery_execution.py", line 1319, in interrupted_account
+    self.admitted(corrected=[sys.executable, "-c", f"raise SystemExit({status})"])
+                             ^^^
+NameError: name 'sys' is not defined. Did you forget to import 'sys'?
+
+======================================================================
+ERROR: test_the_whole_loop_runs_on_the_instance_through_its_own_owners (tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance.test_the_whole_loop_runs_on_the_instance_through_its_own_owners)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385625-correction-385775/v12/python/tests/job_manager/test_retained_recovery_execution.py", line 2174, in test_the_whole_loop_runs_on_the_instance_through_its_own_owners
+    operations = self.serving_recovery()
+  File "/home/sl/src/baton/work/scratch/w385625-correction-385775/v12/python/tests/job_manager/test_retained_recovery_execution.py", line 2137, in serving_recovery
+    operations = stage_execution.operations_from(
+                 ^^^^^^^^^^^^^^^
+NameError: name 'stage_execution' is not defined
+
+----------------------------------------------------------------------
+Ran 14 tests in 1.090s
+
+FAILED (errors=3)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

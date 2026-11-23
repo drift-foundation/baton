@@ -39,8 +39,8 @@ from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from ..worker_manager import events
 from . import (cancellation, delegation, documents, ending, episodes,
-               failure_analysis, job_control, projection, scheduler,
-               submission)
+               failure_analysis, job_control, projection,
+               retained_verification, scheduler, submission)
 from .store import job_signature
 
 __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
@@ -236,6 +236,35 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # reaches none of this and its report carries no `analysed` member, which
     # is what preserves every accepted operations object in this tree.
     analysed = _analyse(store, operations, now)
+    # W385625 / REC-8: AND THE RETAINED-VERIFICATION EXECUTION PASS, AFTER
+    # THE ANALYSIS PASS AND BEFORE THE CAPACITY IS SETTLED.
+    #
+    # AFTER, for the reason the analysis pass is after the endings: what this
+    # one derives from is an ADMITTED successor, and an approval recorded by
+    # the owner command between two ticks is a successor this tick can
+    # already materialize. Nothing chains inside it -- one act per successor
+    # per tick -- because the fault cuts between materializing, running the
+    # approved command and handing the candidate to review are exactly the
+    # cuts the contract names and acceptance injects failures at.
+    #
+    # BEFORE THE CAPACITY SETTLES, because a handoff committed here opens the
+    # review stage's recovery gate, and the admission that gate releases is
+    # the next tick's: this pass never launches a reviewer itself.
+    #
+    # AND ABSENT IS AN ANSWER. A deployment that configures no verification
+    # seam reaches none of this, which is what preserves every accepted
+    # operations object in this tree.
+    #
+    # NOT ADDED TO THE REPORT, which is this loop's standing rule for an act
+    # whose account somebody else already holds -- the same sentence the
+    # capacity reconciliation below is governed by. The `sweep` document's
+    # member contract is CLOSED and this build does not widen it; what this
+    # pass did is visible where a reader looks for it, in the five durable
+    # records `retained_verification.successor_execution` answers with, in
+    # the owner items `owner_items_of` lists, and in the review stage's own
+    # recovery gate. A caller that wants the per-act list drives
+    # `advance_verification` and is handed it.
+    _verify(store, operations, now)
     # W316918: AND THE CAPACITY IS SETTLED FROM THE STATE THIS TICK LEAVES,
     # not from the state it began with.
     #
@@ -306,6 +335,41 @@ def _analyse(store, operations, now):
         return [documents.recovery_analysis(
             failure_key=None, stage_id=None, act="observe", outcome="refused",
             detail={"category": refusal.category, "code": refusal.code})]
+
+
+def _verify(store, operations, now):
+    """Run the configured retained-verification execution pass, or nothing.
+
+    W385625. THE ONE PRODUCTION CALLER of `retained_verification`'s automatic
+    path, and it is this loop for the reason every other pass is: what a Job
+    manager owns is WHEN to ask, derived from durable state on every tick
+    including the first one after a restart.
+
+    THE SEAM IS AN OPTIONAL CAPABILITY, discovered exactly as `settle_offer`,
+    `reclaim` and `recovery_analysis` are. A deployment that configures a
+    private verification workspace, a declared execution context and a host
+    command runner supplies it; `ManagerOperations` carries `None` by default,
+    the read-only status surface holds none, and a fake in a test that names
+    nothing reaches none of this.
+
+    A CONTAINED REFUSAL IS A CONDITION. The pass already treats one
+    successor's refusal as one and keeps going; what is caught HERE is a
+    refusal of the seam ITSELF -- a context a deployment composed wrongly, a
+    workspace root that is not a directory, a runner that cannot say which
+    instance it runs in -- because a misconfigured recovery path must not stop
+    a tick that is otherwise serving Jobs correctly.
+    """
+    seam = getattr(operations, "recovery_verification", None)
+    if seam is None:
+        return []
+    try:
+        return retained_verification.advance_verification(store, seam,
+                                                          now=now)
+    except ContractRefusal as refusal:
+        return [documents.recovery_verification(
+            failure_key=None, job_id=None, act="materialize",
+            outcome="refused", detail={"category": refusal.category,
+                                       "code": refusal.code})]
 
 
 def _converse(store, operations, held):

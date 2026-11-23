@@ -770,7 +770,7 @@ class ManagerOperations:
                  "_observe_integration",
                  "_dispatch_exchange", "_conclude_attempt",
                  "_refresh_runtime", "_diagnostic_degradations",
-                 "recovery_analysis")
+                 "recovery_analysis", "recovery_verification")
 
     # THE CANONICAL STORE IS OPEN. A status document says so, because a
     # projection assembled without the manager can only report what was
@@ -782,7 +782,7 @@ class ManagerOperations:
                  events=None, start_runtime=None, observe_exchange=None,
                  observe_integration=None,
                  dispatch_exchange=None, conclude_attempt=None,
-                 refresh_runtime=None, recovery_analysis=None):
+                 refresh_runtime=None, recovery_analysis=None, recovery_verification=None):
         self._diagnostic_degradations = set()
         self.control = control
         self.port = port
@@ -870,6 +870,7 @@ class ManagerOperations:
         # observes, ends and reports exactly as it always did, and no retained
         # failure is analysed because none was configured to be.
         self.recovery_analysis = recovery_analysis
+        self.recovery_verification = recovery_verification
 
     def canonical_operation(self, act, offer_id):
         return canonical_operation(act, offer_id)

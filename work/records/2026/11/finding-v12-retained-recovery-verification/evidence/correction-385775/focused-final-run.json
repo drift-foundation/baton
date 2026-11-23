@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_retained_recovery_execution",
+    "tests.job_manager.test_retained_recovery_admission"
+  ],
+  "returncode": 0,
+  "seconds": 8.472543862008024
+}

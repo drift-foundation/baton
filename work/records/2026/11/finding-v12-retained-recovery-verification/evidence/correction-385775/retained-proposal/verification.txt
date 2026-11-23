@@ -1,0 +1,13 @@
+$ bash -c set -euo pipefail; mkdir -p work/scratch/w385625-verification; export BATON_V12_DISK_ROOT="$PWD/work/scratch/w385625-verification"; cd v12/python; export PYTHONPATH=src; exec python3 -m unittest -v tests.job_manager.test_retained_recovery_execution tests.job_manager.test_retained_recovery_admission
+exit: 0
+
+The command's own stdout and stderr are deliberately not
+reproduced here. It is code from the candidate tree this turn's
+provider edited, and it runs with the attempt's credential mount
+readable -- so its output is exactly the content this proposal
+must not carry, and nothing here can tell one of its bytes from
+another without reading the bearer.
+
+Rerun the command yourself, from the collected candidate tree,
+outside the worker. The acceptance already says that rerun and
+not this file is what an operator trusts.
