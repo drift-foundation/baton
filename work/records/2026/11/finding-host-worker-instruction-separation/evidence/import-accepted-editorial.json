@@ -1,0 +1,22 @@
+{
+  "manifest_sha256": "8800f7f05eec75bab04793a3aac23f9b927e9c770ab60ed794cfb3212762b951",
+  "review": "review-2026-11-23T16-16-25Z.md",
+  "scope": "editorial only; native delivery unfinished",
+  "paths": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "e9e3416d7a6c3dca4206c2379f6031fef79a92926a05ad64781e86c6d6aa8421",
+      "mode": "0o664"
+    },
+    {
+      "path": "docs/HOST-INTEGRATION.md",
+      "sha256": "7d33a568cbdef9e309159c0daed7413eb5490b0547fce7b86e926e89fcafa68e",
+      "mode": "0o644"
+    },
+    {
+      "path": "docs/V12-WORKER-INSTRUCTIONS.md",
+      "sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b",
+      "mode": "0o644"
+    }
+  ]
+}

@@ -1,0 +1,1266 @@
+[
+  {
+    "start": 1,
+    "end": 1,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Preserve required inputs/evidence; disk scratch and no blanket cleanup.",
+    "source": "# Baton repository agent rules"
+  },
+  {
+    "start": 2,
+    "end": 3,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Preserve required inputs/evidence; disk scratch and no blanket cleanup.",
+    "source": "## Development storage"
+  },
+  {
+    "start": 4,
+    "end": 10,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Preserve required inputs/evidence; disk scratch and no blanket cleanup.",
+    "source": "Follow [docs/DEVELOPMENT-STORAGE.md](docs/DEVELOPMENT-STORAGE.md). Preserve\nrequired development inputs and evidence for recovery on another computer.\nUse ignored, disk-backed `work/scratch/` for disposable development scratch;\navoid `/tmp` except for short-lived temporary files. Never leave the only\ncopy of a checkpoint or required evidence in scratch, and never blanket-ignore\nor delete unclassified dossier contents to make Git status clean."
+  },
+  {
+    "start": 11,
+    "end": 12,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected main versus real disposable Git permission; no indirect mutation or live scope expansion.",
+    "source": "## Git usage (strict)"
+  },
+  {
+    "start": 13,
+    "end": 14,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected main versus real disposable Git permission; no indirect mutation or live scope expansion.",
+    "source": "### Owner boundary clarification — 2026-11-21"
+  },
+  {
+    "start": 15,
+    "end": 19,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected main versus real disposable Git permission; no indirect mutation or live scope expansion.",
+    "source": "The Git restrictions below protect the main development line published to\nGitHub and its index, branches, tags and history. Slawomir alone stages,\ncommits and publishes that line. Agent permission to edit product files does\nnot grant permission to mutate its Git state."
+  },
+  {
+    "start": 20,
+    "end": 27,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected main versus real disposable Git permission; no indirect mutation or live scope expansion.",
+    "source": "Within authorized work, agents may use Git and other necessary tools in\ndisposable fixture repositories, isolated disposable staging copies and\ncontainer execution repositories without separate per-command or per-test\napproval. This includes initialization, staging, commits, branches, merges,\ncheckout/reset/clean, local fetches and proposal/bundle creation as needed.\nHere, staging copies means disposable working copies, not the protected\ndevelopment repository's Git index."
+  },
+  {
+    "start": 28,
+    "end": 34,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected main versus real disposable Git permission; no indirect mutation or live scope expansion.",
+    "source": "The disposable boundary must be real: operations must not mutate the protected\nrepository through shared Git metadata, linked worktrees, mounts, symlinks or\nremote pushes. Being inside Docker alone does not make a mounted development\nrepository disposable. Preserve required candidates and evidence outside\ndisposable storage before cleanup. This permission does not select a new live\nJob, deployment change or broader product scope."
+  },
+  {
+    "start": 35,
+    "end": 39,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected main versus real disposable Git permission; no indirect mutation or live scope expansion.",
+    "source": "This ruling supersedes blanket no-Git-mutation interpretations for disposable\nrepositories and earlier per-suite fixture-Git approval limits, including the\ntwo-viewer-test exception. No further owner approval is needed merely because\nan authorized test or isolated execution uses Git within this boundary."
+  },
+  {
+    "start": 40,
+    "end": 41,
+    "scope": "host",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected Git inspection only; human index/history ownership; readiness does not grant mutations.",
+    "source": "### Protected development repository"
+  },
+  {
+    "start": 43,
+    "end": 44,
+    "scope": "host",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected Git inspection only; human index/history ownership; readiness does not grant mutations.",
+    "source": "- Use `git` only for reviewing history, status, and diffs (for example,\n  `git status`, `git diff`, `git log`, `git show`, and `git blame`)."
+  },
+  {
+    "start": 45,
+    "end": 47,
+    "scope": "host",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected Git inspection only; human index/history ownership; readiness does not grant mutations.",
+    "source": "- Slawomir alone owns the Git index, commits, branches, tags, and history.\n  Agents never stage or unstage changes (`git add`, `git restore --staged`,\n  and equivalents)."
+  },
+  {
+    "start": 48,
+    "end": 50,
+    "scope": "host",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected Git inspection only; human index/history ownership; readiness does not grant mutations.",
+    "source": "- Agents never perform mutating Git operations, including `git commit`,\n  `merge`, `rebase`, `cherry-pick`, `reset`, `checkout`/`switch`, `stash`,\n  branch/tag operations, or pushes."
+  },
+  {
+    "start": 51,
+    "end": 53,
+    "scope": "host",
+    "destination": "Git, files and recovery",
+    "current_rule": "Protected Git inspection only; human index/history ownership; readiness does not grant mutations.",
+    "source": "- A request to make the repository “ready,” “clean,” or “committable” means\n  prepare and verify filesystem changes, then report the remaining diff to\n  Slawomir. It does not authorize an agent to mutate Git state."
+  },
+  {
+    "start": 54,
+    "end": 55,
+    "scope": "shared",
+    "destination": "Git, files and recovery",
+    "current_rule": "Avoid readability-only wrapping and indentation churn.",
+    "source": "- Do not wrap long calls or expressions merely for readability; avoid\n  indentation churn, especially in deeply nested code."
+  },
+  {
+    "start": 56,
+    "end": 63,
+    "scope": "superseded",
+    "destination": "Verification and test authority",
+    "current_rule": "Per-test confirmation is replaced by standing test-change authority.",
+    "source": "- The following general test-confirmation rule is superseded until further\n  notice by the standing authority below. Agents may always add tests without case-specific confirmation. This includes\n  new test files/functions and additive cases or members in existing exhaustive\n  test registries. Editing or weakening an existing test's assertions or\n  expected behavior still requires clear, case-specific confirmation. An\n  accepted Work description or plan that explicitly schedules adding, editing,\n  or removing tests within a bounded scope is that confirmation; it is not\n  blanket authority for a test mutation outside the scheduled scope."
+  },
+  {
+    "start": 64,
+    "end": 65,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "All roles may change necessary tests; record reasons/ownership; independent expectations review; exact import and acceptance intact.",
+    "source": "### Standing test-change authority until further notice"
+  },
+  {
+    "start": 66,
+    "end": 72,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "All roles may change necessary tests; record reasons/ownership; independent expectations review; exact import and acceptance intact.",
+    "source": "Owner ruling 2026-09-13: do not require separate test approvals until Slawomir\nrevokes this authority. This applies to all Baton Work and all implementing,\nreviewing and integrating roles, including current Work. Agents may add, edit,\nreplace or remove tests, fixtures, assertions, expected behavior and registry\nentries as needed for the authorized Work outcome without per-test, per-helper\nor additional-test-path owner approval."
+  },
+  {
+    "start": 73,
+    "end": 84,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "All roles may change necessary tests; record reasons/ownership; independent expectations review; exact import and acceptance intact.",
+    "source": "This ruling supersedes the general case-specific test-confirmation rule above\nand older test-only approval/path restrictions in accepted plans and handoffs,\nincluding W161230's exact test-path amendment gates. Record affected test paths\nand reasons in the owning plan/handoff and coordinate file ownership; this is\ndocumentation, not another approval gate. Independent review still evaluates\nchanged expectations against accepted behavior. Do not waive required acceptance\nor remove genuine defect coverage merely to obtain a pass. Product scope,\nexecution budgets, claims, Git ownership and reviewed candidate/provenance\nrequirements remain applicable. This standing ruling supplies test-change\nauthority for integration preflight; the integrator still imports only the\nindependently reviewed candidate bytes."
+  },
+  {
+    "start": 85,
+    "end": 87,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "All roles may change necessary tests; record reasons/ownership; independent expectations review; exact import and acceptance intact.",
+    "source": "Decision history:\n[W161230 owner ruling](work/records/2026/09/finding-v12-managed-integration-execution/OWNER-TEST-AUTHORITY-2026-09-13.md)."
+  },
+  {
+    "start": 89,
+    "end": 89,
+    "scope": "historical duplicate",
+    "destination": "Verification and test authority",
+    "current_rule": "Campaign-specific test authority folds into the unrevoked general standing rule; no revival of old approval limits.",
+    "source": "### W71830 standing test-change authority (historical campaign ruling)"
+  },
+  {
+    "start": 90,
+    "end": 98,
+    "scope": "historical duplicate",
+    "destination": "Verification and test authority",
+    "current_rule": "Campaign-specific test authority folds into the unrevoked general standing rule; no revival of old approval limits.",
+    "source": "Owner ruling 2026-09-09T16:36Z: until W71830 completes or Slawomir revokes this\nauthority, all test changes needed for its accepted scope are preapproved.\nThis covers W71830, its descendants and explicitly recorded prerequisites,\nfor every implementing, reviewing and integrating role. Agents may add, edit,\nreplace or remove tests, fixtures, assertions, expected behavior and test\nregistry entries without further per-test owner approval. This exception\nsupersedes campaign additive-only, per-method approval and other-test\npreservation restrictions, including M128669/M129177 and the amendment in M129247."
+  },
+  {
+    "start": 99,
+    "end": 111,
+    "scope": "historical duplicate",
+    "destination": "Verification and test authority",
+    "current_rule": "Campaign-specific test authority folds into the unrevoked general standing rule; no revival of old approval limits.",
+    "source": "Record affected test paths and their reason in the owning plan/handoff and\ncoordinate file ownership; do not turn that record into another approval gate.\nIndependent review must evaluate the changed expectations against accepted\nbehavior. Required acceptance results and genuine defect coverage cannot be\nwaived merely to pass tests. Product source scope, execution budgets, claims,\nGit ownership and integration candidate/provenance checks remain applicable.\nFor integration preflight, this ruling supplies the campaign's test-change\nauthority; the independently reviewed candidate still binds the imported bytes.\nDo not request another per-test approval or block solely on older permission\nwording. Outside this campaign, and after its completion, the general rule above\napplies. Decision history:\n[W71830 FINDING](work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md#2026-09-09t1636z--standing-test-change-authority-through-w71830-completion)."
+  },
+  {
+    "start": 112,
+    "end": 113,
+    "scope": "historical duplicate",
+    "destination": "Verification and test authority",
+    "current_rule": "Campaign-specific test authority folds into the unrevoked general standing rule; no revival of old approval limits.",
+    "source": "## V12 delivery and v13 hardening boundary"
+  },
+  {
+    "start": 115,
+    "end": 115,
+    "scope": "shared/host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Normative DESIGN, owner-pinned specification, v12 versus later work, graph classification and one authority.",
+    "source": "### Normative v12 specification — owner 2026-09-26"
+  },
+  {
+    "start": 116,
+    "end": 124,
+    "scope": "shared/host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Normative DESIGN, owner-pinned specification, v12 versus later work, graph classification and one authority.",
+    "source": "Read [v12/DESIGN.md](v12/DESIGN.md) before planning, implementing or reviewing\nv12 changes. It specifies the target v12 system, not the running v11 deployment\nor an inventory of current code. Align bounded Work and acceptance with its\nrequirements; report concrete code/spec gaps rather than weakening the spec to\nmatch implementation. Pin owner-approved changes in the owning FINDING and update\nDESIGN before dependent implementation. Current plans, evidence and exact review\nsignoff remain in their owning Work records. All existing claim, scope, review,\nexecution and human Git ownership rules continue to apply."
+  },
+  {
+    "start": 125,
+    "end": 132,
+    "scope": "shared/host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Normative DESIGN, owner-pinned specification, v12 versus later work, graph classification and one authority.",
+    "source": "Owner ruling 2026-09-14: deliver v12's reliable parallel development Jobs and a\nlightweight read-only Job monitor, then use that parallelism to accelerate v13\nhardening. Execution correctness, isolation, recovery, context reuse and honest\nreviewed result collection remain v12 requirements. Broader stress/performance,\nadvanced scheduling/shared capacity, distributed execution and richer TUI work\nbelong to v13; known work-loss, duplicate-effect, isolation or false-success\ndefects are not deferred merely by calling them hardening."
+  },
+  {
+    "start": 133,
+    "end": 140,
+    "scope": "shared/host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Normative DESIGN, owner-pinned specification, v12 versus later work, graph classification and one authority.",
+    "source": "Pin and classify remaining Work in the current v11 authority now. Preserve\nexisting Work identities, canonical records and evidence; move selected execution\nto v12 after readiness, without prematurely copying the backlog or introducing a\nsecond coordination authority. Individual dependency/containment changes require\nan explicit recorded classification; this release ruling does not close unfinished\nWork or silently alter a live assignment. Exact decision and next planning action:\n[W2 release boundary](work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md#v12-parallel-delivery-enables-v13-hardening--confirmed-2026-09-14)."
+  },
+  {
+    "start": 141,
+    "end": 142,
+    "scope": "superseded with retained recovery",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Optional-reuse release classification superseded; fresh isolated recovery and historical evidence retained, no silent rerouting.",
+    "source": "### Fresh-attempt recovery and optional session reuse — owner 2026-09-16"
+  },
+  {
+    "start": 143,
+    "end": 146,
+    "scope": "superseded with retained recovery",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Optional-reuse release classification superseded; fresh isolated recovery and historical evidence retained, no silent rerouting.",
+    "source": "The optional-reuse release classification below is superseded by the September\n23 ruling immediately following this historical entry. Fresh-attempt recovery\nand its accepted evidence remain valid."
+  },
+  {
+    "start": 147,
+    "end": 159,
+    "scope": "superseded with retained recovery",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Optional-reuse release classification superseded; fresh isolated recovery and historical evidence retained, no silent rerouting.",
+    "source": "The owner now selects fresh, isolated attempts from known inputs as the minimum\nv12 recovery path. Failures must be actionable, prior execution stopped or\nfenced, and effects/results correctly attributed and independently accepted.\nProduction provider-session reuse is optional, not a minimum-release gate.\nThis explicitly supersedes the mandatory context-reuse part of the Sep14\nrelease ruling above and earlier Sep15 release sequencing; it does not waive\nisolation, cleanup, recovery correctness or duplicate-effect/false-success\ndefects. Preserve accepted historical proofs and unfinished reuse evidence.\nW177936 is classified as deferred optional production session reuse; its active\nhandler must preserve work and release safely, not be silently rerouted.\nExact ruling and next bounded readiness check:\n[W2 fresh-attempt recovery](work/records/2026/08/finding-v12-isolated-agent-workers/OWNER-FRESH-ATTEMPT-RECOVERY-20260916.md)."
+  },
+  {
+    "start": 160,
+    "end": 161,
+    "scope": "superseded with retained recovery",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Optional-reuse release classification superseded; fresh isolated recovery and historical evidence retained, no silent rerouting.",
+    "source": "### Required context reuse for v12 delivery — owner 2026-09-23"
+  },
+  {
+    "start": 163,
+    "end": 167,
+    "scope": "shared",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Reuse required for delivery but not initial adoption; no broad refactor/automatic integration selection.",
+    "source": "Owner changes the delivery target to independent parallel development Jobs with\nworking context reuse before moving to v13. Reuse is required because progress\nwithout it is too slow. This supersedes the September 16 optional-reuse\nminimum-release classification, while preserving accepted fresh-attempt evidence\nand recovery behavior. Historical acceptance is not proof of this expanded target."
+  },
+  {
+    "start": 168,
+    "end": 175,
+    "scope": "shared",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Reuse required for delivery but not initial adoption; no broad refactor/automatic integration selection.",
+    "source": "Owner clarification later on September 23: reuse is a v12 deliverable, not a\nprerequisite to initial adoption. Begin using v12 for independently accepted\nparallel Jobs on supported fresh contexts, with reuse among the first v12 Jobs.\nThis explicitly supersedes the September 22 wait-for-restoration adoption gate\nand any interpretation of the first September 23 ruling that blocks initial\nadoption on reuse. It does not assert parallel readiness without evidence or\nauthorize a particular live run, deployment change or silent dependency change."
+  },
+  {
+    "start": 176,
+    "end": 184,
+    "scope": "shared",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Reuse required for delivery but not initial adoption; no broad refactor/automatic integration selection.",
+    "source": "Finish the bounded implementation, independent-review and resume/correction\nproofs and establish the selected parallel workflow with reuse. Broad refactoring,\nconsolidation, robustness and hardening remain v13 work; fix concrete execution,\nisolation, cleanup, attribution and false-success blockers needed for v12 now.\nThis is no selection of a broad supervisor refactor, automatic integration,\nadditional live execution, or silent claim/dependency changes. Human-plus-agent\nintegration remains the default. Exact ruling:\n[W2 required reuse](work/records/2026/08/finding-v12-isolated-agent-workers/OWNER-REQUIRED-REUSE-20260923.md)."
+  },
+  {
+    "start": 185,
+    "end": 186,
+    "scope": "shared",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Reuse required for delivery but not initial adoption; no broad refactor/automatic integration selection.",
+    "source": "## Development verification time accounting"
+  },
+  {
+    "start": 187,
+    "end": 194,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Focused cumulative seconds not a gate; sensible per-run limits, truthful durations, investigate resource uncertainty; scope unchanged.",
+    "source": "Owner ruling 2026-09-14: cumulative stopwatch budgets are not approval or\nexecution gates for ordinary focused deterministic verification in the current\nv12 delivery/v13 development campaign. This supersedes earlier cumulative\nauthor/reviewer caps, remaining-bank admission checks and demands to reconstruct\nmissing historical seconds before another ordinary test iteration, including\nW161230's prospective1200s grant in M166281. No replenishment request is needed\nsolely because a cumulative test allowance is exhausted or historically unknown."
+  },
+  {
+    "start": 195,
+    "end": 202,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Focused cumulative seconds not a gate; sensible per-run limits, truthful durations, investigate resource uncertainty; scope unchanged.",
+    "source": "Use sensible per-run timeouts appropriate to the Job and test, with process\ntermination and cleanup time. Predictions guide planning; they are not exact\nevidence or additional approval gates. Record measured durations when available,\nmark unknowns and estimates honestly, and preserve existing evidence. Do not\nmanufacture upper bounds or erase costs. An unproved historical total is not\nproof that old processes ended; investigate concrete resource uncertainty\nseparately without turning missing seconds into a development blocker."
+  },
+  {
+    "start": 203,
+    "end": 211,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Focused cumulative seconds not a gate; sensible per-run limits, truthful durations, investigate resource uncertainty; scope unchanged.",
+    "source": "Selected product scope, focused-test scope, execution boundaries, isolation,\ncleanup and truthful independent acceptance remain required. Materially different\nexecution such as live models, actual engine operations excluded by the owning\nscope, or broad stress campaigns needs its own selection. This does not authorize\na previously excluded run or rerun, remove a reviewed single-run supervisor's\nlimits, or change product Job timeout semantics. No broad discovery merely to\nsettle historical accounting. Exact decision and correction:\n[W161230 finding](work/records/2026/09/finding-v12-managed-integration-execution/FINDING.md#2026-09-14t042423z--cumulative-test-time-is-not-a-development-gate)."
+  },
+  {
+    "start": 212,
+    "end": 213,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Deterministic providers at normal boundary; genuine live question and truthful evidence, no fake owner receipts.",
+    "source": "## V12 verification defaults"
+  },
+  {
+    "start": 214,
+    "end": 223,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Deterministic providers at normal boundary; genuine live question and truthful evidence, no fake owner receipts.",
+    "source": "Owner ruling 2026-09-12: for all future v12 work, use deterministic fake/replay\nproviders and focused local tests by default. Live provider/model execution is\nreserved for a specific question that needs the real provider, such as actual\nauthentication, provider protocol behavior or model-dependent output. State that\nquestion and why deterministic coverage cannot answer it in the owning Work;\nthis is a scope explanation, not an additional approval or reviewer-model gate.\nDo not run live models merely because a test is an integration/end-to-end test,\na change was handed off, or a fresh run identity was prepared. Reuse applicable\nlive evidence rather than repeating it in the normal development loop."
+  },
+  {
+    "start": 224,
+    "end": 230,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Deterministic providers at normal boundary; genuine live question and truthful evidence, no fake owner receipts.",
+    "source": "Simulate the provider at its normal boundary while exercising the real\ncoordination and affected runtime, workspace, merge, test and final-result\nbehavior. Label simulated evidence accurately; never fabricate owner receipts\nor claim live-provider coverage from a fixture. Extend deterministic coverage\nwhen needed instead of defaulting to a live call. Existing execution authority,\nbudgets and genuine provider-specific acceptance obligations still apply."
+  },
+  {
+    "start": 231,
+    "end": 233,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Deterministic providers at normal boundary; genuine live question and truthful evidence, no fake owner receipts.",
+    "source": "This standing default applies beyond W71830 and supersedes older blanket\nlive-provider verification requirements for ordinary v12 development iterations."
+  },
+  {
+    "start": 234,
+    "end": 235,
+    "scope": "host, later route corrections",
+    "destination": "Coordination and identity",
+    "current_rule": "Read protocol, explicit deployment, role identities; later route rulings determine current reviewer/implementer selection.",
+    "source": "Decision and measured feedback-time comparison:\n[W71830 FINDING](work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md#2026-09-12t154509z--deterministic-provider-default-for-all-future-v12-work)."
+  },
+  {
+    "start": 236,
+    "end": 237,
+    "scope": "host, later route corrections",
+    "destination": "Coordination and identity",
+    "current_rule": "Read protocol, explicit deployment, role identities; later route rulings determine current reviewer/implementer selection.",
+    "source": "## Coordination identities"
+  },
+  {
+    "start": 239,
+    "end": 239,
+    "scope": "host, later route corrections",
+    "destination": "Coordination and identity",
+    "current_rule": "Read protocol, explicit deployment, role identities; later route rulings determine current reviewer/implementer selection.",
+    "source": "- Read `docs/AGENTS-MAILBOX-PROTO.md` in full before publishing or consuming Baton handoffs. The local deployment supplies the executable and explicit absolute config path; never infer or hard-code either in repository policy."
+  },
+  {
+    "start": 240,
+    "end": 245,
+    "scope": "host, later route corrections",
+    "destination": "Coordination and identity",
+    "current_rule": "Read protocol, explicit deployment, role identities; later route rulings determine current reviewer/implementer selection.",
+    "source": "- This project's coordination identities are `baton.prompt` for Slawomir's\n  human-attached interactive copilot (`prompt`), `baton.codex` for the managed\n  background reviewer (`rview`), `baton.claude` for the implementer (`impl`),\n  `baton.merge` for proposal integration (`integ`), `baton.slaw` for the\n  approver (`approv`), and `baton.tuner` for final polish (`tuner`). Resolve\n  role-only instructions to those identities; never"
+  },
+  {
+    "start": 246,
+    "end": 247,
+    "scope": "host, later route corrections",
+    "destination": "Coordination and identity",
+    "current_rule": "No hidden duplicate contexts; prompt non-routable; mapped runtime publisher. Sole codex reviewer superseded by rvpc routing.",
+    "source": "substitute a participant from another domain. Every agent launch names both\n  its participant and one explicit role it holds."
+  },
+  {
+    "start": 248,
+    "end": 254,
+    "scope": "host, later route corrections",
+    "destination": "Coordination and identity",
+    "current_rule": "No hidden duplicate contexts; prompt non-routable; mapped runtime publisher. Sole codex reviewer superseded by rvpc routing.",
+    "source": "- `baton.prompt` reads, discusses, creates and coordinates Work from the one\n  interactive context, but it is not a Route handler and never consumes Baton\n  readiness. Routed review, research and planning Work belongs to the one\n  managed `baton.codex` context. Never launch a hidden second context under\n  either address or use one participant for both foreground and background\n  execution. Each runtime publisher reports only the exact context mapped to\n  its participant; runtime visibility does not imply a readiness consumer."
+  },
+  {
+    "start": 255,
+    "end": 260,
+    "scope": "host",
+    "destination": "Coordination and identity",
+    "current_rule": "Actionable operator commands, prerequisites, outcomes and boundaries without impersonation.",
+    "source": "- When recommending an operator action, `baton.prompt` supplies the exact commands\n  the human can run to accept and carry it out, not only inspection commands.\n  Identify prerequisites, expected outcomes and separate approval boundaries.\n  Prefer short, independently pasteable commands or a prepared helper with a\n  read-only check mode. A recommendation does not execute the action or authorize\n  the copilot to act as another participant."
+  },
+  {
+    "start": 261,
+    "end": 261,
+    "scope": "host",
+    "destination": "Coordination and identity",
+    "current_rule": "Actionable operator commands, prerequisites, outcomes and boundaries without impersonation.",
+    "source": "- `baton.merge` is a distinct managed context, not an alias for implementation,"
+  },
+  {
+    "start": 262,
+    "end": 268,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints + docs/HOST-INTEGRATION.md",
+    "current_rule": "Distinct optional integrator; whole-set authority and exact reviewed test paths; refuse stale/mismatched/ambiguous review; no redesign/staging.",
+    "source": "review, tuning, or approval. It imports only an independently approved,\n  digest-bound proposal into the current working tree after checking its base,\n  path set, and target for drift or overlap. It refuses missing provenance,\n  digest mismatch, divergence, overlap, or conflict rather than redesigning or\n  correcting the proposal. It never stages files or mutates Git history; after\n  bounded integration verification it passes the prepared diff to\n  `baton.slaw` for approval and Git ownership."
+  },
+  {
+    "start": 269,
+    "end": 284,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints + docs/HOST-INTEGRATION.md",
+    "current_rule": "Distinct optional integrator; whole-set authority and exact reviewed test paths; refuse stale/mismatched/ambiguous review; no redesign/staging.",
+    "source": "- Before changing any working-tree path, `baton.merge` completes the authority\n  preflight for the whole proposed path set. An accepted Work description or\n  plan that explicitly schedules adding, editing, or removing tests within a\n  bounded scope grants the case-specific test-change authority; the current\n  standing test-change authority above supplies it until revoked. The newest\n  independent review still binds the immutable proposal digest, enumerates\n  every existing test path actually changed, and evaluates any assertion or\n  expected-behaviour changes. Generic sign-off, exact path or candidate-byte\n  enumeration, and proposal-wide approval without that scheduled scope do not\n  grant authority on their own; the standing ruling supplies test authority\n  without another owner-approved test-path amendment. Refuse before changing any path when scope or review is\n  missing, ambiguous, stale, digest-mismatched, or incomplete: the integrator\n  returns the Work for clarification and will never request interactive\n  approval from a managed turn. Approval is limited to the reviewed candidate\n  bytes at the named paths and does not authorize another test change,\n  weakening, redesign, conflict correction, or opportunistic edits."
+  },
+  {
+    "start": 285,
+    "end": 294,
+    "scope": "host",
+    "destination": "docs/HOST-INTEGRATION.md",
+    "current_rule": "Custody modes not checkout modes; non-symlink regular/base/owner-writable preflight; entire refusal before mutation; ops repair; final modes.",
+    "source": "- Custody file modes protect immutable evidence and are never checkout mode\n  instructions. Before any import, `baton.merge` requires every existing target\n  to be a non-symlink regular file matching the reviewed base bytes and already\n  owner-writable. A failed type, byte, or owner-write check refuses the whole\n  import before content or mode mutation and returns it to `baton.ops` for exact\n  repair. The integrator imports reviewed content without preserving custody\n  modes and must verify final bytes and modes. It must never work around a\n  read-only target with `install`, `chmod`, or another privileged replacement. An\n  explicitly planned new regular file uses ordinary non-executable repository\n  mode; executable mode requires explicit accepted scope."
+  },
+  {
+    "start": 295,
+    "end": 298,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "One readiness path, act immediately, wait read-only, obligations/acknowledgments, rearm and no unattended completion.",
+    "source": "- Run exactly one active readiness path per participant — never two concurrent\n  `wait`s for the same address. Two consumers need two participant addresses,\n  not one shared identity. Act on every wake immediately: `claim` the Work\n  before executing it, and `pass` or `close` it rather than leaving it held."
+  },
+  {
+    "start": 299,
+    "end": 304,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "One readiness path, act immediately, wait read-only, obligations/acknowledgments, rearm and no unattended completion.",
+    "source": "- `wait` is read-only: it blocks until actionable state or timeout and creates\n  no claim. An active agent keeps one `wait` armed, polls its terminal, then\n  acts explicitly — `claim work=` to take Work, `respond`/`accept`/`dispose`\n  to answer a directed `@` obligation, `mark-seen` to acknowledge messages.\n  Re-arm `wait` after every result. Never leave a successful readiness result\n  unattended; terminal completion may not itself schedule a new model turn."
+  },
+  {
+    "start": 305,
+    "end": 305,
+    "scope": "host",
+    "destination": "Coordination and identity",
+    "current_rule": "Supported authority surfaces only; no raw SQLite reads or writes.",
+    "source": "- The SQLite instance is the only coordination authority. Never mutate it with raw SQL or manually reconstruct protocol state. Never read it directly either: if a question about the coordination state can only be answered by opening the store, that inability is the finding."
+  },
+  {
+    "start": 306,
+    "end": 307,
+    "scope": "host",
+    "destination": "Coordination and identity",
+    "current_rule": "Prompt routine coordination within scope, owner spec decisions, graph relationships, no handler impersonation.",
+    "source": "## Confirmed decisions are pinned before implementation"
+  },
+  {
+    "start": 308,
+    "end": 317,
+    "scope": "host",
+    "destination": "Coordination and identity",
+    "current_rule": "Prompt routine coordination within scope, owner spec decisions, graph relationships, no handler impersonation.",
+    "source": "Owner coordination delegation 2026-09-26: `baton.prompt` monitors canonical Work\nstate and evidence and coordinates routine continuation, corrections, ownership,\nhandoffs and milestone checkpoints within the accepted specification and selected\nscope. Any proposed specification adjustment requires Slawomir's explicit approval\nbefore changing the specification or implementing the adjusted behavior. This\ndelegation grants no Route-handler impersonation, managed readiness consumption,\nGit mutation or bypass of independent review. Scheduling relationships are\nrecorded in Baton's graph, not substituted with document prose. Exact ruling:\n[Owner coordination](work/records/2026/09/finding-v12-shared-resource-token/FINDING.md#owner-coordination-ruling--2026-09-26)."
+  },
+  {
+    "start": 319,
+    "end": 325,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Shared methodology examples, no concrete recipes or transient identities; policy and exceptions in proper locations.",
+    "source": "- `docs/EFFECTIVE-BATON.md` is a shared methodology book for all projects and\n  users: worked examples and adaptable strategies, not a prescribed setup.\n  Role splits are examples, not protocol requirements. Keep concrete Job IDs,\n  transient state and deployment recipes out of the book; exact operations\n  belong in reference manuals. Project-specific decisions,\n  temporary permissions and campaign exceptions belong in this project's\n  `AGENTS.md` and owning Work records, not in the shared book."
+  },
+  {
+    "start": 326,
+    "end": 326,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Pin confirmed decisions before edits; chronological finding/current plan; revalidate, explicit supersession; restart from records.",
+    "source": "- Baton discussion is coordination EVIDENCE, not the durable specification. A ruling that exists only in a message thread is one context loss away from being re-litigated or silently reversed."
+  },
+  {
+    "start": 327,
+    "end": 327,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Pin confirmed decisions before edits; chronological finding/current plan; revalidate, explicit supersession; restart from records.",
+    "source": "- Before implementing a confirmed product, UX, protocol, or operational decision, write it into the owning record's `FINDING.md` under `work/records/YYYY/MM/finding-<slug>/`, and reflect its queued/in-progress/done state in the applicable `PLAN.md` or umbrella. If no owning record exists, create one before editing implementation."
+  },
+  {
+    "start": 328,
+    "end": 328,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Pin confirmed decisions before edits; chronological finding/current plan; revalidate, explicit supersession; restart from records.",
+    "source": "- Findings preserve the CHRONOLOGICAL history of decisions; plans and umbrellas name the one that is currently actionable. The two answer different questions — \"how did we get here\" and \"what is true now\" — and collapsing them loses whichever the reader needed."
+  },
+  {
+    "start": 329,
+    "end": 329,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Pin confirmed decisions before edits; chronological finding/current plan; revalidate, explicit supersession; restart from records.",
+    "source": "- At implementation start, REVALIDATE the recorded ruling against current code, protocol, and later decisions. If it has changed, append an explicit dated supersession or clarification with its rationale and update the plan. Never delete or rewrite an old decision as though it had never been made: the reasoning that was superseded is how the next reader knows why the current rule is not the obvious one."
+  },
+  {
+    "start": 330,
+    "end": 330,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Pin confirmed decisions before edits; chronological finding/current plan; revalidate, explicit supersession; restart from records.",
+    "source": "- A superseding decision must explicitly mark the old text superseded. Two live rules that contradict each other are worse than either alone, because both look authoritative."
+  },
+  {
+    "start": 331,
+    "end": 331,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Pin confirmed decisions before edits; chronological finding/current plan; revalidate, explicit supersession; restart from records.",
+    "source": "- Implementation and review handoffs reference the exact decision files."
+  },
+  {
+    "start": 332,
+    "end": 332,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Pin confirmed decisions before edits; chronological finding/current plan; revalidate, explicit supersession; restart from records.",
+    "source": "- After a restart or context loss, resume from those repository records — never from memory, and never from a subject line."
+  },
+  {
+    "start": 333,
+    "end": 334,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Pin confirmed decisions before edits; chronological finding/current plan; revalidate, explicit supersession; restart from records.",
+    "source": "This gate exists because a ruled decision was lost: the console's `Enter` behaviour was agreed, never written into its finding, and the implementation later contradicted it. `AGENTS.md` is this rule's one owner; it is agent policy and is not duplicated in the README."
+  },
+  {
+    "start": 336,
+    "end": 337,
+    "scope": "historical rationale",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Historical motivation retained in baseline; no separate current instruction.",
+    "source": "## Review findings tracking (`work/records` dossiers)"
+  },
+  {
+    "start": 339,
+    "end": 342,
+    "scope": "host, legacy superseded",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Canonical permanent dossier layout replaces ephemeral lifecycle; no new legacy folders.",
+    "source": "**Superseded 2026-08-16 at the schema-14 cutover (checkpoint `6c3519e6`):**\nfinding dossiers are no longer ephemeral `work/finding-*` folders. A dossier\nis a PERMANENT record created at its canonical path and never moved, archived,\nor deleted by lifecycle:"
+  },
+  {
+    "start": 343,
+    "end": 352,
+    "scope": "host, legacy superseded",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Canonical permanent dossier layout replaces ephemeral lifecycle; no new legacy folders.",
+    "source": "```text\nwork/\n  open/\n    finding-friendly-name -> ../records/YYYY/MM/finding-stable-name\n  records/\n    YYYY/\n      MM/\n        finding-stable-name/\n```"
+  },
+  {
+    "start": 354,
+    "end": 354,
+    "scope": "host, legacy superseded",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Canonical permanent dossier layout replaces ephemeral lifecycle; no new legacy folders.",
+    "source": "- The year/month is chosen at creation and the canonical `work/records/...`"
+  },
+  {
+    "start": 355,
+    "end": 357,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Permanent locators, repository-relative bindings, optional open indexes/lightweight Work, exactly one Work per dossier, terminal followups.",
+    "source": "path does not change when Work changes phase or becomes terminal. The record\n  holds the finding, plan, progress, append-only reviews, reproductions,\n  scripts, fixtures, data, and other durable evidence."
+  },
+  {
+    "start": 358,
+    "end": 361,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Permanent locators, repository-relative bindings, optional open indexes/lightweight Work, exactly one Work per dossier, terminal followups.",
+    "source": "- Baton Work bindings, messages, handoffs, reviews, and cross-references use\n  only the configured repository identity plus the canonical repository-\n  relative `work/records/...` path — never `work/open/...`, never an absolute\n  checkout path, and never a Git commit as the primary locator."
+  },
+  {
+    "start": 362,
+    "end": 365,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Permanent locators, repository-relative bindings, optional open indexes/lightweight Work, exactly one Work per dossier, terminal followups.",
+    "source": "- `work/open/` is a deliberately maintained human convenience index of\n  relative symlinks for sweeping still-open records. Its links are not\n  protocol state and carry no lifecycle semantics; unlinking a closed\n  record's symlink is later housekeeping and never touches the record."
+  },
+  {
+    "start": 366,
+    "end": 369,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Permanent locators, repository-relative bindings, optional open indexes/lightweight Work, exactly one Work per dossier, terminal followups.",
+    "source": "- Not every lightweight Baton Work needs a dossier or an open symlink. Once a\n  dossier exists its canonical record path is the stable binding; later\n  corrections to terminal evidence are explicit follow-up history, never a\n  silent rewrite or a rename."
+  },
+  {
+    "start": 370,
+    "end": 376,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Permanent locators, repository-relative bindings, optional open indexes/lightweight Work, exactly one Work per dossier, terminal followups.",
+    "source": "- Every finding dossier MUST have exactly one corresponding Work on the\n  authoritative Baton ledger, bound to its canonical `work/records/...` path.\n  Create the Work and dossier together when possible. If research creates the\n  dossier first, create its ledger Work immediately before any further work or\n  handoff. A deferred or roadmap finding is parked on the ledger; it is never\n  left as an off-ledger folder. The reverse is intentionally not required:\n  lightweight Work may still exist without a dossier."
+  },
+  {
+    "start": 377,
+    "end": 379,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Permanent locators, repository-relative bindings, optional open indexes/lightweight Work, exactly one Work per dossier, terminal followups.",
+    "source": "- Remaining `work/finding-*` folders are LEGACY items pending the deliberate\n  cleanup audit owned by `work/records/2026/08/finding-next-release/`; no new\n  folder is ever created there."
+  },
+  {
+    "start": 380,
+    "end": 381,
+    "scope": "host",
+    "destination": "Permanent records and decisions + Review, decomposition, integration and checkpoints",
+    "current_rule": "Serial work and priority; record responsibilities; implementation-ready review evidence and claim revalidation.",
+    "source": "The working process is unchanged by the layout:"
+  },
+  {
+    "start": 383,
+    "end": 385,
+    "scope": "host",
+    "destination": "Permanent records and decisions + Review, decomposition, integration and checkpoints",
+    "current_rule": "Serial work and priority; record responsibilities; implementation-ready review evidence and claim revalidation.",
+    "source": "- Slawomir and the reviewer normally create, research, prioritize, and queue\n  findings. The implementer stays on the current serial item rather than\n  spending implementation cycles reconstructing queued decisions."
+  },
+  {
+    "start": 386,
+    "end": 389,
+    "scope": "host",
+    "destination": "Permanent records and decisions + Review, decomposition, integration and checkpoints",
+    "current_rule": "Serial work and priority; record responsibilities; implementation-ready review evidence and claim revalidation.",
+    "source": "- A top-level record owns `FINDING.md`, `PLAN.md`, and implementer-owned\n  `PROGRESS.md`. The finding records observed behavior, evidence, decisions,\n  and acceptance boundaries; the plan orders current work; progress is the\n  implementer's claim of current state."
+  },
+  {
+    "start": 390,
+    "end": 396,
+    "scope": "host",
+    "destination": "Permanent records and decisions + Review, decomposition, integration and checkpoints",
+    "current_rule": "Serial work and priority; record responsibilities; implementation-ready review evidence and claim revalidation.",
+    "source": "- Reviewer research should make the next item implementation-ready: include a\n  minimal repro/baseline, exact code paths and symbols, confirmed facts versus\n  hypotheses, recommended patch boundary, interactions, positive/negative/\n  race/retry regressions, focused verification, and unresolved decisions.\n  Label uncertain material **Observed**, **Confirmed**, **Inferred**,\n  **Proposed**, or **Open**. Reviewer proposals are decision support, not\n  authority; the implementer must revalidate them against the current tree."
+  },
+  {
+    "start": 397,
+    "end": 399,
+    "scope": "host",
+    "destination": "Permanent records and decisions + Review, decomposition, integration and checkpoints",
+    "current_rule": "Serial work and priority; record responsibilities; implementation-ready review evidence and claim revalidation.",
+    "source": "- Findings are worked serially to completion. Reviewer work may continue on\n  queued findings, but the implementer does not switch merely because a queued\n  record changed."
+  },
+  {
+    "start": 400,
+    "end": 403,
+    "scope": "host, reading narrowed later",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Read current record fresh and revalidate claims; targeted checkpoint policy supersedes indiscriminate historical reread.",
+    "source": "- When starting an item, read its whole record fresh and re-check every\n  captured claim. Earlier work may have resolved or invalidated it. Record an\n  explicit resolved/superseded outcome rather than silently deleting stale\n  work or reimplementing it."
+  },
+  {
+    "start": 404,
+    "end": 406,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Role-neutral discovery; child records, depth/promotion/forwarding, parent cannot close with open child.",
+    "source": "- Discovery is recursive and role-neutral. Either role may immediately file a\n  new defect; filing does not interrupt the serial queue. Human/reviewer still\n  own formal enrichment and priority by default."
+  },
+  {
+    "start": 407,
+    "end": 412,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Role-neutral discovery; child records, depth/promotion/forwarding, parent cannot close with open child.",
+    "source": "- A causally tied child lives at\n  `work/records/YYYY/MM/finding-<parent>/findings/finding-<child>/`, with its\n  own `FINDING.md`, `PLAN.md`, and `PROGRESS.md`. The child names its\n  parent/discovery context; the parent plan/progress indexes the child and\n  status. Use a top-level record instead when it is independent, separately\n  scheduled, or may outlive the parent."
+  },
+  {
+    "start": 413,
+    "end": 417,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Role-neutral discovery; child records, depth/promotion/forwarding, parent cannot close with open child.",
+    "source": "- Do not encode hierarchy/order with dotted names or numeric prefixes. Keep at\n  most two child levels. Promote a deeper or independently scheduled child to\n  top level as a NEW record with an explicit forwarding note in the old one —\n  the old canonical path stays valid history and is never rewritten.\n  A parent cannot close while it contains an open child."
+  },
+  {
+    "start": 418,
+    "end": 427,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Actual implementer owns append-only PROGRESS; reviewer journals immutable, handoff paths, ownership and standalone artifacts.",
+    "source": "- `PROGRESS.md` has one current writer at a time: the participant who actually\n  makes the implementation change under the authorized Work claim. Progress\n  ownership is not reserved to `baton.claude`; it belongs equally to an\n  explicitly assigned tuner, reviewer, approver, prompt participant, or other\n  Handler when that participant performs the change. If implementation passes\n  through serial claim episodes, each actual change author appends an\n  attributable entry and never rewrites or deletes a prior author's account.\n  A participant that only reviews or discusses the change still records input\n  in FINDING/PLAN, evidence files, or append-only review journals, never in\n  progress."
+  },
+  {
+    "start": 428,
+    "end": 431,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Actual implementer owns append-only PROGRESS; reviewer journals immutable, handoff paths, ownership and standalone artifacts.",
+    "source": "- Each review pass is append-only\n  `review-YYYY-MM-DDTHH-MM-SSZ.md` in that record root (UTC). Never edit or\n  delete an earlier review. The implementer records its response and current\n  awaiting-review/changes-requested/signed-off state in `PROGRESS.md`."
+  },
+  {
+    "start": 432,
+    "end": 434,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Actual implementer owns append-only PROGRESS; reviewer journals immutable, handoff paths, ownership and standalone artifacts.",
+    "source": "- Before parallel edits, establish file ownership explicitly. Implementation\n  handoffs reference the exact finding, plan, progress, and newest review\n  paths discussed."
+  },
+  {
+    "start": 435,
+    "end": 436,
+    "scope": "host",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Actual implementer owns append-only PROGRESS; reviewer journals immutable, handoff paths, ownership and standalone artifacts.",
+    "source": "- Anything that must stand alone regardless of the record (tests, user docs,\n  durable repository policy) still lives outside it; a record is evidence and"
+  },
+  {
+    "start": 437,
+    "end": 437,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Proactive bounded decomposition; pin outcomes and ownership, real graph gates, joined acceptance; no takeover/scope expansion or transplanting v11 to v12.",
+    "source": "decision history, not a hiding place for product artifacts."
+  },
+  {
+    "start": 438,
+    "end": 439,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Proactive bounded decomposition; pin outcomes and ownership, real graph gates, joined acceptance; no takeover/scope expansion or transplanting v11 to v12.",
+    "source": "## Reviewer decomposition authority — owner 2026-09-27"
+  },
+  {
+    "start": 440,
+    "end": 446,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Proactive bounded decomposition; pin outcomes and ownership, real graph gates, joined acceptance; no takeover/scope expansion or transplanting v11 to v12.",
+    "source": "The reviewer role includes proactive decomposition within accepted scope,\nwithout another owner nudge. At assignment start, and when delivery gaps grow\nor repeated handoffs stop converging, assess whether distinct outcomes can be\nimplemented and reviewed independently. Split when that improves delivery;\nkeep a tightly coupled correction together when it has one bounded acceptance\nresult. Decomposition is not permission to expand scope or weaken acceptance."
+  },
+  {
+    "start": 447,
+    "end": 452,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Proactive bounded decomposition; pin outcomes and ownership, real graph gates, joined acceptance; no takeover/scope expansion or transplanting v11 to v12.",
+    "source": "Pin the reason, finite outcomes, exact file ownership and acceptance boundaries\nin the owning FINDING/PLAN. Preserve existing identity and evidence, name the\njoined acceptance consumer, and coordinate a safe handoff before changing an\nactive executor's allocation. Shared-file changes remain serial unless explicit\nownership makes parallel execution safe."
+  },
+  {
+    "start": 453,
+    "end": 460,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Proactive bounded decomposition; pin outcomes and ownership, real graph gates, joined acceptance; no takeover/scope expansion or transplanting v11 to v12.",
+    "source": "For the current v11 workflow, the appropriately authorized Route handler uses\nthe existing claim protocol to create child Work and actual Baton dependency\nedges before releasing dependent execution. Read back the canonical graph;\ndocument prose does not install a gate. Route the first executable slice through\nthe configured implementation endpoint without an extra routine approval round.\nKeep the umbrella open through required child delivery and integrated acceptance.\nRoutine corrections and independent review retain their existing handoff rules."
+  },
+  {
+    "start": 461,
+    "end": 467,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Proactive bounded decomposition; pin outcomes and ownership, real graph gates, joined acceptance; no takeover/scope expansion or transplanting v11 to v12.",
+    "source": "This procedure does not authorize claim takeover, broader execution, product or\nspecification changes, or Git mutation. Bring a concrete scope/specification\ndecision to Slawomir; ordinary decomposition within accepted scope needs none.\nWhen transitioning to v12, verify the supported Job, dependency and execution\nownership mechanisms before applying this authority. Do not carry v11 commands\nor Route assumptions into v12 merely because the reviewer role is unchanged."
+  },
+  {
+    "start": 468,
+    "end": 470,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Proactive bounded decomposition; pin outcomes and ownership, real graph gates, joined acceptance; no takeover/scope expansion or transplanting v11 to v12.",
+    "source": "Decision and version-neutral role addition:\n[Reviewer authority](work/records/2026/09/finding-reviewer-decomposition-authority/FINDING.md)."
+  },
+  {
+    "start": 471,
+    "end": 472,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Atomic exclusive claim, Route/Handler/Next distinction, scheduler phases and atomic pass release.",
+    "source": "## The active-work claim (finding-active-work-claim, 2026-08-16)"
+  },
+  {
+    "start": 474,
+    "end": 476,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Atomic exclusive claim, Route/Handler/Next distinction, scheduler phases and atomic pass release.",
+    "source": "- No participant starts implementation, review, or other execution owned by\n  the Work's Route endpoint before the atomic `claim` operation SUCCEEDS,\n  and a competing claim fails closed."
+  },
+  {
+    "start": 477,
+    "end": 479,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Atomic exclusive claim, Route/Handler/Next distinction, scheduler phases and atomic pass release.",
+    "source": "- Route, Handler and Next are three different questions: which endpoint MAY\n  claim, which member IS executing, and which endpoint is planned next. The\n  claim records the Handler."
+  },
+  {
+    "start": 480,
+    "end": 483,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Atomic exclusive claim, Route/Handler/Next distinction, scheduler phases and atomic pass release.",
+    "source": "- Phase is not orthogonal to the claim. It is a closed scheduler axis —\n  `queued`, `active`, `block`, `parked`, and nothing at all once terminal —\n  and `active` means exactly \"a Handler holds it\". Only `claim` reaches\n  `active`; a `block` row names the one gate holding it."
+  },
+  {
+    "start": 484,
+    "end": 486,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Atomic exclusive claim, Route/Handler/Next distinction, scheduler phases and atomic pass release.",
+    "source": "- Discussion and planning while unclaimed are fine. A pass releases the\n  claim and derives the destination phase from the destination Route\n  atomically; the recipient claims explicitly once the Work is ready."
+  },
+  {
+    "start": 487,
+    "end": 488,
+    "scope": "host",
+    "destination": "Coordination and identity + Claim, execution and handoff",
+    "current_rule": "Direct routine corrections, explicit destination, accepted owner delivery, no routine partial/continuation approval gate.",
+    "source": "## Delivery continuity and bounded context — owner 2026-09-23"
+  },
+  {
+    "start": 489,
+    "end": 500,
+    "scope": "host",
+    "destination": "Coordination and identity + Claim, execution and handoff",
+    "current_rule": "Direct routine corrections, explicit destination, accepted owner delivery, no routine partial/continuation approval gate.",
+    "source": "Routine review corrections within accepted scope pass directly to the configured\nimplementation endpoint (currently baton.impl); accepted delivery passes to the\nowner. Use an explicit pass to implementation rather than consuming an old\nnext=baton.decide when correction is the disposition. Escalate only a concrete\nscope, authority or product decision, with the exact blocked operation. Partial\nprogress or a voluntarily ended turn does not require renewed owner approval.\nContinue authorized work while possible; if execution must end, preserve an\nexact continuation checkpoint and release through the existing claim protocol.\nReview of partial progress must not turn ordinary continuation into an owner gate.\nThis supersedes older owner-return defaults for routine corrections, including\nW239533 handoffs. It does not bypass independent acceptance or live-run selection."
+  },
+  {
+    "start": 501,
+    "end": 523,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Ordered concise handoffs, outcome-based verification, illustrative code paths not exclusive edit list, bounded milestone and exact interrupted checkpoint.",
+    "source": "Owner clarification 2026-09-28: review-to-implementation handoffs use short labelled\nbullets in this order: outcome this turn; confirmed blocker and exact code location;\nrequired change (distinguished from suggestions); verification behaviors and relevant\nfailure cases; handoff condition.\nVerification is outcome-based: the implementer chooses appropriate tests and\ncommands, and the reviewer judges whether the evidence establishes the required\nbehavior. Suggested commands are optional examples, not the only permitted\nverification. This supersedes the earlier exact-command handoff requirement;\nexplicit execution boundaries, such as restrictions on live providers, still apply.\nOwner clarification later on 2026-09-28: do not prescribe a files-to-edit list\nas an implementation restriction. The accepted outcome and scope bound the work;\nthe implementer chooses the necessary files without another permission gate solely\nbecause a file was not listed. Code locations identify evidence, not an exclusive\nedit list. Coordinate actual overlapping edits when participants work in parallel;\nretain explicit role boundaries such as diagnostic-only assignments.\nName one bounded working milestone. Link to the current PLAN for later work instead\nof repeating the historical narrative and whole backlog. Include a new ruling or\nconcrete restriction when it changes that milestone. Continue the authorized\ncorrection through its focused verification rather than routinely handing back\npartial edits. If execution is interrupted, identify the actual cause and exact\ncontinuation checkpoint; an unspecified exhausted budget is not evidence of a\nrunner/provider limit. Independent review and claim-release requirements still apply."
+  },
+  {
+    "start": 524,
+    "end": 535,
+    "scope": "host",
+    "destination": "Claim, execution and handoff + Review, decomposition, integration and checkpoints",
+    "current_rule": "Current checkpoint/new discussion and obligations; expand if stale; durable supported context maintenance, no duplicate consumer or invented exhaustion.",
+    "source": "Keep the current PLAN/checkpoint concise: accepted facts, next executable\nmilestone, relevant parallel-edit coordination, latest review/evidence references and concrete\nblockers. Preserve FINDING history and append-only reviews. On assignment or\nresume, read current canonical detail, complete current handoff, current scope,\nownership, checkpoint, latest review and new discussion since the recorded\ncheckpoint; follow referenced or conflicting history as needed. Record the\nlast discussion/event position read. If the checkpoint is missing, ambiguous\nor stale, expand the read until current authority is clear. This explicitly\nsupersedes blanket whole-dossier/all-historical-discussion rereading below and\nin docs/AGENTS-MAILBOX-PROTO.md for this team; never omit pending obligations,\nnew owner decisions, relevant evidence or unresolved review findings."
+  },
+  {
+    "start": 536,
+    "end": 542,
+    "scope": "host",
+    "destination": "Claim, execution and handoff + Review, decomposition, integration and checkpoints",
+    "current_rule": "Current checkpoint/new discussion and obligations; expand if stale; durable supported context maintenance, no duplicate consumer or invented exhaustion.",
+    "source": "At a safe handoff, maintain a durable checkpoint before supported runner\ncompaction or context replacement. Preserve participant identity, exclusive\nreadiness consumption and claim safety; never reset an active worker or start\na duplicate consumer. Compaction/replacement requires a verified supported\nrunner operation, not deletion of session files. A claimed turn limit must name\nobserved runner/provider evidence; normal end_turn is not proof of exhaustion."
+  },
+  {
+    "start": 543,
+    "end": 553,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Required human major-milestone checkpoint; truthful proposed message and observed identity; recovery not acceptance; native continuity outcomes.",
+    "source": "Owner ruling 2026-09-26: every major milestone requires a human-owned Git\ncheckpoint, including completed independently reviewed Jobs and major accepted\nslices. This supersedes the earlier merely optional/practical milestone-WIP\nwording. At the milestone handoff, agents must identify the checkpoint due,\nprepare a truthful change/verification summary and a concrete commit message\nfor Slawomir, and record the commit identity after observing the human's commit.\nCarry a pending checkpoint explicitly in the current PLAN/handoff until it is\nfulfilled. Do not silently forget it or describe a proposed commit as made.\nRoutine correction passes are not each a new major milestone. Durable checkpointing\nbefore supported context replacement remains required as described above."
+  },
+  {
+    "start": 554,
+    "end": 558,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Required human major-milestone checkpoint; truthful proposed message and observed identity; recovery not acceptance; native continuity outcomes.",
+    "source": "Agents never stage, commit or otherwise mutate Git state. A Git checkpoint is\na recovery aid, not acceptance evidence. Human absence is not a performance\ndefect. Decision and first explicitly named milestone:\n[Required milestone checkpoints](work/records/2026/09/finding-v12-design-alignment-audit/FINDING.md#2026-09-26--every-major-milestone-requires-a-human-git-checkpoint)."
+  },
+  {
+    "start": 559,
+    "end": 563,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Required human major-milestone checkpoint; truthful proposed message and observed identity; recovery not acceptance; native continuity outcomes.",
+    "source": "For early v12 workflow improvements, carry explicit continuation/correction/\nacceptance/owner-decision outcomes, durable continuation checkpoints and safe\ncontext maintenance into Jobs. These improvements are not extra adoption gates;\ninitial adoption still follows independent review and concrete parallel-Job proof."
+  },
+  {
+    "start": 564,
+    "end": 565,
+    "scope": "host, reading narrowed above",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Canonical detail and standalone claim before execution, complete current handoff and relevant new discussion, scope revalidation.",
+    "source": "## Non-interactive managed turns"
+  },
+  {
+    "start": 567,
+    "end": 571,
+    "scope": "host, reading narrowed above",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Canonical detail and standalone claim before execution, complete current handoff and relevant new discussion, scope revalidation.",
+    "source": "- On every Work readiness turn, read current canonical state with `detail` and\n  succeed at the standalone claim before Work execution. Then read the complete\n  current handoff comments through `work-events` and all associated discussion\n  through the `thread` locators in `detail`, following pagination. Do not filter\n  away comments, thread locators, messages or continuation instructions. Read"
+  },
+  {
+    "start": 572,
+    "end": 572,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Continue turn, never end claimed, incomplete route and checkpoint, canonical release verification, exceptional recovery.",
+    "source": "the bound dossier and revalidate its current scope before editing."
+  },
+  {
+    "start": 573,
+    "end": 580,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Continue turn, never end claimed, incomplete route and checkpoint, canonical release verification, exceptional recovery.",
+    "source": "- Continue authorized work within the live turn. Never end a turn holding a\n  Work claim, even after recording progress. Successfully pass completed work\n  for independent review or return incomplete work through `baton.bug`, carrying\n  exact remaining scope, evidence and cumulative verification spending. Before\n  any final response, confirm through canonical state that you no longer hold\n  the claim. If handoff fails, resolve or report the exact operational blocker\n  within the live turn; owner release and redelivery are exceptional recovery,\n  never normal work cadence. Preserve partial work and cumulative budgets."
+  },
+  {
+    "start": 581,
+    "end": 581,
+    "scope": "host",
+    "destination": "Claim, execution and handoff",
+    "current_rule": "Continue turn, never end claimed, incomplete route and checkpoint, canonical release verification, exceptional recovery.",
+    "source": "- Every canonical Baton operation is"
+  },
+  {
+    "start": 582,
+    "end": 593,
+    "scope": "host",
+    "destination": "Claim, execution and handoff + Git, files and recovery",
+    "current_rule": "Standalone exact operations; no escalation/stronger denial retries; optional cleanup restraint; preserve and relinquish blocked work.",
+    "source": "ONE standalone direct execution request.\n  This binds `claim` above all, because it is the mandatory first act. Issue\n  it alone —\n  never combined with `detail` or another read, another mutation, a shell\n  wrapper, or shell control syntax such as `&&`, `;`, a pipe or a\n  newline-separated batch. The deployment authorizes an EXACT canonical\n  invocation, so a batch containing one is a different command and is not\n  authorized: the read succeeds, the mutation is refused as a read-only\n  database, and the Work stays unclaimed. An exact operation that still fails\n  when issued alone is a deployment or policy incident — report it through\n  Baton as one, and\n  never retry it inside a broader command."
+  },
+  {
+    "start": 594,
+    "end": 597,
+    "scope": "host",
+    "destination": "Claim, execution and handoff + Git, files and recovery",
+    "current_rule": "Standalone exact operations; no escalation/stronger denial retries; optional cleanup restraint; preserve and relinquish blocked work.",
+    "source": "- A Codex context launched by readiness is non-interactive. It never requests\n  escalation and never retries a denied command with\n  `sandbox_permissions=require_escalated`; either act within its installed\n  policy or report the exact blocker through Baton."
+  },
+  {
+    "start": 598,
+    "end": 602,
+    "scope": "host",
+    "destination": "Claim, execution and handoff + Git, files and recovery",
+    "current_rule": "Standalone exact operations; no escalation/stronger denial retries; optional cleanup restraint; preserve and relinquish blocked work.",
+    "source": "- Optional cleanup is never worth quarantining the participant. In particular,\n  a managed reviewer leaves its exact temporary reproduction path for the\n  operator instead of issuing a destructive shell command merely to remove\n  it. Tests and repository helpers should clean up resources they own through\n  their already-authorized execution boundary."
+  },
+  {
+    "start": 603,
+    "end": 606,
+    "scope": "host",
+    "destination": "Claim, execution and handoff + Git, files and recovery",
+    "current_rule": "Standalone exact operations; no escalation/stronger denial retries; optional cleanup restraint; preserve and relinquish blocked work.",
+    "source": "- If required verification cannot run without new authority, stop before the\n  prohibited act, preserve the evidence, and relinquish or block the Work with\n  an actionable explanation. Do not turn a permission refusal into a stronger\n  command or an unattended approval request."
+  },
+  {
+    "start": 607,
+    "end": 608,
+    "scope": "host/shared",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Log defects before workaround, distinguish misuse, stopgap not supported fix; no privileged bypass masking defects.",
+    "source": "## Baton defects and workarounds"
+  },
+  {
+    "start": 610,
+    "end": 610,
+    "scope": "host/shared",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Log defects before workaround, distinguish misuse, stopgap not supported fix; no privileged bypass masking defects.",
+    "source": "- Never work around a Baton defect without logging a finding for it first. Log the finding, then a short-term workaround is acceptable — but only as a stated stopgap, never as the fix, and the finding is what carries the real correction."
+  },
+  {
+    "start": 611,
+    "end": 611,
+    "scope": "host/shared",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Log defects before workaround, distinguish misuse, stopgap not supported fix; no privileged bypass masking defects.",
+    "source": "- This applies with particular force to agents working inside Baton's own source tree. Privileged access to the source and the store lets an agent reach past a gap that every other team hits head-on. Doing so hides the defect, produces a false report of success, and advances nothing: other teams have the CLI and nothing else, and cannot route around what this repository can."
+  },
+  {
+    "start": 612,
+    "end": 612,
+    "scope": "host/shared",
+    "destination": "Permanent records and decisions",
+    "current_rule": "Log defects before workaround, distinguish misuse, stopgap not supported fix; no privileged bypass masking defects.",
+    "source": "- The finding states what was observed, separates what is genuinely Baton's defect from the agent's own misuse of the tool, and proposes a direction. Filing it is not optional because the workaround happened to be easy."
+  },
+  {
+    "start": 614,
+    "end": 615,
+    "scope": "host, historical route revised",
+    "destination": "Coordination and identity",
+    "current_rule": "Separate rvpc reviewer identity/context; current review solely rvpc, codex registered outside route; no interruption/overwrite.",
+    "source": "## Additional managed reviewer — owner 2026-09-18 UTC"
+  },
+  {
+    "start": 616,
+    "end": 617,
+    "scope": "host, historical route revised",
+    "destination": "Coordination and identity",
+    "current_rule": "Separate rvpc reviewer identity/context; current review solely rvpc, codex registered outside route; no interruption/overwrite.",
+    "source": "Owner selects reviewer `rview-pc` (canonical `baton.rvpc`), role `rview`, as an additional Codex app-server reviewer using its own Codex home and separate supervised context/readiness consumer. This supersedes the sole-managed-reviewer wording above: `baton.codex` remains a reviewer and `baton.rvpc` joins the review pool after configuration acceptance. Resolve generic review handoffs through the configured route; each reviewer uses only its own participant identity and claims Work atomically. Never reuse another participant's context or readiness path. Coordinate exact file ownership before parallel changes; Claude must not overwrite Codex-owned files or changes, and reviewers must not overwrite each other's work. Historical reviews remain append-only. Prompt remains non-routable. Decision and deployment preparation: `work/records/2026/09/finding-rview-pc-reviewer/` (W200075)."
+  },
+  {
+    "start": 618,
+    "end": 619,
+    "scope": "host, historical route revised",
+    "destination": "Coordination and identity",
+    "current_rule": "Separate rvpc reviewer identity/context; current review solely rvpc, codex registered outside route; no interruption/overwrite.",
+    "source": "Owner follow-up 2026-09-18 UTC: for now, all Baton rview routing goes through `baton.rvpc` alone. This supersedes the two-handler pool selection above once generation11 is accepted. Keep `baton.codex` registered but outside that route; do not interrupt existing claims. Other teams and non-review roles are unchanged."
+  },
+  {
+    "start": 620,
+    "end": 621,
+    "scope": "host, historical route revised",
+    "destination": "Coordination and identity",
+    "current_rule": "Separate rvpc reviewer identity/context; current review solely rvpc, codex registered outside route; no interruption/overwrite.",
+    "source": "## Human-plus-agent integration default — owner 2026-09-21"
+  },
+  {
+    "start": 622,
+    "end": 623,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Human plus agent default integration; managed integrator only selected, exact bytes and human Git preserved.",
+    "source": "The owner clarifies that `baton.merge` is not the standard integration process. Humans plus an assisting agent review and integrate accepted results; automating integration is not a required product outcome or release gate. Do not infer a managed-integrator handoff from a generic request to integrate merely because that participant is configured. Use it only when specifically selected. This supersedes any default-workflow interpretation of the configured integrator descriptions above, while retaining their provenance/path/claim rules whenever that participant is selected. Git staging, commits and history remain Slawomir's. This clarification does not itself release a live claim, discard prepared work or change accepted proposal bytes. Decision history: `work/records/2026/09/finding-v12-initial-claude-worker-pool/FINDING.md`, 2026-09-21T14:09:14Z."
+  },
+  {
+    "start": 624,
+    "end": 625,
+    "scope": "host",
+    "destination": "Review, decomposition, integration and checkpoints",
+    "current_rule": "Human plus agent default integration; managed integrator only selected, exact bytes and human Git preserved.",
+    "source": "## Additional Codex implementer — owner 2026-09-21"
+  },
+  {
+    "start": 626,
+    "end": 627,
+    "scope": "host",
+    "destination": "Coordination and identity",
+    "current_rule": "codxpc additional impl, baton.codx/implpc routing; exclusive own identity, no claim release or concurrent edits implied.",
+    "source": "Owner selects coder `codx-pc`, canonical `baton.codxpc` (six-cell member limit), role `impl`, backed by `/home/sl/.codex-pushcoin` in its own supervised context. After configuration acceptance, endpoint `baton.codx` routes through `implpc` exclusively to this implementer. Existing Claude and reviewer routes remain unchanged; `baton.rvpc` remains the independent reviewer. This supersedes any assumption that only Claude may implement: each implementer uses its exact launcher identity and a successful exclusive claim, preserves prior changes, and hands off for independent review. Adding this participant does not release Claude's failed claim or authorize concurrent edits to W177936. Decision and installation packet: `work/records/2026/09/finding-codx-pc-implementer/` (W232334)."
+  },
+  {
+    "start": 630,
+    "end": 630,
+    "scope": "superseded execution mandate",
+    "destination": "Product scope and development workflow",
+    "current_rule": "v12-only development/no fallback mandate suspended; preserve scope, provenance, independent review and Git rules.",
+    "source": "## V11 preparation and v12 execution — owner 2026-10-18"
+  },
+  {
+    "start": 631,
+    "end": 635,
+    "scope": "superseded execution mandate",
+    "destination": "Product scope and development workflow",
+    "current_rule": "v12-only development/no fallback mandate suspended; preserve scope, provenance, independent review and Git rules.",
+    "source": "**Historical execution rule, superseded 2026-10-22:** the mandatory v12-only\ndevelopment execution and no-direct-fallback requirements below are replaced by\n\"Temporary direct development workflow\" at the end of this section. Preserve\nhistorical evidence and the unchanged scope, review and Git rules."
+  },
+  {
+    "start": 636,
+    "end": 641,
+    "scope": "superseded execution mandate",
+    "destination": "Product scope and development workflow",
+    "current_rule": "v12-only development/no fallback mandate suspended; preserve scope, provenance, independent review and Git rules.",
+    "source": "For now, prepare Work packets and dossiers and coordinate scope, ownership,\nacceptance and handoffs in v11. Run executable work through isolated v12 Jobs.\nRecord actual v12 Job/attempt identities and retained execution evidence in the\nowning v11 dossier. A v11 claim, model session or isolated candidate directory\nalone is not evidence of v12 execution."
+  },
+  {
+    "start": 642,
+    "end": 647,
+    "scope": "superseded execution mandate",
+    "destination": "Product scope and development workflow",
+    "current_rule": "v12-only development/no fallback mandate suspended; preserve scope, provenance, independent review and Git rules.",
+    "source": "If v12 execution is blocked, record the exact failed or unavailable operation\nand resolve it; the blocker does not authorize direct execution outside v12.\nThis supersedes the earlier concrete-blocker fallback wording. There is no general\ndirect-execution fallback. Convenience, existing routing and packet\npreparation overhead do not change this boundary."
+  },
+  {
+    "start": 648,
+    "end": 653,
+    "scope": "superseded execution mandate",
+    "destination": "Product scope and development workflow",
+    "current_rule": "v12-only development/no fallback mandate suspended; preserve scope, provenance, independent review and Git rules.",
+    "source": "Preserve independent review, exact candidate provenance, file ownership and human\nGit control. Coordination records, planning and reviewed-byte integration remain\nunder their existing authority. Existing live-provider and deployment selection\nrequirements still apply. This does not move the current backlog to a second\ncoordination authority or select a production deployment."
+  },
+  {
+    "start": 654,
+    "end": 656,
+    "scope": "superseded execution mandate",
+    "destination": "Product scope and development workflow",
+    "current_rule": "v12-only development/no fallback mandate suspended; preserve scope, provenance, independent review and Git rules.",
+    "source": "Decision history:\n[Owner execution boundary](work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-18--owner-clarifies-v11-preparation--v12-execution-boundary)."
+  },
+  {
+    "start": 658,
+    "end": 658,
+    "scope": "host",
+    "destination": "Execution context + Permanent records and decisions",
+    "current_rule": "Temporary specific exceptions in owning FINDING/PLAN, revalidate scope/lifetime; relocation does not revoke or revive.",
+    "source": "### Recording bounded owner exceptions"
+  },
+  {
+    "start": 659,
+    "end": 663,
+    "scope": "host",
+    "destination": "Execution context + Permanent records and decisions",
+    "current_rule": "Temporary specific exceptions in owning FINDING/PLAN, revalidate scope/lifetime; relocation does not revoke or revive.",
+    "source": "Keep general agent policy here. Job-specific permissions, temporary exceptions,\nexecution selections and their expiry belong in the owning dossier's FINDING,\nwith the currently applicable decision referenced by its PLAN and handoff.\nDo not duplicate those rulings as job-specific sections in AGENTS."
+  },
+  {
+    "start": 664,
+    "end": 669,
+    "scope": "host",
+    "destination": "Execution context + Permanent records and decisions",
+    "current_rule": "Temporary specific exceptions in owning FINDING/PLAN, revalidate scope/lifetime; relocation does not revoke or revive.",
+    "source": "An explicit owner exception recorded there overrides the general execution\nboundary only within its stated scope and lifetime. Revalidate it before acting;\ndo not infer an exception from a blocker or extend it to successor or sibling Work.\nMoving a ruling out of AGENTS does not revoke it or revive an expired exception.\nPreserve actual execution provenance, independent review and human Git ownership."
+  },
+  {
+    "start": 671,
+    "end": 671,
+    "scope": "shared/host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Useful parallel delivery without mandatory orchestration, disjoint ownership/dependencies and serial overlapping integration.",
+    "source": "### Parallel delivery priority — owner 2026-10-18"
+  },
+  {
+    "start": 672,
+    "end": 675,
+    "scope": "shared/host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Useful parallel delivery without mandatory orchestration, disjoint ownership/dependencies and serial overlapping integration.",
+    "source": "**Clarified 2026-10-22:** useful parallel delivery remains the priority, but the\nrequirement to execute development through v12 Jobs is suspended by the temporary\nworkflow below. Coordinate disjoint direct execution instead."
+  },
+  {
+    "start": 676,
+    "end": 684,
+    "scope": "shared/host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Useful parallel delivery without mandatory orchestration, disjoint ownership/dependencies and serial overlapping integration.",
+    "source": "Maximize useful parallel v12 execution: prepare independent bounded Work packets\nin v11 and run ready independent Jobs concurrently through v12. Do not reproduce\na serial v11 implementation queue merely because coordination remains in v11.\nCoordinate actual file/output ownership and accepted inputs; preserve dependency\ngates, isolation, independent review and serial integration of overlapping changes.\nRecord actual Job/attempt evidence rather than inferring parallel execution from\nmultiple claims or model sessions. Decompose within accepted scope where it enables\nindependent delivery; do not expand scope or bypass execution selection boundaries."
+  },
+  {
+    "start": 685,
+    "end": 686,
+    "scope": "host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Native coordination target; bridge temporary, no permanent reporter investment, preserve one authority until explicit cutover.",
+    "source": "### Native v12 coordination priority — owner 2026-10-18"
+  },
+  {
+    "start": 687,
+    "end": 694,
+    "scope": "host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Native coordination target; bridge temporary, no permanent reporter investment, preserve one authority until explicit cutover.",
+    "source": "The target is to leave v11 for coordination as well as execution. Current v11\npacket preparation is temporary. Prioritize the independently accepted native\nv12 coordination workflow and concrete cutover path over durable v12-to-v11\nbridge investment. W324316's reporter proposal is not selected for implementation;\nmanual result collection remains a temporary measure. Preserve one coordination\nauthority, existing Work/evidence and independent acceptance until an explicit\nsupported cutover; this priority does not itself migrate backlog or deploy."
+  },
+  {
+    "start": 695,
+    "end": 696,
+    "scope": "host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Direct development selected, no orchestration packet gate; no extra live/install/claim/Git authority, safe transitions.",
+    "source": "### Temporary direct development workflow — owner 2026-10-22"
+  },
+  {
+    "start": 697,
+    "end": 703,
+    "scope": "host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Direct development selected, no orchestration packet gate; no extra live/install/claim/Git authority, safe transitions.",
+    "source": "Until explicitly superseded, do not use v12 orchestration for routine v12\ndevelopment. Implement, correct and verify directly through the existing agent\nworkflow under the current v11 claim protocol. A v12 Job, bespoke launch packet\nor additional host-execution exception is not required for ordinary authorized\ndevelopment. This supersedes the October 18 mandatory v12 execution and\nno-direct-fallback rules, including older Work wording that repeats them."
+  },
+  {
+    "start": 704,
+    "end": 711,
+    "scope": "host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Direct development selected, no orchestration packet gate; no extra live/install/claim/Git authority, safe transitions.",
+    "source": "Preserve accepted scope, file ownership, isolated candidates where needed for\noverlap/provenance, independent exact-byte review, deterministic verification\ndefaults, required acceptance and human Git ownership. Reuse retained work and\nfocused evidence. Tests of actual v12 orchestration still exercise that product\nboundary when needed; existing live-provider, engine and deployment selection\nboundaries remain. No new live run, install, deployment, claim takeover or Git\nmutation is authorized by this development-workflow ruling."
+  },
+  {
+    "start": 712,
+    "end": 717,
+    "scope": "host",
+    "destination": "Product scope and development workflow",
+    "current_rule": "Direct development selected, no orchestration packet gate; no extra live/install/claim/Git authority, safe transitions.",
+    "source": "Preserve active claims and in-flight executions and change workflow at a safe\nboundary. V11 remains the coordination authority until an explicit cutoff;\nfile-journal coordination is not yet selected. Native v12 coordination and\nexecution remain the target, not a prerequisite for finishing their development.\nDecision: [temporary direct workflow](work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-22--suspend-mandatory-v12-development-orchestration)."
+  },
+  {
+    "start": 718,
+    "end": 719,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Mandatory TESTING guide, groups/prepared interpreter, selected full run, exact required accounting and registries; transient evidence stays dossier.",
+    "source": "## V12 test execution policy — owner 2026-10-30"
+  },
+  {
+    "start": 720,
+    "end": 724,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Mandatory TESTING guide, groups/prepared interpreter, selected full run, exact required accounting and registries; transient evidence stays dossier.",
+    "source": "Owner ruling (W384870, T384870 M384887): a durable guide to running the v12\nPython tests exists at `v12/python/TESTING.md`, and following it is critical.\nEvery agent doing v12 test work (writing, repairing, selecting or reporting\ntests) reads and follows that guide. Concretely:"
+  },
+  {
+    "start": 726,
+    "end": 728,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Mandatory TESTING guide, groups/prepared interpreter, selected full run, exact required accounting and registries; transient evidence stays dossier.",
+    "source": "- Declare the affected logical groups (the guide's nine) in the handoff and\n  verify with `just test-one` / `just test-group GROUP` from `v12/python` by\n  default; focused verification is the normal cadence."
+  },
+  {
+    "start": 729,
+    "end": 731,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Mandatory TESTING guide, groups/prepared interpreter, selected full run, exact required accounting and registries; transient evidence stays dossier.",
+    "source": "- A full `just test-all LOG` is an integration checkpoint that the owning Work\n  explicitly selects; do not run one routinely, and a retry after a fix is a\n  new selected checkpoint, not an automatic rerun."
+  },
+  {
+    "start": 732,
+    "end": 732,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Mandatory TESTING guide, groups/prepared interpreter, selected full run, exact required accounting and registries; transient evidence stays dossier.",
+    "source": "- Use the prepared interpreter the recipes resolve; never the ambient one."
+  },
+  {
+    "start": 733,
+    "end": 736,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Mandatory TESTING guide, groups/prepared interpreter, selected full run, exact required accounting and registries; transient evidence stays dossier.",
+    "source": "- Every test is required unless its exact id is in the runner's\n  `OPTIONAL_SKIPS` with a recorded owner ruling; a skip outside that registry,\n  a class fixture that skips or errors, or a never-started test fails an\n  accounted run and is reported, never waived."
+  },
+  {
+    "start": 737,
+    "end": 738,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Mandatory TESTING guide, groups/prepared interpreter, selected full run, exact required accounting and registries; transient evidence stays dossier.",
+    "source": "- New test modules go into exactly one execution registry and one group; a\n  module that binds another module's test classes is refused."
+  },
+  {
+    "start": 739,
+    "end": 740,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Mandatory TESTING guide, groups/prepared interpreter, selected full run, exact required accounting and registries; transient evidence stays dossier.",
+    "source": "- Retain the log, the JSON ledger and the source identity header together as\n  evidence; a passed count without its collected count is not evidence."
+  },
+  {
+    "start": 741,
+    "end": 744,
+    "scope": "shared",
+    "destination": "Verification and test authority",
+    "current_rule": "Mandatory TESTING guide, groups/prepared interpreter, selected full run, exact required accounting and registries; transient evidence stays dossier.",
+    "source": "Transient Work ids, failure counts and run history belong in the owning\ndossier, not in the guide. Decision history:\n[W384870 FINDING](work/records/2026/10/finding-v12-controlled-test-groups/FINDING.md)."
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "path": "v12/worker/claude_agent.py",
+    "sha256": "d23912cdb948550651e3b0d0f1b4667fdc8205fac93d918aae01df9acc71c4b2",
+    "base_sha256": "d23912cdb948550651e3b0d0f1b4667fdc8205fac93d918aae01df9acc71c4b2",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "v12/worker/Dockerfile.claude",
+    "sha256": "a5ef0783770ba44f206a68c71c9570685294f62bde338b69722aada0326f18d0",
+    "base_sha256": "a5ef0783770ba44f206a68c71c9570685294f62bde338b69722aada0326f18d0",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+    "sha256": "19a4b16bc0d89531a2d69561508fc4ffe01158938f0cb5cc8bf7d38202a3a9f4",
+    "base_sha256": "19a4b16bc0d89531a2d69561508fc4ffe01158938f0cb5cc8bf7d38202a3a9f4",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "v12/DESIGN.md",
+    "sha256": "b578f039fc388853c21f1f67e113617607d6cc80cb41033469f8321d17e74ff3",
+    "base_sha256": "5d8dd34bbe00dae2a1a267ca7fdcc42ab523f3b1822378fb12ec0e798a09089f",
+    "matches_checkpoint": false
+  },
+  {
+    "path": "docs/AGENTS-MAILBOX-PROTO.md",
+    "sha256": "61b75e9fd7a7a257c5525aa13892e079efc51257e48fe661ab5189c4beea93e5",
+    "base_sha256": "61b75e9fd7a7a257c5525aa13892e079efc51257e48fe661ab5189c4beea93e5",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "docs/DEVELOPMENT-STORAGE.md",
+    "sha256": "6bd169ba6d3d77571b7fbbf5be9b3d4ea1e2f3940d0427ad77bb63261da34887",
+    "base_sha256": "6bd169ba6d3d77571b7fbbf5be9b3d4ea1e2f3940d0427ad77bb63261da34887",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "v12/python/TESTING.md",
+    "sha256": "82f024e1c361559e8161416b57aba46b9991c834d207b0d625edf3b6a3f63c8f",
+    "base_sha256": "82f024e1c361559e8161416b57aba46b9991c834d207b0d625edf3b6a3f63c8f",
+    "matches_checkpoint": true
+  }
+]

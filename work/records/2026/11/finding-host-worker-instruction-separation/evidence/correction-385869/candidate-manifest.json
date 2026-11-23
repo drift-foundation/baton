@@ -1,0 +1,29 @@
+{
+  "work": "W385853",
+  "claim": null,
+  "base_checkpoint": "6079ad78345aa87b7148db302d48fb9b1867f940",
+  "kind": "isolated-filesystem-candidate-no-git-mutation",
+  "status": "editorial-review-candidate; native delivery proof incomplete",
+  "paths": [
+    {
+      "path": "AGENTS.md",
+      "base_sha256": "5ba3d6fd6e0150adc874b0735ade09dbb616f21272a2f9573441159a2e48622c",
+      "candidate_sha256": "e9e3416d7a6c3dca4206c2379f6031fef79a92926a05ad64781e86c6d6aa8421",
+      "bytes": 20570
+    },
+    {
+      "path": "docs/HOST-INTEGRATION.md",
+      "base_sha256": null,
+      "candidate_sha256": "7d33a568cbdef9e309159c0daed7413eb5490b0547fce7b86e926e89fcafa68e",
+      "bytes": 1287
+    },
+    {
+      "path": "docs/V12-WORKER-INSTRUCTIONS.md",
+      "base_sha256": null,
+      "candidate_sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b",
+      "bytes": 5646
+    }
+  ],
+  "authorization": "Owner-directed interactive R1/R2 correction; assignment withdrawn via E385869",
+  "previous_manifest": "31687c99b12069438ad4bbcdc486da1a34d160cea4d1bf84309503b051730bec"
+}

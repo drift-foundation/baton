@@ -1,0 +1,25 @@
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -13,7 +13,10 @@
+ 
+ Use the actual launcher participant and explicit role; never impersonate another
+ participant. Follow the current canonical assignment and explicit owner decisions.
+-Keep history and temporary exceptions in the owning dossier; a blocker grants no exception.
++Keep history and temporary exceptions in the owning dossier. An explicit owner
++exception recorded there governs only within its stated scope and lifetime.
++Revalidate it before acting; never infer one from a blocker or extend it to sibling
++or successor Work. Moving a ruling neither revokes it nor revives an expired one.
+ 
+ ## Git, files and recovery
+ 
+--- a/docs/V12-WORKER-INSTRUCTIONS.md
++++ b/docs/V12-WORKER-INSTRUCTIONS.md
+@@ -63,7 +63,7 @@
+ 
+ Use focused deterministic fake/replay providers by default, at their normal
+ boundary with real affected product owners. Label simulated evidence and do not
+-fabricate receipts. Live models, engines, builds, deployment changes and broad
++fabricate receipts. Live models, engines, image builds, deployment changes and broad
+ runs require selection by the task; neither available tools nor a container
+ selects them. Reuse applicable evidence and keep required acceptance intact.
+ 

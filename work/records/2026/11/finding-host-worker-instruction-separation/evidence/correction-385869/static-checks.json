@@ -1,0 +1,115 @@
+{
+  "kind": "static-policy-audit-not-product-or-vendor-loader-tests",
+  "checks": [
+    {
+      "name": "host root fits required 32768-byte loader budget",
+      "passed": true
+    },
+    {
+      "name": "no concrete work/job/message identity or dated ruling in instruction documents",
+      "passed": true
+    },
+    {
+      "name": "no source-directory context selector",
+      "passed": true
+    },
+    {
+      "name": "R1 exception scope lifetime revalidation and relocation present",
+      "passed": true
+    },
+    {
+      "name": "R2 ordinary builds not subject to image-build selection",
+      "passed": true
+    },
+    {
+      "name": "all local Markdown links resolve in candidate plus base",
+      "passed": true
+    },
+    {
+      "name": "protected-main and disposable Git scopes both explicit",
+      "passed": true
+    },
+    {
+      "name": "native context explicit and protected main retained",
+      "passed": true
+    },
+    {
+      "name": "managed detailed procedure mandatory before writes",
+      "passed": true
+    },
+    {
+      "name": "baseline preserved unchanged from main source",
+      "passed": true
+    },
+    {
+      "name": "every nonblank baseline line represented in rule matrix",
+      "passed": true
+    },
+    {
+      "name": "matrix quoted source agrees with retained baseline",
+      "passed": true
+    },
+    {
+      "name": "known host source paths have only root automatic instruction file",
+      "passed": true
+    },
+    {
+      "name": "known project chain within default 32768-byte budget",
+      "passed": true
+    }
+  ],
+  "collected": 14,
+  "passed": 14,
+  "failed": 0,
+  "skipped": 0,
+  "duration_seconds": 0.0016730979550629854,
+  "candidate_bytes": {
+    "AGENTS.md": 20570,
+    "docs/HOST-INTEGRATION.md": 1287,
+    "docs/V12-WORKER-INSTRUCTIONS.md": 5646
+  },
+  "known_source_chain": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 51628,
+      "candidate_bytes": 20570
+    }
+  ],
+  "links": [
+    [
+      "AGENTS.md",
+      "docs/V12-WORKER-INSTRUCTIONS.md",
+      true
+    ],
+    [
+      "AGENTS.md",
+      "docs/DEVELOPMENT-STORAGE.md",
+      true
+    ],
+    [
+      "AGENTS.md",
+      "v12/DESIGN.md",
+      true
+    ],
+    [
+      "AGENTS.md",
+      "v12/python/TESTING.md",
+      true
+    ],
+    [
+      "AGENTS.md",
+      "docs/AGENTS-MAILBOX-PROTO.md",
+      true
+    ],
+    [
+      "AGENTS.md",
+      "docs/HOST-INTEGRATION.md",
+      true
+    ]
+  ],
+  "limitations": [
+    "No real provider invocation or exact-image discovery check",
+    "No claim about unseen harness or managed/user auto-memory content",
+    "Semantic rule preservation requires independent review; line coverage is only structural"
+  ]
+}

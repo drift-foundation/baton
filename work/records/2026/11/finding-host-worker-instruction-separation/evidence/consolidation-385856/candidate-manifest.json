@@ -1,0 +1,27 @@
+{
+  "work": "W385853",
+  "claim": "E385856",
+  "base_checkpoint": "6079ad78345aa87b7148db302d48fb9b1867f940",
+  "kind": "isolated-filesystem-candidate-no-git-mutation",
+  "status": "editorial-review-candidate; native delivery proof incomplete",
+  "paths": [
+    {
+      "path": "AGENTS.md",
+      "base_sha256": "5ba3d6fd6e0150adc874b0735ade09dbb616f21272a2f9573441159a2e48622c",
+      "candidate_sha256": "e0d8b31b848db8cdf9e29ff518df72c246cf8e64c6f9fe8a47dd91c1e8da7ff0",
+      "bytes": 20341
+    },
+    {
+      "path": "docs/HOST-INTEGRATION.md",
+      "base_sha256": null,
+      "candidate_sha256": "7d33a568cbdef9e309159c0daed7413eb5490b0547fce7b86e926e89fcafa68e",
+      "bytes": 1287
+    },
+    {
+      "path": "docs/V12-WORKER-INSTRUCTIONS.md",
+      "base_sha256": null,
+      "candidate_sha256": "4b742cd1a36c22b41835da73de88bb35feab6efbd9ed2e27ab6820359193aacf",
+      "bytes": 5640
+    }
+  ]
+}
