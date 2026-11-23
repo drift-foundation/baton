@@ -27,7 +27,7 @@ __all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
            "RESTORE_KIND", "VERDICT_KIND",
            "abandoned_correction_of", "attach_review", "audit_checkpoint",
            "checkpoint_of",
-           "create_line", "freeze_checkpoint", "grant_writer",
+           "create_line", "freeze_checkpoint", "freeze_recovered_checkpoint", "grant_writer",
            "release_writer",
            "RESTORE_SETTLED_KIND", "settle_restoration_execution",
            "integration_checkpoint", "line_of", "line_status",
@@ -2176,7 +2176,42 @@ def release_writer(store, *, writer_id, generation, port, reason):
                           signature, act)
 
 
+def freeze_recovered_checkpoint(store, *, attempt_id, generation, profile, candidate):
+    """Freeze a retained failed writer after its existing release and cessation.
+
+    The recovery owner supplies the approved candidate identity. This owner
+    proves the original writer's release/fence and refuses an advanced line;
+    it creates no assignment or writer and never reopens the original one.
+    """
+    candidate = boundaries.document(candidate, "the recovery checkpoint identity", required=("base", "head"))
+    for key in ("base", "head"):
+        boundaries.text(candidate[key], "the approved candidate " + key)
+    writer = writer_for_attempt(store, attempt_id=attempt_id, generation=generation)
+    if writer is None:
+        raise ContractRefusal("refused", "precondition", "retained recovery has no original writer")
+    released = _committed_act(store, "review-line.release-writer",
+                              "review-line.release-writer:" + writer["writer_id"], "the recovered writer")
+    if released["writer_id"] != writer["writer_id"] or released["line_id"] != writer["line_id"]:
+        raise ContractRefusal("integrity", "digest", "recovery release belongs to another writer")
+    _committed_fence(store, released["fence"], "the recovered writer fence")
+    attempt = _attempt(store, attempt_id)
+    if attempt["execution_runtime"] != "destroyed" or attempt["cleanup"] != "retained":
+        raise ContractRefusal("refused", "precondition", "retained recovery requires the original runtime's completed cleanup")
+    result = _freeze_checkpoint(store, writer_id=writer["writer_id"], generation=generation,
+                                profile=profile, port=None,
+                                _recovery={"release": released, "candidate": candidate})
+    if any(result["evidence"][key] != candidate[key] for key in ("base", "head")):
+        raise ContractRefusal("integrity", "digest", "recovery checkpoint replay names another candidate")
+    return result
+
+
 def freeze_checkpoint(store, *, writer_id, generation, profile, port):
+    """Revoke and authority-fence the quiescent writer before freezing."""
+    return _freeze_checkpoint(store, writer_id=writer_id, generation=generation,
+                              profile=profile, port=port)
+
+
+def _freeze_checkpoint(store, *, writer_id, generation, profile, port, _recovery=None):
     """Revoke and authority-fence the quiescent writer before freezing."""
     profile_name = _profile(profile, ("freeze", "validate"))
     boundaries.generation(generation, "a checkpoint assignment generation")
@@ -2212,8 +2247,9 @@ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
                                          signature, kind="review-line.freeze")
             if found:
                 return result
-    attempt = _quiescent_completed(store, writer["runtime_attempt_id"])
-    if attempt["assignment_participant"] != getattr(port, "participant", None):
+    attempt = (_quiescent_completed(store, writer["runtime_attempt_id"]) if _recovery is None
+               else _attempt(store, writer["runtime_attempt_id"]))
+    if _recovery is None and attempt["assignment_participant"] != getattr(port, "participant", None):
         raise ContractRefusal("refused", "capability",
                               "the writer fence session acts for another participant")
     connection = store._connection
@@ -2224,15 +2260,24 @@ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
             "SELECT * FROM line_checkpoints WHERE checkpoint_id = ?",
             (checkpoint_id,)).fetchone()
         if found is None:
-            if current["state"] != "active":
+            if _recovery is None and current["state"] != "active":
                 raise ContractRefusal("refused", "precondition",
                                       "checkpoint preparation has no active writer")
-            _quiescent_completed(store, current["runtime_attempt_id"])
+            if _recovery is None:
+                _quiescent_completed(store, current["runtime_attempt_id"])
+            else:
+                latest = line_of(store, line["line_id"])
+                release = _recovery["release"]
+                if current["state"] != "revoked" or current["revocation_reason"] != "released" or latest["state"] != release["state"] or latest["current_checkpoint_id"] != release["current_checkpoint_id"]:
+                    raise ContractRefusal("refused", "precondition", "the released recovery line has advanced")
+                if connection.execute("SELECT 1 FROM line_writers WHERE line_id = ? AND assignment_generation > ?", (line["line_id"], current["assignment_generation"])).fetchone():
+                    raise ContractRefusal("refused", "precondition", "another writer has used the recovery line")
             now = store._now()
-            connection.execute(
-                "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
-                "revocation_reason = 'checkpoint' WHERE writer_id = ? "
-                "AND state = 'active'", (now, writer_id))
+            if _recovery is None:
+                connection.execute(
+                    "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
+                    "revocation_reason = 'checkpoint' WHERE writer_id = ? "
+                    "AND state = 'active'", (now, writer_id))
             connection.execute(
                 "INSERT INTO line_checkpoints (checkpoint_id, writer_id, line_id, revision, "
                 "profile_name, state, path_set_digest, prepared_at) VALUES (?, ?, "
@@ -2250,10 +2295,10 @@ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
         raise
     checkpoint = checkpoint_of(store, checkpoint_id)
     if checkpoint["fence"] is None:
-        fenced = _fence(attempts.finalize_quiescent_assignment(
-            store, port, attempt_id=writer["runtime_attempt_id"],
-            reason="review checkpoint writer completed"),
-            "the checkpoint writer fence")
+        fenced = (_recovery["release"]["fence"] if _recovery is not None else
+                  _fence(attempts.finalize_quiescent_assignment(
+                      store, port, attempt_id=writer["runtime_attempt_id"],
+                      reason="review checkpoint writer completed"), "the checkpoint writer fence"))
         fence_operands = {"checkpoint_id": checkpoint_id,
                           "writer_id": writer_id, "fence": fenced}
         fence_signature = manager_signature("review-line.fence-writer",
@@ -2304,6 +2349,8 @@ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
     if evidence["base"] != line["declared_base"]:
         raise ContractRefusal("integrity", "digest",
                               "checkpoint evidence does not use the line's declared base")
+    if _recovery is not None and any(evidence[key] != _recovery["candidate"][key] for key in ("base", "head")):
+        raise ContractRefusal("integrity", "digest", "recovered checkpoint differs from the approved retained candidate")
     profile.validate(line["line_path"], evidence, current=True)
     checkpoint_digest = digest(evidence)
     operands = {"writer_id": writer_id, "generation": generation,

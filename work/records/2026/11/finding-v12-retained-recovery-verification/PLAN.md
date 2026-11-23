@@ -44,3 +44,30 @@ import until independent acceptance and current-target overlap checks.
 ## Accepted correction imported — 2026-11-23
 
 K M385779 accepted6a3ad526,15 cumulative product paths. Exact import and integration241/241 OK in29.289s; evidence/integration-14276917/. Native records remain preserved. Await owner checkpoint, then packaging. No live installation or corrected native-review verdict claimed; keep joined handoff limitation explicit.
+
+
+## Packaging and remaining joined acceptance — 2026-11-23
+
+Owner checkpoint acf29092; packaging24/24 OK in14.408s. Supersedes pending checkpoint/package state. W385625 remains open for the accepted contract's automatic substantive review acceptance: current joined proof stops at handoff with FakeOperations reviewer admission. Next bounded direct-work step proves production reviewer delivery/collection of the same candidate through normal-boundary deterministic provider, without native kickoff. Reuse existing evidence; no broad rerun.
+
+## Current execution — E385784
+
+Complete focused real-owner recovery/reviewer collection proof from acf29092
+in isolated work/scratch/w385625-joined-385784. Correct missing recovered
+checkpoint and reviewer evidence binding; test accept, reject, missing/foreign
+evidence and review-only no verifier redispatch. Reuse prior accepted tests;
+no broad compatibility rerun. New bytes require K exact review before import.
+
+## Current handoff — E385784, joined candidate awaiting K
+
+Implementation/focused proof complete for delta review: seven-path manifest
+5cb76d8267838da78e49cccac03ec3fb1a12a6d257a37c785f5a19f12fc5a9f0 at
+evidence/joined-385784/candidate-manifest.json; HANDOFF.md records scope,95/95
+results and remaining qualifications. This supersedes the in-progress state
+above. K exact review precedes any import; preserve original accepted sources
+and native evidence. Packaging/qualification and live rollout are separate.
+
+
+## Joined source accepted and imported — 2026-11-23
+
+K M385789 accepts5cb76d82 and full selected deterministic acceptance with documented composed-fixture limitation. Exact7paths imported; integration95/95 OK in18.667s. Prior handoff-only gap is resolved. Next owner checkpoint then packaging and worker image rebuild/qualification; no new native kickoff required solely to repeat deterministic evidence. No unrelated hardening added.

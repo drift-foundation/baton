@@ -2714,7 +2714,7 @@ class ClaudeAgent:
                 "outputs": [{"name": findings_output["name"],
                              "status": "present",
                              "result_metadata": (_review_claim(
-                                 report["verdict"], observed)
+                                 report["verdict"], observed, report.get("recovery_digest"))
                                  if report is not None else {})},
                             {"name": logs_output["name"], "status": "present",
                              "result_metadata": {}}]
@@ -6400,9 +6400,8 @@ def _review_report(room):
     the least trusted thing in this container and the one holding the attempt's
     bearer -- so its size, its shape, its member set and its vocabulary are all
     bounded before one byte of it reaches an output. What is adopted is a
-    closed three-member document; what is published from it is the verdict word
-    and the findings prose, and nothing else the provider wrote exists here to
-    be published by accident.
+    closed report with an optional recovery evidence digest; only these
+    declared members are published.
 
     A MISSING OR MALFORMED REPORT IS NOT A VERDICT. It answers `None`, the turn
     is `unable`, no claim is placed on any output, and the manager's own reader
@@ -6424,7 +6423,7 @@ def _review_report(room):
         # be malformed.
         return None
     if type(document) is not dict \
-            or sorted(document) != sorted(REVIEW_REPORT_MEMBERS):
+            or set(document) not in (set(REVIEW_REPORT_MEMBERS), set(REVIEW_REPORT_MEMBERS) | {"recovery_digest"}):
         return None
     if document["schema"] != REVIEW_REPORT_SCHEMA:
         return None
@@ -6447,8 +6446,10 @@ def _review_report(room):
         findings.encode("utf-8")
     except UnicodeEncodeError:
         return None
+    if "recovery_digest" in document and (type(document["recovery_digest"]) is not str or not re.fullmatch(r"sha256:[0-9a-f]{64}", document["recovery_digest"])):
+        return None
     return {"schema": REVIEW_REPORT_SCHEMA, "verdict": document["verdict"],
-            "findings": findings}
+            "findings": findings, **({"recovery_digest": document["recovery_digest"]} if "recovery_digest" in document else {})}
 
 
 def _read_bounded(root, relative, what):
@@ -6513,11 +6514,11 @@ def _read_bounded(root, relative, what):
     return None if len(raw) > MAX_REPORT_BYTES else raw
 
 
-def _review_claim(verdict, observed):
+def _review_claim(verdict, observed, recovery_digest=None):
     """The worker-owned checkpoint-review claim, and every member is this
     turn's own.
 
-    FOUR FACTS AND NO FIFTH. What this reviewer decided, and the base, head and
+    The checkpoint claim contains what this reviewer decided and the base, head and
     tree of the source it decided over. The manager compares the three objects
     against the checkpoint's own frozen evidence, so a reviewer that named
     another line's objects is refused there rather than believed here.
@@ -6525,11 +6526,12 @@ def _review_claim(verdict, observed):
     return {REVIEW_CLAIM_NAMESPACE: {"verdict": verdict,
                                      "base": observed["base"],
                                      "head": observed["head"],
-                                     "tree": observed["tree"]}}
+                                     "tree": observed["tree"]},
+            **({"baton.recovery-review/1": {"handoff_digest": recovery_digest}} if recovery_digest is not None else {})}
 
 
 def _review_prompt(task, source, report):
-    """The one review prompt, composed from the frozen task and nothing else.
+    """The review prompt, composed from the frozen task and pinned recovery evidence.
 
     THE PROVIDER IS STILL NOT TOLD ABOUT THE PROTOCOL. It learns where the
     source is, that the source is read-only, what the requirements are, and
@@ -6546,7 +6548,14 @@ def _review_prompt(task, source, report):
     that reported it as passing without running it would be reporting an
     unsubstantiated check, which is the one thing a review must not do.
     """
-    return (f"You are reviewing a change on a read-only source tree at "
+    recovery = _read_bounded(INPUT_ROOT, "recovery-review.json", "recovery review input")
+    context = ""
+    if recovery is not None:
+        document = json.loads(recovery.decode("utf-8"))
+        context = ("This is an owner-approved retained-candidate recovery. Assess the same candidate "
+                   "and the attributable verifier evidence below. Include a fourth report member "
+                   "recovery_digest equal to " + json.dumps(document["handoff_digest"]) + ".\n" + recovery.decode("utf-8") + "\n")
+    return (context + f"You are reviewing a change on a read-only source tree at "
             f"{source}. Do not modify anything there, and do not attempt to "
             f"build, commit or edit it.\n\n"
             f"The change was made to satisfy these requirements:\n\n"
@@ -6558,7 +6567,7 @@ def _review_prompt(task, source, report):
             f"but naming it is not evidence that it passed, and you must not "
             f"report it as passing unless you ran it yourself.\n\n"
             f"When you are done, write your decision to {report} as a JSON "
-            f"object with exactly these three members:\n"
+            f"object with exactly these {'four members (including recovery_digest above)' if context else 'three members'}:\n"
             f'  "schema": "{REVIEW_REPORT_SCHEMA}"\n'
             f'  "verdict": one of {", ".join(REVIEW_VERDICTS)}\n'
             f'  "findings": non-empty text explaining the verdict\n'

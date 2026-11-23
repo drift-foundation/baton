@@ -1,0 +1,42 @@
+{
+  "candidate": "5cb76d8267838da78e49cccac03ec3fb1a12a6d257a37c785f5a19f12fc5a9f0",
+  "files": {
+    "v12/python/DEPLOYMENT.md": {
+      "base_sha256": "922da0d1004b41db6d4f89bf0e2489b20431321eace09a9cce6ddb23c0bc2dfa",
+      "candidate_sha256": "5470d0f57c5de1df42870998352b0d08f0b1fd252c3c6664ac1ee0354f6a3526"
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "base_sha256": "c78d538849292e78c3927c2bbf2812e41ab3b930b6fc81c4344dbb2e6a8cf367",
+      "candidate_sha256": "730774ca50e8902de117b99f31ae2ac82da611d34ae3f9826ccfb34070bd486a"
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "base_sha256": "54fd49a22b650e8d648f6c3b328a0802971b59fd132a0d15edec349ca1481874",
+      "candidate_sha256": "2df501a0d626ce2557bae323539a412a117192a975351645524738325cd73254"
+    },
+    "v12/python/tests/job_manager/test_retained_recovery_execution.py": {
+      "base_sha256": "8c05d8cf5b4067fe56a3609ff162ba1d494b7f272856c19cea9d017c2bd909d3",
+      "candidate_sha256": "bb31e2bed020a9030c621fe71d8de6a1a804a3e1c1de9a0f539971367f28e14c"
+    },
+    "v12/python/tools/single_worker.py": {
+      "base_sha256": "a84abfb4cd4b5b2dd3363332c0d1c16ee2a7bd47be44acf1c5705655194e8efb",
+      "candidate_sha256": "725e18e76bffa8d8116bdf99bb4d0bd25365119e29d2fb18773ee6debd286fbd"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "base_sha256": "93a557430fbbec1549d8c15f92fd6d63a18bd653fc3295ac4b0fa7ebdf6d5be5",
+      "candidate_sha256": "67da27e46d6217d445d423054ad5a91b1b7ddc5a8200ad3cf42561b28ea2863f"
+    },
+    "v12/worker/claude_agent.py": {
+      "base_sha256": "6f8c37d526b11ded15fcadf8666c1659b4d6d58c49caba158cd378186ae18ef1",
+      "candidate_sha256": "d23912cdb948550651e3b0d0f1b4667fdc8205fac93d918aae01df9acc71c4b2"
+    }
+  },
+  "modes": {
+    "v12/python/DEPLOYMENT.md": 436,
+    "v12/python/src/baton_v12/job_manager/review_driver.py": 436,
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": 420,
+    "v12/python/tests/job_manager/test_retained_recovery_execution.py": 420,
+    "v12/python/tools/single_worker.py": 436,
+    "v12/python/tools/stage_execution.py": 436,
+    "v12/worker/claude_agent.py": 420
+  }
+}

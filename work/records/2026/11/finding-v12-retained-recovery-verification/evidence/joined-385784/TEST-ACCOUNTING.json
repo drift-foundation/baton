@@ -1,0 +1,200 @@
+[
+  {
+    "log": "checkpoint-probe.log",
+    "unittest_summary": [
+      "1",
+      "1.491"
+    ],
+    "tail": [
+      "OK",
+      "",
+      "RECOVERY_TICK {'observed_at': '2026-09-02T00:00:00.000Z', 'recovered': None, 'observed': 6, 'replaced': [], 'acts': [], 'started': [], 'spoken': [], 'refreshed': [{'stage_id': 'job-a/implementation', 'episode': 1, 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'state': 'not-asked'}, {'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'state': 'not-asked'}, {'stage_id': 'job-a/integration', 'episode': 1, 'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'state': 'not-asked'}, {'stage_id': 'recovery-D1/review', 'episode': 1, 'attempt_id': 'attempt-b49198fe1cb8a04485abda4721228137452b91b7120370abfc983ad92475d7a8', 'state': 'running'}]}",
+      "RECOVERY_HANDOFF {'candidate': {'artifact_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal', 'base': 'c2b1fc5d61a21358667669ce31381bc59aecc6da', 'content_digest': 'sha256:e46a7b946aca52a4bf27fb9d8b96591a810d954c865b14d9d38ebec1e4245328', 'entry_count': 4, 'head': 'f913e2e4be210444b50ab5c738b4acdea525fcc1', 'locator': 'file:///var/tmp/v12-w71917-o36dqpki/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal', 'output': 'proposal', 'transport': 'objects.bundle', 'tree_digest': 'sha256:e46a7b946aca52a4bf27fb9d8b96591a810d954c865b14d9d38ebec1e4245328'}, 'decision_id': 'D1', 'evidence': {'custody_locator': 'file:///var/tmp/v12-w71917-o36dqpki/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal', 'decision_digest': 'sha256:4302744834757d92f788d4f46da75c0aa262b560ae83e2c310e696effa20e099', 'materialization_digest': 'sha256:87b33aca5a33e252d08e4bc4b36c3e4e345e578138a008abac48c3a1e09be0e9', 'successor_digest': 'sha256:1a879606ad42102639803b631f88a7fd97e7c634dc64a97bffcdff8a7a17716c'}, 'failure_key': 'sha256:ff33c7c1ccd91b7da17d8b97805581653e28914f3898603e1b7fa949440b0d76', 'handed_at': '2026-09-02T00:00:00.000Z', 'job_id': 'recovery-D1', 'producer': {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'declared_ending': 'verification-failed', 'generation': 1, 'input_digest': 'sha256:3b439bc330b87a1568bad3ad74ffff4b69d7df0ce2325778ea372e5d44963db5', 'job_id': 'job-a', 'participant': 'baton.impl-a', 'principal': 'principal:baton.impl-a', 'result_id': 'result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'stage_id': 'job-a/implementation'}, 'review_stage_id': 'recovery-D1/review', 'stages': ['verification', 'review'], 'verification': {'account_digest': 'sha256:8c6ce4107a92db63272984cf329054268634414c72d5b97a8e669afc7ea4df21', 'argv': ['python3', '-c', \"print('corrected verifier')\"], 'attempt_id': 'verification-recovery-D1', 'context_digest': 'sha256:8b7da4837d85af24082b4db081db5878e90673badc328bcb5052ac7c34423c34', 'exit_status': 0, 'outcome': 'passed', 'result_digest': 'sha256:7ded7e2b8bd94341a46f3cfc3dabb151c5c4b15bcf807930d800fe2ec97ec7b1', 'retained_locator': 'file:///var/tmp/v12-w71917-o36dqpki/recovery-instance/recovery-verification/verification-recovery-D1/output/verification', 'why': \"this successor's own passed verification\"}, 'workspace': {'candidate_root': 'candidate', 'delivered': 'read-only', 'entry_count': 4, 'locator': 'file:///var/tmp/v12-w71917-o36dqpki/recovery-instance/recovery-verification/verification-recovery-D1', 'tree_digest': 'sha256:e46a7b946aca52a4bf27fb9d8b96591a810d954c865b14d9d38ebec1e4245328'}}"
+    ],
+    "wall_seconds": null
+  },
+  {
+    "log": "connected-probe.log",
+    "unittest_summary": [
+      "1",
+      "1.406"
+    ],
+    "tail": [
+      "",
+      "FAILED (failures=1)",
+      "",
+      "RECOVERY_HANDOFF {'candidate': {'artifact_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal', 'base': 'ec3aedcea002a2ea5ab337cacc67af47721dff85', 'content_digest': 'sha256:5c7ef101f20779f0ddf983dc9d81b94285bf4f5af29353ecc228913d78b9581c', 'entry_count': 4, 'head': '067b24bd32f4aa7f51d5cbc96b6561ba07d7f08e', 'locator': 'file:///var/tmp/v12-w71917-vhzr0wv9/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal', 'output': 'proposal', 'transport': 'objects.bundle', 'tree_digest': 'sha256:5c7ef101f20779f0ddf983dc9d81b94285bf4f5af29353ecc228913d78b9581c'}, 'decision_id': 'D1', 'evidence': {'custody_locator': 'file:///var/tmp/v12-w71917-vhzr0wv9/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal', 'decision_digest': 'sha256:feec9603040f156421fc9860dab96b1f936781326b37eb054dfdc9576204ce1b', 'materialization_digest': 'sha256:395c95bdb9517330cab08356df8d232b1240b5e8cae255037fcef2873eebe35d', 'successor_digest': 'sha256:e407fff88238ffb358fd7253b745b7a4efee31d47dc23791235512f083191803'}, 'failure_key': 'sha256:ff33c7c1ccd91b7da17d8b97805581653e28914f3898603e1b7fa949440b0d76', 'handed_at': '2026-09-02T00:00:00.000Z', 'job_id': 'recovery-D1', 'producer': {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'declared_ending': 'verification-failed', 'generation': 1, 'input_digest': 'sha256:8cdc65fa2fb85c9e715e536b3053713ddd067ca1f01f5e7c46745ad6bc7d9498', 'job_id': 'job-a', 'participant': 'baton.impl-a', 'principal': 'principal:baton.impl-a', 'result_id': 'result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'stage_id': 'job-a/implementation'}, 'review_stage_id': 'recovery-D1/review', 'stages': ['verification', 'review'], 'verification': {'account_digest': 'sha256:0ab3fdb246cf86554f430713ede4c425543ae2ba1c72cdc5d41eea027902aaf4', 'argv': ['python3', '-c', \"print('corrected verifier')\"], 'attempt_id': 'verification-recovery-D1', 'context_digest': 'sha256:8b7da4837d85af24082b4db081db5878e90673badc328bcb5052ac7c34423c34', 'exit_status': 0, 'outcome': 'passed', 'result_digest': 'sha256:7ded7e2b8bd94341a46f3cfc3dabb151c5c4b15bcf807930d800fe2ec97ec7b1', 'retained_locator': 'file:///var/tmp/v12-w71917-vhzr0wv9/recovery-instance/recovery-verification/verification-recovery-D1/output/verification', 'why': \"this successor's own passed verification\"}, 'workspace': {'candidate_root': 'candidate', 'delivered': 'read-only', 'entry_count': 4, 'locator': 'file:///var/tmp/v12-w71917-vhzr0wv9/recovery-instance/recovery-verification/verification-recovery-D1', 'tree_digest': 'sha256:5c7ef101f20779f0ddf983dc9d81b94285bf4f5af29353ecc228913d78b9581c'}}"
+    ],
+    "wall_seconds": null
+  },
+  {
+    "log": "focused-final.log",
+    "unittest_summary": [
+      "95",
+      "17.554"
+    ],
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 95 tests in 17.554s",
+      "",
+      "OK"
+    ],
+    "wall_seconds": 17.829027245985344,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer",
+      "tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict",
+      "tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult",
+      "tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide",
+      "tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll",
+      "tests.manager.test_claude_agent.TheTwoEndsAgreeOnTheReviewVocabulary",
+      "tests.manager.test_review_cycles.ReviewCycles",
+      "tests.manager.test_review_cycles.StableLineLifecycle"
+    ],
+    "exit": 0
+  },
+  {
+    "log": "focused.log",
+    "unittest_summary": [
+      "94",
+      "14.846"
+    ],
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 94 tests in 14.846s",
+      "",
+      "OK"
+    ],
+    "wall_seconds": 15.126380512025207,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer",
+      "tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict",
+      "tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult",
+      "tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide",
+      "tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll",
+      "tests.manager.test_claude_agent.TheTwoEndsAgreeOnTheReviewVocabulary",
+      "tests.manager.test_review_cycles.ReviewCycles",
+      "tests.manager.test_review_cycles.StableLineLifecycle"
+    ],
+    "exit": 0
+  },
+  {
+    "log": "installed-probe.log",
+    "unittest_summary": [
+      "1",
+      "0.764"
+    ],
+    "tail": [
+      "",
+      "FAILED (failures=1)",
+      "RETAINED_FAILED_PRODUCER {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'result_id': 'result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'disposition': 'unable', 'manifest_digest': 'sha256:bd4787c3677c87b7da44fe46b660f2eac7a304f20f568dd1fda68ef824b8e73b', 'freeze_operation_id': 'output.freeze:bfb5307dc65cc79d6bb85396233121ab322f5f54b9c4e4fcbe26a30482db4302', 'frozen_at': '2026-09-02T00:00:00.000Z', 'artifacts': [{'output_name': 'proposal', 'artifact_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal', 'media_type': 'application/octet-stream', 'bytes': 1759, 'content_digest': 'sha256:fa2dd6663eb7328a2ba67697fb91882660cb59034b3ddd99ee6fbe4e2ea635bb', 'locator': 'file:///var/tmp/v12-w71917-1o_t2cns/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal'}]}",
+      "REVIEW_LINE_AFTER_FAILED_VERIFIER {'line_id': 'line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a', 'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1', 'profile_name': 'git', 'declared_base': 'aa76f41e51d98d6bdb34d59acaca6db91a680be6', 'source_path': '/var/tmp/v12-w71917-1o_t2cns/source', 'source_device': 66306, 'source_inode': 20099068, 'line_path': '/var/tmp/v12-w71917-1o_t2cns/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout', 'line_device': 66306, 'line_inode': 20230065, 'state': 'idle', 'revision': 0, 'current_checkpoint_id': None, 'created_at': '2026-09-02T00:00:00.000Z'}"
+    ],
+    "wall_seconds": null
+  },
+  {
+    "log": "joined-six-2.log",
+    "unittest_summary": [
+      "6",
+      "13.686"
+    ],
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 6 tests in 13.686s",
+      "",
+      "OK"
+    ],
+    "wall_seconds": null
+  },
+  {
+    "log": "joined-six.log",
+    "unittest_summary": [
+      "6",
+      "9.222"
+    ],
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 6 tests in 9.222s",
+      "",
+      "FAILED (failures=5)"
+    ],
+    "wall_seconds": null
+  },
+  {
+    "log": "producer-probe-2.log",
+    "unittest_summary": [
+      "1",
+      "0.800"
+    ],
+    "tail": [
+      "",
+      "FAILED (failures=1)",
+      "RETAINED_FAILED_PRODUCER {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'result_id': 'result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'disposition': 'unable', 'manifest_digest': 'sha256:d359befc50e3cb9c0d5adef94c10d248ac9c6b234f62f7136145d91d6e949e61', 'freeze_operation_id': 'output.freeze:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1', 'frozen_at': '2026-09-02T00:00:00.000Z', 'artifacts': [{'output_name': 'proposal', 'artifact_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal', 'media_type': 'application/octet-stream', 'bytes': 1758, 'content_digest': 'sha256:ee3f9247d13fc8349f65968d7f2e3c2336b55f516645cb438331ef462b1c5609', 'locator': 'file:///var/tmp/v12-w71917-uv85i6iu/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal'}]}",
+      "REVIEW_LINE_AFTER_FAILED_VERIFIER {'line_id': 'line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a', 'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1', 'profile_name': 'git', 'declared_base': 'f1edc916ef31ebcbc37c0c841edac4476ee552bb', 'source_path': '/var/tmp/v12-w71917-uv85i6iu/source', 'source_device': 66306, 'source_inode': 20099068, 'line_path': '/var/tmp/v12-w71917-uv85i6iu/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout', 'line_device': 66306, 'line_inode': 20230043, 'state': 'idle', 'revision': 0, 'current_checkpoint_id': None, 'created_at': '2026-09-02T00:00:00.000Z'}"
+    ],
+    "wall_seconds": null
+  },
+  {
+    "log": "producer-probe.log",
+    "unittest_summary": [
+      "1",
+      "0.023"
+    ],
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 1 test in 0.023s",
+      "",
+      "FAILED (errors=1)"
+    ],
+    "wall_seconds": null
+  },
+  {
+    "log": "review-only.log",
+    "unittest_summary": [
+      "1",
+      "2.805"
+    ],
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 1 test in 2.805s",
+      "",
+      "OK"
+    ],
+    "wall_seconds": null
+  },
+  {
+    "log": "verdict-probe-2.log",
+    "unittest_summary": [
+      "4",
+      "9.614"
+    ],
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 4 tests in 9.614s",
+      "",
+      "OK"
+    ],
+    "wall_seconds": null
+  },
+  {
+    "log": "verdict-probe.log",
+    "unittest_summary": [
+      "4",
+      "9.571"
+    ],
+    "tail": [
+      "----------------------------------------------------------------------",
+      "Ran 4 tests in 9.571s",
+      "",
+      "FAILED (failures=4)"
+    ],
+    "wall_seconds": null
+  }
+]

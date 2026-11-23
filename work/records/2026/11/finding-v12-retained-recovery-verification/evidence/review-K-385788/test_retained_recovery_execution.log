@@ -1,0 +1,797 @@
+....refused: policy/denied: failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… already reserved the verification/review successor 'recovery-D1' under decision 'D1'; one retained failure has one such successor, and a further round is a new owner decision on new evidence rather than a second admission of this one
+.............................................authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-k-w385625/tmp/disk/v12-w71917-y3ooz60o/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-y3ooz60o/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-y3ooz60o/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-y3ooz60o/recovery-instance/deployment.json"
+.authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-k-w385625/tmp/disk/v12-w71917-x6jb_zrt/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-x6jb_zrt/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-x6jb_zrt/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-x6jb_zrt/recovery-instance/deployment.json"
+.authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-k-w385625/tmp/disk/v12-w71917-6pqbug4t/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-6pqbug4t/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-6pqbug4t/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-6pqbug4t/recovery-instance/deployment.json"
+.authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-k-w385625/tmp/disk/v12-w71917-a8jmbf91/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-a8jmbf91/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-a8jmbf91/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-a8jmbf91/recovery-instance/deployment.json"
+.authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-k-w385625/tmp/disk/v12-w71917-qlisnhow/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-qlisnhow/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-qlisnhow/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-qlisnhow/recovery-instance/deployment.json"
+.authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-k-w385625/tmp/disk/v12-w71917-38btur2i/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-38btur2i/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-38btur2i/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-38btur2i/recovery-instance/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-k-w385625/tmp/disk/v12-w71917-38btur2i/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a", "recovery-D2": "impl-a"}, "jobs": 3, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-38btur2i/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-38btur2i/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-38btur2i/recovery-instance/deployment.json"
+.authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-k-w385625/tmp/disk/v12-w71917-poftewsg/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-poftewsg/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-poftewsg/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-k-w385625/tmp/disk/v12-w71917-poftewsg/recovery-instance/deployment.json"
+.................................authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-bgu_42kf/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-bgu_42kf/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-bgu_42kf/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-bgu_42kf/bootstrap-deployment/deployment.json"
+...authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-l4lenbmq/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-l4lenbmq/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-l4lenbmq/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-l4lenbmq/bootstrap-deployment/deployment.json"
+.authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-cqzeait8/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-cqzeait8/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-cqzeait8/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-cqzeait8/bootstrap-deployment/deployment.json"
+.........refused: integrity/digest: the retained candidate of failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… no longer validates (integrity/digest: this manager's recorded artifact row and its retained result manifest disagree about the frozen candidate, so neither is read as validated recovery input); an invalid candidate is reported and is not recovery input
+.refused: integrity/schema: the approved execution context digest is durable text; this is ''
+..refused: refused/precondition: a ["verification", "review"] successor verifies the candidate itself and reuses no prior verification; this decision names a review-only lineage
+.refused: policy/denied: 'baton.slaw' holds no 'approve' capability in 'scope:w385624-recovery', which is Work '0000000a-W1''s own effective scope; a retained recovery is authorized by the deployment's decision grant and never by reading the owner item, by handling a route or by an analysis recommendation
+.refused: policy/denied: 'baton.claude' holds no 'approve' capability in 'scope:w385624-recovery', which is Work '0000000a-W1''s own effective scope; a retained recovery is authorized by the deployment's decision grant and never by reading the owner item, by handling a route or by an analysis recommendation
+.refused: integrity/digest: the decision names profile digest 'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb… and 'stage1-verification-review/1' digests to 'sha256:5a6a420e416caab0942f9709939ae01f1f2d9dabbd13e09ff3b0…; the owner's decision names the profile and admission checks exact agreement
+.refused: integrity/schema: a retained-recovery successor profile is one of stage1-verification-review/1; this is 'documentation/1'. A profile this build does not hold is a finite control it cannot enforce
+.refused: integrity/schema: a retained-recovery successor selects ["verification", "review"] or ["review"]; this is ["review", "verification"]
+refused: integrity/schema: a retained-recovery successor selects ["verification", "review"] or ["review"]; this is ["verification"]
+refused: integrity/schema: a retained-recovery successor selects ["verification", "review"] or ["review"]; this is ["integration"]
+refused: integrity/schema: a retained-recovery successor selects ["verification", "review"] or ["review"]; this is ["review", "review"]
+.refused: policy/denied: the approved correction is the command that failed ('bash', '-c', 'exec python3 -m unittest -v x'); a retained-recovery decision approves an EXACT verifier correction, and repeating the original verification is the generic retry this contract refuses
+.refused: integrity/digest: this decision expects candidate_base '"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"' and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"'; an owner decides on the exact failure, report, candidate and verifier they actually read
+refused: integrity/digest: this decision expects candidate_head '"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"' and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"ffffffffffffffffffffffffffffffffffffffff"'; an owner decides on the exact failure, report, candidate and verifier they actually read
+.refused: integrity/digest: this decision expects failure_digest '"sha256:000000000000000000000000000000000000000000000000000… and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"sha256:fc263b124f43569c949e6e48cfc38a1c36f9c8eefa6d3616976…; an owner decides on the exact failure, report, candidate and verifier they actually read
+refused: integrity/digest: this decision expects report_digest '"sha256:000000000000000000000000000000000000000000000000000… and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"sha256:c25062c6399530a324887016c20491683d63c63217da5ee2c3a…; an owner decides on the exact failure, report, candidate and verifier they actually read
+refused: integrity/digest: this decision expects candidate_content_digest '"sha256:000000000000000000000000000000000000000000000000000… and failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… records '"sha256:77995351eb3781c868df17b1ae6976a5c3a7607decfb6429684…; an owner decides on the exact failure, report, candidate and verifier they actually read
+..refused: policy/denied: the selected stage set names 'implementation'; a retained-recovery successor verifies and reviews an EXISTING candidate and never redispatches the work that produced it
+refused: policy/denied: the selected stage set names 'implementation'; a retained-recovery successor verifies and reviews an EXISTING candidate and never redispatches the work that produced it
+refused: policy/denied: the selected stage set names 'implementation'; a retained-recovery successor verifies and reviews an EXISTING candidate and never redispatches the work that produced it
+.refused: refused/precondition: failure 'sha256:96a52044b6ee5682e3d531375909fa44cd60ee28ec5009763169… has delivered no owner item; the decision surface presents a DELIVERED diagnosis or finite ending, and deciding before Stage 1-A has delivered one would be deciding about evidence nobody was shown
+.refused: policy/denied: the approved correction is the command that failed ('bash', '-c', 'exec python3 -m unittest -v x\n'); a retained-recovery decision approves an EXACT verifier correction, and repeating the original verification is the generic retry this contract refuses
+.refused: integrity/digest: the original evidence of failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… now digests to 'sha256:6404a12c4ee3e83b7a45dd0077deed5ed79c0a4e901d5e059325… and its delivered analysis was admitted on 'sha256:8c7907f0482da9c9358ffdbf6b7ffc046a4b01a909ffa5b0a9df…; a decision is not recorded against evidence that changed under it
+.refused: refused/precondition: a ["review"] successor is the post-verification disposition and names the expired successor, its verification attempt and the passed result it reuses; this decision names no lineage
+....refused: refused/precondition: no configured worker can serve Job 'recovery-D1''s 'review' stage under its own submitted input, policy and profile; a successor that cannot be selected is a Job that would sit queued forever. The successor identity 'recovery-D1' is already RESERVED in this store and this admission is incomplete rather than undone: correct what is named above and run the same request again, which resumes from the reservation. A different request under this decision is refused as the collision it is
+.........usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+
+Read one retained verification failure's owner item, or decide it. An approval
+asks the manager to admit the one linked verification/review-only successor; a
+denial or a hold launches nothing.
+
+positional arguments:
+  {recovery-item,recovery-decide}
+
+options:
+  -h, --help            show this help message and exit
+  --store STORE         the Job store the recovery records live in
+  --authority-uuid AUTHORITY_UUID
+                        the 32-lowercase-hex Authority this Job store belongs
+                        to
+  --incarnation INCARNATION
+                        this process's incarnation, which is what restart
+                        recovery distinguishes managers by
+  --control CONTROL     the Worker Manager control store, opened READ-ONLY:
+                        the retained candidate and the delivered diagnosis are
+                        read through their owner, and a decision must not be
+                        able to change the evidence it is judging
+  --authority AUTHORITY
+                        the Authority store whose Work this failure ran under;
+                        it resolves the deciding participant's principal and
+                        the Work's own effective scope, and this command
+                        writes nothing to it
+  --instance INSTANCE   the deployment's state root, whose own layout and
+                        emitted configuration say which stores and which
+                        Authority it owns and whose selector is asked whether
+                        a worker can serve the successor's review stage
+  --owners OWNERS       the deployment's owner-port factory as
+                        module:attribute; it composes the owner authorization,
+                        the host exclusion, the Work authorization, the
+                        deployment binding and the instance guard over this
+                        instance's own stores
+  --failure FAILURE     the failure key Stage 1-A attributed this ending under
+
+recovery-item:
+  --participant PARTICIPANT
+                        the acting participant. On recovery-item it is
+                        optional and reports whether that address holds the
+                        decision capability in the Work's own scope; on
+                        recovery-decide it is required and there is
+                        deliberately no --actor
+  --control-report      also report the failed Job's own LIM-5 control and
+                        whichever fence closed it
+
+recovery-decide:
+  --decision-id DECISION_ID
+                        the owner's own operation key. The same key with the
+                        same operands replays the committed decision; with
+                        different operands it collides, and a later
+                        disposition is a NEW key and a new attributable act
+  --approve             approve the exact correction and the
+                        verification/review-only scope below
+  --deny                deny it; nothing is launched
+  --hold                hold it for a later explicit disposition; nothing is
+                        launched
+  --expect-failure-digest EXPECT_FAILURE_DIGEST
+                        the fixed input digest the delivered analysis was
+                        admitted on
+  --expect-report-digest EXPECT_REPORT_DIGEST
+                        the delivered diagnosis's own digest; omitted for a
+                        finite analysis ending, which delivered partial
+                        evidence and no report
+  --expect-candidate-base EXPECT_CANDIDATE_BASE
+  --expect-candidate-head EXPECT_CANDIDATE_HEAD
+  --expect-candidate-digest EXPECT_CANDIDATE_DIGEST
+                        the retained candidate's measured content digest; a
+                        commit name alone is not a candidate
+  --original-verification WORD
+                        one argument word of the command that FAILED,
+                        repeatable in order (write a word that starts with a
+                        dash as --original-verification=-m)
+  --corrected-verification WORD
+                        one argument word of the APPROVED corrected command,
+                        repeatable in order. Approving the command that failed
+                        is refused as the generic retry it is
+  --context-digest CONTEXT_DIGEST
+                        the approved execution context's digest; a command
+                        string must not hide a changed working directory,
+                        environment or tool selection
+  --profile PROFILE     the owner-approved finite profile identity
+  --profile-digest PROFILE_DIGEST
+                        that profile definition's exact digest; admission
+                        checks exact agreement
+  --stage STAGE         one selected stage word, repeatable in order:
+                        verification then review, or review alone under a
+                        review-only decision. implementation is refused by
+                        name
+  --prior-successor PRIOR_SUCCESSOR
+                        the expired successor a review-only decision follows
+  --prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT
+                        that successor's verification attempt identity
+  --prior-verification-digest PRIOR_VERIFICATION_DIGEST
+                        the digest of its journalled passed verification
+                        account
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+
+Read one retained verification failure's owner item, or decide it. An approval
+asks the manager to admit the one linked verification/review-only successor; a
+denial or a hold launches nothing.
+
+positional arguments:
+  {recovery-item,recovery-decide}
+
+options:
+  -h, --help            show this help message and exit
+  --store STORE         the Job store the recovery records live in
+  --authority-uuid AUTHORITY_UUID
+                        the 32-lowercase-hex Authority this Job store belongs
+                        to
+  --incarnation INCARNATION
+                        this process's incarnation, which is what restart
+                        recovery distinguishes managers by
+  --control CONTROL     the Worker Manager control store, opened READ-ONLY:
+                        the retained candidate and the delivered diagnosis are
+                        read through their owner, and a decision must not be
+                        able to change the evidence it is judging
+  --authority AUTHORITY
+                        the Authority store whose Work this failure ran under;
+                        it resolves the deciding participant's principal and
+                        the Work's own effective scope, and this command
+                        writes nothing to it
+  --instance INSTANCE   the deployment's state root, whose own layout and
+                        emitted configuration say which stores and which
+                        Authority it owns and whose selector is asked whether
+                        a worker can serve the successor's review stage
+  --owners OWNERS       the deployment's owner-port factory as
+                        module:attribute; it composes the owner authorization,
+                        the host exclusion, the Work authorization, the
+                        deployment binding and the instance guard over this
+                        instance's own stores
+  --failure FAILURE     the failure key Stage 1-A attributed this ending under
+
+recovery-item:
+  --participant PARTICIPANT
+                        the acting participant. On recovery-item it is
+                        optional and reports whether that address holds the
+                        decision capability in the Work's own scope; on
+                        recovery-decide it is required and there is
+                        deliberately no --actor
+  --control-report      also report the failed Job's own LIM-5 control and
+                        whichever fence closed it
+
+recovery-decide:
+  --decision-id DECISION_ID
+                        the owner's own operation key. The same key with the
+                        same operands replays the committed decision; with
+                        different operands it collides, and a later
+                        disposition is a NEW key and a new attributable act
+  --approve             approve the exact correction and the
+                        verification/review-only scope below
+  --deny                deny it; nothing is launched
+  --hold                hold it for a later explicit disposition; nothing is
+                        launched
+  --expect-failure-digest EXPECT_FAILURE_DIGEST
+                        the fixed input digest the delivered analysis was
+                        admitted on
+  --expect-report-digest EXPECT_REPORT_DIGEST
+                        the delivered diagnosis's own digest; omitted for a
+                        finite analysis ending, which delivered partial
+                        evidence and no report
+  --expect-candidate-base EXPECT_CANDIDATE_BASE
+  --expect-candidate-head EXPECT_CANDIDATE_HEAD
+  --expect-candidate-digest EXPECT_CANDIDATE_DIGEST
+                        the retained candidate's measured content digest; a
+                        commit name alone is not a candidate
+  --original-verification WORD
+                        one argument word of the command that FAILED,
+                        repeatable in order (write a word that starts with a
+                        dash as --original-verification=-m)
+  --corrected-verification WORD
+                        one argument word of the APPROVED corrected command,
+                        repeatable in order. Approving the command that failed
+                        is refused as the generic retry it is
+  --context-digest CONTEXT_DIGEST
+                        the approved execution context's digest; a command
+                        string must not hide a changed working directory,
+                        environment or tool selection
+  --profile PROFILE     the owner-approved finite profile identity
+  --profile-digest PROFILE_DIGEST
+                        that profile definition's exact digest; admission
+                        checks exact agreement
+  --stage STAGE         one selected stage word, repeatable in order:
+                        verification then review, or review alone under a
+                        review-only decision. implementation is refused by
+                        name
+  --prior-successor PRIOR_SUCCESSOR
+                        the expired successor a review-only decision follows
+  --prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT
+                        that successor's verification attempt identity
+  --prior-verification-digest PRIOR_VERIFICATION_DIGEST
+                        the digest of its journalled passed verification
+                        account
+...refused: policy/denied: failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… already reserved the verification/review successor 'recovery-D1' under decision 'D1'; one retained failure has one such successor, and a further round is a new owner decision on new evidence rather than a second admission of this one
+..refused: refused/operation-collision: operation 'recovery.owner-decision:D1' is already recorded with a different kind or signature; reusing an id with different operands changes nothing
+refused: refused/precondition: a ["review"] successor is the post-verification disposition and names the expired successor, its verification attempt and the passed result it reuses; this decision names no lineage
+refused: refused/operation-collision: operation 'recovery.owner-decision:D1' is already recorded with a different kind or signature; reusing an id with different operands changes nothing
+.refused: policy/denied: failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… already reserved the verification/review successor 'recovery-C1' under decision 'C1'; one retained failure has one such successor, and a further round is a new owner decision on new evidence rather than a second admission of this one
+...........refused: refused/precondition: successor 'recovery-D1' was cancelled at 2026-09-02T00:00:00.000Z (the owner stopped the successor); a cancelled execution is never revived and its review is not admitted under a new identity
+.refused: integrity/digest: the original evidence of failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… now digests to 'sha256:97bec1d8844d1617fc076923fc2873fbbc694f89a581ac5b9120… and its delivered analysis was admitted on 'sha256:8c54e392cde80bc3860a849b979a84e3bc550a51b2de3c74b299…; a decision is not recorded against evidence that changed under it
+.refused: integrity/schema: the passed verification of successor 'recovery-D1' ran 'bash', '-c', 'exec python3 -m unittest -v x' and this decision approves 'bash', '-c', 'exec true'; omitting a verification stage preserves the verification that actually ran rather than claiming a different one
+refused: integrity/schema: the passed verification of successor 'recovery-D1' ran 'bash', '-c', 'exec python3 -m unittest -v x' and this decision approves 'bash', '-c', 'exec python3 -m unittest -v x'; omitting a verification stage preserves the verification that actually ran rather than claiming a different one
+.refused: refused/precondition: successor 'recovery-D1''s verification is 'failed' (exit 1); a review-only admission reuses a PASSED verification, and a failed or unaccounted one is disposed of explicitly rather than reviewed
+.refused: integrity/digest: this decision names verification result 'sha256:7777777777777777777777777777777777777777777777777777… and the journalled account digests to 'sha256:2193a48b0ebd8d008eb253fa8be40d40355c4b2f044ca1d2d3a8…; the evidence a review-only admission reuses is exact
+refused: integrity/schema: this decision names verification attempt 'verification-somebody-else' and successor 'recovery-D1' journalled 'verification-recovery-D1'; a late result of another execution cannot satisfy this one by identity substitution
+refused: refused/precondition: failure 'sha256:7ffde8ed9784f93ff30fdf4ecbcf37b4b47f7496f0723d0d296a… reserved no successor 'recovery-D9'; a review-only admission follows THIS failure's own expired successor
+...refused: refused/precondition: a review-only recovery names the expired successor, its verification attempt and the passed result it reuses; this one names no verification_result_digest
+.refused: refused/precondition: successor 'recovery-D1' is neither expired nor cancelled; a review-only admission is the disposition for a successor whose verification PASSED and whose review did not complete before it expired, and admitting one beside a live successor would review one candidate twice
+.refused: policy/denied: the expired successor 'recovery-D1' already has the review-only successor 'recovery-D2' under decision 'D2'; a second one would review one candidate twice on one owner decision
+...usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --participant
+.usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs one of --approve, --deny or --hold; an owner disposition is an explicit act
+.usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --decision-id
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --expect-failure-digest
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --expect-candidate-base
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --expect-candidate-head
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --expect-candidate-digest
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --context-digest
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --profile
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --profile-digest
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --original-verification
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --corrected-verification
+usage: manager recovery [-h] --store STORE --authority-uuid AUTHORITY_UUID
+                        --incarnation INCARNATION --control CONTROL
+                        --authority AUTHORITY --instance INSTANCE
+                        [--owners OWNERS] --failure FAILURE
+                        [--participant PARTICIPANT] [--control-report]
+                        [--decision-id DECISION_ID] [--approve | --deny |
+                        --hold]
+                        [--expect-failure-digest EXPECT_FAILURE_DIGEST]
+                        [--expect-report-digest EXPECT_REPORT_DIGEST]
+                        [--expect-candidate-base EXPECT_CANDIDATE_BASE]
+                        [--expect-candidate-head EXPECT_CANDIDATE_HEAD]
+                        [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]
+                        [--original-verification WORD]
+                        [--corrected-verification WORD]
+                        [--context-digest CONTEXT_DIGEST] [--profile PROFILE]
+                        [--profile-digest PROFILE_DIGEST] [--stage STAGE]
+                        [--prior-successor PRIOR_SUCCESSOR]
+                        [--prior-verification-attempt PRIOR_VERIFICATION_ATTEMPT]
+                        [--prior-verification-digest PRIOR_VERIFICATION_DIGEST]
+                        {recovery-item,recovery-decide}
+manager recovery: error: recovery-decide needs --stage
+.refused: refused/precondition: a review-only recovery names the expired successor, its verification attempt and the passed result it reuses; this one names no verification_attempt_id, verification_result_digest
+..refused: integrity/digest: this decision expects report_digest '"sha256:555555555555555555555555555555555555555555555555555… and failure 'sha256:16c653734cf0e63bdf0e8c7eb1abc1a4731cb59dfb0fc5d7d072… records 'null'; an owner decides on the exact failure, report, candidate and verifier they actually read
+......refused: refused/precondition: the host returned no evidence about attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…; an execution nobody can account for is unknown, and unknown is not permission to verify the same candidate against the same resources
+refused: refused/precondition: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s runtime is 'uncertain' and cessation is not-started, quiescent, destroyed; stop it and let the host record the outcome before a successor is admitted
+refused: refused/precondition: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s cleanup is 'pending' and this host still owes it; a successor admitted now would compete with an accounting that has not finished
+refused: refused/precondition: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1… still holds its workspace resource: the token is outstanding. A returned resource is what makes the workspace free for another execution
+.refused: refused/precondition: Work '0000000a-W1' is 'closed' and a recovery decision is taken under an open authorization; deciding on somebody else's terminal Work is not this operation's to do
+..refused: refused/precondition: Job 'job-a' was cancelled at 2026-09-02T00:00:00.000Z (the owner stopped it); an approved recovery decision is not admitted after an explicit cancellation, and a cancelled execution is never revived
+.
+----------------------------------------------------------------------
+Ran 175 tests in 29.855s
+
+OK
+rc=0 wall=30.110329313

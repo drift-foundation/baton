@@ -1,0 +1,11 @@
+test_KJ3_worker_report_vocabulary (tests_kj.probe_kj.KJWorker.test_KJ3_worker_report_vocabulary) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+
+KJ3 three-member: {'schema': 'baton.review-report/1', 'verdict': 'accepted', 'findings': 'x'}
+KJ3 ordinary + recovery_digest (no recovery input): {'schema': 'baton.review-report/1', 'verdict': 'accepted', 'findings': 'x', 'recovery_digest': 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
+KJ3 malformed digest: None
+KJ3 fifth member: None

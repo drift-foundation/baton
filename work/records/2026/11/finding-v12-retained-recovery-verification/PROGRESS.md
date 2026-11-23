@@ -28,3 +28,28 @@ and exact commands/times remain in TEST-ACCOUNTING.json and logs. No full-suite,
 reviewer-container or live-model claim. Separate reviewer-admission assertion
 is simulated; real serving proof ends at durable handoff. Main product and
 existing native instances untouched, no new kickoff or main Git mutation.
+
+## 2026-11-23 — baton.codxpc, E385784 / M385782
+
+Focused joined correction ready for K exact review, not accepted/imported.
+Base acf29092bf1e31fd5085bbb53d54db317b24adb7. Seven-path candidate manifest
+SHA256 5cb76d8267838da78e49cccac03ec3fb1a12a6d257a37c785f5a19f12fc5a9f0.
+Exact candidate, base bytes, patch, reproduction and accounting are preserved
+in evidence/joined-385784/; HANDOFF.md is the entry.
+
+Real failed-producer/recovery/reviewer probe exposed absent checkpoint after
+writer release. Bounded correction freezes the positively ceased original
+released writer against its approved candidate, refuses advanced lines, pins
+recovery input, and requires the reviewer to bind the handoff/verifier digest
+before any verdict. Actual owner/worker/custody/verdict operations now complete
+accept, reject and review-only paths; wrong/missing evidence holds. The only
+changed test file is test_retained_recovery_execution.py, additive seven-case
+class. Original custody bytes and the admitted task are preserved.
+
+Focused final95/95, zero failures/errors/skips,17.554s unittest/17.829027s wall.
+Earlier development attempts remain in TEST-ACCOUNTING.json. Reused accepted
+168/215/508/profile/crash-cut evidence; no broad rerun. Analysis is a labelled
+scripted finite endpoint; engine/provider boundaries are simulated and the
+workload, stores, receipt owners and verifier are real fixture execution.
+No main product edits/Git mutation, live instance/model/container change,
+new kickoff or packaging/worker-image qualification.

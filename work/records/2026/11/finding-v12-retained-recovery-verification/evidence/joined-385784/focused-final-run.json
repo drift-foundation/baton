@@ -1,0 +1,18 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer",
+    "tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict",
+    "tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult",
+    "tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide",
+    "tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll",
+    "tests.manager.test_claude_agent.TheTwoEndsAgreeOnTheReviewVocabulary",
+    "tests.manager.test_review_cycles.ReviewCycles",
+    "tests.manager.test_review_cycles.StableLineLifecycle"
+  ],
+  "exit": 0,
+  "wall_seconds": 17.829027245985344
+}

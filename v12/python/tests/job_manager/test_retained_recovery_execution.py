@@ -2541,3 +2541,259 @@ class TheApprovedBoundsAreTheOwnersExactPublishedDefinition(
             retained_verification.__file__).read_text(encoding="utf-8")
         for number in ("900", "4800", "9960", "3600"):
             self.assertNotIn("= " + number, source)
+
+
+from tests.tools.test_stage_execution import ComposedOneJobCase as _ComposedRecoveryCase
+
+
+class RetainedRecoveryReachesTheIndependentReviewer(_ComposedRecoveryCase):
+    """Real workload/custody/Authority; engine and provider boundary fakes."""
+
+    from tests.tools.test_bootstrap import ValidFixture as _BootstrapFixture
+    stage_worker = _BootstrapFixture.stage_worker
+    workers = _BootstrapFixture.workers
+    job = _BootstrapFixture.job
+
+    def setUp(self):
+        from tools import bootstrap
+        from tests.job_manager import fixtures
+        self.now = fixtures.NOW
+        super().setUp()
+        self.state = os.path.join(self.root, "recovery-instance")
+        self.places = bootstrap.layout(self.state)
+        bootstrap.persist_identity(self.places, self.config["authority_uuid"])
+        self.install_document = self._BootstrapFixture.document(
+            self, owner_participant=INSTANCE_OWNER,
+            jobs=[self.job(work_id=self.work, base=self.base)],
+            recovery_verification={"context": context_of(),
+                                   "declaration": stage_a.analysis_declaration(),
+                                   "destination": INSTANCE_OWNER})
+        with open(os.devnull, "w") as quiet:
+            self.installed = bootstrap.prepare(self.install_document, stream=quiet)
+        pathlib.Path(self.places["install_inputs"]).write_text(json.dumps(self.install_document))
+        self.authority_path = self.places["authority_store"]
+        self.config["authority_store"] = self.authority_path
+
+    def stores(self, incarnation):
+        from baton_v12.worker_manager import ControlStore
+        from tests.job_manager import fixtures
+        jobs = JobStore.open(self.places["job_store"],
+                             authority_uuid=self.config["authority_uuid"],
+                             incarnation=incarnation, clock=lambda: self.now)
+        control = ControlStore.open(self.places["control_store"], incarnation=incarnation,
+                                    clock=lambda: self.now)
+        self.addCleanup(jobs.close)
+        self.addCleanup(control.close)
+        return jobs, control
+
+    def composed_document(self, **members):
+        return json.loads(pathlib.Path(self.places["configuration"]).read_text())
+
+    def mounted_view(self, role, attempt_id, roots):
+        view = super().mounted_view(role, attempt_id, roots)
+        if role == "review":
+            # A real input mount contains a regular file. The inherited
+            # daemon-free view uses links; the workload correctly refuses
+            # links for this bounded document, so copy the pinned input bytes.
+            path = pathlib.Path(view["inputs"], "recovery-review.json")
+            if path.is_symlink():
+                data = path.read_bytes()
+                path.unlink()
+                path.write_bytes(data)
+        return view
+
+    def provider(self, edits=None, status=0):
+        import claude_agent
+        actual = super().provider(edits=edits, status=status)
+        def run(argv, **options):
+            if argv[0] == claude_agent.PROVIDER_PROGRAM and "review-report.json" in (edits or {}):
+                inputs = pathlib.Path(claude_agent.INPUT_ROOT)
+                # Scripted review reads the delivered candidate and verifier
+                # account at the provider boundary, not a synthetic receipt.
+                self.assertEqual((inputs / "source" / "harness.py").read_text(), "raise SystemExit(1)\n")
+                evidence = json.loads((inputs / "recovery-review.json").read_text())
+                self.assertEqual(evidence["handoff_digest"], digest(evidence["handoff"]))
+                self.assertEqual(evidence["handoff"]["verification"]["outcome"], "passed")
+                self.assertIn(evidence["handoff_digest"], " ".join(argv))
+                self.examined += 1
+            return actual(argv, **options)
+        return run
+
+    def connected_review(self, verdict="accepted", evidence="valid", review_only=False, drift=False, restart=False):
+        from baton_v12.job_manager import submit, sweep
+        from tools import stage_execution
+        from baton_v12.worker_manager import frozen_output_of
+        from tests.job_manager import fixtures
+
+        self.examined = 0
+        jobs, control, operations = self.serving()
+        submit(jobs, self.submission)
+        self.drive(jobs, operations, "implementation", "waiting")
+        attempt = self.only_attempt(operations, "implementation")
+        self.assertEqual(self.turn(control, "implementation", attempt,
+                                   self.mounted(operations, "implementation", attempt),
+                                   edits={"harness.py": "raise SystemExit(1)\n"}), 0)
+        for _ in range(12):
+            sweep(jobs, operations, now=self.now)
+        frozen = frozen_output_of(control, attempt)
+        self.assertEqual(frozen["disposition"], "unable")
+        original_custody = frozen["artifacts"][0]["locator"][len("file://"):]
+        original_bytes = directory_manifest(original_custody)
+
+        line = operations.deployment.line_for("job-a")
+        self.assertIsNone(line["current_checkpoint_id"])
+        # Reuse the accepted finite analysis endpoint; this probe targets
+        # reviewer execution, not diagnostic quality. No custody or Authority
+        # receipt is synthesized: the original producer above ran its workload.
+        declaration = stage_a.analysis_declaration()
+        seen = failure_analysis.observe_terminal_failure(
+            jobs, control, stage_id="job-a/implementation", episode=1,
+            attempt_id=attempt, declaration=declaration, now=self.now)
+        self.key = seen["failure"]["failure_key"]
+        failure_analysis.deliver_endpoint(jobs, control, key=self.key,
+            outcome="analysis-failed", why="scripted analysis endpoint for focused reviewer probe",
+            destination=INSTANCE_OWNER, now=self.now)
+        self.uuid = self.config["authority_uuid"]
+        self.context = context_of()
+        owner = TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance
+        argv = owner.argv(self, "recovery-item", "--participant", INSTANCE_OWNER)
+        code, item = owner.command(self, *argv, clock=lambda: self.now)
+        self.assertEqual(code, 0)
+        expected = item["expected"]
+        flags = ["--approve", "--decision-id=D1", "--participant=" + INSTANCE_OWNER,
+                 "--profile=" + item["profile"]["profile"], "--profile-digest=" + item["profile"]["digest"],
+                 "--context-digest=" + retained_verification.context_digest(self.context)]
+        for flag, key in (("failure-digest", "failure_digest"), ("report-digest", "report_digest"),
+                          ("candidate-base", "candidate_base"), ("candidate-head", "candidate_head"),
+                          ("candidate-digest", "candidate_content_digest")):
+            if expected[key] is not None:
+                flags.append("--expect-" + flag + "=" + expected[key])
+        flags.extend("--original-verification=" + arg for arg in expected["original_argv"])
+        flags.extend("--corrected-verification=" + arg for arg in ["python3", "-c", "print('corrected verifier')"])
+        flags.extend("--stage=" + stage for stage in retained_recovery.FULL_STAGES)
+        code, answer = owner.command(self, *owner.argv(self, "recovery-decide", *flags), clock=lambda: self.now)
+        self.assertEqual(code, 0, answer)
+        self.assertTrue(answer["admitted"], answer)
+        operations.close()
+        operations = self._composed = stage_execution.operations_from(
+            self.composed_document(), jobs, control, engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: self.now, checkout=self.checkout)
+        self.addCleanup(operations.close)
+        if drift:
+            subprocess.run(["git", "-C", line["line_path"], "checkout", "--detach", self.base],
+                           env=self.environment(), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ran = CountingRun()
+        operations.recovery_verification.runner._run = ran
+        recovery_job = "recovery-D1"
+        if review_only:
+            for _ in range(2):
+                sweep(jobs, operations, now=self.now)
+            self.assertEqual(len(ran.calls), 1)
+            self.now = AFTER
+            job_control.expire(jobs, job_id=recovery_job, trigger="job-deadline", stage_id=None,
+                               deadline_at=EXPIRED, observed_at=self.now)
+            sweep(jobs, operations, now=self.now)
+            held = retained_verification.hold_of(jobs, recovery_job)
+            self.assertIsNotNone(held)
+            again = [flag for flag in flags if not flag.startswith("--stage=") and not flag.startswith("--decision-id=")]
+            again.extend(["--decision-id=D2", "--stage=review",
+                          "--prior-successor=" + held["lineage"]["successor_job_id"],
+                          "--prior-verification-attempt=" + held["lineage"]["verification_attempt_id"],
+                          "--prior-verification-digest=" + held["lineage"]["verification_result_digest"]])
+            code, answer = owner.command(self, *owner.argv(self, "recovery-decide", *again), clock=lambda: self.now)
+            self.assertEqual(code, 0, answer)
+            self.assertTrue(answer["admitted"], answer)
+            operations.close()
+            operations = self._composed = stage_execution.operations_from(
+                self.composed_document(), jobs, control, engine_run=self.engine,
+                credential_provider=lambda provider, reference: self.secret,
+                clock=lambda: self.now, checkout=self.checkout)
+            self.addCleanup(operations.close)
+            operations.recovery_verification.runner._run = ran
+            recovery_job = "recovery-D2"
+        if restart:
+            from baton_v12.job_manager import reconcile
+            for _ in range(3):
+                sweep(jobs, operations, now=self.now)
+            before = retained_verification.handoff_of(jobs, recovery_job)
+            self.assertIsNotNone(before)
+            operations.close()
+            operations = self._composed = stage_execution.operations_from(
+                self.composed_document(), jobs, control, engine_run=self.engine,
+                credential_provider=lambda provider, reference: self.secret,
+                clock=lambda: self.now, checkout=self.checkout)
+            self.addCleanup(operations.close)
+            operations.recovery_verification.runner._run = ran
+            reconcile(jobs, operations, now=self.now)
+            self.assertEqual(retained_verification.handoff_of(jobs, recovery_job), before)
+        reports = [sweep(jobs, operations, now=self.now) for _ in range(8)]
+        if drift:
+            refusals = [one for report in reports for one in report["started"] if one["outcome"] == "refused"]
+            self.assertTrue(refusals, reports)
+            self.assertEqual(refusals[0]["detail"]["code"], "digest")
+            self.assertEqual(self.examined, 0)
+            self.assertEqual(len([one for one in self.engine.starts if "--entrypoint" not in one]), 1)
+            self.assertEqual(frozen_output_of(control, attempt), frozen)
+            self.assertEqual(directory_manifest(original_custody), original_bytes)
+            return
+        self.assertEqual(len(ran.calls), 1)
+        if review_only:
+            self.assertIsNone(retained_verification.execution_result_of(jobs, recovery_job))
+        handoff = retained_verification.handoff_of(jobs, recovery_job)
+        self.assertTrue(any(one["stage_id"] == recovery_job + "/review" and one["state"] == "waiting"
+                            for one in __import__("baton_v12.job_manager", fromlist=["status"]).status(
+                                jobs, operations, observed_at=self.now)["jobs"][-1]["stages"]))
+
+        reviewer = self.only_attempt(operations, "review")
+        prepared = self.worker_of(operations, "review").stage._prepared[reviewer]
+        delivered = json.loads(pathlib.Path(prepared["boundary"]["roots"]["inputs"], "recovery-review.json").read_text())
+        self.assertEqual(delivered["handoff"], handoff)
+        self.assertEqual(delivered["handoff_digest"], digest(handoff))
+        self.assertEqual(handoff["candidate"]["head"], seen["failure"]["candidate"]["head"])
+        report = {"schema": "baton.review-report/1", "verdict": verdict,
+                  "findings": "Scripted substantive review: inspected retained candidate and verifier account."}
+        if evidence != "missing":
+            report["recovery_digest"] = digest(handoff) if evidence == "valid" else "sha256:" + "0" * 64
+        self.assertEqual(self.turn(control, "review", reviewer,
+                                  self.mounted(operations, "review", reviewer),
+                                  edits={"review-report.json": json.dumps(report)}), 0)
+        for _ in range(8):
+            sweep(jobs, operations, now=self.now)
+        from baton_v12.worker_manager import review_cycles
+        recorded = control._connection.execute("SELECT verdict_id FROM checkpoint_verdicts WHERE attachment_id = ?", (prepared["attachment_id"],)).fetchone()
+        if evidence == "valid":
+            self.assertIsNotNone(recorded)
+            result = review_cycles.verdict_of(control, recorded["verdict_id"])
+            self.assertEqual(result["disposition"], verdict)
+            self.assertEqual(result["head_object"], handoff["candidate"]["head"])
+        else:
+            self.assertIsNone(recorded)
+        self.assertEqual(self.worker_of(operations, "implementation").stage._prepared, {})
+        self.assertEqual(len([one for one in self.engine.starts if "--entrypoint" not in one]), 2)
+        self.assertEqual([one["kind"] for one in submission.stages_of(jobs, recovery_job)], ["review"])
+        self.assertEqual(frozen_output_of(control, attempt), frozen)
+        self.assertEqual(directory_manifest(original_custody), original_bytes)
+        self.assertEqual(self.examined, 1)
+        self.assertEqual(len(ran.calls), 1)
+
+    def test_retained_candidate_reaches_actual_independent_acceptance(self):
+        self.connected_review()
+
+    def test_substantive_rejection_remains_rejected(self):
+        self.connected_review("rejected")
+
+    def test_acceptance_without_verifier_evidence_binding_is_held(self):
+        self.connected_review(evidence="missing")
+
+    def test_acceptance_for_other_verifier_evidence_is_held(self):
+        self.connected_review(evidence="wrong")
+
+    def test_review_only_reaches_acceptance_without_another_verifier(self):
+        self.connected_review(review_only=True)
+
+    def test_advanced_line_is_not_reviewed_as_the_retained_candidate(self):
+        self.connected_review(drift=True)
+
+    def test_restart_after_handoff_reaches_review_without_repeating_verification(self):
+        self.connected_review(restart=True)

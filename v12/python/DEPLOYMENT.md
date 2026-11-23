@@ -1847,3 +1847,16 @@ after approval cannot authorize execution in the changed context.
 A committed verifier result with a missing recovery account is reconciled on
 the next pass without rerunning the child. An intent with no committed result
 remains unknown; reconciliation does not invent a result or open the review gate.
+
+A recovered reviewer receives `recovery-review.json` in its pinned input root.
+It carries the retained candidate identity, attributable verifier account and
+handoff digest. The review workload includes it in the provider prompt and
+requires the substantive report to echo `recovery_digest`; the host compares
+that digest before recording a verdict. Missing or foreign evidence holds the
+review, and a rejection remains a rejection. Ordinary reviews retain their
+existing three-member report.
+
+The review-line owner can freeze the original released writer after retained
+cleanup, using its committed release fence without reopening its assignment.
+The line must not have advanced and its frozen base/head must equal the approved
+retained candidate. Changed lines refuse instead of reviewing different bytes.

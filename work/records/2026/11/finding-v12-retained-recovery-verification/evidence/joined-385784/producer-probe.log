@@ -1,0 +1,14 @@
+test_failed_verifier_retains_the_candidate_for_connected_review (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_failed_verifier_retains_the_candidate_for_connected_review) ... ERROR
+
+======================================================================
+ERROR: test_failed_verifier_retains_the_candidate_for_connected_review (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_failed_verifier_retains_the_candidate_for_connected_review)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385625-joined-385784/v12/python/tests/job_manager/test_retained_recovery_execution.py", line 2554, in test_failed_verifier_retains_the_candidate_for_connected_review
+    from baton_v12.worker_manager import frozen_output_of, attempt_state
+ImportError: cannot import name 'attempt_state' from 'baton_v12.worker_manager' (/home/sl/src/baton/work/scratch/w385625-joined-385784/v12/python/src/baton_v12/worker_manager/__init__.py)
+
+----------------------------------------------------------------------
+Ran 1 test in 0.023s
+
+FAILED (errors=1)

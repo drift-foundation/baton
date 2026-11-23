@@ -1453,6 +1453,17 @@ class StageComposition:
                     category="refused", code="precondition")
         return held["boundary"]
 
+    def recovery_document_for(self, stage):
+        from baton_v12.job_manager import retained_verification
+        if self.role != "review":
+            return None
+        handoff = retained_verification.handoff_of(self.deployment.jobs, stage["job_id"])
+        if handoff is None:
+            return None
+        return (json.dumps({"schema": "baton.recovery-review-input/1",
+                            "handoff": handoff, "handoff_digest": digest(handoff)},
+                           sort_keys=True) + "\n").encode("utf-8")
+
     def handoff_document_for(self, stage):
         """W385331: the native handoff context THIS attempt is delivered.
 
@@ -1562,6 +1573,19 @@ class StageComposition:
             self._prepared[attempt_id] = recovered
             return recovered
         line = deployment.line_for(stage["job_id"])
+        if self.role == "review":
+            from baton_v12.job_manager import retained_verification
+            handoff = retained_verification.handoff_of(deployment.jobs, stage["job_id"])
+            if handoff is not None:
+                checkpoint = review_cycles.freeze_recovered_checkpoint(
+                    control, attempt_id=handoff["producer"]["attempt_id"],
+                    generation=handoff["producer"]["generation"],
+                    profile=deployment.profile, candidate={key: handoff["candidate"][key] for key in ("base", "head")})
+                if any(checkpoint["evidence"][key] != handoff["candidate"][key] for key in ("base", "head")):
+                    _refuse("review checkpoint differs from the recovery handoff", category="integrity", code="digest")
+                line = review_cycles.line_of(control, checkpoint["line_id"])
+                if line["current_checkpoint_id"] != checkpoint["checkpoint_id"]:
+                    _refuse("the recovery checkpoint is no longer current", category="integrity", code="digest")
         if self.role == "implementation":
             # THE BASED CHECKPOINT IS THE LINE'S CURRENT ONE, WHATEVER IT IS,
             # and that is what makes a correction round the SAME line. On the
@@ -1895,6 +1919,8 @@ class StageComposition:
                 profile=deployment.profile,
                 retention_disposition=deployment.retention_disposition,
                 retention_policy_digest=deployment.retention_policy_digest,
+                recovery_digest=(None if self.recovery_document_for(stage) is None else
+                                 json.loads(self.recovery_document_for(stage))["handoff_digest"]),
                 # W275774: and the reviewer's own governed workspace, for the same
                 # reason the producer's is returned above.
                 govern=tokens.workspace_governance())

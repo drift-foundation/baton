@@ -1733,6 +1733,9 @@ class _SingleWorker:
                 self._published_task(roots["inputs"],
                                      name=self.workload_document_name,
                                      content=self.judgment_document)
+            recovery = self._recovery_document(stage)
+            if recovery is not None:
+                self._published_task(roots["inputs"], name="recovery-review.json", content=recovery)
             handoff = self._handoff_document(stage)
             if handoff is not None:
                 self._published_task(roots["inputs"], name=HANDOFF_DOCUMENT,
@@ -1775,11 +1778,18 @@ class _SingleWorker:
             self._proved_task(roots["inputs"],
                               name=self.workload_document_name,
                               content=self.judgment_document)
+        recovery = self._recovery_document(stage)
+        if recovery is not None:
+            self._proved_task(roots["inputs"], name="recovery-review.json", content=recovery)
         handoff = self._handoff_document(stage)
         if handoff is not None:
             self._proved_task(roots["inputs"], name=HANDOFF_DOCUMENT,
                               content=handoff)
         return held_input
+
+    def _recovery_document(self, stage):
+        compose = getattr(self.stage, "recovery_document_for", None)
+        return compose(stage) if compose is not None else None
 
     def _handoff_document(self, stage):
         """W385331: the native handoff context THIS attempt is delivered, or
@@ -2427,7 +2437,8 @@ class _SingleWorker:
             (TASK_DOCUMENT,) + ((self.workload_document_name,)
                                 if self.judgment_document is not None else ())
             + ((HANDOFF_DOCUMENT,)
-               if self._handoff_document(stage) is not None else ()))
+               if self._handoff_document(stage) is not None else ())
+            + (("recovery-review.json",) if self._recovery_document(stage) is not None else ()))
         self.checkpoint("prepared")
         state = attempt_runtime_of(self.control, attempt_id)
         fresh = state["execution_runtime"] == "not-started"

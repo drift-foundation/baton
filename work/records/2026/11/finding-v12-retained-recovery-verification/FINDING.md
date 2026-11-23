@@ -41,3 +41,25 @@ Implementation and limitations are pinned in evidence/correction-385775/HANDOFF.
 exact candidate awaits independent review. No contract/profile change proposed.
 Native reporting inaccuracies are superseded by the append-only
 evidence/correction-385775/ACCOUNTING-CORRECTION.md; originals preserved.
+
+## 2026-11-23 — M385782 joined proof, E385784
+
+Existing connected evidence covers ordinary successful checkpoints, not recovery
+from a retained failed verifier. The real workload probe retained a proposal,
+sealed/collected it through normal owners, released its writer and left the
+line idle without a checkpoint. DEFAULT owner recovery approval verified and
+handed off that candidate, admitted/claimed its reviewer, then preparation
+refused because its checkpoint identity was None. Evidence:
+`evidence/joined-385784/connected-probe.log`. This is a concrete REC-8 connection
+gap, not a request for a new native run.
+
+Bounded implementation choice under M385782: the review-line owner may freeze
+the original released writer only after positive retained cleanup, using that
+writer's already-committed release fence, provided no later writer/line advance
+intervened and the frozen base/head equal the approved retained candidate. It
+creates no assignment or writer and does not alter original frozen outputs.
+The recovery handoff is delivered as a separately pinned reviewer input; the
+reviewer report must echo its digest, and collection checks that exact binding
+before recording any verdict. Ordinary review behavior remains separate.
+This implements approved identity/cessation/independent-review requirements;
+no profile, timeout, REC-8 or W385695 change is selected.

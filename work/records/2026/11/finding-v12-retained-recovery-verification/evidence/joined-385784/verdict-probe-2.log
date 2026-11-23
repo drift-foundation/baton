@@ -1,0 +1,93 @@
+test_acceptance_for_other_verifier_evidence_is_held (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_acceptance_for_other_verifier_evidence_is_held) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-rb9bkyzc/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-rb9bkyzc/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-rb9bkyzc/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-rb9bkyzc/recovery-instance/deployment.json"
+ok
+test_acceptance_without_verifier_evidence_binding_is_held (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_acceptance_without_verifier_evidence_binding_is_held) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-g0ygz0bd/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-g0ygz0bd/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-g0ygz0bd/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-g0ygz0bd/recovery-instance/deployment.json"
+ok
+test_retained_candidate_reaches_actual_independent_acceptance (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_retained_candidate_reaches_actual_independent_acceptance) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-mqoabmgm/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-mqoabmgm/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-mqoabmgm/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-mqoabmgm/recovery-instance/deployment.json"
+ok
+test_substantive_rejection_remains_rejected (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_substantive_rejection_remains_rejected) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-15ukyhud/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-15ukyhud/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-15ukyhud/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-15ukyhud/recovery-instance/deployment.json"
+ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 9.614s
+
+OK

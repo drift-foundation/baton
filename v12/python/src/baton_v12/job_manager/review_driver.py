@@ -1551,7 +1551,7 @@ def end_review(control, port, adapter, *, attachment_id, disposition, verdict,
 def end_review_from_result(control, port, adapter, *, attachment_id,
                            disposition, terminal, profile,
                            retention_disposition, retention_policy_digest,
-                           govern=None):
+                           govern=None, recovery_digest=None):
     """End one review attempt on the verdict its own frozen output carries.
 
     W110772. THE PRODUCTION ENTRY POINT, and the whole of its difference from
@@ -1614,7 +1614,7 @@ def end_review_from_result(control, port, adapter, *, attachment_id,
         retention_disposition=retention_disposition,
         retention_policy_digest=retention_policy_digest, govern=govern,
         resolve=lambda _frozen: review_verdict_from_result(
-            control, attachment_id=attachment_id)["verdict"])
+            control, attachment_id=attachment_id, recovery_digest=recovery_digest)["verdict"])
 
 
 def end_response_from_result(control, port, adapter, *, attachment_id,
@@ -2046,7 +2046,7 @@ def _review_claim(result):
     return claim
 
 
-def review_verdict_from_result(control, *, attachment_id):
+def review_verdict_from_result(control, *, attachment_id, recovery_digest=None):
     """The verdict a completed review actually recorded in its frozen output.
 
     READ-ONLY AND PUBLIC. It opens nothing, writes nothing, reads no mutable
@@ -2089,6 +2089,14 @@ def review_verdict_from_result(control, *, attachment_id):
     if result["result_id"] != frozen["result_id"]:
         _refuse("the frozen review summary and its retained manifest name "
                 "different results", category="integrity", code="schema")
+    if recovery_digest is not None:
+        claims = [one["result_metadata"].get("baton.recovery-review/1")
+                  for one in result["outputs"] if one.get("status") == "present"
+                  and "baton.recovery-review/1" in one.get("result_metadata", {})]
+        expected_recovery = {"handoff_digest": recovery_digest}
+        if claims != [expected_recovery] or _claim_output(result, FINDINGS_OUTPUT)["result_metadata"].get("baton.recovery-review/1") != expected_recovery:
+            _refuse("the reviewer did not bind the exact retained candidate and verifier evidence",
+                    category="integrity", code="digest")
     fixed = attempts.assignment_of(control, attempt_id)
     expected = {"work_ref": {"authority_uuid": fixed["authority_uuid"],
                              "work_id": fixed["work_id"]},

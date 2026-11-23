@@ -1,0 +1,649 @@
+diff --git a/v12/python/DEPLOYMENT.md b/v12/python/DEPLOYMENT.md
+index 592eb41b..4c01b582 100644
+--- a/v12/python/DEPLOYMENT.md
++++ b/v12/python/DEPLOYMENT.md
+@@ -1847,3 +1847,16 @@ after approval cannot authorize execution in the changed context.
+ A committed verifier result with a missing recovery account is reconciled on
+ the next pass without rerunning the child. An intent with no committed result
+ remains unknown; reconciliation does not invent a result or open the review gate.
++
++A recovered reviewer receives `recovery-review.json` in its pinned input root.
++It carries the retained candidate identity, attributable verifier account and
++handoff digest. The review workload includes it in the provider prompt and
++requires the substantive report to echo `recovery_digest`; the host compares
++that digest before recording a verdict. Missing or foreign evidence holds the
++review, and a rejection remains a rejection. Ordinary reviews retain their
++existing three-member report.
++
++The review-line owner can freeze the original released writer after retained
++cleanup, using its committed release fence without reopening its assignment.
++The line must not have advanced and its frozen base/head must equal the approved
++retained candidate. Changed lines refuse instead of reviewing different bytes.
+diff --git a/v12/python/src/baton_v12/job_manager/review_driver.py b/v12/python/src/baton_v12/job_manager/review_driver.py
+index 15017cc2..9f3f545e 100644
+--- a/v12/python/src/baton_v12/job_manager/review_driver.py
++++ b/v12/python/src/baton_v12/job_manager/review_driver.py
+@@ -1551,7 +1551,7 @@ def end_review(control, port, adapter, *, attachment_id, disposition, verdict,
+ def end_review_from_result(control, port, adapter, *, attachment_id,
+                            disposition, terminal, profile,
+                            retention_disposition, retention_policy_digest,
+-                           govern=None):
++                           govern=None, recovery_digest=None):
+     """End one review attempt on the verdict its own frozen output carries.
+ 
+     W110772. THE PRODUCTION ENTRY POINT, and the whole of its difference from
+@@ -1614,7 +1614,7 @@ def end_review_from_result(control, port, adapter, *, attachment_id,
+         retention_disposition=retention_disposition,
+         retention_policy_digest=retention_policy_digest, govern=govern,
+         resolve=lambda _frozen: review_verdict_from_result(
+-            control, attachment_id=attachment_id)["verdict"])
++            control, attachment_id=attachment_id, recovery_digest=recovery_digest)["verdict"])
+ 
+ 
+ def end_response_from_result(control, port, adapter, *, attachment_id,
+@@ -2046,7 +2046,7 @@ def _review_claim(result):
+     return claim
+ 
+ 
+-def review_verdict_from_result(control, *, attachment_id):
++def review_verdict_from_result(control, *, attachment_id, recovery_digest=None):
+     """The verdict a completed review actually recorded in its frozen output.
+ 
+     READ-ONLY AND PUBLIC. It opens nothing, writes nothing, reads no mutable
+@@ -2089,6 +2089,14 @@ def review_verdict_from_result(control, *, attachment_id):
+     if result["result_id"] != frozen["result_id"]:
+         _refuse("the frozen review summary and its retained manifest name "
+                 "different results", category="integrity", code="schema")
++    if recovery_digest is not None:
++        claims = [one["result_metadata"].get("baton.recovery-review/1")
++                  for one in result["outputs"] if one.get("status") == "present"
++                  and "baton.recovery-review/1" in one.get("result_metadata", {})]
++        expected_recovery = {"handoff_digest": recovery_digest}
++        if claims != [expected_recovery] or _claim_output(result, FINDINGS_OUTPUT)["result_metadata"].get("baton.recovery-review/1") != expected_recovery:
++            _refuse("the reviewer did not bind the exact retained candidate and verifier evidence",
++                    category="integrity", code="digest")
+     fixed = attempts.assignment_of(control, attempt_id)
+     expected = {"work_ref": {"authority_uuid": fixed["authority_uuid"],
+                              "work_id": fixed["work_id"]},
+diff --git a/v12/python/src/baton_v12/worker_manager/review_cycles.py b/v12/python/src/baton_v12/worker_manager/review_cycles.py
+index 8006085a..51da684f 100644
+--- a/v12/python/src/baton_v12/worker_manager/review_cycles.py
++++ b/v12/python/src/baton_v12/worker_manager/review_cycles.py
+@@ -27,7 +27,7 @@ __all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
+            "RESTORE_KIND", "VERDICT_KIND",
+            "abandoned_correction_of", "attach_review", "audit_checkpoint",
+            "checkpoint_of",
+-           "create_line", "freeze_checkpoint", "grant_writer",
++           "create_line", "freeze_checkpoint", "freeze_recovered_checkpoint", "grant_writer",
+            "release_writer",
+            "RESTORE_SETTLED_KIND", "settle_restoration_execution",
+            "integration_checkpoint", "line_of", "line_status",
+@@ -2176,7 +2176,42 @@ def release_writer(store, *, writer_id, generation, port, reason):
+                           signature, act)
+ 
+ 
++def freeze_recovered_checkpoint(store, *, attempt_id, generation, profile, candidate):
++    """Freeze a retained failed writer after its existing release and cessation.
++
++    The recovery owner supplies the approved candidate identity. This owner
++    proves the original writer's release/fence and refuses an advanced line;
++    it creates no assignment or writer and never reopens the original one.
++    """
++    candidate = boundaries.document(candidate, "the recovery checkpoint identity", required=("base", "head"))
++    for key in ("base", "head"):
++        boundaries.text(candidate[key], "the approved candidate " + key)
++    writer = writer_for_attempt(store, attempt_id=attempt_id, generation=generation)
++    if writer is None:
++        raise ContractRefusal("refused", "precondition", "retained recovery has no original writer")
++    released = _committed_act(store, "review-line.release-writer",
++                              "review-line.release-writer:" + writer["writer_id"], "the recovered writer")
++    if released["writer_id"] != writer["writer_id"] or released["line_id"] != writer["line_id"]:
++        raise ContractRefusal("integrity", "digest", "recovery release belongs to another writer")
++    _committed_fence(store, released["fence"], "the recovered writer fence")
++    attempt = _attempt(store, attempt_id)
++    if attempt["execution_runtime"] != "destroyed" or attempt["cleanup"] != "retained":
++        raise ContractRefusal("refused", "precondition", "retained recovery requires the original runtime's completed cleanup")
++    result = _freeze_checkpoint(store, writer_id=writer["writer_id"], generation=generation,
++                                profile=profile, port=None,
++                                _recovery={"release": released, "candidate": candidate})
++    if any(result["evidence"][key] != candidate[key] for key in ("base", "head")):
++        raise ContractRefusal("integrity", "digest", "recovery checkpoint replay names another candidate")
++    return result
++
++
+ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
++    """Revoke and authority-fence the quiescent writer before freezing."""
++    return _freeze_checkpoint(store, writer_id=writer_id, generation=generation,
++                              profile=profile, port=port)
++
++
++def _freeze_checkpoint(store, *, writer_id, generation, profile, port, _recovery=None):
+     """Revoke and authority-fence the quiescent writer before freezing."""
+     profile_name = _profile(profile, ("freeze", "validate"))
+     boundaries.generation(generation, "a checkpoint assignment generation")
+@@ -2212,8 +2247,9 @@ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
+                                          signature, kind="review-line.freeze")
+             if found:
+                 return result
+-    attempt = _quiescent_completed(store, writer["runtime_attempt_id"])
+-    if attempt["assignment_participant"] != getattr(port, "participant", None):
++    attempt = (_quiescent_completed(store, writer["runtime_attempt_id"]) if _recovery is None
++               else _attempt(store, writer["runtime_attempt_id"]))
++    if _recovery is None and attempt["assignment_participant"] != getattr(port, "participant", None):
+         raise ContractRefusal("refused", "capability",
+                               "the writer fence session acts for another participant")
+     connection = store._connection
+@@ -2224,15 +2260,24 @@ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
+             "SELECT * FROM line_checkpoints WHERE checkpoint_id = ?",
+             (checkpoint_id,)).fetchone()
+         if found is None:
+-            if current["state"] != "active":
++            if _recovery is None and current["state"] != "active":
+                 raise ContractRefusal("refused", "precondition",
+                                       "checkpoint preparation has no active writer")
+-            _quiescent_completed(store, current["runtime_attempt_id"])
++            if _recovery is None:
++                _quiescent_completed(store, current["runtime_attempt_id"])
++            else:
++                latest = line_of(store, line["line_id"])
++                release = _recovery["release"]
++                if current["state"] != "revoked" or current["revocation_reason"] != "released" or latest["state"] != release["state"] or latest["current_checkpoint_id"] != release["current_checkpoint_id"]:
++                    raise ContractRefusal("refused", "precondition", "the released recovery line has advanced")
++                if connection.execute("SELECT 1 FROM line_writers WHERE line_id = ? AND assignment_generation > ?", (line["line_id"], current["assignment_generation"])).fetchone():
++                    raise ContractRefusal("refused", "precondition", "another writer has used the recovery line")
+             now = store._now()
+-            connection.execute(
+-                "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
+-                "revocation_reason = 'checkpoint' WHERE writer_id = ? "
+-                "AND state = 'active'", (now, writer_id))
++            if _recovery is None:
++                connection.execute(
++                    "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
++                    "revocation_reason = 'checkpoint' WHERE writer_id = ? "
++                    "AND state = 'active'", (now, writer_id))
+             connection.execute(
+                 "INSERT INTO line_checkpoints (checkpoint_id, writer_id, line_id, revision, "
+                 "profile_name, state, path_set_digest, prepared_at) VALUES (?, ?, "
+@@ -2250,10 +2295,10 @@ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
+         raise
+     checkpoint = checkpoint_of(store, checkpoint_id)
+     if checkpoint["fence"] is None:
+-        fenced = _fence(attempts.finalize_quiescent_assignment(
+-            store, port, attempt_id=writer["runtime_attempt_id"],
+-            reason="review checkpoint writer completed"),
+-            "the checkpoint writer fence")
++        fenced = (_recovery["release"]["fence"] if _recovery is not None else
++                  _fence(attempts.finalize_quiescent_assignment(
++                      store, port, attempt_id=writer["runtime_attempt_id"],
++                      reason="review checkpoint writer completed"), "the checkpoint writer fence"))
+         fence_operands = {"checkpoint_id": checkpoint_id,
+                           "writer_id": writer_id, "fence": fenced}
+         fence_signature = manager_signature("review-line.fence-writer",
+@@ -2304,6 +2349,8 @@ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
+     if evidence["base"] != line["declared_base"]:
+         raise ContractRefusal("integrity", "digest",
+                               "checkpoint evidence does not use the line's declared base")
++    if _recovery is not None and any(evidence[key] != _recovery["candidate"][key] for key in ("base", "head")):
++        raise ContractRefusal("integrity", "digest", "recovered checkpoint differs from the approved retained candidate")
+     profile.validate(line["line_path"], evidence, current=True)
+     checkpoint_digest = digest(evidence)
+     operands = {"writer_id": writer_id, "generation": generation,
+diff --git a/v12/python/tests/job_manager/test_retained_recovery_execution.py b/v12/python/tests/job_manager/test_retained_recovery_execution.py
+index 0f506ff0..27f45e55 100644
+--- a/v12/python/tests/job_manager/test_retained_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_retained_recovery_execution.py
+@@ -2541,3 +2541,259 @@ class TheApprovedBoundsAreTheOwnersExactPublishedDefinition(
+             retained_verification.__file__).read_text(encoding="utf-8")
+         for number in ("900", "4800", "9960", "3600"):
+             self.assertNotIn("= " + number, source)
++
++
++from tests.tools.test_stage_execution import ComposedOneJobCase as _ComposedRecoveryCase
++
++
++class RetainedRecoveryReachesTheIndependentReviewer(_ComposedRecoveryCase):
++    """Real workload/custody/Authority; engine and provider boundary fakes."""
++
++    from tests.tools.test_bootstrap import ValidFixture as _BootstrapFixture
++    stage_worker = _BootstrapFixture.stage_worker
++    workers = _BootstrapFixture.workers
++    job = _BootstrapFixture.job
++
++    def setUp(self):
++        from tools import bootstrap
++        from tests.job_manager import fixtures
++        self.now = fixtures.NOW
++        super().setUp()
++        self.state = os.path.join(self.root, "recovery-instance")
++        self.places = bootstrap.layout(self.state)
++        bootstrap.persist_identity(self.places, self.config["authority_uuid"])
++        self.install_document = self._BootstrapFixture.document(
++            self, owner_participant=INSTANCE_OWNER,
++            jobs=[self.job(work_id=self.work, base=self.base)],
++            recovery_verification={"context": context_of(),
++                                   "declaration": stage_a.analysis_declaration(),
++                                   "destination": INSTANCE_OWNER})
++        with open(os.devnull, "w") as quiet:
++            self.installed = bootstrap.prepare(self.install_document, stream=quiet)
++        pathlib.Path(self.places["install_inputs"]).write_text(json.dumps(self.install_document))
++        self.authority_path = self.places["authority_store"]
++        self.config["authority_store"] = self.authority_path
++
++    def stores(self, incarnation):
++        from baton_v12.worker_manager import ControlStore
++        from tests.job_manager import fixtures
++        jobs = JobStore.open(self.places["job_store"],
++                             authority_uuid=self.config["authority_uuid"],
++                             incarnation=incarnation, clock=lambda: self.now)
++        control = ControlStore.open(self.places["control_store"], incarnation=incarnation,
++                                    clock=lambda: self.now)
++        self.addCleanup(jobs.close)
++        self.addCleanup(control.close)
++        return jobs, control
++
++    def composed_document(self, **members):
++        return json.loads(pathlib.Path(self.places["configuration"]).read_text())
++
++    def mounted_view(self, role, attempt_id, roots):
++        view = super().mounted_view(role, attempt_id, roots)
++        if role == "review":
++            # A real input mount contains a regular file. The inherited
++            # daemon-free view uses links; the workload correctly refuses
++            # links for this bounded document, so copy the pinned input bytes.
++            path = pathlib.Path(view["inputs"], "recovery-review.json")
++            if path.is_symlink():
++                data = path.read_bytes()
++                path.unlink()
++                path.write_bytes(data)
++        return view
++
++    def provider(self, edits=None, status=0):
++        import claude_agent
++        actual = super().provider(edits=edits, status=status)
++        def run(argv, **options):
++            if argv[0] == claude_agent.PROVIDER_PROGRAM and "review-report.json" in (edits or {}):
++                inputs = pathlib.Path(claude_agent.INPUT_ROOT)
++                # Scripted review reads the delivered candidate and verifier
++                # account at the provider boundary, not a synthetic receipt.
++                self.assertEqual((inputs / "source" / "harness.py").read_text(), "raise SystemExit(1)\n")
++                evidence = json.loads((inputs / "recovery-review.json").read_text())
++                self.assertEqual(evidence["handoff_digest"], digest(evidence["handoff"]))
++                self.assertEqual(evidence["handoff"]["verification"]["outcome"], "passed")
++                self.assertIn(evidence["handoff_digest"], " ".join(argv))
++                self.examined += 1
++            return actual(argv, **options)
++        return run
++
++    def connected_review(self, verdict="accepted", evidence="valid", review_only=False, drift=False, restart=False):
++        from baton_v12.job_manager import submit, sweep
++        from tools import stage_execution
++        from baton_v12.worker_manager import frozen_output_of
++        from tests.job_manager import fixtures
++
++        self.examined = 0
++        jobs, control, operations = self.serving()
++        submit(jobs, self.submission)
++        self.drive(jobs, operations, "implementation", "waiting")
++        attempt = self.only_attempt(operations, "implementation")
++        self.assertEqual(self.turn(control, "implementation", attempt,
++                                   self.mounted(operations, "implementation", attempt),
++                                   edits={"harness.py": "raise SystemExit(1)\n"}), 0)
++        for _ in range(12):
++            sweep(jobs, operations, now=self.now)
++        frozen = frozen_output_of(control, attempt)
++        self.assertEqual(frozen["disposition"], "unable")
++        original_custody = frozen["artifacts"][0]["locator"][len("file://"):]
++        original_bytes = directory_manifest(original_custody)
++
++        line = operations.deployment.line_for("job-a")
++        self.assertIsNone(line["current_checkpoint_id"])
++        # Reuse the accepted finite analysis endpoint; this probe targets
++        # reviewer execution, not diagnostic quality. No custody or Authority
++        # receipt is synthesized: the original producer above ran its workload.
++        declaration = stage_a.analysis_declaration()
++        seen = failure_analysis.observe_terminal_failure(
++            jobs, control, stage_id="job-a/implementation", episode=1,
++            attempt_id=attempt, declaration=declaration, now=self.now)
++        self.key = seen["failure"]["failure_key"]
++        failure_analysis.deliver_endpoint(jobs, control, key=self.key,
++            outcome="analysis-failed", why="scripted analysis endpoint for focused reviewer probe",
++            destination=INSTANCE_OWNER, now=self.now)
++        self.uuid = self.config["authority_uuid"]
++        self.context = context_of()
++        owner = TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance
++        argv = owner.argv(self, "recovery-item", "--participant", INSTANCE_OWNER)
++        code, item = owner.command(self, *argv, clock=lambda: self.now)
++        self.assertEqual(code, 0)
++        expected = item["expected"]
++        flags = ["--approve", "--decision-id=D1", "--participant=" + INSTANCE_OWNER,
++                 "--profile=" + item["profile"]["profile"], "--profile-digest=" + item["profile"]["digest"],
++                 "--context-digest=" + retained_verification.context_digest(self.context)]
++        for flag, key in (("failure-digest", "failure_digest"), ("report-digest", "report_digest"),
++                          ("candidate-base", "candidate_base"), ("candidate-head", "candidate_head"),
++                          ("candidate-digest", "candidate_content_digest")):
++            if expected[key] is not None:
++                flags.append("--expect-" + flag + "=" + expected[key])
++        flags.extend("--original-verification=" + arg for arg in expected["original_argv"])
++        flags.extend("--corrected-verification=" + arg for arg in ["python3", "-c", "print('corrected verifier')"])
++        flags.extend("--stage=" + stage for stage in retained_recovery.FULL_STAGES)
++        code, answer = owner.command(self, *owner.argv(self, "recovery-decide", *flags), clock=lambda: self.now)
++        self.assertEqual(code, 0, answer)
++        self.assertTrue(answer["admitted"], answer)
++        operations.close()
++        operations = self._composed = stage_execution.operations_from(
++            self.composed_document(), jobs, control, engine_run=self.engine,
++            credential_provider=lambda provider, reference: self.secret,
++            clock=lambda: self.now, checkout=self.checkout)
++        self.addCleanup(operations.close)
++        if drift:
++            subprocess.run(["git", "-C", line["line_path"], "checkout", "--detach", self.base],
++                           env=self.environment(), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++        ran = CountingRun()
++        operations.recovery_verification.runner._run = ran
++        recovery_job = "recovery-D1"
++        if review_only:
++            for _ in range(2):
++                sweep(jobs, operations, now=self.now)
++            self.assertEqual(len(ran.calls), 1)
++            self.now = AFTER
++            job_control.expire(jobs, job_id=recovery_job, trigger="job-deadline", stage_id=None,
++                               deadline_at=EXPIRED, observed_at=self.now)
++            sweep(jobs, operations, now=self.now)
++            held = retained_verification.hold_of(jobs, recovery_job)
++            self.assertIsNotNone(held)
++            again = [flag for flag in flags if not flag.startswith("--stage=") and not flag.startswith("--decision-id=")]
++            again.extend(["--decision-id=D2", "--stage=review",
++                          "--prior-successor=" + held["lineage"]["successor_job_id"],
++                          "--prior-verification-attempt=" + held["lineage"]["verification_attempt_id"],
++                          "--prior-verification-digest=" + held["lineage"]["verification_result_digest"]])
++            code, answer = owner.command(self, *owner.argv(self, "recovery-decide", *again), clock=lambda: self.now)
++            self.assertEqual(code, 0, answer)
++            self.assertTrue(answer["admitted"], answer)
++            operations.close()
++            operations = self._composed = stage_execution.operations_from(
++                self.composed_document(), jobs, control, engine_run=self.engine,
++                credential_provider=lambda provider, reference: self.secret,
++                clock=lambda: self.now, checkout=self.checkout)
++            self.addCleanup(operations.close)
++            operations.recovery_verification.runner._run = ran
++            recovery_job = "recovery-D2"
++        if restart:
++            from baton_v12.job_manager import reconcile
++            for _ in range(3):
++                sweep(jobs, operations, now=self.now)
++            before = retained_verification.handoff_of(jobs, recovery_job)
++            self.assertIsNotNone(before)
++            operations.close()
++            operations = self._composed = stage_execution.operations_from(
++                self.composed_document(), jobs, control, engine_run=self.engine,
++                credential_provider=lambda provider, reference: self.secret,
++                clock=lambda: self.now, checkout=self.checkout)
++            self.addCleanup(operations.close)
++            operations.recovery_verification.runner._run = ran
++            reconcile(jobs, operations, now=self.now)
++            self.assertEqual(retained_verification.handoff_of(jobs, recovery_job), before)
++        reports = [sweep(jobs, operations, now=self.now) for _ in range(8)]
++        if drift:
++            refusals = [one for report in reports for one in report["started"] if one["outcome"] == "refused"]
++            self.assertTrue(refusals, reports)
++            self.assertEqual(refusals[0]["detail"]["code"], "digest")
++            self.assertEqual(self.examined, 0)
++            self.assertEqual(len([one for one in self.engine.starts if "--entrypoint" not in one]), 1)
++            self.assertEqual(frozen_output_of(control, attempt), frozen)
++            self.assertEqual(directory_manifest(original_custody), original_bytes)
++            return
++        self.assertEqual(len(ran.calls), 1)
++        if review_only:
++            self.assertIsNone(retained_verification.execution_result_of(jobs, recovery_job))
++        handoff = retained_verification.handoff_of(jobs, recovery_job)
++        self.assertTrue(any(one["stage_id"] == recovery_job + "/review" and one["state"] == "waiting"
++                            for one in __import__("baton_v12.job_manager", fromlist=["status"]).status(
++                                jobs, operations, observed_at=self.now)["jobs"][-1]["stages"]))
++
++        reviewer = self.only_attempt(operations, "review")
++        prepared = self.worker_of(operations, "review").stage._prepared[reviewer]
++        delivered = json.loads(pathlib.Path(prepared["boundary"]["roots"]["inputs"], "recovery-review.json").read_text())
++        self.assertEqual(delivered["handoff"], handoff)
++        self.assertEqual(delivered["handoff_digest"], digest(handoff))
++        self.assertEqual(handoff["candidate"]["head"], seen["failure"]["candidate"]["head"])
++        report = {"schema": "baton.review-report/1", "verdict": verdict,
++                  "findings": "Scripted substantive review: inspected retained candidate and verifier account."}
++        if evidence != "missing":
++            report["recovery_digest"] = digest(handoff) if evidence == "valid" else "sha256:" + "0" * 64
++        self.assertEqual(self.turn(control, "review", reviewer,
++                                  self.mounted(operations, "review", reviewer),
++                                  edits={"review-report.json": json.dumps(report)}), 0)
++        for _ in range(8):
++            sweep(jobs, operations, now=self.now)
++        from baton_v12.worker_manager import review_cycles
++        recorded = control._connection.execute("SELECT verdict_id FROM checkpoint_verdicts WHERE attachment_id = ?", (prepared["attachment_id"],)).fetchone()
++        if evidence == "valid":
++            self.assertIsNotNone(recorded)
++            result = review_cycles.verdict_of(control, recorded["verdict_id"])
++            self.assertEqual(result["disposition"], verdict)
++            self.assertEqual(result["head_object"], handoff["candidate"]["head"])
++        else:
++            self.assertIsNone(recorded)
++        self.assertEqual(self.worker_of(operations, "implementation").stage._prepared, {})
++        self.assertEqual(len([one for one in self.engine.starts if "--entrypoint" not in one]), 2)
++        self.assertEqual([one["kind"] for one in submission.stages_of(jobs, recovery_job)], ["review"])
++        self.assertEqual(frozen_output_of(control, attempt), frozen)
++        self.assertEqual(directory_manifest(original_custody), original_bytes)
++        self.assertEqual(self.examined, 1)
++        self.assertEqual(len(ran.calls), 1)
++
++    def test_retained_candidate_reaches_actual_independent_acceptance(self):
++        self.connected_review()
++
++    def test_substantive_rejection_remains_rejected(self):
++        self.connected_review("rejected")
++
++    def test_acceptance_without_verifier_evidence_binding_is_held(self):
++        self.connected_review(evidence="missing")
++
++    def test_acceptance_for_other_verifier_evidence_is_held(self):
++        self.connected_review(evidence="wrong")
++
++    def test_review_only_reaches_acceptance_without_another_verifier(self):
++        self.connected_review(review_only=True)
++
++    def test_advanced_line_is_not_reviewed_as_the_retained_candidate(self):
++        self.connected_review(drift=True)
++
++    def test_restart_after_handoff_reaches_review_without_repeating_verification(self):
++        self.connected_review(restart=True)
+diff --git a/v12/python/tools/single_worker.py b/v12/python/tools/single_worker.py
+index 75be211e..a86261c4 100644
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -1733,6 +1733,9 @@ class _SingleWorker:
+                 self._published_task(roots["inputs"],
+                                      name=self.workload_document_name,
+                                      content=self.judgment_document)
++            recovery = self._recovery_document(stage)
++            if recovery is not None:
++                self._published_task(roots["inputs"], name="recovery-review.json", content=recovery)
+             handoff = self._handoff_document(stage)
+             if handoff is not None:
+                 self._published_task(roots["inputs"], name=HANDOFF_DOCUMENT,
+@@ -1775,12 +1778,19 @@ class _SingleWorker:
+             self._proved_task(roots["inputs"],
+                               name=self.workload_document_name,
+                               content=self.judgment_document)
++        recovery = self._recovery_document(stage)
++        if recovery is not None:
++            self._proved_task(roots["inputs"], name="recovery-review.json", content=recovery)
+         handoff = self._handoff_document(stage)
+         if handoff is not None:
+             self._proved_task(roots["inputs"], name=HANDOFF_DOCUMENT,
+                               content=handoff)
+         return held_input
+ 
++    def _recovery_document(self, stage):
++        compose = getattr(self.stage, "recovery_document_for", None)
++        return compose(stage) if compose is not None else None
++
+     def _handoff_document(self, stage):
+         """W385331: the native handoff context THIS attempt is delivered, or
+         `None`.
+@@ -2427,7 +2437,8 @@ class _SingleWorker:
+             (TASK_DOCUMENT,) + ((self.workload_document_name,)
+                                 if self.judgment_document is not None else ())
+             + ((HANDOFF_DOCUMENT,)
+-               if self._handoff_document(stage) is not None else ()))
++               if self._handoff_document(stage) is not None else ())
++            + (("recovery-review.json",) if self._recovery_document(stage) is not None else ()))
+         self.checkpoint("prepared")
+         state = attempt_runtime_of(self.control, attempt_id)
+         fresh = state["execution_runtime"] == "not-started"
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index 0c1cee54..ec7d0b21 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -1453,6 +1453,17 @@ class StageComposition:
+                     category="refused", code="precondition")
+         return held["boundary"]
+ 
++    def recovery_document_for(self, stage):
++        from baton_v12.job_manager import retained_verification
++        if self.role != "review":
++            return None
++        handoff = retained_verification.handoff_of(self.deployment.jobs, stage["job_id"])
++        if handoff is None:
++            return None
++        return (json.dumps({"schema": "baton.recovery-review-input/1",
++                            "handoff": handoff, "handoff_digest": digest(handoff)},
++                           sort_keys=True) + "\n").encode("utf-8")
++
+     def handoff_document_for(self, stage):
+         """W385331: the native handoff context THIS attempt is delivered.
+ 
+@@ -1562,6 +1573,19 @@ class StageComposition:
+             self._prepared[attempt_id] = recovered
+             return recovered
+         line = deployment.line_for(stage["job_id"])
++        if self.role == "review":
++            from baton_v12.job_manager import retained_verification
++            handoff = retained_verification.handoff_of(deployment.jobs, stage["job_id"])
++            if handoff is not None:
++                checkpoint = review_cycles.freeze_recovered_checkpoint(
++                    control, attempt_id=handoff["producer"]["attempt_id"],
++                    generation=handoff["producer"]["generation"],
++                    profile=deployment.profile, candidate={key: handoff["candidate"][key] for key in ("base", "head")})
++                if any(checkpoint["evidence"][key] != handoff["candidate"][key] for key in ("base", "head")):
++                    _refuse("review checkpoint differs from the recovery handoff", category="integrity", code="digest")
++                line = review_cycles.line_of(control, checkpoint["line_id"])
++                if line["current_checkpoint_id"] != checkpoint["checkpoint_id"]:
++                    _refuse("the recovery checkpoint is no longer current", category="integrity", code="digest")
+         if self.role == "implementation":
+             # THE BASED CHECKPOINT IS THE LINE'S CURRENT ONE, WHATEVER IT IS,
+             # and that is what makes a correction round the SAME line. On the
+@@ -1895,6 +1919,8 @@ class StageComposition:
+                 profile=deployment.profile,
+                 retention_disposition=deployment.retention_disposition,
+                 retention_policy_digest=deployment.retention_policy_digest,
++                recovery_digest=(None if self.recovery_document_for(stage) is None else
++                                 json.loads(self.recovery_document_for(stage))["handoff_digest"]),
+                 # W275774: and the reviewer's own governed workspace, for the same
+                 # reason the producer's is returned above.
+                 govern=tokens.workspace_governance())
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index 64f1de9a..1474f18f 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -2714,7 +2714,7 @@ class ClaudeAgent:
+                 "outputs": [{"name": findings_output["name"],
+                              "status": "present",
+                              "result_metadata": (_review_claim(
+-                                 report["verdict"], observed)
++                                 report["verdict"], observed, report.get("recovery_digest"))
+                                  if report is not None else {})},
+                             {"name": logs_output["name"], "status": "present",
+                              "result_metadata": {}}]
+@@ -6400,9 +6400,8 @@ def _review_report(room):
+     the least trusted thing in this container and the one holding the attempt's
+     bearer -- so its size, its shape, its member set and its vocabulary are all
+     bounded before one byte of it reaches an output. What is adopted is a
+-    closed three-member document; what is published from it is the verdict word
+-    and the findings prose, and nothing else the provider wrote exists here to
+-    be published by accident.
++    closed report with an optional recovery evidence digest; only these
++    declared members are published.
+ 
+     A MISSING OR MALFORMED REPORT IS NOT A VERDICT. It answers `None`, the turn
+     is `unable`, no claim is placed on any output, and the manager's own reader
+@@ -6424,7 +6423,7 @@ def _review_report(room):
+         # be malformed.
+         return None
+     if type(document) is not dict \
+-            or sorted(document) != sorted(REVIEW_REPORT_MEMBERS):
++            or set(document) not in (set(REVIEW_REPORT_MEMBERS), set(REVIEW_REPORT_MEMBERS) | {"recovery_digest"}):
+         return None
+     if document["schema"] != REVIEW_REPORT_SCHEMA:
+         return None
+@@ -6447,8 +6446,10 @@ def _review_report(room):
+         findings.encode("utf-8")
+     except UnicodeEncodeError:
+         return None
++    if "recovery_digest" in document and (type(document["recovery_digest"]) is not str or not re.fullmatch(r"sha256:[0-9a-f]{64}", document["recovery_digest"])):
++        return None
+     return {"schema": REVIEW_REPORT_SCHEMA, "verdict": document["verdict"],
+-            "findings": findings}
++            "findings": findings, **({"recovery_digest": document["recovery_digest"]} if "recovery_digest" in document else {})}
+ 
+ 
+ def _read_bounded(root, relative, what):
+@@ -6513,11 +6514,11 @@ def _read_bounded(root, relative, what):
+     return None if len(raw) > MAX_REPORT_BYTES else raw
+ 
+ 
+-def _review_claim(verdict, observed):
++def _review_claim(verdict, observed, recovery_digest=None):
+     """The worker-owned checkpoint-review claim, and every member is this
+     turn's own.
+ 
+-    FOUR FACTS AND NO FIFTH. What this reviewer decided, and the base, head and
++    The checkpoint claim contains what this reviewer decided and the base, head and
+     tree of the source it decided over. The manager compares the three objects
+     against the checkpoint's own frozen evidence, so a reviewer that named
+     another line's objects is refused there rather than believed here.
+@@ -6525,11 +6526,12 @@ def _review_claim(verdict, observed):
+     return {REVIEW_CLAIM_NAMESPACE: {"verdict": verdict,
+                                      "base": observed["base"],
+                                      "head": observed["head"],
+-                                     "tree": observed["tree"]}}
++                                     "tree": observed["tree"]},
++            **({"baton.recovery-review/1": {"handoff_digest": recovery_digest}} if recovery_digest is not None else {})}
+ 
+ 
+ def _review_prompt(task, source, report):
+-    """The one review prompt, composed from the frozen task and nothing else.
++    """The review prompt, composed from the frozen task and pinned recovery evidence.
+ 
+     THE PROVIDER IS STILL NOT TOLD ABOUT THE PROTOCOL. It learns where the
+     source is, that the source is read-only, what the requirements are, and
+@@ -6546,7 +6548,14 @@ def _review_prompt(task, source, report):
+     that reported it as passing without running it would be reporting an
+     unsubstantiated check, which is the one thing a review must not do.
+     """
+-    return (f"You are reviewing a change on a read-only source tree at "
++    recovery = _read_bounded(INPUT_ROOT, "recovery-review.json", "recovery review input")
++    context = ""
++    if recovery is not None:
++        document = json.loads(recovery.decode("utf-8"))
++        context = ("This is an owner-approved retained-candidate recovery. Assess the same candidate "
++                   "and the attributable verifier evidence below. Include a fourth report member "
++                   "recovery_digest equal to " + json.dumps(document["handoff_digest"]) + ".\n" + recovery.decode("utf-8") + "\n")
++    return (context + f"You are reviewing a change on a read-only source tree at "
+             f"{source}. Do not modify anything there, and do not attempt to "
+             f"build, commit or edit it.\n\n"
+             f"The change was made to satisfy these requirements:\n\n"
+@@ -6558,7 +6567,7 @@ def _review_prompt(task, source, report):
+             f"but naming it is not evidence that it passed, and you must not "
+             f"report it as passing unless you ran it yourself.\n\n"
+             f"When you are done, write your decision to {report} as a JSON "
+-            f"object with exactly these three members:\n"
++            f"object with exactly these {'four members (including recovery_digest above)' if context else 'three members'}:\n"
+             f'  "schema": "{REVIEW_REPORT_SCHEMA}"\n'
+             f'  "verdict": one of {", ".join(REVIEW_VERDICTS)}\n'
+             f'  "findings": non-empty text explaining the verdict\n'

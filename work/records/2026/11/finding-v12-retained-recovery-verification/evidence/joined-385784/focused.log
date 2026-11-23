@@ -1,0 +1,268 @@
+test_acceptance_for_other_verifier_evidence_is_held (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_acceptance_for_other_verifier_evidence_is_held) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-r8fdh38c/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-r8fdh38c/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-r8fdh38c/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-r8fdh38c/recovery-instance/deployment.json"
+ok
+test_acceptance_without_verifier_evidence_binding_is_held (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_acceptance_without_verifier_evidence_binding_is_held) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-vt7m7r90/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-vt7m7r90/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-vt7m7r90/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-vt7m7r90/recovery-instance/deployment.json"
+ok
+test_advanced_line_is_not_reviewed_as_the_retained_candidate (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_advanced_line_is_not_reviewed_as_the_retained_candidate) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-jntn62ud/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-jntn62ud/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-jntn62ud/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-jntn62ud/recovery-instance/deployment.json"
+ok
+test_retained_candidate_reaches_actual_independent_acceptance (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_retained_candidate_reaches_actual_independent_acceptance) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-257z_s71/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-257z_s71/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-257z_s71/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-257z_s71/recovery-instance/deployment.json"
+ok
+test_review_only_reaches_acceptance_without_another_verifier (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_review_only_reaches_acceptance_without_another_verifier) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-5e7oh9_6/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-5e7oh9_6/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-5e7oh9_6/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-5e7oh9_6/recovery-instance/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-5e7oh9_6/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a", "recovery-D2": "impl-a"}, "jobs": 3, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-5e7oh9_6/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-5e7oh9_6/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-5e7oh9_6/recovery-instance/deployment.json"
+ok
+test_substantive_rejection_remains_rejected (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_substantive_rejection_remains_rejected) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-hcgu93v_/recovery-instance/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "recovery-D1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-hcgu93v_/recovery-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-hcgu93v_/recovery-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-hcgu93v_/recovery-instance/deployment.json"
+ok
+test_a_changes_requested_claim_reaches_the_correction_round (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_a_changes_requested_claim_reaches_the_correction_round) ... ok
+test_a_rejected_claim_stays_held_and_advances_nothing (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_a_rejected_claim_stays_held_and_advances_nothing) ... ok
+test_an_accepted_claim_is_recorded_and_hands_on (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_an_accepted_claim_is_recorded_and_hands_on) ... ok
+test_the_explicit_operand_ending_is_unchanged_beside_it (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_the_explicit_operand_ending_is_unchanged_beside_it)
+`end_review` still takes a verdict, still refuses a word this ... ok
+test_the_legacy_entry_still_needs_no_terminal_at_all (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_the_legacy_entry_still_needs_no_terminal_at_all)
+The other half of the same sentence, driven rather than asserted in ... ok
+test_unresolved_evidence_holds_with_no_verdict_and_no_cleanup (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_unresolved_evidence_holds_with_no_verdict_and_no_cleanup)
+The whole reason this channel exists: silence is not a decision. ... ok
+test_a_base_the_checkpoint_does_not_record_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_base_the_checkpoint_does_not_record_is_refused) ... ok
+test_a_claim_with_another_member_is_refused_rather_than_trimmed (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_claim_with_another_member_is_refused_rather_than_trimmed) ... ok
+test_a_competing_claim_on_the_logs_output_refuses_as_ambiguous (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_competing_claim_on_the_logs_output_refuses_as_ambiguous) ... ok
+test_a_complete_claim_answers_the_reviewers_own_verdict (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_complete_claim_answers_the_reviewers_own_verdict) ... ok
+test_a_head_the_checkpoint_does_not_record_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_head_the_checkpoint_does_not_record_is_refused) ... ok
+test_a_manifest_naming_another_result_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_manifest_naming_another_result_is_refused) ... ok
+test_a_result_frozen_under_another_assignment_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_result_frozen_under_another_assignment_is_refused) ... ok
+test_a_result_frozen_under_another_generation_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_result_frozen_under_another_generation_is_refused) ... ok
+test_a_retained_manifest_that_is_absent_is_refused_as_that (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_retained_manifest_that_is_absent_is_refused_as_that) ... ok
+test_a_review_that_did_not_complete_decided_nothing (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_review_that_did_not_complete_decided_nothing) ... ok
+test_a_tree_the_checkpoint_does_not_record_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_tree_the_checkpoint_does_not_record_is_refused) ... ok
+test_a_verdict_word_this_manager_does_not_have_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_verdict_word_this_manager_does_not_have_is_refused) ... ok
+test_an_absent_findings_output_leaves_nothing_to_read (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_an_absent_findings_output_leaves_nothing_to_read) ... ok
+test_an_unmeasured_findings_output_is_not_evidence (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_an_unmeasured_findings_output_is_not_evidence) ... ok
+test_no_claim_at_all_is_a_question_and_never_a_decision (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_no_claim_at_all_is_a_question_and_never_a_decision) ... ok
+test_the_reader_writes_nothing_and_repeats_itself (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_the_reader_writes_nothing_and_repeats_itself)
+A read this ending performs after the freeze, on this incarnation ... ok
+test_a_valid_report_produces_findings_logs_and_one_claim (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_a_valid_report_produces_findings_logs_and_one_claim) ... ok
+test_every_verdict_word_the_manager_records_is_carried (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_every_verdict_word_the_manager_records_is_carried) ... ok
+test_the_claim_is_closed_and_carries_no_manager_identity (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_claim_is_closed_and_carries_no_manager_identity) ... ok
+test_the_findings_output_carries_the_document_and_its_prose (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_findings_output_carries_the_document_and_its_prose) ... ok
+test_the_logs_are_adapter_authored_and_name_no_child_stream (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_logs_are_adapter_authored_and_name_no_child_stream) ... ok
+test_the_prompt_asks_for_an_assessment_and_names_no_protocol (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_prompt_asks_for_an_assessment_and_names_no_protocol) ... ok
+test_the_provider_runs_outside_the_output_and_the_source (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_provider_runs_outside_the_output_and_the_source) ... ok
+test_the_review_log_reports_the_operator_selected_bound (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_review_log_reports_the_operator_selected_bound)
+THE DEFECT, in the review publisher. A review turn runs under the ... ok
+test_the_review_log_reports_this_workers_default_with_no_job (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_review_log_reports_this_workers_default_with_no_job) ... ok
+test_the_review_log_separates_a_job_default_from_no_job_at_all (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_review_log_separates_a_job_default_from_no_job_at_all) ... ok
+test_the_reviewed_source_is_never_written_to (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_reviewed_source_is_never_written_to)
+The manager mounts it read-only; this proves the adapter does not ... ok
+test_a_failed_provider_earns_no_verdict_even_with_a_report (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_failed_provider_earns_no_verdict_even_with_a_report)
+A turn that failed is a turn whose account is incomplete, and an ... ok
+test_a_provider_that_could_not_start_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_provider_that_could_not_start_decides_nothing) ... ok
+test_a_provider_that_wrote_nothing_decided_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_provider_that_wrote_nothing_decided_nothing) ... ok
+test_a_report_answering_one_name_twice_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_answering_one_name_twice_decides_nothing) ... ok
+test_a_report_from_another_generation_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_from_another_generation_decides_nothing) ... ok
+test_a_report_naming_a_link_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_naming_a_link_decides_nothing) ... ok
+test_a_report_that_is_a_directory_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_that_is_a_directory_decides_nothing) ... ok
+test_a_report_that_is_a_fifo_decides_nothing_and_does_not_hang (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_that_is_a_fifo_decides_nothing_and_does_not_hang)
+REVIEW 2026-09-07T15-19-16Z [P1]: the report was opened blocking ... ok
+test_a_report_that_is_not_a_readable_document_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_that_is_not_a_readable_document_decides_nothing) ... ok
+test_a_report_wider_than_the_ceiling_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_wider_than_the_ceiling_decides_nothing) ... ok
+test_a_report_with_an_extra_member_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_with_an_extra_member_decides_nothing) ... ok
+test_a_report_with_an_unknown_verdict_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_with_an_unknown_verdict_decides_nothing) ... ok
+test_a_report_with_empty_findings_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_with_empty_findings_decides_nothing) ... ok
+test_a_review_that_wrote_nothing_still_reports_the_default_bound (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_review_that_wrote_nothing_still_reports_the_default_bound) ... ok
+test_a_timed_out_provider_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_timed_out_provider_decides_nothing) ... ok
+test_a_timed_out_review_names_its_effective_bound_and_no_verdict (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_timed_out_review_names_its_effective_bound_and_no_verdict)
+The log is the only account an unanswered review leaves, so the ... ok
+test_findings_no_encoder_will_accept_decide_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_findings_no_encoder_will_accept_decide_nothing)
+REVIEW [P1]: `json` decodes an escaped lone surrogate into a `str` ... ok
+test_the_claim_namespace_and_members_are_the_readers_own (tests.manager.test_claude_agent.TheTwoEndsAgreeOnTheReviewVocabulary.test_the_claim_namespace_and_members_are_the_readers_own) ... ok
+test_the_two_output_names_are_the_ones_a_verdict_requires (tests.manager.test_claude_agent.TheTwoEndsAgreeOnTheReviewVocabulary.test_the_two_output_names_are_the_ones_a_verdict_requires) ... ok
+test_the_verdict_words_are_the_managers_own_dispositions (tests.manager.test_claude_agent.TheTwoEndsAgreeOnTheReviewVocabulary.test_the_verdict_words_are_the_managers_own_dispositions) ... ok
+test_authority_and_work_identity_isolate_line_custody (tests.manager.test_review_cycles.ReviewCycles.test_authority_and_work_identity_isolate_line_custody) ... ok
+test_checkpoint_redundant_columns_must_match_sealed_evidence (tests.manager.test_review_cycles.ReviewCycles.test_checkpoint_redundant_columns_must_match_sealed_evidence) ... ok
+test_correction_refuses_if_the_line_no_longer_matches_its_checkpoint (tests.manager.test_review_cycles.ReviewCycles.test_correction_refuses_if_the_line_no_longer_matches_its_checkpoint) ... ok
+test_each_reviewer_axis_records_a_fresh_verdict_without_changing_the_axis (tests.manager.test_review_cycles.ReviewCycles.test_each_reviewer_axis_records_a_fresh_verdict_without_changing_the_axis) ... ok
+test_integration_requires_the_exact_accepted_verdict_row (tests.manager.test_review_cycles.ReviewCycles.test_integration_requires_the_exact_accepted_verdict_row) ... ok
+test_line_and_each_operation_replay_exactly (tests.manager.test_review_cycles.ReviewCycles.test_line_and_each_operation_replay_exactly) ... ok
+test_line_custody_is_derived_only_from_configured_storage (tests.manager.test_review_cycles.ReviewCycles.test_line_custody_is_derived_only_from_configured_storage) ... ok
+test_line_materialization_crash_resumes_only_the_recorded_operands (tests.manager.test_review_cycles.ReviewCycles.test_line_materialization_crash_resumes_only_the_recorded_operands) ... ok
+test_live_child_and_stale_progress_refuse_without_mutation (tests.manager.test_review_cycles.ReviewCycles.test_live_child_and_stale_progress_refuse_without_mutation) ... ok
+test_restart_preserves_review_to_correction_and_rejected_is_ineligible (tests.manager.test_review_cycles.ReviewCycles.test_restart_preserves_review_to_correction_and_rejected_is_ineligible) ... ok
+test_review_independence_and_exact_verdict_collision (tests.manager.test_review_cycles.ReviewCycles.test_review_independence_and_exact_verdict_collision) ... ok
+test_review_mount_revalidates_the_current_checkpoint (tests.manager.test_review_cycles.ReviewCycles.test_review_mount_revalidates_the_current_checkpoint) ... ok
+test_ten_corrections_reuse_line_and_retain_old_checkpoints (tests.manager.test_review_cycles.ReviewCycles.test_ten_corrections_reuse_line_and_retain_old_checkpoints) ... ok
+test_verdict_refuses_an_attachment_retargeted_to_another_line (tests.manager.test_review_cycles.ReviewCycles.test_verdict_refuses_an_attachment_retargeted_to_another_line) ... ok
+test_verdict_requires_quiescent_frozen_verified_findings_and_logs (tests.manager.test_review_cycles.ReviewCycles.test_verdict_requires_quiescent_frozen_verified_findings_and_logs) ... ok
+test_writer_and_review_mount_the_line_without_copying_or_sharing_output (tests.manager.test_review_cycles.ReviewCycles.test_writer_and_review_mount_the_line_without_copying_or_sharing_output) ... ok
+test_writer_is_revoked_before_profile_runs_and_crash_resumes (tests.manager.test_review_cycles.ReviewCycles.test_writer_is_revoked_before_profile_runs_and_crash_resumes) ... ok
+test_writer_race_has_one_winner_and_reserved_line_survives_cleanup (tests.manager.test_review_cycles.ReviewCycles.test_writer_race_has_one_winner_and_reserved_line_survives_cleanup) ... ok
+test_a_COMPETING_creator_is_refused_while_this_one_holds_the_line (tests.manager.test_review_cycles.StableLineLifecycle.test_a_COMPETING_creator_is_refused_while_this_one_holds_the_line)
+W301404 reviews 02-32-53Z then 02-43-58Z, and the second corrected the first fix. ... ok
+test_a_SECOND_HANDLE_on_the_same_store_cannot_bypass_the_exclusion (tests.manager.test_review_cycles.StableLineLifecycle.test_a_SECOND_HANDLE_on_the_same_store_cannot_bypass_the_exclusion)
+W301404 review 2026-09-29T02-49-10Z: the key is the DATABASE, not the handle. ... ok
+test_a_WITHDRAWN_publication_leaves_a_recoverable_materializing_line (tests.manager.test_review_cycles.StableLineLifecycle.test_a_WITHDRAWN_publication_leaves_a_recoverable_materializing_line)
+W301404: what the durable state IS when the root is replaced at the instant of ... ok
+test_a_failure_while_establishing_keeps_materializing_and_retry_finishes (tests.manager.test_review_cycles.StableLineLifecycle.test_a_failure_while_establishing_keeps_materializing_and_retry_finishes)
+The honest failure semantics the ruling requires kept: the line stays ... ok
+test_admission_does_not_repair_preexisting_root (tests.manager.test_review_cycles.StableLineLifecycle.test_admission_does_not_repair_preexisting_root) ... ok
+test_an_INDEPENDENT_line_is_not_blocked_by_another_preparation (tests.manager.test_review_cycles.StableLineLifecycle.test_an_INDEPENDENT_line_is_not_blocked_by_another_preparation)
+The control for the exclusion, and the failure mode it must not have. ... ok
+test_an_INTERRUPTION_after_the_access_act_leaves_a_recoverable_line (tests.manager.test_review_cycles.StableLineLifecycle.test_an_INTERRUPTION_after_the_access_act_leaves_a_recoverable_line)
+W301404: the window this correction creates, and what it leaves behind. ... ok
+test_assignment_generation_is_rechecked_in_grant_transaction (tests.manager.test_review_cycles.StableLineLifecycle.test_assignment_generation_is_rechecked_in_grant_transaction) ... ok
+test_changed_current_checkpoint_cannot_admit_a_stale_correction (tests.manager.test_review_cycles.StableLineLifecycle.test_changed_current_checkpoint_cannot_admit_a_stale_correction) ... ok
+test_creating_a_line_PROVES_its_integrity_before_granting_access (tests.manager.test_review_cycles.StableLineLifecycle.test_creating_a_line_PROVES_its_integrity_before_granting_access)
+A reversal probe found this gap: removing the integrity proof from ... ok
+test_current_assignment_principal_must_still_match_the_granted_writer (tests.manager.test_review_cycles.StableLineLifecycle.test_current_assignment_principal_must_still_match_the_granted_writer) ... ok
+test_durable_launch_binding_refuses_crosswired_roots_and_labels (tests.manager.test_review_cycles.StableLineLifecycle.test_durable_launch_binding_refuses_crosswired_roots_and_labels) ... ok
+test_establishing_access_is_serialized_before_idle_and_never_repeated (tests.manager.test_review_cycles.StableLineLifecycle.test_establishing_access_is_serialized_before_idle_and_never_repeated)
+W194457's property, under W301404's mechanism. ... ok
+test_late_creator_cannot_reprovision_an_admitted_line (tests.manager.test_review_cycles.StableLineLifecycle.test_late_creator_cannot_reprovision_an_admitted_line)
+W301404 review 2026-09-29T02-49-10Z moved WHEN this schedule is answered. ... ok
+test_launch_group_must_equal_durable_configuration (tests.manager.test_review_cycles.StableLineLifecycle.test_launch_group_must_equal_durable_configuration) ... ok
+test_replaced_line_refuses_launch (tests.manager.test_review_cycles.StableLineLifecycle.test_replaced_line_refuses_launch) ... ok
+test_root_replacement_before_initial_publication_never_provisions_replacement (tests.manager.test_review_cycles.StableLineLifecycle.test_root_replacement_before_initial_publication_never_provisions_replacement) ... ok
+
+----------------------------------------------------------------------
+Ran 94 tests in 14.846s
+
+OK

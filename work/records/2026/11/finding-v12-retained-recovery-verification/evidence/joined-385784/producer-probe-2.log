@@ -1,0 +1,19 @@
+test_failed_verifier_retains_the_candidate_for_connected_review (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_failed_verifier_retains_the_candidate_for_connected_review) ... FAIL
+
+======================================================================
+FAIL: test_failed_verifier_retains_the_candidate_for_connected_review (tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer.test_failed_verifier_retains_the_candidate_for_connected_review)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385625-joined-385784/v12/python/tests/job_manager/test_retained_recovery_execution.py", line 2571, in test_failed_verifier_retains_the_candidate_for_connected_review
+    self.assertIsNotNone(line["current_checkpoint_id"],
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "retained verification recovery has no checkpoint for prepare_review")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : retained verification recovery has no checkpoint for prepare_review
+
+----------------------------------------------------------------------
+Ran 1 test in 0.800s
+
+FAILED (failures=1)
+RETAINED_FAILED_PRODUCER {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'result_id': 'result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'disposition': 'unable', 'manifest_digest': 'sha256:d359befc50e3cb9c0d5adef94c10d248ac9c6b234f62f7136145d91d6e949e61', 'freeze_operation_id': 'output.freeze:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1', 'frozen_at': '2026-09-02T00:00:00.000Z', 'artifacts': [{'output_name': 'proposal', 'artifact_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal', 'media_type': 'application/octet-stream', 'bytes': 1758, 'content_digest': 'sha256:ee3f9247d13fc8349f65968d7f2e3c2336b55f516645cb438331ef462b1c5609', 'locator': 'file:///var/tmp/v12-w71917-uv85i6iu/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal'}]}
+REVIEW_LINE_AFTER_FAILED_VERIFIER {'line_id': 'line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a', 'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1', 'profile_name': 'git', 'declared_base': 'f1edc916ef31ebcbc37c0c841edac4476ee552bb', 'source_path': '/var/tmp/v12-w71917-uv85i6iu/source', 'source_device': 66306, 'source_inode': 20099068, 'line_path': '/var/tmp/v12-w71917-uv85i6iu/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout', 'line_device': 66306, 'line_inode': 20230043, 'state': 'idle', 'revision': 0, 'current_checkpoint_id': None, 'created_at': '2026-09-02T00:00:00.000Z'}
