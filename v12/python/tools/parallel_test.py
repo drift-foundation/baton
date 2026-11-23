@@ -497,6 +497,17 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     # no suite-global name with anything and binds none of the test classes
     # it derives its fixture from.
     "tests.job_manager.test_retained_recovery_execution",
+    # W385695 / DESIGN REC-9 checkpoint 1: the owner's inspection of a
+    # retained OUTPUT PUBLICATION failure, their exact decision, and the
+    # closed admission boundary it reaches. PARALLEL for
+    # `test_retained_recovery_admission`'s reasons: a disposable Job store,
+    # control store, workspace storage and Authority per case, a real
+    # attempt output tree under this case's own disk-backed root, stand-in
+    # host/deployment/instance ports and a stand-in Git ENGINE, no provider
+    # and no container. It derives its Job creation fixture and its published
+    # input manifest from `test_creation` and `test_role_capability` by
+    # module attribute and binds none of their test classes.
+    "tests.job_manager.test_publication_recovery_admission",
     # W383215: the Job-store cancellation owner and its fences. PARALLEL: real
     # disposable stores per case, fake session and operations, no engine.
     "tests.job_manager.test_job_cancellation",

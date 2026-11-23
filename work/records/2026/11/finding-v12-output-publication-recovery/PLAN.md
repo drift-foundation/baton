@@ -43,3 +43,18 @@ CONTRACT-PROPOSED-385720.md supersedes CONTRACT-PROPOSED-385699.md as the curren
 ## Current action — owner selection 2026-11-22
 
 Prior pending-owner status is superseded by FINDING consolidated owner selection. REC-9 and exact revisions/profile are approved. Wait for W385694 accepted/qualified output declaration before dependent implementation; then deliver the three internal checkpoints in the selected contract with joined installed acceptance. No existing-instance migration or live launch. Preserve original host-held output per D2; schema10 deployment requires later owner selection and backup.
+
+
+## First native checkpoint prepared — 2026-11-23
+
+W385694 prerequisite closed; Stage1-C closed and image qualified. Owner selected using v12 for this useful Work. Coordinator prepared evidence/native-slice1-580b85a8/ directly from existing operator tools, task3469chars, readonly check passed. Internal checkpoint1 is inspection/decision/safe non-runnable admission; checkpoints2/3 retain execution/custody and review integration. No new profiles or scope expansion. No launch yet; specific same-model pair selection pending. Product recovery bounds unchanged; development shared2h provider limit disclosed, phase-specific feature queued.
+
+
+## Launch selected — 2026-11-23
+
+Pending pair-selection status superseded: owner approved separate Claude/Opus contexts and this native checkpoint1 run. Operator check passed. Run prepare/create/start separately; inspect any refusal without deleting/restarting blindly. No launch executed by coordinator.
+
+
+## Checkpoint 1 accepted and imported — 2026-11-23
+
+Launch status above is superseded by completed native implementation/review. Candidate 3ae5965c accepted; 11 exact product files imported, host 217/217 passes in 8.516s. See evidence/native-checkpoint1-accepted/RESULT.md. Human Git checkpoint next; checkpoints 2/3 remain required. Preserve default production owners-factory joined coverage and prior-assignment ending as explicit continuation obligations. No full recovery/closure claimed.

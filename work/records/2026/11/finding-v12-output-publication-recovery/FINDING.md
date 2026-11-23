@@ -43,3 +43,8 @@ Preserve native-w385624-admission-1 and its original host-held attempt outputs u
 Clarifications D3/D4: Stage1-B 82e1cd87 is now accepted, imported at 2578aa70, packaged and W385624 closed. The proposal's unaccepted-reference statements are superseded; reuse its accepted interfaces after current-source revalidation. Both recovery paths must use the supported prior-assignment ending then fresh claim on the original Work; no impersonation or host-only release. W385625 must include this in joined acceptance.
 
 Sequence: independently deliver and qualify W385694 first; W385695 depends on that exact declaration. Stage1-C native kickoff remains unselected pending qualified output remedy. Shared source edits remain serial. No independent acceptance or live recovery is claimed by this ruling.
+
+
+## Owner-selected native checkpoint1 execution — 2026-11-23
+
+Slawomir explicitly selected separate Claude/Opus implementation and review contexts for w385695-native-publication-1 after successful read-only operator check. This per-run exception does not change the different-model preference for future Jobs. Execute evidence/native-slice1-580b85a8/operator.sh prepare/create/start against new native-w385695-publication-1, using pinned580b85a8 source/bundle and82c0a2c7 image. Approved development heavy profile remains shared7200s provider ceiling for both roles, as disclosed; product recovery profile remains unchanged. This selects useful native development of internal checkpoint1 with deterministic product tests, not migration or recovery on the preserved failed instance. No production publication-resume claim before later checkpoints/acceptance.

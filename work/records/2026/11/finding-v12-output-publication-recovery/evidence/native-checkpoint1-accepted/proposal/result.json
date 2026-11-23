@@ -1,0 +1,61 @@
+{
+ "base": "580b85a85930672aa3bbb1e702f05e4926c276e3",
+ "changed_paths": [
+  "v12/python/DEPLOYMENT.md",
+  "v12/python/src/baton_v12/job_manager/__init__.py",
+  "v12/python/src/baton_v12/job_manager/documents.py",
+  "v12/python/src/baton_v12/job_manager/publication_recovery.py",
+  "v12/python/src/baton_v12/worker_manager/__init__.py",
+  "v12/python/src/baton_v12/worker_manager/workspaces.py",
+  "v12/python/tests/job_manager/test_publication_recovery_admission.py",
+  "v12/python/tools/job_manager.py",
+  "v12/python/tools/parallel_test.py",
+  "v12/python/tools/publication_decision.py",
+  "v12/python/tools/publication_ports.py",
+  "work/records/2026/11/finding-v12-output-publication-recovery/FINDING.md",
+  "work/records/2026/11/finding-v12-output-publication-recovery/PLAN.md",
+  "work/records/2026/11/finding-v12-output-publication-recovery/PROGRESS.md",
+  "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint1-385695/REPORT.md",
+  "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint1-385695/candidate.sha256",
+  "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint1-385695/evidence.sha256",
+  "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint1-385695/focused.log"
+ ],
+ "collection": {
+  "excluded_ignored": [
+   "handoff/"
+  ],
+  "excluded_ignored_count": 1,
+  "excluded_special": [],
+  "excluded_special_count": 0,
+  "note": "these worktree paths were present while the task's verification ran and are NOT part of the delivered proposal; whether the verification relied on any of them is the integrator's question, disclosed rather than adjudicated here"
+ },
+ "disposition": "candidate",
+ "entry_head": "580b85a85930672aa3bbb1e702f05e4926c276e3",
+ "head": "3ae5965cc4a38b732b9cc5f5db97803d72f017ba",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 7200,
+  "seconds_bound_source": "job-selected",
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "w385695-native-publication-1",
+ "verification": {
+  "argv": [
+   "env",
+   "BATON_V12_DISK_ROOT=/scratch",
+   "BATON_V12_STACK_TEST_ROOT=/scratch",
+   "TMPDIR=/scratch",
+   "PYTHONPATH=v12/python/src:v12/python",
+   "python3",
+   "-m",
+   "unittest",
+   "-v",
+   "tests.job_manager.test_publication_recovery_admission",
+   "tests.job_manager.test_retained_recovery_admission",
+   "tests.job_manager.test_role_contract"
+  ],
+  "status": 0
+ },
+ "why": "the candidate changed the source and its own verification passed"
+}

@@ -115,6 +115,27 @@ from .retained_verification import (CONTEXT_MEMBERS, CONTEXT_SCHEMA,
                                     owned_context, renew)
 from .retained_verification import handoff_of as recovery_handoff_of
 from .retained_verification import owner_items_of as recovery_owner_items_of
+# W385695 / DESIGN REC-9: the owner's inspection of a RETAINED OUTPUT
+# PUBLICATION failure, their exact decision, and the closed admission boundary
+# that decision reaches. THE THREE ACTS, THE GATE AND THE CONFIGURATION
+# CONTRACT, and deliberately not the whole module, for its siblings' reason: a
+# deployment and its CLI need the surface, the selected identities, the
+# approved profile and its digest, the selectable stage set and the two owner
+# ports this slice adds; the journal identities, the record readers and the
+# prerequisite vocabulary are read through
+# `job_manager.publication_recovery` by the cases and the owner-facing readers
+# that want them.
+from .publication_recovery import (HOST_OUTPUT, PUBLICATION_PROFILE,
+                                   PUBLICATION_PROFILE_DIGEST,
+                                   RECOVERY_SELECTION, SOURCE_CORRESPONDENCE,
+                                   admit_publication, corrective_declaration,
+                                   execution_gate as publication_gate_of,
+                                   inspect as inspect_publication,
+                                   prerequisites as publication_prerequisites)
+from .publication_recovery import SELECTED_STAGES as PUBLICATION_STAGES
+from .publication_recovery import decide as decide_publication
+from .publication_recovery import decision_of as publication_decision_of
+from .publication_recovery import held_admission_of as publication_held_of
 from .episodes import (CORRECT_KIND, advance_correction, attempting,
                        correction_operation_id, episode_by_offer, episode_of,
                        episodes_of, live_of)
@@ -184,6 +205,13 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
            "check_verification_seam", "context_digest", "execute",
            "hand_off", "hold", "materialize", "owned_context", "renew",
            "recovery_handoff_of", "recovery_owner_items_of",
+           "HOST_OUTPUT", "PUBLICATION_PROFILE",
+           "PUBLICATION_PROFILE_DIGEST", "PUBLICATION_STAGES",
+           "RECOVERY_SELECTION", "SOURCE_CORRESPONDENCE",
+           "admit_publication", "corrective_declaration",
+           "decide_publication", "inspect_publication",
+           "publication_decision_of", "publication_gate_of",
+           "publication_held_of", "publication_prerequisites",
            "attempting", "canonical_operation",
            "check_binding", "correction_operation_id", "end_implementation",
            "end_review", "episode_by_offer", "episode_of", "episodes_of",

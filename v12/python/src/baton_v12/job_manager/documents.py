@@ -88,6 +88,7 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "stage_episode", "stage_id", "stage_launch", "stage_status",
            "status",
            "fresh_attempt_admitted",
+           "publication_gate",
            "recovery_analysis", "recovery_successor",
            "submission_recorded", "submission_signature", "sweep_report",
            "template_job_created"]
@@ -643,6 +644,18 @@ CONTRACTS = {
                        "recorded_at", "detail"), ()),
     "stage.dependency-gate": (("stage_id", "state", "open"), ()),
     "stage.recovery-gate": (("job_id", "open", "reason", "decision_id", "candidate", "lineage"), ()),
+    # W385695 / DESIGN REC-9: THE PUBLICATION RECOVERY'S OWN REVIEW GATE, and
+    # a separate contract from REC-8's rather than a widened one. The two
+    # gates close on different facts -- that one on a validated retained
+    # candidate handoff, this one on attributable publication custody -- and
+    # one document that could mean either would be a reader guessing which
+    # recovery it is looking at. `runnable` and `prerequisites` are required
+    # members because an answer that said a gate is closed without saying
+    # whether anything could run, or what is still owed, is the answer that
+    # reads as progress.
+    "stage.publication-gate": (("job_id", "open", "reason", "decision_id",
+                                "prior_job_id", "candidate", "runnable",
+                                "prerequisites"), ()),
     # One attempt at admitting one stage. `ended_state` is null while it is
     # live, and the three ending members travel together because an ending
     # nobody can order against the next assertion is not one.
@@ -882,6 +895,11 @@ def receipt(**members):
 
 def recovery_gate(**members):
     return _emit("stage.recovery-gate", members)
+
+
+def publication_gate(**members):
+    """W385695: the CLOSED review gate of one approved publication recovery."""
+    return _emit("stage.publication-gate", members)
 
 
 def dependency_gate(**members):

@@ -1293,7 +1293,8 @@ def _producers_of(configuration):
 
 def main(argv, *, clock=None, stream=None):
     import argparse
-    from tools import job_cancellation, recovery_decision, stopped_settlement
+    from tools import (job_cancellation, publication_decision,
+                       recovery_decision, stopped_settlement)
     if argv and argv[0] in stopped_settlement.COMMANDS:
         return stopped_settlement.main(argv, clock=clock, stream=stream)
     if argv and argv[0] in job_cancellation.COMMANDS:
@@ -1304,6 +1305,14 @@ def main(argv, *, clock=None, stream=None):
     # this parser's shared operands would make one surface answer for four.
     if argv and argv[0] in recovery_decision.COMMANDS:
         return recovery_decision.main(argv, clock=clock, stream=stream)
+    # W385695 / DESIGN REC-9: THE OWNER'S OUTPUT-PUBLICATION RECOVERY SURFACE,
+    # dispatched here for the reason the three above are: each verb composes
+    # its own stores and owners from the operands its act needs, and this
+    # one's are different again -- it reaches the workspace owner for the
+    # ORIGINAL bytes and the source-aware consumer for the candidate, neither
+    # of which any other verb here asks anything of.
+    if argv and argv[0] in publication_decision.COMMANDS:
+        return publication_decision.main(argv, clock=clock, stream=stream)
 
     parser = argparse.ArgumentParser(
         prog="job_manager",
@@ -1311,7 +1320,8 @@ def main(argv, *, clock=None, stream=None):
                     "run its control loop. Instance-addressed commands: "
                     "settlement-preview, settle-stopped, settlement-status, "
                     "cancel-job, cancel-status, recovery-item, "
-                    "recovery-decide "
+                    "recovery-decide, publication-inspect, "
+                    "publication-decide "
                     "(invoke the command first, then --help).")
     parser.add_argument("--store", required=True,
                         help="the Job store's path; there is no default, and "

@@ -1,0 +1,105 @@
+{
+  "base": "580b85a85930672aa3bbb1e702f05e4926c276e3",
+  "head": "3ae5965cc4a38b732b9cc5f5db97803d72f017ba",
+  "entries": {
+    "v12/python/DEPLOYMENT.md": {
+      "base_sha256": "5470d0f57c5de1df42870998352b0d08f0b1fd252c3c6664ac1ee0354f6a3526",
+      "candidate_sha256": "6477d69e53794757306b5dc7425627d2da86d233070a467a90bbb75da473e6db"
+    },
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "base_sha256": "c72aa41b611f64e5e4590a956ad5cfff20ec2fe68f0fb86753613213056d6206",
+      "candidate_sha256": "389898d3be347a9b7879cbe27154f5b2a41b4007a90fd09fd364fe6718238a38"
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "base_sha256": "90b3dd5e8dec7151b60bed9288ca42e170d2ff85333664252bfb7dfe0211023c",
+      "candidate_sha256": "4816e28beaa3d7c4598215176afa998ba9dc2e06abd24e4fe7c111349b7a5e71"
+    },
+    "v12/python/src/baton_v12/job_manager/publication_recovery.py": {
+      "base_sha256": null,
+      "candidate_sha256": "5553da202d7f422ce5986b1aa31c0df638eee312b86d9192da4870a3c8893d74"
+    },
+    "v12/python/src/baton_v12/worker_manager/__init__.py": {
+      "base_sha256": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099",
+      "candidate_sha256": "819f91949ebd169db8eb8bce60585e68ccf910fcb0006f48be0409f0b8da9457"
+    },
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": {
+      "base_sha256": "6e8748820ab4ebb18dc69fd0cb8aa3be979637bb9aa5b586868fa37e0fa67d4f",
+      "candidate_sha256": "dac7bfbb5152c4006c595ceb6c284fbdadbefad149a11f80e291f476e5d51651"
+    },
+    "v12/python/tests/job_manager/test_publication_recovery_admission.py": {
+      "base_sha256": null,
+      "candidate_sha256": "bb0f5bf6c5e109b326a62a7922461a1ad6e07e2014af3f53442e2ac30e983d8d"
+    },
+    "v12/python/tools/job_manager.py": {
+      "base_sha256": "32b38076f701f5683c9d05a83d7282b80aed56ae8e6edbc2dfd6b10cfd316bca",
+      "candidate_sha256": "7867c38c4fefb8f92e8f729ab6da15d1af58855c8cf7ed43b119a26ed9f2cd3f"
+    },
+    "v12/python/tools/parallel_test.py": {
+      "base_sha256": "a3d1d8471f0ee1af4f04c9c5e54463933108ba298e13654e1877f8302f2d86bd",
+      "candidate_sha256": "4db471ea70fcb8b70297a463bcf8b8850fd5cfcd801df8c1c66408cb8e384099"
+    },
+    "v12/python/tools/publication_decision.py": {
+      "base_sha256": null,
+      "candidate_sha256": "111e57c739a1445c9142b3b0da04fa4b16070866833faa1e00c1a0c1030a7eee"
+    },
+    "v12/python/tools/publication_ports.py": {
+      "base_sha256": null,
+      "candidate_sha256": "ccb7604919fe885c96fa799afc1f05edf7af8a7de356c0a889b6f1e285a2176f"
+    },
+    "work/records/2026/11/finding-v12-output-publication-recovery/FINDING.md": {
+      "base_sha256": "c9e1770f08c6a00d7440b6488e8d7dd0301105714836975e19bfbac135bf8983",
+      "candidate_sha256": "5b716197abd09bd28e958249bc3bd14424741bb4756181864a9120c28d7cefe3"
+    },
+    "work/records/2026/11/finding-v12-output-publication-recovery/PLAN.md": {
+      "base_sha256": "aaa67ff266db06bfb8553c9e490b3e407da09198a7638181721adb4c8c233d3e",
+      "candidate_sha256": "b1b076ed6600af1e47a373ddc5a1c4ff40b328357ade84a2a0a538bceac2ed20"
+    },
+    "work/records/2026/11/finding-v12-output-publication-recovery/PROGRESS.md": {
+      "base_sha256": "9dc5356fb90f606857b8f16cabd3688d1a675ea4b2a63540fda97efbd25140e6",
+      "candidate_sha256": "76e0dbc0feb0ec38288447df35ed8b4c279b9ea2f96ae45746ff0cc16102fdf3"
+    },
+    "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint1-385695/REPORT.md": {
+      "base_sha256": null,
+      "candidate_sha256": "29ec9eeefd5c509c8c226311de135b71f793b3859de367b43bc06a3602d45191"
+    },
+    "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint1-385695/candidate.sha256": {
+      "base_sha256": null,
+      "candidate_sha256": "075c6e18fc8889de2cdbec58f060b0b0652f476d354b179d5f9691067f52efba"
+    },
+    "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint1-385695/evidence.sha256": {
+      "base_sha256": null,
+      "candidate_sha256": "792ddb39d87378f9d27c2bfa2d9ca402f83bc2702cc993f9ceab6626d5a939c8"
+    },
+    "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint1-385695/focused.log": {
+      "base_sha256": null,
+      "candidate_sha256": "ee1dba32ff4ea072bb5de1642492fc7664fb7f918813e9cfcbd00110656e8b96"
+    }
+  },
+  "imported": [
+    "v12/python/DEPLOYMENT.md",
+    "v12/python/src/baton_v12/job_manager/__init__.py",
+    "v12/python/src/baton_v12/job_manager/documents.py",
+    "v12/python/src/baton_v12/job_manager/publication_recovery.py",
+    "v12/python/src/baton_v12/worker_manager/__init__.py",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "v12/python/tests/job_manager/test_publication_recovery_admission.py",
+    "v12/python/tools/job_manager.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tools/publication_decision.py",
+    "v12/python/tools/publication_ports.py"
+  ],
+  "modes": {
+    "v12/python/DEPLOYMENT.md": 436,
+    "v12/python/src/baton_v12/job_manager/__init__.py": 436,
+    "v12/python/src/baton_v12/job_manager/documents.py": 436,
+    "v12/python/src/baton_v12/job_manager/publication_recovery.py": 420,
+    "v12/python/src/baton_v12/worker_manager/__init__.py": 420,
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": 420,
+    "v12/python/tests/job_manager/test_publication_recovery_admission.py": 420,
+    "v12/python/tools/job_manager.py": 436,
+    "v12/python/tools/parallel_test.py": 420,
+    "v12/python/tools/publication_decision.py": 420,
+    "v12/python/tools/publication_ports.py": 420
+  },
+  "note": "Native dossier records retained under candidate/, not overlaid on coordinator history."
+}

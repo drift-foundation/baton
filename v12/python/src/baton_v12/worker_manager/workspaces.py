@@ -118,7 +118,7 @@ __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "assignment_workspace", "compose_input_root", "copied_manifest",
            "adopted_assignment_workspace", "line_assignment_workspace",
            "directory_manifest", "discard_execution_roots", "discard_tree",
-           "discard_workspace",
+           "discard_workspace", "retained_output_of",
            "refuse_if_held",
            "read_input_root"]
 
@@ -5261,6 +5261,177 @@ def directory_manifest(root):
             "entry_count": len(entries),
             "total_bytes": total,
             "tree_digest": digest(entries)}
+
+
+# HOW MUCH OF ONE NAMED RETAINED ENTRY A READER MAY TAKE, and it is this
+# module's bound rather than the writer's: the tree belongs to a worker, so
+# its sizes are a worker's decision. 64 KiB is `failure_cause`'s own ceiling
+# for the typed `result.json` it opens, read in the same spirit -- a document
+# small enough to own, and never a whole output.
+MAX_RETAINED_ENTRY_BYTES = 1 << 16
+
+
+def retained_output_of(control, assignment_id,
+                       *, names=(), what="a retained output read"):
+    """THE ORIGINAL OUTPUT ONE ATTEMPT LEFT ON THIS HOST, PROVED AND MEASURED.
+    A READ: it creates nothing, repairs nothing and changes no mode.
+
+    W385695 / DESIGN REC-9. A producer that completed and then FAILED AT
+    PUBLICATION froze no result, so every reader that resolves retained
+    evidence through a frozen manifest answers "there is nothing here" --
+    correctly, and uselessly, because the bytes are still in the attempt's own
+    writable root. This is the owner-side read that resolves them, and the
+    reason it lives in this module rather than in whoever wants them is the
+    rule REC-9 states: the trust root is "the original attempt output held by
+    the host owner, resolved from that attempt and read through its owner". A
+    consumer that composed `<storage>/<attempt>/workspace` for itself would be
+    a caller choosing a path and then calling it a trust root.
+
+    FOUR THINGS ARE PROVED BEFORE ONE BYTE IS READ, and each is somebody
+    else's fact rather than this function's:
+
+      the deployment's own CONFIGURED storage, from the durable record;
+      POSITIVE WRITER CESSATION, through `settlement_preparation` -- which
+        refuses while any preparation, allocation, removal, cleanup, adoption,
+        maintenance or custody effect of this attempt is unsettled, and which
+        refuses outright when no completed preparation was ever recorded. An
+        attempt whose writers this manager cannot account for HOLDS; it does
+        not measure a tree somebody may still be writing into;
+      the ENTRIES THEMSELVES, by `custody._no_link`, so a symbolic link or a
+        foreign object at the home or the workspace is refused rather than
+        followed; and
+      the DURABLE OBJECT IDENTITY, `device:inode`, against the one the
+        completed preparation recorded -- so a root replaced, moved aside or
+        re-pointed since the attempt ran is a SUBSTITUTED original and refuses.
+
+    Only then is the tree measured, by `directory_manifest`, which opens every
+    entry once with `O_NOFOLLOW` and refuses a link, a special file or a path
+    that leaves the root. The answer carries the measurement and the identity
+    it was taken over; it carries no bytes, because a reader that wanted one
+    file's content asks for it by its measured digest.
+
+    A LINE-LAYOUT PREPARATION IS REFUSED RATHER THAN GUESSED AT, for
+    `_revalidated_roots`' reason: the recorded identities carry no path, so a
+    persistent line home is an object this reader cannot locate and must not
+    compare against the attempt's own.
+    """
+    from . import custody
+
+    # THE LABEL IS CALLER INPUT THE MOMENT THIS IS EXPORTED, and is bounded
+    # before anything renders it -- `AnExportedLabelIsCallerInput`'s rule, for
+    # its reason: the difference between this package's own prose at an
+    # internal call site and a caller's string is invisible in the body.
+    what = label_of(what)
+    boundaries.identity(assignment_id, "an assignment identity")
+    # THE WRITERS FIRST. Everything below reads a tree, and reading one while
+    # this manager cannot say every governed writer finished is exactly the
+    # measurement REC-9 refuses to trust.
+    prepared = settlement_preparation(control, assignment_id)
+    if prepared.get("workspace_layout") != "attempt":
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what} is refused: attempt {name_value(assignment_id)}'s "
+            f"completed preparation states workspace layout "
+            f"{name_value(prepared.get('workspace_layout'))}, and this read "
+            f"reconstructs the attempt layout only; an identity comparison "
+            f"whose operands are not known to be the same object is refused "
+            f"rather than performed")
+    storage = configured_workspace_storage(control)
+    root = _real(storage.place, "the manager's workspace storage")
+    home = os.path.join(root, assignment_id)
+    custody._no_link(home, what="the attempt home")
+    place = os.path.join(home, "workspace")
+    custody._no_link(place, what="the attempt's workspace")
+    resolved = _contained(place, root, "the attempt's workspace root")
+    identity = _entry_identity(resolved)
+    if identity != prepared.get("workspace"):
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"{what} is refused: attempt {name_value(assignment_id)}'s "
+            f"workspace root was {name_value(prepared.get('workspace'))} when "
+            f"its preparation completed and the entry there now is "
+            f"{name_value(identity)}; a replaced object is not the original "
+            f"output this attempt wrote")
+    manifest = directory_manifest(resolved)
+    return {"attempt_id": assignment_id, "root": resolved,
+            "identity": identity, "storage": storage.place,
+            "published": list(prepared.get("published") or ()),
+            "manifest": manifest,
+            "entries": _retained_entries(resolved, manifest, names,
+                                         what)}
+
+
+def _retained_entries(root, manifest, names, what):
+    """The bytes of the NAMED measured entries, held to that measurement.
+
+    `failure_cause._bound_bytes`' rule, applied inside the root this read has
+    already proved: the size is checked on the OPENED descriptor rather than
+    on the path, `O_NOFOLLOW` refuses a link where a regular file was
+    measured, `O_NONBLOCK` means a FIFO left at the name returns instead of
+    waiting for a writer that never comes, and the measured digest is what
+    decides whether these are the bytes this manager measured one moment ago.
+    A name nobody measured, a file that changed under the measurement or an
+    entry wider than this module's own ceiling REFUSES; it is never a partial
+    read and never a silent absence.
+    """
+    measured = {one["path"]: one for one in manifest["entries"]}
+    held = {}
+    for relative in names:
+        boundaries.text(relative, "a retained output entry path")
+        entry = measured.get(relative)
+        if entry is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} names {name_value(relative)} and this manager "
+                f"measured no such entry in the retained output; a path that "
+                f"is not in the measurement is not evidence it binds")
+        if entry["bytes"] > MAX_RETAINED_ENTRY_BYTES:
+            raise ContractRefusal(
+                "integrity", "limit",
+                f"{what} names {name_value(relative)}, which measures "
+                f"{entry['bytes']} bytes; a retained entry wider than "
+                f"{MAX_RETAINED_ENTRY_BYTES} is not one this reader holds in "
+                f"memory, and a partial read is not a document")
+        place = _contained(os.path.join(root, relative), root,
+                           f"the retained entry {relative!r}")
+        try:
+            handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW
+                             | os.O_CLOEXEC | os.O_NONBLOCK)
+        except OSError as failure:
+            raise ContractRefusal(
+                "integrity", "path",
+                f"{what} cannot open the measured entry "
+                f"{name_value(relative)} ({type(failure).__name__}); an "
+                f"original this manager cannot read HOLDS rather than being "
+                f"read from somewhere else")
+        try:
+            found = os.fstat(handle)
+            if not stat.S_ISREG(found.st_mode) \
+                    or found.st_size != entry["bytes"]:
+                raise ContractRefusal(
+                    "runtime-observation", "identity-mismatch",
+                    f"{what} measured {name_value(relative)} at "
+                    f"{entry['bytes']} bytes and the entry open now is "
+                    f"{found.st_size}; an original that changed under its "
+                    f"own measurement is a substituted original")
+            raw = bytearray()
+            while len(raw) < entry["bytes"]:
+                part = os.read(handle, entry["bytes"] - len(raw))
+                if not part:
+                    break
+                raw.extend(part)
+        finally:
+            os.close(handle)
+        raw = bytes(raw)
+        if len(raw) != entry["bytes"] \
+                or digest_of_bytes(raw) != entry["content_digest"]:
+            raise ContractRefusal(
+                "integrity", "digest",
+                f"{what} read {name_value(relative)} and it does not "
+                f"recompute to the digest measured one moment ago; the "
+                f"original is not the bytes this read is bound to")
+        held[relative] = raw
+    return held
 
 
 def copied_manifest(root, into, *, max_entries=None, max_bytes=None,

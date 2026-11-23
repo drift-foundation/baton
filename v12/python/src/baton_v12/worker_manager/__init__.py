@@ -82,7 +82,7 @@ from .handshake import (ACP_CLIENT_CAPABILITIES,
                         unsupported_version_operation_id)
 from .lanes import LANE_PARTS, lane_reference, runtime_lane
 from .workspaces import (WorkspaceGroup, configure_workspace_group,
-                         configured_workspace_group)
+                         configured_workspace_group, retained_output_of)
 from .posture_slots import (RECOVERY_EVIDENCE, posture_slot, release_slot,
                             require_slot_recovery)
 from .sessions import (AGENT_ADAPTER, SESSION_OBSERVATIONS, SESSION_STATES,
@@ -156,6 +156,13 @@ from .review_cycles import (attach_review, audit_checkpoint, checkpoint_of, crea
 # builders and the record readers stay internal, because an ending authorized
 # by a record a caller could compose is not authorized by anything.
 __all__ = ["CUSTODY", "KEEPS_MATERIAL", "LANE_PARTS", "abandon_attempt",
+           # W385695 / DESIGN REC-9: the ORIGINAL host-held output of an
+           # attempt that completed and then failed at publication, proved
+           # and measured through the owner that holds it. Exported beside
+           # the workspace group for `frozen_output_of`'s reason: a consumer
+           # that composed the path itself would be a caller choosing a trust
+           # root.
+           "retained_output_of",
            "fence_pre_attach_abandonment",
            "assignment_of", "attach_review", "audit_checkpoint",
            "checkpoint_of", "create_line", "freeze_checkpoint",

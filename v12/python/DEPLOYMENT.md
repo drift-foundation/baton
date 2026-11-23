@@ -1860,3 +1860,58 @@ The review-line owner can freeze the original released writer after retained
 cleanup, using its committed release fence without reopening its assignment.
 The line must not have advanced and its frozen base/head must equal the approved
 retained candidate. Changed lines refuse instead of reviewing different bytes.
+
+## Retained output publication recovery (W385695 checkpoint 1, REC-9)
+
+`manager publication-inspect` and `manager publication-decide` are the owner's
+surface for a Job whose implementation COMPLETED and whose output publication
+then failed — provider exit 0, the producer's own required verifier exit 0, and
+no frozen result, no custody and no owner item, because the proposal exceeded
+its declared byte ceiling and the producer refused it before signalling
+completion. Both verbs name the failed Job, its implementation stage and the
+episode; the attempt, the original bytes and every digest are resolved FROM
+those selectors. There is no `--actor`, no `--scope` and no path operand.
+
+    manager publication-inspect --store … --authority-uuid … --incarnation … \
+      --control … --authority … --instance … \
+      --job JOB --stage STAGE --episode N [--participant OWNER]
+
+    manager publication-decide  … --job JOB --stage STAGE --episode N \
+      --participant OWNER --decision-id ID --approve|--hold|--deny \
+      --expect-attempt … --expect-selection-digest … \
+      --expect-candidate-base … --expect-candidate-head … \
+      --expect-output-digest … --expect-output-bytes … \
+      --expect-producer-status 0 --producer-verification WORD… \
+      --context-digest … --declaration-digest … \
+      --profile output-publication-review/1 --profile-digest … \
+      --stage-word publication --stage-word review
+
+Inspect is read-only and opens the Job store read-only, the control store
+read-only and the Authority read-only. It reports a canonical selection digest
+and every standing HOLD rather than the first one: a missing, unreadable,
+replaced or substituted original, an unsettled host writer, an uncertain
+runtime or resource, a completion envelope, an output inside the original
+1048576-byte ceiling or past the selected 104857600-byte one, an unqualified
+producer attribution, or a candidate the source owner cannot correspond. The
+producer's `result.json` is reported as producer evidence and never as
+acceptance; the substantive reviewer still owes its own verification and tests
+under 3600 s per invocation and 900 s per command.
+
+Decide records one attributable approval, hold or denial, authorized by the
+`approve` capability in the Work's OWN effective scope, bound to the exact
+selection digest. The same decision id with the same operands replays; with
+different operands it collides. One failed publication has one approved
+recovery.
+
+**An approval admits nothing in this checkpoint, and says so.** The boundary
+composes the real owner ports, re-establishes the trust root, reuses the
+original open Work, and returns a HELD PREREQUISITE naming the publication
+stage vocabulary (`baton.v12.job-submission/4`), the publication lane
+(`baton.v12.worker-pool/2`), Job store generation 10, the deterministic
+publication worker and the enforced `output-publication-review/1` control
+profile — none of which this build installs. No Job identity is reserved, no
+binding is published, no submission is recorded and no offer is issued; the
+review gate is closed and non-runnable. Do not read a returned Job id as a Job:
+`reserved` is `false`. Ordinary `create`, `submit` and `fresh-attempt` cannot
+name the recovery profile, template or stage vocabulary; each is refused by
+name by the owner that holds it.
