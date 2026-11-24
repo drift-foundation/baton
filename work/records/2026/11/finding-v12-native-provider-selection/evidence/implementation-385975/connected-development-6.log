@@ -1,0 +1,67 @@
+test_13_positive_implementation_binds_frozen_result_and_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_13_positive_implementation_binds_frozen_result_and_checkpoint) ... ok
+test_13_review_binds_its_own_evidence_to_verdict (tests.tools.test_provider_selection.SelectedCase.test_13_review_binds_its_own_evidence_to_verdict) ... ok
+test_14_17_missing_output_holds_without_publication_or_retry (tests.tools.test_provider_selection.SelectedCase.test_14_17_missing_output_holds_without_publication_or_retry) ... ok
+test_14_conflicting_build_holds_before_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_14_conflicting_build_holds_before_checkpoint) ... ok
+test_14_review_without_requested_contributor_records_no_verdict (tests.tools.test_provider_selection.SelectedCase.test_14_review_without_requested_contributor_records_no_verdict) ... ok
+test_15_foreign_attempt_in_real_frozen_result_is_held (tests.tools.test_provider_selection.SelectedCase.test_15_foreign_attempt_in_real_frozen_result_is_held) ... ok
+test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering (tests.tools.test_provider_selection.SelectedCase.test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering) ... ok
+test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume (tests.tools.test_provider_selection.SelectedCase.test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume) ... FAIL
+test_20_separation_is_composed_from_selected_providers_and_models (tests.tools.test_provider_selection.SelectedCase.test_20_separation_is_composed_from_selected_providers_and_models) ... ok
+test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes (tests.tools.test_provider_selection.SelectedCase.test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes) ... ERROR
+test_32_38_correction_reuses_home_after_positive_runtime_cessation (tests.tools.test_provider_selection.SelectedCase.test_32_38_correction_reuses_home_after_positive_runtime_cessation) ... ok
+test_34_cross_worker_context_and_checkout_overlap_refuse_preflight (tests.tools.test_provider_selection.SelectedCase.test_34_cross_worker_context_and_checkout_overlap_refuse_preflight) ... ok
+
+======================================================================
+ERROR: test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes (tests.tools.test_provider_selection.SelectedCase.test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 297, in test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes
+    job, control, composed = self.serving()
+                             ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_stage_execution.py", line 4552, in serving
+    composed = stage_execution.operations_from(
+        self.composed_document(line_declared_base=self.base, **members),
+        job, control, engine_run=self.engine,
+        credential_provider=lambda provider, reference: self.secret,
+        clock=lambda: fixtures.NOW, checkout=self.checkout)
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tools/stage_execution.py", line 7493, in operations_from
+    providers = [single_worker.worker_preflight(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        one["deployment"], control_store,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        credential_provider=credential_provider, engine_run=engine_run)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tools/single_worker.py", line 4115, in worker_preflight
+    certify_profile(control_store, "runtime", given["profile_name"],
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    given["profile_digest"])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/worker_manager/offers.py", line 178, in certify_profile
+    return store.transact(f"profile.certify:{kind}:{name}", "profile.certify",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, act)
+                          ^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/worker_manager/store.py", line 821, in transact
+    found, value = self.replay(operation_id, signature, kind=kind)
+                   ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/worker_manager/store.py", line 997, in replay
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"operands changes nothing (§4.2)")
+baton_v12.contracts.errors.ContractRefusal: operation 'profile.certify:runtime:reference' is already recorded with a different kind or signature; reusing an id with different operands changes nothing (§4.2)
+
+======================================================================
+FAIL: test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume (tests.tools.test_provider_selection.SelectedCase.test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 253, in test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume
+    self.assertEqual(job_observation._stage_line(stage, fixtures.NOW)["model_attribution"], diagnostic)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 'Requested: fixture-selector; mapped iden[348 chars]1571'
+
+----------------------------------------------------------------------
+Ran 12 tests in 5.328s
+
+FAILED (failures=1, errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

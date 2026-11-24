@@ -1,0 +1,17 @@
+{
+  "collected": 1,
+  "duplicates": [],
+  "duration_seconds": 0.31404644390568137,
+  "executed": 1,
+  "exit_status": 0,
+  "nonpassing": {},
+  "outcomes": {
+    "tests.tools.test_provider_selection.SelectedCase.test_45_same_seed_reference_allows_two_workers_and_two_jobs": "ok"
+  },
+  "passed": 1,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

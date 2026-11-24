@@ -1,0 +1,11 @@
+{
+  "run": "compatibility-1",
+  "cause": "aggregate 180-second test selection bound exhausted while progressing; no assertion failure",
+  "actual_child_exit": -9,
+  "wrapper_exit_limitation": "original wrapper exited 0 after recording -9; retained summary is authoritative; finite wrapper now propagates child errors or 124 on timeout",
+  "cleanup": "sent SIGKILL to run-owned process group and waited for parent; original PID/PGID not logged. Subsequent scoped /proc audit found zero processes with candidate-root cwd or script argv; unrelated processes untouched. Finite runs retain PID/PGID.",
+  "interrupted_case": "tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments",
+  "standalone_result": "1/1 passed in 3.8169032919686288s, exit 0",
+  "accounting_corrections": "compatibility witness JSON ended }ok; finite 19/20 expected refusal diagnostics leave standalone ok lines. Corrected ledgers retained separately; no outcomes inferred from only aggregate OK.",
+  "groups_correction": "original compatibility header job-manager means job_manager; manager-pure and tools-pure unchanged"
+}

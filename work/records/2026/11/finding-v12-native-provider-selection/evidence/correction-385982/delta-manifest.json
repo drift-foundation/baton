@@ -1,0 +1,88 @@
+{
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "files": [
+    {
+      "after_bytes": 7385,
+      "after_mode": "0o664",
+      "after_sha256": "716a5bed8aa3204667325b619aee53c27139100bc7fbbd03cdc15971255113c7",
+      "before_bytes": 6236,
+      "before_mode": "0o664",
+      "before_sha256": "f7bc8cf1a4977bcb8c022dd655bd38be822136a451917b3c3d3ea6db5b037379",
+      "path": "v12/PROVIDER-SELECTION.md"
+    },
+    {
+      "after_bytes": 66904,
+      "after_mode": "0o644",
+      "after_sha256": "08b815e7dd367c1b0c11f36105f7f850169f846072e757d102395a7c6d5313f3",
+      "before_bytes": 66773,
+      "before_mode": "0o644",
+      "before_sha256": "9e809e8164199cff33db35c82cf5035c605fd47927a6bfaa0135280f3060a01f",
+      "path": "v12/python/src/baton_v12/job_manager/projection.py"
+    },
+    {
+      "after_bytes": 222470,
+      "after_mode": "0o644",
+      "after_sha256": "17524cd748334c196c8578e3d15cd07220e51d21f98be195eb3ce82f815e0a7e",
+      "before_bytes": 221081,
+      "before_mode": "0o644",
+      "before_sha256": "38fe91faa450e4cb2d5fd548c9d4781963d039fb9d78bf72560788a4183a0b26",
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py"
+    },
+    {
+      "after_bytes": 10879,
+      "after_mode": "0o664",
+      "after_sha256": "2218374ced0966c7a2861622af7ad96b21b48910a8663298bdbb99ae5005a53b",
+      "before_bytes": 10763,
+      "before_mode": "0o664",
+      "before_sha256": "f9afab4f4c685ac19cb2f27976a6e7a4203a84311f7f2e624231d583eddb619f",
+      "path": "v12/python/src/baton_v12/worker_manager/provider_home.py"
+    },
+    {
+      "after_bytes": 90213,
+      "after_mode": "0o644",
+      "after_sha256": "99f63c79ab5f679d39ee7c872ad69b2a542c3b655d301820062e03677681bb0b",
+      "before_bytes": 89417,
+      "before_mode": "0o644",
+      "before_sha256": "55e39377f1acecf1f562983f338f163891f51e43b078d3ba6629ac43335da046",
+      "path": "v12/python/tests/job_manager/test_scheduling.py"
+    },
+    {
+      "after_bytes": 17458,
+      "after_mode": "0o664",
+      "after_sha256": "5342d86deee5f3212f4cebb1fb182473318c9dcf265703dc0996e6562211ec28",
+      "before_bytes": 17200,
+      "before_mode": "0o664",
+      "before_sha256": "cfdd3e5bfe3897e358ea463204dc8c722961329ea48221246a6507f0fe5dbf36",
+      "path": "v12/python/tests/manager/test_provider_home.py"
+    },
+    {
+      "after_bytes": 38080,
+      "after_mode": "0o644",
+      "after_sha256": "c2a3ff1daa3b29903333f600577c8e21ffb5c13a02f74313fd3acfc22e3d877c",
+      "before_bytes": 37587,
+      "before_mode": "0o644",
+      "before_sha256": "2818e39e6d707471e7795195f5ac4c19f11c479a72613ee7e79ceaadd8ee4183",
+      "path": "v12/python/tests/tools/test_job_observation.py"
+    },
+    {
+      "after_bytes": 39696,
+      "after_mode": "0o664",
+      "after_sha256": "6c0171b87b85aeb5bd3f0ba421822cb8030ccb93f0ccfdf75c9b7861ead89653",
+      "before_bytes": 34163,
+      "before_mode": "0o664",
+      "before_sha256": "ee5b4c262f2e5bb365e6bd72815280e6cad9593e1a23dcfd715b97d19100191f",
+      "path": "v12/python/tests/tools/test_provider_selection.py"
+    },
+    {
+      "after_bytes": 29994,
+      "after_mode": "0o644",
+      "after_sha256": "62517a7beee7f78bcbe95ed6f177d36d3fd839662d227e82b3d1c0f4f98cc0f6",
+      "before_bytes": 29674,
+      "before_mode": "0o644",
+      "before_sha256": "29ff279347e13122a26939aa17cfad3e3694df226824223cae8db7e4a5a7c95c",
+      "path": "v12/python/tools/job_observation.py"
+    }
+  ],
+  "from_candidate": "sha256:2abcd54485ab85ab0deb81db2a94447c54f72a2805461cfdc9f3742576eb7887",
+  "to_candidate": "sha256:4980bb47c07ed40503945d2926681590f393b657d9413293079c2e6520679053"
+}

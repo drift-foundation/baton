@@ -1,0 +1,21 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.tools.test_provider_selection",
+    "tests.manager.test_provider_home"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 44,
+  "bound_seconds": 90,
+  "pid": 1822456,
+  "pgid": 1822456
+}

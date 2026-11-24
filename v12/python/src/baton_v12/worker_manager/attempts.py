@@ -212,7 +212,12 @@ def attempt_runtime_of(store, attempt_id):
     found = _attempt_row(store, attempt_id)
     if found is None:
         return None
+    from . import model_attribution
+    selected = model_attribution.selection_of(store, attempt_id)
+    account = model_attribution.assessment_of(store, attempt_id) if selected is not None else None
     return {"attempt_id": found["runtime_attempt_id"],
+            **({"model_attribution": model_attribution.diagnostic_of(store, attempt_id)} if selected is not None else {}),
+            **({"model_attribution_hold": account["cause"]} if account is not None and account["outcome"] == "held" else {}),
             "runtime_id": found["runtime_id"],
             "execution_runtime": found["execution_runtime"],
             "cleanup": found["cleanup"],
@@ -233,6 +238,37 @@ def attempt_runtime_of(store, attempt_id):
             # refusal at the caller: an attempt with no fixed assignment is
             # not one a grants file can be held against.
             "assignment": _fixed_assignment(found)}
+
+
+
+def provider_home_cessation_of(store, attempt_id):
+    """Exact runtime observation time, not a later cleanup/update timestamp.
+
+    Kept inside the runtime owner so home reuse never infers cessation from
+    a scheduler release, an ended attempt or a provider exit.
+    """
+    row = _attempt_row(store, attempt_id)
+    if row is None:
+        return None
+    # A durable failed preparation plus no start intent is positive absence.
+    # The start gate checks this same immutable ending inside its transaction,
+    # so a delayed caller cannot start this holder after its home is released.
+    failure = attempt_preparation_failure_of(store, attempt_id)
+    if (row["execution_runtime"] == "not-started" and row["runtime_id"] is None
+            and store.operation_record(_start_operation_id(row)) is None
+            and failure is not None and failure["execution_runtime"] == "not-started"
+            and failure["runtime_id"] is None):
+        return {"attempt_id": attempt_id, "runtime": "not-started",
+                "ended_before_start": True, "cleanup": row["cleanup"],
+                "observed_at": None, "last_activity_at": row["activity_at"] or row["created_at"]}
+    observed = digest({"attempt_id": attempt_id, "axis": "execution_runtime", "value": "destroyed"})
+    observation = store._connection.execute(
+        "SELECT MAX(observed_at) AS observed_at FROM observations "
+        "WHERE runtime_attempt_id = ? AND observation_digest = ?",
+        (attempt_id, observed)).fetchone()
+    return {"attempt_id": attempt_id, "runtime": row["execution_runtime"],
+            "cleanup": row["cleanup"], "observed_at": observation["observed_at"],
+            "last_activity_at": row["activity_at"] or row["created_at"]}
 
 
 def runtime_recovery_inventory(store):
@@ -1502,6 +1538,11 @@ def authorize_input_root(store, *, attempt_id, inputs):
     return given, delivered
 
 
+def _no_preparation_ending(store, attempt_id):
+    if attempt_preparation_failure_of(store, attempt_id) is not None:
+        raise ContractRefusal("refused", "already-terminal", "attempt preparation already ended; runtime start is forbidden")
+
+
 def request_runtime_start(store, adapter, *, attempt_id, inputs=None,
                           deadline_policy=None, govern=None):
     """Commit a signed start operation, THEN call the adapter with it.
@@ -1528,6 +1569,7 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None,
             f"attempt {name_value(attempt_id)} is not activated; the "
             f"assignment manifest is fixed before the first writable adapter "
             f"call")
+    _no_preparation_ending(store, attempt_id)
     # W32577: validate an existing immutable selection before the mutable-axis
     # refusal, including retries that omit an earlier selected deadline.
     from . import deadlines
@@ -1620,6 +1662,7 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None,
 
     def act(connection):
         reserved.append(True)
+        _no_preparation_ending(store, attempt_id)
         deadlines._start_allowed(store, _require_attempt(store, attempt_id), deadline_policy)
         # W32649: THE LANE IS TAKEN IN THE SAME WRITE THAT MAKES THE START
         # ELIGIBLE, and before the adapter is called at all.

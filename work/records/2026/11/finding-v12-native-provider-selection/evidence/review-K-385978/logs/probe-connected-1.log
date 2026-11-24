@@ -1,0 +1,54 @@
+test_13_positive_implementation_binds_frozen_result_and_checkpoint (probe_connected.Probe.test_13_positive_implementation_binds_frozen_result_and_checkpoint) ... ok
+test_13_review_binds_its_own_evidence_to_verdict (probe_connected.Probe.test_13_review_binds_its_own_evidence_to_verdict) ... ok
+test_14_17_missing_output_holds_without_publication_or_retry (probe_connected.Probe.test_14_17_missing_output_holds_without_publication_or_retry) ... ok
+test_14_conflicting_build_holds_before_checkpoint (probe_connected.Probe.test_14_conflicting_build_holds_before_checkpoint) ... ok
+test_14_review_without_requested_contributor_records_no_verdict (probe_connected.Probe.test_14_review_without_requested_contributor_records_no_verdict) ... ok
+test_15_foreign_attempt_in_real_frozen_result_is_held (probe_connected.Probe.test_15_foreign_attempt_in_real_frozen_result_is_held) ... ok
+test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering (probe_connected.Probe.test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering) ... ok
+test_16_restart_between_result_and_ending_uses_original_evidence (probe_connected.Probe.test_16_restart_between_result_and_ending_uses_original_evidence) ... ok
+test_17_legacy_result_without_attribution_is_held_under_new_selection (probe_connected.Probe.test_17_legacy_result_without_attribution_is_held_under_new_selection) ... ok
+test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume (probe_connected.Probe.test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume) ... ok
+test_20_separation_is_composed_from_selected_providers_and_models (probe_connected.Probe.test_20_separation_is_composed_from_selected_providers_and_models) ... ok
+test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes (probe_connected.Probe.test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes) ... ok
+test_26_actual_argv_or_environment_drift_refuses_before_provider (probe_connected.Probe.test_26_actual_argv_or_environment_drift_refuses_before_provider) ... ok
+test_26_environment_drift_refuses_before_build_probe (probe_connected.Probe.test_26_environment_drift_refuses_before_build_probe) ... ok
+test_27_28_changed_tool_policy_refuses_before_any_runtime (probe_connected.Probe.test_27_28_changed_tool_policy_refuses_before_any_runtime) ... ok
+test_30_legacy_and_selected_lanes_refuse_one_job_before_effects (probe_connected.Probe.test_30_legacy_and_selected_lanes_refuse_one_job_before_effects) ... ok
+test_31_override_home_location_refuses_before_runtime (probe_connected.Probe.test_31_override_home_location_refuses_before_runtime) ... ok
+test_32_38_correction_reuses_home_after_positive_runtime_cessation (probe_connected.Probe.test_32_38_correction_reuses_home_after_positive_runtime_cessation) ... ok
+test_32_restart_after_review_reuses_retained_home (probe_connected.Probe.test_32_restart_after_review_reuses_retained_home) ... ok
+test_34_cross_worker_context_and_checkout_overlap_refuse_preflight (probe_connected.Probe.test_34_cross_worker_context_and_checkout_overlap_refuse_preflight) ... ok
+test_41_42_43_seeded_provider_refresh_survives_correction_without_export (probe_connected.Probe.test_41_42_43_seeded_provider_refresh_survives_correction_without_export) ... ok
+test_44_simulated_authentication_failure_has_no_key_or_fallback (probe_connected.Probe.test_44_simulated_authentication_failure_has_no_key_or_fallback) ... ok
+test_45_same_seed_reference_allows_two_workers_and_two_jobs (probe_connected.Probe.test_45_same_seed_reference_allows_two_workers_and_two_jobs) ... ok
+test_46_managed_credential_collision_refuses_composition (probe_connected.Probe.test_46_managed_credential_collision_refuses_composition) ... ok
+test_C1_a_missing_attribution_stays_held_through_many_passes_and_a_restart (probe_connected.Probe.test_C1_a_missing_attribution_stays_held_through_many_passes_and_a_restart) ... ok
+test_C2_a_worker_that_claims_matched_against_bytes_that_say_otherwise_is_held (probe_connected.Probe.test_C2_a_worker_that_claims_matched_against_bytes_that_say_otherwise_is_held) ... ok
+test_C3_what_a_pass_does_when_a_held_attempts_log_is_later_replaced_with_matching_bytes (probe_connected.Probe.test_C3_what_a_pass_does_when_a_held_attempts_log_is_later_replaced_with_matching_bytes) ... ok
+test_C4_restart_after_the_home_has_moved_to_the_correction_attempt (probe_connected.Probe.test_C4_restart_after_the_home_has_moved_to_the_correction_attempt) ... ERROR
+test_C5_the_selection_of_a_started_attempt_cannot_be_replaced (probe_connected.Probe.test_C5_the_selection_of_a_started_attempt_cannot_be_replaced) ... ok
+
+======================================================================
+ERROR: test_C4_restart_after_the_home_has_moved_to_the_correction_attempt (probe_connected.Probe.test_C4_restart_after_the_home_has_moved_to_the_correction_attempt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/probes/probe_connected.py", line 125, in test_C4_restart_after_the_home_has_moved_to_the_correction_attempt
+    self.turn(control, "implementation", second, self.mounted(composed, "implementation", second), edits={"harness.py": "print('second')\n"})
+                                                 ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4602, in mounted
+    held = self.worker_of(composed, role).stage._prepared[attempt_id]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa'
+
+----------------------------------------------------------------------
+Ran 29 tests in 14.827s
+
+FAILED (errors=1)
+C1 states after 20 passes: {'implementation': 'answering', 'review': 'blocked', 'integration': 'blocked'}
+C1 shown: {"state": "answering", "reason": "", "model_attribution": "Requested: fixture-selector; mapped identity: fixture-reported; Reported contributors: no evidence; Requested model reported: no evidence; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: missing; Provider home: retained (fresh invocation); worker: implementation-worker; holder: attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "stage_state": "answering", "gate": null}
+C1 states after restart and 20 more passes: {'implementation': 'answering', 'review': 'blocked', 'integration': 'blocked'}
+C1 implementation stage rows: [{'stage_id': 'job-a/implementation'}]
+C2 account: held model-attribution-invalid
+C3 pass after log replacement: returned normally
+C4 diagnostic of the FIRST attempt once the second holds: Requested: fixture-selector; mapped identity: fixture-reported; Reported contributors: fixture-additional, fixture-reported; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Provider home: retained (fresh invocation); worker: implementation-worker; holder: attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa
+C4 after restart: passes and status returned normally

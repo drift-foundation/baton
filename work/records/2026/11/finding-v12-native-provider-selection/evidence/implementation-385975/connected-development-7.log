@@ -1,0 +1,17 @@
+test_13_positive_implementation_binds_frozen_result_and_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_13_positive_implementation_binds_frozen_result_and_checkpoint) ... ok
+test_13_review_binds_its_own_evidence_to_verdict (tests.tools.test_provider_selection.SelectedCase.test_13_review_binds_its_own_evidence_to_verdict) ... ok
+test_14_17_missing_output_holds_without_publication_or_retry (tests.tools.test_provider_selection.SelectedCase.test_14_17_missing_output_holds_without_publication_or_retry) ... ok
+test_14_conflicting_build_holds_before_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_14_conflicting_build_holds_before_checkpoint) ... ok
+test_14_review_without_requested_contributor_records_no_verdict (tests.tools.test_provider_selection.SelectedCase.test_14_review_without_requested_contributor_records_no_verdict) ... ok
+test_15_foreign_attempt_in_real_frozen_result_is_held (tests.tools.test_provider_selection.SelectedCase.test_15_foreign_attempt_in_real_frozen_result_is_held) ... ok
+test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering (tests.tools.test_provider_selection.SelectedCase.test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering) ... ok
+test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume (tests.tools.test_provider_selection.SelectedCase.test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume) ... ok
+test_20_separation_is_composed_from_selected_providers_and_models (tests.tools.test_provider_selection.SelectedCase.test_20_separation_is_composed_from_selected_providers_and_models) ... ok
+test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes (tests.tools.test_provider_selection.SelectedCase.test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes) ... ok
+test_32_38_correction_reuses_home_after_positive_runtime_cessation (tests.tools.test_provider_selection.SelectedCase.test_32_38_correction_reuses_home_after_positive_runtime_cessation) ... ok
+test_34_cross_worker_context_and_checkout_overlap_refuse_preflight (tests.tools.test_provider_selection.SelectedCase.test_34_cross_worker_context_and_checkout_overlap_refuse_preflight) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 5.437s
+
+OK

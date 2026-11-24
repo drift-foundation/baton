@@ -1,0 +1,5 @@
+7912c953fbc44ef3589b606372933e25bd47b930150185f25f5cf1cb6b560d4d  ./logs/own-tests.log
+3560960d5154dcced1aaf3ee73a7f9ec1d02d4b2bdcb84f3afe47af9893f03d3  ./logs/probe-r1a-1.log
+c8db6232b57afb5a0df424fbb4a035a92f002b3e00c9b2458a01ac244e52ba41  ./logs/probe-r1a-2.log
+229a98007ff56b8543c8ca159ce8c5e1d76c810861b1bb023b3d3a47d0cefaf5  ./logs/regress-delta.log
+40121a1968a8d16d75ab60e653af55a2de2dd15e169ce2fdcb8a2ff2d6ce6e7e  ./probes/probe_r1a.py

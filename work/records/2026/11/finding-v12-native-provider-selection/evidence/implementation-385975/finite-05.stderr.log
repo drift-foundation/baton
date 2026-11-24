@@ -1,0 +1,42 @@
+test_without_the_containment_the_other_job_is_never_reached (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_without_the_containment_the_other_job_is_never_reached)
+The counterfactual, driven rather than described. ... ok
+test_committed_handoff_recovers_before_local_acknowledgement (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_committed_handoff_recovers_before_local_acknowledgement) ... ok
+test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff) ... ok
+test_fresh_process_observes_owned_completion_after_serving_closes (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes) ... ok
+test_lost_pass_answer_remains_completed_after_a_later_assignment (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_lost_pass_answer_remains_completed_after_a_later_assignment) ... ok
+test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff) ... ok
+test_running_integrator_result_cannot_end_its_assignment (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_running_integrator_result_cannot_end_its_assignment) ... ok
+test_serving_observation_reads_only_existing_owners (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_serving_observation_reads_only_existing_owners) ... ok
+test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds)
+W119114: one line, two rounds, and the pin the integration reads. ... ok
+test_the_corrected_rounds_retained_bytes_reopen_at_their_locator (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_corrected_rounds_retained_bytes_reopen_at_their_locator)
+W119114: the mandatory custody check, on the JOINED chain. ... ok
+test_the_recovered_job_finishes_and_its_manifest_reopens (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_recovered_job_finishes_and_its_manifest_reopens)
+[P1] THE RECOVERED JOB, DRIVEN TO ITS TERMINAL HANDOFF, and then ... ok
+test_uncertain_integration_effect_stays_held (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_uncertain_integration_effect_stays_held) ... ok
+test_a_missing_session_refuses (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_a_missing_session_refuses) ... ok
+test_a_session_without_a_participant_refuses (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_a_session_without_a_participant_refuses) ... ok
+test_a_session_without_its_verb_refuses (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_a_session_without_its_verb_refuses) ... ok
+test_each_receipt_actor_is_asked_for_its_own_grant_in_one_scope (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_each_receipt_actor_is_asked_for_its_own_grant_in_one_scope)
+The mapping, read off the gate rather than off the constant: four ... ok
+test_the_complete_set_is_accepted (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_the_complete_set_is_accepted) ... ok
+test_a_reconstructed_manager_re_enters_the_same_ending (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_a_reconstructed_manager_re_enters_the_same_ending)
+THE CUTPOINT THIS WORK EXISTS FOR, driven through the actual ... ok
+test_the_historical_adapter_can_perform_no_runtime_act (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_historical_adapter_can_perform_no_runtime_act)
+A property of the object rather than a promise about the path. ... ok
+test_the_historical_entry_reconstructs_no_mount_or_credential (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_historical_entry_reconstructs_no_mount_or_credential)
+The entry the ordinary ending cannot be. ... ok
+test_the_historical_operands_come_from_the_recorded_obligation (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_historical_operands_come_from_the_recorded_obligation)
+Not from the exchange the ordinary ending reads them off. ... ok
+test_the_obligation_is_registered_and_settled_by_ordinary_ticks (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_obligation_is_registered_and_settled_by_ordinary_ticks) ... ok
+test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer)
+The durable operand, read through the accepted public reader. ... ok
+test_the_settlement_names_the_records_that_finished_the_ending (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_settlement_names_the_records_that_finished_the_ending)
+Every member is an identity an operator can look up in the owner ... ok
+test_the_completed_implementation_leaves_the_work_ungated (tests.tools.test_stage_execution.TheComposedHandoffCarriesItsOwnQuiescenceEvidence.test_the_completed_implementation_leaves_the_work_ungated)
+The converted assertion: `block` on a quiescence gate became ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 23.332s
+
+OK

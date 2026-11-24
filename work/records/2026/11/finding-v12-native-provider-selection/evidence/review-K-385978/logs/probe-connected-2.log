@@ -1,0 +1,26 @@
+test_C1_a_missing_attribution_stays_held_through_many_passes_and_a_restart (probe_connected.Probe.test_C1_a_missing_attribution_stays_held_through_many_passes_and_a_restart) ... ok
+test_C2_a_worker_that_claims_matched_against_bytes_that_say_otherwise_is_held (probe_connected.Probe.test_C2_a_worker_that_claims_matched_against_bytes_that_say_otherwise_is_held) ... ok
+test_C3_what_a_pass_does_when_a_held_attempts_log_is_later_replaced_with_matching_bytes (probe_connected.Probe.test_C3_what_a_pass_does_when_a_held_attempts_log_is_later_replaced_with_matching_bytes) ... ok
+test_C4_restart_after_the_home_has_moved_to_the_correction_attempt (probe_connected.Probe.test_C4_restart_after_the_home_has_moved_to_the_correction_attempt) ... ok
+test_C5_the_selection_of_a_started_attempt_cannot_be_replaced (probe_connected.Probe.test_C5_the_selection_of_a_started_attempt_cannot_be_replaced) ... ok
+test_C6_a_holder_that_never_started_a_runtime (probe_connected.Probe.test_C6_a_holder_that_never_started_a_runtime)
+What evidence exists for a holder whose launch was refused after the home was held and before any runtime. ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 6.506s
+
+OK
+C1 states after 20 passes: {'implementation': 'answering', 'review': 'blocked', 'integration': 'blocked'}
+C1 shown: {"state": "answering", "reason": "", "model_attribution": "Requested: fixture-selector; mapped identity: fixture-reported; Reported contributors: no evidence; Requested model reported: no evidence; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: missing; Provider home: retained (fresh invocation); worker: implementation-worker; holder: attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "stage_state": "answering", "gate": null}
+C1 states after restart and 20 more passes: {'implementation': 'answering', 'review': 'blocked', 'integration': 'blocked'}
+C1 implementation stage rows: [{'stage_id': 'job-a/implementation'}]
+C2 account: held model-attribution-invalid
+C3 pass after log replacement: returned normally
+C4 diagnostic of the FIRST attempt once the second holds: Requested: fixture-selector; mapped identity: fixture-reported; Reported contributors: fixture-additional, fixture-reported; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Provider home: retained (fresh invocation); worker: implementation-worker; holder: attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa
+C4 after restart: passes and status returned normally
+C6 passes: returned normally | materialize asked for ['attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571']
+C6 states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+C6 home records: [('attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'ready')]
+C6 cessation evidence for the holder: {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime': 'not-started', 'cleanup': 'pending', 'observed_at': None, 'last_activity_at': '2026-09-02T00:00:00.000Z'} | ceased: False
+C6 states after 12 unpatched passes: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+C6 home records after: [('attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'ready')] | invocations: 0

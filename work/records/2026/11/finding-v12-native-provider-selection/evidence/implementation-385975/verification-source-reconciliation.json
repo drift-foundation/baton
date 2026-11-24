@@ -1,0 +1,12 @@
+{
+  "compatibility_source": "3d5e47ceca356878b452bdb2068582de9f79f5afbbbfb4c8a50f0c14f03bbf17",
+  "final_source": "0501d6824ce34d0c0a572ea477493ef9e3a8c1898b57346b8210a5624ca31d68",
+  "changed_after_compatibility": [
+    "v12/PROVIDER-SELECTION.md",
+    "v12/python/tests/manager/test_provider_home.py",
+    "v12/python/tests/tools/test_provider_selection.py"
+  ],
+  "production_bytes_changed": false,
+  "consumed_inputs_changed": false,
+  "explanation": "Only user documentation and additive proof tests changed between compatibility batches. Existing production and existing test method bytes retained. completion-proof covers both changed modules; sharing-proof covers the final appended test. All completed runs source-stable."
+}

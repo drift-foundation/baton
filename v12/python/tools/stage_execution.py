@@ -681,6 +681,22 @@ def held_configuration(document, *, checkout=None):
     given["job_bindings"] = _held_bindings(given)
     given["result_judgment_workers"] = _held_judgments(given, here)
     given["analysis_worker"] = _held_analysis(given, here)
+    from baton_v12.worker_manager import provider_home
+    deployments = [one["deployment"] for one in given["workers"]]
+    deployments += [one["deployment"] for group in (given["result_judgment_workers"] or {}).values() for one in group.values()]
+    if given["analysis_worker"] is not None:
+        deployments.append(given["analysis_worker"]["deployment"])
+    excluded = [here]
+    for one in deployments:
+        excluded.extend(one[key] for key in ("workspace_storage", "nominated_source", "launch_home", "credential_home"))
+        if one.get("provider_context") is not None:
+            excluded.append(one["provider_context"]["storage"])
+    for one in deployments:
+        if one.get("provider_contract") is not None:
+            try:
+                provider_home.check_placement(one["provider_home_root"], excluded)
+            except ValueError as failure:
+                _refuse(str(failure), category="refused", code="precondition")
     if given.get("recovery_verification") is not None:
         from tools.recovery_execution import configured_verification
         given["recovery_verification"] = configured_verification(given["recovery_verification"])
@@ -2213,6 +2229,8 @@ class StageComposition:
         if answered.get("outcome") == "held" \
                 or answered.get("cleaned_up") is False:
             return answered
+        from baton_v12.worker_manager import model_attribution
+        answered = model_attribution.bind_ending(self.deployment.control, stage["attempt_id"], answered)
         # W133129: THE SUBMISSION'S OWN THREE RECEIPTS ARE ISSUED WHERE ITS
         # REVIEW IS ACCEPTED, and reviewer138861's guidance is why the hook is
         # here rather than at the integration stage.
@@ -7299,6 +7317,19 @@ def _integration_operations(given, worker, provider, control_store, authority,
     return _PerJobIntegration(dict(held))
 
 
+
+def provider_separation(workers):
+    selections = [one["deployment"].get("provider_contract", {}).get("selection")
+                  for one in workers if one["role"] in ("implementation", "review")]
+    if not selections or any(one is None for one in selections):
+        return SEPARATION_CLASS  # Legacy, with its recorded identity unchanged.
+    if len({one["provider"] for one in selections}) > 1:
+        return "provider-diverse"
+    if len({one["requested_model"] for one in selections}) > 1:
+        return "same-provider/different-model"
+    return "same-provider/same-model-fresh-context"
+
+
 def _pool(given, resolved):
     """The immutable pool document this configuration IS.
 
@@ -7332,7 +7363,7 @@ def _pool(given, resolved):
                         "eligible_kinds": [one["role"]]})
     del resolved
     return {"schema": scheduler.POOL_SCHEMA, "variant": CONFIG_SCHEMA,
-            "separation_class": SEPARATION_CLASS, "workers": workers}
+            "separation_class": provider_separation(given["workers"]), "workers": workers}
 
 
 def operations_from(document, job_store, control_store, *, engine_run=None,
@@ -8162,7 +8193,7 @@ class StageObservation:
         for one in given["workers"]:
             self.readers[one["worker_id"]] = single_worker._Observation(
                 raw[one["worker_id"]], control_store, job_store=job_store,
-                roles=WORKER_ROLES)
+                roles=WORKER_ROLES, worker_id=one["worker_id"])
 
     def observe_exchange(self, stage):
         """The durable exchange of whichever worker holds this stage.

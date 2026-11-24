@@ -1,0 +1,49 @@
+test_the_reviewers_own_verdict_completes_the_review_stage (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_reviewers_own_verdict_completes_the_review_stage)
+The verdict is READ from the reviewer's frozen result. ... ok
+test_the_same_pool_with_that_member_intact_is_admitted (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_same_pool_with_that_member_intact_is_admitted)
+The control, so the refusal above is about the moved member and not ... ok
+test_the_three_workers_really_are_on_three_images (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_three_workers_really_are_on_three_images)
+The control. Every case inherited above would still pass over a ... ok
+test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick)
+Absent or unpublished: neither invents an assignment. ... ok
+test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)
+The namespaces are materialized before the container, so a delivery ... ok
+test_a_deployment_without_exactly_one_producer_refuses (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_deployment_without_exactly_one_producer_refuses) ... ok
+test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)
+Owner ruling M115946: refresh FIRST, then the port's own marker. ... ok
+test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)
+A fresh serving incarnation holds no marker, so the driver's own ... ok
+test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here)
+The other side of that branch, which is why it IS a branch. ... ok
+test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits) ... ok
+test_the_published_reader_adopts_a_real_delivery_with_the_group (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_published_reader_adopts_a_real_delivery_with_the_group)
+W103083 review 2026-09-08T04:06:54Z [P1], proved through the REAL ... ok
+test_the_requirement_is_derived_from_the_configured_task (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_requirement_is_derived_from_the_configured_task)
+Not from what the worker REPORTED: from the task bytes this ... ok
+test_it_releases_the_assignment_the_reviewer_actually_ran (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_it_releases_the_assignment_the_reviewer_actually_ran)
+The exact assignment, read back from the attempt this fixture ... ok
+test_later_ticks_do_not_release_it_a_second_time (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_later_ticks_do_not_release_it_a_second_time) ... ok
+test_no_allocation_of_this_job_is_still_live_at_completion (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_no_allocation_of_this_job_is_still_live_at_completion)
+THE WHOLE POINT, stated as the reader sees it. ... ok
+test_the_accepted_second_round_releases_its_own_allocation (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_accepted_second_round_releases_its_own_allocation) ... ok
+test_the_accepted_verdict_and_its_evidence_survive_the_release (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_accepted_verdict_and_its_evidence_survive_the_release)
+A settlement is not an erasure. The verdict the reviewer's own ... ok
+test_the_completing_tick_releases_the_review_allocation (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_completing_tick_releases_the_review_allocation) ... ok
+test_the_corrected_round_leaves_every_allocation_released (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_corrected_round_leaves_every_allocation_released)
+All four of them -- two implementation rounds and two review ... ok
+test_the_corrected_round_settles_each_episode_exactly_once (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_corrected_round_settles_each_episode_exactly_once)
+Two allocations on one stage, each released for its own ending. ... ok
+test_the_implementation_allocation_was_released_on_its_own_tick (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_implementation_allocation_was_released_on_its_own_tick)
+The half that always worked, kept measured beside the half that did ... ok
+test_the_release_claims_only_the_cleanup_that_was_proven (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_release_claims_only_the_cleanup_that_was_proven)
+`cleanup-retained` AND NOT `cleanup-complete`, which is the ... ok
+test_a_multi_pool_without_an_integrator_is_admitted (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_multi_pool_without_an_integrator_is_admitted) ... ok
+test_a_participant_serving_both_sides_of_a_review_is_refused (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_participant_serving_both_sides_of_a_review_is_refused)
+Independence is the whole reason a review exists, and the wider ... ok
+test_a_repeated_worker_identity_is_refused (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_repeated_worker_identity_is_refused)
+The rule `/1` got for free from its roles: the pool tells its ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 9.290s
+
+OK

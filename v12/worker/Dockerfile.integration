@@ -81,6 +81,7 @@ COPY worker/worker-control-1.0.schema.json \
 # both directions. No `baton_v12` package directory is created here, so the
 # image still has no way to spell the manager's namespace.
 COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+COPY python/src/baton_v12/provider_policy /opt/baton/provider_policy
 
 # W321776: AND THE SHARED VERIFICATION CONTRACT, for the same reason and under
 # the same rule. `claude_agent` imports `verification_context` -- the declared

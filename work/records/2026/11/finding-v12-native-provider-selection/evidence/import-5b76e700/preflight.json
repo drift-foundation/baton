@@ -1,0 +1,228 @@
+{
+  "candidate": "sha256:5b76e7000b38c77b8405b92215f5ed7d82aeb20dab62bd2ccc2fe23a13ed5b62",
+  "checked": [
+    {
+      "path": "v12/PROVIDER-SELECTION.md",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "716a5bed8aa3204667325b619aee53c27139100bc7fbbd03cdc15971255113c7"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "08b815e7dd367c1b0c11f36105f7f850169f846072e757d102395a7c6d5313f3"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/publication_execution.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "2b8de490841b74b766c79988c3fa0aff63d3dc764f900b9dabf842a8c1da04ea"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/publication_recovery.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "35d44282186d70407422f0dbf2c08dd08a45eda4f67dee65aca6e461c7b640b3"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "55213c8a32c977edf13a925a6ceaddc0f63d40f05151e007e08750a1131c2213"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "52b4b188018c37ead059b2e6597320830b409f4ee480ae6983310103891b1e74"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/attribution.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "5d32b3d239bd0223eb890ad564c70a7e70ca1d0ee84e5a4bab9da4a43918b052"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/home.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "56b2d7db42be55fb112db2f9333992b19eb2d41cf40f4eacb7b702802bbdbc4e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempt_logs.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "8e614604cb7170601982a00954d9ce95a76f1a49b82f8641330a051cd1b3e336"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "17524cd748334c196c8578e3d15cd07220e51d21f98be195eb3ce82f815e0a7e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "722db11641953cf0c55a071349c9a7441ae11a4e10c47abdd702494fd34a2449"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/model_attribution.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "7e9070fffd5e4581fef51a4c2822762c44d4242cb9e09a32c1c8776efb78dc56"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "f019a296f0f491027ec4b3b43553085114a35cd5be6e9c5f2a3482d35b4af435"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_home.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "949739e4661f87d585fdcce70f8269d6d18ab4b901d6bec808a645d34744dcba"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_provider_attribution_recovery.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "7ee3083f809ca056cc6f571542e4c21d555b14368619a46cf16d077204ac0985"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_publication_recovery_admission.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "b0820bcad79d1f168cdb368d812d6f59630b040d669d703a113344c252ba0a62"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_scheduling.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "99f63c79ab5f679d39ee7c872ad69b2a542c3b655d301820062e03677681bb0b"
+    },
+    {
+      "path": "v12/python/tests/manager/provider_fixtures.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "c418dda15c982d68e7def3e362c24a28c3b91d683eb51dfcdfa9889aece62028"
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "e4ce0078d6e58dd3d3e4fb02da595e589bb72312288e566d65fcb9b8e1cde4da"
+    },
+    {
+      "path": "v12/python/tests/manager/test_model_attribution.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "ea56f463eb81d1714ad9d7936a7469193c8adc977174776fe9c7e4870ca9d40b"
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_home.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "312347a3b83bf5211d9dcf3faee03e767c5ae5e9cffc85de632953f3ab47a255"
+    },
+    {
+      "path": "v12/python/tests/manager/test_worker_entry.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "40b337877d5c644476723623c3264b80ccc0222b92156dd081d0a96c773abcde"
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_observation.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "c2a3ff1daa3b29903333f600577c8e21ffb5c13a02f74313fd3acfc22e3d877c"
+    },
+    {
+      "path": "v12/python/tests/tools/test_pool.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "6dded05b2cce09b446f7b166d9678f187f84fb31b47ed1a3d512e42e304a9cf0"
+    },
+    {
+      "path": "v12/python/tests/tools/test_provider_selection.py",
+      "existing": false,
+      "target_mode": "0o644",
+      "sha256": "1a6789e78aa2e8a070840143c6d180d627b50025548f31141b45f3e44a20bf66"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "a2da0bd1ab85886a66c179c5ec8b57792370706102e86dbb99993dfdeab6fb39"
+    },
+    {
+      "path": "v12/python/tools/job_observation.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "62517a7beee7f78bcbe95ed6f177d36d3fd839662d227e82b3d1c0f4f98cc0f6"
+    },
+    {
+      "path": "v12/python/tools/job_viewer.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "76bcb5774ebacf51262b9533abbc0ef5d20125678c15e91d236d71725da31268"
+    },
+    {
+      "path": "v12/python/tools/next_run_bindings.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "b9d4df0dd6d51031f6f2e3f53c3ccb4bbdea175d39824a1a4da69dcc02258aed"
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "4619a597021d3c5fc3300ff2f150bc4baa248672b3739c5132ada30c28d0a66f"
+    },
+    {
+      "path": "v12/python/tools/pool.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "7ef018e273e7e7b466cf420493713f853bd1eb3c301350bb85c78888fc1cc75f"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "b9ea2bb31271dda2d5a19ba2023cffeb3c9b2db5148deda38d7c7a1a0eaa2dff"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "80e67e25cb6399d82ffadef80dc9c194ed76a54ce465d6b0042bd5c07972f01c"
+    },
+    {
+      "path": "v12/worker/Dockerfile.claude",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "f5b6415bce1ed49c5aa4847509cda9674f01b7a30af0526f3fe99321cf93b5de"
+    },
+    {
+      "path": "v12/worker/Dockerfile.integration",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "ce293336f1ad4adcd5beb85dc8ba9e412ed06ed6aaa836c64812093604fd6394"
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "existing": true,
+      "target_mode": "0o664",
+      "sha256": "bb16d4b14df274d06ac534c04aaceab2aebdb856ed73fc099af3c3fe5590f6c4"
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "existing": true,
+      "target_mode": "0o644",
+      "sha256": "6cf404dfa60093b1d2f5a4d7073c3d0bddb7128897b5ff88ebd622aa08524eee"
+    }
+  ],
+  "refusals": 0
+}

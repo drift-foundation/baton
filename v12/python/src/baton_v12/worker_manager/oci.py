@@ -1332,12 +1332,19 @@ def activation_vector(engine, *, runtime_id):
     return [engine, "start", runtime_id]
 
 
+def _provider_home_boundary(delivery):
+    try:
+        return delivery.boundary()
+    except (ValueError, OSError) as failure:
+        _denied("provider home boundary is unproved: " + type(failure).__name__)
+
+
 def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                mounts=(), credentials_delivered=(), launch_delivered=None,
                layout_delivered=None,
                exchange_delivered=None, source_delivered=None,
                logs_delivered=None, scratch_delivered=None,
-               integration_delivered=None, context_delivered=None,
+               integration_delivered=None, context_delivered=None, provider_home_delivered=None,
                name, workspace_group=None, network=NETWORK_NONE,
                interactive=False, activation=ACTIVATE_IMMEDIATELY):
     """The closed argv that STARTS one runtime, restrictions and all.
@@ -1805,6 +1812,23 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
         others += [(source, None, False) for unused, source in roots.items()]
         for source, target, writable in _context_mounts(context_delivered, posture, others):
             argv += ["--mount", f"type=bind,source={source},target={target},readonly=false"]
+    if provider_home_delivered is not None:
+        from .provider_home import HomeMount
+        if type(provider_home_delivered) is not HomeMount or posture != "execution" or context_delivered is not None:
+            _denied("provider home requires its typed fresh execution mount")
+        others = list(assigned) + [(source, target, False) for source, target in _credential_mounts(credentials_delivered)]
+        others += ([_launch_mount(launch_delivered) + (False,)] if launch_delivered else [])
+        others += ([_layout_mount(layout_delivered) + (False,)] if layout_delivered else [])
+        others += list(_exchange_mounts(exchange_delivered)) + list(_source_mount(source_delivered, assigned, roots)) + list(integration_composed)
+        others += list(_log_mounts(logs_delivered)) + list(_scratch_mount(scratch_delivered))
+        others += [(source, None, False) for unused, source in roots.items()]
+        source, target, writable = _provider_home_boundary(provider_home_delivered)
+        source = canonical_source(source, "provider home root")
+        for other_source, other_target, unused in others:
+            if (_within(source, other_source) or _within(other_source, source)
+                    or (other_target is not None and (_within(target, other_target) or _within(other_target, target)))):
+                _denied("provider home overlaps another mount family")
+        argv += ["--mount", f"type=bind,source={source},target={target},readonly=false"]
     # THE IMAGE, LAST and by digest. Every flag precedes it, so nothing a
     # caller supplies can be read as an argument to the engine itself.
     argv.append(image_digest)
@@ -2221,7 +2245,7 @@ class OciAdapter:
                  credential_delivery=None, credential_home=None,
                  credential_orphan=None, launch_delivery=None,
                  layout_delivery=None,
-                 source_delivery=None, integration_delivery=None, context_delivery=None,
+                 source_delivery=None, integration_delivery=None, context_delivery=None, provider_home_delivery=None,
                  scratch_delivery=None, context_execution=None,
                  workspace_group=None, network=NETWORK_NONE,
                  interactive=False):
@@ -2384,6 +2408,19 @@ class OciAdapter:
                             f"under another one describes a runtime this "
                             f"adapter does not start")
         self.layout_delivery = layout_delivery
+        self.provider_home_delivery = provider_home_delivery
+        selected = launch.payload_of(launch_delivery.document).get("provider_selection") if launch_delivery else None
+        if (provider_home_delivery is None) != (selected is None):
+            _denied("provider selection and home mount must both be present")
+        if selected is not None:
+            from .provider_home import HomeMount
+            if (type(provider_home_delivery) is not HomeMount or posture != "execution"
+                    or context_delivery is not None or provider_home_delivery.identity != selected["home_identity"]
+                    or provider_home_delivery.attempt_id != selected["attempt_id"]
+                    or selected["adapter_digest"] != self.identity["adapter_digest"]
+                    or selected["profile_digest"] != self.identity["profile_digest"]):
+                _denied("provider home and launch identity disagree")
+            _provider_home_boundary(provider_home_delivery)
         self.context_delivery = context_delivery
         # W177936: the launch boundary's grant, absent by default -- see
         # `_context_execution`. Owned at construction like every delivery.
@@ -2824,6 +2861,7 @@ class OciAdapter:
                 source_delivered=self.source_delivery,
                 integration_delivered=self.integration_delivery,
                 context_delivered=self.context_delivery,
+                provider_home_delivered=self.provider_home_delivery,
                 name=_runtime_name(taken["operation_id"]),
                 workspace_group=self.workspace_group,
                 network=self.network, interactive=self.interactive,
@@ -4350,6 +4388,14 @@ class OciAdapter:
                     raise ValueError("context mount mismatch")
             except (ContractRefusal, ValueError):
                 return {"state": "uncertain", "why": "context mount is not proved", "mounts": mounts, "candidates": ({"runtime_id": runtime_id, **found},)}
+        if found["state"] != "absent" and self.provider_home_delivery is not None:
+            try:
+                expected = self.provider_home_delivery.boundary()
+                selected = [one for one in (mounts or ()) if _within(one["target"], expected[1]) or _within(expected[1], one["target"])]
+                if mounts is None or selected != [{"source": expected[0], "target": expected[1], "writable": True}]:
+                    raise ValueError("provider home mount mismatch")
+            except (ValueError, OSError):
+                return {"state": "uncertain", "why": "provider home mount is not proved", "mounts": mounts, "candidates": ({"runtime_id": runtime_id, **found},)}
         return {"state": found["state"], "why": found["why"],
                 "mounts": mounts,
                 "candidates": ({"runtime_id": runtime_id, **found},)}

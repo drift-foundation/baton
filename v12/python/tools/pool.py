@@ -686,7 +686,7 @@ def composed(held, *, worker_id, role, participant, image_reference,
              credentials, workspace_group, task_document, record_path,
              checkout=None, work_id=None, runtime_uid=None, now=None,
              verifier_layout=None, legacy_layout=False,
-             template_version=TEMPLATE_VERSION):
+             template_version=TEMPLATE_VERSION, provider_selection=None):
     """One worker document for the instance `held` describes. READS ONLY.
 
     `template_version` SELECTS THE TEMPLATE THE WORKER IS COMPOSED FOR
@@ -721,6 +721,8 @@ def composed(held, *, worker_id, role, participant, image_reference,
                           + " and this worker names the role " + repr(role)
                           + ". Nothing was changed.")
     if role == bootstrap.PUBLICATION_ROLE:
+        if provider_selection is not None:
+            raise PoolRefusal("a publication worker has no provider selection")
         # W385695 (review 2026-11-23T18-55-03Z R1): THE DETERMINISTIC
         # PUBLICATION WORKER IS COMPOSED BY ITS OWN RULE, below. It selects
         # no provider, so the operands that name one are refused rather than
@@ -779,7 +781,8 @@ def composed(held, *, worker_id, role, participant, image_reference,
             runtime_uid=runtime_uid,
             turn_seconds=limits["provider_turn"]["seconds"],
             verification_seconds=limits["ordinary_verification"]["seconds"],
-            implementer_invocations=1, contextual=False)
+            implementer_invocations=1, contextual=False,
+            provider_selection=provider_selection)
         from datetime import datetime, timezone
 
         bounds = next_run_bindings.deployment_bounds(
@@ -845,6 +848,16 @@ def composed(held, *, worker_id, role, participant, image_reference,
         # one instance differ in exactly what they declare.
         deployment["provider_context"] = None
         deployment["verifier_layout"] = layout
+    if provider_selection is not None:
+        from baton_v12 import provider_policy
+        selected = provider_policy.selection(provider_selection)
+        deployment.update(
+            schema=single_worker.PROVIDER_CONFIG_SCHEMA,
+            provider_context=None, verifier_layout=layout,
+            provider_home_root=os.path.join(places["state"], "job-work"),
+            provider_contract={"selection": selected,
+                               "adapter": identities["adapter"],
+                               "runtime_profile": identities["runtime_profile"]})
     worker = held_worker({"worker_id": worker_id, "role": role,
                           "participant": participant,
                           "deployment": deployment})
@@ -1205,6 +1218,11 @@ def main(argv=None, *, stream=sys.stdout):
                            help="the provider CLI build the image carries, "
                                 "as the recipe pins it (every role but "
                                 "publication)")
+    composing.add_argument("--provider", default=None,
+                           help="explicitly opt in to provider policy /2")
+    composing.add_argument("--requested-model", default=None)
+    composing.add_argument("--reported-identity", default=None,
+                           help="owner-selected exact identity reported for the selector")
     composing.add_argument("--network", default=None,
                            help="the approved OCI network name (every role "
                                 "but publication, which reaches none)")
@@ -1283,6 +1301,11 @@ def main(argv=None, *, stream=sys.stdout):
                     role=taken.role, participant=taken.participant,
                     image_reference=taken.image_reference,
                     image_digest=taken.image_digest,
+                    provider_selection=({"provider": taken.provider,
+                        "requested_model": taken.requested_model,
+                        "reported_identity": taken.reported_identity,
+                        "cli_build": taken.cli_build}
+                        if any(value is not None for value in (taken.provider, taken.requested_model, taken.reported_identity)) else None),
                     cli_build=taken.cli_build, network=taken.network,
                     credential_sources=taken.credential_sources,
                     credentials=taken.credential,

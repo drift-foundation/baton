@@ -1,0 +1,88 @@
+test_13_positive_implementation_binds_frozen_result_and_checkpoint (__main__.Delta.test_13_positive_implementation_binds_frozen_result_and_checkpoint) ... ok
+test_13_review_binds_its_own_evidence_to_verdict (__main__.Delta.test_13_review_binds_its_own_evidence_to_verdict) ... ok
+test_14_17_missing_output_holds_without_publication_or_retry (__main__.Delta.test_14_17_missing_output_holds_without_publication_or_retry) ... ok
+test_14_conflicting_build_holds_before_checkpoint (__main__.Delta.test_14_conflicting_build_holds_before_checkpoint) ... ok
+test_14_review_without_requested_contributor_records_no_verdict (__main__.Delta.test_14_review_without_requested_contributor_records_no_verdict) ... ok
+test_15_foreign_attempt_in_real_frozen_result_is_held (__main__.Delta.test_15_foreign_attempt_in_real_frozen_result_is_held) ... ok
+test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering (__main__.Delta.test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering) ... ok
+test_16_restart_between_result_and_ending_uses_original_evidence (__main__.Delta.test_16_restart_between_result_and_ending_uses_original_evidence) ... ok
+test_17_legacy_result_without_attribution_is_held_under_new_selection (__main__.Delta.test_17_legacy_result_without_attribution_is_held_under_new_selection) ... ok
+test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume (__main__.Delta.test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume) ... ok
+test_20_separation_is_composed_from_selected_providers_and_models (__main__.Delta.test_20_separation_is_composed_from_selected_providers_and_models) ... ok
+test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes (__main__.Delta.test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes) ... ok
+test_26_actual_argv_or_environment_drift_refuses_before_provider (__main__.Delta.test_26_actual_argv_or_environment_drift_refuses_before_provider) ... ok
+test_26_environment_drift_refuses_before_build_probe (__main__.Delta.test_26_environment_drift_refuses_before_build_probe) ... ok
+test_27_28_changed_tool_policy_refuses_before_any_runtime (__main__.Delta.test_27_28_changed_tool_policy_refuses_before_any_runtime) ... ok
+test_30_legacy_and_selected_lanes_refuse_one_job_before_effects (__main__.Delta.test_30_legacy_and_selected_lanes_refuse_one_job_before_effects) ... ok
+test_31_override_home_location_refuses_before_runtime (__main__.Delta.test_31_override_home_location_refuses_before_runtime) ... ok
+test_32_38_correction_reuses_home_after_positive_runtime_cessation (__main__.Delta.test_32_38_correction_reuses_home_after_positive_runtime_cessation) ... ok
+test_32_restart_after_review_reuses_retained_home (__main__.Delta.test_32_restart_after_review_reuses_retained_home) ... ok
+test_34_cross_worker_context_and_checkout_overlap_refuse_preflight (__main__.Delta.test_34_cross_worker_context_and_checkout_overlap_refuse_preflight) ... ok
+test_41_42_43_seeded_provider_refresh_survives_correction_without_export (__main__.Delta.test_41_42_43_seeded_provider_refresh_survives_correction_without_export) ... ok
+test_44_simulated_authentication_failure_has_no_key_or_fallback (__main__.Delta.test_44_simulated_authentication_failure_has_no_key_or_fallback) ... ok
+test_45_same_seed_reference_allows_two_workers_and_two_jobs (__main__.Delta.test_45_same_seed_reference_allows_two_workers_and_two_jobs) ... ok
+test_46_managed_credential_collision_refuses_composition (__main__.Delta.test_46_managed_credential_collision_refuses_composition) ... ok
+test_D1_prestart_refusal_now_releases_and_the_old_holder_cannot_start (__main__.Delta.test_D1_prestart_refusal_now_releases_and_the_old_holder_cannot_start) ... ok
+test_D2_the_fence_is_inside_the_start_transaction (__main__.Delta.test_D2_the_fence_is_inside_the_start_transaction)
+A start caller already past its preliminary check when the preparation ending commits. ... ERROR
+test_D3_an_ending_recorded_after_a_start_was_requested_does_not_release (__main__.Delta.test_D3_an_ending_recorded_after_a_start_was_requested_does_not_release) ... ERROR
+test_D4_a_start_the_engine_refused (__main__.Delta.test_D4_a_start_the_engine_refused)
+Start intent exists and the adapter refused. What does the holder's evidence say, and can a successor ever take the home? ... ok
+test_D5_home_creation_itself_fails_after_the_holder_record (__main__.Delta.test_D5_home_creation_itself_fails_after_the_holder_record)
+An ordinary error (not a process death) creating home/ after record.json names the holder. ... ok
+test_D6_hold_reason_on_real_status_for_each_cause_and_not_for_matched (__main__.Delta.test_D6_hold_reason_on_real_status_for_each_cause_and_not_for_matched) ... ok
+test_D7_matched_shows_no_hold (__main__.Delta.test_D7_matched_shows_no_hold) ... ok
+test_D8_invalid_claim_shows_invalid (__main__.Delta.test_D8_invalid_claim_shows_invalid) ... ok
+test_R1_prestart_failure_releases_home_to_successor_and_fences_old_start (__main__.Delta.test_R1_prestart_failure_releases_home_to_successor_and_fences_old_start) ... ok
+test_R1_requested_start_without_cessation_keeps_home_pending (__main__.Delta.test_R1_requested_start_without_cessation_keeps_home_pending) ... ok
+test_R3_held_cause_and_owner_action_survive_passes_and_restart (__main__.Delta.test_R3_held_cause_and_owner_action_survive_passes_and_restart) ... ok
+
+======================================================================
+ERROR: test_D2_the_fence_is_inside_the_start_transaction (__main__.Delta.test_D2_the_fence_is_inside_the_start_transaction)
+A start caller already past its preliminary check when the preparation ending commits.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385983/probes/probe_delta.py", line 81, in test_D2_the_fence_is_inside_the_start_transaction
+    attempts.request_runtime_start(control, engine, attempt_id=previous)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385983/cand/v12/python/src/baton_v12/worker_manager/attempts.py", line 1614, in request_runtime_start
+    _plan_agrees(adapter, attempt_id, inputs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385983/cand/v12/python/src/baton_v12/worker_manager/attempts.py", line 1451, in _plan_agrees
+    for mount in plan:
+                 ^^^^
+TypeError: 'Mock' object is not iterable
+
+======================================================================
+ERROR: test_D3_an_ending_recorded_after_a_start_was_requested_does_not_release (__main__.Delta.test_D3_an_ending_recorded_after_a_start_was_requested_does_not_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385983/probes/probe_delta.py", line 100, in test_D3_an_ending_recorded_after_a_start_was_requested_does_not_release
+    said = attempts._record_preparation_failure(control, previous, ContractRefusal("refused", "precondition", "probe: later continuation refused"))
+  File "/home/sl/src/baton/work/scratch/review-K-385983/cand/v12/python/src/baton_v12/worker_manager/attempts.py", line 2096, in _record_preparation_failure
+    sayable = _sayable(failure)
+  File "/home/sl/src/baton/work/scratch/review-K-385983/cand/v12/python/src/baton_v12/worker_manager/attempts.py", line 2041, in _sayable
+    message = failure.get("message")
+              ^^^^^^^^^^^
+AttributeError: 'ContractRefusal' object has no attribute 'get'
+
+----------------------------------------------------------------------
+Ran 35 tests in 14.485s
+
+FAILED (errors=2)
+D1 states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'} | record: True ready
+D1 evidence: {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime': 'not-started', 'ended_before_start': True, 'cleanup': 'pending', 'observed_at': None, 'last_activity_at': '2026-09-02T00:00:00.000Z'} | ceased: True
+D1 delayed start of the released holder: refused already-terminal | attempt preparation already ended; runtime start is forbidden
+D1 old holder asking for the home back: pending; holder stays k-successor; provider invocations: 0
+D4 passes: returned | states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+D4 after 12 more ordinary passes: returned | states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+D4 start failure recorded: True | preparation ending: False | axis: uncertain | runtime_id: None | cleanup: pending
+D4 evidence: {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime': 'uncertain', 'cleanup': 'pending', 'observed_at': None, 'last_activity_at': '2026-09-02T00:00:00.000Z'} | ceased: False | record state: ready | invocations: 0
+D5 passes: returned | mkdir refusals: 1 | states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+D5 record: preparing | home exists: False | preparation ending: True
+D5 evidence: {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime': 'not-started', 'ended_before_start': True, 'cleanup': 'pending', 'observed_at': None, 'last_activity_at': '2026-09-02T00:00:00.000Z'} | ceased: True
+D5 successor: PENDING — provider home creation is unfinished | record unchanged: True
+D5 after 12 ordinary passes with the disk healthy: returned | states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'} | record: True preparing
+D6 conflicting: held model-attribution-conflicting | shown: ('answering', 'model-attribution-conflicting', 'held: model-attribution-conflicting; owner action needed', None) | review: blocked
+D7 matched: ('matched', None) | hold member present: False | reason: '' | state: completed
+D8 invalid: held model-attribution-invalid | reason: held: model-attribution-invalid; owner action needed

@@ -1,0 +1,125 @@
+{
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "candidate": "sha256:f88403d06ef393421acfb0a3ae75a0b9f47bead87bdd901890d6390d246cc295",
+  "claim": 385969,
+  "context": {
+    "ASSIGNMENT-N1N2-2026-11-24.md": "ae9dfac38ba3bd61d628c23c98637e9a8eb2e68ac50b8592b0717063992d3b22",
+    "ASSIGNMENT-N1N2-OWNER-B-2026-11-24.md": "be732f8f991e4e6c0ef4e696527ed389b709d58ce35e21179dec587ae740707e",
+    "DESIGN.md": "d2c71e534b3d3f92d7f81b445ed7ba911984e568addfb1b5c59c73e02dbbd914",
+    "IMPLEMENTATION-CONTRACT-CONSOLIDATED-REV2-2026-11-23.md": "dc3245c0c5594f15d22c87cd9b9a19352c633c3e4ef9a52f070f24d87960bd87",
+    "IMPLEMENTATION-CONTRACT-N1N2-ADDENDUM-2026-11-23.md": "c4d2c4b7ebe4c60b6e5eb9543ff4664d2fd86511c6b8a4f538c2b58e27d07117"
+  },
+  "files": [
+    {
+      "bytes": 8057,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py",
+      "sha256": "83c5bca807971830ed1a17b46934592c961c0e30d983c3e55e42c1431f094655"
+    },
+    {
+      "bytes": 6441,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/provider_policy/home.py",
+      "sha256": "56b2d7db42be55fb112db2f9333992b19eb2d41cf40f4eacb7b702802bbdbc4e"
+    },
+    {
+      "bytes": 220857,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "9884bb6ef7a0d07c0010e7b1f14964456ddd77169a3f81ecf8bb3fa4ba017dba"
+    },
+    {
+      "bytes": 55622,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "sha256": "722db11641953cf0c55a071349c9a7441ae11a4e10c47abdd702494fd34a2449"
+    },
+    {
+      "bytes": 255732,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "53e2d3a89181ae2a848b35a053e9b08a3d02f98bb327152be8ecbc80e9bde3ab"
+    },
+    {
+      "bytes": 10055,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/worker_manager/provider_home.py",
+      "sha256": "bfd2df5d465ecbe240a382ea6d085a0abf4b23875f7aca987d54a05a0a3ff708"
+    },
+    {
+      "bytes": 261312,
+      "mode": "0o644",
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "e4ce0078d6e58dd3d3e4fb02da595e589bb72312288e566d65fcb9b8e1cde4da"
+    },
+    {
+      "bytes": 14878,
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/test_provider_home.py",
+      "sha256": "610014df2be3f60f5c756e1aafe7feb951e584078c3e7b32ec2010185994894d"
+    },
+    {
+      "bytes": 56277,
+      "mode": "0o644",
+      "path": "v12/python/tests/manager/test_worker_entry.py",
+      "sha256": "40b337877d5c644476723623c3264b80ccc0222b92156dd081d0a96c773abcde"
+    },
+    {
+      "bytes": 79115,
+      "mode": "0o644",
+      "path": "v12/python/tests/tools/test_pool.py",
+      "sha256": "6dded05b2cce09b446f7b166d9678f187f84fb31b47ed1a3d512e42e304a9cf0"
+    },
+    {
+      "bytes": 51646,
+      "mode": "0o644",
+      "path": "v12/python/tools/next_run_bindings.py",
+      "sha256": "b9d4df0dd6d51031f6f2e3f53c3ccb4bbdea175d39824a1a4da69dcc02258aed"
+    },
+    {
+      "bytes": 111413,
+      "mode": "0o644",
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "8ccf7edc8eac2090bcec64a47cb253c29e1f3af86ca01ec18ca506e022cc3716"
+    },
+    {
+      "bytes": 73364,
+      "mode": "0o644",
+      "path": "v12/python/tools/pool.py",
+      "sha256": "7ef018e273e7e7b466cf420493713f853bd1eb3c301350bb85c78888fc1cc75f"
+    },
+    {
+      "bytes": 262477,
+      "mode": "0o644",
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "4c8f0bdee402bde0c2c580a6b8467d1b5ad0e43b07610473d73b100e8921b659"
+    },
+    {
+      "bytes": 18534,
+      "mode": "0o644",
+      "path": "v12/worker/Dockerfile.claude",
+      "sha256": "f5b6415bce1ed49c5aa4847509cda9674f01b7a30af0526f3fe99321cf93b5de"
+    },
+    {
+      "bytes": 8000,
+      "mode": "0o644",
+      "path": "v12/worker/Dockerfile.integration",
+      "sha256": "ce293336f1ad4adcd5beb85dc8ba9e412ed06ed6aaa836c64812093604fd6394"
+    },
+    {
+      "bytes": 172036,
+      "mode": "0o644",
+      "path": "v12/worker/baton_worker.py",
+      "sha256": "bb16d4b14df274d06ac534c04aaceab2aebdb856ed73fc099af3c3fe5590f6c4"
+    },
+    {
+      "bytes": 407136,
+      "mode": "0o644",
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "16681bb2e8287eee8b370e1c56f8b75aa2942b24953e28eeaaee047f3690c677"
+    }
+  ],
+  "isolated_baseline_commit": "65f86d4cb7f2dcaebb27324123294103164bbb21",
+  "status": "incomplete-not-for-acceptance-or-import",
+  "work": "W385965"
+}

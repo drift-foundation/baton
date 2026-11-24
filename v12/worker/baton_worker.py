@@ -199,6 +199,8 @@ JOB_LAUNCH_SCHEMA = "baton.worker-launch/3"
 JOB_LAUNCH_MEMBERS = EXCHANGE_LAUNCH_MEMBERS + ("job_execution",)
 CONTEXT_LAUNCH_SCHEMA = "baton.worker-launch/4"
 CONTEXT_LAUNCH_MEMBERS = JOB_LAUNCH_MEMBERS + ("provider_context",)
+PROVIDER_LAUNCH_SCHEMA = "baton.worker-launch/6"
+PROVIDER_LAUNCH_MEMBERS = JOB_LAUNCH_MEMBERS + ("provider_selection",)
 
 # W376586: /5 IS THE ONE CURRENT FILE-EXCHANGE WRAPPER, and it is a different
 # KIND of version from the four above.
@@ -224,7 +226,7 @@ WIRE_PROFILE = "typed-adapter-file-exchange/1"
 # cross-generation launch was wrong about this worker's own range. A tuple
 # cannot drift from the reader the way a hand-written list did.
 SUPPORTED_LAUNCH_SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_LAUNCH_SCHEMA,
-                            JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA)
+                            JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA, PROVIDER_LAUNCH_SCHEMA)
 
 # THE ONE GENERATION THAT CANNOT BE AN EXCHANGE LAUNCH. `/1` has no transport
 # member at all, so a document declaring it is unambiguously the framing-loop
@@ -1103,7 +1105,7 @@ def launched(document, place=LAUNCH_DOCUMENT):
             f"{', '.join(repr(one) for one in SUPPORTED_LAUNCH_SCHEMAS)}; a "
             f"launch document from another generation is not one to read the "
             f"recognised parts out of")
-    members = (CONTEXT_LAUNCH_MEMBERS if given == CONTEXT_LAUNCH_SCHEMA else JOB_LAUNCH_MEMBERS if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA)
+    members = (PROVIDER_LAUNCH_MEMBERS if given == PROVIDER_LAUNCH_SCHEMA else CONTEXT_LAUNCH_MEMBERS if given == CONTEXT_LAUNCH_SCHEMA else JOB_LAUNCH_MEMBERS if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA, PROVIDER_LAUNCH_SCHEMA)
                else EXCHANGE_LAUNCH_MEMBERS
                if given == EXCHANGE_LAUNCH_SCHEMA else LAUNCH_MEMBERS)
     missing = sorted(name for name in members if name not in document)
@@ -1119,7 +1121,7 @@ def launched(document, place=LAUNCH_DOCUMENT):
     # `main` then treated it as a one-shot launch -- a container told to speak
     # something nothing is listening to, deciding for itself that it had been
     # told nothing.
-    if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA) \
+    if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA, PROVIDER_LAUNCH_SCHEMA) \
             and document.get("transport") not in (None, EXCHANGE_TRANSPORT):
         raise WorkerFault(
             "launch",
@@ -1150,18 +1152,26 @@ def launched(document, place=LAUNCH_DOCUMENT):
             f"{WRAPPER_LAUNCH_SCHEMA!r} wrapper; this release speaks the file "
             f"exchange through {WIRE_PROFILE!r} and an unwrapped file-exchange "
             f"launch is not one this worker executes")
-    if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA):
+    if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA, PROVIDER_LAUNCH_SCHEMA):
         _job_execution(document, place)
     if given == CONTEXT_LAUNCH_SCHEMA:
         context_delivery(document)
+    if given == PROVIDER_LAUNCH_SCHEMA:
+        try:
+            import provider_policy
+            provider_policy.validate_delivery(document["provider_selection"], document["job_execution"])
+        except (ImportError, ValueError, TypeError, KeyError) as failure:
+            raise WorkerFault("launch", "provider selection is unproved") from failure
+        if document.get("role") == "publication":
+            raise WorkerFault("launch", "publication has no provider selection")
     for name in members:
         # THE TWO MEMBERS THAT ARE NOT BOUNDED TEXT. `/3`'s transport is
         # deliberately null for a one-shot launch and its job execution is a
         # document; both are proved above by their own rules, so holding them
         # to the text bound here would refuse the shapes this version exists
         # to carry.
-        if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA) and name in ("transport",
-                                                   "job_execution", "provider_context"):
+        if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA, PROVIDER_LAUNCH_SCHEMA) and name in ("transport",
+                                                   "job_execution", "provider_context", "provider_selection"):
             continue
         value = document[name]
         if type(value) is not str or not value:

@@ -1,0 +1,20 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.tools.test_provider_selection.SelectedCase.test_45_same_seed_reference_allows_two_workers_and_two_jobs"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 1,
+  "bound_seconds": 30,
+  "pid": 1827921,
+  "pgid": 1827921
+}

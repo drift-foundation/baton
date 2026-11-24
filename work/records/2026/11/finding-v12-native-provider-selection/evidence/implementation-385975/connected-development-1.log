@@ -1,0 +1,35 @@
+test_11_12_normalized_participation_and_exact_retained_byte_digest (tests.manager.test_model_attribution.Participation.test_11_12_normalized_participation_and_exact_retained_byte_digest) ... ok
+test_15_altered_binding_or_raw_is_refused (tests.manager.test_model_attribution.Participation.test_15_altered_binding_or_raw_is_refused) ... ok
+test_18_19_diagnostic_words_and_legacy_default (tests.manager.test_model_attribution.Participation.test_18_19_diagnostic_words_and_legacy_default) ... ok
+test_21_participation_sources_are_adapter_identity (tests.manager.test_model_attribution.Participation.test_21_participation_sources_are_adapter_identity) ... ok
+test_3_5_missing_malformed_partial_oversize_and_build (tests.manager.test_model_attribution.Participation.test_3_5_missing_malformed_partial_oversize_and_build) ... ok
+test_4_9_union_sources_and_exact_mapping (tests.manager.test_model_attribution.Participation.test_4_9_union_sources_and_exact_mapping) ... ok
+test_6_7_text_echo_error_and_unlisted_fields_never_contribute (tests.manager.test_model_attribution.Participation.test_6_7_text_echo_error_and_unlisted_fields_never_contribute) ... ok
+test_8_10_unrestricted_contributors_but_case_prefix_suffix_do_not_match (tests.manager.test_model_attribution.Participation.test_8_10_unrestricted_contributors_but_case_prefix_suffix_do_not_match) ... ok
+test_13_positive_implementation_binds_frozen_result_and_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_13_positive_implementation_binds_frozen_result_and_checkpoint) ... ERROR
+test_14_17_missing_output_holds_without_publication_or_retry (tests.tools.test_provider_selection.SelectedCase.test_14_17_missing_output_holds_without_publication_or_retry) ... ERROR
+
+======================================================================
+ERROR: test_13_positive_implementation_binds_frozen_result_and_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_13_positive_implementation_binds_frozen_result_and_checkpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 24, in setUp
+    profile = dict(value["runtime_profile"], image_reference=self.config["image_reference"], image_digest=self.config["image_digest"], network=self.config["network"])
+                                                             ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'image_reference'
+
+======================================================================
+ERROR: test_14_17_missing_output_holds_without_publication_or_retry (tests.tools.test_provider_selection.SelectedCase.test_14_17_missing_output_holds_without_publication_or_retry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 24, in setUp
+    profile = dict(value["runtime_profile"], image_reference=self.config["image_reference"], image_digest=self.config["image_digest"], network=self.config["network"])
+                                                             ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'image_reference'
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.044s
+
+FAILED (errors=2)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

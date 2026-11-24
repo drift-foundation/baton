@@ -1,0 +1,62 @@
+test_a_root_carrying_another_input_manifest_never_starts (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_root_carrying_another_input_manifest_never_starts)
+The third manager-owned fact: the attempt's own record of what it ... ok
+test_a_root_composed_for_another_delivery_never_starts_a_runtime (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_root_composed_for_another_delivery_never_starts_a_runtime)
+Each root below is internally perfect and composed by the real ... ok
+test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with)
+W6632 review [P1] made the policy digest a reconciliation label. ... ok
+test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored)
+It is not absent, it is WRONG, and this call caused it. ... ok
+test_a_second_start_is_refused_rather_than_performed (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_second_start_is_refused_rather_than_performed) ... ok
+test_a_start_over_an_authorized_root_proceeds (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_start_over_an_authorized_root_proceeds)
+W19784 review [P0]. The positive: an attempt claimed against an ... ok
+test_a_start_with_no_root_says_so_across_the_seam (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_start_with_no_root_says_so_across_the_seam)
+And absence crosses it too, as a value rather than as an omission. ... ok
+test_a_started_runtime_the_adapter_cannot_see_is_uncertain (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_started_runtime_the_adapter_cannot_see_is_uncertain)
+Review [P0]: the exact identity this call minted is ASKED ABOUT. ... ok
+test_an_adapter_without_observe_refuses_as_a_capability (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_adapter_without_observe_refuses_as_a_capability)
+Typed rather than discovered by `AttributeError`. ... ok
+test_an_answer_that_is_not_a_document_is_uncertain_and_says_so (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_answer_that_is_not_a_document_is_uncertain_and_says_so)
+Review [P0] INVERTED THIS CASE'S OUTCOME, and the reason it exists ... ok
+test_an_empty_listing_over_a_known_runtime_observes_that_runtime (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_empty_listing_over_a_known_runtime_observes_that_runtime)
+Review [P0]: the ordinary post-removal shape. ... ok
+test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain)
+AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as ... ok
+test_an_empty_listing_with_no_identity_is_still_uncertainty (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_empty_listing_with_no_identity_is_still_uncertainty)
+"The adapter reports nothing" and "nothing exists" are different ... ok
+test_an_unactivated_attempt_cannot_start_a_runtime (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_unactivated_attempt_cannot_start_a_runtime) ... ok
+test_an_unactivated_attempt_has_no_assignment_to_authorize_against (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_unactivated_attempt_has_no_assignment_to_authorize_against) ... ok
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_authorizing_one_root_cannot_start_an_adapter_mounting_another)
+The launch authorization and the mount must name ONE root. ... ok
+test_positive_absence_is_recorded_as_destruction (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_positive_absence_is_recorded_as_destruction)
+`absent` is POSITIVE evidence about one exact identity. ... ok
+test_reconciling_the_same_runtime_again_is_still_attached (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_reconciling_the_same_runtime_again_is_still_attached) ... ok
+test_the_authorized_root_crosses_the_adapter_seam (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_authorized_root_crosses_the_adapter_seam)
+W19784 second review [P0], the half `_plan_agrees` cannot cover. ... ok
+test_the_first_attachment_fixes_the_runtime_identity (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_first_attachment_fixes_the_runtime_identity)
+A later inspection must not silently replace what is recorded. ... ok
+test_the_fixed_identity_survives_every_later_observation (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_fixed_identity_survives_every_later_observation)
+Four passes over ONE attachment, checking the WHOLE document. ... ok
+test_the_four_observations_stay_four_answers (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_four_observations_stay_four_answers)
+Running, quiescent, absent and uncertain remain distinguishable. ... ok
+test_the_labels_carry_all_four_parts_of_the_assignment (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_labels_carry_all_four_parts_of_the_assignment)
+The frozen host omitted the participant, so two participants' ... ok
+test_the_recorded_attachment_keeps_the_reason_it_was_made_with (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_recorded_attachment_keeps_the_reason_it_was_made_with)
+The JOURNALLED document, not the returned one. ... ok
+test_the_start_operation_is_journalled_before_the_adapter_is_called (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_start_operation_is_journalled_before_the_adapter_is_called)
+An axis label is not an effectively-once act. ... ok
+test_two_runtimes_with_these_labels_cancel_rather_than_compound (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_two_runtimes_with_these_labels_cancel_rather_than_compound) ... ok
+test_a_failure_whose_PROSE_says_busy_keeps_its_own_identity (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_a_failure_whose_PROSE_says_busy_keeps_its_own_identity)
+The result code decides, never the message. ... ok
+test_a_refused_insert_takes_the_axis_move_with_it (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_a_refused_insert_takes_the_axis_move_with_it)
+The savepoint is the boundary, and this is the case that needs it. ... ok
+test_a_second_manager_activating_first_replays_rather_than_writes (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_a_second_manager_activating_first_replays_rather_than_writes)
+What the race actually produces, measured rather than assumed. ... ok
+test_a_stale_observer_translates_only_database_contention (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_a_stale_observer_translates_only_database_contention)
+A deferred snapshot must not leak SQLite's lock vocabulary. ... ok
+test_two_claimed_offers_for_one_attempt_refuse_rather_than_choose (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_two_claimed_offers_for_one_attempt_refuse_rather_than_choose)
+The unique index makes two impossible GOING FORWARD. ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.210s
+
+OK

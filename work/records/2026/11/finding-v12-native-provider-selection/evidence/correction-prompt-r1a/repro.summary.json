@@ -1,0 +1,19 @@
+{
+  "collected": 1,
+  "duplicates": [],
+  "duration_seconds": 0.6144197669345886,
+  "executed": 1,
+  "exit_status": 1,
+  "nonpassing": {
+    "tests.tools.test_provider_selection.SelectedCase.test_R1a_failed_home_creation_releases_preparing_holder_to_successor": "ERROR"
+  },
+  "outcomes": {
+    "tests.tools.test_provider_selection.SelectedCase.test_R1a_failed_home_creation_releases_preparing_holder_to_successor": "ERROR"
+  },
+  "passed": 0,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

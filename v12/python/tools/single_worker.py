@@ -121,6 +121,7 @@ CONTEXT_CONFIG_SCHEMA = "baton.v12.single-worker-deployment/5"
 # legacy and keeps the descriptor environment it has today. `/6` carries ONE
 # more member: the verifier-layout marker its image declares.
 LAYOUT_CONFIG_SCHEMA = "baton.v12.single-worker-deployment/6"
+PROVIDER_CONFIG_SCHEMA = "baton.v12.single-worker-deployment/7"
 MAX_CONFIG_BYTES = 1024 * 1024
 
 # W81115: THE TWO NAMES THE CERTIFIED WORKLOAD FIXES, mirrored here rather than
@@ -294,7 +295,7 @@ def _held(document, *, roles=("implementation",)):
     # fresh `/6` configuration refused for a missing context it never selected,
     # and a review-role one refused outright. `/5` keeps its context rules
     # exactly; `/6` selects a verifier layout and says nothing about context.
-    layout_selecting = said == LAYOUT_CONFIG_SCHEMA
+    layout_selecting = said in (LAYOUT_CONFIG_SCHEMA, PROVIDER_CONFIG_SCHEMA)
     # `/6` CARRIES BOTH MEMBERS, which is review 2026-10-28T18-40-44Z's
     # correction: my previous cut made context and layout MUTUALLY EXCLUSIVE,
     # so a valid retained-implementation context deployment that also selected
@@ -309,13 +310,14 @@ def _held(document, *, roles=("implementation",)):
         document, "a single-worker configuration",
         _MEMBERS
         + (("provider_context",)
-           if said in (CONTEXT_CONFIG_SCHEMA, LAYOUT_CONFIG_SCHEMA) else ())
-        + (("verifier_layout",) if layout_selecting else ())))
+           if said in (CONTEXT_CONFIG_SCHEMA, LAYOUT_CONFIG_SCHEMA, PROVIDER_CONFIG_SCHEMA) else ())
+        + (("verifier_layout",) if layout_selecting else ())
+        + (("provider_contract", "provider_home_root") if said == PROVIDER_CONFIG_SCHEMA else ())))
     contextual = (said == CONTEXT_CONFIG_SCHEMA
                   or (layout_selecting
                       and given.get("provider_context") is not None))
     if given["schema"] not in (CONFIG_SCHEMA, CONTEXT_CONFIG_SCHEMA,
-                               LAYOUT_CONFIG_SCHEMA):
+                               LAYOUT_CONFIG_SCHEMA, PROVIDER_CONFIG_SCHEMA):
         _refuse(f"a single-worker configuration says {given['schema']!r}; "
                 f"this deployment reads {CONFIG_SCHEMA!r}")
     # W325695: THE IMAGE'S OWN VERIFIER-LAYOUT MARKER, as the deployment
@@ -377,6 +379,36 @@ def _held(document, *, roles=("implementation",)):
     if manifest["assignment_contract"] != given["launch_contract"]:
         _refuse("the bootstrap input manifest names another assignment "
                 "contract", category="refused", code="precondition")
+    if said == PROVIDER_CONFIG_SCHEMA:
+        from baton_v12 import provider_policy
+        from baton_v12.worker_manager import provider_home
+        if contextual or given["launch_role"] == "publication":
+            _refuse("provider policy /2 selects a fresh provider worker")
+        binding = given["provider_contract"]
+        try:
+            if type(binding) is not dict or set(binding) != {"selection", "adapter", "runtime_profile"}:
+                raise ValueError("provider contract members disagree")
+            selected = provider_policy.selection(binding["selection"])
+            provider_policy.validate_adapter(binding["adapter"], selected,
+                adapter_digest=given["adapter_digest"],
+                tool_policy_digest=manifest["tool_policy_digest"])
+            profile = binding["runtime_profile"]
+            if (digest(profile) != given["profile_digest"]
+                    or profile.get("schema") != "baton.single-implementation-runtime-profile/2"
+                    or profile.get("model") != selected["requested_model"]
+                    or profile.get("provider") != selected["provider"]
+                    or profile.get("reported_identity") != selected["reported_identity"]
+                    or profile.get("cli_build") != selected["cli_build"]
+                    or profile.get("runtime_uid") != os.getuid()):
+                raise ValueError("provider runtime profile or shared execution identity disagrees")
+            root = os.path.join(os.path.dirname(given["workspace_storage"]), "job-work")
+            if given["provider_home_root"] != root:
+                raise ValueError("provider home root must derive from instance state")
+            provider_home.check_placement(root, [given[key] for key in
+                ("workspace_storage", "nominated_source", "launch_home", "credential_home")]
+                + [os.path.expanduser("~/.claude"), os.path.expanduser("~/.codex")])
+        except (ValueError, TypeError, KeyError) as failure:
+            _refuse("provider contract refused: " + str(failure))
     # W81857: THE RETENTION DISPOSITION IS THE MANAGER'S OWN CLOSED
     # VOCABULARY, checked here rather than at the act. A configuration naming a
     # word `decide_retention` refuses would start a container, run a provider,
@@ -1370,8 +1402,9 @@ class _SingleWorker:
                  workload_document_name=None,
                  execution_context=None, job_task=None, activity=None,
                  permission_policy=None,
-                 lifetime_policy=None):
+                 lifetime_policy=None, worker_id=None):
         self.given = given
+        self.worker_id = worker_id or getattr(stage, "worker_id", None)
         # W285464: THE PREPARATION OWNERSHIPS THIS COMPOSITION HOLDS, per attempt.
         # The capability lives for as long as this manager composition does, which is
         # what lets the act that opened a window continue it across ticks while a
@@ -2084,6 +2117,7 @@ class _SingleWorker:
             context_delivery=_context_mount(self.control, self.given, launched.attempt_id) if launched is not None else None,
             scratch_delivery=scratch,
             context_execution=self._context_grant(launched),
+            provider_home_delivery=self._provider_mount(launched),
             network=given["network"], interactive=True)
 
     def _context_grant(self, launched):
@@ -2232,11 +2266,14 @@ class _SingleWorker:
         # mid-write runs no `finally`, so its window keeps standing and
         # `admit_preparation` reports it UNKNOWN -- which is the honest remainder.
         self._releasing = None
+        from baton_v12.worker_manager.provider_home import HomePending
         try:
           try:
             return self._prepared(stage, row, attempt_id)
           finally:
             self._released()
+        except HomePending as failure:
+            raise ContractRefusal("refused", "precondition", str(failure)) from failure
         except SourceRefusal as failure:
             refusal = ContractRefusal("policy", "denied", _sayable(
                 str(failure),
@@ -2734,7 +2771,8 @@ class _SingleWorker:
             launched = self._adopted(stage)
             if launched is None or launched.exchange is None:
                 return None
-            return exchange.observation(launched.exchange)
+            from baton_v12.worker_manager import model_attribution
+            return model_attribution.observed_exchange(self.control, stage["attempt_id"], exchange.observation(launched.exchange))
         except ContractRefusal as refusal:
             return {"transport": exchange.EXCHANGE_TRANSPORT,
                     "sequence_id": None, "command": None, "receipt": None,
@@ -3387,6 +3425,10 @@ class _SingleWorker:
                     f"another envelope is not evidence about the output this "
                     f"manager froze",
                     category="refused", code="operation-collision")
+        from baton_v12.worker_manager import model_attribution
+        attribution_hold = model_attribution.held(model_attribution.assess(self.control, attempt_id, frozen))
+        if attribution_hold is not None:
+            return attribution_hold
         receipt = request_intake(self.control, self.port, adapter,
                                  attempt_id=attempt_id)
         held = list(receipt["artifacts"])
@@ -3544,6 +3586,58 @@ class _SingleWorker:
         return {"route": answered["route"], "cause": answered["cause"],
                 "phase": answered["phase"], "gate": answered["gate"]}
 
+    def _home_exclusions(self):
+        given = self.given
+        return [given[key] for key in ("workspace_storage", "nominated_source", "launch_home", "credential_home")]
+
+    def _provider_delivery(self, stage):
+        given = self._given_for(stage)
+        if given.get("provider_contract") is None:
+            return None
+        from baton_v12 import provider_policy
+        if not self.worker_id:
+            _refuse("selected provider execution has no admitted worker identity")
+        job = self._job_execution(stage)
+        if job is None:
+            _refuse("selected provider execution has no admitted Job")
+        return provider_policy.delivery(given["provider_contract"],
+            adapter_digest=given["adapter_digest"], profile_digest=given["profile_digest"],
+            tool_policy_digest=given["input_manifest"]["tool_policy_digest"],
+            authority_uuid=given["authority_uuid"], job_id=job["job_id"],
+            worker_id=self.worker_id, attempt_id=stage["attempt_id"])
+
+    def _hold_provider_home(self, stage):
+        selected = self._provider_delivery(stage)
+        if selected is None:
+            return
+        from baton_v12.worker_manager import provider_home, attempts, model_attribution
+        model_attribution.select(self.control, selected, phase=self.given["launch_role"],
+            logs_root=os.path.join(self.given["launch_home"], launch.LOG_DIRECTORY),
+            home_root=self.given["provider_home_root"])
+        try:
+            provider_home.acquire(self.given["provider_home_root"],
+                **selected["home_identity"], attempt_id=selected["attempt_id"],
+                excluded=self._home_exclusions(),
+                previous_runtime=lambda holder: attempts.provider_home_cessation_of(self.control, holder))
+        except provider_home.HomePending:
+            raise
+        except (ValueError, OSError) as failure:
+            _refuse("provider home refused: " + str(failure))
+
+    def _provider_mount(self, launched):
+        if launched is None or self.given.get("provider_contract") is None:
+            return None
+        selected = launch.payload_of(launched.document).get("provider_selection")
+        if selected is None:
+            _refuse("selected provider execution has no delivered provider contract")
+        from baton_v12.worker_manager import provider_home
+        try:
+            return provider_home.HomeMount(self.given["provider_home_root"],
+                **selected["home_identity"], attempt_id=selected["attempt_id"],
+                excluded=self._home_exclusions())
+        except (ValueError, OSError) as failure:
+            _refuse("provider home mount refused: " + str(failure))
+
     def _session_of(self, attempt_id):
         """The one container session identity this attempt's launch carries.
 
@@ -3607,6 +3701,7 @@ class _SingleWorker:
             transport=exchange.EXCHANGE_TRANSPORT,
             job_execution=self._job_execution(stage),
             provider_context=_context_descriptor(self.control, self.given, attempt_id),
+            provider_selection=self._provider_delivery(stage),
             workspace_group=self.group)
 
     def _launch_document(self, stage, state):
@@ -3632,6 +3727,7 @@ class _SingleWorker:
         """
         given = self.given
         attempt_id = stage["attempt_id"]
+        self._hold_provider_home(stage)
         launched = self._adopted(stage)
         if launched is not None:
             return launched
@@ -3653,6 +3749,7 @@ class _SingleWorker:
             transport=exchange.EXCHANGE_TRANSPORT,
             job_execution=self._job_execution(stage),
             provider_context=_context_descriptor(self.control, self.given, attempt_id),
+            provider_selection=self._provider_delivery(stage),
             workspace_group=self.group)
 
 # What this deployment says when it hands an implementation result on. The
@@ -4070,7 +4167,7 @@ def worker_operations(given, control_store, authority, provider, *,
                       workload_document_name=None,
                       execution_context=None, job_task=None, activity=None,
                       permission_policy=None,
-                      lifetime_policy=None):
+                      lifetime_policy=None, worker_id=None):
     """The half that needs an Authority, over one the CALLER owns.
 
     `dispose` is what makes this reusable by a pool. A single-worker
@@ -4113,7 +4210,7 @@ def worker_operations(given, control_store, authority, provider, *,
         runtime, control_store, port, credential_provider=provider,
         engine_run=effective_engine_run(engine_run), session=session,
         clock=clock,
-        checkpoint=checkpoint, stage=stage,
+        checkpoint=checkpoint, stage=stage, worker_id=worker_id,
         judgment_document=judgment_document,
         workload_document_name=workload_document_name,
         execution_context=execution_context, job_task=job_task,
@@ -4221,7 +4318,7 @@ class JudgmentExecution:
         self.operations = worker_operations(
             self.given, control, authority, provider, engine_run=engine_run,
             dispose=lambda: None, judgment_document=self.document, clock=clock,
-            execution_context=execution_context)
+            execution_context=execution_context, worker_id=worker_id)
 
     def poll(self):
         operations, intent = self.operations, self.intent
@@ -4265,6 +4362,10 @@ class JudgmentExecution:
         if frozen is None or frozen["disposition"] != "completed" or receipt is None or receipt["custody"] != "accepted":
             _refuse("a judgment needs a completed frozen result in accepted custody",
                     category="refused", code="precondition")
+        from baton_v12.worker_manager import model_attribution
+        attribution_hold = model_attribution.held(model_attribution.assess(self.control, attempt_id, frozen))
+        if attribution_hold is not None:
+            _refuse(attribution_hold["reason"], category="refused", code="precondition")
         result = load_manifest(self.control, frozen["manifest_digest"], "resultManifest")
         expected = {"work_ref": self.given["input_manifest"]["work_ref"],
                     "participant": self.given["participant"],
@@ -4361,7 +4462,8 @@ class _Observation:
     """
 
     def __init__(self, document, control_store, *, job_store=None,
-                 roles=("implementation",)):
+                 roles=("implementation",), worker_id=None):
+        self.worker_id = worker_id
         given = _held(document, roles=roles)
         # THE JOB STORE IS ACCEPTED AND NOT READ, exactly as `operations_from`
         # accepts it: every factory has the same public shape.
@@ -4485,6 +4587,21 @@ class _Observation:
             runtime_input_digest=given["input_manifest"]["manifest_digest"],
             runtime_policy_digest=given["policy_digest"])
 
+    def _provider_delivery(self, stage):
+        given = given_for_job(self.given, self.job_task, stage)
+        if given.get("provider_contract") is None:
+            return None
+        from baton_v12 import provider_policy
+        job = self._job_execution(stage)
+        try:
+            return provider_policy.delivery(given["provider_contract"],
+                adapter_digest=given["adapter_digest"], profile_digest=given["profile_digest"],
+                tool_policy_digest=given["input_manifest"]["tool_policy_digest"],
+                authority_uuid=given["authority_uuid"], job_id=job["job_id"],
+                worker_id=self.worker_id, attempt_id=stage["attempt_id"])
+        except (ValueError, TypeError, KeyError) as failure:
+            _refuse("provider observation binding refused: " + str(failure))
+
     def exchange_delivery(self, stage):
         """Adopt the typed retained exchange; no output scan or serving setup."""
         attempt_id = stage["attempt_id"]
@@ -4496,6 +4613,7 @@ class _Observation:
             transport=exchange.EXCHANGE_TRANSPORT,
             job_execution=self._job_execution(stage),
             provider_context=_context_descriptor(self.control, self.given, attempt_id),
+            provider_selection=self._provider_delivery(stage),
             workspace_group=self.group)
         return None if launched is None else launched.exchange
 
@@ -4510,7 +4628,8 @@ class _Observation:
         """
         try:
             delivery = self.exchange_delivery(stage)
-            return None if delivery is None else exchange.observation(delivery)
+            from baton_v12.worker_manager import model_attribution
+            return model_attribution.observed_exchange(self.control, stage["attempt_id"], None if delivery is None else exchange.observation(delivery))
         except ContractRefusal as refusal:
             return {"transport": exchange.EXCHANGE_TRANSPORT,
                     "sequence_id": None, "command": None, "receipt": None,

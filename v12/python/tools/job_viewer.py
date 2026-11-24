@@ -279,6 +279,9 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
             lines.append("      " + one["timeout"])
             lines.append("      attempt " + str(one["attempt_id"]))
             lines.append("      operation " + one["operation"])
+            if isinstance(one.get("model_attribution"), str):
+                lines.append("      " + one["model_attribution"])
+
             if one["reason"]:
                 lines.append("      " + one["reason"])
     return lines

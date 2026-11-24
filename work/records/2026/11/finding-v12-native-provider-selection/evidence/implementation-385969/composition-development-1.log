@@ -1,0 +1,156 @@
+test_a_review_worker_is_admitted_the_same_way (tests.tools.test_pool.AValidWorkerIsAdmitted.test_a_review_worker_is_admitted_the_same_way)
+The role is not hard-wired to implementation; what a role may be is ... ok
+test_a_review_worker_sharing_the_IMPLEMENTATION_participant_is_refused (tests.tools.test_pool.AValidWorkerIsAdmitted.test_a_review_worker_sharing_the_IMPLEMENTATION_participant_is_refused)
+An honest review is not one the implementer performs, and that rule ... ok
+test_it_is_appended_to_the_pool_the_instance_already_has (tests.tools.test_pool.AValidWorkerIsAdmitted.test_it_is_appended_to_the_pool_the_instance_already_has) ... ok
+test_it_says_what_it_did_and_what_it_did_NOT_do (tests.tools.test_pool.AValidWorkerIsAdmitted.test_it_says_what_it_did_and_what_it_did_NOT_do) ... ok
+test_the_five_derived_members_are_the_deployments_own (tests.tools.test_pool.AValidWorkerIsAdmitted.test_the_five_derived_members_are_the_deployments_own)
+Exactly the five `bootstrap.configuration` fills in, taken from the ... ok
+test_what_it_wrote_is_a_document_the_MANAGER_still_accepts (tests.tools.test_pool.AValidWorkerIsAdmitted.test_what_it_wrote_is_a_document_the_MANAGER_still_accepts)
+`admit` calls the accepted validator itself, so reaching this line ... ok
+test_an_identity_already_configured_is_refused (tests.tools.test_pool.AnExistingWorkerIdIsRefused.test_an_identity_already_configured_is_refused) ... ok
+test_it_is_refused_for_EVERY_configured_identity_not_only_its_role (tests.tools.test_pool.AnExistingWorkerIdIsRefused.test_it_is_refused_for_EVERY_configured_identity_not_only_its_role) ... ok
+test_the_configured_worker_it_names_is_left_exactly_as_it_is (tests.tools.test_pool.AnExistingWorkerIdIsRefused.test_the_configured_worker_it_names_is_left_exactly_as_it_is)
+Nothing here replaces a configured worker: the refusal is the whole ... ok
+test_a_worker_sealed_to_ANOTHER_Authority_cannot_be_RESEALED (tests.tools.test_pool.AnImageDigestDisagreeingWithItsManifestIsRefused.test_a_worker_sealed_to_ANOTHER_Authority_cannot_be_RESEALED)
+The identity the manifest names is sealed the same way, which is ... ok
+test_it_is_refused_by_name_and_nothing_is_written (tests.tools.test_pool.AnImageDigestDisagreeingWithItsManifestIsRefused.test_it_is_refused_by_name_and_nothing_is_written) ... ok
+test_the_MANIFEST_cannot_be_moved_to_agree_instead (tests.tools.test_pool.AnImageDigestDisagreeingWithItsManifestIsRefused.test_the_MANIFEST_cannot_be_moved_to_agree_instead)
+The other direction, and it is refused EARLIER and harder. ... ok
+test_a_baseline_template_other_than_the_default_keeps_the_legacy_declaration (tests.tools.test_pool.ComposingAWorkerForASelectedTemplate.test_a_baseline_template_other_than_the_default_keeps_the_legacy_declaration)
+`/2` is bound to the baseline contract: the proven one-output ... ok
+test_a_handoff_capable_template_declares_its_contracts_descriptors (tests.tools.test_pool.ComposingAWorkerForASelectedTemplate.test_a_handoff_capable_template_declares_its_contracts_descriptors)
+Review 2026-11-20T23-15-20Z C2: every declared descriptor IS the ... ok
+test_an_unsupported_template_is_refused_by_name_before_anything (tests.tools.test_pool.ComposingAWorkerForASelectedTemplate.test_an_unsupported_template_is_refused_by_name_before_anything) ... ok
+test_proposal100m_cli_selects_exact_new_declaration (tests.tools.test_pool.ComposingAWorkerForASelectedTemplate.test_proposal100m_cli_selects_exact_new_declaration) ... ok
+test_the_command_line_refuses_an_unsupported_template_and_writes_nothing (tests.tools.test_pool.ComposingAWorkerForASelectedTemplate.test_the_command_line_refuses_an_unsupported_template_and_writes_nothing) ... ok
+test_the_command_line_selects_the_template_and_says_so (tests.tools.test_pool.ComposingAWorkerForASelectedTemplate.test_the_command_line_selects_the_template_and_says_so) ... ok
+test_the_default_is_byte_identical_whether_omitted_or_named (tests.tools.test_pool.ComposingAWorkerForASelectedTemplate.test_the_default_is_byte_identical_whether_omitted_or_named) ... ok
+test_a_composed_worker_is_admitted_once_its_source_exists (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_a_composed_worker_is_admitted_once_its_source_exists) ... ok
+test_a_concurrently_occupied_path_refuses_at_the_write (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_a_concurrently_occupied_path_refuses_at_the_write)
+The check and the write are one exclusive operation: a file that ... ok
+test_an_existing_entry_is_never_replaced_or_followed (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_an_existing_entry_is_never_replaced_or_followed)
+Review 2026-11-19T02-52-40Z: a dangling symlink at --into was ... ok
+test_every_provenance_member_is_bound_and_none_is_a_specimen (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_every_provenance_member_is_bound_and_none_is_a_specimen)
+Review 2026-11-19T06-06-42Z: the template's specimen record, ... ok
+test_the_command_line_writes_one_fresh_file_and_refuses_a_second (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_the_command_line_writes_one_fresh_file_and_refuses_a_second) ... ok
+test_the_facts_are_this_builds_own_and_the_instance_binds_the_rest (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_the_facts_are_this_builds_own_and_the_instance_binds_the_rest) ... ok
+test_the_manifest_template_is_an_installed_resource_not_a_dossier (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_the_manifest_template_is_an_installed_resource_not_a_dossier)
+Review 2026-11-19T03-36-07Z: the template is shipped beside the ... ok
+test_two_defined_tasks_compose_two_workers_without_an_installation (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_two_defined_tasks_compose_two_workers_without_an_installation) ... ok
+test_what_it_refuses_and_that_nothing_is_written (tests.tools.test_pool.ComposingAWorkerForThisInstance.test_what_it_refuses_and_that_nothing_is_written) ... ok
+test_a_marker_from_another_topology_or_shape_refuses (tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout.test_a_marker_from_another_topology_or_shape_refuses) ... ok
+test_both_selections_refuse (tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout.test_both_selections_refuse) ... ok
+test_no_selection_is_refused_before_anything_is_written (tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout.test_no_selection_is_refused_before_anything_is_written) ... ok
+test_the_command_line_selects_either_topology (tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout.test_the_command_line_selects_either_topology) ... ok
+test_the_legacy_selection_is_the_unchanged_legacy_document (tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout.test_the_legacy_selection_is_the_unchanged_legacy_document) ... ok
+test_the_marker_selects_the_supported_layout_deployment (tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout.test_the_marker_selects_the_supported_layout_deployment) ... ok
+test_the_selecting_worker_is_admitted_and_the_manager_accepts_it (tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout.test_the_selecting_worker_is_admitted_and_the_manager_accepts_it) ... ok
+test_the_serving_preflight_delivers_the_selection_before_any_runtime (tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout.test_the_serving_preflight_delivers_the_selection_before_any_runtime) ... ok
+test_the_worker_reads_the_delivered_selection_and_refuses_without_it (tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout.test_the_worker_reads_the_delivered_selection_and_refuses_without_it) ... ok
+test_a_provider_operand_is_refused_rather_than_dropped (tests.tools.test_pool.ComposingTheDeterministicPublicationWorker.test_a_provider_operand_is_refused_rather_than_dropped) ... ok
+test_it_is_admitted_into_the_pool_in_its_own_lane (tests.tools.test_pool.ComposingTheDeterministicPublicationWorker.test_it_is_admitted_into_the_pool_in_its_own_lane)
+THE WHOLE INSTALL PATH THIS VERB OWNS: composed, then admitted by ... ok
+test_it_is_composed_with_no_provider_from_the_selected_declarations (tests.tools.test_pool.ComposingTheDeterministicPublicationWorker.test_it_is_composed_with_no_provider_from_the_selected_declarations) ... ok
+test_the_command_line_composes_one_without_provider_operands (tests.tools.test_pool.ComposingTheDeterministicPublicationWorker.test_the_command_line_composes_one_without_provider_operands) ... ok
+test_the_wrapper_admits_the_role (tests.tools.test_pool.ComposingTheDeterministicPublicationWorker.test_the_wrapper_admits_the_role)
+THE REVIEWER'S PROBE, as a case: the installer's own worker ... ok
+test_adapter_digest_and_implements_binding_tamper_refuse (tests.tools.test_pool.ExplicitProviderPolicy.test_adapter_digest_and_implements_binding_tamper_refuse) ... ok
+test_legacy_composition_is_unchanged_by_explicit_absence (tests.tools.test_pool.ExplicitProviderPolicy.test_legacy_composition_is_unchanged_by_explicit_absence) ... ok
+test_missing_selection_members_and_unknown_provider_refuse (tests.tools.test_pool.ExplicitProviderPolicy.test_missing_selection_members_and_unknown_provider_refuse) ... ok
+test_new_selection_binds_profile_adapter_and_shared_policy (tests.tools.test_pool.ExplicitProviderPolicy.test_new_selection_binds_profile_adapter_and_shared_policy) ... ok
+test_unknown_policy_member_value_refuses_composition (tests.tools.test_pool.ExplicitProviderPolicy.test_unknown_policy_member_value_refuses_composition) ... ok
+test_it_creates_no_Job_store_to_read_a_generation_from (tests.tools.test_pool.ItPreparesNoJobAndTouchesNoWork.test_it_creates_no_Job_store_to_read_a_generation_from)
+An instance whose scheduler has never run has no Job store, and ... ok
+test_no_Work_grant_or_Job_store_is_composed (tests.tools.test_pool.ItPreparesNoJobAndTouchesNoWork.test_no_Work_grant_or_Job_store_is_composed) ... ok
+test_the_job_store_is_the_Authority_stores_sibling_in_BOTH_layouts (tests.tools.test_pool.ItPreparesNoJobAndTouchesNoWork.test_the_job_store_is_the_Authority_stores_sibling_in_BOTH_layouts)
+`job_store_of` derives one path from another, and this is why it ... ok
+test_every_worker_that_was_configured_is_unchanged (tests.tools.test_pool.NothingElseInTheConfigurationChanges.test_every_worker_that_was_configured_is_unchanged)
+Said separately from the byte comparison because this is the ... ok
+test_removing_the_admitted_worker_reproduces_the_original_bytes (tests.tools.test_pool.NothingElseInTheConfigurationChanges.test_removing_the_admitted_worker_reproduces_the_original_bytes) ... ok
+test_the_custody_record_beside_it_is_not_touched_either (tests.tools.test_pool.NothingElseInTheConfigurationChanges.test_the_custody_record_beside_it_is_not_touched_either) ... ok
+test_the_pool_generation_does_not_move_on_an_instance_never_activated (tests.tools.test_pool.NothingElseInTheConfigurationChanges.test_the_pool_generation_does_not_move_on_an_instance_never_activated)
+The one member this verb may also move stays where it is when the ... ok
+test_a_refusal_is_said_rather_than_raised_and_returns_two (tests.tools.test_pool.TheCommandLine.test_a_refusal_is_said_rather_than_raised_and_returns_two) ... ok
+test_a_worker_document_that_is_not_JSON_is_refused (tests.tools.test_pool.TheCommandLine.test_a_worker_document_that_is_not_JSON_is_refused) ... ok
+test_add_worker_admits_and_returns_zero (tests.tools.test_pool.TheCommandLine.test_add_worker_admits_and_returns_zero) ... ok
+test_it_is_the_ONLY_verb_and_it_adds_nothing_else (tests.tools.test_pool.TheCommandLine.test_it_is_the_ONLY_verb_and_it_adds_nothing_else)
+The Work admits one tool and one verb. A second one arriving here ... ok
+test_a_STALE_generation_is_what_that_rule_refuses (tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer.test_a_STALE_generation_is_what_that_rule_refuses)
+The counter-case, so the one above is not passing for free. ... ok
+test_an_activated_pool_moves_the_generation_on_by_one (tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer.test_an_activated_pool_moves_the_generation_on_by_one) ... ok
+test_the_activated_generation_itself_is_left_alone (tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer.test_the_activated_generation_itself_is_left_alone)
+It activates nothing: the store still holds generation 1, and the ... ok
+test_what_it_wrote_is_a_deployment_that_would_still_ACTIVATE (tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer.test_what_it_wrote_is_a_deployment_that_would_still_ACTIVATE)
+The whole reason the member moves. The amended configuration is ... ok
+test_a_configuration_that_is_not_there_is_named (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_configuration_that_is_not_there_is_named) ... ok
+test_a_role_this_deployment_does_not_serve_is_refused (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_role_this_deployment_does_not_serve_is_refused) ... ok
+test_a_worker_id_that_is_not_ONE_NAME_is_refused (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_worker_id_that_is_not_ONE_NAME_is_refused) ... ok
+test_a_worker_missing_a_member_is_refused_by_NAME (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_worker_missing_a_member_is_refused_by_NAME) ... ok
+test_a_worker_naming_a_member_nothing_reads_is_refused (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_a_worker_naming_a_member_nothing_reads_is_refused) ... ok
+test_the_one_job_variant_has_no_admission_to_make (tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker.test_the_one_job_variant_has_no_admission_to_make)
+`/1` serves exactly one worker per role, and nothing here rewrites ... ok
+test_every_operation_this_cut_adds_is_exported (tests.manager.test_launch.TheComponentIsOnThePublicSurface.test_every_operation_this_cut_adds_is_exported) ... ok
+test_adoption_cannot_drop_original_binding (tests.manager.test_launch.TheContextLaunchIsClosed.test_adoption_cannot_drop_original_binding) ... ok
+test_closed_version_refuses_omission_extra_and_downgrade (tests.manager.test_launch.TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade) ... ok
+test_owner_launch_and_worker_reader_agree (tests.manager.test_launch.TheContextLaunchIsClosed.test_owner_launch_and_worker_reader_agree) ... ok
+test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) ... ok
+test_it_authorizes_exactly_one_mount_at_the_fixed_target (tests.manager.test_launch.TheDeliveryIsACapabilityAndNotAPath.test_it_authorizes_exactly_one_mount_at_the_fixed_target) ... ok
+test_it_remembers_which_attempt_it_belongs_to (tests.manager.test_launch.TheDeliveryIsACapabilityAndNotAPath.test_it_remembers_which_attempt_it_belongs_to) ... ok
+test_readonly_is_not_something_it_can_be_asked_for (tests.manager.test_launch.TheDeliveryIsACapabilityAndNotAPath.test_readonly_is_not_something_it_can_be_asked_for)
+A delivery that could ask to be writable would be a launch document ... ok
+test_a_delivery_whose_modes_have_moved_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_delivery_whose_modes_have_moved_is_refused)
+`materialize` chmods both exactly, so anything else is a root ... ok
+test_a_document_authored_for_other_values_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_document_authored_for_other_values_is_refused)
+Which delivery, not which kind of thing. ... ok
+test_a_document_that_is_not_this_contract_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_document_that_is_not_this_contract_is_refused) ... ok
+test_a_root_this_manager_did_not_write_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_root_this_manager_did_not_write_is_refused)
+Bytes this manager cannot account for are not a launch contract, ... ok
+test_a_well_formed_document_from_another_delivery_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_well_formed_document_from_another_delivery_is_refused)
+Schema agreement is not delivery identity. ... ok
+test_adoption_applies_the_member_value_contract (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_adoption_applies_the_member_value_contract)
+A closed member set does not validate any member's value. ... ok
+test_adoption_is_on_the_public_surface (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_adoption_is_on_the_public_surface)
+A deployment that built its own delivery from a path would be ... ok
+test_adoption_refuses_an_extra_entry_it_would_later_delete (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_adoption_refuses_an_extra_entry_it_would_later_delete)
+The root materializer made exactly one entry. ... ok
+test_an_attempt_with_no_delivery_adopts_nothing (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_an_attempt_with_no_delivery_adopts_nothing)
+An ordinary state, and distinguishable from a failed proof: an ... ok
+test_an_existing_delivery_is_adopted_whole (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_an_existing_delivery_is_adopted_whole) ... ok
+test_the_expectation_is_authored_by_the_owner_that_writes_it (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_the_expectation_is_authored_by_the_owner_that_writes_it)
+Reused rather than copied: a value contract re-implemented here ... ok
+test_a_caller_supplies_values_and_never_a_shape (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_a_caller_supplies_values_and_never_a_shape)
+The document is REBUILT over `LAUNCH_MEMBERS` rather than copied. ... ok
+test_a_live_bearer_cannot_ride_the_launch_document (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_a_live_bearer_cannot_ride_the_launch_document)
+§13's own clause, driven rather than asserted about. ... ok
+test_a_malformed_value_refuses_before_anything_is_written (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_a_malformed_value_refuses_before_anything_is_written) ... ok
+test_a_session_wider_than_the_workers_ceiling_refuses (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_a_session_wider_than_the_workers_ceiling_refuses)
+THE WORKER'S CEILING, ENFORCED HERE. `session` is what every frame ... ok
+test_it_is_exactly_four_members_and_the_pinned_schema (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_it_is_exactly_four_members_and_the_pinned_schema) ... ok
+test_prose_may_carry_newlines_and_is_bounded (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_prose_may_carry_newlines_and_is_bounded)
+The retired transport refused a newline because one ... ok
+test_there_is_no_posture_member (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_there_is_no_posture_member)
+The consent-posture supersession, stated as a case. ... ok
+test_a_failed_write_leaves_no_half_delivery (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_failed_write_leaves_no_half_delivery)
+The ending that would have removed a partial root never starts, ... ok
+test_a_link_left_at_the_documents_name_is_not_written_through (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_link_left_at_the_documents_name_is_not_written_through)
+`O_EXCL | O_NOFOLLOW`, and the race they exist for. ... ok
+test_a_partial_document_is_never_readable (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_partial_document_is_never_readable)
+The other half of establishing the mode rather than requesting it. ... ok
+test_a_relative_storage_refuses (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_relative_storage_refuses) ... ok
+test_a_short_write_is_not_a_delivered_document (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_short_write_is_not_a_delivered_document)
+`os.write` is allowed to write fewer bytes than it was given. ... ok
+test_an_existing_root_refuses_rather_than_being_written_into (tests.manager.test_launch.TheFileIsThisManagersOwn.test_an_existing_root_refuses_rather_than_being_written_into)
+A live delivery or an orphan, and replacing bytes this manager ... ok
+test_discard_removes_the_root_it_froze (tests.manager.test_launch.TheFileIsThisManagersOwn.test_discard_removes_the_root_it_froze) ... ok
+test_it_is_a_regular_file_at_the_documents_own_name (tests.manager.test_launch.TheFileIsThisManagersOwn.test_it_is_a_regular_file_at_the_documents_own_name) ... ok
+test_it_is_readable_by_anybody_and_writable_by_nobody (tests.manager.test_launch.TheFileIsThisManagersOwn.test_it_is_readable_by_anybody_and_writable_by_nobody)
+BOTH HALVES ARE DELIBERATE, and the first one is the interesting ... ok
+test_the_bytes_are_canonical_and_bounded (tests.manager.test_launch.TheFileIsThisManagersOwn.test_the_bytes_are_canonical_and_bounded) ... ok
+test_the_mode_is_established_rather_than_requested (tests.manager.test_launch.TheFileIsThisManagersOwn.test_the_mode_is_established_rather_than_requested)
+W26291 review [P0]: a creation mode is FILTERED BY THE UMASK. ... ok
+
+----------------------------------------------------------------------
+Ran 105 tests in 2.326s
+
+OK

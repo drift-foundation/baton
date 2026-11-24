@@ -1,0 +1,26 @@
+test_a_CORRUPT_prior_declaration_is_unknown_too (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_CORRUPT_prior_declaration_is_unknown_too)
+A corrupt sidecar carries no `declared` member, so it reached the ... ok
+test_a_FAILED_carry_REFUSES_the_handle_and_keeps_the_evidence (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_FAILED_carry_REFUSES_the_handle_and_keeps_the_evidence)
+The reviewer's probe models `_write_carried`'s ordinary `OSError` ... ok
+test_a_GENUINELY_absent_record_is_still_absence (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_GENUINELY_absent_record_is_still_absence)
+The control for R3: the ordinary stream has no history and must not ... ok
+test_a_NONREGULAR_carried_record_is_not_ABSENCE_either (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_NONREGULAR_carried_record_is_not_ABSENCE_either) ... ok
+test_a_READ_failure_on_the_record_is_not_ABSENCE_either (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_READ_failure_on_the_record_is_not_ABSENCE_either) ... ok
+test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE) ... ok
+test_an_EMPTY_new_stream_is_still_a_CLEAN_start (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_EMPTY_new_stream_is_still_a_CLEAN_start)
+The distinction that keeps the ordinary capture free: what makes it ... ok
+test_an_INACCESSIBLE_carried_record_is_not_ABSENCE (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_INACCESSIBLE_carried_record_is_not_ABSENCE)
+The reviewer injected `PermissionError` at the carried record only. ... ok
+test_an_UNKNOWN_ending_then_a_success_is_NOT_captured (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_UNKNOWN_ending_then_a_success_is_NOT_captured)
+The reviewer's probe: `first-prefix`, `declare(None)`, then a whole ... ok
+test_that_refusal_does_NOT_stop_the_child_from_running (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_that_refusal_does_NOT_stop_the_child_from_running)
+Logging contains its own failure: a refused handle leaves the ... ok
+test_the_ALL_SUCCESSFUL_restart_is_still_CAPTURED (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_ALL_SUCCESSFUL_restart_is_still_CAPTURED)
+finished -> reopen -> finished, with bytes present at the reopen. ... ok
+test_the_BYTES_a_refused_writer_had_are_not_written_anywhere (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_BYTES_a_refused_writer_had_are_not_written_anywhere) ... ok
+test_the_WRAPPERS_stream_treats_an_unknown_ending_the_same (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_WRAPPERS_stream_treats_an_unknown_ending_the_same) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.035s
+
+OK

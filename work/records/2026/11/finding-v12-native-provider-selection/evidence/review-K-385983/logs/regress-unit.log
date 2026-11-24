@@ -1,0 +1,98 @@
+test_host_validation_refuses_every_forgery_of_the_claim_but_cannot_check_the_build (__main__.Attribution.test_host_validation_refuses_every_forgery_of_the_claim_but_cannot_check_the_build) ... ok
+test_no_quantity_role_or_content_in_the_record (__main__.Attribution.test_no_quantity_role_or_content_in_the_record) ... ok
+test_requested_selector_is_never_evidence (__main__.Attribution.test_requested_selector_is_never_evidence) ... ok
+test_shapes_that_are_not_one_successful_terminal_object_are_missing (__main__.Attribution.test_shapes_that_are_not_one_successful_terminal_object_are_missing) ... ok
+test_zero_usage_entry_counts_as_a_contributor (__main__.Attribution.test_zero_usage_entry_counts_as_a_contributor) ... ok
+test_a_second_holder_waits_without_evidence_and_takes_over_only_with_it (__main__.HomeOwner.test_a_second_holder_waits_without_evidence_and_takes_over_only_with_it) ... ERROR
+test_placement_refuses_overlap_both_ways (__main__.HomeOwner.test_placement_refuses_overlap_both_ways) ... ERROR
+test_symlinked_home_or_ancestor_is_refused (__main__.HomeOwner.test_symlinked_home_or_ancestor_is_refused) ... ERROR
+test_wrong_or_missing_record_is_refused_and_nothing_is_changed (__main__.HomeOwner.test_wrong_or_missing_record_is_refused_and_nothing_is_changed) ... ERROR
+test_cessation_needs_this_holder_destroyed_cleaned_and_not_older_than_activity (__main__.HomePath.test_cessation_needs_this_holder_destroyed_cleaned_and_not_older_than_activity) ... ok
+test_components_are_fixed_digests_and_never_id_text (__main__.HomePath.test_components_are_fixed_digests_and_never_id_text) ... ok
+test_argv_is_exactly_the_policy_with_no_fallback (__main__.Policy.test_argv_is_exactly_the_policy_with_no_fallback) ... ok
+test_every_member_of_the_adapter_and_delivery_is_bound (__main__.Policy.test_every_member_of_the_adapter_and_delivery_is_bound) ... ok
+test_unknown_provider_and_incomplete_selection_cannot_be_composed (__main__.Policy.test_unknown_provider_and_incomplete_selection_cannot_be_composed) ... ok
+test_delivered_mode_leaves_only_a_reference (__main__.WorkerHome.test_delivered_mode_leaves_only_a_reference) ... ERROR
+test_paths_cannot_escape_and_managed_entries_cannot_touch_provider_state (__main__.WorkerHome.test_paths_cannot_escape_and_managed_entries_cannot_touch_provider_state) ... ERROR
+test_seeded_mode_writes_once_and_never_again (__main__.WorkerHome.test_seeded_mode_writes_once_and_never_again) ... ERROR
+
+======================================================================
+ERROR: test_a_second_holder_waits_without_evidence_and_takes_over_only_with_it (__main__.HomeOwner.test_a_second_holder_waits_without_evidence_and_takes_over_only_with_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/probes/probe_unit.py", line 145, in setUp
+    self.tmp = tempfile.TemporaryDirectory(dir=os.environ["PROBE_TMP"]); self.addCleanup(self.tmp.cleanup)
+                                               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "<frozen os>", line 717, in __getitem__
+KeyError: 'PROBE_TMP'
+
+======================================================================
+ERROR: test_placement_refuses_overlap_both_ways (__main__.HomeOwner.test_placement_refuses_overlap_both_ways)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/probes/probe_unit.py", line 145, in setUp
+    self.tmp = tempfile.TemporaryDirectory(dir=os.environ["PROBE_TMP"]); self.addCleanup(self.tmp.cleanup)
+                                               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "<frozen os>", line 717, in __getitem__
+KeyError: 'PROBE_TMP'
+
+======================================================================
+ERROR: test_symlinked_home_or_ancestor_is_refused (__main__.HomeOwner.test_symlinked_home_or_ancestor_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/probes/probe_unit.py", line 145, in setUp
+    self.tmp = tempfile.TemporaryDirectory(dir=os.environ["PROBE_TMP"]); self.addCleanup(self.tmp.cleanup)
+                                               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "<frozen os>", line 717, in __getitem__
+KeyError: 'PROBE_TMP'
+
+======================================================================
+ERROR: test_wrong_or_missing_record_is_refused_and_nothing_is_changed (__main__.HomeOwner.test_wrong_or_missing_record_is_refused_and_nothing_is_changed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/probes/probe_unit.py", line 145, in setUp
+    self.tmp = tempfile.TemporaryDirectory(dir=os.environ["PROBE_TMP"]); self.addCleanup(self.tmp.cleanup)
+                                               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "<frozen os>", line 717, in __getitem__
+KeyError: 'PROBE_TMP'
+
+======================================================================
+ERROR: test_delivered_mode_leaves_only_a_reference (__main__.WorkerHome.test_delivered_mode_leaves_only_a_reference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/probes/probe_unit.py", line 203, in setUp
+    self.tmp = tempfile.TemporaryDirectory(dir=os.environ["PROBE_TMP"]); self.addCleanup(self.tmp.cleanup)
+                                               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "<frozen os>", line 717, in __getitem__
+KeyError: 'PROBE_TMP'
+
+======================================================================
+ERROR: test_paths_cannot_escape_and_managed_entries_cannot_touch_provider_state (__main__.WorkerHome.test_paths_cannot_escape_and_managed_entries_cannot_touch_provider_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/probes/probe_unit.py", line 203, in setUp
+    self.tmp = tempfile.TemporaryDirectory(dir=os.environ["PROBE_TMP"]); self.addCleanup(self.tmp.cleanup)
+                                               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "<frozen os>", line 717, in __getitem__
+KeyError: 'PROBE_TMP'
+
+======================================================================
+ERROR: test_seeded_mode_writes_once_and_never_again (__main__.WorkerHome.test_seeded_mode_writes_once_and_never_again)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/probes/probe_unit.py", line 203, in setUp
+    self.tmp = tempfile.TemporaryDirectory(dir=os.environ["PROBE_TMP"]); self.addCleanup(self.tmp.cleanup)
+                                               ~~~~~~~~~~^^^^^^^^^^^^^
+  File "<frozen os>", line 717, in __getitem__
+KeyError: 'PROBE_TMP'
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.030s
+
+FAILED (errors=7)
+NOTE host accepts evidenced_cli_build as claimed by the worker (no host-side source for it)
+DELIVERY change home_identity.worker_id -> ACCEPTED
+DELIVERY change contract.selection.requested_model -> refused
+DELIVERY change contract.selection.reported_identity -> refused
+DELIVERY change tool_policy_digest -> refused
+DELIVERY change contract.adapter.argv_policy.fallback -> refused

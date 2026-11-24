@@ -1,0 +1,27 @@
+--- a/v12/DESIGN.md
++++ b/v12/DESIGN.md
+@@ -185,6 +185,24 @@
+ identity equality across executions. This specifies the distinction, not a new
+ manifest format or permission to weaken identity checks.
+ 
++The tool-permission and environment policy a Job is admitted under is
++provider-neutral and shared by every execution of the Job. Each execution's
++provider-specific command and environment configuration is bound to its own
++adapter identity and MUST implement that shared policy. Different provider
++commands are allowed; a different policy or an adapter that does not implement
++it MUST be refused.
++
++
++Owner clarification 2026-11-24: for Jobs under explicit model-attribution
++composition, publication recovery MUST carry and validate the original producing
++attempt's contributor evidence, bound to that attempt and the exact retained
++candidate. The requested model MUST appear in the validated contributor set.
++Missing, conflicting or invalid evidence MUST prevent candidate acceptance and
++handoff to review, with an honest held/refused outcome for the owner; retained
++output remains preserved. A provider-free publication worker transports the
++candidate and MUST NOT replace its producer attribution. Existing legacy
++admissions retain their existing behavior. See the [owner ruling](../work/records/2026/11/finding-v12-native-provider-selection/ASSIGNMENT-N1N2-OWNER-B-2026-11-24.md).
++
+ **ID-5.** Principals are distinct from team-scoped role bindings. Capacity and
+ review independence resolve actual principals rather than counting aliases as
+ different workers. Organizational hierarchy does not imply shared repositories,

@@ -1,0 +1,83 @@
+--- a/v12/python/src/baton_v12/worker_manager/provider_home.py
++++ b/v12/python/src/baton_v12/worker_manager/provider_home.py
+@@ -187,8 +187,6 @@
+                     raise HomeRefusal("provider home identity record disagrees")
+                 if home_info is None and record["state"] == "ready":
+                     raise HomeRefusal("retained provider home is absent")
+-                if record["state"] == "preparing" and record["holder"] != attempt_id:
+-                    raise HomePending("provider home creation is unfinished")
+                 if record["holder"] != attempt_id:
+                     evidence = previous_runtime(record["holder"]) if previous_runtime else None
+                     if not ceased(evidence, record["holder"]):
+--- a/v12/python/tests/manager/test_provider_home.py
++++ b/v12/python/tests/manager/test_provider_home.py
+@@ -117,8 +117,16 @@
+         with mock.patch.object(os, "mkdir", side_effect=interrupted):
+             with self.assertRaises(OSError):
+                 self.acquire()
+-        with self.assertRaises(homes.HomePending):
+-            self.acquire(attempt_id="a2")
++        record_path = expected_parent / "record.json"
++        before = record_path.read_bytes()
++        self.assertEqual(json.loads(before)["state"], "preparing")
++        for evidence in (None, {}, {"attempt_id": "a1", "runtime": "start-requested"},
++                {"attempt_id": "a1", "runtime": "not-started", "ended_before_start": False},
++                {"attempt_id": "other", "runtime": "not-started", "ended_before_start": True}):
++            with self.subTest(evidence=evidence), self.assertRaises(homes.HomePending):
++                self.acquire(attempt_id="a2", previous_runtime=lambda holder: evidence)
++            self.assertEqual(record_path.read_bytes(), before)
++            self.assertFalse((expected_parent / "home").exists())
+         one = self.acquire()
+         self.assertTrue(Path(one["home"]).is_dir())
+         self.assertEqual(one, self.acquire())
+--- a/v12/python/tests/tools/test_provider_selection.py
++++ b/v12/python/tests/tools/test_provider_selection.py
+@@ -557,6 +557,48 @@
+         self.assertEqual(json.loads(record_path.read_text())["holder"], successor)
+         self.assertEqual(self.invocations, [])
+ 
++    def test_R1a_failed_home_creation_releases_preparing_holder_to_successor(self):
++        from baton_v12.worker_manager import attempts
++        from baton_v12.job_manager import submission
++        job, control, composed = self.serving()
++        submit(job, self.submission)
++        root = os.path.realpath(self.config["provider_home_root"])
++        original = os.mkdir
++        hits = []
++        def full(path, *args, **kwargs):
++            if path == "home" and kwargs.get("dir_fd") is not None and os.readlink("/proc/self/fd/" + str(kwargs["dir_fd"])).startswith(root + os.sep):
++                hits.append(path)
++                raise OSError(28, "simulated disk full during final home creation")
++            return original(path, *args, **kwargs)
++        with mock.patch.object(os, "mkdir", side_effect=full):
++            for _ in range(12):
++                sweep(job, composed, now=fixtures.NOW)
++        self.assertTrue(hits)
++        self.assertEqual(self.states(job, composed)["implementation"], "exceptional")
++        record_path, = Path(root).glob("*/*/record.json")
++        record = json.loads(record_path.read_text())
++        previous = record["holder"]
++        self.assertEqual(record["state"], "preparing")
++        self.assertFalse((record_path.parent / "home").exists())
++        evidence = attempts.provider_home_cessation_of(control, previous)
++        self.assertTrue(evidence["ended_before_start"])
++        self.assertTrue(provider_home.ceased(evidence, previous))
++        # An explicitly supplied successor, not an automatic Job retry.
++        successor = "simulated-successor-after-home-creation-failure"
++        attempts.record_attempt(control, attempt_id=successor, adapter_name="docker",
++            adapter_digest=self.config["adapter_digest"], profile_digest=self.config["profile_digest"])
++        stage = dict(next(one for one in submission.stage_rows(job) if one["kind"] == "implementation"), attempt_id=successor)
++        worker = self.worker_of(composed, "implementation")
++        worker._hold_provider_home(stage)
++        selected = model_attribution.selection_of(control, successor)["delivery"]
++        mount = provider_home.HomeMount(root, **selected["home_identity"], attempt_id=successor)
++        self.assertEqual(mount.boundary()[0], str(record_path.parent / "home"))
++        updated = json.loads(record_path.read_text())
++        self.assertEqual(updated, dict(record, holder=successor, state="ready"))
++        worker._hold_provider_home(stage)
++        self.assertEqual(json.loads(record_path.read_text()), updated)
++        self.assertEqual(self.invocations, [])
++
+     def test_R1_requested_start_without_cessation_keeps_home_pending(self):
+         from baton_v12.worker_manager import attempts, oci
+         job, control, composed = self.serving()

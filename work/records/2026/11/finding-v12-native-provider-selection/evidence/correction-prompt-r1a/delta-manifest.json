@@ -1,0 +1,27 @@
+{
+  "prior_candidate": "sha256:4980bb47c07ed40503945d2926681590f393b657d9413293079c2e6520679053",
+  "candidate": "sha256:5b76e7000b38c77b8405b92215f5ed7d82aeb20dab62bd2ccc2fe23a13ed5b62",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_home.py",
+      "before_sha256": "2218374ced0966c7a2861622af7ad96b21b48910a8663298bdbb99ae5005a53b",
+      "after_sha256": "949739e4661f87d585fdcce70f8269d6d18ab4b901d6bec808a645d34744dcba",
+      "before_mode": "0o664",
+      "after_mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_home.py",
+      "before_sha256": "5342d86deee5f3212f4cebb1fb182473318c9dcf265703dc0996e6562211ec28",
+      "after_sha256": "312347a3b83bf5211d9dcf3faee03e767c5ae5e9cffc85de632953f3ab47a255",
+      "before_mode": "0o664",
+      "after_mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/test_provider_selection.py",
+      "before_sha256": "6c0171b87b85aeb5bd3f0ba421822cb8030ccb93f0ccfdf75c9b7861ead89653",
+      "after_sha256": "1a6789e78aa2e8a070840143c6d180d627b50025548f31141b45f3e44a20bf66",
+      "before_mode": "0o664",
+      "after_mode": "0o664"
+    }
+  ]
+}

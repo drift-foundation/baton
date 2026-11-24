@@ -1,0 +1,17 @@
+test_E1_every_unproved_form_of_evidence_stays_pending_and_writes_nothing (__main__.Preparing.test_E1_every_unproved_form_of_evidence_stays_pending_and_writes_nothing) ... ok
+test_E2_proved_cessation_takes_over_and_finishes (__main__.Preparing.test_E2_proved_cessation_takes_over_and_finishes) ... ok
+test_E3_takeover_interrupted_again_is_replayable_by_the_successor_only (__main__.Preparing.test_E3_takeover_interrupted_again_is_replayable_by_the_successor_only) ... ok
+test_E4_ready_branch_is_unchanged (__main__.Preparing.test_E4_ready_branch_is_unchanged) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.035s
+
+OK
+E1 interrupted at mkdir: 13 unproved forms all pending; record bytes and directory listing unchanged; home present: False
+E1 interrupted at ready: 13 unproved forms all pending; record bytes and directory listing unchanged; home present: True
+E2 interrupted at mkdir: asked about ['a1']; record now a2/ready; identity and created_at kept: True; home mode 700
+E2 interrupted at ready: asked about ['a1']; record now a2/ready; identity and created_at kept: True; home mode 700
+E2 interrupted at mkdir: asked about ['a1']; record now a2/ready; identity and created_at kept: True; home mode 700
+E3 successor interrupted too: record a2 preparing | home present: False
+E3 successor replay finishes: True
+E4 ready record: uncertain holder pending; a ready record whose home is absent is still refused outright: retained provider home is absent

@@ -1,0 +1,8 @@
+test_26_actual_argv_or_environment_drift_refuses_before_provider (tests.tools.test_provider_selection.SelectedCase.test_26_actual_argv_or_environment_drift_refuses_before_provider) ... ok
+test_27_28_changed_tool_policy_refuses_before_any_runtime (tests.tools.test_provider_selection.SelectedCase.test_27_28_changed_tool_policy_refuses_before_any_runtime) ... ok
+test_44_simulated_authentication_failure_has_no_key_or_fallback (tests.tools.test_provider_selection.SelectedCase.test_44_simulated_authentication_failure_has_no_key_or_fallback) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.387s
+
+OK

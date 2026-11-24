@@ -1243,6 +1243,23 @@ def _admitted_task(jobs, job_id, *, holds):
     return document if type(document) is dict else None
 
 
+
+def original_model_attribution(control, attempt_id, output, producer):
+    from ..worker_manager import model_attribution
+    if model_attribution.selection_of(control, attempt_id) is None:
+        return None
+    result_path, _ = producer_entries(corrective_declaration())
+    raw = output.get("entries", {}).get(result_path)
+    try:
+        document = json.loads(raw)
+        claim = document.get("provider", {}).get("attribution")
+    except (ValueError, TypeError, AttributeError):
+        _refuse("model-attribution-missing: retained producer result", category="integrity", code="schema")
+    return model_attribution.recovery_evidence(control, attempt_id,
+        candidate={"base": producer["base"], "head": producer["head"]},
+        tree_digest=output["manifest"]["tree_digest"], result_digest=digest_of_bytes(raw), claim=claim)
+
+
 def inspect(jobs, control, *, job_id, stage_id, episode, host, exclusion,
             source, authorization=None, now=None):
     """WHAT THE OWNER IS LOOKING AT BEFORE THEY DECIDE. A READ, and it writes
@@ -1280,6 +1297,13 @@ def inspect(jobs, control, *, job_id, stage_id, episode, host, exclusion,
     producer = (None if output is None
                 else _producer_evidence(output, failed, task, declaration,
                                         holds=holds))
+    if producer is not None:
+        try:
+            attribution = original_model_attribution(control, failed["attempt_id"], output, producer)
+            if attribution is not None:
+                producer["model_attribution"] = attribution
+        except ContractRefusal as refusal:
+            _held(holds, refusal)
     correspondence = (None if output is None else
                       _correspondence(source, output, producer, holds=holds))
     # THE COMMANDS ARE REPORTED BESIDE THE ANSWER AND ARE NOT DIGESTED.
@@ -1795,7 +1819,11 @@ def recovery_input(decision, selection):
                          "context_digest":
                              expected["verification_context_digest"],
                          "qualification": "producer-evidence",
-                         "independent_acceptance": False},
+                         "independent_acceptance": False,
+                         **({"model_attribution": {
+                             "attempt_id": selection["producer"]["model_attribution"]["attempt_id"],
+                             "binding_digest": digest(selection["producer"]["model_attribution"])}}
+                            if "model_attribution" in selection["producer"] else {})},
             "selection_digest": expected["selection_digest"],
             "declaration": decision["declaration_digest"],
             "provenance": dict(decision["provenance"]),
@@ -2933,6 +2961,10 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
                                job_signature(ADMITTED_KIND, operands),
                                kind=ADMITTED_KIND)
     if found:
+        from ..worker_manager import model_attribution
+        original = value["candidate"]["attempt_id"]
+        if model_attribution.selection_of(control, original) is not None:
+            model_attribution.require_recovery(control, value["candidate"].get("model_attribution"))
         return value
     found, value = jobs.replay(held_operation_id(decision_id),
                                job_signature(HELD_KIND, operands),
@@ -2969,6 +3001,9 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
                     f"carries out the decision that was taken, on the bytes "
                     f"it was taken about",
                     category="integrity", code="digest")
+
+    from ..worker_manager import model_attribution
+    model_attribution.bind_recovery(control, selection["producer"].get("model_attribution"))
 
     # -- THE PREREQUISITES, before any effect. A deployment that installs no
     #    publication worker is asked ONCE and its refusal is a HELD record
@@ -3064,7 +3099,9 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
                       # an attempt id alone. It is also what the reviewer's
                       # independence is enforced against.
                       "participant": selection["selector"]["participant"],
-                      "principal": selection["selector"]["principal"]},
+                      "principal": selection["selector"]["principal"],
+                      **({"model_attribution": selection["producer"]["model_attribution"]}
+                         if "model_attribution" in selection["producer"] else {})},
         "output": dict(selection["output"]),
         "input_declaration": declaration,
         "input_digest": submitted,

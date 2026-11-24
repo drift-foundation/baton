@@ -504,6 +504,8 @@ class PublicationCase(unittest.TestCase):
             "'role', 'grant', 1)",
             (attempt_id, NOW, WORK_A, UUID, participant,
              "principal:" + participant, WORK_SCOPE))
+        if hasattr(self, "select_original_provider"):
+            self.select_original_provider(attempt_id)
         self.control._connection.execute(
             "UPDATE attempts SET runtime_id = ?, execution_runtime = "
             "'destroyed', cleanup = 'retained' WHERE runtime_attempt_id = ?",

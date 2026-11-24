@@ -1008,14 +1008,14 @@ class AnInvalidLaunchNeverWAITSForAChannelNobodyWrites(unittest.TestCase):
         """
         # W376586: THE FUTURE ARRIVED. This case named `/5` as the generation
         # from a newer manager, and `/5` is now the file-exchange wrapper this
-        # worker reads -- so the unknown generation moves to `/6` and the
+        # worker reads -- so the unknown generation moves to `/7` and the
         # PROPERTY is unchanged. The wrapper's own reading is asserted in
         # `TheFileExchangeLaunchIsWrapped` below.
         said = self.started(self.document(
-            "baton.worker-launch/6",
+            "baton.worker-launch/7",
             transport=baton_worker.EXCHANGE_TRANSPORT,
             job_execution={}, something_from_the_future={}))["stderr"]
-        self.assertIn("baton.worker-launch/6", said)
+        self.assertIn("baton.worker-launch/7", said)
         self.assertIn("from another generation", said)
         for one in baton_worker.SUPPORTED_LAUNCH_SCHEMAS:
             self.assertIn(one, said)
@@ -1036,7 +1036,8 @@ class AnInvalidLaunchNeverWAITSForAChannelNobodyWrites(unittest.TestCase):
                          (baton_worker.LAUNCH_SCHEMA,
                           baton_worker.EXCHANGE_LAUNCH_SCHEMA,
                           baton_worker.JOB_LAUNCH_SCHEMA,
-                          baton_worker.CONTEXT_LAUNCH_SCHEMA))
+                          baton_worker.CONTEXT_LAUNCH_SCHEMA,
+                          baton_worker.PROVIDER_LAUNCH_SCHEMA))
         # `/1` IS NOT IN THIS LOOP because the four base members ARE a valid
         # `/1`: there is no way to make it invalid that does not also put it
         # on the framing loop it is supposed to stay on. Its own preserved

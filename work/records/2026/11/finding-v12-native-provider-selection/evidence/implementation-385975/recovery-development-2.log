@@ -1,0 +1,57 @@
+test_B1_original_attribution_travels_through_admission_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B1_original_attribution_travels_through_admission_custody_and_handoff) ... FAIL
+test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission) ... ok
+test_B4_cross_candidate_substitution_after_decision_refuses (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B4_cross_candidate_substitution_after_decision_refuses) ... ok
+test_B5_log_tampering_after_admission_refuses_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B5_log_tampering_after_admission_refuses_custody_and_handoff) ... FAIL
+test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher) ... FAIL
+
+======================================================================
+FAIL: test_B1_original_attribution_travels_through_admission_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B1_original_attribution_travels_through_admission_custody_and_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 49, in test_B1_original_attribution_travels_through_admission_custody_and_handoff
+    self.published_once()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 491, in published_once
+    self.launched(now=now)
+    ~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 418, in launched
+    self.fail("the publication worker was never given its command")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the publication worker was never given its command
+
+======================================================================
+FAIL: test_B5_log_tampering_after_admission_refuses_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B5_log_tampering_after_admission_refuses_custody_and_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 85, in test_B5_log_tampering_after_admission_refuses_custody_and_handoff
+    self.published_once()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 491, in published_once
+    self.launched(now=now)
+    ~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 418, in launched
+    self.fail("the publication worker was never given its command")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the publication worker was never given its command
+
+======================================================================
+FAIL: test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 95, in test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher
+    self.published_once()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 491, in published_once
+    self.launched(now=now)
+    ~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 418, in launched
+    self.fail("the publication worker was never given its command")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the publication worker was never given its command
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.799s
+
+FAILED (failures=3)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

@@ -4666,6 +4666,8 @@ class ComposedOneJobCase(ServingCase):
             # context the deployment composed -- adoption compares canonical
             # bytes. Setup only: no assertion and no expected outcome changes.
             job_execution=self.job_execution_for(role, attempt_id),
+            provider_selection=(self.provider_delivery_for(role, attempt_id)
+                                if hasattr(self, "provider_delivery_for") else None),
             provider_context=__import__("baton_v12.worker_manager.provider_context", fromlist=["context_invocation_of"]).context_invocation_of(control, attempt_id),
             workspace_group=single_worker.configured_workspace_group(control))
         held = []

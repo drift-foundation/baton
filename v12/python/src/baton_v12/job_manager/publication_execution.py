@@ -917,7 +917,7 @@ def _staging_lock(root, *, name=STAGING_LOCK):
     return holding()
 
 
-def _original(seam, held, *, what):
+def _original(seam, held, *, what, read=()):
     """THE APPROVED ORIGINAL, RE-READ through the host owner. A read.
 
     IT DOES NOT TRUST THE ADMISSION'S RECORDED DIGEST, and that is the point
@@ -929,8 +929,13 @@ def _original(seam, held, *, what):
     """
     attempt_id = held["candidate"]["attempt_id"]
     output = seam["host"].output_of(
-        attempt_id,
+        attempt_id, read=read,
         output=publication_recovery.corrective_declaration()["output"]["path"])
+    # Requested entry bytes are a binary owner response, not a JSON document.
+    entries = output.get("entries", {}) if type(output) is dict else {}
+    if type(entries) is not dict or any(type(key) is not str or type(value) is not bytes for key, value in entries.items()):
+        _refuse("the retained output entries are not exact bytes", category="integrity", code="schema")
+    output = {key: value for key, value in output.items() if key != "entries"}
     taken = boundaries.document(output, "the host's retained output read",
                                 required=("attempt_id", "root", "identity",
                                           "manifest"),
@@ -956,6 +961,8 @@ def _original(seam, held, *, what):
                 f"recovery is bound to {name_value(recorded['tree_digest'])}; "
                 f"bytes that moved under an owner decision are not the bytes "
                 f"it was taken about", category="integrity", code="digest")
+    if read:
+        taken["entries"] = entries
     return taken
 
 
@@ -1952,6 +1959,21 @@ def _workspace_of(seam, attempt_id):
 
 # -- 8. act three: NORMAL COMPLETION, CUSTODY AND INTAKE ---------------------
 
+
+def _original_attribution(seam, held):
+    from ..worker_manager import model_attribution
+    attempt = held["candidate"]["attempt_id"]
+    if model_attribution.selection_of(seam["control"], attempt) is None:
+        return None
+    binding = model_attribution.require_recovery(seam["control"], held["candidate"].get("model_attribution"))
+    original = _original(seam, held, what="original model attribution",
+        read=publication_recovery.producer_entries(publication_recovery.corrective_declaration()))
+    checked = publication_recovery.original_model_attribution(seam["control"], attempt, original, held["candidate"])
+    if checked != binding:
+        _refuse("original producer attribution or candidate changed", category="integrity", code="digest")
+    return binding
+
+
 def take_custody(store, seam, *, decision_id, now=None):
     """ACT THREE: bind the ordinary freeze and intake of this new execution.
 
@@ -1978,6 +2000,7 @@ def take_custody(store, seam, *, decision_id, now=None):
     taken = check_publication_seam(seam)
     _agreeing_instance(taken, what="this publication custody")
     held = _admitted(store, decision_id)
+    _original_attribution(taken, held)
     job_id = held["job_id"]
     recorded = custody_of(store, job_id)
     if recorded is not None:
@@ -2075,7 +2098,9 @@ def _custody_artifacts(frozen, receipt, result, held, *, attempt_id):
                           "artifact_id": candidate.get("artifact_id"),
                           "content_digest": candidate.get("content_digest"),
                           "locator": candidate.get("locator"),
-                          "equals_original": True},
+                          "equals_original": True,
+                          **({"model_attribution": held["candidate"]["model_attribution"]}
+                             if "model_attribution" in held["candidate"] else {})},
             "provenance": {"name": provenance.get("output_name"),
                            "artifact_id": provenance.get("artifact_id"),
                            "content_digest": provenance.get("content_digest"),
@@ -2172,6 +2197,7 @@ def hand_off(store, seam, *, decision_id, now=None):
     taken = check_publication_seam(seam)
     _agreeing_instance(taken, what="this publication handoff")
     held = _admitted(store, decision_id)
+    _original_attribution(taken, held)
     job_id = held["job_id"]
     recorded = handoff_of(store, job_id)
     if recorded is not None:
@@ -2208,7 +2234,9 @@ def hand_off(store, seam, *, decision_id, now=None):
         "candidate": {**{one: held["candidate"][one] for one in
                          ("base", "head", "changed_paths")},
                       "content_digest": held["output"]["tree_digest"],
-                      "equals_approved_original": True},
+                      "equals_approved_original": True,
+                      **({"model_attribution": held["candidate"]["model_attribution"]}
+                         if "model_attribution" in held["candidate"] else {})},
         "output": {"tree_digest": result["adopted"]["tree_digest"],
                    "entry_count": result["adopted"]["entry_count"],
                    "total_bytes": result["adopted"]["total_bytes"],
@@ -2663,6 +2691,7 @@ def deliver_review_item(store, seam, *, decision_id, now=None):
     taken = check_publication_seam(seam)
     _agreeing_instance(taken, what="this review item")
     held = _admitted(store, decision_id)
+    _original_attribution(taken, held)
     job_id = held["job_id"]
     delivered = review_item_of(store, job_id)
     if delivered is not None:

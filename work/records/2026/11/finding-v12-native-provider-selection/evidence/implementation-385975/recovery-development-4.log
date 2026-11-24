@@ -1,0 +1,78 @@
+test_B1_original_attribution_travels_through_admission_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B1_original_attribution_travels_through_admission_custody_and_handoff) ... ERROR
+test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission) ... ok
+test_B4_cross_candidate_substitution_after_decision_refuses (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B4_cross_candidate_substitution_after_decision_refuses) ... ok
+test_B5_log_tampering_after_admission_refuses_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B5_log_tampering_after_admission_refuses_custody_and_handoff) ... ok
+test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher) ... ERROR
+
+======================================================================
+ERROR: test_B1_original_attribution_travels_through_admission_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B1_original_attribution_travels_through_admission_custody_and_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_recovery.py", line 1254, in original_model_attribution
+    document = json.loads(raw)
+  File "/usr/lib/python3.13/json/__init__.py", line 339, in loads
+    raise TypeError(f'the JSON object must be str, bytes or bytearray, '
+                    f'not {s.__class__.__name__}')
+TypeError: the JSON object must be str, bytes or bytearray, not NoneType
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 59, in test_B1_original_attribution_travels_through_admission_custody_and_handoff
+    custody = self.collected()
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 506, in collected
+    return publication_execution.take_custody(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.jobs, self.seam(**changed), decision_id="D1", now=now)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_execution.py", line 1995, in take_custody
+    _original_attribution(taken, held)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_execution.py", line 1963, in _original_attribution
+    checked = publication_recovery.original_model_attribution(seam["control"], attempt, original, held["candidate"])
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_recovery.py", line 1257, in original_model_attribution
+    _refuse("model-attribution-missing: retained producer result", category="integrity", code="schema")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_recovery.py", line 155, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: model-attribution-missing: retained producer result
+
+======================================================================
+ERROR: test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_recovery.py", line 1254, in original_model_attribution
+    document = json.loads(raw)
+  File "/usr/lib/python3.13/json/__init__.py", line 339, in loads
+    raise TypeError(f'the JSON object must be str, bytes or bytearray, '
+                    f'not {s.__class__.__name__}')
+TypeError: the JSON object must be str, bytes or bytearray, not NoneType
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 105, in test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher
+    first = self.collected()
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 506, in collected
+    return publication_execution.take_custody(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.jobs, self.seam(**changed), decision_id="D1", now=now)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_execution.py", line 1995, in take_custody
+    _original_attribution(taken, held)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_execution.py", line 1963, in _original_attribution
+    checked = publication_recovery.original_model_attribution(seam["control"], attempt, original, held["candidate"])
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_recovery.py", line 1257, in original_model_attribution
+    _refuse("model-attribution-missing: retained producer result", category="integrity", code="schema")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/job_manager/publication_recovery.py", line 155, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: model-attribution-missing: retained producer result
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.075s
+
+FAILED (errors=2)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

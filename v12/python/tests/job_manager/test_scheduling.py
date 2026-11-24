@@ -129,6 +129,20 @@ class PoolDocuments(PoolCase):
 
 class Capacity(PoolCase):
 
+    def test_a_second_admission_to_one_live_worker_is_refused(self):
+        self.activate(pool(workers=[worker("only-worker", "implementation", "baton.only", ["implementation"])]))
+        first, second = self.attempts([
+            job("first", stages=[stage("implementation", "work:first")]),
+            job("second", stages=[stage("implementation", "work:second")])])
+        admitted = reserve(self.jobs, first)
+        with self.assertRaises(ContractRefusal) as caught:
+            reserve(self.jobs, second)
+        self.assertEqual(caught.exception.code, "precondition")
+        rows = allocation_rows(self.jobs)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["worker_id"], "only-worker")
+        self.assertEqual(rows[0]["assignment_id"], first["attempt_id"])
+
     def test_two_implementation_and_two_review_capacities_are_live_together(self):
         self.activate()
         jobs = [job("impl-1", stages=[stage("implementation", "work:i1")]),

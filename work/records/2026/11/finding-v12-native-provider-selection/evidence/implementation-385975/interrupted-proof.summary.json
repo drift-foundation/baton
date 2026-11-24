@@ -1,0 +1,17 @@
+{
+  "collected": 1,
+  "duplicates": [],
+  "duration_seconds": 3.8169032919686288,
+  "executed": 1,
+  "exit_status": 0,
+  "nonpassing": {},
+  "outcomes": {
+    "tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments": "ok"
+  },
+  "passed": 1,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

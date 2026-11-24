@@ -35,6 +35,14 @@ def views(doc):
 
 
 class SharedObservation(unittest.TestCase):
+    def test_attribution_holds_name_typed_cause_and_owner_action_on_all_views(self):
+        for cause in ("model-attribution-missing", "model-attribution-conflicting", "model-attribution-invalid"):
+            doc = document()
+            stage = doc["jobs"][0]["stages"][0]
+            stage["state"] = "answering"
+            stage["runtime"]["model_attribution_hold"] = cause
+            for rendered in views(doc):
+                self.assertIn(cause + "; owner action needed", rendered)
     def test_shared_outcomes_gates_and_typed_failure(self):
         for state, outcome in (("running", "IN PROGRESS"), ("completed", "COMPLETED"), ("queued", "QUEUED"), ("changes-requested", "CHANGES REQUESTED"), ("exceptional", "FAILED"), ("blocked", "BLOCKED"), ("unrecognized", "UNKNOWN")):
             doc = document()

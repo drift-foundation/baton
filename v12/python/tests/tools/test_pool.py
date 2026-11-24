@@ -1491,3 +1491,59 @@ def _work_or_none(authority, work_id):
 
 if __name__ == "__main__":                                  # pragma: no cover
     unittest.main()
+
+
+class ExplicitProviderPolicy(ComposingCase):
+    """Simulated selectors; no claim about a real provider's model IDs."""
+    def selected(self, **changes):
+        selected = {"provider": "claude", "requested_model": "fixture-selector",
+                    "reported_identity": "fixture-reported-model", "cli_build": "2.1.247"}
+        selected.update(changes)
+        return selected
+
+    def test_new_selection_binds_profile_adapter_and_shared_policy(self):
+        from baton_v12 import provider_policy
+        from baton_v12.contracts import digest
+        worker = self.composing(provider_selection=self.selected())["worker"]
+        deployment = worker["deployment"]
+        self.assertEqual(deployment["schema"], single_worker.PROVIDER_CONFIG_SCHEMA)
+        binding = deployment["provider_contract"]
+        self.assertEqual(deployment["profile_digest"], digest(binding["runtime_profile"]))
+        self.assertEqual(deployment["adapter_digest"], digest(binding["adapter"]))
+        self.assertEqual(deployment["input_manifest"]["tool_policy_digest"], digest(provider_policy.POLICY))
+        self.assertEqual(binding["runtime_profile"]["model"], "fixture-selector")
+        self.assertEqual(provider_policy.argv(binding["adapter"], self.selected(), "prompt")[-3:],
+                         ["--model", "fixture-selector", "prompt"])
+
+    def test_missing_selection_members_and_unknown_provider_refuse(self):
+        for member in ("provider", "requested_model", "reported_identity", "cli_build"):
+            with self.subTest(member=member), self.assertRaises(pool.PoolRefusal):
+                self.composing(provider_selection=self.selected(**{member: None}))
+        with self.assertRaises(pool.PoolRefusal):
+            self.composing(provider_selection=self.selected(provider="unqualified-provider"))
+
+    def test_legacy_composition_is_unchanged_by_explicit_absence(self):
+        self.assertEqual(self.composing(), self.composing(provider_selection=None))
+        legacy = self.composing()["worker"]["deployment"]
+        self.assertNotIn("provider_contract", legacy)
+        self.assertNotIn("provider_home_root", legacy)
+
+    def test_adapter_digest_and_implements_binding_tamper_refuse(self):
+        from baton_v12 import provider_policy
+        from baton_v12.contracts import digest
+        selected = self.selected()
+        adapter = provider_policy.adapter(selected, network="fixture-network")
+        held = digest(adapter)
+        adapter["implements_tool_policy"] = "sha256:" + "0" * 64
+        with self.assertRaises(provider_policy.PolicyRefusal):
+            provider_policy.validate_adapter(adapter, selected,
+                adapter_digest=held, tool_policy_digest=digest(provider_policy.POLICY))
+        with self.assertRaises(provider_policy.PolicyRefusal):
+            provider_policy.validate_adapter(adapter, selected,
+                adapter_digest=digest(adapter), tool_policy_digest=digest(provider_policy.POLICY))
+
+    def test_unknown_policy_member_value_refuses_composition(self):
+        from baton_v12 import provider_policy
+        policy = dict(provider_policy.POLICY, model_substitution="fallback")
+        with self.assertRaises(provider_policy.PolicyRefusal):
+            provider_policy.adapter(self.selected(), network="fixture-network", tool_policy=policy)

@@ -151,6 +151,8 @@ CONTEXT_MEMBERS = JOB_MEMBERS + ("provider_context",)
 # no transport are NOT wrapped: the amendment says the framed transport is
 # outside this feature, and wrapping a launch that selects no file exchange
 # would be a wrapper describing a wire nobody is on.
+PROVIDER_SCHEMA = "baton.worker-launch/6"
+PROVIDER_MEMBERS = JOB_MEMBERS + ("provider_selection",)
 WRAPPER_SCHEMA = "baton.worker-launch/5"
 WRAPPER_MEMBERS = ("schema", "wire_profile", "payload")
 
@@ -185,13 +187,13 @@ TRANSPORTS = {LAUNCH_SCHEMA: None,
 # asked there, and the composed integration bundle refused the `/3` its own port
 # had just authored.
 SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_SCHEMA, JOB_SCHEMA, CONTEXT_SCHEMA,
-           WRAPPER_SCHEMA)
+           WRAPPER_SCHEMA, PROVIDER_SCHEMA)
 
 # THE PAYLOAD GENERATIONS, which is a THIRD question again: `SCHEMAS` says
 # which documents this build authors, and this says which of them may sit
 # INSIDE the wrapper. The wrapper is deliberately absent, so a nested wrapper
 # is refused by a membership test rather than by a depth count.
-PAYLOAD_SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_SCHEMA, JOB_SCHEMA, CONTEXT_SCHEMA)
+PAYLOAD_SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_SCHEMA, JOB_SCHEMA, CONTEXT_SCHEMA, PROVIDER_SCHEMA)
 
 
 def selected_transport(document):
@@ -249,6 +251,8 @@ def members_for(document):
     schema = document.get("schema") if type(document) is dict else None
     if schema == WRAPPER_SCHEMA:
         return WRAPPER_MEMBERS
+    if schema == PROVIDER_SCHEMA:
+        return PROVIDER_MEMBERS
     if schema == CONTEXT_SCHEMA:
         return CONTEXT_MEMBERS
     if schema == JOB_SCHEMA:
@@ -467,7 +471,7 @@ def _digest(document):
 
 
 def launch_document(*, session, contract, role, transport=None,
-                    job_execution=None, provider_context=None):
+                    job_execution=None, provider_context=None, provider_selection=None):
     """The complete document for the version this transport selects.
 
     AUTHORED HERE RATHER THAN ASSEMBLED BY A CALLER, and rebuilt over
@@ -511,6 +515,15 @@ def launch_document(*, session, contract, role, transport=None,
             _denied("provider context requires the implementation Job exchange")
         document["schema"] = CONTEXT_SCHEMA
         document["provider_context"] = _context_delivery(provider_context, document["job_execution"])
+    if provider_selection is not None:
+        from .. import provider_policy
+        if job_execution is None or provider_context is not None or role == "publication":
+            _denied("provider selection requires a fresh provider Job execution")
+        try:
+            document["provider_selection"] = provider_policy.validate_delivery(provider_selection, document["job_execution"])
+        except ValueError as failure:
+            _refuse(str(failure))
+        document["schema"] = PROVIDER_SCHEMA
     # W376586: THE WRAPPER, APPLIED EXACTLY WHEN THE FILE EXCHANGE IS SELECTED.
     #
     # Composed here and nowhere else, because this function is the single
@@ -681,7 +694,7 @@ def _logs_adopted(home, attempt, workspace_group):
 
 
 def materialize(storage, *, attempt_id, session, contract, role,
-                transport=None, job_execution=None, workspace_group=None, provider_context=None):
+                transport=None, job_execution=None, workspace_group=None, provider_context=None, provider_selection=None):
     """Author one launch document and put it on disk as this manager's own.
 
     `storage` is the manager's own launch storage, NOT an assignment root. The
@@ -706,7 +719,7 @@ def materialize(storage, *, attempt_id, session, contract, role,
                 code="path")
     document = launch_document(session=session, contract=contract,
                                role=role, transport=transport,
-                               job_execution=job_execution, provider_context=provider_context)
+                               job_execution=job_execution, provider_context=provider_context, provider_selection=provider_selection)
     payload = _bytes(document)
     root = os.path.join(os.path.realpath(home), attempt)
     if os.path.lexists(root):
@@ -808,7 +821,7 @@ def _exchange_materialized(root, attempt, document, workspace_group):
 
 
 def adopt(storage, *, attempt_id, session, contract, role,
-          transport=None, job_execution=None, workspace_group=None, provider_context=None):
+          transport=None, job_execution=None, workspace_group=None, provider_context=None, provider_selection=None):
     """Recover the delivery THIS MANAGER already made, or FAIL CLOSED.
 
     W47225. `materialize` refuses an existing root and `discard` removes one,
@@ -869,7 +882,7 @@ def adopt(storage, *, attempt_id, session, contract, role,
     # comparison below a comparison rather than a second rule set.
     expected = _bytes(launch_document(session=session, contract=contract,
                                       role=role, transport=transport,
-                                      job_execution=job_execution, provider_context=provider_context))
+                                      job_execution=job_execution, provider_context=provider_context, provider_selection=provider_selection))
     root = os.path.join(os.path.realpath(home), attempt)
     if not os.path.lexists(root):
         return None
@@ -952,7 +965,7 @@ def adopt(storage, *, attempt_id, session, contract, role,
                           document=launch_document(
                               session=session, contract=contract, role=role,
                               transport=transport,
-                              job_execution=job_execution, provider_context=provider_context),
+                              job_execution=job_execution, provider_context=provider_context, provider_selection=provider_selection),
                           delivery=delivery,
                           logs=_logs_adopted(os.path.dirname(root), attempt,
                                              workspace_group))

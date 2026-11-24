@@ -1,0 +1,21 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.tools.test_provider_selection.SelectedCase.test_R1a_failed_home_creation_releases_preparing_holder_to_successor"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "groups": [
+    "manager-pure",
+    "tools-pure"
+  ],
+  "collected": 1,
+  "bound_seconds": 120,
+  "disk_root": "/home/sl/src/baton/work/scratch/w385965-r1a-test-roots",
+  "TMPDIR": "/home/sl/src/baton/work/scratch/w385965-r1a-test-roots",
+  "pid": 1900456,
+  "pgid": 1900456
+}

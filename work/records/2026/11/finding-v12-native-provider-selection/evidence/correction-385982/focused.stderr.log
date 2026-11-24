@@ -1,0 +1,1247 @@
+test_a_claimed_attempt_will_not_start_without_a_root (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_claimed_attempt_will_not_start_without_a_root)
+THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable ... ok
+test_a_durable_refusal_is_still_durable_when_it_comes_back (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_durable_refusal_is_still_durable_when_it_comes_back)
+Review [P2]: the reconstructed refusal dropped `durable`. ... ok
+test_a_failed_attachment_rolls_back_before_a_restart_retry (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_failed_attachment_rolls_back_before_a_restart_retry)
+A fault inside the atomic attachment commits neither half of it. ... ok
+test_a_failed_reconciliation_still_leaves_an_ending (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_failed_reconciliation_still_leaves_an_ending)
+RE-REVIEW [P0]: the settlement only settled when it went well. ... ok
+test_a_fault_after_creation_still_attaches_the_exact_runtime (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_fault_after_creation_still_attaches_the_exact_runtime)
+RE-REVIEW [P0]: the fault path settled without reconciling. ... ok
+test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain)
+The fallback is RETAINED. Reconciling first does not mean assuming ... ok
+test_a_maximum_width_refusal_does_not_overflow_the_bound (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_maximum_width_refusal_does_not_overflow_the_bound)
+Review [P2]: appending to an already-maximal message raised a raw ... ok
+test_a_noncanonical_input_source_refuses_before_start_is_journalled (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_noncanonical_input_source_refuses_before_start_is_journalled)
+The same rule applies to the host source spelling. ... ok
+test_a_noncanonical_input_target_refuses_before_start_is_journalled (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_noncanonical_input_target_refuses_before_start_is_journalled)
+Normalizing a plan must not erase the spelling being authorized. ... ok
+test_a_prepared_attempt_records_the_refusal_as_its_own_kind (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_prepared_attempt_records_the_refusal_as_its_own_kind) ... ok
+test_a_reconciliation_that_also_fails_reports_both (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_reconciliation_that_also_fails_reports_both)
+The operator needs the reason the start failed AND the reason the ... ok
+test_a_record_describing_another_act_refuses (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_record_describing_another_act_refuses) ... ok
+test_a_refused_row_under_that_identity_is_not_a_failure (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_refused_row_under_that_identity_is_not_a_failure)
+A collision is not evidence, so it answers absence rather than ... ok
+test_a_root_carrying_another_input_manifest_never_starts (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_root_carrying_another_input_manifest_never_starts)
+The third manager-owned fact: the attempt's own record of what it ... ok
+test_a_root_composed_for_another_delivery_never_starts_a_runtime (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_root_composed_for_another_delivery_never_starts_a_runtime)
+Each root below is internally perfect and composed by the real ... ok
+test_a_row_committed_as_another_kind_refuses (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_row_committed_as_another_kind_refuses)
+AN IDENTITY IS NOT A WARRANT, held to the sibling reader's rule. ... ok
+test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with)
+W6632 review [P1] made the policy digest a reconciliation label. ... ok
+test_a_runtime_the_failed_start_created_is_attached (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_runtime_the_failed_start_created_is_attached)
+An engine can create a container and then fail. ... ok
+test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored)
+It is not absent, it is WRONG, and this call caused it. ... ok
+test_a_second_start_is_refused_rather_than_performed (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_second_start_is_refused_rather_than_performed) ... ok
+test_a_settlement_never_overwrites_a_truer_observation (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_settlement_never_overwrites_a_truer_observation)
+`uncertain` is written ONLY from `start-requested`. ... ok
+test_a_start_ending_that_wins_the_race_is_the_only_one_written (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_start_ending_that_wins_the_race_is_the_only_one_written)
+Re-review 2026-09-03T22:00:26Z [P1]: the door check goes stale. ... ok
+test_a_start_over_an_authorized_root_proceeds (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_start_over_an_authorized_root_proceeds)
+W19784 review [P0]. The positive: an attempt claimed against an ... ok
+test_a_start_that_created_nothing_this_manager_can_name_is_uncertain (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_start_that_created_nothing_this_manager_can_name_is_uncertain)
+FAIL CLOSED, and deliberately not "absent". ... ok
+test_a_start_that_faults_rather_than_refuses_still_settles (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_start_that_faults_rather_than_refuses_still_settles)
+A FAULT IS A FAILED START TOO. ... ok
+test_a_start_that_was_requested_and_never_attached_is_recorded (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_start_that_was_requested_and_never_attached_is_recorded)
+THE RESTART WINDOW, and re-review [P1] is why it is recorded here. ... ok
+test_a_start_with_no_root_says_so_across_the_seam (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_start_with_no_root_says_so_across_the_seam)
+And absence crosses it too, as a value rather than as an omission. ... ok
+test_a_started_runtime_the_adapter_cannot_see_is_uncertain (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_a_started_runtime_the_adapter_cannot_see_is_uncertain)
+Review [P0]: the exact identity this call minted is ASKED ABOUT. ... ok
+test_an_adapter_without_list_still_leaves_an_ending (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_adapter_without_list_still_leaves_an_ending)
+The capability boundary takes the same path. ... ok
+test_an_attachment_that_refuses_is_contained_and_the_ending_stands (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_attachment_that_refuses_is_contained_and_the_ending_stands)
+The reconciliation still never takes the ending with it. ... ok
+test_an_attempt_that_was_never_activated_refuses (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_attempt_that_was_never_activated_refuses)
+The record is held against the assignment activation FIXED, and an ... ok
+test_an_empty_listing_over_a_known_runtime_observes_that_runtime (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_empty_listing_over_a_known_runtime_observes_that_runtime)
+Review [P0]: the ordinary post-removal shape. ... ok
+test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain)
+AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as ... ok
+test_an_empty_listing_with_no_identity_is_still_uncertainty (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_empty_listing_with_no_identity_is_still_uncertainty)
+"The adapter reports nothing" and "nothing exists" are different ... ok
+test_an_identification_that_fails_never_takes_the_ending_with_it (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_identification_that_fails_never_takes_the_ending_with_it)
+It runs while a failure is already on its way out. ... ok
+test_an_identified_name_the_registry_holds_live_is_not_said (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_identified_name_the_registry_holds_live_is_not_said)
+Naming the runtime puts an ADAPTER-SUPPLIED value in TWO places. ... ok
+test_an_operand_that_is_not_this_managers_refusal_is_refused (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_operand_that_is_not_this_managers_refusal_is_refused) ... ok
+test_an_unactivated_attempt_cannot_start_a_runtime (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_unactivated_attempt_cannot_start_a_runtime) ... ok
+test_an_unactivated_attempt_has_no_assignment_to_authorize_against (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_unactivated_attempt_has_no_assignment_to_authorize_against) ... ok
+test_an_uncertain_settlement_is_part_of_the_record_act_too (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_an_uncertain_settlement_is_part_of_the_record_act_too)
+The path where this manager knows least is the one that had three ... ok
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_authorizing_one_root_cannot_start_an_adapter_mounting_another)
+The launch authorization and the mount must name ONE root. ... ok
+test_both_kinds_of_failed_start_take_one_settlement_boundary (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_both_kinds_of_failed_start_take_one_settlement_boundary)
+A refusal and a fault differ in what they say about WHY the start ... ok
+test_it_is_not_the_failed_start_record_and_authorizes_no_removal (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_it_is_not_the_failed_start_record_and_authorizes_no_removal)
+The correction re-review asked for, asserted rather than described. ... ok
+test_no_replacement_is_started_on_either_path (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_no_replacement_is_started_on_either_path)
+One start attempt, one engine call. Settling must never become a ... ok
+test_no_start_operation_is_journalled_and_no_lane_is_taken (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_no_start_operation_is_journalled_and_no_lane_is_taken)
+A record naming a start operation would be this manager writing ... ok
+test_reconciling_the_same_runtime_again_is_still_attached (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_reconciling_the_same_runtime_again_is_still_attached) ... ok
+test_the_attempt_does_not_stay_at_start_requested (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_attempt_does_not_stay_at_start_requested)
+THE DEFECT. The axis stopped at an intention nobody could settle. ... ok
+test_the_authorized_root_crosses_the_adapter_seam (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_authorized_root_crosses_the_adapter_seam)
+W19784 second review [P0], the half `_plan_agrees` cannot cover. ... ok
+test_the_ending_and_the_attachment_land_together_or_not_at_all (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_ending_and_the_attachment_land_together_or_not_at_all)
+Re-review 2026-09-03T21:24:16Z [P1]: the interval that lost this. ... ok
+test_the_exact_same_preparation_refusal_replays (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_exact_same_preparation_refusal_replays)
+A restart finds the same material and refuses the same way, so the ... ok
+test_the_first_attachment_fixes_the_runtime_identity (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_first_attachment_fixes_the_runtime_identity)
+A later inspection must not silently replace what is recorded. ... ok
+test_the_labels_carry_all_four_parts_of_the_assignment (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_labels_carry_all_four_parts_of_the_assignment)
+The frozen host omitted the participant, so two participants' ... ok
+test_the_record_names_the_runtime_the_identification_attached (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_record_names_the_runtime_the_identification_attached)
+RECONCILE, THEN RECORD -- the order the sibling record fixes. ... ok
+test_the_refusal_keeps_its_own_closed_pair (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_refusal_keeps_its_own_closed_pair)
+The settlement is not a different thing going wrong. ... ok
+test_the_same_identification_replays_and_a_different_one_collides (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_same_identification_replays_and_a_different_one_collides)
+The plan is an operand of the ending, by IDENTITY. ... ok
+test_the_settlement_and_the_record_land_together_or_not_at_all (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_settlement_and_the_record_land_together_or_not_at_all)
+Re-review 2026-09-03T22:00:26Z [P1]: the sibling's lost ending. ... ok
+test_the_start_acts_own_record_is_never_written_over (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_start_acts_own_record_is_never_written_over)
+THE ONE ENDING THIS DEFERS TO, and re-review [P1] chose it. ... ok
+test_the_start_operation_is_journalled_before_the_adapter_is_called (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_the_start_operation_is_journalled_before_the_adapter_is_called)
+An axis label is not an effectively-once act. ... ok
+test_two_runtimes_with_these_labels_cancel_rather_than_compound (tests.manager.test_attempts.APreparationThatNeverReachedAStartIsRecordedAsOne.test_two_runtimes_with_these_labels_cancel_rather_than_compound) ... ok
+test_a_claimed_attempt_will_not_start_without_a_root (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_claimed_attempt_will_not_start_without_a_root)
+THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable ... ok
+test_a_failed_attachment_rolls_back_before_a_restart_retry (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_failed_attachment_rolls_back_before_a_restart_retry)
+A fault inside the atomic attachment commits neither half of it. ... ok
+test_a_failed_reconciliation_still_leaves_an_ending (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_failed_reconciliation_still_leaves_an_ending)
+RE-REVIEW [P0]: the settlement only settled when it went well. ... ok
+test_a_fault_after_creation_still_attaches_the_exact_runtime (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_fault_after_creation_still_attaches_the_exact_runtime)
+RE-REVIEW [P0]: the fault path settled without reconciling. ... ok
+test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain)
+The fallback is RETAINED. Reconciling first does not mean assuming ... ok
+test_a_noncanonical_input_source_refuses_before_start_is_journalled (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_noncanonical_input_source_refuses_before_start_is_journalled)
+The same rule applies to the host source spelling. ... ok
+test_a_noncanonical_input_target_refuses_before_start_is_journalled (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_noncanonical_input_target_refuses_before_start_is_journalled)
+Normalizing a plan must not erase the spelling being authorized. ... ok
+test_a_reconciliation_that_also_fails_reports_both (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_reconciliation_that_also_fails_reports_both)
+The operator needs the reason the start failed AND the reason the ... ok
+test_a_root_carrying_another_input_manifest_never_starts (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_root_carrying_another_input_manifest_never_starts)
+The third manager-owned fact: the attempt's own record of what it ... ok
+test_a_root_composed_for_another_delivery_never_starts_a_runtime (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_root_composed_for_another_delivery_never_starts_a_runtime)
+Each root below is internally perfect and composed by the real ... ok
+test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with)
+W6632 review [P1] made the policy digest a reconciliation label. ... ok
+test_a_runtime_the_failed_start_created_is_attached (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_runtime_the_failed_start_created_is_attached)
+An engine can create a container and then fail. ... ok
+test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored)
+It is not absent, it is WRONG, and this call caused it. ... ok
+test_a_second_start_is_refused_rather_than_performed (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_second_start_is_refused_rather_than_performed) ... ok
+test_a_settlement_never_overwrites_a_truer_observation (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_settlement_never_overwrites_a_truer_observation)
+`uncertain` is written ONLY from `start-requested`. ... ok
+test_a_start_over_an_authorized_root_proceeds (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_start_over_an_authorized_root_proceeds)
+W19784 review [P0]. The positive: an attempt claimed against an ... ok
+test_a_start_that_created_nothing_this_manager_can_name_is_uncertain (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_start_that_created_nothing_this_manager_can_name_is_uncertain)
+FAIL CLOSED, and deliberately not "absent". ... ok
+test_a_start_that_faults_rather_than_refuses_still_settles (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_start_that_faults_rather_than_refuses_still_settles)
+A FAULT IS A FAILED START TOO. ... ok
+test_a_start_with_no_root_says_so_across_the_seam (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_start_with_no_root_says_so_across_the_seam)
+And absence crosses it too, as a value rather than as an omission. ... ok
+test_a_started_runtime_the_adapter_cannot_see_is_uncertain (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_a_started_runtime_the_adapter_cannot_see_is_uncertain)
+Review [P0]: the exact identity this call minted is ASKED ABOUT. ... ok
+test_an_adapter_without_list_still_leaves_an_ending (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_an_adapter_without_list_still_leaves_an_ending)
+The capability boundary takes the same path. ... ok
+test_an_empty_listing_over_a_known_runtime_observes_that_runtime (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_an_empty_listing_over_a_known_runtime_observes_that_runtime)
+Review [P0]: the ordinary post-removal shape. ... ok
+test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain)
+AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as ... ok
+test_an_empty_listing_with_no_identity_is_still_uncertainty (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_an_empty_listing_with_no_identity_is_still_uncertainty)
+"The adapter reports nothing" and "nothing exists" are different ... ok
+test_an_unactivated_attempt_cannot_start_a_runtime (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_an_unactivated_attempt_cannot_start_a_runtime) ... ok
+test_an_unactivated_attempt_has_no_assignment_to_authorize_against (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_an_unactivated_attempt_has_no_assignment_to_authorize_against) ... ok
+test_an_uncertain_settlement_is_part_of_the_record_act_too (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_an_uncertain_settlement_is_part_of_the_record_act_too)
+The path where this manager knows least is the one that had three ... ok
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_authorizing_one_root_cannot_start_an_adapter_mounting_another)
+The launch authorization and the mount must name ONE root. ... ok
+test_both_kinds_of_failed_start_take_one_settlement_boundary (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_both_kinds_of_failed_start_take_one_settlement_boundary)
+A refusal and a fault differ in what they say about WHY the start ... ok
+test_no_replacement_is_started_on_either_path (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_no_replacement_is_started_on_either_path)
+One start attempt, one engine call. Settling must never become a ... ok
+test_reconciling_the_same_runtime_again_is_still_attached (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_reconciling_the_same_runtime_again_is_still_attached) ... ok
+test_the_attempt_does_not_stay_at_start_requested (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_the_attempt_does_not_stay_at_start_requested)
+THE DEFECT. The axis stopped at an intention nobody could settle. ... ok
+test_the_authorized_root_crosses_the_adapter_seam (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_the_authorized_root_crosses_the_adapter_seam)
+W19784 second review [P0], the half `_plan_agrees` cannot cover. ... ok
+test_the_first_attachment_fixes_the_runtime_identity (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_the_first_attachment_fixes_the_runtime_identity)
+A later inspection must not silently replace what is recorded. ... ok
+test_the_labels_carry_all_four_parts_of_the_assignment (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_the_labels_carry_all_four_parts_of_the_assignment)
+The frozen host omitted the participant, so two participants' ... ok
+test_the_refusal_keeps_its_own_closed_pair (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_the_refusal_keeps_its_own_closed_pair)
+The settlement is not a different thing going wrong. ... ok
+test_the_settlement_and_the_record_land_together_or_not_at_all (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_the_settlement_and_the_record_land_together_or_not_at_all)
+Re-review 2026-09-03T22:00:26Z [P1]: the sibling's lost ending. ... ok
+test_the_start_operation_is_journalled_before_the_adapter_is_called (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_the_start_operation_is_journalled_before_the_adapter_is_called)
+An axis label is not an effectively-once act. ... ok
+test_two_runtimes_with_these_labels_cancel_rather_than_compound (tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded.test_two_runtimes_with_these_labels_cancel_rather_than_compound) ... ok
+test_a_fixed_attempt_refuses_a_different_identity (tests.manager.test_attempts.ActivationNeedsAllThreeToAgree.test_a_fixed_attempt_refuses_a_different_identity)
+FIXED ONCE, and compared on ALL FOUR parts. ... ok
+test_a_row_fixed_without_a_journal_row_answers_as_it_stands (tests.manager.test_attempts.ActivationNeedsAllThreeToAgree.test_a_row_fixed_without_a_journal_row_answers_as_it_stands)
+The fallback, and what `already_fixed` now means. ... ok
+test_activation_fixes_all_four_parts (tests.manager.test_attempts.ActivationNeedsAllThreeToAgree.test_activation_fixes_all_four_parts) ... ok
+test_an_activation_for_another_identity_is_refused (tests.manager.test_attempts.ActivationNeedsAllThreeToAgree.test_an_activation_for_another_identity_is_refused) ... ok
+test_an_attempt_with_no_claim_of_its_own_is_refused (tests.manager.test_attempts.ActivationNeedsAllThreeToAgree.test_an_attempt_with_no_claim_of_its_own_is_refused)
+A live assignment elsewhere is not evidence. ... ok
+test_an_exact_reactivation_replays_one_byte_stable_answer (tests.manager.test_attempts.ActivationNeedsAllThreeToAgree.test_an_exact_reactivation_replays_one_byte_stable_answer)
+The same act cannot answer according to when its retry arrived. ... ok
+test_the_live_assignment_must_agree_too (tests.manager.test_attempts.ActivationNeedsAllThreeToAgree.test_the_live_assignment_must_agree_too) ... ok
+test_the_session_binding_decides_who_may_activate (tests.manager.test_attempts.ActivationNeedsAllThreeToAgree.test_the_session_binding_decides_who_may_activate)
+Checked BEFORE the claim is looked up, and before anything writable. ... ok
+test_a_cancellation_in_flight_is_not_re_announced (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_a_cancellation_in_flight_is_not_re_announced)
+Moving the axis backwards to repeat an intent the runtime is already ... ok
+test_a_fence_for_another_generation_orders_nothing (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_a_fence_for_another_generation_orders_nothing)
+The authority may report a well-shaped fence for a different live ... ok
+test_a_session_for_somebody_else_may_not_cancel (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_a_session_for_somebody_else_may_not_cancel) ... ok
+test_a_swapped_pair_of_boundaries_refuses (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_a_swapped_pair_of_boundaries_refuses)
+Two adjacent injected objects are easy to swap, so the shapes are ... ok
+test_an_attempt_with_no_runtime_orders_nothing (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_an_attempt_with_no_runtime_orders_nothing) ... ok
+test_an_unactivated_attempt_has_no_generation_to_fence (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_an_unactivated_attempt_has_no_generation_to_fence) ... ok
+test_an_unreachable_agent_does_not_veto_the_stop (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_an_unreachable_agent_does_not_veto_the_stop)
+Persistent agent unreachability is a REASON to stop the runtime. ... ok
+test_both_boundaries_receive_the_managers_own_operation_identity (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_both_boundaries_receive_the_managers_own_operation_identity) ... ok
+test_neither_failure_hides_the_other (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_neither_failure_hides_the_other) ... ok
+test_the_agent_is_ordered_before_the_runtime (tests.manager.test_attempts.CancellationFencesBeforeItStops.test_the_agent_is_ordered_before_the_runtime)
+An agent told to stop after its runtime is already going away never ... ok
+test_a_deployment_without_the_seam_is_refused_before_anything (tests.manager.test_attempts.EveryEndingNormalizesBothRootsAndReplays.test_a_deployment_without_the_seam_is_refused_before_anything)
+The capability is proved at entry, so a missing seam costs ... ok
+test_an_exact_replay_after_the_ending_normalizes_nothing (tests.manager.test_attempts.EveryEndingNormalizesBothRootsAndReplays.test_an_exact_replay_after_the_ending_normalizes_nothing) ... ok
+test_an_interrupted_normalization_leaves_no_ending_and_resumes (tests.manager.test_attempts.EveryEndingNormalizesBothRootsAndReplays.test_an_interrupted_normalization_leaves_no_ending_and_resumes)
+Nothing terminal is committed, so the resumed call finishes it. ... ok
+test_the_ending_normalizes_result_then_workspace_and_binds_both (tests.manager.test_attempts.EveryEndingNormalizesBothRootsAndReplays.test_the_ending_normalizes_result_then_workspace_and_binds_both)
+RESULT FIRST, because it is nested below workspace: the outer act ... ok
+test_a_new_policy_after_settlement_refuses_before_fence_or_removal (tests.manager.test_attempts.ExplicitAbandonmentFencesBeforeItRemoves.test_a_new_policy_after_settlement_refuses_before_fence_or_removal)
+A distinct cleanup cannot revisit a terminal abandonment. ... ok
+test_a_worker_answer_refuses_before_declaration_fence_or_removal (tests.manager.test_attempts.ExplicitAbandonmentFencesBeforeItRemoves.test_a_worker_answer_refuses_before_declaration_fence_or_removal)
+Abandonment cannot overwrite an answer the worker already gave. ... ok
+test_an_exact_terminal_retry_replays_the_same_composite_answer (tests.manager.test_attempts.ExplicitAbandonmentFencesBeforeItRemoves.test_an_exact_terminal_retry_replays_the_same_composite_answer)
+The public operation has one answer before and after settlement. ... ok
+test_the_public_ending_fences_then_removes_and_retains (tests.manager.test_attempts.ExplicitAbandonmentFencesBeforeItRemoves.test_the_public_ending_fences_then_removes_and_retains) ... ok
+test_a_different_observation_under_one_source_identity_refuses (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_a_different_observation_under_one_source_identity_refuses) ... ok
+test_a_manager_repeat_stays_inert_and_mints_nothing (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_a_manager_repeat_stays_inert_and_mints_nothing)
+There is no identity for anyone else to reuse, so there is no row. ... ok
+test_a_refused_observation_leaves_no_row_behind (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_a_refused_observation_leaves_no_row_behind)
+The savepoint is the boundary, and it holds at either depth. ... ok
+test_a_terminal_alternative_is_never_overwritten (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_a_terminal_alternative_is_never_overwritten)
+Every worker disposition is a terminal ANSWER. ... ok
+test_an_axis_moves_only_where_its_map_allows (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_an_axis_moves_only_where_its_map_allows) ... ok
+test_an_exact_repeat_from_one_source_replays (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_an_exact_repeat_from_one_source_replays) ... ok
+test_an_exact_replay_survives_the_axis_moving_on (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_an_exact_replay_survives_the_axis_moving_on)
+What a source identity already said is a fact about THAT IDENTITY. ... ok
+test_an_inert_sourced_observation_still_consumes_its_identity (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_an_inert_sourced_observation_still_consumes_its_identity)
+Otherwise the identity's meaning depends on where the axis was. ... ok
+test_the_manager_sequence_orders_what_was_recorded (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_the_manager_sequence_orders_what_was_recorded) ... ok
+test_uncertainty_never_becomes_destruction (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_uncertainty_never_becomes_destruction)
+Destruction is a fact about the world. ... ok
+test_unhashable_axis_and_value_are_contract_refusals (tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis.test_unhashable_axis_and_value_are_contract_refusals)
+Closed vocabularies type before asking a membership question. ... ok
+test_a_changed_policy_before_settlement_still_fences_only_once (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_changed_policy_before_settlement_still_fences_only_once)
+A second policy on an UNSETTLED attempt is a retry, not a re-fence. ... ok
+test_a_changed_reason_collides_rather_than_declaring_twice (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_changed_reason_collides_rather_than_declaring_twice)
+One attempt is abandoned once, and the reason is part of the act. ... ok
+test_a_restart_after_the_declaration_reissues_one_authority_fence (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_restart_after_the_declaration_reissues_one_authority_fence)
+Interrupted AT the fence: the resumed call reuses the declaration. ... ok
+test_a_restart_after_the_fence_removes_under_the_adopted_record (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_restart_after_the_fence_removes_under_the_adopted_record)
+Interrupted AT the removal: the record still authorizes it. ... ok
+test_a_restart_after_the_terminal_commit_replays_without_touching (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_restart_after_the_terminal_commit_replays_without_touching)
+Settled, then restarted: replay reads the journal and nothing else. ... ok
+test_a_restart_before_the_terminal_commit_removes_again_and_settles (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_restart_before_the_terminal_commit_removes_again_and_settles)
+Interrupted between the removal and the journalled result. ... ok
+test_a_runtime_reattached_after_the_declaration_is_refused (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_runtime_reattached_after_the_declaration_is_refused)
+The record names the container it was written about. ... ok
+test_a_runtime_reattached_while_fencing_is_not_the_one_declared (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_runtime_reattached_while_fencing_is_not_the_one_declared)
+The record authorizes destroying ONE container. ... ok
+test_a_surviving_runtime_fails_cleanup_rather_than_retaining_it (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_surviving_runtime_fails_cleanup_rather_than_retaining_it)
+`running` after a force-removal is a failed ending, not a kept one. ... ok
+test_a_tampered_declaration_does_not_authorize_the_removal (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_a_tampered_declaration_does_not_authorize_the_removal)
+The record IS the authorization, so a changed record authorizes ... ok
+test_an_answer_about_another_runtime_is_refused (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_an_answer_about_another_runtime_is_refused)
+One attempt, one container: an answer about another proves nothing. ... ok
+test_an_ending_that_settles_while_fencing_is_not_revisited (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_an_ending_that_settles_while_fencing_is_not_revisited)
+The other half of the same window, and the same rule. ... ok
+test_an_uncertain_axis_is_fenced_and_deliberately_not_cleaned_up (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_an_uncertain_axis_is_fenced_and_deliberately_not_cleaned_up)
+Fencing is the point; claiming absence would be a lie. ... ok
+test_an_uncertain_removal_answer_is_not_an_ending (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_an_uncertain_removal_answer_is_not_an_ending)
+The engine could not say, so the axis does not move. ... ok
+test_an_unsettled_delivery_holds_the_ending_open_until_it_settles (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_an_unsettled_delivery_holds_the_ending_open_until_it_settles)
+Absence of the container is not absence of the roots it mounted. ... ok
+test_reconciliation_to_uncertain_while_fencing_prevents_removal (tests.manager.test_attempts.TheAbandonmentEndingSurvivesInterruptionAndDrift.test_reconciliation_to_uncertain_while_fencing_prevents_removal)
+The pre-fence snapshot cannot authorize post-fence destruction. ... ok
+test_a_fresh_attempt_starts_at_every_axis_default (tests.manager.test_attempts.TheAttemptIsRecordedOnce.test_a_fresh_attempt_starts_at_every_axis_default) ... ok
+test_an_exact_retry_replays_the_first_record (tests.manager.test_attempts.TheAttemptIsRecordedOnce.test_an_exact_retry_replays_the_first_record) ... ok
+test_every_durable_operand_rides_the_identity (tests.manager.test_attempts.TheAttemptIsRecordedOnce.test_every_durable_operand_rides_the_identity)
+The frozen host signed three of eight. ... ok
+test_every_axis_column_admits_exactly_its_own_vocabulary (tests.manager.test_attempts.TheAxesAgreeWithTheStore.test_every_axis_column_admits_exactly_its_own_vocabulary) ... ok
+test_every_transition_names_a_value_of_its_own_axis (tests.manager.test_attempts.TheAxesAgreeWithTheStore.test_every_transition_names_a_value_of_its_own_axis) ... ok
+test_the_map_is_frozen_all_the_way_down (tests.manager.test_attempts.TheAxesAgreeWithTheStore.test_the_map_is_frozen_all_the_way_down) ... ok
+test_a_different_identity_refuses_rather_than_re_pinning (tests.manager.test_attempts.TheBoundaryIdentityIsPinnedOnce.test_a_different_identity_refuses_rather_than_re_pinning) ... ok
+test_an_exact_repeat_is_not_a_write (tests.manager.test_attempts.TheBoundaryIdentityIsPinnedOnce.test_an_exact_repeat_is_not_a_write)
+Every later incarnation composes over the same roots and reaches ... ok
+test_the_first_pin_is_recorded_and_read_back (tests.manager.test_attempts.TheBoundaryIdentityIsPinnedOnce.test_the_first_pin_is_recorded_and_read_back) ... ok
+test_two_first_pins_cannot_both_succeed (tests.manager.test_attempts.TheBoundaryIdentityIsPinnedOnce.test_two_first_pins_cannot_both_succeed)
+W71917 fourth review [P1]: the read and the write were two ... ok
+test_a_SURVIVING_writer_refuses_this_ending_too (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_SURVIVING_writer_refuses_this_ending_too)
+The zero-helper family's own positive-cessation control. ... ok
+test_a_claimed_attempt_will_not_start_without_a_root (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_claimed_attempt_will_not_start_without_a_root)
+THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable ... ok
+test_a_deployment_that_CANNOT_LIST_still_reaches_its_ending (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_deployment_that_CANNOT_LIST_still_reaches_its_ending) ... ok
+test_a_failed_attachment_rolls_back_before_a_restart_retry (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_failed_attachment_rolls_back_before_a_restart_retry)
+A fault inside the atomic attachment commits neither half of it. ... ok
+test_a_failed_reconciliation_still_leaves_an_ending (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_failed_reconciliation_still_leaves_an_ending)
+RE-REVIEW [P0]: the settlement only settled when it went well. ... ok
+test_a_fault_after_creation_still_attaches_the_exact_runtime (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_fault_after_creation_still_attaches_the_exact_runtime)
+RE-REVIEW [P0]: the fault path settled without reconciling. ... ok
+test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain)
+The fallback is RETAINED. Reconciling first does not mean assuming ... ok
+test_a_noncanonical_input_source_refuses_before_start_is_journalled (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_noncanonical_input_source_refuses_before_start_is_journalled)
+The same rule applies to the host source spelling. ... ok
+test_a_noncanonical_input_target_refuses_before_start_is_journalled (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_noncanonical_input_target_refuses_before_start_is_journalled)
+Normalizing a plan must not erase the spelling being authorized. ... ok
+test_a_reconciliation_that_also_fails_reports_both (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_reconciliation_that_also_fails_reports_both)
+The operator needs the reason the start failed AND the reason the ... ok
+test_a_restart_between_the_removal_and_the_ending_converges (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_restart_between_the_removal_and_the_ending_converges)
+The journal is written after the engine call, so a crash between ... ok
+test_a_root_carrying_another_input_manifest_never_starts (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_root_carrying_another_input_manifest_never_starts)
+The third manager-owned fact: the attempt's own record of what it ... ok
+test_a_root_composed_for_another_delivery_never_starts_a_runtime (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_root_composed_for_another_delivery_never_starts_a_runtime)
+Each root below is internally perfect and composed by the real ... ok
+test_a_row_of_another_kind_authorizes_nothing (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_row_of_another_kind_authorizes_nothing)
+An identity is not a warrant. ... ok
+test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with)
+W6632 review [P1] made the policy digest a reconciliation label. ... ok
+test_a_runtime_the_failed_start_created_is_attached (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_runtime_the_failed_start_created_is_attached)
+An engine can create a container and then fail. ... ok
+test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored)
+It is not absent, it is WRONG, and this call caused it. ... ok
+test_a_second_start_is_refused_rather_than_performed (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_second_start_is_refused_rather_than_performed) ... ok
+test_a_settlement_never_overwrites_a_truer_observation (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_settlement_never_overwrites_a_truer_observation)
+`uncertain` is written ONLY from `start-requested`. ... ok
+test_a_sibling_attempt_is_untouched (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_sibling_attempt_is_untouched) ... ok
+test_a_start_over_an_authorized_root_proceeds (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_start_over_an_authorized_root_proceeds)
+W19784 review [P0]. The positive: an attempt claimed against an ... ok
+test_a_start_that_created_nothing_this_manager_can_name_is_uncertain (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_start_that_created_nothing_this_manager_can_name_is_uncertain)
+FAIL CLOSED, and deliberately not "absent". ... ok
+test_a_start_that_faults_rather_than_refuses_still_settles (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_start_that_faults_rather_than_refuses_still_settles)
+A FAULT IS A FAILED START TOO. ... ok
+test_a_start_with_no_root_says_so_across_the_seam (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_start_with_no_root_says_so_across_the_seam)
+And absence crosses it too, as a value rather than as an omission. ... ok
+test_a_started_runtime_the_adapter_cannot_see_is_uncertain (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_started_runtime_the_adapter_cannot_see_is_uncertain)
+Review [P0]: the exact identity this call minted is ASKED ABOUT. ... ok
+test_a_surviving_runtime_is_a_failed_cleanup_and_not_an_ending (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_a_surviving_runtime_is_a_failed_cleanup_and_not_an_ending) ... ok
+test_an_UNREADABLE_listing_answer_is_RECORDED_and_does_not_hold (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_UNREADABLE_listing_answer_is_RECORDED_and_does_not_hold) ... ok
+test_an_adapter_without_list_still_leaves_an_ending (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_adapter_without_list_still_leaves_an_ending)
+The capability boundary takes the same path. ... ok
+test_an_empty_listing_over_a_known_runtime_observes_that_runtime (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_empty_listing_over_a_known_runtime_observes_that_runtime)
+Review [P0]: the ordinary post-removal shape. ... ok
+test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain)
+AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as ... ok
+test_an_empty_listing_with_no_identity_is_still_uncertainty (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_empty_listing_with_no_identity_is_still_uncertainty)
+"The adapter reports nothing" and "nothing exists" are different ... ok
+test_an_exact_retry_replays_and_a_changed_policy_collides (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_exact_retry_replays_and_a_changed_policy_collides) ... ok
+test_an_interrupted_ESTABLISHMENT_commits_no_ending_and_resumes (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_interrupted_ESTABLISHMENT_commits_no_ending_and_resumes) ... ok
+test_an_unactivated_attempt_cannot_start_a_runtime (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_unactivated_attempt_cannot_start_a_runtime) ... ok
+test_an_unactivated_attempt_has_no_assignment_to_authorize_against (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_unactivated_attempt_has_no_assignment_to_authorize_against) ... ok
+test_an_uncertain_attempt_has_nothing_to_remove (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_uncertain_attempt_has_nothing_to_remove)
+A failed start reaches `uncertain` exactly when reconciliation ... ok
+test_an_uncertain_settlement_is_part_of_the_record_act_too (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_uncertain_settlement_is_part_of_the_record_act_too)
+The path where this manager knows least is the one that had three ... ok
+test_an_unresolved_provider_settles_nothing (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_an_unresolved_provider_settles_nothing)
+Delivery roots are settled on positive absence and on nothing ... ok
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_authorizing_one_root_cannot_start_an_adapter_mounting_another)
+The launch authorization and the mount must name ONE root. ... ok
+test_both_kinds_of_failed_start_take_one_settlement_boundary (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_both_kinds_of_failed_start_take_one_settlement_boundary)
+A refusal and a fault differ in what they say about WHY the start ... ok
+test_no_replacement_is_started_on_either_path (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_no_replacement_is_started_on_either_path)
+One start attempt, one engine call. Settling must never become a ... ok
+test_reconciling_the_same_runtime_again_is_still_attached (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_reconciling_the_same_runtime_again_is_still_attached) ... ok
+test_the_assignment_is_fenced_before_anything_is_destroyed (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_assignment_is_fenced_before_anything_is_destroyed)
+The ruling's ordering, and the adapter is the witness. ... ok
+test_the_attempt_does_not_stay_at_start_requested (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_attempt_does_not_stay_at_start_requested)
+THE DEFECT. The axis stopped at an intention nobody could settle. ... ok
+test_the_authorized_root_crosses_the_adapter_seam (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_authorized_root_crosses_the_adapter_seam)
+W19784 second review [P0], the half `_plan_agrees` cannot cover. ... ok
+test_the_ending_binds_its_ESTABLISHMENT_and_replays_it (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_ending_binds_its_ESTABLISHMENT_and_replays_it)
+The property is unchanged -- an ending binds the account of its roots and can show ... ok
+test_the_ending_is_retained_and_nothing_was_fabricated (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_ending_is_retained_and_nothing_was_fabricated)
+THE ACCEPTANCE, in one case. ... ok
+test_the_first_attachment_fixes_the_runtime_identity (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_first_attachment_fixes_the_runtime_identity)
+A later inspection must not silently replace what is recorded. ... ok
+test_the_home_is_retained_rather_than_removed (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_home_is_retained_rather_than_removed)
+A recordless ending KEEPS what it retained: it commits both ... ok
+test_the_labels_carry_all_four_parts_of_the_assignment (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_labels_carry_all_four_parts_of_the_assignment)
+The frozen host omitted the participant, so two participants' ... ok
+test_the_record_is_what_authorizes_it (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_record_is_what_authorizes_it)
+Not an intake receipt, and the body says which. ... ok
+test_the_record_must_name_the_runtime_being_destroyed (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_record_must_name_the_runtime_being_destroyed)
+A failed-start record for one runtime authorizes no sibling. ... ok
+test_the_refusal_keeps_its_own_closed_pair (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_refusal_keeps_its_own_closed_pair)
+The settlement is not a different thing going wrong. ... ok
+test_the_settlement_and_the_record_land_together_or_not_at_all (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_settlement_and_the_record_land_together_or_not_at_all)
+Re-review 2026-09-03T22:00:26Z [P1]: the sibling's lost ending. ... ok
+test_the_start_operation_is_journalled_before_the_adapter_is_called (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_start_operation_is_journalled_before_the_adapter_is_called)
+An axis label is not an effectively-once act. ... ok
+test_the_untrusted_result_directory_is_left_where_it_is (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_the_untrusted_result_directory_is_left_where_it_is)
+M33800's custody boundary: the existing unique per-attempt ... ok
+test_two_runtimes_with_these_labels_cancel_rather_than_compound (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_two_runtimes_with_these_labels_cancel_rather_than_compound) ... ok
+test_without_the_record_there_is_no_authorization (tests.manager.test_attempts.TheFailedStartEndingSurvivesInterruption.test_without_the_record_there_is_no_authorization)
+A runtime attached by something other than a failed start is not ... ok
+test_a_changed_failure_fact_collides_and_the_first_record_stands (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_changed_failure_fact_collides_and_the_first_record_stands)
+The acceptance's rule, and the first spelling of this case asserted ... ok
+test_a_claimed_attempt_will_not_start_without_a_root (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_claimed_attempt_will_not_start_without_a_root)
+THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable ... ok
+test_a_failed_attachment_rolls_back_before_a_restart_retry (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_failed_attachment_rolls_back_before_a_restart_retry)
+A fault inside the atomic attachment commits neither half of it. ... ok
+test_a_failed_reconciliation_still_leaves_an_ending (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_failed_reconciliation_still_leaves_an_ending)
+RE-REVIEW [P0]: the settlement only settled when it went well. ... ok
+test_a_fault_after_creation_still_attaches_the_exact_runtime (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_fault_after_creation_still_attaches_the_exact_runtime)
+RE-REVIEW [P0]: the fault path settled without reconciling. ... ok
+test_a_fault_is_recorded_as_a_fault_and_not_as_a_refusal (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_fault_is_recorded_as_a_fault_and_not_as_a_refusal)
+The original typed fault, preserved rather than reworded. ... ok
+test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain)
+The fallback is RETAINED. Reconciling first does not mean assuming ... ok
+test_a_noncanonical_input_source_refuses_before_start_is_journalled (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_noncanonical_input_source_refuses_before_start_is_journalled)
+The same rule applies to the host source spelling. ... ok
+test_a_noncanonical_input_target_refuses_before_start_is_journalled (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_noncanonical_input_target_refuses_before_start_is_journalled)
+Normalizing a plan must not erase the spelling being authorized. ... ok
+test_a_reconciliation_that_also_fails_reports_both (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_reconciliation_that_also_fails_reports_both)
+The operator needs the reason the start failed AND the reason the ... ok
+test_a_refused_start_is_journalled_with_its_exact_typed_pair (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_refused_start_is_journalled_with_its_exact_typed_pair) ... ok
+test_a_root_carrying_another_input_manifest_never_starts (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_root_carrying_another_input_manifest_never_starts)
+The third manager-owned fact: the attempt's own record of what it ... ok
+test_a_root_composed_for_another_delivery_never_starts_a_runtime (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_root_composed_for_another_delivery_never_starts_a_runtime)
+Each root below is internally perfect and composed by the real ... ok
+test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with)
+W6632 review [P1] made the policy digest a reconciliation label. ... ok
+test_a_runtime_the_failed_start_created_is_attached (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_runtime_the_failed_start_created_is_attached)
+An engine can create a container and then fail. ... ok
+test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored)
+It is not absent, it is WRONG, and this call caused it. ... ok
+test_a_second_start_is_refused_rather_than_performed (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_second_start_is_refused_rather_than_performed) ... ok
+test_a_settlement_never_overwrites_a_truer_observation (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_settlement_never_overwrites_a_truer_observation)
+`uncertain` is written ONLY from `start-requested`. ... ok
+test_a_start_nothing_could_reconcile_still_records_the_failure (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_start_nothing_could_reconcile_still_records_the_failure)
+`uncertain` is an ending too, and it is recorded as one. ... ok
+test_a_start_over_an_authorized_root_proceeds (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_start_over_an_authorized_root_proceeds)
+W19784 review [P0]. The positive: an attempt claimed against an ... ok
+test_a_start_that_created_nothing_this_manager_can_name_is_uncertain (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_start_that_created_nothing_this_manager_can_name_is_uncertain)
+FAIL CLOSED, and deliberately not "absent". ... ok
+test_a_start_that_faults_rather_than_refuses_still_settles (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_start_that_faults_rather_than_refuses_still_settles)
+A FAULT IS A FAILED START TOO. ... ok
+test_a_start_with_no_root_says_so_across_the_seam (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_start_with_no_root_says_so_across_the_seam)
+And absence crosses it too, as a value rather than as an omission. ... ok
+test_a_started_runtime_the_adapter_cannot_see_is_uncertain (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_a_started_runtime_the_adapter_cannot_see_is_uncertain)
+Review [P0]: the exact identity this call minted is ASKED ABOUT. ... ok
+test_an_adapter_without_list_still_leaves_an_ending (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_an_adapter_without_list_still_leaves_an_ending)
+The capability boundary takes the same path. ... ok
+test_an_empty_listing_over_a_known_runtime_observes_that_runtime (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_an_empty_listing_over_a_known_runtime_observes_that_runtime)
+Review [P0]: the ordinary post-removal shape. ... ok
+test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain)
+AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as ... ok
+test_an_empty_listing_with_no_identity_is_still_uncertainty (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_an_empty_listing_with_no_identity_is_still_uncertainty)
+"The adapter reports nothing" and "nothing exists" are different ... ok
+test_an_exact_retry_replays_the_one_record (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_an_exact_retry_replays_the_one_record)
+Effectively once.  A second identical failure is the same act. ... ok
+test_an_unactivated_attempt_cannot_start_a_runtime (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_an_unactivated_attempt_cannot_start_a_runtime) ... ok
+test_an_unactivated_attempt_has_no_assignment_to_authorize_against (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_an_unactivated_attempt_has_no_assignment_to_authorize_against) ... ok
+test_an_uncertain_settlement_is_part_of_the_record_act_too (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_an_uncertain_settlement_is_part_of_the_record_act_too)
+The path where this manager knows least is the one that had three ... ok
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_authorizing_one_root_cannot_start_an_adapter_mounting_another)
+The launch authorization and the mount must name ONE root. ... ok
+test_both_kinds_of_failed_start_take_one_settlement_boundary (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_both_kinds_of_failed_start_take_one_settlement_boundary)
+A refusal and a fault differ in what they say about WHY the start ... ok
+test_no_replacement_is_started_on_either_path (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_no_replacement_is_started_on_either_path)
+One start attempt, one engine call. Settling must never become a ... ok
+test_reconciling_the_same_runtime_again_is_still_attached (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_reconciling_the_same_runtime_again_is_still_attached) ... ok
+test_the_attempt_does_not_stay_at_start_requested (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_attempt_does_not_stay_at_start_requested)
+THE DEFECT. The axis stopped at an intention nobody could settle. ... ok
+test_the_authorized_root_crosses_the_adapter_seam (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_authorized_root_crosses_the_adapter_seam)
+W19784 second review [P0], the half `_plan_agrees` cannot cover. ... ok
+test_the_first_attachment_fixes_the_runtime_identity (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_first_attachment_fixes_the_runtime_identity)
+A later inspection must not silently replace what is recorded. ... ok
+test_the_labels_carry_all_four_parts_of_the_assignment (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_labels_carry_all_four_parts_of_the_assignment)
+The frozen host omitted the participant, so two participants' ... ok
+test_the_record_never_writes_a_worker_disposition (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_record_never_writes_a_worker_disposition)
+The distinction the whole record exists for. ... ok
+test_the_recorder_reports_a_collision_rather_than_raising_it (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_recorder_reports_a_collision_rather_than_raising_it)
+The recorder runs while another failure is on its way out. ... ok
+test_the_refusal_an_operator_reads_names_the_record (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_refusal_an_operator_reads_names_the_record) ... ok
+test_the_refusal_keeps_its_own_closed_pair (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_refusal_keeps_its_own_closed_pair)
+The settlement is not a different thing going wrong. ... ok
+test_the_settlement_and_the_record_land_together_or_not_at_all (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_settlement_and_the_record_land_together_or_not_at_all)
+Re-review 2026-09-03T22:00:26Z [P1]: the sibling's lost ending. ... ok
+test_the_start_operation_is_journalled_before_the_adapter_is_called (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_the_start_operation_is_journalled_before_the_adapter_is_called)
+An axis label is not an effectively-once act. ... ok
+test_two_runtimes_with_these_labels_cancel_rather_than_compound (tests.manager.test_attempts.TheFailedStartIsDurablyRecorded.test_two_runtimes_with_these_labels_cancel_rather_than_compound) ... ok
+test_a_claimed_attempt_will_not_start_without_a_root (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_claimed_attempt_will_not_start_without_a_root)
+THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable ... ok
+test_a_failed_attachment_rolls_back_before_a_restart_retry (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_failed_attachment_rolls_back_before_a_restart_retry)
+A fault inside the atomic attachment commits neither half of it. ... ok
+test_a_failed_reconciliation_still_leaves_an_ending (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_failed_reconciliation_still_leaves_an_ending)
+RE-REVIEW [P0]: the settlement only settled when it went well. ... ok
+test_a_fault_after_creation_still_attaches_the_exact_runtime (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_fault_after_creation_still_attaches_the_exact_runtime)
+RE-REVIEW [P0]: the fault path settled without reconciling. ... ok
+test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain)
+The fallback is RETAINED. Reconciling first does not mean assuming ... ok
+test_a_noncanonical_input_source_refuses_before_start_is_journalled (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_noncanonical_input_source_refuses_before_start_is_journalled)
+The same rule applies to the host source spelling. ... ok
+test_a_noncanonical_input_target_refuses_before_start_is_journalled (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_noncanonical_input_target_refuses_before_start_is_journalled)
+Normalizing a plan must not erase the spelling being authorized. ... ok
+test_a_reconciliation_that_also_fails_reports_both (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_reconciliation_that_also_fails_reports_both)
+The operator needs the reason the start failed AND the reason the ... ok
+test_a_restart_between_the_removal_and_the_ending_converges (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_restart_between_the_removal_and_the_ending_converges)
+The journal is written after the engine call, so a crash between ... ok
+test_a_root_carrying_another_input_manifest_never_starts (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_root_carrying_another_input_manifest_never_starts)
+The third manager-owned fact: the attempt's own record of what it ... ok
+test_a_root_composed_for_another_delivery_never_starts_a_runtime (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_root_composed_for_another_delivery_never_starts_a_runtime)
+Each root below is internally perfect and composed by the real ... ok
+test_a_row_of_another_kind_authorizes_nothing (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_row_of_another_kind_authorizes_nothing)
+An identity is not a warrant. ... ok
+test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with)
+W6632 review [P1] made the policy digest a reconciliation label. ... ok
+test_a_runtime_the_failed_start_created_is_attached (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_runtime_the_failed_start_created_is_attached)
+An engine can create a container and then fail. ... ok
+test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored)
+It is not absent, it is WRONG, and this call caused it. ... ok
+test_a_second_start_is_refused_rather_than_performed (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_second_start_is_refused_rather_than_performed) ... ok
+test_a_settlement_never_overwrites_a_truer_observation (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_settlement_never_overwrites_a_truer_observation)
+`uncertain` is written ONLY from `start-requested`. ... ok
+test_a_sibling_attempt_is_untouched (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_sibling_attempt_is_untouched) ... ok
+test_a_start_over_an_authorized_root_proceeds (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_start_over_an_authorized_root_proceeds)
+W19784 review [P0]. The positive: an attempt claimed against an ... ok
+test_a_start_that_created_nothing_this_manager_can_name_is_uncertain (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_start_that_created_nothing_this_manager_can_name_is_uncertain)
+FAIL CLOSED, and deliberately not "absent". ... ok
+test_a_start_that_faults_rather_than_refuses_still_settles (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_start_that_faults_rather_than_refuses_still_settles)
+A FAULT IS A FAILED START TOO. ... ok
+test_a_start_with_no_root_says_so_across_the_seam (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_start_with_no_root_says_so_across_the_seam)
+And absence crosses it too, as a value rather than as an omission. ... ok
+test_a_started_runtime_the_adapter_cannot_see_is_uncertain (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_started_runtime_the_adapter_cannot_see_is_uncertain)
+Review [P0]: the exact identity this call minted is ASKED ABOUT. ... ok
+test_a_surviving_runtime_is_a_failed_cleanup_and_not_an_ending (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_surviving_runtime_is_a_failed_cleanup_and_not_an_ending) ... ok
+test_an_adapter_without_list_still_leaves_an_ending (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_adapter_without_list_still_leaves_an_ending)
+The capability boundary takes the same path. ... ok
+test_an_empty_listing_over_a_known_runtime_observes_that_runtime (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_empty_listing_over_a_known_runtime_observes_that_runtime)
+Review [P0]: the ordinary post-removal shape. ... ok
+test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain)
+AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as ... ok
+test_an_empty_listing_with_no_identity_is_still_uncertainty (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_empty_listing_with_no_identity_is_still_uncertainty)
+"The adapter reports nothing" and "nothing exists" are different ... ok
+test_an_exact_retry_replays_and_a_changed_policy_collides (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_exact_retry_replays_and_a_changed_policy_collides) ... ok
+test_an_unactivated_attempt_cannot_start_a_runtime (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_unactivated_attempt_cannot_start_a_runtime) ... ok
+test_an_unactivated_attempt_has_no_assignment_to_authorize_against (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_unactivated_attempt_has_no_assignment_to_authorize_against) ... ok
+test_an_uncertain_attempt_has_nothing_to_remove (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_uncertain_attempt_has_nothing_to_remove)
+A failed start reaches `uncertain` exactly when reconciliation ... ok
+test_an_uncertain_settlement_is_part_of_the_record_act_too (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_uncertain_settlement_is_part_of_the_record_act_too)
+The path where this manager knows least is the one that had three ... ok
+test_an_unresolved_provider_settles_nothing (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_unresolved_provider_settles_nothing)
+Delivery roots are settled on positive absence and on nothing ... ok
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_authorizing_one_root_cannot_start_an_adapter_mounting_another)
+The launch authorization and the mount must name ONE root. ... ok
+test_both_kinds_of_failed_start_take_one_settlement_boundary (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_both_kinds_of_failed_start_take_one_settlement_boundary)
+A refusal and a fault differ in what they say about WHY the start ... ok
+test_no_replacement_is_started_on_either_path (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_no_replacement_is_started_on_either_path)
+One start attempt, one engine call. Settling must never become a ... ok
+test_reconciling_the_same_runtime_again_is_still_attached (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_reconciling_the_same_runtime_again_is_still_attached) ... ok
+test_the_assignment_is_fenced_before_anything_is_destroyed (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_assignment_is_fenced_before_anything_is_destroyed)
+The ruling's ordering, and the adapter is the witness. ... ok
+test_the_attempt_does_not_stay_at_start_requested (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_attempt_does_not_stay_at_start_requested)
+THE DEFECT. The axis stopped at an intention nobody could settle. ... ok
+test_the_authorized_root_crosses_the_adapter_seam (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_authorized_root_crosses_the_adapter_seam)
+W19784 second review [P0], the half `_plan_agrees` cannot cover. ... ok
+test_the_ending_is_retained_and_nothing_was_fabricated (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_ending_is_retained_and_nothing_was_fabricated)
+THE ACCEPTANCE, in one case. ... ok
+test_the_first_attachment_fixes_the_runtime_identity (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_first_attachment_fixes_the_runtime_identity)
+A later inspection must not silently replace what is recorded. ... ok
+test_the_labels_carry_all_four_parts_of_the_assignment (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_labels_carry_all_four_parts_of_the_assignment)
+The frozen host omitted the participant, so two participants' ... ok
+test_the_record_is_what_authorizes_it (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_record_is_what_authorizes_it)
+Not an intake receipt, and the body says which. ... ok
+test_the_record_must_name_the_runtime_being_destroyed (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_record_must_name_the_runtime_being_destroyed)
+A failed-start record for one runtime authorizes no sibling. ... ok
+test_the_refusal_keeps_its_own_closed_pair (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_refusal_keeps_its_own_closed_pair)
+The settlement is not a different thing going wrong. ... ok
+test_the_settlement_and_the_record_land_together_or_not_at_all (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_settlement_and_the_record_land_together_or_not_at_all)
+Re-review 2026-09-03T22:00:26Z [P1]: the sibling's lost ending. ... ok
+test_the_start_operation_is_journalled_before_the_adapter_is_called (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_start_operation_is_journalled_before_the_adapter_is_called)
+An axis label is not an effectively-once act. ... ok
+test_the_untrusted_result_directory_is_left_where_it_is (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_untrusted_result_directory_is_left_where_it_is)
+M33800's custody boundary: the existing unique per-attempt ... ok
+test_two_runtimes_with_these_labels_cancel_rather_than_compound (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_two_runtimes_with_these_labels_cancel_rather_than_compound) ... ok
+test_without_the_record_there_is_no_authorization (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_without_the_record_there_is_no_authorization)
+A runtime attached by something other than a failed start is not ... ok
+test_a_growing_total_moves_both_numbers (tests.manager.test_attempts.TheLivenessProjectionSaysOnlyWhatWasSeen.test_a_growing_total_moves_both_numbers) ... ok
+test_a_negative_total_is_not_an_observation (tests.manager.test_attempts.TheLivenessProjectionSaysOnlyWhatWasSeen.test_a_negative_total_is_not_an_observation) ... ok
+test_a_repeated_total_never_freshens_a_quiet_worker (tests.manager.test_attempts.TheLivenessProjectionSaysOnlyWhatWasSeen.test_a_repeated_total_never_freshens_a_quiet_worker)
+THE CASE THIS PROJECTION EXISTS FOR. An observer polling a stream ... ok
+test_a_total_that_went_backwards_refuses (tests.manager.test_attempts.TheLivenessProjectionSaysOnlyWhatWasSeen.test_a_total_that_went_backwards_refuses)
+A stale or confused observer must not be able to make a ... ok
+test_an_observation_about_no_attempt_refuses (tests.manager.test_attempts.TheLivenessProjectionSaysOnlyWhatWasSeen.test_an_observation_about_no_attempt_refuses) ... ok
+test_an_unobserved_attempt_is_not_an_empty_one (tests.manager.test_attempts.TheLivenessProjectionSaysOnlyWhatWasSeen.test_an_unobserved_attempt_is_not_an_empty_one)
+Absence is two answers and they are not interchangeable: an id ... ok
+test_the_first_observation_publishes_the_count_and_the_instant (tests.manager.test_attempts.TheLivenessProjectionSaysOnlyWhatWasSeen.test_the_first_observation_publishes_the_count_and_the_instant) ... ok
+test_the_projection_decides_nothing (tests.manager.test_attempts.TheLivenessProjectionSaysOnlyWhatWasSeen.test_the_projection_decides_nothing)
+M61707: it never renews a claim, clears a gate, extends a deadline ... ok
+test_a_claimed_attempt_will_not_start_without_a_root (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_claimed_attempt_will_not_start_without_a_root)
+THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable ... ok
+test_a_driver_fault_is_projected_with_its_typed_fault (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_driver_fault_is_projected_with_its_typed_fault)
+The other shape the recorder preserves, and the one the Job ... ok
+test_a_failed_attachment_rolls_back_before_a_restart_retry (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_failed_attachment_rolls_back_before_a_restart_retry)
+A fault inside the atomic attachment commits neither half of it. ... ok
+test_a_failed_reconciliation_still_leaves_an_ending (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_failed_reconciliation_still_leaves_an_ending)
+RE-REVIEW [P0]: the settlement only settled when it went well. ... ok
+test_a_fault_after_creation_still_attaches_the_exact_runtime (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_fault_after_creation_still_attaches_the_exact_runtime)
+RE-REVIEW [P0]: the fault path settled without reconciling. ... ok
+test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain)
+The fallback is RETAINED. Reconciling first does not mean assuming ... ok
+test_a_noncanonical_input_source_refuses_before_start_is_journalled (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_noncanonical_input_source_refuses_before_start_is_journalled)
+The same rule applies to the host source spelling. ... ok
+test_a_noncanonical_input_target_refuses_before_start_is_journalled (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_noncanonical_input_target_refuses_before_start_is_journalled)
+Normalizing a plan must not erase the spelling being authorized. ... ok
+test_a_real_failed_start_is_projected_with_its_own_facts (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_real_failed_start_is_projected_with_its_own_facts)
+THE POSITIVE REPLAY the earlier cases never drove. ... ok
+test_a_reconciliation_that_also_fails_reports_both (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_reconciliation_that_also_fails_reports_both)
+The operator needs the reason the start failed AND the reason the ... ok
+test_a_record_describing_another_act_refuses (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_record_describing_another_act_refuses)
+AND THE FACTS IT NAMES ARE THIS ATTEMPT'S OWN. ... ok
+test_a_refused_row_under_that_identity_is_not_a_failure (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_refused_row_under_that_identity_is_not_a_failure)
+A collision is not evidence, so it answers absence rather than ... ok
+test_a_root_carrying_another_input_manifest_never_starts (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_root_carrying_another_input_manifest_never_starts)
+The third manager-owned fact: the attempt's own record of what it ... ok
+test_a_root_composed_for_another_delivery_never_starts_a_runtime (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_root_composed_for_another_delivery_never_starts_a_runtime)
+Each root below is internally perfect and composed by the real ... ok
+test_a_row_committed_as_another_kind_refuses (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_row_committed_as_another_kind_refuses)
+AN IDENTITY IS NOT A WARRANT. ... ok
+test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with)
+W6632 review [P1] made the policy digest a reconciliation label. ... ok
+test_a_runtime_the_failed_start_created_is_attached (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_runtime_the_failed_start_created_is_attached)
+An engine can create a container and then fail. ... ok
+test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored)
+It is not absent, it is WRONG, and this call caused it. ... ok
+test_a_second_start_is_refused_rather_than_performed (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_second_start_is_refused_rather_than_performed) ... ok
+test_a_settlement_never_overwrites_a_truer_observation (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_settlement_never_overwrites_a_truer_observation)
+`uncertain` is written ONLY from `start-requested`. ... ok
+test_a_start_over_an_authorized_root_proceeds (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_start_over_an_authorized_root_proceeds)
+W19784 review [P0]. The positive: an attempt claimed against an ... ok
+test_a_start_that_created_nothing_this_manager_can_name_is_uncertain (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_start_that_created_nothing_this_manager_can_name_is_uncertain)
+FAIL CLOSED, and deliberately not "absent". ... ok
+test_a_start_that_faults_rather_than_refuses_still_settles (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_start_that_faults_rather_than_refuses_still_settles)
+A FAULT IS A FAILED START TOO. ... ok
+test_a_start_with_no_root_says_so_across_the_seam (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_start_with_no_root_says_so_across_the_seam)
+And absence crosses it too, as a value rather than as an omission. ... ok
+test_a_started_runtime_the_adapter_cannot_see_is_uncertain (tests.manager.test_attempts.ThePublicFailedStartProjection.test_a_started_runtime_the_adapter_cannot_see_is_uncertain)
+Review [P0]: the exact identity this call minted is ASKED ABOUT. ... ok
+test_an_adapter_without_list_still_leaves_an_ending (tests.manager.test_attempts.ThePublicFailedStartProjection.test_an_adapter_without_list_still_leaves_an_ending)
+The capability boundary takes the same path. ... ok
+test_an_empty_listing_over_a_known_runtime_observes_that_runtime (tests.manager.test_attempts.ThePublicFailedStartProjection.test_an_empty_listing_over_a_known_runtime_observes_that_runtime)
+Review [P0]: the ordinary post-removal shape. ... ok
+test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain (tests.manager.test_attempts.ThePublicFailedStartProjection.test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain)
+AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as ... ok
+test_an_empty_listing_with_no_identity_is_still_uncertainty (tests.manager.test_attempts.ThePublicFailedStartProjection.test_an_empty_listing_with_no_identity_is_still_uncertainty)
+"The adapter reports nothing" and "nothing exists" are different ... ok
+test_an_unactivated_attempt_cannot_start_a_runtime (tests.manager.test_attempts.ThePublicFailedStartProjection.test_an_unactivated_attempt_cannot_start_a_runtime) ... ok
+test_an_unactivated_attempt_has_no_assignment_to_authorize_against (tests.manager.test_attempts.ThePublicFailedStartProjection.test_an_unactivated_attempt_has_no_assignment_to_authorize_against) ... ok
+test_an_uncertain_settlement_is_part_of_the_record_act_too (tests.manager.test_attempts.ThePublicFailedStartProjection.test_an_uncertain_settlement_is_part_of_the_record_act_too)
+The path where this manager knows least is the one that had three ... ok
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another (tests.manager.test_attempts.ThePublicFailedStartProjection.test_authorizing_one_root_cannot_start_an_adapter_mounting_another)
+The launch authorization and the mount must name ONE root. ... ok
+test_both_kinds_of_failed_start_take_one_settlement_boundary (tests.manager.test_attempts.ThePublicFailedStartProjection.test_both_kinds_of_failed_start_take_one_settlement_boundary)
+A refusal and a fault differ in what they say about WHY the start ... ok
+test_no_replacement_is_started_on_either_path (tests.manager.test_attempts.ThePublicFailedStartProjection.test_no_replacement_is_started_on_either_path)
+One start attempt, one engine call. Settling must never become a ... ok
+test_reconciling_the_same_runtime_again_is_still_attached (tests.manager.test_attempts.ThePublicFailedStartProjection.test_reconciling_the_same_runtime_again_is_still_attached) ... ok
+test_the_attempt_does_not_stay_at_start_requested (tests.manager.test_attempts.ThePublicFailedStartProjection.test_the_attempt_does_not_stay_at_start_requested)
+THE DEFECT. The axis stopped at an intention nobody could settle. ... ok
+test_the_authorized_root_crosses_the_adapter_seam (tests.manager.test_attempts.ThePublicFailedStartProjection.test_the_authorized_root_crosses_the_adapter_seam)
+W19784 second review [P0], the half `_plan_agrees` cannot cover. ... ok
+test_the_first_attachment_fixes_the_runtime_identity (tests.manager.test_attempts.ThePublicFailedStartProjection.test_the_first_attachment_fixes_the_runtime_identity)
+A later inspection must not silently replace what is recorded. ... ok
+test_the_labels_carry_all_four_parts_of_the_assignment (tests.manager.test_attempts.ThePublicFailedStartProjection.test_the_labels_carry_all_four_parts_of_the_assignment)
+The frozen host omitted the participant, so two participants' ... ok
+test_the_refusal_keeps_its_own_closed_pair (tests.manager.test_attempts.ThePublicFailedStartProjection.test_the_refusal_keeps_its_own_closed_pair)
+The settlement is not a different thing going wrong. ... ok
+test_the_settlement_and_the_record_land_together_or_not_at_all (tests.manager.test_attempts.ThePublicFailedStartProjection.test_the_settlement_and_the_record_land_together_or_not_at_all)
+Re-review 2026-09-03T22:00:26Z [P1]: the sibling's lost ending. ... ok
+test_the_start_operation_is_journalled_before_the_adapter_is_called (tests.manager.test_attempts.ThePublicFailedStartProjection.test_the_start_operation_is_journalled_before_the_adapter_is_called)
+An axis label is not an effectively-once act. ... ok
+test_two_runtimes_with_these_labels_cancel_rather_than_compound (tests.manager.test_attempts.ThePublicFailedStartProjection.test_two_runtimes_with_these_labels_cancel_rather_than_compound) ... ok
+test_a_claimed_attempt_will_not_start_without_a_root (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_claimed_attempt_will_not_start_without_a_root)
+THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable ... ok
+test_a_failed_attachment_rolls_back_before_a_restart_retry (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_failed_attachment_rolls_back_before_a_restart_retry)
+A fault inside the atomic attachment commits neither half of it. ... ok
+test_a_noncanonical_input_source_refuses_before_start_is_journalled (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_noncanonical_input_source_refuses_before_start_is_journalled)
+The same rule applies to the host source spelling. ... ok
+test_a_noncanonical_input_target_refuses_before_start_is_journalled (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_noncanonical_input_target_refuses_before_start_is_journalled)
+Normalizing a plan must not erase the spelling being authorized. ... ok
+test_a_root_carrying_another_input_manifest_never_starts (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_root_carrying_another_input_manifest_never_starts)
+The third manager-owned fact: the attempt's own record of what it ... ok
+test_a_root_composed_for_another_delivery_never_starts_a_runtime (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_root_composed_for_another_delivery_never_starts_a_runtime)
+Each root below is internally perfect and composed by the real ... ok
+test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with)
+W6632 review [P1] made the policy digest a reconciliation label. ... ok
+test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored)
+It is not absent, it is WRONG, and this call caused it. ... ok
+test_a_second_start_is_refused_rather_than_performed (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_second_start_is_refused_rather_than_performed) ... ok
+test_a_start_over_an_authorized_root_proceeds (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_start_over_an_authorized_root_proceeds)
+W19784 review [P0]. The positive: an attempt claimed against an ... ok
+test_a_start_with_no_root_says_so_across_the_seam (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_start_with_no_root_says_so_across_the_seam)
+And absence crosses it too, as a value rather than as an omission. ... ok
+test_a_started_runtime_the_adapter_cannot_see_is_uncertain (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_a_started_runtime_the_adapter_cannot_see_is_uncertain)
+Review [P0]: the exact identity this call minted is ASKED ABOUT. ... ok
+test_an_empty_listing_over_a_known_runtime_observes_that_runtime (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_an_empty_listing_over_a_known_runtime_observes_that_runtime)
+Review [P0]: the ordinary post-removal shape. ... ok
+test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain)
+AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as ... ok
+test_an_empty_listing_with_no_identity_is_still_uncertainty (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_an_empty_listing_with_no_identity_is_still_uncertainty)
+"The adapter reports nothing" and "nothing exists" are different ... ok
+test_an_unactivated_attempt_cannot_start_a_runtime (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_an_unactivated_attempt_cannot_start_a_runtime) ... ok
+test_an_unactivated_attempt_has_no_assignment_to_authorize_against (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_an_unactivated_attempt_has_no_assignment_to_authorize_against) ... ok
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_authorizing_one_root_cannot_start_an_adapter_mounting_another)
+The launch authorization and the mount must name ONE root. ... ok
+test_reconciling_the_same_runtime_again_is_still_attached (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_reconciling_the_same_runtime_again_is_still_attached) ... ok
+test_the_authorized_root_crosses_the_adapter_seam (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_the_authorized_root_crosses_the_adapter_seam)
+W19784 second review [P0], the half `_plan_agrees` cannot cover. ... ok
+test_the_first_attachment_fixes_the_runtime_identity (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_the_first_attachment_fixes_the_runtime_identity)
+A later inspection must not silently replace what is recorded. ... ok
+test_the_labels_carry_all_four_parts_of_the_assignment (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_the_labels_carry_all_four_parts_of_the_assignment)
+The frozen host omitted the participant, so two participants' ... ok
+test_the_start_operation_is_journalled_before_the_adapter_is_called (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_the_start_operation_is_journalled_before_the_adapter_is_called)
+An axis label is not an effectively-once act. ... ok
+test_two_runtimes_with_these_labels_cancel_rather_than_compound (tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.test_two_runtimes_with_these_labels_cancel_rather_than_compound) ... ok
+test_a_claimed_attempt_will_not_start_without_a_root (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_claimed_attempt_will_not_start_without_a_root)
+THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable ... ok
+test_a_failed_attachment_rolls_back_before_a_restart_retry (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_failed_attachment_rolls_back_before_a_restart_retry)
+A fault inside the atomic attachment commits neither half of it. ... ok
+test_a_later_conclusive_observation_drops_the_stale_reason (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_later_conclusive_observation_drops_the_stale_reason)
+First a failed observation, then `running` -- the more dangerous ... ok
+test_a_later_inconclusive_observation_carries_its_own_reason (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_later_inconclusive_observation_carries_its_own_reason)
+First `running`, then a failed observation. ... ok
+test_a_noncanonical_input_source_refuses_before_start_is_journalled (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_noncanonical_input_source_refuses_before_start_is_journalled)
+The same rule applies to the host source spelling. ... ok
+test_a_noncanonical_input_target_refuses_before_start_is_journalled (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_noncanonical_input_target_refuses_before_start_is_journalled)
+Normalizing a plan must not erase the spelling being authorized. ... ok
+test_a_root_carrying_another_input_manifest_never_starts (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_root_carrying_another_input_manifest_never_starts)
+The third manager-owned fact: the attempt's own record of what it ... ok
+test_a_root_composed_for_another_delivery_never_starts_a_runtime (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_root_composed_for_another_delivery_never_starts_a_runtime)
+Each root below is internally perfect and composed by the real ... ok
+test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with)
+W6632 review [P1] made the policy digest a reconciliation label. ... ok
+test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored)
+It is not absent, it is WRONG, and this call caused it. ... ok
+test_a_second_start_is_refused_rather_than_performed (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_second_start_is_refused_rather_than_performed) ... ok
+test_a_start_over_an_authorized_root_proceeds (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_start_over_an_authorized_root_proceeds)
+W19784 review [P0]. The positive: an attempt claimed against an ... ok
+test_a_start_with_no_root_says_so_across_the_seam (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_start_with_no_root_says_so_across_the_seam)
+And absence crosses it too, as a value rather than as an omission. ... ok
+test_a_started_runtime_the_adapter_cannot_see_is_uncertain (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_a_started_runtime_the_adapter_cannot_see_is_uncertain)
+Review [P0]: the exact identity this call minted is ASKED ABOUT. ... ok
+test_an_adapter_without_observe_refuses_as_a_capability (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_adapter_without_observe_refuses_as_a_capability)
+Typed rather than discovered by `AttributeError`. ... ok
+test_an_answer_that_is_not_a_document_is_uncertain_and_says_so (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_answer_that_is_not_a_document_is_uncertain_and_says_so)
+Review [P0] INVERTED THIS CASE'S OUTCOME, and the reason it exists ... ok
+test_an_empty_listing_over_a_known_runtime_observes_that_runtime (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_empty_listing_over_a_known_runtime_observes_that_runtime)
+Review [P0]: the ordinary post-removal shape. ... ok
+test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain)
+AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as ... ok
+test_an_empty_listing_with_no_identity_is_still_uncertainty (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_empty_listing_with_no_identity_is_still_uncertainty)
+"The adapter reports nothing" and "nothing exists" are different ... ok
+test_an_unactivated_attempt_cannot_start_a_runtime (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_unactivated_attempt_cannot_start_a_runtime) ... ok
+test_an_unactivated_attempt_has_no_assignment_to_authorize_against (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_an_unactivated_attempt_has_no_assignment_to_authorize_against) ... ok
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_authorizing_one_root_cannot_start_an_adapter_mounting_another)
+The launch authorization and the mount must name ONE root. ... ok
+test_positive_absence_is_recorded_as_destruction (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_positive_absence_is_recorded_as_destruction)
+`absent` is POSITIVE evidence about one exact identity. ... ok
+test_reconciling_the_same_runtime_again_is_still_attached (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_reconciling_the_same_runtime_again_is_still_attached) ... ok
+test_the_authorized_root_crosses_the_adapter_seam (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_authorized_root_crosses_the_adapter_seam)
+W19784 second review [P0], the half `_plan_agrees` cannot cover. ... ok
+test_the_first_attachment_fixes_the_runtime_identity (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_first_attachment_fixes_the_runtime_identity)
+A later inspection must not silently replace what is recorded. ... ok
+test_the_fixed_identity_survives_every_later_observation (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_fixed_identity_survives_every_later_observation)
+Four passes over ONE attachment, checking the WHOLE document. ... ok
+test_the_four_observations_stay_four_answers (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_four_observations_stay_four_answers)
+Running, quiescent, absent and uncertain remain distinguishable. ... ok
+test_the_labels_carry_all_four_parts_of_the_assignment (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_labels_carry_all_four_parts_of_the_assignment)
+The frozen host omitted the participant, so two participants' ... ok
+test_the_recorded_attachment_keeps_the_reason_it_was_made_with (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_recorded_attachment_keeps_the_reason_it_was_made_with)
+The JOURNALLED document, not the returned one. ... ok
+test_the_start_operation_is_journalled_before_the_adapter_is_called (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_the_start_operation_is_journalled_before_the_adapter_is_called)
+An axis label is not an effectively-once act. ... ok
+test_two_runtimes_with_these_labels_cancel_rather_than_compound (tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred.test_two_runtimes_with_these_labels_cancel_rather_than_compound) ... ok
+test_a_failure_whose_PROSE_says_busy_keeps_its_own_identity (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_a_failure_whose_PROSE_says_busy_keeps_its_own_identity)
+The result code decides, never the message. ... ok
+test_a_refused_insert_takes_the_axis_move_with_it (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_a_refused_insert_takes_the_axis_move_with_it)
+The savepoint is the boundary, and this is the case that needs it. ... ok
+test_a_second_manager_activating_first_replays_rather_than_writes (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_a_second_manager_activating_first_replays_rather_than_writes)
+What the race actually produces, measured rather than assumed. ... ok
+test_a_stale_observer_translates_only_database_contention (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_a_stale_observer_translates_only_database_contention)
+A deferred snapshot must not leak SQLite's lock vocabulary. ... ok
+test_two_claimed_offers_for_one_attempt_refuse_rather_than_choose (tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause.test_two_claimed_offers_for_one_attempt_refuse_rather_than_choose)
+The unique index makes two impossible GOING FORWARD. ... ok
+test_inode_replacement_invalidates_mount (tests.manager.test_provider_home.ProviderHomeMount.test_inode_replacement_invalidates_mount) ... ok
+test_31_same_job_worker_restart_and_distinct_worker (tests.manager.test_provider_home.RetainedProviderHome.test_31_same_job_worker_restart_and_distinct_worker) ... ok
+test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) ... ok
+test_31b_structured_identity_has_no_join_collisions (tests.manager.test_provider_home.RetainedProviderHome.test_31b_structured_identity_has_no_join_collisions) ... ok
+test_31c_wrong_missing_record_and_symlink_refuse_without_repair (tests.manager.test_provider_home.RetainedProviderHome.test_31c_wrong_missing_record_and_symlink_refuse_without_repair) ... ok
+test_31d_plain_identity_and_holder_live_outside_mounted_home (tests.manager.test_provider_home.RetainedProviderHome.test_31d_plain_identity_and_holder_live_outside_mounted_home) ... ok
+test_32_failed_holder_release_and_return_from_another_job_preserve_bytes (tests.manager.test_provider_home.RetainedProviderHome.test_32_failed_holder_release_and_return_from_another_job_preserve_bytes) ... ok
+test_32_retention_and_32a_new_job_starts_empty (tests.manager.test_provider_home.RetainedProviderHome.test_32_retention_and_32a_new_job_starts_empty) ... ok
+test_34_protected_storage_overlap_in_both_directions (tests.manager.test_provider_home.RetainedProviderHome.test_34_protected_storage_overlap_in_both_directions) ... ok
+test_38_unknown_stale_uncertain_and_wrong_attempt_hold_then_retry (tests.manager.test_provider_home.RetainedProviderHome.test_38_unknown_stale_uncertain_and_wrong_attempt_hold_then_retry) ... ok
+test_39_crash_after_record_before_home_creation_replays_same_holder (tests.manager.test_provider_home.RetainedProviderHome.test_39_crash_after_record_before_home_creation_replays_same_holder) ... ok
+test_ready_home_loss_refuses_instead_of_silently_starting_fresh (tests.manager.test_provider_home.RetainedProviderHome.test_ready_home_loss_refuses_instead_of_silently_starting_fresh) ... ok
+test_package_has_only_standard_library_and_package_local_imports (tests.manager.test_provider_home.SharedProviderPackageBoundary.test_package_has_only_standard_library_and_package_local_imports) ... ok
+test_provider_launch_round_trip_and_cross_attempt_refusal (tests.manager.test_provider_home.SharedProviderPackageBoundary.test_provider_launch_round_trip_and_cross_attempt_refusal) ... ok
+test_40_delivered_reference_never_reads_credential_bytes (tests.manager.test_provider_home.WorkerHomePreparation.test_40_delivered_reference_never_reads_credential_bytes) ... ok
+test_41_second_job_uses_delivery_not_first_jobs_refreshed_seed (tests.manager.test_provider_home.WorkerHomePreparation.test_41_second_job_uses_delivery_not_first_jobs_refreshed_seed) ... ok
+test_41_seed_once_and_42_keep_provider_refresh_despite_changed_or_missing_delivery (tests.manager.test_provider_home.WorkerHomePreparation.test_41_seed_once_and_42_keep_provider_refresh_despite_changed_or_missing_delivery) ... ok
+test_45_same_seed_may_initialize_distinct_empty_homes (tests.manager.test_provider_home.WorkerHomePreparation.test_45_same_seed_may_initialize_distinct_empty_homes) ... ok
+test_46_credential_session_and_digest_collisions_refuse_before_writes (tests.manager.test_provider_home.WorkerHomePreparation.test_46_credential_session_and_digest_collisions_refuse_before_writes) ... ok
+test_46_exact_managed_entries_replace_without_touching_provider_state (tests.manager.test_provider_home.WorkerHomePreparation.test_46_exact_managed_entries_replace_without_touching_provider_state) ... ok
+test_retained_credential_symlink_is_not_read_or_replaced (tests.manager.test_provider_home.WorkerHomePreparation.test_retained_credential_symlink_is_not_read_or_replaced) ... ok
+test_13_positive_implementation_binds_frozen_result_and_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_13_positive_implementation_binds_frozen_result_and_checkpoint) ... ok
+test_13_review_binds_its_own_evidence_to_verdict (tests.tools.test_provider_selection.SelectedCase.test_13_review_binds_its_own_evidence_to_verdict) ... ok
+test_14_17_missing_output_holds_without_publication_or_retry (tests.tools.test_provider_selection.SelectedCase.test_14_17_missing_output_holds_without_publication_or_retry) ... ok
+test_14_conflicting_build_holds_before_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_14_conflicting_build_holds_before_checkpoint) ... ok
+test_14_review_without_requested_contributor_records_no_verdict (tests.tools.test_provider_selection.SelectedCase.test_14_review_without_requested_contributor_records_no_verdict) ... ok
+test_15_foreign_attempt_in_real_frozen_result_is_held (tests.tools.test_provider_selection.SelectedCase.test_15_foreign_attempt_in_real_frozen_result_is_held) ... ok
+test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering (tests.tools.test_provider_selection.SelectedCase.test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering) ... ok
+test_16_restart_between_result_and_ending_uses_original_evidence (tests.tools.test_provider_selection.SelectedCase.test_16_restart_between_result_and_ending_uses_original_evidence) ... ok
+test_17_legacy_result_without_attribution_is_held_under_new_selection (tests.tools.test_provider_selection.SelectedCase.test_17_legacy_result_without_attribution_is_held_under_new_selection) ... ok
+test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume (tests.tools.test_provider_selection.SelectedCase.test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume) ... ok
+test_20_separation_is_composed_from_selected_providers_and_models (tests.tools.test_provider_selection.SelectedCase.test_20_separation_is_composed_from_selected_providers_and_models) ... ok
+test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes (tests.tools.test_provider_selection.SelectedCase.test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes) ... ok
+test_26_actual_argv_or_environment_drift_refuses_before_provider (tests.tools.test_provider_selection.SelectedCase.test_26_actual_argv_or_environment_drift_refuses_before_provider) ... ok
+test_26_environment_drift_refuses_before_build_probe (tests.tools.test_provider_selection.SelectedCase.test_26_environment_drift_refuses_before_build_probe) ... ok
+test_27_28_changed_tool_policy_refuses_before_any_runtime (tests.tools.test_provider_selection.SelectedCase.test_27_28_changed_tool_policy_refuses_before_any_runtime) ... ok
+test_30_legacy_and_selected_lanes_refuse_one_job_before_effects (tests.tools.test_provider_selection.SelectedCase.test_30_legacy_and_selected_lanes_refuse_one_job_before_effects) ... ok
+test_31_override_home_location_refuses_before_runtime (tests.tools.test_provider_selection.SelectedCase.test_31_override_home_location_refuses_before_runtime) ... ok
+test_32_38_correction_reuses_home_after_positive_runtime_cessation (tests.tools.test_provider_selection.SelectedCase.test_32_38_correction_reuses_home_after_positive_runtime_cessation) ... ok
+test_32_restart_after_review_reuses_retained_home (tests.tools.test_provider_selection.SelectedCase.test_32_restart_after_review_reuses_retained_home) ... ok
+test_34_cross_worker_context_and_checkout_overlap_refuse_preflight (tests.tools.test_provider_selection.SelectedCase.test_34_cross_worker_context_and_checkout_overlap_refuse_preflight) ... ok
+test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export) ... ok
+test_44_simulated_authentication_failure_has_no_key_or_fallback (tests.tools.test_provider_selection.SelectedCase.test_44_simulated_authentication_failure_has_no_key_or_fallback) ... ok
+test_45_same_seed_reference_allows_two_workers_and_two_jobs (tests.tools.test_provider_selection.SelectedCase.test_45_same_seed_reference_allows_two_workers_and_two_jobs) ... ok
+test_46_managed_credential_collision_refuses_composition (tests.tools.test_provider_selection.SelectedCase.test_46_managed_credential_collision_refuses_composition) ... ok
+test_R1_prestart_failure_releases_home_to_successor_and_fences_old_start (tests.tools.test_provider_selection.SelectedCase.test_R1_prestart_failure_releases_home_to_successor_and_fences_old_start) ... ok
+test_R1_requested_start_without_cessation_keeps_home_pending (tests.tools.test_provider_selection.SelectedCase.test_R1_requested_start_without_cessation_keeps_home_pending) ... ok
+test_R3_held_cause_and_owner_action_survive_passes_and_restart (tests.tools.test_provider_selection.SelectedCase.test_R3_held_cause_and_owner_action_survive_passes_and_restart) ... ok
+test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_MISSING_FOREIGN_FUTURE_and_MALFORMED_timing_gain_NO_label)
+Every qualification that already answered `unknown` still answers ... ok
+test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_STATUS_MONITOR_and_VIEWER_agree_WORD_FOR_WORD)
+One interpretation and no second wording. A surface that composed ... ok
+test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_a_TERMINAL_stage_keeps_its_frozen_duration_and_owes_no_NOTE)
+The stage state and `timeout not applicable (stage ended)` already ... ok
+test_a_TERMINAL_stage_with_NO_RECORDED_END_stays_unknown (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_a_TERMINAL_stage_with_NO_RECORDED_END_stays_unknown)
+A terminal stage whose invocation never recorded an ending has no ... ok
+test_a_stage_that_NEVER_STARTED_still_says_NOT_STARTED (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_a_stage_that_NEVER_STARTED_still_says_NOT_STARTED) ... ok
+test_an_ACTIVE_invocation_keeps_RUNNING_and_a_FIGURE_THAT_MOVES (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_an_ACTIVE_invocation_keeps_RUNNING_and_a_FIGURE_THAT_MOVES) ... ok
+test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_an_ENDED_invocation_under_an_OPEN_stage_SAYS_SO_everywhere)
+The measured defect, across the states a stage is in while the ... ok
+test_the_ENDED_PROVIDER_DEADLINE_no_longer_limits_the_stage (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_the_ENDED_PROVIDER_DEADLINE_no_longer_limits_the_stage)
+An ended process cannot time out, and the stage's own admitted ... ok
+test_the_FROZEN_figure_does_not_grow_while_nothing_runs (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_the_FROZEN_figure_does_not_grow_while_nothing_runs)
+The reason the word mattered. An ended invocation's figure is the ... ok
+test_the_LIST_COLUMNS_keep_the_STAGE_ID_and_the_BANNER_its_AGE (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_the_LIST_COLUMNS_keep_the_STAGE_ID_and_the_BANNER_its_AGE)
+Review R1's rule, held for the sentence this correction adds: the ... ok
+test_the_WORKER_DECLARED_CAUSE_still_reaches_an_OPEN_stage_line (tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne.test_the_WORKER_DECLARED_CAUSE_still_reaches_an_OPEN_stage_line)
+The axes do not displace each other. A stage whose provider ... ok
+test_expired_provider_is_not_termination_and_partial_control_stays_qualified (tests.tools.test_job_observation.InvocationClocks.test_expired_provider_is_not_termination_and_partial_control_stays_qualified) ... ok
+test_provider_origin_and_continuation_do_not_rebase_job_limits (tests.tools.test_job_observation.InvocationClocks.test_provider_origin_and_continuation_do_not_rebase_job_limits) ... ok
+test_terminal_duration_is_frozen_and_missing_end_unknown (tests.tools.test_job_observation.InvocationClocks.test_terminal_duration_is_frozen_and_missing_end_unknown) ... ok
+test_wrong_attempt_future_start_and_malformed_end_are_unknown (tests.tools.test_job_observation.InvocationClocks.test_wrong_attempt_future_start_and_malformed_end_are_unknown) ... ok
+test_activity_zero_missing_foreign_and_old_in_fresh_snapshot (tests.tools.test_job_observation.SharedObservation.test_activity_zero_missing_foreign_and_old_in_fresh_snapshot) ... ok
+test_attribution_holds_name_typed_cause_and_owner_action_on_all_views (tests.tools.test_job_observation.SharedObservation.test_attribution_holds_name_typed_cause_and_owner_action_on_all_views) ... ok
+test_publication_and_observation_ages_share_exact_boundary (tests.tools.test_job_observation.SharedObservation.test_publication_and_observation_ages_share_exact_boundary) ... ok
+test_schema_and_visibility_contract_remain_unchanged (tests.tools.test_job_observation.SharedObservation.test_schema_and_visibility_contract_remain_unchanged) ... ok
+test_shared_model_has_no_io_dependencies (tests.tools.test_job_observation.SharedObservation.test_shared_model_has_no_io_dependencies) ... ok
+test_shared_outcomes_gates_and_typed_failure (tests.tools.test_job_observation.SharedObservation.test_shared_outcomes_gates_and_typed_failure) ... ok
+test_terminal_activity_keeps_original_absolute_time (tests.tools.test_job_observation.SharedObservation.test_terminal_activity_keeps_original_absolute_time) ... ok
+test_unrecognized_operations_are_not_relayed (tests.tools.test_job_observation.SharedObservation.test_unrecognized_operations_are_not_relayed) ... ok
+test_a_declared_timeout_and_its_frozen_invocation_render_together (tests.tools.test_job_observation.TheFailureCauseAndTimingShareOneStageLine.test_a_declared_timeout_and_its_frozen_invocation_render_together) ... ok
+test_an_unknown_declaration_and_unknown_timing_stay_two_unknowns (tests.tools.test_job_observation.TheFailureCauseAndTimingShareOneStageLine.test_an_unknown_declaration_and_unknown_timing_stay_two_unknowns) ... ok
+test_NO_DECLARATION_keeps_the_HONEST_cause_unknown (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_NO_DECLARATION_keeps_the_HONEST_cause_unknown) ... ok
+test_REPEATED_RENDERING_mutates_NOTHING (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_REPEATED_RENDERING_mutates_NOTHING) ... ok
+test_a_FAILED_VERIFICATION_reads_DIFFERENTLY_from_a_timeout (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_a_FAILED_VERIFICATION_reads_DIFFERENTLY_from_a_timeout) ... ok
+test_a_MANAGER_CANCELLED_or_COMPLETED_seal_SAYS_NOTHING_here (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_a_MANAGER_CANCELLED_or_COMPLETED_seal_SAYS_NOTHING_here)
+A cancellation is the manager's own act and its facts are reported ... ok
+test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_a_PROVIDER_TIMEOUT_is_attributable_in_BOTH_views) ... ok
+test_a_SUCCESSFUL_or_UNRELATED_STAGE_reads_EXACTLY_as_before (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_a_SUCCESSFUL_or_UNRELATED_STAGE_reads_EXACTLY_as_before) ... ok
+test_an_EXCHANGE_FAULT_KEEPS_ITS_PLACE_beside_the_declaration (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_an_EXCHANGE_FAULT_KEEPS_ITS_PLACE_beside_the_declaration) ... ok
+test_an_OUT_OF_RANGE_BOUND_or_STATUS_is_simply_not_rendered (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_an_OUT_OF_RANGE_BOUND_or_STATUS_is_simply_not_rendered) ... ok
+test_an_UNKNOWN_DECLARED_ENDING_is_still_more_than_cause_unknown (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_an_UNKNOWN_DECLARED_ENDING_is_still_more_than_cause_unknown) ... ok
+test_an_UNKNOWN_verification_axis_renders_as_UNKNOWN_not_NOT_ATTEMPTED (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_an_UNKNOWN_verification_axis_renders_as_UNKNOWN_not_NOT_ATTEMPTED)
+Review 2026-11-21T12-34-16Z [R2]: a result with no verification ... ok
+test_an_UNOWNED_WORD_or_a_SECRET_never_reaches_a_LINE (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_an_UNOWNED_WORD_or_a_SECRET_never_reaches_a_LINE) ... ok
+test_the_MIRRORED_DECLARATION_VOCABULARY_does_not_drift (tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces.test_the_MIRRORED_DECLARATION_VOCABULARY_does_not_drift) ... ok
+test_blocked_episode_has_not_started (tests.tools.test_job_observation.Timing.test_blocked_episode_has_not_started) ... ok
+test_retry_never_rebases_job_deadline_on_new_episode (tests.tools.test_job_observation.Timing.test_retry_never_rebases_job_deadline_on_new_episode) ... ok
+test_separate_age_unknown_runtime_and_partial_named_limit_in_all_views (tests.tools.test_job_observation.Timing.test_separate_age_unknown_runtime_and_partial_named_limit_in_all_views) ... ok
+test_ties_and_deadline_boundary_are_not_cessation (tests.tools.test_job_observation.Timing.test_ties_and_deadline_boundary_are_not_cessation) ... ok
+test_unknown_future_stale_control_and_terminal (tests.tools.test_job_observation.Timing.test_unknown_future_stale_control_and_terminal) ... ok
+test_a_connected_snapshot_without_the_job_still_refuses (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_connected_snapshot_without_the_job_still_refuses)
+A view that answered "not read yet" for a Job that genuinely is not ... ok
+test_a_json_list_is_refused_rather_than_crashing (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_json_list_is_refused_rather_than_crashing)
+`held.get` on a list raises AttributeError, which escapes as a ... ok
+test_a_nested_malformed_document_never_replaces_the_good_one (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_nested_malformed_document_never_replaces_the_good_one)
+REVIEW claim168169 [P2]. `{"schema": ..., "jobs": [null]}` carried ... ok
+test_a_truncated_document_disconnects_and_keeps_the_last_view (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_a_truncated_document_disconnects_and_keeps_the_last_view) ... ok
+test_an_oversize_document_disconnects_rather_than_exiting (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_an_oversize_document_disconnects_rather_than_exiting) ... ok
+test_detail_on_a_first_unreadable_snapshot_does_not_exit (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_detail_on_a_first_unreadable_snapshot_does_not_exit)
+"I have not managed to look" and "I looked and it is not there" ... ok
+test_the_loop_retries_after_a_bad_document (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_the_loop_retries_after_a_bad_document) ... ok
+test_an_enormous_integer_renders_unknown_through_a_real_json_read (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_an_enormous_integer_renders_unknown_through_a_real_json_read)
+THROUGH THE REAL PATH: JSON text, `read_snapshot`, then both ... ok
+test_every_out_of_domain_count_is_unknown (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_every_out_of_domain_count_is_unknown) ... ok
+test_the_largest_valid_producer_count_still_renders (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_the_largest_valid_producer_count_still_renders)
+THE BOUND IS A BOUND, not a refusal of every large number. The ... ok
+test_the_ordinary_refresh_and_render_survive_it (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_the_ordinary_refresh_and_render_survive_it)
+`refresh` installs the snapshot and rendering happens outside its ... ok
+test_the_viewer_ceiling_is_the_producers_own (tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException.test_the_viewer_ceiling_is_the_producers_own)
+Two copies of one number, held together. The worker manager's parser ... ok
+test_an_unobserved_attempt_reports_activity_unknown (tests.tools.test_job_viewer.NothingIsInvented.test_an_unobserved_attempt_reports_activity_unknown)
+W61599's source exists now, and absence is still `unknown`. ... ok
+test_an_unread_manager_says_nobody_looked (tests.tools.test_job_viewer.NothingIsInvented.test_an_unread_manager_says_nobody_looked)
+`canonical: false` is the difference between "nothing is running" ... ok
+test_elapsed_comes_from_source_times_and_not_the_wall_clock (tests.tools.test_job_viewer.NothingIsInvented.test_elapsed_comes_from_source_times_and_not_the_wall_clock)
+A stage whose start nobody recorded has an UNKNOWN elapsed. The ... ok
+test_episode_opening_is_not_an_invocation_start (tests.tools.test_job_viewer.NothingIsInvented.test_episode_opening_is_not_an_invocation_start)
+An episode is opened before admission/launch and cannot time a turn. ... ok
+test_an_advancing_observation_stays_fresh (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_an_advancing_observation_stays_fresh)
+And the reversal: when the manager IS advancing, the view does not ... ok
+test_an_observation_that_was_already_old_is_stale_on_first_read (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_an_observation_that_was_already_old_is_stale_on_first_read)
+A view that only watched its own reads would call a two-hour-old ... ok
+test_an_unreadable_observation_time_is_treated_as_stale (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_an_unreadable_observation_time_is_treated_as_stale)
+A view that cannot tell how old its facts are must not present them ... ok
+test_refresh_interval_does_not_change_freshness (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_refresh_interval_does_not_change_freshness) ... ok
+test_rereading_an_unchanged_document_goes_stale (tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh.test_rereading_an_unchanged_document_goes_stale)
+The source is not advancing. Reading it again is not news. ... ok
+test_a_foreign_schema_refuses (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_foreign_schema_refuses) ... ok
+test_a_locator_read_is_bounded_and_visibly_truncated (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_locator_read_is_bounded_and_visibly_truncated) ... ok
+test_a_stage_with_no_frozen_output_says_unavailable (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_stage_with_no_frozen_output_says_unavailable) ... ok
+test_an_artifact_without_a_locator_is_unavailable_not_guessed (tests.tools.test_job_viewer.TheBoundsAreHonest.test_an_artifact_without_a_locator_is_unavailable_not_guessed) ... ok
+test_an_oversize_snapshot_refuses_rather_than_omitting_jobs (tests.tools.test_job_viewer.TheBoundsAreHonest.test_an_oversize_snapshot_refuses_rather_than_omitting_jobs)
+A view that dropped the tail would silently omit Jobs -- and a Job ... ok
+test_read_locator_takes_no_path_operand (tests.tools.test_job_viewer.TheBoundsAreHonest.test_read_locator_takes_no_path_operand)
+A HELPER-SHAPE CHECK, and nothing more. Review claim168257: this is ... ok
+test_a_canonical_read_does_not_carry_the_nobody_looked_warning (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_a_canonical_read_does_not_carry_the_nobody_looked_warning) ... ok
+test_a_held_stage_says_what_it_is_waiting_on (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_a_held_stage_says_what_it_is_waiting_on) ... ok
+test_a_model_free_completed_stage_renders_through_the_real_reader (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_a_model_free_completed_stage_renders_through_the_real_reader)
+The completion path this viewer has to be able to show, taken from ... ok
+test_the_canonical_read_performs_no_act (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_the_canonical_read_performs_no_act)
+The operations surface records every act it is asked for, so an ... ok
+test_two_jobs_stay_isolated_through_the_canonical_reader (tests.tools.test_job_viewer.TheCanonicalReaderIsExercised.test_two_jobs_stay_isolated_through_the_canonical_reader) ... ok
+test_a_detail_request_for_an_absent_job_refuses_with_status_two (tests.tools.test_job_viewer.TheCommandIsOrdinary.test_a_detail_request_for_an_absent_job_refuses_with_status_two) ... ok
+test_it_reads_a_status_document_an_operator_already_has (tests.tools.test_job_viewer.TheCommandIsOrdinary.test_it_reads_a_status_document_an_operator_already_has) ... ok
+test_a_live_stage_keeps_its_identity_too (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_live_stage_keeps_its_identity_too) ... ok
+test_a_malformed_instant_cannot_widen_the_line (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_malformed_instant_cannot_widen_the_line)
+The document is the manager's, but a malformed one does not get to ... ok
+test_a_quiet_stage_gains_no_continuation_line (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_a_quiet_stage_gains_no_continuation_line)
+`unknown` has no timing to carry, so it costs no line. A view that ... ok
+test_every_terminal_state_keeps_count_instant_and_identity_at_width (tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries.test_every_terminal_state_keeps_count_instant_and_identity_at_width) ... ok
+test_a_file_uri_locator_is_read_as_a_locator (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_a_file_uri_locator_is_read_as_a_locator)
+`integration_bundle` already treats `file:///...` as a locator; the ... ok
+test_a_locator_that_is_not_a_regular_file_refuses (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_a_locator_that_is_not_a_regular_file_refuses)
+A fifo would block this program forever and a symlink would let the ... ok
+test_a_relative_reference_is_never_resolved_against_the_cwd (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_a_relative_reference_is_never_resolved_against_the_cwd)
+Where this program happens to be running is not part of the ... ok
+test_an_absolute_path_locator_also_reads (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_an_absolute_path_locator_also_reads) ... ok
+test_an_unpublished_artifact_or_stage_refuses (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_an_unpublished_artifact_or_stage_refuses) ... ok
+test_drilling_down_without_identities_refuses (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_drilling_down_without_identities_refuses) ... ok
+test_the_artifact_is_selected_out_of_the_snapshot_by_identity (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_artifact_is_selected_out_of_the_snapshot_by_identity) ... ok
+test_the_command_drills_down_through_identities (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_command_drills_down_through_identities) ... ok
+test_the_drill_down_banner_uses_the_configured_threshold (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_drill_down_banner_uses_the_configured_threshold)
+REVIEW claim168257 [P2]. `_drilled` called `_banner` without the ... ok
+test_UNATTRIBUTED_or_MALFORMED_timing_keeps_its_unknown (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_UNATTRIBUTED_or_MALFORMED_timing_keeps_its_unknown) ... ok
+test_a_LIVE_invocation_is_the_only_one_called_running (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_a_LIVE_invocation_is_the_only_one_called_running) ... ok
+test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_a_TERMINAL_stage_reports_the_frozen_duration_and_no_note) ... ok
+test_an_ENDED_invocation_under_an_OPEN_stage_is_PAST_TENSE (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_an_ENDED_invocation_under_an_OPEN_stage_is_PAST_TENSE) ... ok
+test_the_FIXED_COLUMNS_still_carry_the_STAGE_ID (tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning.test_the_FIXED_COLUMNS_still_carry_the_STAGE_ID)
+Review R1's rule: the variable-width sentence goes on its own ... ok
+test_a_spinning_or_nonfinite_interval_refuses (tests.tools.test_job_viewer.TheIntervalIsFiniteAndPositive.test_a_spinning_or_nonfinite_interval_refuses) ... ok
+test_the_command_refuses_one_too (tests.tools.test_job_viewer.TheIntervalIsFiniteAndPositive.test_the_command_refuses_one_too) ... ok
+test_a_reservation_without_a_runtime_still_shows_its_worker (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_a_reservation_without_a_runtime_still_shows_its_worker)
+An assignment before a runtime exists is exactly the case an ... ok
+test_an_absent_runtime_and_reservation_say_unknown (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_an_absent_runtime_and_reservation_say_unknown) ... ok
+test_an_exact_identifier_is_never_clipped_in_detail (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_an_exact_identifier_is_never_clipped_in_detail)
+A 100-column clamp cut identifiers in half -- precisely the view an ... ok
+test_the_real_scheduler_reservation_is_displayed (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_the_real_scheduler_reservation_is_displayed)
+The reservation exists BEFORE any runtime does, so its worker and ... ok
+test_the_runtime_fixed_assignment_fields_are_rendered (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_the_runtime_fixed_assignment_fields_are_rendered)
+These are the runtime's OWN assignment, retained beside the ... ok
+test_an_owner_locator_whose_file_is_gone_is_unavailable_not_invented (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_an_owner_locator_whose_file_is_gone_is_unavailable_not_invented)
+The owner recorded where it put the artifact; if that is no longer ... ok
+test_an_owner_produced_artifact_is_selected_and_read (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_an_owner_produced_artifact_is_selected_and_read) ... ok
+test_the_owners_artifact_is_shown_in_the_detail_view (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_the_owners_artifact_is_shown_in_the_detail_view) ... ok
+test_a_foreign_job_still_refuses_against_the_real_reader (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader) ... ok
+test_the_view_renders_the_real_model_free_completion (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion) ... ok
+test_a_known_zero_is_not_an_unknown_count (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_known_zero_is_not_an_unknown_count) ... ok
+test_a_live_stage_and_a_terminal_one_disagree_on_purpose (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_live_stage_and_a_terminal_one_disagree_on_purpose)
+The same count and the same instant, rendered two ways. This is the ... ok
+test_a_live_stage_shows_the_count_and_a_relative_age (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_live_stage_shows_the_count_and_a_relative_age) ... ok
+test_a_missing_instant_is_unknown_rather_than_now (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_missing_instant_is_unknown_rather_than_now)
+A count with no instant is not a fresh one. Neither rendering may ... ok
+test_a_terminal_stage_shows_the_instant_and_never_an_age (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_a_terminal_stage_shows_the_instant_and_never_an_age)
+THE CASE THAT WOULD HAVE CAUGHT THE DEFECT. `4s ago` beside ... ok
+test_activity_changes_no_view_decision (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_activity_changes_no_view_decision)
+IT IS A DIAGNOSTIC AND NOTHING BRANCHES ON IT. Approver ruling ... ok
+test_every_shape_of_absence_reports_unknown (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_every_shape_of_absence_reports_unknown)
+THREE DIFFERENT ABSENCES, ONE HONEST ANSWER. No runtime at all, a ... ok
+test_rendering_activity_opens_no_store_and_performs_no_act (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_rendering_activity_opens_no_store_and_performs_no_act)
+The viewer gains NO second read path. Rendering the count touches ... ok
+test_snapshot_staleness_and_activity_age_are_separate_clocks (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_snapshot_staleness_and_activity_age_are_separate_clocks)
+A FRESH SNAPSHOT CAN CARRY AN OLD ACTIVITY INSTANT, and that is a ... ok
+test_the_count_is_read_from_the_snapshot_and_not_invented (tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished.test_the_count_is_read_from_the_snapshot_and_not_invented)
+Two different counts render differently. A view that ignored the ... ok
+test_a_failed_read_disconnects_and_keeps_saying_so (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_failed_read_disconnects_and_keeps_saying_so)
+The last good reading is kept because it was true once -- as long ... ok
+test_a_fresh_reading_shows_when_it_was_observed (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_fresh_reading_shows_when_it_was_observed) ... ok
+test_a_reconnect_clears_the_warning (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_reconnect_clears_the_warning) ... ok
+test_an_unrefreshed_view_becomes_conspicuously_stale (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_an_unrefreshed_view_becomes_conspicuously_stale) ... ok
+test_a_foreign_identity_refuses_instead_of_rendering_empty (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_a_foreign_identity_refuses_instead_of_rendering_empty)
+An empty detail view for a Job that is not here reads exactly like ... ok
+test_the_exact_identities_are_shown_not_summarised (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_the_exact_identities_are_shown_not_summarised)
+An operator chasing a stuck Job has to be able to hand somebody ... ok
+test_two_independent_jobs_are_both_visible_and_distinct (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_two_independent_jobs_are_both_visible_and_distinct)
+The whole reason this Work exists: V12 runs Jobs in parallel and an ... ok
+test_a_changed_observation_is_visible_on_the_next_tick (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_a_changed_observation_is_visible_on_the_next_tick)
+THE REFRESH LATENCY, TESTED LOGICALLY RATHER THAN BY WAITING. ... ok
+test_refreshing_only_reads (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_refreshing_only_reads) ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_job_viewer.py:745: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_loop_sleeps_between_reads_and_does_not_spin (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_loop_sleeps_between_reads_and_does_not_spin) ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_job_viewer.py:818: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=4, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_module_constructs_no_serving_factory (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_module_constructs_no_serving_factory)
+Read the imports rather than the paragraph promising the absence. ... ok
+test_the_store_is_unchanged_by_being_viewed (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_store_is_unchanged_by_being_viewed)
+The disposable owner state is established before and compared ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_job_viewer.py:754: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_FAILED_VERIFICATION_renders_DIFFERENTLY (tests.tools.test_job_viewer.TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_a_FAILED_VERIFICATION_renders_DIFFERENTLY) ... ok
+test_a_FOREIGN_ATTEMPTS_diagnostic_never_reaches_a_LINE (tests.tools.test_job_viewer.TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_a_FOREIGN_ATTEMPTS_diagnostic_never_reaches_a_LINE)
+`delegation` refuses a diagnostic about another attempt, so the ... ok
+test_a_PROVIDER_TIMEOUT_is_rendered_on_the_LIST_and_the_DETAIL (tests.tools.test_job_viewer.TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_a_PROVIDER_TIMEOUT_is_rendered_on_the_LIST_and_the_DETAIL) ... ok
+test_an_UNDECLARED_ending_renders_EXACTLY_as_it_did_before (tests.tools.test_job_viewer.TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_an_UNDECLARED_ending_renders_EXACTLY_as_it_did_before) ... ok
+test_the_VIEW_PERFORMS_NO_ACT_while_rendering_a_declaration (tests.tools.test_job_viewer.TheWorkerDeclaredEndingIsRenderedFromTheRealProjection.test_the_VIEW_PERFORMS_NO_ACT_while_rendering_a_declaration) ... ok
+test_a_fresh_stage_reserves_on_the_fresh_worker (tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation.test_a_fresh_stage_reserves_on_the_fresh_worker) ... ok
+test_a_successor_sharing_the_reserved_principal_cannot_reserve (tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation.test_a_successor_sharing_the_reserved_principal_cannot_reserve) ... ok
+test_the_reserved_worker_stays_required_from_its_own_generation (tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation.test_the_reserved_worker_stays_required_from_its_own_generation) ... ok
+test_the_widened_pool_is_a_new_generation_and_the_row_is_untouched (tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation.test_the_widened_pool_is_a_new_generation_and_the_row_is_untouched) ... ok
+test_a_second_admission_to_one_live_worker_is_refused (tests.job_manager.test_scheduling.Capacity.test_a_second_admission_to_one_live_worker_is_refused) ... ok
+test_capacity_miss_does_not_hide_an_unrelated_review_slot (tests.job_manager.test_scheduling.Capacity.test_capacity_miss_does_not_hide_an_unrelated_review_slot) ... ok
+test_one_stage_episode_wins_a_two_connection_reservation_race (tests.job_manager.test_scheduling.Capacity.test_one_stage_episode_wins_a_two_connection_reservation_race) ... ok
+test_participant_aliases_contribute_one_effective_capacity (tests.job_manager.test_scheduling.Capacity.test_participant_aliases_contribute_one_effective_capacity) ... ok
+test_two_implementation_and_two_review_capacities_are_live_together (tests.job_manager.test_scheduling.Capacity.test_two_implementation_and_two_review_capacities_are_live_together) ... ok
+test_a_completed_integration_returns_its_exact_allocation (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_completed_integration_returns_its_exact_allocation) ... ok
+test_a_completed_state_with_no_account_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_completed_state_with_no_account_keeps_its_capacity) ... ok
+test_a_completion_naming_another_runtime_releases_nothing (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_completion_naming_another_runtime_releases_nothing)
+The completion reports the runtime it proved excluded; an account ... ok
+test_a_held_integration_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_held_integration_keeps_its_capacity)
+A held integration is the operator's to look at, and its worker is ... ok
+test_a_pending_integration_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_pending_integration_keeps_its_capacity) ... ok
+test_a_projected_state_that_is_not_completed_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_a_projected_state_that_is_not_completed_keeps_its_capacity)
+Projection puts durable refusal, preparation and start failure ahead ... ok
+test_an_answered_integration_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_an_answered_integration_keeps_its_capacity)
+An integrated entry nobody has handed off is not a completion. ... ok
+test_an_ordinary_completed_stage_still_waits_for_its_cleanup (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_an_ordinary_completed_stage_still_waits_for_its_cleanup)
+`completed` is NOT added to the release endings. An implementation ... ok
+test_an_uncertain_runtime_without_completion_still_quarantines (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_an_uncertain_runtime_without_completion_still_quarantines)
+The existing guard is untouched for everything that is not a proved ... ok
+test_an_unstarted_integration_keeps_its_capacity (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_an_unstarted_integration_keeps_its_capacity) ... ok
+test_another_attempts_completion_releases_nothing_here (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_another_attempts_completion_releases_nothing_here) ... ok
+test_another_episodes_completion_releases_nothing_here (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_another_episodes_completion_releases_nothing_here)
+A new episode's completion must never settle an older allocation ... ok
+test_another_participants_completion_releases_nothing_here (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_another_participants_completion_releases_nothing_here) ... ok
+test_repeated_reconciliation_settles_it_once (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_repeated_reconciliation_settles_it_once) ... ok
+test_the_freed_worker_is_reservable_again (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_the_freed_worker_is_reservable_again)
+The whole point of returning it: the same worker serves the next ... ok
+test_the_release_claims_nothing_about_cleanup (tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes.test_the_release_claims_nothing_about_cleanup)
+LOGICAL CAPACITY, and the reason says so. A `cleanup-complete` here ... ok
+test_claim_adopts_the_exact_reserved_principal (tests.job_manager.test_scheduling.ClaimBinding.test_claim_adopts_the_exact_reserved_principal) ... ok
+test_claim_principal_mismatch_quarantines_the_allocation (tests.job_manager.test_scheduling.ClaimBinding.test_claim_principal_mismatch_quarantines_the_allocation) ... ok
+test_four_distinct_principals_hold_four_live_claims (tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether.test_four_distinct_principals_hold_four_live_claims) ... ok
+test_one_worker_failing_to_claim_settles_only_its_own_slot (tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether.test_one_worker_failing_to_claim_settles_only_its_own_slot)
+Failure isolation AND the settlement the scheduler owes for it. ... ok
+test_two_participants_on_one_principal_collapse_at_the_seam (tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether.test_two_participants_on_one_principal_collapse_at_the_seam)
+The alias collapse driven through the scheduler, in the shape that ... ok
+test_adoption_refuses_an_offer_signed_by_another_participant (tests.job_manager.test_scheduling.PoolComposition.test_adoption_refuses_an_offer_signed_by_another_participant) ... ok
+test_live_allocation_keeps_its_generation_after_pool_change (tests.job_manager.test_scheduling.PoolComposition.test_live_allocation_keeps_its_generation_after_pool_change) ... ok
+test_sweep_reserves_before_issuing_each_offer (tests.job_manager.test_scheduling.PoolComposition.test_sweep_reserves_before_issuing_each_offer) ... ok
+test_a_new_variant_is_a_new_generation (tests.job_manager.test_scheduling.PoolDocuments.test_a_new_variant_is_a_new_generation) ... ok
+test_activation_persists_the_complete_normalized_generation (tests.job_manager.test_scheduling.PoolDocuments.test_activation_persists_the_complete_normalized_generation) ... ok
+test_cross_lane_eligibility_is_refused (tests.job_manager.test_scheduling.PoolDocuments.test_cross_lane_eligibility_is_refused) ... ok
+test_reattachment_revalidates_principals_and_does_not_rewrite (tests.job_manager.test_scheduling.PoolDocuments.test_reattachment_revalidates_principals_and_does_not_rewrite) ... ok
+test_schema_three_migrates_atomically_to_empty_scheduler_relations (tests.job_manager.test_scheduling.PoolDocuments.test_schema_three_migrates_atomically_to_empty_scheduler_relations) ... ok
+test_affinity_is_soft_and_fallback_does_not_rewrite_it (tests.job_manager.test_scheduling.SelectionAndSettlement.test_affinity_is_soft_and_fallback_does_not_rewrite_it) ... ok
+test_an_abandoned_offer_releases_only_its_allocation (tests.job_manager.test_scheduling.SelectionAndSettlement.test_an_abandoned_offer_releases_only_its_allocation) ... ok
+test_completed_cleanup_releases_capacity (tests.job_manager.test_scheduling.SelectionAndSettlement.test_completed_cleanup_releases_capacity) ... ok
+test_every_no_assignment_ending_releases_capacity (tests.job_manager.test_scheduling.SelectionAndSettlement.test_every_no_assignment_ending_releases_capacity) ... ok
+test_external_opinion_exclusions_compare_all_three_identities (tests.job_manager.test_scheduling.SelectionAndSettlement.test_external_opinion_exclusions_compare_all_three_identities) ... ok
+test_no_static_eligible_worker_is_exceptional_not_forever_deferred (tests.job_manager.test_scheduling.SelectionAndSettlement.test_no_static_eligible_worker_is_exceptional_not_forever_deferred) ... ok
+test_review_excludes_the_producers_canonical_principal (tests.job_manager.test_scheduling.SelectionAndSettlement.test_review_excludes_the_producers_canonical_principal) ... ok
+test_status_exposes_all_three_scheduler_identities (tests.job_manager.test_scheduling.SelectionAndSettlement.test_status_exposes_all_three_scheduler_identities) ... ok
+test_uncertain_runtime_quarantines_one_allocation (tests.job_manager.test_scheduling.SelectionAndSettlement.test_uncertain_runtime_quarantines_one_allocation) ... ok
+test_a_changed_check_constraint_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_changed_check_constraint_refuses_and_changes_nothing)
+The other rule a pragma cannot see. ... ok
+test_a_changed_column_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_changed_column_refuses_and_changes_nothing) ... ok
+test_a_missing_index_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_missing_index_refuses_and_changes_nothing)
+The reviewer's exact reproduction. ... ok
+test_a_missing_table_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_missing_table_refuses_and_changes_nothing) ... ok
+test_a_reversed_index_predicate_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_reversed_index_predicate_refuses_and_changes_nothing)
+W71877's second correction review: the SAFETY RULE is the predicate. ... ok
+test_a_whole_schema_three_store_migrates (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_whole_schema_three_store_migrates)
+The positive case, so the refusals below are about the spoiling. ... ok
+test_an_extra_object_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_an_extra_object_refuses_and_changes_nothing) ... ok
+test_the_two_legitimate_spellings_of_one_schema_both_migrate (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_the_two_legitimate_spellings_of_one_schema_both_migrate)
+The comparison is about CONTENT, and this is what protects that. ... ok
+test_two_concurrent_migrations_leave_one_store (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_two_concurrent_migrations_leave_one_store)
+Both openers see schema 3; the lock decides and the loser adopts. ... ok
+test_a_live_allocation_on_an_unattached_key_refuses_by_name (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_a_live_allocation_on_an_unattached_key_refuses_by_name)
+The defence-in-depth branch, with an INJECTED answer: the public ... ok
+test_history_is_answered_by_the_same_worker_in_its_newest_generation (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_history_is_answered_by_the_same_worker_in_its_newest_generation)
+Review209188 [R1]: observation adopts worker-specific context, so ... ok
+test_observe_answers_over_settled_history_instead_of_raising (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_observe_answers_over_settled_history_instead_of_raising) ... ok
+test_settlement_keeps_live_prior_generation_routing (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_settlement_keeps_live_prior_generation_routing) ... ok
+test_settlement_missing_live_binding_refuses_without_successor_effects (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_settlement_missing_live_binding_refuses_without_successor_effects) ... ok
+test_settlement_skips_released_history_without_calling_any_worker (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_settlement_skips_released_history_without_calling_any_worker) ... ok
+test_the_live_allocation_path_is_unchanged (tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation.test_the_live_allocation_path_is_unchanged)
+A reserved allocation in the ATTACHED set is still routed to its ... ok
+test_a_durable_refusal_after_the_offer_exists_retains_capacity (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_durable_refusal_after_the_offer_exists_retains_capacity)
+The gap: ANY durable refusal released the allocation. ... ok
+test_a_live_prior_pair_attaches_the_same_named_worker (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_live_prior_pair_attaches_the_same_named_worker)
+D9 (claim219702), measured installed: attachment REQUIRES live ... ok
+test_a_live_prior_worker_no_longer_composed_refuses_by_name (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_live_prior_worker_no_longer_composed_refuses_by_name)
+The fail-closed half of D9: a live allocation whose worker this ... ok
+test_a_second_release_with_another_reason_refuses (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_second_release_with_another_reason_refuses) ... ok
+test_a_stage_with_no_allocation_reaches_no_worker (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_a_stage_with_no_allocation_reaches_no_worker)
+The gap: `_worker` fell back to whichever worker sorted first. ... ok
+test_an_unadmitted_stage_is_still_observable (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_an_unadmitted_stage_is_still_observable)
+The other half, and the reason `_worker` and `_reader` differ. ... ok
+test_attachment_refuses_a_live_old_generation_that_now_resolves_elsewhere (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_attachment_refuses_a_live_old_generation_that_now_resolves_elsewhere)
+The gap: only the generation whose document was handed to ... ok
+test_returning_to_a_historical_variant_is_a_new_generation (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_returning_to_a_historical_variant_is_a_new_generation) ... ok
+test_the_active_generation_survives_a_reopen (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_the_active_generation_survives_a_reopen) ... ok
+test_the_two_settlement_orderings_end_differently (tests.job_manager.test_scheduling.TheReviewedSchedulerGaps.test_the_two_settlement_orderings_end_differently)
+Recovery-then-release settles; release-then-recovery refuses. ... ok
+test_3_probe_is_bounded_and_never_invocation_start_evidence (tests.manager.test_model_attribution.BuildProbe.test_3_probe_is_bounded_and_never_invocation_start_evidence) ... ok
+test_11_12_normalized_participation_and_exact_retained_byte_digest (tests.manager.test_model_attribution.Participation.test_11_12_normalized_participation_and_exact_retained_byte_digest) ... ok
+test_15_altered_binding_or_raw_is_refused (tests.manager.test_model_attribution.Participation.test_15_altered_binding_or_raw_is_refused) ... ok
+test_18_19_diagnostic_words_and_legacy_default (tests.manager.test_model_attribution.Participation.test_18_19_diagnostic_words_and_legacy_default) ... ok
+test_1_model_selection_changes_only_worker_profile_identity (tests.manager.test_model_attribution.Participation.test_1_model_selection_changes_only_worker_profile_identity) ... ok
+test_21_participation_sources_are_adapter_identity (tests.manager.test_model_attribution.Participation.test_21_participation_sources_are_adapter_identity) ... ok
+test_3_5_missing_malformed_partial_oversize_and_build (tests.manager.test_model_attribution.Participation.test_3_5_missing_malformed_partial_oversize_and_build) ... ok
+test_4_9_union_sources_and_exact_mapping (tests.manager.test_model_attribution.Participation.test_4_9_union_sources_and_exact_mapping) ... ok
+test_6_7_text_echo_error_and_unlisted_fields_never_contribute (tests.manager.test_model_attribution.Participation.test_6_7_text_echo_error_and_unlisted_fields_never_contribute) ... ok
+test_8_10_unrestricted_contributors_but_case_prefix_suffix_do_not_match (tests.manager.test_model_attribution.Participation.test_8_10_unrestricted_contributors_but_case_prefix_suffix_do_not_match) ... ok
+test_B1_original_attribution_travels_through_admission_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B1_original_attribution_travels_through_admission_custody_and_handoff) ... ok
+test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission) ... ok
+test_B4_cross_candidate_substitution_after_decision_refuses (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B4_cross_candidate_substitution_after_decision_refuses) ... ok
+test_B5_log_tampering_after_admission_refuses_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B5_log_tampering_after_admission_refuses_custody_and_handoff) ... ok
+test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher) ... ok
+test_a_completed_account_survives_a_later_uncertain_refresh (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_completed_account_survives_a_later_uncertain_refresh)
+[2]. A completed integration is HISTORICAL evidence about the fixed ... ok
+test_a_failed_start_still_answers_first (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_failed_start_still_answers_first) ... ok
+test_a_foreign_exchange_cannot_move_an_integration (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_foreign_exchange_cannot_move_an_integration)
+An integration attempt writes no worker exchange, so one that ... ok
+test_a_foreign_frozen_output_cannot_complete_an_integration (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_foreign_frozen_output_cannot_complete_an_integration)
+The same rule the other way: an integration still working is not ... ok
+test_a_held_document_is_not_turned_into_an_owed_ending (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_held_document_is_not_turned_into_an_owed_ending)
+[3]. The generic rules answered first about evidence that was never ... ok
+test_a_supplied_document_for_another_kind_refuses_at_the_status (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_supplied_document_for_another_kind_refuses_at_the_status)
+[1], through the public projection rather than the binding alone. ... ok
+test_an_uncertain_runtime_holds_the_three_that_earn_an_act (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_an_uncertain_runtime_holds_the_three_that_earn_an_act)
+No automatic conclude follows an uncertain runtime. ... ok
+test_answered_is_answering_whatever_the_runtime_is_doing (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_answered_is_answering_whatever_the_runtime_is_doing)
+Concluding changes no Job state by itself; the next observation is ... ok
+test_completed_is_completed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_completed_is_completed) ... ok
+test_held_is_a_visible_exceptional_stage (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_held_is_a_visible_exceptional_stage) ... ok
+test_pending_or_answered_without_a_runtime_fails_closed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_or_answered_without_a_runtime_fails_closed) ... ok
+test_pending_with_a_quiet_runtime_is_answering (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_with_a_quiet_runtime_is_answering)
+So `conclude` reaches the driver and the DRIVER decides what a ... ok
+test_pending_with_a_running_runtime_is_integrating (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_pending_with_a_running_runtime_is_integrating) ... ok
+test_unstarted_beside_a_started_runtime_fails_closed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_unstarted_beside_a_started_runtime_fails_closed) ... ok
+test_unstarted_is_claimed_and_still_owes_its_launch (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_unstarted_is_claimed_and_still_owes_its_launch) ... ok
+test_a_FAILING_observation_also_leaves_no_boundary_behind (tests.job_manager.test_status.ConcurrentSubmission.test_a_FAILING_observation_also_leaves_no_boundary_behind)
+DB-1 is not satisfied by the happy path. An observation that raises ... ok
+test_a_caller_s_own_boundary_is_neither_nested_nor_ended (tests.job_manager.test_status.ConcurrentSubmission.test_a_caller_s_own_boundary_is_neither_nested_nor_ended)
+SQLite has no nested transactions, and ending one here would commit ... ok
+test_a_concurrent_advancement_leaves_the_derivation_coherent_too (tests.job_manager.test_status.ConcurrentSubmission.test_a_concurrent_advancement_leaves_the_derivation_coherent_too)
+`stage_states` on its own -- the pass the sweep and the owed-act ... ok
+test_a_populated_store_reads_the_same_through_both_handles (tests.job_manager.test_status.ConcurrentSubmission.test_a_populated_store_reads_the_same_through_both_handles) ... ok
+test_a_submission_committed_INSIDE_the_materialization_is_coherent (tests.job_manager.test_status.ConcurrentSubmission.test_a_submission_committed_INSIDE_the_materialization_is_coherent)
+The same race one layer in: the writer commits between the stage ... ok
+test_a_submission_committed_between_the_two_reads_no_longer_raises (tests.job_manager.test_status.ConcurrentSubmission.test_a_submission_committed_between_the_two_reads_no_longer_raises)
+The minimal baseline from the finding, end to end. ... ok
+test_an_empty_store_still_reads_empty_through_the_reader (tests.job_manager.test_status.ConcurrentSubmission.test_an_empty_store_still_reads_empty_through_the_reader) ... ok
+test_an_episode_advancing_mid_status_is_not_mixed_with_the_next_one (tests.job_manager.test_status.ConcurrentSubmission.test_an_episode_advancing_mid_status_is_not_mixed_with_the_next_one)
+A stage whose live episode ends and is replaced WHILE the status is ... ok
+test_every_reported_stage_has_its_Job_and_every_Job_its_stages (tests.job_manager.test_status.ConcurrentSubmission.test_every_reported_stage_has_its_Job_and_every_Job_its_stages)
+The invariant the `KeyError` was the symptom of, asserted directly ... ok
+test_reading_through_the_read_only_handle_changes_no_row (tests.job_manager.test_status.ConcurrentSubmission.test_reading_through_the_read_only_handle_changes_no_row) ... ok
+test_the_authority_and_schema_checks_still_guard_the_reader (tests.job_manager.test_status.ConcurrentSubmission.test_the_authority_and_schema_checks_still_guard_the_reader)
+The new boundary is not a way around the opener's proofs. ... ok
+test_the_materialization_cannot_reach_another_store_at_all (tests.job_manager.test_status.ConcurrentSubmission.test_the_materialization_cannot_reach_another_store_at_all)
+The enforcement is structural rather than a comment: the function ... ok
+test_the_new_stages_are_reported_by_the_NEXT_read_and_not_lost (tests.job_manager.test_status.ConcurrentSubmission.test_the_new_stages_are_reported_by_the_NEXT_read_and_not_lost)
+An earlier coherent moment is not a silent omission. The submission ... ok
+test_the_other_store_is_read_with_no_Job_transaction_open (tests.job_manager.test_status.ConcurrentSubmission.test_the_other_store_is_read_with_no_Job_transaction_open) ... ok
+test_the_read_view_is_released_even_when_the_body_raises (tests.job_manager.test_status.ConcurrentSubmission.test_the_read_view_is_released_even_when_the_body_raises) ... ok
+test_the_whole_status_shape_survives_the_new_boundary (tests.job_manager.test_status.ConcurrentSubmission.test_the_whole_status_shape_survives_the_new_boundary)
+The document's contract is closed, so the composition is compared ... ok
+test_a_frozen_result_reports_the_managers_own_artifact_locators (tests.job_manager.test_status.Locators.test_a_frozen_result_reports_the_managers_own_artifact_locators) ... ok
+test_a_running_stage_reports_its_runtime_identity_and_activity (tests.job_manager.test_status.Locators.test_a_running_stage_reports_its_runtime_identity_and_activity) ... ok
+test_a_stage_with_no_runtime_reports_absence_rather_than_zero (tests.job_manager.test_status.Locators.test_a_stage_with_no_runtime_reports_absence_rather_than_zero) ... ok
+test_the_recorded_receipts_travel_with_the_stage (tests.job_manager.test_status.Locators.test_the_recorded_receipts_travel_with_the_stage) ... ok
+test_a_CLOSED_handle_reports_this_distributions_refusal (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_a_CLOSED_handle_reports_this_distributions_refusal)
+`read_snapshot` asked `in_transaction` ahead of its own `try`, so a ... ok
+test_a_status_inside_the_callers_own_read_view_observes_NOTHING (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_a_status_inside_the_callers_own_read_view_observes_NOTHING)
+The measured case, asserted by what the other store was asked. ... ok
+test_an_EMPTY_store_refuses_identically (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_EMPTY_store_refuses_identically)
+Nothing to observe is not the same as nothing to refuse. A check ... ok
+test_an_UNOBSERVED_derivation_refuses_on_the_same_rule (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_UNOBSERVED_derivation_refuses_on_the_same_rule)
+`Unobserved` performs no I/O, so this one is about the rule rather ... ok
+test_an_observation_that_would_itself_FAIL_is_never_attempted (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_an_observation_that_would_itself_FAIL_is_never_attempted)
+The point is not which refusal wins. It is that the external read ... ok
+test_materialized_is_STILL_served_inside_the_callers_boundary (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_materialized_is_STILL_served_inside_the_callers_boundary)
+The refusal is scoped to the passes that go on to observe. ... ok
+test_stage_states_called_from_inside_a_boundary_refuses_too (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_stage_states_called_from_inside_a_boundary_refuses_too)
+`stage_states` is the pass the sweep and the owed-act derivation ... ok
+test_stage_states_leaves_the_writers_pending_change_alone_too (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_stage_states_leaves_the_writers_pending_change_alone_too) ... ok
+test_the_SAME_status_succeeds_once_the_boundary_is_released (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_SAME_status_succeeds_once_the_boundary_is_released)
+The refusal is about WHEN it was asked, and says so by being ... ok
+test_the_callers_transaction_can_still_be_COMMITTED_afterwards (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_callers_transaction_can_still_be_COMMITTED_afterwards)
+The other half: a caller that meant to keep its change keeps it. ... ok
+test_the_callers_transaction_is_still_open_and_still_PENDING (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_callers_transaction_is_still_open_and_still_PENDING)
+Neither committed nor discarded. The refusal decides nothing about ... ok
+test_the_question_itself_is_the_stores_own_and_is_public (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_question_itself_is_the_stores_own_and_is_public)
+`holds_transaction` is asked of the owner rather than read off its ... ok
+test_the_refusal_names_what_was_done_and_what_to_do_instead (tests.job_manager.test_status.ObservingInsideACallersBoundary.test_the_refusal_names_what_was_done_and_what_to_do_instead) ... ok
+test_a_projection_with_no_control_store_says_nobody_looked (tests.job_manager.test_status.Shape.test_a_projection_with_no_control_store_says_nobody_looked) ... ok
+test_an_empty_store_projects_an_empty_pipeline (tests.job_manager.test_status.Shape.test_an_empty_store_projects_an_empty_pipeline) ... ok
+test_reading_a_status_writes_nothing (tests.job_manager.test_status.Shape.test_reading_a_status_writes_nothing) ... ok
+test_the_document_names_its_schema_and_what_it_observed (tests.job_manager.test_status.Shape.test_the_document_names_its_schema_and_what_it_observed) ... ok
+test_the_job_carries_its_immutable_identities_and_bounded_scope (tests.job_manager.test_status.Shape.test_the_job_carries_its_immutable_identities_and_bounded_scope) ... ok
+test_a_blocked_stage_names_the_gate_holding_it (tests.job_manager.test_status.States.test_a_blocked_stage_names_the_gate_holding_it) ... ok
+test_a_cancelled_or_unable_ending_is_exceptional (tests.job_manager.test_status.States.test_a_cancelled_or_unable_ending_is_exceptional) ... ok
+test_a_claimed_stage_with_no_runtime_is_claimed (tests.job_manager.test_status.States.test_a_claimed_stage_with_no_runtime_is_claimed) ... ok
+test_a_completed_stage_opens_its_successor_s_gate (tests.job_manager.test_status.States.test_a_completed_stage_opens_its_successor_s_gate) ... ok
+test_a_disposition_this_build_does_not_know_is_not_read_as_benign (tests.job_manager.test_status.States.test_a_disposition_this_build_does_not_know_is_not_read_as_benign) ... ok
+test_a_rejected_review_is_changes_requested (tests.job_manager.test_status.States.test_a_rejected_review_is_changes_requested) ... ok
+test_a_rejection_on_a_stage_that_is_not_a_review_is_exceptional (tests.job_manager.test_status.States.test_a_rejection_on_a_stage_that_is_not_a_review_is_exceptional) ... ok
+test_a_submitted_pipeline_is_queued_and_blocked (tests.job_manager.test_status.States.test_a_submitted_pipeline_is_queued_and_blocked) ... ok
+test_an_admitted_stage_is_offered (tests.job_manager.test_status.States.test_an_admitted_stage_is_offered) ... ok
+test_an_uncertain_runtime_is_exceptional_and_never_running (tests.job_manager.test_status.States.test_an_uncertain_runtime_is_exceptional_and_never_running) ... ok
+test_each_kind_names_its_own_running_state (tests.job_manager.test_status.States.test_each_kind_names_its_own_running_state) ... ok
+test_every_projected_state_is_in_the_closed_vocabulary (tests.job_manager.test_status.States.test_every_projected_state_is_in_the_closed_vocabulary) ... ok
+
+----------------------------------------------------------------------
+Ran 765 tests in 28.364s
+
+OK

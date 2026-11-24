@@ -1,0 +1,32 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_CORRUPT_prior_declaration_is_unknown_too",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_FAILED_carry_REFUSES_the_handle_and_keeps_the_evidence",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_GENUINELY_absent_record_is_still_absence",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_NONREGULAR_carried_record_is_not_ABSENCE_either",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_READ_failure_on_the_record_is_not_ABSENCE_either",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_EMPTY_new_stream_is_still_a_CLEAN_start",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_INACCESSIBLE_carried_record_is_not_ABSENCE",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_UNKNOWN_ending_then_a_success_is_NOT_captured",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_that_refusal_does_NOT_stop_the_child_from_running",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_ALL_SUCCESSFUL_restart_is_still_CAPTURED",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_BYTES_a_refused_writer_had_are_not_written_anywhere",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_WRAPPERS_stream_treats_an_unknown_ending_the_same"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 13,
+  "bound_seconds": 180,
+  "pid": 1825507,
+  "pgid": 1825507
+}

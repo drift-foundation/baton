@@ -1,0 +1,27 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_provider_home",
+    "tests.tools.test_provider_selection.SelectedCase.test_R1_prestart_failure_releases_home_to_successor_and_fences_old_start",
+    "tests.tools.test_provider_selection.SelectedCase.test_R1_requested_start_without_cessation_keeps_home_pending",
+    "tests.tools.test_provider_selection.SelectedCase.test_R3_held_cause_and_owner_action_survive_passes_and_restart",
+    "tests.job_manager.test_scheduling.Capacity.test_a_second_admission_to_one_live_worker_is_refused",
+    "tests.tools.test_job_observation.SharedObservation.test_attribution_holds_name_typed_cause_and_owner_action_on_all_views"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 26,
+  "bound_seconds": 90,
+  "disk_root": "/home/sl/src/baton/work/scratch/w385965-n1n2/test-roots",
+  "TMPDIR": "/home/sl/src/baton/work/scratch/w385965-n1n2/test-roots",
+  "pid": 1888985,
+  "pgid": 1888985
+}

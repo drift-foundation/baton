@@ -1,0 +1,20 @@
+{
+  "collected": 4,
+  "duplicates": [],
+  "duration_seconds": 1.2178741010138765,
+  "executed": 4,
+  "exit_status": 0,
+  "nonpassing": {},
+  "outcomes": {
+    "tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_every_act_replays_across_a_restart_without_a_second_effect": "ok",
+    "tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_interrupted_staging_bytes_are_preserved_on_retry": "ok",
+    "tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_no_second_adoption_is_started_while_the_first_is_unaccounted": "ok",
+    "tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_overlapping_stager_cannot_replace_input_before_commit": "ok"
+  },
+  "passed": 4,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

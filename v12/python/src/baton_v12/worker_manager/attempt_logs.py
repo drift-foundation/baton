@@ -690,3 +690,49 @@ def follow(delivery, stream, *, from_byte=0, bound=MAX_FOLLOW):
 
 def _denied(message):
     raise ContractRefusal("policy", "denied", message)
+
+
+def complete_record(delivery, stream, *, limit):
+    """Exact bounded bytes of a finished stream, for attribution validation.
+
+    No decoding, replacement characters or pathname supplied by worker output.
+    Missing, partial, oversized, replaced or concurrently growing logs are not
+    complete evidence. This read never repairs or creates a log room.
+    """
+    _delivery(delivery)
+    named(stream)
+    if type(limit) is not int or not 0 < limit <= MAX_READ:
+        _denied("record read bound is invalid")
+    if capture_state(delivery, stream)["state"] != "captured":
+        return None
+    room = handle = None
+    try:
+        room = _room(delivery)
+        handle = os.open(stream + ".log", os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=room)
+        before = os.fstat(handle)
+        if not stat.S_ISREG(before.st_mode) or before.st_size > limit:
+            return None
+        chunks = []
+        left = limit + 1
+        while left:
+            chunk = os.read(handle, left)
+            if not chunk:
+                break
+            chunks.append(chunk)
+            left -= len(chunk)
+        after = os.fstat(handle)
+        named_entry = os.stat(stream + ".log", dir_fd=room, follow_symlinks=False)
+        if (named_entry.st_dev, named_entry.st_ino) != (before.st_dev, before.st_ino):
+            return None
+        if capture_state(delivery, stream)["state"] != "captured":
+            return None
+        raw = b"".join(chunks)
+        if len(raw) != before.st_size or (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
+            return None
+        return raw
+    except (OSError, ContractRefusal):
+        return None
+    finally:
+        for fd in (handle, room):
+            if fd is not None:
+                os.close(fd)

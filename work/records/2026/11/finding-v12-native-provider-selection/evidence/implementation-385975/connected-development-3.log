@@ -1,0 +1,47 @@
+test_13_positive_implementation_binds_frozen_result_and_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_13_positive_implementation_binds_frozen_result_and_checkpoint) ... ERROR
+test_14_17_missing_output_holds_without_publication_or_retry (tests.tools.test_provider_selection.SelectedCase.test_14_17_missing_output_holds_without_publication_or_retry) ... ERROR
+
+======================================================================
+ERROR: test_13_positive_implementation_binds_frozen_result_and_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_13_positive_implementation_binds_frozen_result_and_checkpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 103, in test_13_positive_implementation_binds_frozen_result_and_checkpoint
+    held = self.implemented()
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_stage_execution.py", line 4839, in implemented
+    self.turn(control, "implementation", attempt_id, roots,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              **operands), 0)
+              ^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 82, in turn
+    delivered = self.provider_delivery_for(role, attempt_id)
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 53, in provider_delivery_for
+    return worker._provider_delivery({"attempt_id": attempt, **self.stage_for(attempt)})
+                                                               ~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 57, in stage_for
+    jobs = self.deployment_of(self._composed).jobs
+           ^^^^^^^^^^^^^^^^^^
+AttributeError: 'SelectedCase' object has no attribute 'deployment_of'
+
+======================================================================
+ERROR: test_14_17_missing_output_holds_without_publication_or_retry (tests.tools.test_provider_selection.SelectedCase.test_14_17_missing_output_holds_without_publication_or_retry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 118, in test_14_17_missing_output_holds_without_publication_or_retry
+    self.assertEqual(self.turn(control, "implementation", attempt, self.mounted(composed, "implementation", attempt), edits={"harness.py": "print('changed')\n"}), 0)
+                     ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 82, in turn
+    delivered = self.provider_delivery_for(role, attempt_id)
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 53, in provider_delivery_for
+    return worker._provider_delivery({"attempt_id": attempt, **self.stage_for(attempt)})
+                                                               ~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/tools/test_provider_selection.py", line 57, in stage_for
+    jobs = self.deployment_of(self._composed).jobs
+           ^^^^^^^^^^^^^^^^^^
+AttributeError: 'SelectedCase' object has no attribute 'deployment_of'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.306s
+
+FAILED (errors=2)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

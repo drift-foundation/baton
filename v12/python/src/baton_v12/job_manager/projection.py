@@ -1181,6 +1181,8 @@ def _stage_status(entry, held):
         exchange=(observed.get("exchange")
                   if type(observed.get("exchange")) is dict else None),
         runtime={"runtime_id": runtime.get("runtime_id"),
+                 **({"model_attribution": runtime["model_attribution"]} if "model_attribution" in runtime else {}),
+                 **({"model_attribution_hold": runtime["model_attribution_hold"]} if "model_attribution_hold" in runtime else {}),
                  "execution_runtime": runtime.get("execution_runtime"),
                  "assignment": runtime.get("assignment"),
                  # SAFE LOCATORS AND NOTHING ELSE. The activity projection is

@@ -1,0 +1,5 @@
+# Owner ruling — 2026-11-24
+
+Source: owning FINDING.md, section “owner confirms drafted, unqualified Claude participation list”.
+
+Slawomir answered yes to retaining the contributor parser/list as drafted and unqualified pending qualification, following K review M385980 (review-2026-11-24T10-12-37Z.md section 3). The September raw output is unavailable; its digest and an independent written description are not retained raw output. This explicitly supersedes the addendum's claim that retained exact-build raw evidence exists and permits the draft for deterministic N1/N2 implementation only. It does not qualify a provider shape or authorize native use. Synthetic fixtures remain labelled; documentation must cite the actual written records and disclose the missing raw output. Qualification must retain actual exact-build raw output by dossier path and digest and validate the drafted sources before native use. Missing/conflicting/invalid attribution continues to hold; no fallback, new provider call or acceptance waiver is selected.

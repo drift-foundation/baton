@@ -1,0 +1,9 @@
+{
+  "tested_source": "9b7a074ee904b9668d6ae5f6cdd36d6affbe0d7139eb82d8b313fe4d05b55aac",
+  "final_source": "84e6623cd6107cc685fc42884f2895dcd861fc1803888633df3578e94c94f41f",
+  "post_test_delta": [
+    "v12/PROVIDER-SELECTION.md"
+  ],
+  "production_and_test_bytes_unchanged": true,
+  "reason": "Added explanatory pre-start release/hold sentences to documentation after focused run."
+}

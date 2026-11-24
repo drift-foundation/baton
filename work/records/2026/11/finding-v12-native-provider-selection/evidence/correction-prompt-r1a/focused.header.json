@@ -1,0 +1,22 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_provider_home",
+    "tests.tools.test_provider_selection"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "groups": [
+    "manager-pure",
+    "tools-pure"
+  ],
+  "collected": 49,
+  "bound_seconds": 120,
+  "disk_root": "/home/sl/src/baton/work/scratch/w385965-r1a-test-roots",
+  "TMPDIR": "/home/sl/src/baton/work/scratch/w385965-r1a-test-roots",
+  "pid": 1900649,
+  "pgid": 1900649
+}

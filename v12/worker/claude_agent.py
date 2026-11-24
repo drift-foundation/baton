@@ -85,6 +85,7 @@ import json
 import os
 import re
 import select
+import signal
 import shutil
 import stat
 import subprocess
@@ -1965,6 +1966,53 @@ class TaskRefusal(Exception):
 class ClaudeAgent:
     """One real provider turn, over one staged source tree."""
 
+    # Provider-specific seams. Subclasses change these facts, never the
+    # checkout, verification, publication or review owners below.
+    provider_program = PROVIDER_PROGRAM
+    provider_arguments = PROVIDER_ARGUMENTS
+    provider_home_state = PROVIDER_HOME_STATE
+    provider_credential = PROVIDER_CREDENTIAL
+    # Credential mode, managed entries and participation sources come from
+    # the shared adapter table, and are bound by the delivered adapter digest.
+
+    def _provider_selection(self):
+        seen = self._seen or {}
+        if seen.get("schema") != "baton.worker-launch/6":
+            return None
+        try:
+            import provider_policy
+            selected = provider_policy.validate_delivery(seen.get("provider_selection"), seen.get("job_execution"))
+            if selected["contract"]["adapter"]["argv_policy"]["program"] != self.provider_program:
+                raise ValueError("selected provider and running adapter disagree")
+            return selected
+        except (ImportError, ValueError, TypeError, KeyError) as failure:
+            raise TaskRefusal("the delivered provider selection is unproved") from failure
+
+    def _retained_home(self):
+        selected = self._provider_selection()
+        if selected is None:
+            return None
+        from provider_policy.home import checked_home
+        return checked_home(selected["contract"]["adapter"]["home"])
+
+    def provider_argv(self, prompt, *, model=None):
+        return [self.provider_program, *self.provider_arguments,
+                *(["--model", model] if model is not None else []), prompt]
+
+    def provider_session_root(self, home):
+        return os.path.join(home, self.provider_home_state)
+
+    def provider_terminal(self, status, record, *, partial):
+        if status == 0:
+            return {"ok": True, "status": 0, "failure_reason": None,
+                    "why": None}
+        reason = _failure_reason(record, partial=partial)
+        return {"ok": False, "status": status, "failure_reason": reason,
+                "diagnostic": _provider_diagnostic(record, partial=partial),
+                "why": f"the provider exited {status} ({reason}); its own "
+                       f"unrestricted diagnostic is withheld; supported "
+                       f"nonsecret detail is in provider.diagnostic"}
+
     def __init__(self, *, run=None, home=None):
         """`run` and `home` are SEAMS FOR TESTS and are not operands.
 
@@ -1990,6 +2038,9 @@ class ClaudeAgent:
         self._activity_lock = threading.Lock()
         self._activity = None
         self._invocation = None
+        self._attribution = None
+        self._provider_raw_digest = None
+        self._provider_log_retained = False
 
     def observed_invocation(self):
         """Process-start/exit evidence, never dispatch or activity-derived."""
@@ -1997,12 +2048,16 @@ class ClaudeAgent:
             return dict(self._invocation) if self._invocation is not None else None
 
     def _run_provider(self, argv, **options):
+        track_invocation = options.pop("track_invocation", True)
         # Injected runners do not prove process creation; keep timing unknown.
         with self._activity_lock:
             self._invocation = None
+        # No provider turn can read a host/worker terminal or protocol pipe.
+        options["stdin"] = subprocess.DEVNULL
         if self._run is not subprocess.run:
             return self._run(argv, **options)
         import datetime
+        options["start_new_session"] = True
         seconds = options.pop("timeout")
         # Popen success is the first evidence that this provider process exists.
         # Missing executable/fork failures leave no fabricated start or deadline.
@@ -2011,21 +2066,25 @@ class ClaudeAgent:
             with self._activity_lock:
                 self._invocation = {"started_at": started.isoformat(timespec="milliseconds").replace("+00:00", "Z"),
                                     "deadline_at": (started + datetime.timedelta(seconds=seconds)).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
-                                    "ended_at": None, "scope": "provider-process"}
+                                    "ended_at": None, "scope": "provider-process"} if track_invocation else None
             try:
                 stdout, stderr = child.communicate(timeout=seconds)
-            except subprocess.TimeoutExpired:
-                child.kill()
-                child.wait()
-                raise
             except BaseException:
-                child.kill()
+                # Kill the entire session's original process group, including
+                # children ignoring TERM or holding the provider output pipe.
+                # Detached descendants remain the outer runtime's responsibility.
+                # Required review already runs its bounded-command supervisor;
+                # this is only the fallback after that supervisor's own grace.
+                try:
+                    os.killpg(child.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
                 child.wait()
                 raise
             finally:
                 # Direct-child cessation only; never claims descendants stopped.
                 with self._activity_lock:
-                    if child.poll() is not None:
+                    if child.poll() is not None and self._invocation is not None:
                         self._invocation["ended_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
             return subprocess.CompletedProcess(argv, child.returncode, stdout, stderr)
 
@@ -2190,7 +2249,69 @@ class ClaudeAgent:
                                            UNSTATED_BOUND_SOURCE)
         return {"seconds_bound": seconds, "seconds_bound_source": source}
 
+    def provider_version_argv(self):
+        return [self.provider_program, "--version"]
+
+    def provider_version(self, environment, candidate):
+        # A bounded CLI probe, never a model invocation. Anonymous pipe,
+        # capped memory, no log or disk output and no inherited stdin.
+        read_fd, write_fd = os.pipe()
+        os.set_blocking(read_fd, False)
+        held = bytearray()
+        ended = threading.Event()
+        partial = [False]
+        def drain():
+            deadline = None
+            try:
+                while True:
+                    if ended.is_set() and deadline is None:
+                        deadline = time.monotonic() + PROVIDER_DRAIN_SECONDS
+                    if deadline is not None and time.monotonic() >= deadline:
+                        partial[0] = True
+                        return
+                    if not select.select([read_fd], (), (), PROVIDER_DRAIN_SLICE)[0]:
+                        continue
+                    piece = os.read(read_fd, 4096)
+                    if not piece:
+                        return
+                    held.extend(piece[:max(0, 1025 - len(held))])
+            except OSError:
+                partial[0] = True
+            finally:
+                os.close(read_fd)
+        reader = threading.Thread(target=drain, daemon=True)
+        reader.start()
+        status = None
+        try:
+            status = self._run_provider(self.provider_version_argv(), cwd=candidate,
+                env=environment, stdout=write_fd, stderr=subprocess.DEVNULL,
+                timeout=5, track_invocation=False).returncode
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+        finally:
+            os.close(write_fd)
+            ended.set()
+            reader.join()
+        if status != 0 or partial[0] or len(held) > 1024:
+            return None
+        try:
+            match = re.fullmatch(r"([0-9]+\.[0-9]+\.[0-9]+)(?: \(Claude Code\))?", held.decode("utf-8").strip())
+            return match.group(1) if match else None
+        except UnicodeError:
+            return None
+
     def work(self, seen, declared):
+        self._attribution = None
+        answer = self._work(seen, declared)
+        if self._attribution is not None:
+            for output in answer.get("outputs", []):
+                if output.get("status") == "present":
+                    output["result_metadata"] = dict(output.get("result_metadata", {}),
+                        **{"baton.model-attribution/1": self._attribution})
+                    break
+        return answer
+
+    def _work(self, seen, declared):
         """Run the frozen task and author the declared proposal.
 
         `seen` is the validated launch document and `declared` is the manager's
@@ -3718,7 +3839,7 @@ class ClaudeAgent:
         directory exists, so the loop below makes each one at the same mode as
         its parent before either child is started.
         """
-        composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+        composed = {"HOME": self._retained_home() if self._provider_selection() is not None else self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
                     "PATH": "/usr/local/bin:/usr/bin:/bin"}
         for name, _leaf in self.EPHEMERA_ROOTS:
             # `compileall` WRITES BYTECODE AS ITS PURPOSE and ignores
@@ -3730,7 +3851,7 @@ class ClaudeAgent:
     def _revalidated_environment(self, scratch, environment):
         """Re-prove the prepared paths after the provider had write access."""
         checked = dict(environment)
-        checked["HOME"] = self._context_home() if self._context_bound() is not None and checked["HOME"] == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, checked["HOME"])
+        checked["HOME"] = self._retained_home() if self._provider_selection() is not None else self._context_home() if self._context_bound() is not None and checked["HOME"] == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, checked["HOME"])
         for name, _leaf in self.EPHEMERA_ROOTS:
             checked[name] = self._checked_directory(scratch, checked[name])
         return checked
@@ -4473,7 +4594,14 @@ class ClaudeAgent:
         contextual = self._context_bound()
         if prompt is None:
             prompt = _prompt(task, self._context_feedback(contextual))
-        argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS, prompt]
+        selected = self._provider_selection()
+        argv = self.provider_argv(prompt)
+        if selected is not None:
+            import provider_policy
+            binding = selected["contract"]
+            argv = self.provider_argv(prompt, model=binding["selection"]["requested_model"])
+            if argv != provider_policy.argv(binding["adapter"], binding["selection"], prompt):
+                raise TaskRefusal("actual provider argv disagrees with the selected policy")
         if contextual is not None:
             if candidate != OUTPUT_ROOT:
                 raise TaskRefusal("context provider working directory disagrees")
@@ -4507,6 +4635,16 @@ class ClaudeAgent:
         # `supervised` is None for every other caller, whose turn is unchanged.
         seconds = bound["seconds_bound"]
         launched = self._revalidated_environment(scratch, environment)
+        if selected is not None:
+            expected = selected["contract"]["adapter"]["environment_policy"]
+            if (set(launched) != set(expected) or launched["PATH"] != expected["PATH"]
+                    or launched["HOME"] != self._retained_home()):
+                raise TaskRefusal("actual provider environment disagrees with the selected policy")
+        evidenced_build = self.provider_version(launched, candidate) if selected is not None else None
+        if selected is not None:
+            from provider_policy import attribution
+            self._attribution = attribution.record(selected, phase=self._seen["role"],
+                evidenced_build=evidenced_build, raw=None, partial=True, log_retained=False)
         if supervised is not None:
             ending = supervised["deadline"] - COMMAND_END_GRACE_SECONDS
             seconds = int(ending - time.monotonic())
@@ -4559,35 +4697,17 @@ class ClaudeAgent:
                     "failure_reason": PROVIDER_START_ERROR, **bound,
                     "why": f"the provider could not be started: "
                            f"{type(failed).__name__}"}
+        if selected is not None:
+            from provider_policy import attribution
+            self._attribution = attribution.record(selected, phase=self._seen["role"],
+                evidenced_build=evidenced_build, raw=record, partial=partial,
+                raw_digest=self._provider_raw_digest, log_retained=self._provider_log_retained)
         if contextual is not None:
             self._context_receipt = self._context_result(contextual, status=status, record=record, partial=partial)
             if self._context_receipt["complete"] is not True:
                 return {"ok": False, "status": status, "failure_reason": PROVIDER_START_ERROR, **bound, "why": "provider context terminal identity is unproved"}
-        if status == 0:
-            # A CLEAN TURN PUBLISHES NO REASON. There is nothing to classify,
-            # and a `failure_reason` on a success would be a field readers
-            # learn to ignore.
-            return {"ok": True, "status": 0, "failure_reason": None,
-                    **bound, "why": None}
-        # THE DIAGNOSTIC IS STILL NOT THE PROVIDER'S PROSE. This read
-        # `f"...{status}: {errors}"`, and `errors` was the provider's own
-        # stderr -- the process that had just authenticated with the attempt's
-        # bearer. It reached `result.json` through `why` AND the worker's
-        # protocol `/output/output.json` through `recap`.
-        #
-        # W55360 CHANGES EXACTLY ONE THING: the STRUCTURED stdout record is
-        # read, matched against a closed map, and discarded. What crosses the
-        # boundary below is one of this module's own words -- never the
-        # provider's spelling of it, never the document, never a parser
-        # complaint. W71879 adds the separately bounded detail reader below;
-        # stderr is still on `DEVNULL` and was never opened.
-        reason = _failure_reason(record, partial=partial)
-        return {"ok": False, "status": status, "failure_reason": reason,
-                "diagnostic": _provider_diagnostic(record, partial=partial),
-                **bound,
-                "why": f"the provider exited {status} ({reason}); its own "
-                       f"unrestricted diagnostic is withheld; supported "
-                       f"nonsecret detail is in provider.diagnostic"}
+        return {**self.provider_terminal(status, record, partial=partial), **bound,
+                **({"attribution": self._attribution} if selected is not None else {})}
 
     def _context_bound(self):
         seen = self._seen or {}
@@ -4815,12 +4935,11 @@ class ClaudeAgent:
         provider wait behind a directory walk would be a diagnostic charged to
         the turn.
         """
-        created = self._home is None and not (self._seen or {}).get("provider_context")
+        created = self._home is None and not (self._seen or {}).get("provider_context") and self._provider_selection() is None
         with self._activity_lock:
             self._activity = (
                 None if not created
-                else {"root": os.path.join(scratch, "home",
-                                           PROVIDER_HOME_STATE),
+                else {"root": self.provider_session_root(os.path.join(scratch, "home")),
                       "seen": {}, "total": 0, "frozen": False})
 
     def observed_activity(self):
@@ -5011,6 +5130,9 @@ class ClaudeAgent:
         # the attempt's own log as it arrives. The record this method RETURNS is
         # unchanged, so nothing downstream reads different bytes than it did.
         recorded = _Captured(room, fmt, "provider.stdout")
+        stream_hash = hashlib.sha256()
+        self._provider_raw_digest = None
+        self._provider_log_retained = False
         # AND STDERR IS NO LONGER OPENED ONTO /dev/null. It goes straight to the
         # log's own descriptor, so this process never holds the bytes at all --
         # there is no buffer and no variable here that a later edit could
@@ -5068,6 +5190,7 @@ class ClaudeAgent:
                     # memory. The ceiling exists so a chatty provider cannot
                     # decide this process's memory; it is not a reason to
                     # forget what it said, which is the whole finding.
+                    stream_hash.update(piece)
                     recorded.wrote(piece)
                     space = MAX_PROVIDER_RECORD - len(held)
                     if space > 0:
@@ -5109,6 +5232,8 @@ class ClaudeAgent:
             os.close(write_fd)
             ended.set()
             reader.join()
+            self._provider_raw_digest = "sha256:" + stream_hash.hexdigest()
+            self._provider_log_retained = room is not None and fmt is not None and not recorded._lost
             # THE DECLARATIONS ARE IN THE `finally`, so a timeout and a missing
             # executable declare what they captured too -- those are exactly the
             # turns an operator has nothing else to read. `partial` is the
@@ -5247,6 +5372,15 @@ class ClaudeAgent:
         home-directory default, so a container started without the explicit
         credential delivery must not quietly try an ambient one.
         """
+        selected = self._provider_selection()
+        if selected is not None:
+            from provider_policy.home import prepare
+            rule = selected["contract"]["adapter"]
+            if rule["managed_entries"]:
+                raise TaskRefusal("managed-entry delivery is not selected by this build")
+            return prepare(rule["home"], credential_path=rule["credential"]["path"],
+                           delivered=os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT),
+                           mode=rule["credential"]["mode"])
         slot = os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT)
         if not os.path.exists(slot):
             raise TaskRefusal(
@@ -5276,11 +5410,11 @@ class ClaudeAgent:
                 f"authenticate for a reason no diagnostic of its own may "
                 f"publish")
         home = os.path.join(scratch, "home")
-        state = os.path.join(home, PROVIDER_HOME_STATE)
+        state = self.provider_session_root(home)
         os.makedirs(state, exist_ok=True)
         os.chmod(home, 0o700)
         os.chmod(state, 0o700)
-        link = os.path.join(state, PROVIDER_CREDENTIAL)
+        link = os.path.join(state, self.provider_credential)
         if not os.path.lexists(link):
             os.symlink(slot, link)
         return home
@@ -5885,7 +6019,8 @@ def _bound_member(provider):
     defect: a publisher inventing `3600` for a turn it knows nothing about.
     """
     return {"seconds_bound": provider["seconds_bound"],
-            "seconds_bound_source": provider["seconds_bound_source"]}
+            "seconds_bound_source": provider["seconds_bound_source"],
+            **({"attribution": provider["attribution"]} if "attribution" in provider else {})}
 
 
 def _disposition(provider, patch, verification):

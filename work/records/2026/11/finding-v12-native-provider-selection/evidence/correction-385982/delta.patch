@@ -1,0 +1,290 @@
+--- a/v12/PROVIDER-SELECTION.md
++++ b/v12/PROVIDER-SELECTION.md
+@@ -53,7 +53,8 @@
+ repeat publication effects. Legacy recovery takes its previous path.
+ 
+ Status and monitor retain requested/reported/build/outcome diagnostics after
+-runtime cleanup. Legacy attempts say `not selected (account default)`.
++runtime cleanup. An attribution hold reports its typed missing/conflicting/invalid
++cause and says owner action is needed; observation creates no owner record. Legacy attempts say `not selected (account default)`.
+ 
+ ## Retained home
+ 
+@@ -70,6 +71,11 @@
+ runtime cessation and settled cleanup at least as recent as recorded activity.
+ Unknown or stale evidence defers start for the manager's next ordinary pass.
+ It does not create an owner-decision item.
++
++A durable preparation ending with no recorded start intent is positive evidence
++that this holder never started a runtime. A successor may acquire that home;
++the manager refuses any delayed start of the ended attempt, including inside
++the start transaction. A requested start without confirmed cessation stays held.
+ 
+ Claude uses a reference to the existing read-only credential delivery. The
+ shared preparation helper also supports a first-use seed for a future selected
+@@ -91,13 +97,24 @@
+ qualification is implied, and existing installations require separately
+ selected packaging and qualification before native use.
+ 
+-The Claude 2.1.247 `modelUsage` source is traced to
+-`work/records/2026/09/finding-v12-production-context-qualification-preparation/REVIEW-EVIDENCE-235117.json`
+-(SHA-256 `fad3fd1e79e01c16c7c50eab9c1dcad990e958f35d609c9a56391324a6e8e1af`).
+-That independent retained review records original `provider-1.json` SHA-256
+-`defc5df0fd333f646e8798c6df68b64bb91cdcf414324dfb3694ad5e7f16c556`
+-and successful terminal fields with multiple usage keys, without a direct
+-model field. The original temporary file is no longer present on this host;
+-this implementation relies on the retained review and does not claim a new
+-raw-output or live qualification. All test model names and usage values are
+-synthetic. Codex has no qualified participation sources here.
++The Claude 2.1.247 `modelUsage` contributor list is **drafted and unqualified**.
++The written account in
++`work/records/2026/09/finding-v12-production-context-qualification-preparation/review-2026-09-22T03-24-23Z.md`
++and that dossier's FINDING entry for run 234686 describe successful terminal
++fields with two `modelUsage` keys and no direct model member.
++`REVIEW-EVIDENCE-235117.json` records the original output digest and checks;
++it does not itself name the field and is not retained raw output.
++The original temporary `provider-1.json` (SHA-256
++`defc5df0fd333f646e8798c6df68b64bb91cdcf414324dfb3694ad5e7f16c556`)
++is unavailable. An attested description and digest do not satisfy raw-output
++provenance. The owner explicitly permits this draft for deterministic source
++work; **native use remains gated on qualification** that validates the sources
++against actual output from the exact CLI build and retains those raw bytes in
++the dossier by path and digest. All fixtures are synthetic. Codex has no
++qualified participation sources here.
++
++Selected retained-home workers currently leave provider-session activity
++unknown: a retained home is not an empty baseline. Home retention does not imply
++session resumption. The CLI build is measured by the worker; the host validates
++its binding but does not independently run the CLI. The supervised review wrapper,
++version-probe format/bound and terminal-size bound still require qualification.
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -1182,6 +1182,7 @@
+                   if type(observed.get("exchange")) is dict else None),
+         runtime={"runtime_id": runtime.get("runtime_id"),
+                  **({"model_attribution": runtime["model_attribution"]} if "model_attribution" in runtime else {}),
++                 **({"model_attribution_hold": runtime["model_attribution_hold"]} if "model_attribution_hold" in runtime else {}),
+                  "execution_runtime": runtime.get("execution_runtime"),
+                  "assignment": runtime.get("assignment"),
+                  # SAFE LOCATORS AND NOTHING ELSE. The activity projection is
+--- a/v12/python/src/baton_v12/worker_manager/attempts.py
++++ b/v12/python/src/baton_v12/worker_manager/attempts.py
+@@ -214,8 +214,10 @@
+         return None
+     from . import model_attribution
+     selected = model_attribution.selection_of(store, attempt_id)
++    account = model_attribution.assessment_of(store, attempt_id) if selected is not None else None
+     return {"attempt_id": found["runtime_attempt_id"],
+             **({"model_attribution": model_attribution.diagnostic_of(store, attempt_id)} if selected is not None else {}),
++            **({"model_attribution_hold": account["cause"]} if account is not None and account["outcome"] == "held" else {}),
+             "runtime_id": found["runtime_id"],
+             "execution_runtime": found["execution_runtime"],
+             "cleanup": found["cleanup"],
+@@ -248,6 +250,17 @@
+     row = _attempt_row(store, attempt_id)
+     if row is None:
+         return None
++    # A durable failed preparation plus no start intent is positive absence.
++    # The start gate checks this same immutable ending inside its transaction,
++    # so a delayed caller cannot start this holder after its home is released.
++    failure = attempt_preparation_failure_of(store, attempt_id)
++    if (row["execution_runtime"] == "not-started" and row["runtime_id"] is None
++            and store.operation_record(_start_operation_id(row)) is None
++            and failure is not None and failure["execution_runtime"] == "not-started"
++            and failure["runtime_id"] is None):
++        return {"attempt_id": attempt_id, "runtime": "not-started",
++                "ended_before_start": True, "cleanup": row["cleanup"],
++                "observed_at": None, "last_activity_at": row["activity_at"] or row["created_at"]}
+     observed = digest({"attempt_id": attempt_id, "axis": "execution_runtime", "value": "destroyed"})
+     observation = store._connection.execute(
+         "SELECT MAX(observed_at) AS observed_at FROM observations "
+@@ -1525,6 +1538,11 @@
+     return given, delivered
+ 
+ 
++def _no_preparation_ending(store, attempt_id):
++    if attempt_preparation_failure_of(store, attempt_id) is not None:
++        raise ContractRefusal("refused", "already-terminal", "attempt preparation already ended; runtime start is forbidden")
++
++
+ def request_runtime_start(store, adapter, *, attempt_id, inputs=None,
+                           deadline_policy=None, govern=None):
+     """Commit a signed start operation, THEN call the adapter with it.
+@@ -1551,6 +1569,7 @@
+             f"attempt {name_value(attempt_id)} is not activated; the "
+             f"assignment manifest is fixed before the first writable adapter "
+             f"call")
++    _no_preparation_ending(store, attempt_id)
+     # W32577: validate an existing immutable selection before the mutable-axis
+     # refusal, including retries that omit an earlier selected deadline.
+     from . import deadlines
+@@ -1643,6 +1662,7 @@
+ 
+     def act(connection):
+         reserved.append(True)
++        _no_preparation_ending(store, attempt_id)
+         deadlines._start_allowed(store, _require_attempt(store, attempt_id), deadline_policy)
+         # W32649: THE LANE IS TAKEN IN THE SAME WRITE THAT MAKES THE START
+         # ELIGIBLE, and before the adapter is called at all.
+--- a/v12/python/src/baton_v12/worker_manager/provider_home.py
++++ b/v12/python/src/baton_v12/worker_manager/provider_home.py
+@@ -131,6 +131,8 @@
+     """Evidence belongs to this exact holder; unknown/stale always refuses."""
+     if type(evidence) is not dict or evidence.get("attempt_id") != holder:
+         return False
++    if evidence.get("runtime") == "not-started" and evidence.get("ended_before_start") is True:
++        return True
+     if evidence.get("runtime") not in ("absent", "destroyed") or evidence.get("cleanup") not in ("complete", "retained"):
+         return False
+     try:
+--- a/v12/python/tests/job_manager/test_scheduling.py
++++ b/v12/python/tests/job_manager/test_scheduling.py
+@@ -128,6 +128,20 @@
+ 
+ 
+ class Capacity(PoolCase):
++
++    def test_a_second_admission_to_one_live_worker_is_refused(self):
++        self.activate(pool(workers=[worker("only-worker", "implementation", "baton.only", ["implementation"])]))
++        first, second = self.attempts([
++            job("first", stages=[stage("implementation", "work:first")]),
++            job("second", stages=[stage("implementation", "work:second")])])
++        admitted = reserve(self.jobs, first)
++        with self.assertRaises(ContractRefusal) as caught:
++            reserve(self.jobs, second)
++        self.assertEqual(caught.exception.code, "precondition")
++        rows = allocation_rows(self.jobs)
++        self.assertEqual(len(rows), 1)
++        self.assertEqual(rows[0]["worker_id"], "only-worker")
++        self.assertEqual(rows[0]["assignment_id"], first["attempt_id"])
+ 
+     def test_two_implementation_and_two_review_capacities_are_live_together(self):
+         self.activate()
+--- a/v12/python/tests/manager/test_provider_home.py
++++ b/v12/python/tests/manager/test_provider_home.py
+@@ -109,8 +109,9 @@
+ 
+     def test_39_crash_after_record_before_home_creation_replays_same_holder(self):
+         original = os.mkdir
++        expected_parent = homes.location(str(self.root), homes.identity(**{k: v for k, v in self.selection.items() if k != "attempt_id"}))
+         def interrupted(path, *args, **kwargs):
+-            if path == "home":
++            if path == "home" and kwargs.get("dir_fd") is not None and os.readlink("/proc/self/fd/" + str(kwargs["dir_fd"])) == str(expected_parent):
+                 raise OSError("simulated crash")
+             return original(path, *args, **kwargs)
+         with mock.patch.object(os, "mkdir", side_effect=interrupted):
+--- a/v12/python/tests/tools/test_job_observation.py
++++ b/v12/python/tests/tools/test_job_observation.py
+@@ -35,6 +35,14 @@
+ 
+ 
+ class SharedObservation(unittest.TestCase):
++    def test_attribution_holds_name_typed_cause_and_owner_action_on_all_views(self):
++        for cause in ("model-attribution-missing", "model-attribution-conflicting", "model-attribution-invalid"):
++            doc = document()
++            stage = doc["jobs"][0]["stages"][0]
++            stage["state"] = "answering"
++            stage["runtime"]["model_attribution_hold"] = cause
++            for rendered in views(doc):
++                self.assertIn(cause + "; owner action needed", rendered)
+     def test_shared_outcomes_gates_and_typed_failure(self):
+         for state, outcome in (("running", "IN PROGRESS"), ("completed", "COMPLETED"), ("queued", "QUEUED"), ("changes-requested", "CHANGES REQUESTED"), ("exceptional", "FAILED"), ("blocked", "BLOCKED"), ("unrecognized", "UNKNOWN")):
+             doc = document()
+--- a/v12/python/tests/tools/test_provider_selection.py
++++ b/v12/python/tests/tools/test_provider_selection.py
+@@ -524,3 +524,82 @@
+             snapshot = status(job, composed, observed_at=fixtures.NOW)
+             self.assertEqual({one["job_id"] for one in snapshot["jobs"]}, {"job-a", "job-b"})
+             self.assertEqual(self.invocations, [])
++
++    def test_R1_prestart_failure_releases_home_to_successor_and_fences_old_start(self):
++        from baton_v12.worker_manager import attempts
++        from baton_v12.job_manager import submission
++        from baton_v12.contracts import ContractRefusal
++        job, control, composed = self.serving()
++        submit(job, self.submission)
++        with mock.patch.object(launch, "materialize", side_effect=ContractRefusal("refused", "precondition", "simulated pre-start delivery failure")):
++            for _ in range(12):
++                sweep(job, composed, now=fixtures.NOW)
++        self.assertEqual(self.states(job, composed)["implementation"], "exceptional")
++        worker = self.worker_of(composed, "implementation")
++        record_path, = Path(self.config["provider_home_root"]).glob("*/*/record.json")
++        record = json.loads(record_path.read_text()); previous = record["holder"]
++        self.assertEqual(attempts.provider_home_cessation_of(control, previous)["ended_before_start"], True)
++        self.assertEqual(self.invocations, [])
++        engine = mock.Mock()
++        with self.assertRaisesRegex(ContractRefusal, "preparation already ended"):
++            attempts.request_runtime_start(control, engine, attempt_id=previous)
++        engine.start.assert_not_called()
++        # Explicit successor at the runtime owner boundary, not an automatic
++        # Job retry policy. The normal home acquisition and typed mount run.
++        successor = "simulated-successor-after-prestart-failure"
++        attempts.record_attempt(control, attempt_id=successor, adapter_name="docker",
++            adapter_digest=self.config["adapter_digest"], profile_digest=self.config["profile_digest"])
++        stage = dict(next(one for one in submission.stage_rows(job) if one["kind"] == "implementation"), attempt_id=successor)
++        worker._hold_provider_home(stage)
++        selected = model_attribution.selection_of(control, successor)["delivery"]
++        mount = provider_home.HomeMount(self.config["provider_home_root"], **selected["home_identity"], attempt_id=successor)
++        self.assertEqual(mount.boundary()[0], str(record_path.parent / "home"))
++        self.assertEqual(json.loads(record_path.read_text())["holder"], successor)
++        self.assertEqual(self.invocations, [])
++
++    def test_R1_requested_start_without_cessation_keeps_home_pending(self):
++        from baton_v12.worker_manager import attempts, oci
++        job, control, composed = self.serving()
++        submit(job, self.submission)
++        # Interrupt the actual adapter call AFTER the durable start intent.
++        with mock.patch.object(oci.OciAdapter, "start", side_effect=KeyboardInterrupt("simulated lost start caller")):
++            with self.assertRaises(KeyboardInterrupt):
++                for _ in range(12):
++                    sweep(job, composed, now=fixtures.NOW)
++        record_path, = Path(self.config["provider_home_root"]).glob("*/*/record.json")
++        record = json.loads(record_path.read_text()); previous = record["holder"]
++        evidence = attempts.provider_home_cessation_of(control, previous)
++        self.assertEqual(evidence["runtime"], "start-requested")
++        self.assertFalse(provider_home.ceased(evidence, previous))
++        with self.assertRaises(provider_home.HomePending):
++            provider_home.acquire(self.config["provider_home_root"], **record["identity"], attempt_id="simulated-successor",
++                previous_runtime=lambda holder: attempts.provider_home_cessation_of(control, holder))
++        self.assertEqual(json.loads(record_path.read_text()), record)
++        self.assertEqual(self.invocations, [])
++
++    def test_R3_held_cause_and_owner_action_survive_passes_and_restart(self):
++        from baton_v12.job_manager import status, JobStore
++        from baton_v12.worker_manager import ControlStore
++        from tools import stage_execution, job_observation
++        self.reported = None
++        job, control, composed, attempt = self.started()
++        self.turn(control, "implementation", attempt, self.mounted(composed, "implementation", attempt), edits={"harness.py": "print('changed')\n"})
++        def check():
++            for _ in range(5):
++                sweep(job, composed, now=fixtures.NOW)
++            snapshot = status(job, composed, observed_at=fixtures.NOW)
++            stage = next(one for one in snapshot["jobs"][0]["stages"] if one["kind"] == "implementation")
++            self.assertEqual(stage["runtime"]["model_attribution_hold"], "model-attribution-missing")
++            self.assertEqual(job_observation.stage_view(stage, fixtures.NOW)["reason"], "held: model-attribution-missing; owner action needed")
++            self.assertEqual(len(self.invocations), 2)
++            self.assertNotEqual(self.states(job, composed)["review"], "waiting")
++        check()
++        composed.close(); job.close(); control.close()
++        job = JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"], incarnation="held-restart", clock=lambda: fixtures.NOW)
++        control = ControlStore.open(self.control_path, incarnation="held-restart", clock=lambda: fixtures.NOW)
++        self.addCleanup(job.close); self.addCleanup(control.close)
++        composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
++            engine_run=self.engine, credential_provider=lambda provider, reference: self.secret,
++            clock=lambda: fixtures.NOW, checkout=self.checkout)
++        self.addCleanup(composed.close); self._composed = composed
++        check()
+--- a/v12/python/tools/job_observation.py
++++ b/v12/python/tools/job_observation.py
+@@ -553,6 +553,10 @@
+ 
+ 
+ def _reason(stage, state):
++    runtime = stage.get("runtime")
++    attribution_hold = runtime.get("model_attribution_hold") if type(runtime) is dict else None
++    if attribution_hold in ("model-attribution-missing", "model-attribution-conflicting", "model-attribution-invalid"):
++        return "held: " + attribution_hold + "; owner action needed"
+     if state == "exceptional":
+         exchange = stage.get("exchange")
+         terminal = exchange.get("terminal") if type(exchange) is dict else None

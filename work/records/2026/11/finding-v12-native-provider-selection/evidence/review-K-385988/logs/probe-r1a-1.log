@@ -1,0 +1,37 @@
+test_E1_every_unproved_form_of_evidence_stays_pending_and_writes_nothing (__main__.Preparing.test_E1_every_unproved_form_of_evidence_stays_pending_and_writes_nothing) ... ok
+test_E2_proved_cessation_takes_over_and_finishes (__main__.Preparing.test_E2_proved_cessation_takes_over_and_finishes) ... ok
+test_E3_takeover_interrupted_again_is_replayable_by_the_successor_only (__main__.Preparing.test_E3_takeover_interrupted_again_is_replayable_by_the_successor_only) ... FAIL
+test_E4_ready_branch_is_unchanged (__main__.Preparing.test_E4_ready_branch_is_unchanged) ... ok
+
+======================================================================
+FAIL: test_E3_takeover_interrupted_again_is_replayable_by_the_successor_only (__main__.Preparing.test_E3_takeover_interrupted_again_is_replayable_by_the_successor_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385988/probes/probe_r1a.py", line 91, in test_E3_takeover_interrupted_again_is_replayable_by_the_successor_only
+    self.assertEqual(middle, dict(before, holder="a2"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'cre[53 chars]': 'a1', 'identity': {'authority_uuid': '00000[126 chars]ing'} != {'cre[53 chars]': 'a2', 'identity': {'authority_uuid': '00000[126 chars]ing'}
+  {'created_at': '2026-11-24T17:01:19.436668+00:00',
+-  'holder': 'a1',
+?              ^
+
++  'holder': 'a2',
+?              ^
+
+   'identity': {'authority_uuid': '00000000000000000000000000000000',
+                'job_id': 'job-k',
+                'worker_id': 'worker-k'},
+   'schema': 'baton.provider-home/1',
+   'state': 'preparing'}
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.025s
+
+FAILED (failures=1)
+E1 interrupted at mkdir: 13 unproved forms all pending; record bytes and directory listing unchanged; home present: False
+E1 interrupted at ready: 13 unproved forms all pending; record bytes and directory listing unchanged; home present: True
+E2 interrupted at mkdir: asked about ['a1']; record now a2/ready; identity and created_at kept: True; home mode 700
+E2 interrupted at ready: asked about ['a1']; record now a2/ready; identity and created_at kept: True; home mode 700
+E2 interrupted at mkdir: asked about ['a1']; record now a2/ready; identity and created_at kept: True; home mode 700
+E3 successor interrupted too: record a1 preparing | home present: False
+E4 ready record: uncertain holder pending; a ready record whose home is absent is still refused outright: retained provider home is absent

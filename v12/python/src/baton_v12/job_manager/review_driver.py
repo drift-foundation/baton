@@ -780,6 +780,10 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
         control, port, adapter, attempt_id=attempt_id,
         retention_disposition=retention_disposition,
         retention_policy_digest=retention_policy_digest)
+    from ..worker_manager import model_attribution
+    attribution_hold = model_attribution.held(model_attribution.assess(control, attempt_id, frozen))
+    if attribution_hold is not None:
+        return attribution_hold
     # STEP SIX AND A HALF: W385331'S CLASSIFICATION, AND ITS POSITION IS THE
     # WHOLE OF THE ENFORCEMENT.
     #
@@ -1684,6 +1688,10 @@ def end_response_from_result(control, port, adapter, *, attachment_id,
                 terminal=terminal,
                 retention_disposition=retention_disposition,
                 retention_policy_digest=retention_policy_digest)
+        from ..worker_manager import model_attribution
+        attribution_hold = model_attribution.held(model_attribution.assess(control, attempt_id, frozen))
+        if attribution_hold is not None:
+            return attribution_hold
         response = native_handoffs.classified_response(control, attempt_id)
         reply = handoff.answer(attempt_id=attempt_id, response=response)
         recorded = review_cycles.record_response(
@@ -1877,6 +1885,10 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
                 terminal=terminal,
                 retention_disposition=retention_disposition,
                 retention_policy_digest=retention_policy_digest)
+        from ..worker_manager import model_attribution
+        attribution_hold = model_attribution.held(model_attribution.assess(control, attempt_id, frozen))
+        if attribution_hold is not None:
+            return attribution_hold
         verdict = resolve(frozen)
         recorded = review_cycles.record_verdict(
             control, attachment_id=attachment_id, disposition=verdict,

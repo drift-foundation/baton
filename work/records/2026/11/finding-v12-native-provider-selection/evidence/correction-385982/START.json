@@ -1,0 +1,13 @@
+{
+  "claim": 385982,
+  "last_message": 385980,
+  "last_event": 385982,
+  "prior_candidate": "sha256:2abcd54485ab85ab0deb81db2a94447c54f72a2805461cfdc9f3742576eb7887",
+  "scope": "R1-R4 review correction",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "prior_archive_sha256": "d33f9ef228331ff276bb816ad751d26936ecf8415204aebb6e86a96045f621b0"
+}

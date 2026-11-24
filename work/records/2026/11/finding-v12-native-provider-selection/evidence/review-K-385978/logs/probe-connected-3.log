@@ -1,0 +1,9 @@
+test_C7_the_real_workers_result_file_carries_the_claim_recovery_reads (probe_connected.Probe.test_C7_the_real_workers_result_file_carries_the_claim_recovery_reads)
+Owner B's tests inject provider.attribution into a hand-built result. Does the REAL worker write that member, ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.368s
+
+OK
+C7 result path the recovery reads: result.json | found in custody: 1
+C7 provider.attribution present in the real result file: True | equals the validated claim: True

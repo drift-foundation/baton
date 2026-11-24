@@ -1,0 +1,6 @@
+test_policy_drift_cannot_reuse_or_redispatch_derived_judgments (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.572s
+
+OK

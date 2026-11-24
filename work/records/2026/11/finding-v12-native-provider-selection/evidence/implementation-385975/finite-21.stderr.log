@@ -1,0 +1,477 @@
+test_publication_pool_can_be_observed_without_serving_capabilities (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_publication_pool_can_be_observed_without_serving_capabilities) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                cf1704d787c52836f698aa1ce3f835bba27fcf81 established from line_declared_base
+configuration /var/tmp/v12-w71917-os0gadje/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-os0gadje/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-os0gadje/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-os0gadje/publication-instance/deployment.json"
+/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/authority/store.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7bdb518f1d50>
+  return [dict(row) for row in self._db.execute(sql, args).fetchall()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_read_only_status_binds_publication_to_its_own_input (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_read_only_status_binds_publication_to_its_own_input) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                cf1704d787c52836f698aa1ce3f835bba27fcf81 established from line_declared_base
+configuration /var/tmp/v12-w71917-weruckru/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-weruckru/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-weruckru/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-weruckru/publication-instance/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-weruckru/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a", "publication-C1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-weruckru/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-weruckru/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-weruckru/publication-instance/deployment.json"
+ok
+test_removal_still_refuses_what_it_never_declared (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_removal_still_refuses_what_it_never_declared)
+The replay gate opens on a committed declaration of THIS attempt ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                4eba466df1a41f6a7d9620033ad8e58aad773b33 established from line_declared_base
+configuration /var/tmp/v12-w71917-_8n81zpd/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-_8n81zpd/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-_8n81zpd/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-_8n81zpd/publication-instance/deployment.json"
+<attrs generated methods referencing._core.Resource>:30: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7bdb51051c60>
+  _setattr = _cached_setattr_get(self)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_commands_carry_a_real_failed_producer_to_the_handoff (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_the_commands_carry_a_real_failed_producer_to_the_handoff) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                a57000238695be6813bd63ecf65bd77b69ddedac established from line_declared_base
+configuration /var/tmp/v12-w71917-qogbaodb/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-qogbaodb/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-qogbaodb/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-qogbaodb/publication-instance/deployment.json"
+/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7bdb510535b0>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-qogbaodb/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a", "publication-C1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-qogbaodb/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-qogbaodb/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-qogbaodb/publication-instance/deployment.json"
+ok
+test_the_decision_command_is_refused_on_changed_evidence (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_the_decision_command_is_refused_on_changed_evidence)
+EXACT BINDING, through the command: a decision naming another ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                8972c20c70804f2de98a7e2c4e8340f1c5881dc7 established from line_declared_base
+configuration /var/tmp/v12-w71917-1g8x4o5d/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-1g8x4o5d/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-1g8x4o5d/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-1g8x4o5d/publication-instance/deployment.json"
+/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/jsonschema/exceptions.py:173: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7bdb51053c40>
+  for k, v in kwargs.items():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+refused: integrity/digest: this decision expects output_tree_digest '"sha256:000000000000000000000000000000000000000000000000000… and the inspection of Job 'job-connected-a' now reports '"sha256:fdc85abd71f357a0f49f1aea3206e261eaeca2a8631bd819510…; an owner decides on the exact execution, output, candidate and producer attribution they actually read
+refused: integrity/digest: this decision expects candidate_head '"ffffffffffffffffffffffffffffffffffffffff"' and the inspection of Job 'job-connected-a' now reports '"a224da54964d55373084f704d467f939e7f8f0c4"'; an owner decides on the exact execution, output, candidate and producer attribution they actually read
+ok
+test_the_ordinary_reviewer_runs_and_its_verdict_is_collected (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_the_ordinary_reviewer_runs_and_its_verdict_is_collected)
+publication -> custody -> hand-off -> the Work's ORDINARY reviewer, ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                3c8744609c9f4d9701a16787282fab5edcddc78e established from line_declared_base
+configuration /var/tmp/v12-w71917-rpd2jft4/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-rpd2jft4/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-rpd2jft4/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-rpd2jft4/publication-instance/deployment.json"
+/usr/lib/python3.13/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7bdb50ee06d0>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-rpd2jft4/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a", "publication-C1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-rpd2jft4/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-rpd2jft4/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-rpd2jft4/publication-instance/deployment.json"
+ok
+test_the_recovery_freeze_holds_on_unproved_or_conflicting_evidence (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_the_recovery_freeze_holds_on_unproved_or_conflicting_evidence)
+EACH HOLD CHANGES NOTHING: the writer stays active, the line stays ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                ceecbef4e4798b33f73d7c394a958235a68dcc02 established from line_declared_base
+configuration /var/tmp/v12-w71917-k9df1zdn/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-k9df1zdn/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-k9df1zdn/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-k9df1zdn/publication-instance/deployment.json"
+ok
+test_the_recovery_freeze_revokes_fences_and_replays (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_the_recovery_freeze_revokes_fences_and_replays) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                ceecbef4e4798b33f73d7c394a958235a68dcc02 established from line_declared_base
+configuration /var/tmp/v12-w71917-rbew9b2n/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-rbew9b2n/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-rbew9b2n/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-rbew9b2n/publication-instance/deployment.json"
+ok
+test_the_reviewers_own_commands_are_supervised_and_counted (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_the_reviewers_own_commands_are_supervised_and_counted)
+CONNECTED C2: the reviewer runs commands OF ITS OWN CHOOSING. Each ... authority 0000000a...    reused from this root's record
+<attrs generated methods referencing._core.Retrieved>:30: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7bdb50ee2e30>
+  _setattr = _cached_setattr_get(self)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<attrs generated methods referencing._core.Retrieved>:30: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7bdb50ee34c0>
+  _setattr = _cached_setattr_get(self)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                cb805bc342a5969e3e3aa6158b1335254bcf7fbb established from line_declared_base
+configuration /var/tmp/v12-w71917-z8eqhqb2/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-z8eqhqb2/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-z8eqhqb2/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-z8eqhqb2/publication-instance/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/v12-w71917-z8eqhqb2/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a", "publication-C1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/v12-w71917-z8eqhqb2/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/v12-w71917-z8eqhqb2/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/v12-w71917-z8eqhqb2/publication-instance/deployment.json"
+/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:6576: ResourceWarning: unclosed file <_io.TextIOWrapper name='/var/tmp/v12-w71917-z8eqhqb2/reviewer-detached.pid' mode='r' encoding='UTF-8'>
+  pid = int(open(marker).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_hung_adoption_is_ended_at_the_instant_and_observed_gone (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_a_hung_adoption_is_ended_at_the_instant_and_observed_gone)
+A BLOCKED COPY IS INTERRUPTED, NOT POLLED BETWEEN STEPS. ... ok
+test_a_reached_bound_starts_no_new_effect_and_proves_no_cessation (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_a_reached_bound_starts_no_new_effect_and_proves_no_cessation) ... ok
+test_a_request_without_a_placeable_deadline_starts_no_child (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_a_request_without_a_placeable_deadline_starts_no_child)
+MISSING OR INVALID FAILS CLOSED, at the worker too. There is no ... ok
+test_a_restart_re_derives_the_same_instant_and_not_a_fresh_budget (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_a_restart_re_derives_the_same_instant_and_not_a_fresh_budget)
+THE ONE PROPERTY THE CONTRACT STATES TWICE. A second incarnation ... ok
+test_no_launch_is_committed_without_a_placeable_deadline_ahead (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_no_launch_is_committed_without_a_placeable_deadline_ahead)
+MISSING OR INVALID FAILS CLOSED ON THE HOST, before a container ... ok
+test_the_bound_is_derived_from_the_persisted_stage_admission (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_the_bound_is_derived_from_the_persisted_stage_admission) ... ok
+test_the_bound_is_the_one_the_control_owner_enforces (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_the_bound_is_the_one_the_control_owner_enforces)
+THE HOST'S OWN ENFORCEMENT, not a second account of it. The stage ... ok
+test_the_worker_is_delivered_the_absolute_instant_and_stops_at_it (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_the_worker_is_delivered_the_absolute_instant_and_stops_at_it)
+THE WORKER'S OWN ENFORCEMENT, at its own boundary. ... ok
+test_a_deployment_with_no_session_for_the_holder_cannot_end_it (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_a_deployment_with_no_session_for_the_holder_cannot_end_it)
+AND IT CANNOT IMPERSONATE ONE. The ending adapter asks the ... ok
+test_a_serving_deployment_without_the_holders_session_only_reports (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_a_serving_deployment_without_the_holders_session_only_reports)
+A serving deployment that does not serve the holder as a producer ... ok
+test_an_already_released_work_has_nothing_to_end (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_an_already_released_work_has_nothing_to_end) ... ok
+test_an_assignment_another_handler_holds_is_reported_and_not_taken (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_an_assignment_another_handler_holds_is_reported_and_not_taken)
+NO TAKEOVER POWER WAS SELECTED AND NONE IS USED. ... ok
+test_an_uncertain_host_refuses_the_ending_before_it_happens (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_an_uncertain_host_refuses_the_ending_before_it_happens)
+A HOST-ONLY STOPPED SETTLEMENT DOES NOT RELEASE AN AUTHORITY CLAIM, ... ok
+test_missing_held_session_does_not_mint_authority (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_missing_held_session_does_not_mint_authority) ... ok
+test_the_admission_ends_exactly_that_assignment_and_queues_the_work (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_admission_ends_exactly_that_assignment_and_queues_the_work) ... ok
+test_the_deployments_lookup_answers_only_sessions_it_already_holds (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_deployments_lookup_answers_only_sessions_it_already_holds)
+`stage_execution._held_producer_sessions` is the lookup the pooled ... ok
+test_the_ending_is_journalled_once_and_replays (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_ending_is_journalled_once_and_replays) ... ok
+test_the_owner_commands_admission_stops_at_the_held_assignment (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_owner_commands_admission_stops_at_the_held_assignment)
+The owner approves and the admission begins: the recovery identity ... ok
+test_the_producer_holds_the_work_before_a_recovery_is_admitted (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_producer_holds_the_work_before_a_recovery_is_admitted) ... ok
+test_the_publication_worker_claims_a_fresh_generation (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_publication_worker_claims_a_fresh_generation) ... ok
+test_the_serving_manager_ends_it_and_the_admission_then_replays (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_serving_manager_ends_it_and_the_admission_then_replays)
+THE SUPPORTED ENDING, THROUGH THE PROCESS THAT HOLDS THE SESSION. ... ok
+test_the_serving_pass_ends_nothing_no_admission_reserved (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_serving_pass_ends_nothing_no_admission_reserved)
+AN APPROVAL ALONE ENDS NOTHING. Until an admission has begun and ... ok
+test_the_sweep_reaches_that_ending_through_the_publication_seam (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_sweep_reaches_that_ending_through_the_publication_seam)
+AND IT IS THE ORDINARY SWEEP THAT DOES IT. The composed publication ... ok
+test_a_runtime_nobody_says_stopped_is_not_frozen (tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody.test_a_runtime_nobody_says_stopped_is_not_frozen)
+A freeze describes a tree the writer has stopped changing, and ... ok
+test_nothing_is_collected_before_anything_is_adopted (tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody.test_nothing_is_collected_before_anything_is_adopted) ... ok
+test_the_custody_record_replays_and_freezes_once (tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody.test_the_custody_record_replays_and_freezes_once) ... ok
+test_the_frozen_candidate_is_the_approved_original_in_custody (tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody.test_the_frozen_candidate_is_the_approved_original_in_custody) ... ok
+test_a_staged_tree_that_changed_is_not_published_by_the_worker (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_a_staged_tree_that_changed_is_not_published_by_the_worker)
+AND THE WORKER REFUSES FIRST, WHEN IT CAN SEE IT. ... ok
+test_a_worker_answer_does_not_make_other_bytes_the_approved_ones (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_a_worker_answer_does_not_make_other_bytes_the_approved_ones)
+THE MANAGER MEASURES AFTER THE RUNTIME STOPPED, AND REFUSES. ... ok
+test_nothing_is_adopted_before_the_original_is_staged (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_nothing_is_adopted_before_the_original_is_staged) ... ok
+test_the_adopted_proposal_is_the_approved_original_byte_for_byte (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_the_adopted_proposal_is_the_approved_original_byte_for_byte) ... ok
+test_the_adoption_replays_and_publishes_once (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_the_adoption_replays_and_publishes_once) ... ok
+test_the_completion_envelope_is_the_worker_contracts_own (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_the_completion_envelope_is_the_worker_contracts_own) ... ok
+test_the_provenance_is_a_separate_output_that_changes_no_digest (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_the_provenance_is_a_separate_output_that_changes_no_digest) ... ok
+test_zero_providers_and_zero_verifier_commands_are_counted (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_zero_providers_and_zero_verifier_commands_are_counted)
+COUNTED FROM THE WORKER'S OWN ENVELOPE, and nothing it was ... ok
+test_an_ordinary_job_has_no_publication_gate_at_all (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_an_ordinary_job_has_no_publication_gate_at_all) ... ok
+test_no_verdict_is_written_anywhere_on_this_path (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_no_verdict_is_written_anywhere_on_this_path) ... ok
+test_the_gate_is_shut_at_every_step_before_the_handoff (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_the_gate_is_shut_at_every_step_before_the_handoff) ... ok
+test_the_handoff_names_what_the_reviewer_still_owes (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_the_handoff_names_what_the_reviewer_still_owes) ... ok
+test_the_handoff_opens_the_gate_and_earns_exactly_one_review_offer (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_the_handoff_opens_the_gate_and_earns_exactly_one_review_offer) ... ok
+test_the_handoff_replays_and_opens_one_gate (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_the_handoff_replays_and_opens_one_gate) ... ok
+test_a_background_command_left_by_a_finished_one_is_ended (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_background_command_left_by_a_finished_one_is_ended) ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5084: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp60eq4es2/escaped.pid' mode='r' encoding='UTF-8'>
+  pid = int(open(marker).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_bound_that_expires_while_the_supervisor_sets_up_runs_nothing (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_bound_that_expires_while_the_supervisor_sets_up_runs_nothing)
+The allowance is re-read at the launch: the clock crosses the ... baton: this command was not run: no time remained of the review invocation
+ok
+test_a_command_is_ended_at_the_invocation_deadline_if_sooner (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_command_is_ended_at_the_invocation_deadline_if_sooner) ... ok
+test_a_command_that_cannot_start_is_not_started (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_command_that_cannot_start_is_not_started) ... ok
+test_a_command_that_ends_after_its_bound_is_a_timeout_not_a_success (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_command_that_ends_after_its_bound_is_a_timeout_not_a_success)
+The child is released only AFTER the clock has crossed the bound. ... baton: this command was ended at its 1s bound
+baton: this command was ended at its 1s bound
+ok
+test_a_command_that_ends_inside_its_bound_is_its_own_status (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_command_that_ends_inside_its_bound_is_its_own_status) ... ok
+test_a_command_whose_bound_was_not_delivered_is_not_run (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_command_whose_bound_was_not_delivered_is_not_run) ... ok
+test_a_copy_that_blocks_is_left_at_the_deadline_and_runs_nothing (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_copy_that_blocks_is_left_at_the_deadline_and_runs_nothing) ... ok
+test_a_descendant_left_by_a_passing_command_is_ended_too (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_descendant_left_by_a_passing_command_is_ended_too) ... ok
+test_a_descendant_the_provider_itself_detached_is_ended_with_it (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_descendant_the_provider_itself_detached_is_ended_with_it) ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5084: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpyyzin17s/escaped.pid' mode='r' encoding='UTF-8'>
+  pid = int(open(marker).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_detached_descendant_of_a_passing_command_is_ended (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_detached_descendant_of_a_passing_command_is_ended)
+REVIEW 2026-11-24T01-52-00Z C2.3: the child that started its own ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5084: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe6ncac9l/escaped.pid' mode='r' encoding='UTF-8'>
+  pid = int(open(marker).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_detached_descendant_of_a_timed_out_command_is_ended (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_detached_descendant_of_a_timed_out_command_is_ended) ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5084: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmphui4grpu/escaped.pid' mode='r' encoding='UTF-8'>
+  pid = int(open(marker).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_failing_command_is_failed_and_never_passed (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_failing_command_is_failed_and_never_passed) ... ok
+test_a_missing_supervisor_refuses_instead_of_running_unbounded (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_missing_supervisor_refuses_instead_of_running_unbounded) ... ok
+test_a_provider_chosen_command_is_ended_at_its_own_bound (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_provider_chosen_command_is_ended_at_its_own_bound)
+EACH command has the selected bound, whatever the provider asked ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5084: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpb6xqgkxb/escaped.pid' mode='r' encoding='UTF-8'>
+  pid = int(open(marker).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_provider_chosen_command_runs_and_answers_its_own_status (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_provider_chosen_command_runs_and_answers_its_own_status) ... ok
+test_a_provider_whose_supervisor_answers_late_is_a_timeout (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_provider_whose_supervisor_answers_late_is_a_timeout)
+The same rule for the provider: a clean exit recorded by its ... ok
+test_a_shorter_command_passes_under_the_selected_bound (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_shorter_command_passes_under_the_selected_bound) ... ok
+test_a_supervisor_that_answers_after_the_deadline_is_not_a_pass (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_supervisor_that_answers_after_the_deadline_is_not_a_pass)
+THE ADAPTER'S OWN CLOCK. The supervisor's record says the check ... ok
+test_a_supervisor_that_was_killed_leaves_an_unfinished_command (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_a_supervisor_that_was_killed_leaves_an_unfinished_command)
+NO FALSE SUCCESS: the supervisor is killed outright with its ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5367: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpp6llqtsr/command.pid' mode='r' encoding='UTF-8'>
+  while not os.path.exists(marker) or not open(marker).read().strip():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5370: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpp6llqtsr/command.pid' mode='r' encoding='UTF-8'>
+  self.addCleanup(self.ended, int(open(marker).read()))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_copy_failure_is_reported_without_launching_verification (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_copy_failure_is_reported_without_launching_verification) ... ok
+test_missing_supervisor_completion_is_unknown_not_timeout (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_missing_supervisor_completion_is_unknown_not_timeout) ... ok
+test_no_remaining_invocation_runs_nothing (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_no_remaining_invocation_runs_nothing) ... ok
+test_the_bound_ends_the_command_and_every_descendant (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_the_bound_ends_the_command_and_every_descendant)
+A command that outlives its bound, with a descendant in the same ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:4995: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp_x9agwvv/descendant.pid' mode='r' encoding='UTF-8'>
+  descendant = int(open(marker).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_provider_is_ended_at_the_one_invocation_deadline (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_the_provider_is_ended_at_the_one_invocation_deadline)
+Not a fresh allowance: with little of the invocation left the ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5084: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpuwl5jgql/escaped.pid' mode='r' encoding='UTF-8'>
+  pid = int(open(marker).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_provider_is_handed_what_the_check_left_of_the_invocation (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_the_provider_is_handed_what_the_check_left_of_the_invocation)
+No provider at all when only the ending grace is left of the one ... ok
+test_the_provider_runs_under_the_supervisor_with_the_shell_prefix (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_the_provider_runs_under_the_supervisor_with_the_shell_prefix)
+The provider's environment names the supervisor as its shell ... /home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5416: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpd8kt6psw/environment.json' mode='r' encoding='UTF-8'>
+  self.assertEqual(json.load(open(seen)), {
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py:5084: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpd8kt6psw/escaped.pid' mode='r' encoding='UTF-8'>
+  pid = int(open(marker).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_remaining_invocation_truncates_the_command_bound (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_the_remaining_invocation_truncates_the_command_bound)
+What remains of the invocation, LESS THE ENDING GRACE, is the ... ok
+test_the_requirement_is_closed_and_never_exceeds_the_selected_bound (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_the_requirement_is_closed_and_never_exceeds_the_selected_bound) ... ok
+test_time_the_copy_took_comes_off_the_command_before_it_launches (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_time_the_copy_took_comes_off_the_command_before_it_launches)
+REVIEW 2026-11-24T01-52-00Z C2.2, deterministically: the clock ... ok
+test_verification_copy_uses_disk_and_leaves_private_tmpfs_small (tests.job_manager.test_publication_recovery_execution.TheReviewersRequiredVerificationIsSupervisedAndBounded.test_verification_copy_uses_disk_and_leaves_private_tmpfs_small) ... ok
+test_an_approval_on_held_evidence_is_refused_and_records_nothing (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_an_approval_on_held_evidence_is_refused_and_records_nothing)
+THE DECISION PATH, THROUGH THE SHIPPED PORTS, and it refuses. ... refused: runtime-observation/quiescence-unknown: this publication recovery is held and is not decided about: runtime-observation/quiescence-unknown: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1… has not returned its workspace resource; an outstanding token is uncertainty about a resource rather than evidence it was released (and 2 further holds)
+ok
+test_the_default_factory_composes_every_port_and_reads_the_original (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_the_default_factory_composes_every_port_and_reads_the_original) ... ok
+test_the_default_factory_reports_this_instances_real_holds (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_the_default_factory_reports_this_instances_real_holds)
+WHAT A FRESH INSTANCE REALLY IS, read through the shipped ports. ... ok
+test_the_shipped_binding_installs_no_publication_worker (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_the_shipped_binding_installs_no_publication_worker) ... ok
+test_the_delivered_request_is_exactly_what_the_worker_accepts (tests.job_manager.test_publication_recovery_execution.TheWorkerAndTheManagerSpellOneContract.test_the_delivered_request_is_exactly_what_the_worker_accepts)
+The document the lifecycle pinned into the read-only input root is ... ok
+test_the_request_contract_is_spelled_the_same_on_both_sides (tests.job_manager.test_publication_recovery_execution.TheWorkerAndTheManagerSpellOneContract.test_the_request_contract_is_spelled_the_same_on_both_sides) ... ok
+test_the_staged_root_is_bound_read_only_and_the_original_never_is (tests.job_manager.test_publication_recovery_execution.TheWorkerAndTheManagerSpellOneContract.test_the_staged_root_is_bound_read_only_and_the_original_never_is)
+THE CONTAINMENT, read off the composed mount vector: the staged ... ok
+test_no_implementation_is_redispatched_anywhere_on_this_path (tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported.test_no_implementation_is_redispatched_anywhere_on_this_path)
+ZERO implementation stages, counted across the whole path. ... ok
+test_the_producers_verifier_is_never_repeated (tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported.test_the_producers_verifier_is_never_repeated)
+THE REUSED EVIDENCE IS CARRIED AND THE COMMAND IS NOT RUN. The ... ok
+test_the_readiness_never_says_the_recovery_is_complete (tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported.test_the_readiness_never_says_the_recovery_is_complete) ... ok
+test_the_selected_identities_and_bounds_are_the_owners_own (tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported.test_the_selected_identities_and_bounds_are_the_owners_own) ... ok
+test_a_death_between_the_intent_and_the_start_launches_once (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_death_between_the_intent_and_the_start_launches_once)
+AND THE EARLIER CUT: the intent committed, the manager died before ... ok
+test_a_lost_start_reply_is_reconciled_and_never_started_twice (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_lost_start_reply_is_reconciled_and_never_started_twice)
+THE MANAGER DIES AFTER THE ENGINE STARTED THE CONTAINER and before ... ok
+test_a_runtime_the_host_lost_is_journalled_uncertain_and_holds (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_runtime_the_host_lost_is_journalled_uncertain_and_holds)
+HOST LOSS. The container is gone -- removed underneath the manager ... ok
+test_a_sweep_while_the_adoption_is_in_flight_starts_nothing (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_sweep_while_the_adoption_is_in_flight_starts_nothing)
+ONE LAUNCH. Every later tick finds the journalled runtime start ... ok
+test_a_worker_that_claims_a_model_or_a_verifier_is_denied (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_worker_that_claims_a_model_or_a_verifier_is_denied)
+THE COUNT IS A CHECKED FACT. A worker whose own envelope declares ... ok
+test_a_worker_whose_copy_failed_publishes_nothing_and_holds (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_worker_whose_copy_failed_publishes_nothing_and_holds)
+The adoption child ends nonzero. The worker faults rather than ... ok
+test_an_engine_that_cannot_be_asked_is_not_a_runtime_that_ended (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_an_engine_that_cannot_be_asked_is_not_a_runtime_that_ended)
+AND THE OTHER HALF OF HOST LOSS: the engine cannot be reached, so ... ok
+test_an_uncertain_adoption_opens_no_gate_and_offers_no_review (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_an_uncertain_adoption_opens_no_gate_and_offers_no_review) ... ok
+
+----------------------------------------------------------------------
+Ran 100 tests in 38.580s
+
+OK

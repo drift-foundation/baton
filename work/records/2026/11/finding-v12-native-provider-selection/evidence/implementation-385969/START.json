@@ -1,0 +1,14 @@
+{
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "tree": "/home/sl/src/baton/work/scratch/w385965-n1n2/repo",
+  "context": {
+    "IMPLEMENTATION-CONTRACT-N1N2-ADDENDUM-2026-11-23.md": "c4d2c4b7ebe4c60b6e5eb9543ff4664d2fd86511c6b8a4f538c2b58e27d07117",
+    "DESIGN.md": "d2c71e534b3d3f92d7f81b445ed7ba911984e568addfb1b5c59c73e02dbbd914",
+    "ASSIGNMENT-N1N2-2026-11-24.md": "ae9dfac38ba3bd61d628c23c98637e9a8eb2e68ac50b8592b0717063992d3b22",
+    "ASSIGNMENT-N1N2-OWNER-B-2026-11-24.md": "be732f8f991e4e6c0ef4e696527ed389b709d58ce35e21179dec587ae740707e",
+    "IMPLEMENTATION-CONTRACT-CONSOLIDATED-REV2-2026-11-23.md": "dc3245c0c5594f15d22c87cd9b9a19352c633c3e4ef9a52f070f24d87960bd87"
+  },
+  "claim": 385969,
+  "child_thread_read": 385965,
+  "parent_thread_read": 385964
+}

@@ -1,0 +1,325 @@
+{
+ "config_schemas": [
+  "baton.v12.single-worker-deployment/4",
+  "baton.v12.single-worker-deployment/5",
+  "baton.v12.single-worker-deployment/6"
+ ],
+ "context_policies": [
+  {
+   "arguments": [
+    "--print",
+    "--dangerously-skip-permissions",
+    "--output-format",
+    "json"
+   ],
+   "open": "--session-id",
+   "program": "claude",
+   "restore": "--resume"
+  },
+  {
+   "cwd": "/output",
+   "ephemera": "fresh-per-child",
+   "home": "/run/baton/context/home",
+   "keys": [
+    "HOME",
+    "PATH",
+    "PYTHONPYCACHEPREFIX",
+    "TMPDIR",
+    "XDG_CACHE_HOME"
+   ]
+  }
+ ],
+ "identities contextual=False build=2.1.200": {
+  "adapter": {
+   "adapter_name": "docker-single-worker",
+   "argv_policy": {
+    "arguments": [
+     "--print",
+     "--dangerously-skip-permissions",
+     "--output-format",
+     "json"
+    ],
+    "open": "--session-id",
+    "program": "claude",
+    "restore": "--resume"
+   },
+   "engine": "docker",
+   "entrypoint": [
+    "python3",
+    "/opt/baton/dogfood_entry.py"
+   ],
+   "environment_policy": {
+    "cwd": "/output",
+    "ephemera": "fresh-per-child",
+    "home": "/run/baton/context/home",
+    "keys": [
+     "HOME",
+     "PATH",
+     "PYTHONPYCACHEPREFIX",
+     "TMPDIR",
+     "XDG_CACHE_HOME"
+    ]
+   },
+   "network": "bridge",
+   "schema": "baton.single-implementation-adapter/1"
+  },
+  "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+  "policy": {
+   "automatic_retry": false,
+   "implementer_invocations": 1,
+   "note": "the caps the admission gate enforces; W239528",
+   "provider_turn_seconds": 900,
+   "schema": "baton.single-implementation-execution-policy/1",
+   "verification_command_seconds": 300
+  },
+  "policy_digest": "sha256:1afa234313711e913ac1987bfab0700a607d660c109b5bc5d507651613e7c0f7",
+  "profile_digest": "sha256:018f439ca510dd5083000b860cdd99f938eebca52c79b985e1985aae8e6faf26",
+  "runtime_profile": {
+   "cli_build": "2.1.200",
+   "engine": "docker",
+   "image_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "image_reference": "img:ref",
+   "model": "opus",
+   "name": "claude-fresh-implementation",
+   "network": "bridge",
+   "note": "one bounded managed implementation; W239528",
+   "runtime_uid": 1000,
+   "schema": "baton.single-implementation-runtime-profile/1",
+   "scratch": {
+    "shm_bytes": 16777216,
+    "tmp_bytes": 67108864
+   },
+   "workspace_min_bytes": 83886081
+  }
+ },
+ "identities contextual=False build=2.1.247": {
+  "adapter": {
+   "adapter_name": "docker-single-worker",
+   "argv_policy": {
+    "arguments": [
+     "--print",
+     "--dangerously-skip-permissions",
+     "--output-format",
+     "json"
+    ],
+    "open": "--session-id",
+    "program": "claude",
+    "restore": "--resume"
+   },
+   "engine": "docker",
+   "entrypoint": [
+    "python3",
+    "/opt/baton/dogfood_entry.py"
+   ],
+   "environment_policy": {
+    "cwd": "/output",
+    "ephemera": "fresh-per-child",
+    "home": "/run/baton/context/home",
+    "keys": [
+     "HOME",
+     "PATH",
+     "PYTHONPYCACHEPREFIX",
+     "TMPDIR",
+     "XDG_CACHE_HOME"
+    ]
+   },
+   "network": "bridge",
+   "schema": "baton.single-implementation-adapter/1"
+  },
+  "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+  "policy": {
+   "automatic_retry": false,
+   "implementer_invocations": 1,
+   "note": "the caps the admission gate enforces; W239528",
+   "provider_turn_seconds": 900,
+   "schema": "baton.single-implementation-execution-policy/1",
+   "verification_command_seconds": 300
+  },
+  "policy_digest": "sha256:1afa234313711e913ac1987bfab0700a607d660c109b5bc5d507651613e7c0f7",
+  "profile_digest": "sha256:c74ebe54cccdc43a4de188966aa6d702543ecd9a9e0247705fcc643965c5fdb1",
+  "runtime_profile": {
+   "cli_build": "2.1.247",
+   "engine": "docker",
+   "image_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "image_reference": "img:ref",
+   "model": "opus",
+   "name": "claude-fresh-implementation",
+   "network": "bridge",
+   "note": "one bounded managed implementation; W239528",
+   "runtime_uid": 1000,
+   "schema": "baton.single-implementation-runtime-profile/1",
+   "scratch": {
+    "shm_bytes": 16777216,
+    "tmp_bytes": 67108864
+   },
+   "workspace_min_bytes": 83886081
+  }
+ },
+ "identities contextual=True build=2.1.200": {
+  "adapter": {
+   "adapter_name": "docker-single-worker",
+   "argv_policy": {
+    "arguments": [
+     "--print",
+     "--dangerously-skip-permissions",
+     "--output-format",
+     "json"
+    ],
+    "open": "--session-id",
+    "program": "claude",
+    "restore": "--resume"
+   },
+   "engine": "docker",
+   "entrypoint": [
+    "python3",
+    "/opt/baton/dogfood_entry.py"
+   ],
+   "environment_policy": {
+    "cwd": "/output",
+    "ephemera": "fresh-per-child",
+    "home": "/run/baton/context/home",
+    "keys": [
+     "HOME",
+     "PATH",
+     "PYTHONPYCACHEPREFIX",
+     "TMPDIR",
+     "XDG_CACHE_HOME"
+    ]
+   },
+   "network": "bridge",
+   "schema": "baton.single-implementation-adapter/1"
+  },
+  "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+  "policy": {
+   "automatic_retry": false,
+   "implementer_invocations": 1,
+   "note": "the caps the admission gate enforces; W239528",
+   "provider_turn_seconds": 900,
+   "schema": "baton.single-implementation-execution-policy/1",
+   "verification_command_seconds": 300
+  },
+  "policy_digest": "sha256:1afa234313711e913ac1987bfab0700a607d660c109b5bc5d507651613e7c0f7",
+  "profile_digest": "sha256:57bf5bc2952bd29c01d14bb51c6ccb91b14485cb9eed7ad3bd56a853da993fdd",
+  "runtime_profile": {
+   "cli_build": "2.1.200",
+   "engine": "docker",
+   "image_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "image_reference": "img:ref",
+   "model": "opus",
+   "name": "claude-context-implementation",
+   "network": "bridge",
+   "note": "one bounded managed implementation; W239528",
+   "runtime_uid": 1000,
+   "schema": "baton.single-implementation-runtime-profile/1",
+   "scratch": {
+    "shm_bytes": 16777216,
+    "tmp_bytes": 67108864
+   },
+   "workspace_min_bytes": 83886081
+  }
+ },
+ "identities contextual=True build=2.1.247": {
+  "adapter": {
+   "adapter_name": "docker-single-worker",
+   "argv_policy": {
+    "arguments": [
+     "--print",
+     "--dangerously-skip-permissions",
+     "--output-format",
+     "json"
+    ],
+    "open": "--session-id",
+    "program": "claude",
+    "restore": "--resume"
+   },
+   "engine": "docker",
+   "entrypoint": [
+    "python3",
+    "/opt/baton/dogfood_entry.py"
+   ],
+   "environment_policy": {
+    "cwd": "/output",
+    "ephemera": "fresh-per-child",
+    "home": "/run/baton/context/home",
+    "keys": [
+     "HOME",
+     "PATH",
+     "PYTHONPYCACHEPREFIX",
+     "TMPDIR",
+     "XDG_CACHE_HOME"
+    ]
+   },
+   "network": "bridge",
+   "schema": "baton.single-implementation-adapter/1"
+  },
+  "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+  "policy": {
+   "automatic_retry": false,
+   "implementer_invocations": 1,
+   "note": "the caps the admission gate enforces; W239528",
+   "provider_turn_seconds": 900,
+   "schema": "baton.single-implementation-execution-policy/1",
+   "verification_command_seconds": 300
+  },
+  "policy_digest": "sha256:1afa234313711e913ac1987bfab0700a607d660c109b5bc5d507651613e7c0f7",
+  "profile_digest": "sha256:bc27e9d55a7bcfbe3c35a9b963a25c8df415ff4b94a9d21b0e66f65bb8ea8b01",
+  "runtime_profile": {
+   "cli_build": "2.1.247",
+   "engine": "docker",
+   "image_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "image_reference": "img:ref",
+   "model": "opus",
+   "name": "claude-context-implementation",
+   "network": "bridge",
+   "note": "one bounded managed implementation; W239528",
+   "runtime_uid": 1000,
+   "schema": "baton.single-implementation-runtime-profile/1",
+   "scratch": {
+    "shm_bytes": 16777216,
+    "tmp_bytes": 67108864
+   },
+   "workspace_min_bytes": 83886081
+  }
+ },
+ "launch_document parameters (legacy prefix)": [
+  "session",
+  "contract",
+  "role",
+  "transport",
+  "job_execution",
+  "provider_context"
+ ],
+ "launch_schemas": [
+  [
+   "baton.worker-launch/1",
+   "baton.worker-launch/2",
+   "baton.worker-launch/3",
+   "baton.worker-launch/4",
+   "baton.worker-launch/5"
+  ],
+  [
+   "baton.worker-launch/1",
+   "baton.worker-launch/2",
+   "baton.worker-launch/3",
+   "baton.worker-launch/4"
+  ]
+ ],
+ "separation_constant": "provider-diverse",
+ "worker constants": [
+  "claude",
+  [
+   "--print",
+   "--dangerously-skip-permissions",
+   "--output-format",
+   "json"
+  ],
+  ".claude",
+  ".credentials.json",
+  [
+   "baton.worker-launch/1",
+   "baton.worker-launch/2",
+   "baton.worker-launch/3",
+   "baton.worker-launch/4"
+  ]
+ ]
+}

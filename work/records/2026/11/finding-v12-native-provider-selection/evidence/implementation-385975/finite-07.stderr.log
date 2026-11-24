@@ -1,0 +1,47 @@
+test_the_publication_seam_carries_the_verb_the_driver_names (tests.tools.test_stage_execution.TheDeploymentAnswersTheAcceptedReplayHalves.test_the_publication_seam_carries_the_verb_the_driver_names)
+`PUBLICATION_HISTORY` is typed inside the resumed branch only. ... ok
+test_the_replay_half_reads_the_owner_and_not_its_own_list (tests.tools.test_stage_execution.TheDeploymentAnswersTheAcceptedReplayHalves.test_the_replay_half_reads_the_owner_and_not_its_own_list)
+An in-memory list says nothing about a process that has died. ... ok
+test_a_pool_generation_counts_from_one (tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed.test_a_pool_generation_counts_from_one) ... ok
+test_a_well_formed_document_is_held_with_its_three_roles (tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed.test_a_well_formed_document_is_held_with_its_three_roles) ... ok
+test_an_unknown_or_missing_member_is_refused (tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed.test_an_unknown_or_missing_member_is_refused) ... ok
+test_another_generation_of_the_schema_is_refused (tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed.test_another_generation_of_the_schema_is_refused)
+W119403: the value this case used to name is now a variant this ... ok
+test_an_allocation_naming_an_uncomposed_worker_refuses (tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner.test_an_allocation_naming_an_uncomposed_worker_refuses) ... ok
+test_an_attempt_with_no_recorded_allocation_refuses_by_name (tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner.test_an_attempt_with_no_recorded_allocation_refuses_by_name) ... ok
+test_the_recorded_allocation_selects_the_worker (tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner.test_the_recorded_allocation_selects_the_worker)
+The REVIEW worker's composition, because the allocation says so. ... ok
+test_the_ordinary_ending_journals_its_gate_discharge (tests.tools.test_stage_execution.TheDischargeReceiptIsCommittedWithItsOwnKind.test_the_ordinary_ending_journals_its_gate_discharge) ... ok
+test_the_settlement_names_that_discharge (tests.tools.test_stage_execution.TheDischargeReceiptIsCommittedWithItsOwnKind.test_the_settlement_names_that_discharge)
+The obligation is closed naming the act that cleared the gate. ... ok
+test_a_partly_constructed_object_answers_no_serving_member (tests.tools.test_stage_execution.TheDriverFacingMembersComeFromTheConfiguration.test_a_partly_constructed_object_answers_no_serving_member)
+`tools.job_manager` asks a returned object for `close` by name, and ... ok
+test_the_integration_profile_is_composed_from_the_document (tests.tools.test_stage_execution.TheDriverFacingMembersComeFromTheConfiguration.test_the_integration_profile_is_composed_from_the_document) ... ok
+test_A_MISSING_ROOT_IS_REFUSED_AND_NEVER_REPAIRED (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_A_MISSING_ROOT_IS_REFUSED_AND_NEVER_REPAIRED)
+The revalidation proves the pair and refuses what is not there. It ... ok
+test_A_REPLACED_ROOT_IS_REFUSED_TOO (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_A_REPLACED_ROOT_IS_REFUSED_TOO)
+A link at the name is a tree somebody else chose, and revalidation ... ok
+test_A_WRITER_CALLER_IS_STILL_REFUSED_OVER_OFFERED_MATERIAL (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_A_WRITER_CALLER_IS_STILL_REFUSED_OVER_OFFERED_MATERIAL)
+The default is `writer=True`, so every caller that has not said ... ok
+test_NO_VERDICT_IS_INVENTED_AND_THE_OFFER_IS_NOT_DISPOSED (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_NO_VERDICT_IS_INVENTED_AND_THE_OFFER_IS_NOT_DISPOSED)
+What the correction must NOT do: it reads, and that is all. The ... ok
+test_ONLY_writer_False_SKIPS_AND_THE_SOURCE_SAYS_WHO_PASSES_IT (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_ONLY_writer_False_SKIPS_AND_THE_SOURCE_SAYS_WHO_PASSES_IT)
+The intent is a parameter, not a state read -- and exactly one ... ok
+test_REPEATED_CONCLUSION_CHANGES_NOTHING_AT_ALL (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_REPEATED_CONCLUSION_CHANGES_NOTHING_AT_ALL)
+The 58 sweeps, as a property: reading the identity again and again ... ok
+test_THE_ENDING_READS_THE_RETAINED_IDENTITY_WITH_AN_EMPTY_CACHE (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_ENDING_READS_THE_RETAINED_IDENTITY_WITH_AN_EMPTY_CACHE)
+The corrected path: a cache-empty ending answers from rows that do ... ok
+test_THE_ENDING_SEAM_OPENS_NO_WINDOW_OVER_OFFERED_MATERIAL (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_ENDING_SEAM_OPENS_NO_WINDOW_OVER_OFFERED_MATERIAL)
+`single_worker._mounted`'s own decision, asserted from the source and ... ok
+test_THE_PREDICATE_IS_THE_SAME_QUESTION_THE_RULE_ASKS (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_PREDICATE_IS_THE_SAME_QUESTION_THE_RULE_ASKS) ... ok
+test_THE_REAL_RULE_REALLY_REFUSES_THIS_STATE (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_REAL_RULE_REALLY_REFUSES_THIS_STATE)
+The premise, over the real store: this is the refusing state, so ... ok
+test_THE_ROOTS_ARE_REVALIDATED_AND_NOTHING_IS_ADMITTED (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_ROOTS_ARE_REVALIDATED_AND_NOTHING_IS_ADMITTED)
+The corrected re-entry, over the real store and the real rule: the ... ok
+test_THE_STAGE_MOUNT_STILL_REQUIRES_A_BOUNDARY (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_STAGE_MOUNT_STILL_REQUIRES_A_BOUNDARY)
+The scope of the `stage_execution` change, as a negative control: it ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.989s
+
+OK

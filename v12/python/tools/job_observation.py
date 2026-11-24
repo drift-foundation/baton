@@ -372,6 +372,8 @@ def _stage_line(stage, observed_at, job=None):
         "activity_when": _activity(stage, state, observed_at)[1],
         "reason": _reason(stage, state),
         "operation": reported_operation(stage),
+        "model_attribution": ((stage.get("runtime") or {}).get("model_attribution", "Requested: not selected (account default)")
+                              if type(stage.get("runtime")) is dict else None),
         "corrections": stage.get("corrections", 0),
     }
     # REVIEW claim168071 [P2]: `projection.status` supplies these and the view
@@ -551,6 +553,10 @@ def _gate_text(gate):
 
 
 def _reason(stage, state):
+    runtime = stage.get("runtime")
+    attribution_hold = runtime.get("model_attribution_hold") if type(runtime) is dict else None
+    if attribution_hold in ("model-attribution-missing", "model-attribution-conflicting", "model-attribution-invalid"):
+        return "held: " + attribution_hold + "; owner action needed"
     if state == "exceptional":
         exchange = stage.get("exchange")
         terminal = exchange.get("terminal") if type(exchange) is dict else None

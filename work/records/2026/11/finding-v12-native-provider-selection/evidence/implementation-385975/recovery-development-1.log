@@ -1,0 +1,127 @@
+test_B1_original_attribution_travels_through_admission_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B1_original_attribution_travels_through_admission_custody_and_handoff) ... ERROR
+test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission) ... ERROR
+test_B4_cross_candidate_substitution_after_decision_refuses (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B4_cross_candidate_substitution_after_decision_refuses) ... ERROR
+test_B5_log_tampering_after_admission_refuses_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B5_log_tampering_after_admission_refuses_custody_and_handoff) ... ERROR
+test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher) ... ERROR
+
+======================================================================
+ERROR: test_B1_original_attribution_travels_through_admission_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B1_original_attribution_travels_through_admission_custody_and_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 423, in setUp
+    self.roots = self.prepared_attempt(self.attempt_id)
+                 ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 249, in prepared_attempt
+    return super().prepared_attempt(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        attempt_id, participant=participant or PRODUCER)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 508, in prepared_attempt
+    self.select_original_provider(attempt_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 34, in select_original_provider
+    capture.close()
+    ^^^^^^^^^^^^^
+AttributeError: '_Captured' object has no attribute 'close'
+
+======================================================================
+ERROR: test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 423, in setUp
+    self.roots = self.prepared_attempt(self.attempt_id)
+                 ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 249, in prepared_attempt
+    return super().prepared_attempt(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        attempt_id, participant=participant or PRODUCER)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 508, in prepared_attempt
+    self.select_original_provider(attempt_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 34, in select_original_provider
+    capture.close()
+    ^^^^^^^^^^^^^
+AttributeError: '_Captured' object has no attribute 'close'
+
+======================================================================
+ERROR: test_B4_cross_candidate_substitution_after_decision_refuses (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B4_cross_candidate_substitution_after_decision_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 423, in setUp
+    self.roots = self.prepared_attempt(self.attempt_id)
+                 ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 249, in prepared_attempt
+    return super().prepared_attempt(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        attempt_id, participant=participant or PRODUCER)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 508, in prepared_attempt
+    self.select_original_provider(attempt_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 34, in select_original_provider
+    capture.close()
+    ^^^^^^^^^^^^^
+AttributeError: '_Captured' object has no attribute 'close'
+
+======================================================================
+ERROR: test_B5_log_tampering_after_admission_refuses_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B5_log_tampering_after_admission_refuses_custody_and_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 423, in setUp
+    self.roots = self.prepared_attempt(self.attempt_id)
+                 ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 249, in prepared_attempt
+    return super().prepared_attempt(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        attempt_id, participant=participant or PRODUCER)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 508, in prepared_attempt
+    self.select_original_provider(attempt_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 34, in select_original_provider
+    capture.close()
+    ^^^^^^^^^^^^^
+AttributeError: '_Captured' object has no attribute 'close'
+
+======================================================================
+ERROR: test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 423, in setUp
+    self.roots = self.prepared_attempt(self.attempt_id)
+                 ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 249, in prepared_attempt
+    return super().prepared_attempt(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        attempt_id, participant=participant or PRODUCER)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 508, in prepared_attempt
+    self.select_original_provider(attempt_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385965-n1n2/repo/v12/python/tests/job_manager/test_provider_attribution_recovery.py", line 34, in select_original_provider
+    capture.close()
+    ^^^^^^^^^^^^^
+AttributeError: '_Captured' object has no attribute 'close'
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.156s
+
+FAILED (errors=5)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

@@ -1,0 +1,29 @@
+{
+  "collected": 13,
+  "duplicates": [],
+  "duration_seconds": 0.26398830208927393,
+  "executed": 13,
+  "exit_status": 0,
+  "nonpassing": {},
+  "outcomes": {
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_CORRUPT_prior_declaration_is_unknown_too": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_FAILED_carry_REFUSES_the_handle_and_keeps_the_evidence": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_GENUINELY_absent_record_is_still_absence": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_NONREGULAR_carried_record_is_not_ABSENCE_either": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_READ_failure_on_the_record_is_not_ABSENCE_either": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_EMPTY_new_stream_is_still_a_CLEAN_start": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_INACCESSIBLE_carried_record_is_not_ABSENCE": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_UNKNOWN_ending_then_a_success_is_NOT_captured": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_that_refusal_does_NOT_stop_the_child_from_running": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_ALL_SUCCESSFUL_restart_is_still_CAPTURED": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_BYTES_a_refused_writer_had_are_not_written_anywhere": "ok",
+    "tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_WRAPPERS_stream_treats_an_unknown_ending_the_same": "ok"
+  },
+  "passed": 13,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

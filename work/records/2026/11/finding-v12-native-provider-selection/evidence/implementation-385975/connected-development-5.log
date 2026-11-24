@@ -1,0 +1,11 @@
+test_13_positive_implementation_binds_frozen_result_and_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_13_positive_implementation_binds_frozen_result_and_checkpoint) ... ok
+test_13_review_binds_its_own_evidence_to_verdict (tests.tools.test_provider_selection.SelectedCase.test_13_review_binds_its_own_evidence_to_verdict) ... ok
+test_14_17_missing_output_holds_without_publication_or_retry (tests.tools.test_provider_selection.SelectedCase.test_14_17_missing_output_holds_without_publication_or_retry) ... ok
+test_14_conflicting_build_holds_before_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_14_conflicting_build_holds_before_checkpoint) ... ok
+test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering (tests.tools.test_provider_selection.SelectedCase.test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering) ... ok
+test_32_38_correction_reuses_home_after_positive_runtime_cessation (tests.tools.test_provider_selection.SelectedCase.test_32_38_correction_reuses_home_after_positive_runtime_cessation) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.497s
+
+OK

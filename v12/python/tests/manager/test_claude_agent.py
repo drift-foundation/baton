@@ -2235,7 +2235,8 @@ class TheRecipeIsInspectableWithoutADaemon(unittest.TestCase):
         because a name is what the allowlist checks and the IMPORT GRAPH is
         what the rule is actually about.
         """
-        allowed = ("python/src/baton_v12/source_profiles",
+        allowed = ("python/src/baton_v12/provider_policy",
+                   "python/src/baton_v12/source_profiles",
                    "python/src/baton_v12/attempt_log_format.py",
                    # W321776: THE THIRD NAME, admitted on the same rule and
                    # held by the import-graph case above. The declared
@@ -5049,6 +5050,7 @@ class ProviderInvocationTiming(unittest.TestCase):
     def process(self,timeout=False):
         agent=self.agent;owner=self
         class Child:
+            pid=123456789
             returncode=None
             def __enter__(self):return self
             def __exit__(self,*args):pass
@@ -5060,7 +5062,9 @@ class ProviderInvocationTiming(unittest.TestCase):
                 self.returncode=0;return None,None
             def poll(self):return self.returncode
             def kill(self):self.returncode=-9
-            def wait(self):return self.returncode
+            def wait(self):
+                self.returncode=-9
+                return self.returncode
         timeout_flag=timeout
         return Child()
     def test_real_start_deadline_end_and_quiet_publication(self):
@@ -5070,9 +5074,10 @@ class ProviderInvocationTiming(unittest.TestCase):
         self.assertEqual(result.returncode,0);self.assertIsNotNone(self.agent.observed_invocation()['ended_at'])
         pub=baton_worker._ActivityPublisher(str(self.root),{'attempt_id':'a','operation':'work'},lambda:None,invocation=self.agent.observed_invocation);pub._tick();self.assertIsNotNone(json.loads((self.root/'invocation.json').read_text())['ended_at'])
     def test_timeout_records_direct_child_end_and_preserves_exception(self):
-        with mock.patch.object(subprocess,'Popen',return_value=self.process(True)):
+        with mock.patch.object(subprocess,'Popen',return_value=self.process(True)), mock.patch.object(os, 'killpg') as killed:
             with self.assertRaises(subprocess.TimeoutExpired):self.agent._run_provider(['fixture-provider'],timeout=12)
         self.assertIsNotNone(self.agent.observed_invocation()['ended_at'])
+        killed.assert_called_once_with(123456789, claude_agent.signal.SIGKILL)
     def test_no_creation_no_invented_origin(self):
         with mock.patch.object(subprocess,'Popen',side_effect=FileNotFoundError):
             with self.assertRaises(FileNotFoundError):self.agent._run_provider(['missing'],timeout=12)
@@ -5091,3 +5096,74 @@ class ProviderInvocationTiming(unittest.TestCase):
         self.assertIsNotNone(fact["ended_at"])
         self.assertLessEqual(fact["started_at"], fact["ended_at"])
         self.assertEqual(fact["scope"], "provider-process")
+
+
+class ProviderProcessBoundary(unittest.TestCase):
+    """Simulated local programs, no installed provider or credential."""
+
+    def test_stdin_is_disconnected_for_actual_and_injected_provider(self):
+        agent = ClaudeAgent()
+        result = agent._run_provider(
+            [sys.executable, "-c", "import sys; assert sys.stdin.buffer.read() == b''"],
+            timeout=5)
+        self.assertEqual(result.returncode, 0)
+        calls = []
+        agent = ClaudeAgent(run=lambda argv, **options: calls.append(options))
+        agent._run_provider(["simulated-provider"], timeout=5)
+        self.assertIs(calls[0]["stdin"], subprocess.DEVNULL)
+
+    def test_timeout_kills_term_ignoring_group_and_drains_its_pipe(self):
+        import select
+        import signal
+        read_ready, write_ready = os.pipe()
+        self.addCleanup(os.close, read_ready)
+        self.addCleanup(os.close, write_ready)
+        read_output, write_output = os.pipe()
+        self.addCleanup(os.close, read_output)
+        self.addCleanup(lambda: os.close(write_output) if write_output is not None else None)
+        original = subprocess.Popen
+        children = []
+        def spawn(argv, **options):
+            child = original(argv, **options)
+            children.append(child)
+            communicate = child.communicate
+            def ready_then_timeout(timeout):
+                self.assertTrue(select.select([read_ready], [], [], 5)[0],
+                                "simulated provider never reached child readiness")
+                self.assertEqual(os.read(read_ready, 1), b"R")
+                # A zero remaining deadline after observed readiness exercises
+                # the real timeout branch without a startup timing assumption.
+                return communicate(timeout=0)
+            child.communicate = ready_then_timeout
+            return child
+        script = '''import os, signal, time
+signal.signal(signal.SIGTERM, signal.SIG_IGN)
+pid = os.fork()
+if pid == 0:
+    os.write(READY, b"R")
+    while True: signal.pause()
+while True: signal.pause()
+'''.replace("READY", str(write_ready))
+        with mock.patch.object(subprocess, "Popen", side_effect=spawn):
+            try:
+                with self.assertRaises(subprocess.TimeoutExpired):
+                    ClaudeAgent()._run_provider(
+                        [sys.executable, "-c", script], timeout=5,
+                        pass_fds=(write_ready,), stdout=write_output,
+                        stderr=subprocess.DEVNULL)
+                child = children[0]
+                self.assertEqual(child.returncode, -signal.SIGKILL)
+                # EOF on the inherited pipe proves the child did not survive
+                # holding it. The read is bounded, so a regression cannot hang.
+                # Drop this test's writer before checking inherited writers.
+                os.close(write_output)
+                write_output = None
+                self.assertTrue(select.select([read_output], [], [], 5)[0])
+                self.assertEqual(os.read(read_output, 1), b"")
+            finally:
+                for child in children:
+                    try:
+                        os.killpg(child.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    child.wait(timeout=5)

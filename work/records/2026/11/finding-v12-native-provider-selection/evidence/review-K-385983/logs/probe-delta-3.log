@@ -1,0 +1,37 @@
+test_D1_prestart_refusal_now_releases_and_the_old_holder_cannot_start (__main__.Delta.test_D1_prestart_refusal_now_releases_and_the_old_holder_cannot_start) ... ok
+test_D2_the_fence_is_inside_the_start_transaction (__main__.Delta.test_D2_the_fence_is_inside_the_start_transaction)
+The real worker path. A preparation ending commits (as another manager process would write it) after the start ... ok
+test_D3_an_ending_recorded_after_a_start_was_requested_does_not_release (__main__.Delta.test_D3_an_ending_recorded_after_a_start_was_requested_does_not_release) ... ok
+test_D4_a_start_the_engine_refused (__main__.Delta.test_D4_a_start_the_engine_refused)
+Start intent exists and the adapter refused. What does the holder's evidence say, and can a successor ever take the home? ... ok
+test_D5_home_creation_itself_fails_after_the_holder_record (__main__.Delta.test_D5_home_creation_itself_fails_after_the_holder_record)
+An ordinary error (not a process death) creating home/ after record.json names the holder. ... ok
+test_D6_hold_reason_on_real_status_for_each_cause_and_not_for_matched (__main__.Delta.test_D6_hold_reason_on_real_status_for_each_cause_and_not_for_matched) ... ok
+test_D7_matched_shows_no_hold (__main__.Delta.test_D7_matched_shows_no_hold) ... ok
+test_D8_invalid_claim_shows_invalid (__main__.Delta.test_D8_invalid_claim_shows_invalid) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 4.259s
+
+OK
+D1 states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'} | record: True ready
+D1 evidence: {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime': 'not-started', 'ended_before_start': True, 'cleanup': 'pending', 'observed_at': None, 'last_activity_at': '2026-09-02T00:00:00.000Z'} | ceased: True
+D1 delayed start of the released holder: refused already-terminal | attempt preparation already ended; runtime start is forbidden
+D1 old holder asking for the home back: pending; holder stays k-successor; provider invocations: 0
+D2 passes: returned | states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+D2 ending injected before the start transaction: True | start operation journalled: False | axis: not-started | adapter start calls: 0 | invocations: 0
+D2 evidence: {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime': 'not-started', 'ended_before_start': True, 'cleanup': 'pending', 'observed_at': None, 'last_activity_at': '2026-09-02T00:00:00.000Z'} | ceased: True
+D3 ending recorded after start intent: True | its axes: ('start-requested', None) | note: "; the failed preparation is journalled as 'runtime.preparation-failed:5216d33ac
+D3 evidence: {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime': 'start-requested', 'cleanup': 'pending', 'observed_at': None, 'last_activity_at': '2026-09-02T00:00:00.000Z'} | ceased: False
+D4 passes: returned | states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+D4 after 12 more ordinary passes: returned | states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+D4 start failure recorded: True | preparation ending: False | axis: uncertain | runtime_id: None | cleanup: pending
+D4 evidence: {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime': 'uncertain', 'cleanup': 'pending', 'observed_at': None, 'last_activity_at': '2026-09-02T00:00:00.000Z'} | ceased: False | record state: ready | invocations: 0
+D5 passes: returned | mkdir refusals: 1 | states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+D5 record: preparing | home exists: False | preparation ending: True
+D5 evidence: {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime': 'not-started', 'ended_before_start': True, 'cleanup': 'pending', 'observed_at': None, 'last_activity_at': '2026-09-02T00:00:00.000Z'} | ceased: True
+D5 successor: PENDING — provider home creation is unfinished | record unchanged: True
+D5 after 12 ordinary passes with the disk healthy: returned | states: {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'} | record: True preparing
+D6 conflicting: held model-attribution-conflicting | shown: ('answering', 'model-attribution-conflicting', 'held: model-attribution-conflicting; owner action needed', None) | review: blocked
+D7 matched: ('matched', None) | hold member present: False | reason: '' | state: completed
+D8 invalid: held model-attribution-invalid | reason: held: model-attribution-invalid; owner action needed

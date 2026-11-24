@@ -1,0 +1,171 @@
+test_a_CREDENTIAL_SYMLINK_is_never_followed_or_copied (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_CREDENTIAL_SYMLINK_is_never_followed_or_copied)
+The one symlink this adapter puts in that home is the credential ... ok
+test_a_MISSING_EXECUTABLE_leaves_both_streams_FAILED (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_MISSING_EXECUTABLE_leaves_both_streams_FAILED) ... ok
+test_a_PROVIDER_that_never_started_leaves_stderr_FAILED (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_PROVIDER_that_never_started_leaves_stderr_FAILED) ... ok
+test_a_PROVIDER_that_ran_retains_its_stdout_byte_identically (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_PROVIDER_that_ran_retains_its_stdout_byte_identically) ... ok
+test_a_TIMEOUT_leaves_both_streams_PARTIAL_rather_than_whole (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_TIMEOUT_leaves_both_streams_PARTIAL_rather_than_whole) ... ok
+test_a_child_that_RAN_and_FAILED_is_still_a_whole_capture (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_child_that_RAN_and_FAILED_is_still_a_whole_capture)
+An exit status is not an outcome here. A command that exits 1 wrote ... ok
+test_a_child_that_never_started_retains_NO_native_files (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_child_that_never_started_retains_NO_native_files) ... ok
+test_the_native_files_SURVIVE_the_scratch_being_removed (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_the_native_files_SURVIVE_the_scratch_being_removed)
+Which is the whole point: the provider's home goes away with the ... ok
+test_the_providers_NATIVE_session_files_are_RETAINED (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_the_providers_NATIVE_session_files_are_RETAINED)
+Review [3]: this was a constant and an empty directory. The fake ... ok
+test_a_FRESH_destination_is_CREATED_and_never_ADOPTED (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_FRESH_destination_is_CREATED_and_never_ADOPTED)
+`O_CREAT` alone adopts whatever is already at the name, which is how ... ok
+test_a_corner_where_the_FRESH_name_is_also_unusable_STOPS (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_corner_where_the_FRESH_name_is_also_unusable_STOPS)
+One rotation. A corner whose next generation is also aliased is not ... ok
+test_a_destination_LINKED_AFTER_it_was_created_is_caught_too (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_destination_LINKED_AFTER_it_was_created_is_caught_too)
+The alias does not have to precede the capture: the check is on the ... ok
+test_a_name_with_the_records_own_PREFIX_is_retained_too (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_name_with_the_records_own_PREFIX_is_retained_too)
+`_confined` refuses `.retention.json.` names as destinations -- the ... ok
+test_a_provider_file_named_LIKE_THE_RECORD_is_RETAINED (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_provider_file_named_LIKE_THE_RECORD_is_RETAINED)
+The reviewer's probe: reached true, failed empty, corner empty. ... ok
+test_an_ALIASED_destination_is_REFUSED_before_a_byte_is_written (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_an_ALIASED_destination_is_REFUSED_before_a_byte_is_written)
+The reviewer's probe: 19 bytes reached a file outside the native ... ok
+test_an_ORDINARY_single_link_append_is_UNAFFECTED (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_an_ORDINARY_single_link_append_is_UNAFFECTED)
+The control. A rule that also refused the ordinary case would be a ... ok
+test_and_the_SOURCE_is_retained_SEPARATELY_rather_than_lost (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_and_the_SOURCE_is_retained_SEPARATELY_rather_than_lost)
+A destination this capture cannot account for is a rotation like ... ok
+test_it_RESUMES_that_source_across_a_RESTART (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_it_RESUMES_that_source_across_a_RESTART)
+Which is the half a skip could never have: the escaped name is a ... ok
+test_the_ESCAPE_stays_INJECTIVE (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_the_ESCAPE_stays_INJECTIVE)
+A provider file really called `%2Eretention.json` must not land on ... ok
+test_the_RECORD_ITSELF_is_still_not_a_session_file (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_the_RECORD_ITSELF_is_still_not_a_session_file)
+The escape is about SOURCES. The corner's own bookkeeping is still ... ok
+test_EVERY_prior_loss_state_survives_a_later_success (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_EVERY_prior_loss_state_survives_a_later_success)
+`partial`, `truncated` and `unknown-completeness` all became ... ok
+test_a_CLEAN_first_capture_writes_no_cumulative_record (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_a_CLEAN_first_capture_writes_no_cumulative_record)
+Only loss is carried, so the ordinary attempt costs nothing. ... ok
+test_a_DETECTED_SHORT_WRITE_survives_a_later_whole_capture (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_a_DETECTED_SHORT_WRITE_survives_a_later_whole_capture)
+The probe exactly: `first-MISSING-TAIL` with a boundary that accepts ... ok
+test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE)
+The accepted stale-finished correction must not be undone: while a ... ok
+test_an_UNREADABLE_cumulative_record_is_treated_as_the_WORST (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_an_UNREADABLE_cumulative_record_is_treated_as_the_WORST)
+It is not permission to claim completeness. ... ok
+test_and_the_READER_no_longer_calls_that_stream_captured (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_and_the_READER_no_longer_calls_that_stream_captured) ... ok
+test_the_ALL_SUCCESSFUL_restart_still_ends_CAPTURED (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_ALL_SUCCESSFUL_restart_still_ends_CAPTURED)
+finished -> reopen -> finished. A correction that made every stream ... ok
+test_the_LOSS_is_DURABLE_while_that_writer_is_open (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_LOSS_is_DURABLE_while_that_writer_is_open)
+A writer killed before it declares must not take the earlier loss ... ok
+test_the_RAW_BYTES_of_both_generations_are_preserved (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_RAW_BYTES_of_both_generations_are_preserved)
+Evidence is kept; what changes is the word over it. ... ok
+test_the_WORSE_of_the_two_is_what_is_published (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_WORSE_of_the_two_is_what_is_published)
+A later writer that ALSO fails does not improve on an earlier ... ok
+test_the_WRAPPERS_all_successful_restart_still_ends_CAPTURED (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_WRAPPERS_all_successful_restart_still_ends_CAPTURED) ... ok
+test_the_WRAPPERS_stream_carries_its_loss_across_a_reopen (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_WRAPPERS_stream_carries_its_loss_across_a_reopen) ... ok
+test_the_cumulative_record_is_NOT_one_of_the_streams (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_cumulative_record_is_NOT_one_of_the_streams)
+`locators` enumerates STREAMS by name; the bookkeeping is not one. ... ok
+test_DECLARED_STATE_is_the_one_place_that_decides (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_DECLARED_STATE_is_the_one_place_that_decides) ... ok
+test_EVERY_JSON_VALUE_is_decoded_without_raising (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_EVERY_JSON_VALUE_is_decoded_without_raising)
+Total over the value types a document may carry, and the two that ... ok
+test_NO_DESCRIPTOR_is_leaked_by_a_malformed_record (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_NO_DESCRIPTOR_is_leaked_by_a_malformed_record)
+The construction opens the log before it reads the history; an ... ok
+test_WORST_answers_rather_than_raising_on_either_side (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_WORST_answers_rather_than_raising_on_either_side) ... ok
+test_a_CLEAN_stream_with_no_record_is_untouched (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_a_CLEAN_stream_with_no_record_is_untouched) ... ok
+test_a_VALID_state_still_reads_as_itself (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_a_VALID_state_still_reads_as_itself)
+The control: a rule that refused the real record would make every ... ok
+test_the_CHILD_still_gets_a_usable_stream (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_the_CHILD_still_gets_a_usable_stream)
+Containment: a malformed history is not a reason for the capture to ... ok
+test_the_WRAPPERS_real_stream_still_receives_the_text (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_the_WRAPPERS_real_stream_still_receives_the_text)
+A tee that could break the thing it observes would be worse than no ... ok
+test_the_WRAPPERS_stream_is_contained_too (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_the_WRAPPERS_stream_is_contained_too)
+It reaches this opener before its own startup diagnostic, so an ... ok
+test_an_operand_that_is_not_text_is_refused_as_that (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_an_operand_that_is_not_text_is_refused_as_that) ... ok
+test_capture_state_cannot_be_asked_about_one_either (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_capture_state_cannot_be_asked_about_one_either) ... ok
+test_follow_cannot_be_asked_for_one_either (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_follow_cannot_be_asked_for_one_either) ... ok
+test_read_cannot_be_asked_for_a_log_outside_the_room (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_read_cannot_be_asked_for_a_log_outside_the_room) ... ok
+test_record_capture_refuses_one_too (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_record_capture_refuses_one_too) ... ok
+test_status_name_refuses_before_it_composes_a_name (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_status_name_refuses_before_it_composes_a_name) ... ok
+test_the_ordinary_named_streams_are_untouched_by_the_rule (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_the_ordinary_named_streams_are_untouched_by_the_rule) ... ok
+test_the_refusal_comes_BEFORE_any_filesystem_access (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_the_refusal_comes_BEFORE_any_filesystem_access)
+A room that does not exist at all still refuses by name, which is ... ok
+test_a_FAILED_write_PRESERVES_the_declaration_already_recorded (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_FAILED_write_PRESERVES_the_declaration_already_recorded)
+The sharpest half: an operator's existing word must not be replaced ... ok
+test_a_failed_declaration_leaves_no_staging_entry_behind (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_failed_declaration_leaves_no_staging_entry_behind) ... ok
+test_a_short_write_that_CONTINUES_publishes_the_whole_declaration (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_short_write_that_CONTINUES_publishes_the_whole_declaration) ... ok
+test_a_short_write_that_never_completes_is_REFUSED (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_short_write_that_never_completes_is_REFUSED) ... ok
+test_a_write_that_ERRORS_after_a_prefix_publishes_nothing (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_write_that_ERRORS_after_a_prefix_publishes_nothing) ... ok
+test_the_refusal_says_the_log_AND_the_prior_word_are_unaffected (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_the_refusal_says_the_log_AND_the_prior_word_are_unaffected) ... ok
+test_a_refused_create_does_not_unlink_the_entry_it_refused (tests.manager.test_attempt_logs.CleanupOWNSOnlyWhatItMade.test_a_refused_create_does_not_unlink_the_entry_it_refused) ... ok
+test_a_staging_symlink_leaves_BOTH_the_link_and_its_target_alone (tests.manager.test_attempt_logs.CleanupOWNSOnlyWhatItMade.test_a_staging_symlink_leaves_BOTH_the_link_and_its_target_alone) ... ok
+test_an_ordinary_declaration_leaves_no_staging_entry_behind (tests.manager.test_attempt_logs.CleanupOWNSOnlyWhatItMade.test_an_ordinary_declaration_leaves_no_staging_entry_behind) ... ok
+test_two_declarations_in_one_process_do_not_share_a_staging_name (tests.manager.test_attempt_logs.CleanupOWNSOnlyWhatItMade.test_two_declarations_in_one_process_do_not_share_a_staging_name)
+The pid alone was the identity, and a tee is two threads in one ... ok
+test_two_attempts_have_two_rooms_and_two_streams (tests.manager.test_attempt_logs.ConcurrentAttemptsAreKeptApart.test_two_attempts_have_two_rooms_and_two_streams) ... ok
+test_an_oversized_reason_is_BOUNDED_rather_than_refused (tests.manager.test_attempt_logs.CorruptMetadataDoesNotTakeDownTheView.test_an_oversized_reason_is_BOUNDED_rather_than_refused)
+The prose is bounded the way every other diagnostic in this package ... ok
+test_every_malformed_shape_is_reported_rather_than_raised (tests.manager.test_attempt_logs.CorruptMetadataDoesNotTakeDownTheView.test_every_malformed_shape_is_reported_rather_than_raised) ... ok
+test_the_whole_operator_view_still_answers_with_corrupt_metadata (tests.manager.test_attempt_logs.CorruptMetadataDoesNotTakeDownTheView.test_the_whole_operator_view_still_answers_with_corrupt_metadata) ... ok
+test_NO_bounded_document_in_this_adapter_RAISES_on_DEPTH (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_NO_bounded_document_in_this_adapter_RAISES_on_DEPTH)
+The sweep review 2026-09-18T04-53-08Z [R1] asked for, and it found ... ok
+test_a_DEEPLY_NESTED_record_is_treated_as_ABSENT_not_RAISED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_DEEPLY_NESTED_record_is_treated_as_ABSENT_not_RAISED)
+A bound on BYTES is not a bound on DEPTH: this document is a fifth ... ok
+test_a_DESTINATION_swapped_after_the_check_is_caught_by_the_OPEN (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_DESTINATION_swapped_after_the_check_is_caught_by_the_OPEN)
+`_retained_size` checks a NAME, and a name checked and then opened ... ok
+test_a_DIRECTORY_where_a_retained_file_belongs_is_the_SAME_case (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_DIRECTORY_where_a_retained_file_belongs_is_the_SAME_case)
+Not every non-file blocks; a destination this cannot account for is ... ok
+test_a_FIFO_where_a_RETAINED_FILE_belongs_is_DECLARED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_FIFO_where_a_RETAINED_FILE_belongs_is_DECLARED)
+The reviewer's probe, run in a child exactly as they ran it: this ... ok
+test_a_GENERATION_LONGER_than_any_conversion_is_DISCARDED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_GENERATION_LONGER_than_any_conversion_is_DISCARDED)
+4301 ASCII nines: within `MAX_RETENTION`, and refused by Python's ... ok
+test_a_LEGITIMATE_generation_entry_is_still_BELIEVED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_LEGITIMATE_generation_entry_is_still_BELIEVED)
+The correction must not refuse the records this actually writes. ... ok
+test_a_SOURCE_swapped_after_being_listed_is_caught_by_the_OPEN (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_SOURCE_swapped_after_being_listed_is_caught_by_the_OPEN)
+A nonblocking open of a fifo with no writer SUCCEEDS and then reads ... ok
+test_a_UNICODE_digit_in_a_generation_is_DISCARDED_not_RAISED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_UNICODE_digit_in_a_generation_is_DISCARDED_not_RAISED)
+The reviewer's probe: `str.isdigit()` is true of `²` and `int()` ... ok
+test_and_a_SOURCE_fifo_WITH_a_writer_is_named_for_what_it_is (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_and_a_SOURCE_fifo_WITH_a_writer_is_named_for_what_it_is)
+The other half, and the reversal probe corrected my description of ... ok
+test_and_the_SOURCES_BYTES_are_KEPT_rather_than_lost (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_and_the_SOURCES_BYTES_are_KEPT_rather_than_lost)
+A destination nothing can account for is a rotation like any other: ... ok
+test_the_SHAPE_of_a_generation_is_decided_WITHOUT_converting_it (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_the_SHAPE_of_a_generation_is_decided_WITHOUT_converting_it)
+The boundary, spelled out: greater than one, no leading zero, ASCII ... ok
+test_BYTES_ALONE_ARE_NOT_COMPLETENESS (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_BYTES_ALONE_ARE_NOT_COMPLETENESS)
+R1: file existence and a momentary end of file prove neither. A ... ok
+test_a_declaration_SURVIVES_A_RESTART (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_a_declaration_SURVIVES_A_RESTART) ... ok
+test_a_stream_created_and_never_written_is_EMPTY (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_a_stream_created_and_never_written_is_EMPTY) ... ok
+test_a_stream_that_was_never_created_is_ABSENT (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_a_stream_that_was_never_created_is_ABSENT) ... ok
+test_a_writer_that_could_not_OPEN_is_FAILED_with_no_file_at_all (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_a_writer_that_could_not_OPEN_is_FAILED_with_no_file_at_all)
+R1, and it is the sharpest case. A writer whose open failed has ... ok
+test_an_INACCESSIBLE_stream_is_not_an_absent_one (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_an_INACCESSIBLE_stream_is_not_an_absent_one)
+R1: a permission failure means 'I could not ask', which is a ... ok
+test_an_invented_state_is_refused_from_both_directions (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_an_invented_state_is_refused_from_both_directions) ... ok
+test_the_writer_s_declaration_is_DURABLE_and_reaches_every_reader (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_the_writer_s_declaration_is_DURABLE_and_reaches_every_reader)
+R1: a state held only in a return value was lost the moment anybody ... ok
+test_TICKING_AGAIN_after_a_rotation_makes_no_THIRD_generation (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_TICKING_AGAIN_after_a_rotation_makes_no_THIRD_generation)
+The binding is the RECORD's, so a later tick resumes the generation ... ok
+test_a_CORRUPT_record_is_treated_as_ABSENT_rather_than_believed (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_CORRUPT_record_is_treated_as_ABSENT_rather_than_believed)
+Input like any other. A record that cannot be read is not a record, ... ok
+test_a_DESTINATION_WITH_NO_RECORD_is_never_resumed_BY_LENGTH (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_DESTINATION_WITH_NO_RECORD_is_never_resumed_BY_LENGTH)
+Review 2026-09-18T03-48-00Z, in its own words: after a restart never ... ok
+test_a_FRESH_map_after_a_rotation_resumes_from_the_RECORD (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_FRESH_map_after_a_rotation_resumes_from_the_RECORD)
+Restart. The room is the same, the map remembers nothing, and the ... ok
+test_a_FRESH_offset_map_over_the_same_room_does_not_duplicate (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_FRESH_offset_map_over_the_same_room_does_not_duplicate)
+The restart case: the resume position is the retained copy's own ... ok
+test_a_GENUINELY_absent_root_is_still_silent (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_GENUINELY_absent_root_is_still_silent)
+The ordinary early tick, which must not be turned into a failure. ... ok
+test_a_REAL_source_named_like_a_GENERATION_does_not_collide (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_REAL_source_named_like_a_GENERATION_does_not_collide)
+`%23` is disjoint from every name `_flat` can emit, so a provider ... ok
+test_a_REPLACED_source_is_a_new_generation_too (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_REPLACED_source_is_a_new_generation_too) ... ok
+test_a_REWRITE_ACROSS_a_restart_is_caught_by_the_RECORD (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_REWRITE_ACROSS_a_restart_is_caught_by_the_RECORD)
+The same thing with a map that remembers nothing, which is the form ... ok
+test_a_REWRITE_AT_THE_SAME_LENGTH_is_still_a_new_generation (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_REWRITE_AT_THE_SAME_LENGTH_is_still_a_new_generation)
+Review 2026-09-18T03-48-00Z's second probe, exactly: `XY` becomes ... ok
+test_a_TRUNCATED_source_keeps_the_old_bytes_and_declares_the_break (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_TRUNCATED_source_keeps_the_old_bytes_and_declares_the_break)
+Appending the new bytes onto the old would splice two generations ... ok
+test_a_new_generation_that_GROWS_PAST_the_old_one_never_splices (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_new_generation_that_GROWS_PAST_the_old_one_never_splices)
+Review 2026-09-18T03-48-00Z names this second failure exactly: "once ... ok
+test_an_INACCESSIBLE_capture_root_is_not_reported_as_ABSENCE (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_an_INACCESSIBLE_capture_root_is_not_reported_as_ABSENCE)
+`_descended` collapsed every OSError into None and its caller called ... ok
+test_an_ORDINARY_APPEND_is_not_mistaken_for_a_rewrite (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_an_ORDINARY_APPEND_is_not_mistaken_for_a_rewrite)
+The digest covers the RETAINED head, so growth leaves it alone -- ... ok
+test_a_FAILURE_is_reported_rather_than_skipped (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_a_FAILURE_is_reported_rather_than_skipped)
+An empty corner must not read as 'the provider wrote nothing' when ... ok
+test_a_LARGE_file_is_streamed_rather_than_silently_truncated (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_a_LARGE_file_is_streamed_rather_than_silently_truncated)
+The earlier cut read a ceiling's worth and counted the file ... ok
+
+----------------------------------------------------------------------
+Ran 100 tests in 0.305s
+
+OK

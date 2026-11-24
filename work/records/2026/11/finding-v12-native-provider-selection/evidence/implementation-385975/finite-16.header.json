@@ -1,0 +1,40 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_worker_for_a_stage_is_the_scheduler_s_allocation",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_accepted_jobs_share_one_integrator_one_at_a_time",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_bindings_for_one_job_are_refused",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_jobs_materialize_two_distinct_persistent_lines",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_of_three_judgments_are_refused",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_unusable_judge_report_cannot_authorize_derived_receipts",
+    "tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_correcting_the_route_cannot_revive_the_same_offer",
+    "tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_one_claim_refuses_while_the_other_performs_in_one_sweep",
+    "tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_the_other_job_advances_past_the_one_that_refuses",
+    "tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_the_refused_claim_records_no_success_and_releases_capacity",
+    "tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_the_same_reader_sees_the_claim_the_other_job_did_record",
+    "tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_without_the_containment_the_other_job_is_never_reached",
+    "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_a_running_or_foreign_selection_recovers_nothing",
+    "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_an_unrecovered_declaration_still_reaches_no_assignment",
+    "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_abandoned_scratch_reaches_no_proposal",
+    "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_committed_effects_the_declaration_crossed_are_all_intact",
+    "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_declaration_fences_the_generation_and_destroys_the_runtime",
+    "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_discarded_scratch_is_gone_and_the_checkpoint_bytes_are_back",
+    "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_fresh_assignment_writes_only_after_the_exclusion",
+    "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_recovered_correction_reaches_a_fresh_assignment",
+    "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_recovery_replays_and_committed_effects_are_unchanged"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 21,
+  "bound_seconds": 180,
+  "pid": 1811334,
+  "pgid": 1811334
+}

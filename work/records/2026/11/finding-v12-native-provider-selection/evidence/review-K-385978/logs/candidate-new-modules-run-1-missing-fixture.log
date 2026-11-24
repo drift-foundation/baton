@@ -1,0 +1,1189 @@
+EEEEE....................F..........EEEEEEEEEEEEEEEEEEEEEEEE
+======================================================================
+ERROR: test_B1_original_attribution_travels_through_admission_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B1_original_attribution_travels_through_admission_custody_and_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 417, in setUp
+    self.created = self.create_job()
+                   ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 447, in create_job
+    return creation.create_template_job(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.jobs, creation_case.FakeOperations(), **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 240, in create_template_job
+    derived, resolution = _resolved(asked, derivation)
+                          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 605, in _resolved
+    derived = (_derived(derivation, selection=selection) if held is None
+               ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 634, in _derived
+    else derivation.derived(selection=selection))
+         ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_creation.py", line 113, in derived
+    return dict(held, **self.task(selection))
+                        ~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 460, in composed_task
+    manifest = capability_case.published_input()
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_role_capability.py", line 283, in published_input
+    corpus = json.loads(MANIFESTS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B2_B3_missing_conflicting_and_cross_attempt_hold_inspection_and_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 417, in setUp
+    self.created = self.create_job()
+                   ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 447, in create_job
+    return creation.create_template_job(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.jobs, creation_case.FakeOperations(), **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 240, in create_template_job
+    derived, resolution = _resolved(asked, derivation)
+                          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 605, in _resolved
+    derived = (_derived(derivation, selection=selection) if held is None
+               ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 634, in _derived
+    else derivation.derived(selection=selection))
+         ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_creation.py", line 113, in derived
+    return dict(held, **self.task(selection))
+                        ~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 460, in composed_task
+    manifest = capability_case.published_input()
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_role_capability.py", line 283, in published_input
+    corpus = json.loads(MANIFESTS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_B4_cross_candidate_substitution_after_decision_refuses (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B4_cross_candidate_substitution_after_decision_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 417, in setUp
+    self.created = self.create_job()
+                   ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 447, in create_job
+    return creation.create_template_job(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.jobs, creation_case.FakeOperations(), **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 240, in create_template_job
+    derived, resolution = _resolved(asked, derivation)
+                          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 605, in _resolved
+    derived = (_derived(derivation, selection=selection) if held is None
+               ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 634, in _derived
+    else derivation.derived(selection=selection))
+         ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_creation.py", line 113, in derived
+    return dict(held, **self.task(selection))
+                        ~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 460, in composed_task
+    manifest = capability_case.published_input()
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_role_capability.py", line 283, in published_input
+    corpus = json.loads(MANIFESTS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_B5_log_tampering_after_admission_refuses_custody_and_handoff (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B5_log_tampering_after_admission_refuses_custody_and_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 417, in setUp
+    self.created = self.create_job()
+                   ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 447, in create_job
+    return creation.create_template_job(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.jobs, creation_case.FakeOperations(), **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 240, in create_template_job
+    derived, resolution = _resolved(asked, derivation)
+                          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 605, in _resolved
+    derived = (_derived(derivation, selection=selection) if held is None
+               ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 634, in _derived
+    else derivation.derived(selection=selection))
+         ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_creation.py", line 113, in derived
+    return dict(held, **self.task(selection))
+                        ~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 460, in composed_task
+    manifest = capability_case.published_input()
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_role_capability.py", line 283, in published_input
+    corpus = json.loads(MANIFESTS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher (tests.job_manager.test_provider_attribution_recovery.OriginalProducer.test_B6_reopen_replays_admission_and_handoff_without_repeating_publisher)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 262, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 417, in setUp
+    self.created = self.create_job()
+                   ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 447, in create_job
+    return creation.create_template_job(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.jobs, creation_case.FakeOperations(), **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 240, in create_template_job
+    derived, resolution = _resolved(asked, derivation)
+                          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 605, in _resolved
+    derived = (_derived(derivation, selection=selection) if held is None
+               ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/src/baton_v12/job_manager/creation.py", line 634, in _derived
+    else derivation.derived(selection=selection))
+         ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_creation.py", line 113, in derived
+    return dict(held, **self.task(selection))
+                        ~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 460, in composed_task
+    manifest = capability_case.published_input()
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/job_manager/test_role_capability.py", line 283, in published_input
+    corpus = json.loads(MANIFESTS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_13_positive_implementation_binds_frozen_result_and_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_13_positive_implementation_binds_frozen_result_and_checkpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_13_review_binds_its_own_evidence_to_verdict (tests.tools.test_provider_selection.SelectedCase.test_13_review_binds_its_own_evidence_to_verdict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_14_17_missing_output_holds_without_publication_or_retry (tests.tools.test_provider_selection.SelectedCase.test_14_17_missing_output_holds_without_publication_or_retry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_14_conflicting_build_holds_before_checkpoint (tests.tools.test_provider_selection.SelectedCase.test_14_conflicting_build_holds_before_checkpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_14_review_without_requested_contributor_records_no_verdict (tests.tools.test_provider_selection.SelectedCase.test_14_review_without_requested_contributor_records_no_verdict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_15_foreign_attempt_in_real_frozen_result_is_held (tests.tools.test_provider_selection.SelectedCase.test_15_foreign_attempt_in_real_frozen_result_is_held)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering (tests.tools.test_provider_selection.SelectedCase.test_16_frozen_evidence_survives_store_reopen_and_detects_log_tampering)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_16_restart_between_result_and_ending_uses_original_evidence (tests.tools.test_provider_selection.SelectedCase.test_16_restart_between_result_and_ending_uses_original_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_17_legacy_result_without_attribution_is_held_under_new_selection (tests.tools.test_provider_selection.SelectedCase.test_17_legacy_result_without_attribution_is_held_under_new_selection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume (tests.tools.test_provider_selection.SelectedCase.test_18_35_40_47_home_and_credentials_are_not_output_or_session_resume)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_20_separation_is_composed_from_selected_providers_and_models (tests.tools.test_provider_selection.SelectedCase.test_20_separation_is_composed_from_selected_providers_and_models)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes (tests.tools.test_provider_selection.SelectedCase.test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_26_actual_argv_or_environment_drift_refuses_before_provider (tests.tools.test_provider_selection.SelectedCase.test_26_actual_argv_or_environment_drift_refuses_before_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_26_environment_drift_refuses_before_build_probe (tests.tools.test_provider_selection.SelectedCase.test_26_environment_drift_refuses_before_build_probe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_27_28_changed_tool_policy_refuses_before_any_runtime (tests.tools.test_provider_selection.SelectedCase.test_27_28_changed_tool_policy_refuses_before_any_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_30_legacy_and_selected_lanes_refuse_one_job_before_effects (tests.tools.test_provider_selection.SelectedCase.test_30_legacy_and_selected_lanes_refuse_one_job_before_effects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_31_override_home_location_refuses_before_runtime (tests.tools.test_provider_selection.SelectedCase.test_31_override_home_location_refuses_before_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_32_38_correction_reuses_home_after_positive_runtime_cessation (tests.tools.test_provider_selection.SelectedCase.test_32_38_correction_reuses_home_after_positive_runtime_cessation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_32_restart_after_review_reuses_retained_home (tests.tools.test_provider_selection.SelectedCase.test_32_restart_after_review_reuses_retained_home)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_34_cross_worker_context_and_checkout_overlap_refuse_preflight (tests.tools.test_provider_selection.SelectedCase.test_34_cross_worker_context_and_checkout_overlap_refuse_preflight)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_44_simulated_authentication_failure_has_no_key_or_fallback (tests.tools.test_provider_selection.SelectedCase.test_44_simulated_authentication_failure_has_no_key_or_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_45_same_seed_reference_allows_two_workers_and_two_jobs (tests.tools.test_provider_selection.SelectedCase.test_45_same_seed_reference_allows_two_workers_and_two_jobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+ERROR: test_46_managed_credential_collision_refuses_composition (tests.tools.test_provider_selection.SelectedCase.test_46_managed_credential_collision_refuses_composition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_provider_selection.py", line 22, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 4324, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 3533, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_stage_execution.py", line 172, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/tools/test_single_worker.py", line 443, in setUp
+    given, _assignment = input_roots.documents(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        work_ref={"authority_uuid": AUTHORITY_UUID,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        policy_digest=fixtures.POLICY_DIGEST,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        profile_digest=fixtures.PROFILE)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/input_roots.py", line 51, in documents
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/review-K-385978/cand/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'
+
+======================================================================
+FAIL: test_39_crash_after_record_before_home_creation_replays_same_holder (tests.manager.test_provider_home.RetainedProviderHome.test_39_crash_after_record_before_home_creation_replays_same_holder)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/review-K-385978/cand/v12/python/tests/manager/test_provider_home.py", line 119, in test_39_crash_after_record_before_home_creation_replays_same_holder
+    with self.assertRaises(homes.HomePending):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: HomePending not raised
+
+----------------------------------------------------------------------
+Ran 60 tests in 0.331s
+
+FAILED (failures=1, errors=29)

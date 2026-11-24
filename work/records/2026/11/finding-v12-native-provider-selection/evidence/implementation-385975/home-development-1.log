@@ -1,0 +1,7 @@
+test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export) ... ok
+test_32_restart_after_review_reuses_retained_home (tests.tools.test_provider_selection.SelectedCase.test_32_restart_after_review_reuses_retained_home) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.966s
+
+OK

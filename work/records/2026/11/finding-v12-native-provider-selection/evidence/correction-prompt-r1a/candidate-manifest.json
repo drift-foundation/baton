@@ -1,0 +1,242 @@
+{
+  "algorithm": "sha256 of UTF-8 JSON of {base,files,context}; sort_keys=True, separators=(comma,colon), ensure_ascii=False; files sorted by path",
+  "author": "baton.prompt; owner-selected interactive R1a exception E385987",
+  "base": "9f9790222dfd004bc8f19d5c378c3acdb00fd4ca",
+  "candidate": "sha256:5b76e7000b38c77b8405b92215f5ed7d82aeb20dab62bd2ccc2fe23a13ed5b62",
+  "context": {
+    "ASSIGNMENT-N1N2-2026-11-24.md": "ae9dfac38ba3bd61d628c23c98637e9a8eb2e68ac50b8592b0717063992d3b22",
+    "ASSIGNMENT-N1N2-OWNER-B-2026-11-24.md": "be732f8f991e4e6c0ef4e696527ed389b709d58ce35e21179dec587ae740707e",
+    "DESIGN.md": "d2c71e534b3d3f92d7f81b445ed7ba911984e568addfb1b5c59c73e02dbbd914",
+    "IMPLEMENTATION-CONTRACT-CONSOLIDATED-REV2-2026-11-23.md": "dc3245c0c5594f15d22c87cd9b9a19352c633c3e4ef9a52f070f24d87960bd87",
+    "IMPLEMENTATION-CONTRACT-N1N2-ADDENDUM-2026-11-23.md": "c4d2c4b7ebe4c60b6e5eb9543ff4664d2fd86511c6b8a4f538c2b58e27d07117",
+    "OWNER-DRAFT-QUALIFICATION-RULING-2026-11-24.md": "4b9d6630de92b5915ed5961e9302d4202337836b851bfa04e3a95cd2c7f97c02",
+    "review-2026-11-24T10-12-37Z.md": "65cb8a185d184ae82f9a38fa3574693ce2fade248763f89a505918ed9f4ef14f"
+  },
+  "files": [
+    {
+      "bytes": 7385,
+      "mode": "0o664",
+      "path": "v12/PROVIDER-SELECTION.md",
+      "sha256": "716a5bed8aa3204667325b619aee53c27139100bc7fbbd03cdc15971255113c7"
+    },
+    {
+      "bytes": 66904,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "08b815e7dd367c1b0c11f36105f7f850169f846072e757d102395a7c6d5313f3"
+    },
+    {
+      "bytes": 155109,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/job_manager/publication_execution.py",
+      "sha256": "2b8de490841b74b766c79988c3fa0aff63d3dc764f900b9dabf842a8c1da04ea"
+    },
+    {
+      "bytes": 174721,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/job_manager/publication_recovery.py",
+      "sha256": "35d44282186d70407422f0dbf2c08dd08a45eda4f67dee65aca6e461c7b640b3"
+    },
+    {
+      "bytes": 124780,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "55213c8a32c977edf13a925a6ceaddc0f63d40f05151e007e08750a1131c2213"
+    },
+    {
+      "bytes": 8176,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py",
+      "sha256": "52b4b188018c37ead059b2e6597320830b409f4ee480ae6983310103891b1e74"
+    },
+    {
+      "bytes": 4486,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/provider_policy/attribution.py",
+      "sha256": "5d32b3d239bd0223eb890ad564c70a7e70ca1d0ee84e5a4bab9da4a43918b052"
+    },
+    {
+      "bytes": 6441,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/provider_policy/home.py",
+      "sha256": "56b2d7db42be55fb112db2f9333992b19eb2d41cf40f4eacb7b702802bbdbc4e"
+    },
+    {
+      "bytes": 34068,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/worker_manager/attempt_logs.py",
+      "sha256": "8e614604cb7170601982a00954d9ce95a76f1a49b82f8641330a051cd1b3e336"
+    },
+    {
+      "bytes": 222470,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "17524cd748334c196c8578e3d15cd07220e51d21f98be195eb3ce82f815e0a7e"
+    },
+    {
+      "bytes": 55622,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "sha256": "722db11641953cf0c55a071349c9a7441ae11a4e10c47abdd702494fd34a2449"
+    },
+    {
+      "bytes": 8087,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/worker_manager/model_attribution.py",
+      "sha256": "7e9070fffd5e4581fef51a4c2822762c44d4242cb9e09a32c1c8776efb78dc56"
+    },
+    {
+      "bytes": 255971,
+      "mode": "0o644",
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "f019a296f0f491027ec4b3b43553085114a35cd5be6e9c5f2a3482d35b4af435"
+    },
+    {
+      "bytes": 10715,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/worker_manager/provider_home.py",
+      "sha256": "949739e4661f87d585fdcce70f8269d6d18ab4b901d6bec808a645d34744dcba"
+    },
+    {
+      "bytes": 6562,
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_provider_attribution_recovery.py",
+      "sha256": "7ee3083f809ca056cc6f571542e4c21d555b14368619a46cf16d077204ac0985"
+    },
+    {
+      "bytes": 91471,
+      "mode": "0o644",
+      "path": "v12/python/tests/job_manager/test_publication_recovery_admission.py",
+      "sha256": "b0820bcad79d1f168cdb368d812d6f59630b040d669d703a113344c252ba0a62"
+    },
+    {
+      "bytes": 90213,
+      "mode": "0o644",
+      "path": "v12/python/tests/job_manager/test_scheduling.py",
+      "sha256": "99f63c79ab5f679d39ee7c872ad69b2a542c3b655d301820062e03677681bb0b"
+    },
+    {
+      "bytes": 1514,
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/provider_fixtures.py",
+      "sha256": "c418dda15c982d68e7def3e362c24a28c3b91d683eb51dfcdfa9889aece62028"
+    },
+    {
+      "bytes": 261312,
+      "mode": "0o644",
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "e4ce0078d6e58dd3d3e4fb02da595e589bb72312288e566d65fcb9b8e1cde4da"
+    },
+    {
+      "bytes": 7890,
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/test_model_attribution.py",
+      "sha256": "ea56f463eb81d1714ad9d7936a7469193c8adc977174776fe9c7e4870ca9d40b"
+    },
+    {
+      "bytes": 18109,
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/test_provider_home.py",
+      "sha256": "312347a3b83bf5211d9dcf3faee03e767c5ae5e9cffc85de632953f3ab47a255"
+    },
+    {
+      "bytes": 56277,
+      "mode": "0o644",
+      "path": "v12/python/tests/manager/test_worker_entry.py",
+      "sha256": "40b337877d5c644476723623c3264b80ccc0222b92156dd081d0a96c773abcde"
+    },
+    {
+      "bytes": 38080,
+      "mode": "0o644",
+      "path": "v12/python/tests/tools/test_job_observation.py",
+      "sha256": "c2a3ff1daa3b29903333f600577c8e21ffb5c13a02f74313fd3acfc22e3d877c"
+    },
+    {
+      "bytes": 79115,
+      "mode": "0o644",
+      "path": "v12/python/tests/tools/test_pool.py",
+      "sha256": "6dded05b2cce09b446f7b166d9678f187f84fb31b47ed1a3d512e42e304a9cf0"
+    },
+    {
+      "bytes": 42292,
+      "mode": "0o664",
+      "path": "v12/python/tests/tools/test_provider_selection.py",
+      "sha256": "1a6789e78aa2e8a070840143c6d180d627b50025548f31141b45f3e44a20bf66"
+    },
+    {
+      "bytes": 712313,
+      "mode": "0o644",
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "a2da0bd1ab85886a66c179c5ec8b57792370706102e86dbb99993dfdeab6fb39"
+    },
+    {
+      "bytes": 29994,
+      "mode": "0o644",
+      "path": "v12/python/tools/job_observation.py",
+      "sha256": "62517a7beee7f78bcbe95ed6f177d36d3fd839662d227e82b3d1c0f4f98cc0f6"
+    },
+    {
+      "bytes": 32830,
+      "mode": "0o644",
+      "path": "v12/python/tools/job_viewer.py",
+      "sha256": "76bcb5774ebacf51262b9533abbc0ef5d20125678c15e91d236d71725da31268"
+    },
+    {
+      "bytes": 51646,
+      "mode": "0o644",
+      "path": "v12/python/tools/next_run_bindings.py",
+      "sha256": "b9d4df0dd6d51031f6f2e3f53c3ccb4bbdea175d39824a1a4da69dcc02258aed"
+    },
+    {
+      "bytes": 111560,
+      "mode": "0o644",
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "4619a597021d3c5fc3300ff2f150bc4baa248672b3739c5132ada30c28d0a66f"
+    },
+    {
+      "bytes": 73364,
+      "mode": "0o644",
+      "path": "v12/python/tools/pool.py",
+      "sha256": "7ef018e273e7e7b466cf420493713f853bd1eb3c301350bb85c78888fc1cc75f"
+    },
+    {
+      "bytes": 264722,
+      "mode": "0o644",
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "b9ea2bb31271dda2d5a19ba2023cffeb3c9b2db5148deda38d7c7a1a0eaa2dff"
+    },
+    {
+      "bytes": 467980,
+      "mode": "0o644",
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "80e67e25cb6399d82ffadef80dc9c194ed76a54ce465d6b0042bd5c07972f01c"
+    },
+    {
+      "bytes": 18534,
+      "mode": "0o644",
+      "path": "v12/worker/Dockerfile.claude",
+      "sha256": "f5b6415bce1ed49c5aa4847509cda9674f01b7a30af0526f3fe99321cf93b5de"
+    },
+    {
+      "bytes": 8000,
+      "mode": "0o644",
+      "path": "v12/worker/Dockerfile.integration",
+      "sha256": "ce293336f1ad4adcd5beb85dc8ba9e412ed06ed6aaa836c64812093604fd6394"
+    },
+    {
+      "bytes": 172036,
+      "mode": "0o644",
+      "path": "v12/worker/baton_worker.py",
+      "sha256": "bb16d4b14df274d06ac534c04aaceab2aebdb856ed73fc099af3c3fe5590f6c4"
+    },
+    {
+      "bytes": 411612,
+      "mode": "0o644",
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "6cf404dfa60093b1d2f5a4d7073c3d0bddb7128897b5ff88ebd622aa08524eee"
+    }
+  ],
+  "prior_candidate": "sha256:4980bb47c07ed40503945d2926681590f393b657d9413293079c2e6520679053",
+  "status": "R1a correction for independent K delta review; not accepted or imported",
+  "work": "W385965"
+}

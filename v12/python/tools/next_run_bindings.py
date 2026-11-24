@@ -300,10 +300,11 @@ def deployment_bounds(*, identities, provider_network, image_reference,
             {"schema": "baton.worker-credential-policy/1",
              "profile": {slot: dict(credential_profile[slot])
                          for slot in sorted(credential_profile)}}),
-        "tool_policy_digest": digest(
-            {"schema": "baton.worker-tool-policy/1",
-             "argv_policy": dict(context.ARGV_POLICY),
-             "environment_policy": dict(context.ENVIRONMENT_POLICY)}),
+        "tool_policy_digest": (identities["adapter"]["implements_tool_policy"]
+            if identities["adapter"]["schema"] == "baton.single-implementation-adapter/2"
+            else digest({"schema": "baton.worker-tool-policy/1",
+                         "argv_policy": dict(context.ARGV_POLICY),
+                         "environment_policy": dict(context.ENVIRONMENT_POLICY)})),
         "network_policy_digest": digest(
             {"schema": "baton.worker-network-policy/1",
              "engine": "docker", "network": provider_network}),
@@ -338,7 +339,7 @@ def _plain(value):
 def deployment_identities(*, image_reference, image_digest, cli_build,
                           provider_network, runtime_uid, turn_seconds,
                           verification_seconds, implementer_invocations,
-                          contextual):
+                          contextual, provider_selection=None):
     """The three identities a deployment is accountable for, as THIS build
     composes them: the runtime profile, the execution policy and the adapter,
     each with its digest. W321608: factored out verbatim so the installed
@@ -377,6 +378,20 @@ def deployment_identities(*, image_reference, image_digest, cli_build,
         "entrypoint": ["python3", "/opt/baton/dogfood_entry.py"],
         "argv_policy": dict(context.ARGV_POLICY),
         "environment_policy": dict(context.ENVIRONMENT_POLICY)}
+    if provider_selection is not None:
+        from baton_v12 import provider_policy
+        if contextual:
+            _refuse("provider policy /2 does not change the context-reuse path")
+        selected = provider_policy.selection(provider_selection)
+        if selected["cli_build"] != cli_build:
+            _refuse("provider selection and runtime CLI build disagree")
+        runtime_profile = dict(runtime_profile,
+            schema="baton.single-implementation-runtime-profile/2",
+            name=selected["provider"] + "-fresh-implementation",
+            model=selected["requested_model"],
+            reported_identity=selected["reported_identity"],
+            provider=selected["provider"])
+        adapter = provider_policy.adapter(selected, network=provider_network)
     profile_digest = digest(runtime_profile)
     policy_digest = digest(policy)
     adapter_digest = digest(adapter)

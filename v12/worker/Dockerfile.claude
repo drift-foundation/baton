@@ -191,6 +191,7 @@ COPY worker/worker-control-1.0.schema.json \
 # vocabulary for turning its read-only mount into a checkout, which is the
 # worker's own half of the boundary and has always been meant to run here.
 COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+COPY python/src/baton_v12/provider_policy /opt/baton/provider_policy
 
 # `scripted_agent.py` DELIBERATELY DOES NOT TRAVEL, and the reason is history
 # worth keeping rather than an absence nobody has to explain.
