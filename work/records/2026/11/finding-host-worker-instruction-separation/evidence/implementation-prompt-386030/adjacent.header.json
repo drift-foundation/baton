@@ -1,0 +1,37 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.tools.test_pool",
+    "tests.manager.test_launch",
+    "tests.manager.test_oci",
+    "tests.manager.test_worker_entry",
+    "tests.tools.test_single_worker",
+    "tests.tools.test_stage_execution",
+    "tests.job_manager.test_review_driver",
+    "tests.job_manager.test_publication_recovery_admission",
+    "tests.job_manager.test_publication_recovery_execution",
+    "tests.manager.test_attempt_logs",
+    "tests.manager.test_attempts",
+    "tests.tools.test_job_viewer",
+    "tests.tools.test_parallel_runner",
+    "tests.job_manager.test_scheduling"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "candidate_repository_head": "c129e005e8d2e6561600ea94767ae60842494306",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 2404,
+  "bound_seconds": 1500,
+  "disk_root": "/home/sl/src/baton/work/scratch/w385853-impl/test-roots",
+  "TMPDIR": "/home/sl/src/baton/work/scratch/w385853-impl/test-roots",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2025410,
+  "pgid": 2025410
+}

@@ -2302,12 +2302,15 @@ class ClaudeAgent:
 
     def work(self, seen, declared):
         self._attribution = None
+        self._context_label = None  # set by `_provider` under a selection
         answer = self._work(seen, declared)
         if self._attribution is not None:
             for output in answer.get("outputs", []):
                 if output.get("status") == "present":
                     output["result_metadata"] = dict(output.get("result_metadata", {}),
-                        **{"baton.model-attribution/1": self._attribution})
+                        **{"baton.model-attribution/1": self._attribution},
+                        **({"baton.native-worker-context/1": self._context_label}
+                           if self._context_label is not None else {}))
                     break
         return answer
 
@@ -4599,6 +4602,15 @@ class ClaudeAgent:
         if selected is not None:
             import provider_policy
             binding = selected["contract"]
+            # W385853: every selected turn carries the execution-context
+            # label for its validated launch role, rendered by the shared
+            # policy. A role or template this build cannot label refuses here,
+            # before any provider child exists.
+            try:
+                prompt = provider_policy.labelled(binding["adapter"], self._seen["role"], prompt)
+                self._context_label = provider_policy.context_record(binding["adapter"], self._seen["role"])
+            except (ValueError, KeyError, TypeError) as failure:
+                raise TaskRefusal("the execution-context label cannot be delivered") from failure
             argv = self.provider_argv(prompt, model=binding["selection"]["requested_model"])
             if argv != provider_policy.argv(binding["adapter"], binding["selection"], prompt):
                 raise TaskRefusal("actual provider argv disagrees with the selected policy")
@@ -5376,11 +5388,16 @@ class ClaudeAgent:
         if selected is not None:
             from provider_policy.home import prepare
             rule = selected["contract"]["adapter"]
-            if rule["managed_entries"]:
-                raise TaskRefusal("managed-entry delivery is not selected by this build")
+            # W385853: exactly this build's closed managed entries, their
+            # packaged bytes hashed against the adapter, re-placed each start.
+            import provider_policy
+            try:
+                managed = provider_policy.managed_payloads(rule)
+            except ValueError as failure:
+                raise TaskRefusal("managed-entry delivery disagrees with this build") from failure
             return prepare(rule["home"], credential_path=rule["credential"]["path"],
                            delivered=os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT),
-                           mode=rule["credential"]["mode"])
+                           mode=rule["credential"]["mode"], managed=managed)
         slot = os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT)
         if not os.path.exists(slot):
             raise TaskRefusal(
@@ -7252,7 +7269,9 @@ def _prompt(task, feedback=None):
     THE PROVIDER IS NOT TOLD ABOUT THE PROTOCOL. It gets the instructions, the
     working directory it is already in, and the command that will judge it --
     nothing about `/output`, the assignment, the session or the manager. A
-    provider that could see those could write into them.
+    provider that could see those could write into them. Under a selected
+    provider policy `_provider` prefixes the execution-context label (W385853):
+    the native-worker context and launch role, still no protocol identifier.
 
     W177936: A RESTORE ADDS THE REVIEW'S FEEDBACK, and this is the manager's
     `context_prompt`'s asserted twin -- the two compose byte-identical

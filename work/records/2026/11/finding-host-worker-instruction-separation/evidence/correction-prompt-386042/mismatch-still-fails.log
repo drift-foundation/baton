@@ -1,0 +1,14 @@
+F
+======================================================================
+FAIL: test_packaged_copy_is_byte_identical_to_the_canonical_document (tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_is_byte_identical_to_the_canonical_document)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385853-impl/repo/v12/python/tests/manager/test_provider_home.py", line 272, in test_packaged_copy_is_byte_identical_to_the_canonical_document
+    self.assertEqual(packaged, canonical)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b"# B[5671 chars] defect before using a clearly labelled authorized stopgap.\nx" != b"# B[5671 chars] defect before using a clearly labelled authorized stopgap.\n"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)

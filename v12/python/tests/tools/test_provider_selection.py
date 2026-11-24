@@ -13,11 +13,13 @@ from baton_v12.job_manager import submit, sweep
 from baton_v12.worker_manager import launch, model_attribution, provider_home
 from tests.job_manager import fixtures
 from tests.manager import provider_fixtures as fake
+from tests.tools import test_native_handoffs as handoffs
 from tests.tools import test_stage_execution as existing
 from tools import single_worker
 
 
-class SelectedCase(existing.ComposedOneJobCase):
+class SelectedBase(existing.ComposedOneJobCase):
+    """Selected-provider composition and helpers; no test of its own."""
     def setUp(self):
         super().setUp()
         selected, value = fake.identities()
@@ -37,6 +39,8 @@ class SelectedCase(existing.ComposedOneJobCase):
         self.reported = ["fixture-reported", "fixture-additional"]
         self.measured_build = "2.1.247"
         self.invocations = []
+        self.environments = []
+        self.instructions_at_start = []
         self.keep_marker = b"simulated-session-only"
 
     def worker(self, role, **members):
@@ -70,6 +74,11 @@ class SelectedCase(existing.ComposedOneJobCase):
                 return subprocess.CompletedProcess(argv, 0)
             self.assertEqual(argv[-3:-1], ["--model", "fixture-selector"])
             self.assertNotIn("ANTHROPIC_API_KEY", options["env"])
+            # W385853: what the provider child was actually given, recorded
+            # before the simulated provider writes anything of its own.
+            self.environments.append(dict(options["env"]))
+            placed = Path(options["env"]["HOME"], ".claude/CLAUDE.md")
+            self.instructions_at_start.append(placed.read_bytes() if placed.is_file() else None)
             Path(options["env"]["HOME"], "session-marker").write_bytes(self.keep_marker)
             answer = original(argv, **options)
             if self.reported is not None:
@@ -99,6 +108,63 @@ class SelectedCase(existing.ComposedOneJobCase):
         attempt = self.only_attempt(composed, "implementation")
         return job, control, composed, attempt
 
+    def turns(self):
+        return [argv for argv in self.invocations if argv != ["claude", "--version"]]
+
+    def built_prompts(self):
+        """Record what the unchanged prompt builders return."""
+        import claude_agent
+        built = []
+        patches = []
+        for name in ("_prompt", "_handoff_prompt", "_review_prompt", "_response_prompt"):
+            actual = getattr(claude_agent, name)
+            def recording(*args, _actual=actual, _name=name, **kwargs):
+                value = _actual(*args, **kwargs)
+                built.append((_name, value))
+                return value
+            patches.append(mock.patch.object(claude_agent, name, side_effect=recording))
+        for patch in patches:
+            patch.start()
+            self.addCleanup(patch.stop)
+        return built
+
+    def assert_labelled(self, argv, role, built, builder=None):
+        adapter = self.config["provider_contract"]["adapter"]
+        label = policy.context_label(adapter, role).decode()
+        prompt = argv[-1]
+        self.assertTrue(prompt.startswith(label + "\n"), prompt[:200])
+        original = prompt[len(label) + 1:]
+        self.assertIn(original, [value for _name, value in built])
+        if builder is not None:
+            # The named builder really ran and produced exactly this suffix.
+            self.assertIn((builder, original), built)
+        self.assertNotIn("Baton execution context", original)
+        self.assertEqual(argv, policy.argv(adapter, self.config["provider_contract"]["selection"], prompt))
+        other = "review" if role == "implementation" else "implementation"
+        self.assertNotIn("Assigned role: " + other, prompt)
+        return label
+
+    def fixed_slot(self, home):
+        """SIMULATED: a container has one fixed credential slot path; this
+        harness gives each attempt its own directory. Later turns are handed
+        the first attempt's slot path so the retained reference is the same
+        reference, as it is in a container. Nothing else changes."""
+        import provider_policy.home as worker_home
+        actual_prepare = worker_home.prepare
+        slot = os.readlink(home / ".claude/.credentials.json")
+        return mock.patch.object(worker_home, "prepare", side_effect=lambda path, **kw: actual_prepare(path, **dict(kw, delivered=slot)))
+
+    def assert_recorded(self, control, attempt, role):
+        account = model_attribution.assessment_of(control, attempt)
+        selected = model_attribution.selection_of(control, attempt)
+        self.assertEqual(selected["phase"], role)
+        self.assertEqual((account["outcome"], account["cause"]), ("matched", None))
+        self.assertEqual(account["context_label"], policy.context_record(selected["delivery"]["contract"]["adapter"], role))
+        self.assertIn("label reported: yes", model_attribution.diagnostic_of(control, attempt))
+        return account
+
+
+class SelectedCase(SelectedBase):
     def test_13_positive_implementation_binds_frozen_result_and_checkpoint(self):
         held = self.implemented()
         account = model_attribution.assessment_of(held.control, held.attempt_id)
@@ -272,6 +338,179 @@ class SelectedCase(existing.ComposedOneJobCase):
         with self.assertRaises(ContractRefusal):
             stage_execution.held_configuration(document, checkout=self.checkout)
 
+    # -- W385853 instruction delivery. The provider is simulated: these prove
+    # what Baton composed, placed, passed and bound, not that a vendor CLI
+    # loaded a file or that a model understood the label.
+
+    def test_d2_d3_implementation_turn_carries_role_label_and_exact_worker_instructions(self):
+        built = self.built_prompts()
+        held = self.implemented()
+        (argv,) = self.turns()
+        label = self.assert_labelled(argv, "implementation", built)
+        canonical = (Path(__file__).resolve().parents[4] / "docs/V12-WORKER-INSTRUCTIONS.md").read_bytes()
+        entry = self.config["provider_contract"]["adapter"]["managed_entries"][0]
+        self.assertEqual(self.instructions_at_start, [canonical])
+        self.assertEqual(entry["sha256"], "sha256:" + __import__("hashlib").sha256(canonical).hexdigest())
+        self.assertIn(entry["sha256"].removeprefix("sha256:"), label)
+        self.assertIn(policy.HOME + "/.claude/CLAUDE.md", label)
+        for required in ("You are running as a Baton native v12 worker.", "Assigned role: implementation.",
+                         "Does not apply to you:", "It grants no permission"):
+            self.assertIn(required, label)
+        # Bound by record, not by printing protocol identity to the model.
+        selected = model_attribution.selection_of(held.control, held.attempt_id)
+        for private in (held.attempt_id, selected["delivery"]["home_identity"]["job_id"],
+                        selected["delivery"]["home_identity"]["worker_id"], "/output", "resum"):
+            self.assertNotIn(private, label)
+        account = model_attribution.assessment_of(held.control, held.attempt_id)
+        self.assertEqual(account["outcome"], "matched")
+        self.assertEqual(account["context_label"], policy.context_record(selected["delivery"]["contract"]["adapter"], "implementation"))
+        self.assertEqual(account["context_label"]["context_label_digest"], "sha256:" + __import__("hashlib").sha256(label.encode()).hexdigest())
+        diagnostic = model_attribution.diagnostic_of(held.control, held.attempt_id)
+        for shown in ("Native worker role: implementation", account["context_label"]["context_label_digest"],
+                      "worker instructions: " + entry["sha256"], "label reported: yes"):
+            self.assertIn(shown, diagnostic)
+        # Host-only instruction content reaches no composed channel. The NAME
+        # AGENTS.md does appear, in the label, to say it does not apply.
+        host = (Path(__file__).resolve().parents[4] / "AGENTS.md").read_text().splitlines()
+        host_lines = [line for line in host if len(line) > 40]
+        composed = "\n".join([*argv, *(value for env in self.environments for value in env.values())])
+        for line in host_lines:
+            self.assertNotIn(line, composed)
+        self.assertNotIn(host_lines[0].encode(), canonical)
+
+    def test_d2_d3_review_turn_carries_its_own_role_label_in_its_own_home(self):
+        built = self.built_prompts()
+        held = self.reviewed()
+        producer, reviewer = self.turns()
+        self.assert_labelled(producer, "implementation", built)
+        self.assert_labelled(reviewer, "review", built)
+        self.assertEqual(self.instructions_at_start[0], self.instructions_at_start[1])
+        self.assertIsNotNone(self.instructions_at_start[1])
+        self.assertNotEqual(self.environments[0]["HOME"], self.environments[1]["HOME"])
+        self.drive(held.job, held.composed, "review", "completed")
+        account = model_attribution.assessment_of(held.control, held.review)
+        self.assertEqual(account["context_label"]["role"], "review")
+        self.assertNotEqual(account["context_label"]["context_label_digest"],
+                            model_attribution.assessment_of(held.control, held.attempt_id)["context_label"]["context_label_digest"])
+
+    def test_d4_correction_replaces_entry_keeps_provider_state_and_is_a_fresh_invocation(self):
+        built = self.built_prompts()
+        held = self.reviewed("changes-requested")
+        first = model_attribution.selection_of(held.control, held.attempt_id)["delivery"]
+        home = provider_home.location(self.config["provider_home_root"], first["home_identity"]) / "home"
+        self.drive(held.job, held.composed, "implementation", "waiting", ticks=12)
+        worker = self.worker_of(held.composed, "implementation")
+        second = next(one for one in worker.stage._prepared if one != held.attempt_id)
+        # A provider or model altered the managed file and left its own state.
+        (home / ".claude/CLAUDE.md").write_bytes(b"simulated provider rewrite")
+        (home / ".claude/provider-own").write_bytes(b"simulated provider state")
+        with self.fixed_slot(home):
+            self.assertEqual(self.turn(held.control, "implementation", second, self.mounted(held.composed, "implementation", second),
+                                       edits={"harness.py": "print('corrected')\n"}), 0)
+        correction = self.turns()[-1]
+        self.assert_labelled(correction, "implementation", built)
+        self.assertEqual(self.instructions_at_start[-1], self.instructions_at_start[0])
+        self.assertEqual((home / ".claude/provider-own").read_bytes(), b"simulated provider state")
+        self.assertEqual((home / "session-marker").read_bytes(), self.keep_marker)
+        for argv in self.invocations:
+            self.assertNotIn("--resume", argv)
+            self.assertNotIn("--session-id", argv)
+        self.assertNotIn("resumed", model_attribution.diagnostic_of(held.control, second))
+
+    def test_d4_delivery_is_in_no_candidate_frozen_output_or_custody(self):
+        from baton_v12.worker_manager import intake_receipt_of, load_manifest, frozen_output_of
+        held = self.implemented()
+        canonical = (Path(__file__).resolve().parents[4] / "docs/V12-WORKER-INSTRUCTIONS.md").read_bytes()
+        seen = 0
+        for artifact in intake_receipt_of(held.control, held.attempt_id)["artifacts"]:
+            for path in Path(artifact["custody_locator"].removeprefix("file://")).rglob("*"):
+                if path.is_file():
+                    seen += 1
+                    self.assertNotIn(b"Baton execution context", path.read_bytes())
+                    self.assertNotIn(canonical[:200], path.read_bytes())
+                    self.assertNotEqual(path.name, "CLAUDE.md")
+        self.assertGreater(seen, 0)
+        frozen = load_manifest(held.control, frozen_output_of(held.control, held.attempt_id)["manifest_digest"], "resultManifest")
+        self.assertNotIn("Baton execution context", json.dumps(frozen))
+        selected = model_attribution.selection_of(held.control, held.attempt_id)
+        home = provider_home.location(self.config["provider_home_root"], selected["delivery"]["home_identity"]) / "home"
+        self.assertEqual(sorted(str(one.relative_to(home)) for one in home.rglob("*") if not one.is_dir()),
+                         [".claude/.credentials.json", ".claude/CLAUDE.md", "session-marker"])
+
+    def refused_turn(self):
+        job, control, composed, attempt = self.started()
+        try:
+            status = self.turn(control, "implementation", attempt, self.mounted(composed, "implementation", attempt),
+                               edits={"harness.py": "print('changed')\n"})
+        except Exception as failure:  # a refusal before the worker loop is still a refusal
+            status = failure
+        self.assertEqual(status, 1)
+        self.assertEqual(self.invocations, [])
+        self.assertEqual(self.instructions_at_start, [])
+        return job, control, composed, attempt
+
+    def test_d5_changed_template_refuses_before_any_provider(self):
+        import provider_policy as worker_policy
+        with mock.patch.object(worker_policy, "LABEL_TEMPLATE", worker_policy.LABEL_TEMPLATE + "one more line\n"):
+            self.refused_turn()
+
+    def test_d5_absent_packaged_instructions_refuse_before_any_provider(self):
+        import provider_policy as worker_policy
+        with mock.patch.object(worker_policy, "INSTRUCTIONS_FILE", "absent.md"):
+            self.refused_turn()
+
+    def test_d5_changed_packaged_instructions_refuse_before_any_provider(self):
+        import provider_policy as worker_policy
+        with mock.patch.object(worker_policy, "worker_instructions", return_value=b"changed bytes"):
+            self.refused_turn()
+
+    def test_d5_role_outside_the_label_vocabulary_refuses_before_any_provider(self):
+        import provider_policy as worker_policy
+        actual = worker_policy.context_label
+        def narrowed(document, role):
+            # The adapter still equals this build's; only the role is not served.
+            return actual(dict(document, context_label=dict(document["context_label"])), "integration" if role == "implementation" else role)
+        with mock.patch.object(worker_policy, "context_label", side_effect=narrowed):
+            self.refused_turn()
+
+    def held_label(self, alter, cause):
+        import claude_agent
+        original = claude_agent.ClaudeAgent.work
+        def reported(agent, seen, declared):
+            answer = original(agent, seen, declared)
+            for output in answer["outputs"]:
+                alter(output.get("result_metadata", {}))
+            return answer
+        job, control, composed, attempt = self.started()
+        with mock.patch.object(claude_agent.ClaudeAgent, "work", reported):
+            self.turn(control, "implementation", attempt, self.mounted(composed, "implementation", attempt), edits={"harness.py": "print('changed')\n"})
+        for _ in range(6):
+            sweep(job, composed, now=fixtures.NOW)
+        account = model_attribution.assessment_of(control, attempt)
+        self.assertEqual((account["outcome"], account["cause"], account["context_label"]), ("held", cause, None))
+        self.assertIsNone(model_attribution._read(control, "provider.attribution-ending", attempt))
+        self.assertNotEqual(self.states(job, composed)["implementation"], "completed")
+        self.assertNotEqual(self.states(job, composed)["review"], "waiting")
+        self.assertEqual(len(self.turns()), 1)
+        from baton_v12.worker_manager import ControlStore
+        with ControlStore.open(control.database, incarnation="label-restart", clock=lambda: fixtures.NOW) as reopened:
+            self.assertEqual(model_attribution.assess(reopened, attempt), account)
+        from tools import job_observation
+        from baton_v12.job_manager import status
+        stage = next(one for one in status(job, composed, observed_at=fixtures.NOW)["jobs"][0]["stages"] if one["kind"] == "implementation")
+        self.assertEqual(job_observation._reason(stage, stage.get("state")), "held: " + cause + "; owner action needed")
+        self.assertIn("label reported: no", model_attribution.diagnostic_of(control, attempt))
+
+    def test_d5_result_without_label_record_is_held_as_missing(self):
+        self.held_label(lambda metadata: metadata.pop(policy.LABEL_SCHEMA, None), "context-label-missing")
+
+    def test_d5_result_with_another_label_digest_is_held_as_mismatch(self):
+        def alter(metadata):
+            if policy.LABEL_SCHEMA in metadata:
+                metadata[policy.LABEL_SCHEMA]["context_label_digest"] = policy.context_record(
+                    self.config["provider_contract"]["adapter"], "review")["context_label_digest"]
+        self.held_label(alter, "context-label-mismatch")
+
     def test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes(self):
         # This table row is a simulation, not Codex flags or qualification.
         synthetic = copy.deepcopy(policy.REALIZATIONS["claude"])
@@ -294,7 +533,10 @@ class SelectedCase(existing.ComposedOneJobCase):
                 given["input_manifest"] = manifest
                 self.submission["jobs"][0]["stages"][1]["profile_digest"] = digest(profile)
             return value
-        with mock.patch.dict(policy.REALIZATIONS, {"codex": synthetic}), mock.patch.object(self, "worker", side_effect=worker):
+        # W385853: a realization is composable only with its instruction
+        # delivery tables; the simulated row declares simulated ones.
+        with mock.patch.dict(policy.REALIZATIONS, {"codex": synthetic}), mock.patch.dict(policy.MANAGED, {"codex": {"path": "fixture/instructions.md", "kind": policy.INSTRUCTIONS_KIND}}), \
+                mock.patch.dict(policy.LABEL_ROLES, {"codex": ["implementation", "review"]}), mock.patch.object(self, "worker", side_effect=worker):
             job, control, composed = self.serving()
             submit(job, self.submission)
             producer, reviewer = (self.worker_of(composed, role).given for role in ("implementation", "review"))
@@ -369,6 +611,107 @@ class SelectedCase(existing.ComposedOneJobCase):
         self.assertEqual((home / "session-marker").read_bytes(), before)
         selected = model_attribution.selection_of(control, second)
         self.assertEqual(selected["delivery"]["home_identity"], first["home_identity"])
+
+    def test_d3_d4_restart_then_next_provider_turn_replaces_entry_and_binds_label(self):
+        # Review M386040 R2: the restart proof continues THROUGH the next
+        # provider turn and its ending, over freshly opened stores.
+        from baton_v12.job_manager import JobStore
+        from baton_v12.worker_manager import ControlStore
+        from tools import stage_execution
+        built = self.built_prompts()
+        held = self.reviewed("changes-requested")
+        sweep(held.job, held.composed, now=fixtures.NOW)
+        first = model_attribution.selection_of(held.control, held.attempt_id)["delivery"]
+        home = provider_home.location(self.config["provider_home_root"], first["home_identity"]) / "home"
+        held.composed.close()
+        held.job.close(); held.control.close()
+        job = JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"], incarnation="label-restart", clock=lambda: fixtures.NOW)
+        control = ControlStore.open(self.control_path, incarnation="label-restart", clock=lambda: fixtures.NOW)
+        self.addCleanup(job.close); self.addCleanup(control.close)
+        composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
+            engine_run=self.engine, credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close); self._composed = composed
+        self.drive(job, composed, "implementation", "waiting", ticks=12)
+        second = next(one for one in self.worker_of(composed, "implementation").stage._prepared if one != held.attempt_id)
+        self.assertEqual(model_attribution.selection_of(control, second)["delivery"]["home_identity"], first["home_identity"])
+        (home / ".claude/CLAUDE.md").write_bytes(b"simulated provider rewrite before restart")
+        (home / ".claude/provider-own").write_bytes(b"simulated provider state")
+        before = len(self.turns())
+        with self.fixed_slot(home):
+            self.assertEqual(self.turn(control, "implementation", second, self.mounted(composed, "implementation", second),
+                                       edits={"harness.py": "print('after restart')\n"}), 0)
+        self.assertEqual(len(self.turns()), before + 1)
+        self.assert_labelled(self.turns()[-1], "implementation", built, builder="_prompt")
+        canonical = (Path(__file__).resolve().parents[4] / "docs/V12-WORKER-INSTRUCTIONS.md").read_bytes()
+        self.assertEqual(self.instructions_at_start[-1], canonical)
+        self.assertEqual((home / ".claude/CLAUDE.md").read_bytes(), canonical)
+        self.assertEqual((home / ".claude/provider-own").read_bytes(), b"simulated provider state")
+        self.assertEqual((home / "session-marker").read_bytes(), self.keep_marker)
+        self.assertEqual(self.environments[-1]["HOME"], self.environments[0]["HOME"])
+        for _ in range(6):
+            sweep(job, composed, now=fixtures.NOW)
+        self.assert_recorded(control, second, "implementation")
+        self.assertIsNotNone(model_attribution._read(control, "provider.attribution-ending", second)["checkpoint_id"])
+        for argv in self.invocations:
+            self.assertNotIn("--resume", argv)
+            self.assertNotIn("--session-id", argv)
+
+    def caller_prompt_turn(self, role):
+        """One `invoke_provider` call as the proved launch, optionally with
+        another launch role, and nothing after it: an invocation prepares its
+        private child roots exactly once, so this probe ends the turn there."""
+        import claude_agent
+        room = os.path.realpath(os.path.join(self.root, "caller-room"))
+        os.makedirs(room)
+        seen_by = {}
+        def calling(agent, seen, declared):
+            seen_by["launch_role"] = seen["role"]
+            try:
+                seen_by["answer"] = agent.invoke_provider(prompt="caller prompt, verbatim", room=room,
+                                                          seen=seen if role is None else dict(seen, role=role))
+            except claude_agent.TaskRefusal as refusal:
+                seen_by["refusal"] = refusal
+            raise claude_agent.TaskRefusal("the caller-prompt probe ends this turn")
+        job, control, composed, attempt = self.started()
+        with mock.patch.object(claude_agent.ClaudeAgent, "work", calling):
+            self.assertEqual(self.turn(control, "implementation", attempt, self.mounted(composed, "implementation", attempt)), 1)
+        self.assertEqual(seen_by["launch_role"], "implementation")
+        return seen_by
+
+    def test_d3_caller_prompt_turn_carries_the_label_of_the_proved_launch_role(self):
+        # Review M386040 R2, the `invoke_provider` row: under a selected
+        # provider policy a caller-supplied prompt is labelled with the role
+        # of the launch the caller proved, and is otherwise passed verbatim.
+        seen_by = self.caller_prompt_turn(None)
+        self.assertTrue(seen_by["answer"]["ok"], seen_by)
+        adapter = self.config["provider_contract"]["adapter"]
+        (caller,) = self.turns()
+        self.assertEqual(caller[-1], policy.context_label(adapter, "implementation").decode() + "\n" + "caller prompt, verbatim")
+        self.assertEqual(caller, policy.argv(adapter, self.config["provider_contract"]["selection"], caller[-1]))
+        # NOT ASSERTED, AND REPORTED: `invoke_provider` prepares the child
+        # home before it binds the caller's launch, so this entry point does
+        # not place the managed entry. No production caller launches under a
+        # labelled role (see the refusal proof below), so that is unreachable
+        # today; this test proves the label and argv of the row only.
+
+    def test_d3_caller_prompt_turn_refuses_the_integration_role_before_any_provider(self):
+        # The one production caller of `invoke_provider` is the integration
+        # workload, and `integration` is not a role the label vocabulary
+        # serves. Such a turn under a selected provider policy refuses before
+        # any provider process. This proves that refusal; it is NOT coverage
+        # of an integration delivery, which this slice does not provide.
+        import claude_agent
+        seen_by = self.caller_prompt_turn("integration")
+        self.assertNotIn("answer", seen_by)
+        self.assertEqual(str(seen_by["refusal"]), "the execution-context label cannot be delivered")
+        self.assertIsInstance(seen_by["refusal"].__cause__, __import__("provider_policy").PolicyRefusal)
+        self.assertEqual(self.invocations, [])
+        self.assertEqual(self.instructions_at_start, [])
+        worker = Path(claude_agent.__file__).parent
+        callers = sorted(path.name for path in worker.glob("*.py") if "invoke_provider(" in path.read_text() and path.name != "claude_agent.py")
+        self.assertEqual(callers, ["integration_workload.py"])
+        self.assertEqual(self.config["provider_contract"]["adapter"]["context_label"]["roles"], ["implementation", "review"])
 
     def test_26_actual_argv_or_environment_drift_refuses_before_provider(self):
         import claude_agent
@@ -645,3 +988,51 @@ class SelectedCase(existing.ComposedOneJobCase):
             clock=lambda: fixtures.NOW, checkout=self.checkout)
         self.addCleanup(composed.close); self._composed = composed
         check()
+
+
+class SelectedHandoffCase(SelectedBase, handoffs.HandoffJobCase):
+    """Review M386040 R2: the native handoff rows under a selected provider
+    policy. Real composed owners and worker; the provider is the same
+    simulated seam. `HandoffJobCase` supplies the `/3` template Job and the
+    bootstrap-composed routing; `SelectedBase` supplies the selection."""
+    started = handoffs.HandoffJobCase.started
+
+    def test_d3_continuation_and_response_turns_carry_role_label_entry_and_record(self):
+        built = self.built_prompts()
+        canonical = (Path(__file__).resolve().parents[4] / "docs/V12-WORKER-INSTRUCTIONS.md").read_bytes()
+        held = self.yielded()                      # implementation stops at a clarification
+        self.assertEqual(len(self.turns()), 1)
+        self.assert_labelled(self.turns()[0], "implementation", built, builder="_handoff_prompt")
+        home = provider_home.location(self.config["provider_home_root"],
+            model_attribution.selection_of(held.control, held.attempt_id)["delivery"]["home_identity"]) / "home"
+        held = self.answered(held)                 # the reviewer's clarification response
+        self.assertEqual(len(self.turns()), 2)
+        self.assert_labelled(self.turns()[1], "review", built, builder="_response_prompt")
+        held = self.resumed(held)                  # the continuation attempt on the retained checkpoint
+        (home / ".claude/CLAUDE.md").write_bytes(b"simulated provider rewrite")
+        (home / ".claude/provider-own").write_bytes(b"simulated provider state")
+        with self.fixed_slot(home):
+            self.assertEqual(self.turn(held.control, "implementation", held.resumed, held.resumed_roots,
+                                       edits={"harness.py": "print('the finished harness')\n"}), 0)
+        self.assertEqual(len(self.turns()), 3)
+        continuation = self.turns()[2]
+        self.assert_labelled(continuation, "implementation", built, builder="_handoff_prompt")
+        self.assertIn(handoffs.ANSWER["body"], continuation[-1])
+        # Every turn started with the exact entry in place; the continuation
+        # reused the first attempt's home and kept provider-owned state.
+        self.assertEqual(self.instructions_at_start, [canonical] * 3)
+        self.assertEqual(self.environments[2]["HOME"], self.environments[0]["HOME"])
+        self.assertNotEqual(self.environments[1]["HOME"], self.environments[0]["HOME"])
+        self.assertEqual((home / ".claude/provider-own").read_bytes(), b"simulated provider state")
+        for _ in range(8):
+            sweep(held.job, held.composed, now=fixtures.NOW)
+        self.assert_recorded(held.control, held.attempt_id, "implementation")
+        self.assert_recorded(held.control, held.review, "review")
+        self.assert_recorded(held.control, held.resumed, "implementation")
+        labels = {attempt: model_attribution.assessment_of(held.control, attempt)["context_label"]["context_label_digest"]
+                  for attempt in (held.attempt_id, held.review, held.resumed)}
+        self.assertEqual(labels[held.attempt_id], labels[held.resumed])
+        self.assertNotEqual(labels[held.attempt_id], labels[held.review])
+        for argv in self.invocations:
+            self.assertNotIn("--resume", argv)
+            self.assertNotIn("--session-id", argv)

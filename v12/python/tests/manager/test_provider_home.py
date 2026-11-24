@@ -255,6 +255,166 @@ class WorkerHomePreparation(unittest.TestCase):
         self.assertEqual((first / "state/credential").read_bytes(), b"simulated-first-job-refresh")
 
 
+class WorkerInstructionDelivery(unittest.TestCase):
+    """W385853. Pure policy proofs; no provider, image or vendor loader."""
+    SELECTED = dict(provider="claude", requested_model="simulated-selector",
+                    reported_identity="simulated-identity", cli_build="2.1.247")
+
+    def adapter(self):
+        from baton_v12 import provider_policy
+        return provider_policy.adapter(self.SELECTED, network="bridge")
+
+    def test_packaged_copy_is_byte_identical_to_the_canonical_document(self):
+        import hashlib
+        from baton_v12 import provider_policy
+        canonical = (Path(__file__).resolve().parents[4] / "docs/V12-WORKER-INSTRUCTIONS.md").read_bytes()
+        packaged = (Path(provider_policy.__file__).parent / provider_policy.INSTRUCTIONS_FILE).read_bytes()
+        self.assertEqual(packaged, canonical)
+        self.assertEqual(provider_policy.worker_instructions(), canonical)
+        (entry,) = self.adapter()["managed_entries"]
+        self.assertEqual(entry, {"path": ".claude/CLAUDE.md", "kind": "worker-instructions", "bytes": len(canonical),
+                                 "sha256": "sha256:" + hashlib.sha256(canonical).hexdigest()})
+        self.assertLessEqual(len(canonical), provider_policy.INSTRUCTIONS_BOUND)
+
+    def test_packaged_copy_travels_as_package_data(self):
+        text = (Path(__file__).resolve().parents[2] / "pyproject.toml").read_text()
+        self.assertIn('"provider_policy/worker_instructions.md"', text)
+        recipe = (Path(__file__).resolve().parents[3] / "worker/Dockerfile.claude").read_text()
+        self.assertIn("COPY python/src/baton_v12/provider_policy /opt/baton/provider_policy", recipe)
+
+    def test_changed_absent_empty_or_oversized_instructions_refuse(self):
+        from baton_v12 import provider_policy
+        adapter = self.adapter()
+        with mock.patch.object(provider_policy, "worker_instructions", return_value=b"one byte differs"):
+            with self.assertRaises(provider_policy.PolicyRefusal):
+                provider_policy.managed_payloads(adapter)
+            with self.assertRaises(provider_policy.PolicyRefusal):
+                provider_policy.validate_adapter(adapter, self.SELECTED, adapter_digest=provider_policy.digest(adapter),
+                                                 tool_policy_digest=provider_policy.digest(provider_policy.POLICY))
+        with mock.patch.object(provider_policy, "INSTRUCTIONS_FILE", "absent.md"), self.assertRaises(provider_policy.PolicyRefusal):
+            provider_policy.adapter(self.SELECTED, network="bridge")
+        with mock.patch.object(provider_policy, "INSTRUCTIONS_BOUND", 100), self.assertRaises(provider_policy.PolicyRefusal):
+            provider_policy.worker_instructions()
+        with tempfile.TemporaryDirectory(dir=disk_backed_root()) as root:
+            Path(root, "empty.md").write_bytes(b"")
+            with mock.patch.object(provider_policy, "INSTRUCTIONS_FILE", os.path.join(root, "empty.md")), \
+                    self.assertRaises(provider_policy.PolicyRefusal):
+                provider_policy.worker_instructions()
+
+    def test_managed_payloads_are_placed_replaced_and_leave_provider_state(self):
+        from baton_v12 import provider_policy
+        from baton_v12.provider_policy.home import prepare
+        with tempfile.TemporaryDirectory(dir=disk_backed_root()) as root:
+            home = Path(root, "home")
+            home.mkdir(mode=0o700)
+            seed = Path(root, "delivered")
+            seed.write_bytes(b"simulated-seed-only")
+            adapter = self.adapter()
+            operands = dict(credential_path=adapter["credential"]["path"], delivered=str(seed), mode="delivered",
+                            managed=provider_policy.managed_payloads(adapter))
+            prepare(str(home), **operands)
+            placed = home / ".claude/CLAUDE.md"
+            self.assertEqual(placed.read_bytes(), provider_policy.worker_instructions())
+            self.assertEqual(placed.stat().st_mode & 0o777, 0o600)
+            placed.write_bytes(b"simulated provider rewrite")
+            (home / ".claude/own").write_bytes(b"simulated provider state")
+            prepare(str(home), **operands)
+            self.assertEqual(placed.read_bytes(), provider_policy.worker_instructions())
+            self.assertEqual((home / ".claude/own").read_bytes(), b"simulated provider state")
+            self.assertTrue((home / ".claude/.credentials.json").is_symlink())
+        for changed in ({"path": ".claude/.credentials.json"}, {"sha256": "sha256:" + "0" * 64}, {"bytes": 1}, {"kind": "other"}):
+            with self.subTest(changed=changed), self.assertRaises(provider_policy.PolicyRefusal):
+                provider_policy.managed_payloads(dict(adapter, managed_entries=[dict(adapter["managed_entries"][0], **changed)]))
+        for entries in ([], adapter["managed_entries"] * 2, None):
+            with self.subTest(entries=entries), self.assertRaises(provider_policy.PolicyRefusal):
+                provider_policy.managed_payloads(dict(adapter, managed_entries=entries))
+
+    def test_label_names_role_instructions_and_what_does_not_apply(self):
+        import hashlib
+        from baton_v12 import provider_policy
+        adapter = self.adapter()
+        self.assertEqual(adapter["context_label"], {"schema": "baton.native-worker-context/1", "placement": "prompt-prefix",
+            "roles": ["implementation", "review"], "bound": 2048,
+            "template_sha256": "sha256:" + hashlib.sha256(provider_policy.LABEL_TEMPLATE.encode()).hexdigest()})
+        labels = {role: provider_policy.context_label(adapter, role) for role in ("implementation", "review")}
+        self.assertNotEqual(labels["implementation"], labels["review"])
+        for role, raw in labels.items():
+            text = raw.decode("ascii")
+            self.assertLessEqual(len(raw), 2048)
+            self.assertTrue(text.startswith("[Baton execution context: baton.native-worker-context/1]\n"))
+            self.assertTrue(text.endswith("removes no restriction.\n"))
+            self.assertEqual(text.count("Assigned role: "), 1)
+            for required in ("You are running as a Baton native v12 worker.", "Assigned role: " + role + ".",
+                             "/run/baton/provider-home/.claude/CLAUDE.md", adapter["managed_entries"][0]["sha256"][7:],
+                             "Does not apply to you:", "AGENTS.md", "docs/HOST-INTEGRATION.md", "v11 claims",
+                             "Protected-main and task boundaries", "It grants no permission"):
+                self.assertIn(required, text)
+            for absent in ("resum", "conversation", "session", "attempt", "/output", "{", "}"):
+                self.assertNotIn(absent, text)
+            self.assertEqual(provider_policy.context_record(adapter, role), {"schema": "baton.native-worker-context/1", "role": role,
+                "context_label_digest": "sha256:" + hashlib.sha256(raw).hexdigest(),
+                "worker_instructions_digest": adapter["managed_entries"][0]["sha256"]})
+            prompt = "task text\n-- with its own lines\n"
+            self.assertEqual(provider_policy.labelled(adapter, role, prompt), text + "\n" + prompt)
+        with self.assertRaises(provider_policy.PolicyRefusal):
+            provider_policy.labelled(adapter, "review", b"bytes")
+
+    def test_label_refuses_unknown_role_changed_template_and_oversize(self):
+        from baton_v12 import provider_policy
+        adapter = self.adapter()
+        for role in ("integration", "publication", "reconciliation", "Implementation", "", None, ["review"]):
+            with self.subTest(role=role), self.assertRaises(provider_policy.PolicyRefusal):
+                provider_policy.context_label(adapter, role)
+        for member, value in (("template_sha256", "sha256:" + "0" * 64), ("roles", ["implementation", "review", "integration"]),
+                              ("bound", 4096), ("placement", "home-file"), ("schema", "baton.native-worker-context/2")):
+            with self.subTest(member=member), self.assertRaises(provider_policy.PolicyRefusal):
+                provider_policy.context_label(dict(adapter, context_label=dict(adapter["context_label"], **{member: value})), "review")
+        for document in (dict(adapter, managed_entries=[]), {key: adapter[key] for key in adapter if key != "context_label"},
+                         dict(adapter, provider="simulated-unknown"), None):
+            with self.subTest(document=type(document).__name__), self.assertRaises(provider_policy.PolicyRefusal):
+                provider_policy.context_label(document, "review")
+        long = provider_policy.LABEL_TEMPLATE + "x" * 2048
+        with mock.patch.object(provider_policy, "LABEL_TEMPLATE", long):
+            grown = provider_policy.adapter(self.SELECTED, network="bridge")
+            self.assertNotEqual(provider_policy.digest(grown), provider_policy.digest(adapter))
+            with self.assertRaises(provider_policy.PolicyRefusal):
+                provider_policy.context_label(grown, "review")
+
+    def test_earlier_adapter_shape_and_undeclared_realization_refuse(self):
+        import copy
+        from baton_v12 import provider_policy
+        adapter = self.adapter()
+        # The 317351e7 shape: empty managed list, no label member.
+        earlier = {key: value for key, value in adapter.items() if key != "context_label"}
+        earlier["managed_entries"] = []
+        earlier["realization"] = dict(earlier["realization"], user_configuration="private-home-empty-managed-entries")
+        with self.assertRaises(provider_policy.PolicyRefusal):
+            provider_policy.validate_adapter(earlier, self.SELECTED, adapter_digest=provider_policy.digest(earlier),
+                                             tool_policy_digest=provider_policy.digest(provider_policy.POLICY))
+        with self.assertRaises(provider_policy.PolicyRefusal):
+            provider_policy.argv(earlier, self.SELECTED, "prompt")
+        self.assertNotEqual(provider_policy.digest(earlier), provider_policy.digest(adapter))
+        synthetic = copy.deepcopy(provider_policy.REALIZATIONS["claude"])
+        with mock.patch.dict(provider_policy.REALIZATIONS, {"simulated-other": synthetic}), self.assertRaises(provider_policy.PolicyRefusal):
+            provider_policy.adapter(dict(self.SELECTED, provider="simulated-other"), network="bridge")
+
+    def test_only_one_instruction_selector_name_exists_in_the_tracked_tree(self):
+        # Static: delivery adds no AGENTS/CLAUDE.md selector to the source tree.
+        root = Path(__file__).resolve().parents[4]
+        found = []
+        for here, directories, files in os.walk(root):
+            if here == str(root):
+                directories[:] = [one for one in directories if one not in ("work", ".git")]
+            found += [os.path.relpath(os.path.join(here, one), root) for one in files
+                      if one in ("AGENTS.md", "AGENTS.override.md", "CLAUDE.md")]
+        self.assertEqual(found, ["AGENTS.md"])
+        # Inside the shared policy package the host file is named only by
+        # the label text; nothing there reads it.
+        from baton_v12 import provider_policy
+        for source in Path(provider_policy.__file__).parent.glob("*.py"):
+            self.assertNotIn("AGENTS.md", source.read_text().replace(provider_policy.LABEL_TEMPLATE, ""), str(source))
+
+
 class ProviderHomeMount(unittest.TestCase):
     def test_inode_replacement_invalidates_mount(self):
         with tempfile.TemporaryDirectory(dir=disk_backed_root()) as root:

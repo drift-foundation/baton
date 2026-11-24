@@ -1,0 +1,184 @@
+{
+  "candidate_tests": {
+    "test_d2_d3_implementation_turn_carries_role_label_and_exact_worker_instructions": {
+      "line": 319,
+      "calls": [
+        "'\\n'.join",
+        "(Path(__file__).resolve().parents[4] / 'AGENTS.md').read_text",
+        "(Path(__file__).resolve().parents[4] / 'AGENTS.md').read_text().splitlines",
+        "(Path(__file__).resolve().parents[4] / 'docs/V12-WORKER-INSTRUCTIONS.md').read_bytes",
+        "Path",
+        "Path(__file__).resolve",
+        "__import__",
+        "__import__('hashlib').sha256",
+        "__import__('hashlib').sha256(canonical).hexdigest",
+        "__import__('hashlib').sha256(label.encode()).hexdigest",
+        "entry['sha256'].removeprefix",
+        "env.values",
+        "host_lines[0].encode",
+        "label.encode",
+        "len",
+        "model_attribution.assessment_of",
+        "model_attribution.diagnostic_of",
+        "model_attribution.selection_of",
+        "policy.context_record",
+        "self.assertEqual",
+        "self.assertIn",
+        "self.assertNotIn",
+        "self.assert_labelled",
+        "self.built_prompts",
+        "self.implemented",
+        "self.turns"
+      ]
+    },
+    "test_d2_d3_review_turn_carries_its_own_role_label_in_its_own_home": {
+      "line": 355,
+      "calls": [
+        "model_attribution.assessment_of",
+        "self.assertEqual",
+        "self.assertIsNotNone",
+        "self.assertNotEqual",
+        "self.assert_labelled",
+        "self.built_prompts",
+        "self.drive",
+        "self.reviewed",
+        "self.turns"
+      ]
+    },
+    "test_d4_correction_replaces_entry_keeps_provider_state_and_is_a_fresh_invocation": {
+      "line": 370,
+      "calls": [
+        "(home / '.claude/CLAUDE.md').write_bytes",
+        "(home / '.claude/provider-own').read_bytes",
+        "(home / '.claude/provider-own').write_bytes",
+        "(home / 'session-marker').read_bytes",
+        "actual_prepare",
+        "dict",
+        "mock.patch.object",
+        "model_attribution.diagnostic_of",
+        "model_attribution.selection_of",
+        "next",
+        "os.readlink",
+        "provider_home.location",
+        "self.assertEqual",
+        "self.assertNotIn",
+        "self.assert_labelled",
+        "self.built_prompts",
+        "self.drive",
+        "self.mounted",
+        "self.reviewed",
+        "self.turn",
+        "self.turns",
+        "self.worker_of"
+      ]
+    },
+    "test_d4_delivery_is_in_no_candidate_frozen_output_or_custody": {
+      "line": 401,
+      "calls": [
+        "(Path(__file__).resolve().parents[4] / 'docs/V12-WORKER-INSTRUCTIONS.md').read_bytes",
+        "Path",
+        "Path(__file__).resolve",
+        "Path(artifact['custody_locator'].removeprefix('file://')).rglob",
+        "artifact['custody_locator'].removeprefix",
+        "frozen_output_of",
+        "home.rglob",
+        "intake_receipt_of",
+        "json.dumps",
+        "load_manifest",
+        "model_attribution.selection_of",
+        "one.is_dir",
+        "one.relative_to",
+        "path.is_file",
+        "path.read_bytes",
+        "provider_home.location",
+        "self.assertEqual",
+        "self.assertGreater",
+        "self.assertNotEqual",
+        "self.assertNotIn",
+        "self.implemented",
+        "sorted",
+        "str"
+      ]
+    },
+    "test_d5_changed_template_refuses_before_any_provider": {
+      "line": 433,
+      "calls": [
+        "mock.patch.object",
+        "self.refused_turn"
+      ]
+    },
+    "test_d5_absent_packaged_instructions_refuse_before_any_provider": {
+      "line": 438,
+      "calls": [
+        "mock.patch.object",
+        "self.refused_turn"
+      ]
+    },
+    "test_d5_changed_packaged_instructions_refuse_before_any_provider": {
+      "line": 443,
+      "calls": [
+        "mock.patch.object",
+        "self.refused_turn"
+      ]
+    },
+    "test_d5_role_outside_the_label_vocabulary_refuses_before_any_provider": {
+      "line": 448,
+      "calls": [
+        "actual",
+        "dict",
+        "mock.patch.object",
+        "self.refused_turn"
+      ]
+    },
+    "test_d5_result_without_label_record_is_held_as_missing": {
+      "line": 485,
+      "calls": [
+        "metadata.pop",
+        "self.held_label"
+      ]
+    },
+    "test_d5_result_with_another_label_digest_is_held_as_mismatch": {
+      "line": 488,
+      "calls": [
+        "policy.context_record",
+        "self.held_label"
+      ]
+    },
+    "test_32_restart_after_review_reuses_retained_home": {
+      "line": 569,
+      "calls": [
+        "(home / 'session-marker').read_bytes",
+        "(home.parent / 'record.json').read_text",
+        "ControlStore.open",
+        "JobStore.open",
+        "held.composed.close",
+        "held.control.close",
+        "held.job.close",
+        "json.loads",
+        "model_attribution.selection_of",
+        "next",
+        "provider_home.location",
+        "self.addCleanup",
+        "self.assertEqual",
+        "self.composed_document",
+        "self.drive",
+        "self.reviewed",
+        "self.worker_of",
+        "stage_execution.operations_from",
+        "sweep"
+      ]
+    }
+  },
+  "requirements": "DELIVERY-CONTRACT-FINAL section 8 check 3 and section 3.2 table",
+  "confirmed_positive_rows": [
+    "implementation",
+    "review",
+    "correction"
+  ],
+  "unproved_selected_rows": [
+    "clarification/finding continuation",
+    "reviewer clarification response",
+    "post-manager-restart provider turn"
+  ],
+  "caller_prompt_row": "contract assumption A; trace reachability and prove applicable role or refusal"
+}

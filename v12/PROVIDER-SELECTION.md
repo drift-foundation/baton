@@ -81,12 +81,59 @@ Claude uses a reference to the existing read-only credential delivery. The
 shared preparation helper also supports a first-use seed for a future selected
 adapter: once present, its private credential is never opened, compared,
 replaced or copied outward by later starts. The production managed-entry list
-is empty. Its helper supports exact digest-bound replacement and rejects
-credential/provider-state collisions for separately selected instruction work.
+holds exactly the worker-instruction entry described below; the helper replaces
+it by exact digest at every start and rejects credential/provider-state
+collisions.
 
 Retained home state does not select session resumption. No resume/session
 argument is added because a home is nonempty. Diagnostics identify the worker,
 holder and retained state; ambiguous session activity remains unknown.
+
+## Worker instructions and execution-context label
+
+Every provider turn under a selected provider policy receives two things from
+Baton, and nothing else:
+
+- **Worker instructions.** The exact bytes of `docs/V12-WORKER-INSTRUCTIONS.md`,
+  from a byte-identical packaged copy in `provider_policy` (a test fails when
+  the two differ). They are the adapter's one managed home entry,
+  `.claude/CLAUDE.md` for Claude, placed before the provider starts and
+  replaced at every start. Files the provider writes in its home are left alone.
+- **Execution-context label.** A short fixed text at the front of the prompt,
+  followed by one blank line and the unchanged task prompt. It says the run is
+  a native v12 worker, names the launch role (`implementation` or `review`),
+  names the worker-instruction file and its digest, and says which host-only
+  procedures in the source tree's `AGENTS.md` and `docs/HOST-INTEGRATION.md`
+  do not apply. It carries no Job, attempt or protocol identifier.
+
+Baton does not remove or hide the source tree's `AGENTS.md`. The label is how
+a worker is told how to treat it. The label states applicability only: it
+grants no permission and is not a security boundary.
+
+The label template digest, its role list and the managed entry are members of
+the adapter document, so they are inside the adapter digest that admission, the
+attempt record and the provider delivery carry. The worker reports the role and
+the digest of the label it prefixed; the manager recomputes both from the
+admitted adapter and the worker's configured role at the ending. A missing or
+different report holds the result as `context-label-missing` or
+`context-label-mismatch`, in the same way as an attribution hold, and status
+shows the role, both digests and whether the label was reported.
+
+A role outside the list, a changed template, or absent, changed or oversized
+packaged instructions refuse before any provider process. An adapter composed
+by an earlier build is refused, not reinterpreted. Launches without a selected
+provider policy, context-reuse workers and provider-free workers are
+unchanged: same prompts, no label, no managed entry.
+
+Delivery covers fresh invocations only. A correction or continuation under a
+selected provider policy is a new invocation in the retained home with a
+handoff; it is not a resumed conversation and nothing reports it as one.
+
+What deterministic tests show is what Baton composed, placed, passed and
+bound. They do not show that the pinned CLI loads the home file by itself, or
+that a model read or followed the label. The label names the file so that
+delivery does not depend on automatic loading. Model-visible confirmation
+belongs to the separately selected qualification turn.
 
 ## Evidence and qualification boundary
 

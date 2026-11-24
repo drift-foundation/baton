@@ -4,6 +4,7 @@ No current deployment defaults can upgrade a missing producer record. Legacy
 attempts have no selected contract and take their original ending unchanged.
 """
 from ..contracts import ContractRefusal, digest
+from .. import provider_policy
 from ..provider_policy import attribution
 from .store import manager_signature
 from . import attempts, attempt_logs
@@ -62,6 +63,18 @@ def assess(control, attempt, frozen=None):
     raw = attempt_logs.complete_record(attempt_logs.AttemptLogs(root=selected["logs_root"], attempt_id=attempt),
                                        "provider.stdout", limit=attribution.MAX_OUTPUT)
     claim = claims[0] if len(claims) == 1 else None
+    # W385853: the execution-context label the worker says it prefixed is
+    # recomputed from the admitted adapter and launch role. It is judged
+    # first: a turn that ran under the wrong or no label is held for that.
+    labels = [one["result_metadata"][provider_policy.LABEL_SCHEMA]
+              for one in result["outputs"] if one.get("status") == "present"
+              and provider_policy.LABEL_SCHEMA in one.get("result_metadata", {})]
+    try:
+        expected_label = provider_policy.context_record(selected["delivery"]["contract"]["adapter"], selected["phase"])
+    except (ValueError, KeyError, TypeError, IndexError):
+        expected_label = None
+    label_cause = ("context-label-missing" if len(labels) != 1 else
+                   None if expected_label is not None and labels[0] == expected_label else "context-label-mismatch")
     cause = "model-attribution-missing"
     accepted = None
     if claim is not None and raw is not None:
@@ -70,9 +83,11 @@ def assess(control, attempt, frozen=None):
             cause = None if accepted["outcome"] == "matched" else "model-attribution-" + accepted["outcome"]
         except ValueError:
             cause = "model-attribution-invalid"
+    cause = label_cause or cause
     account = {"attempt_id": attempt, "job_id": selected["delivery"]["home_identity"]["job_id"],
                "result_id": frozen["result_id"], "manifest_digest": frozen["manifest_digest"],
                "selection_digest": digest(selected["delivery"]), "attribution": accepted,
+               "context_label": expected_label if label_cause is None else None,
                "outcome": "matched" if cause is None else "held", "cause": cause}
     previous = assessment_of(control, attempt)
     if previous is not None and previous != account:
@@ -151,7 +166,15 @@ def diagnostic_of(control, attempt):
         value = attribution.record(selected["delivery"], phase=selected["phase"], evidenced_build=None, raw=None)
     from . import provider_home
     state = provider_home.status_of(selected.get("home_root"), selected["delivery"]["home_identity"])
-    return attribution.diagnostic(value) + "; Provider home: " + state["state"] + "; worker: " + state["worker_id"] + "; holder: " + (state["holder"] or "unknown")
+    try:
+        label = provider_policy.context_record(selected["delivery"]["contract"]["adapter"], selected["phase"])
+        context = ("; Native worker role: " + label["role"] + "; context label: " + label["context_label_digest"]
+                   + "; worker instructions: " + label["worker_instructions_digest"]
+                   + "; label reported: " + ("no evidence" if account is None else
+                                             "yes" if account.get("context_label") == label else "no"))
+    except (ValueError, KeyError, TypeError, IndexError):
+        context = "; Native worker role: unlabelled"
+    return attribution.diagnostic(value) + context + "; Provider home: " + state["state"] + "; worker: " + state["worker_id"] + "; holder: " + (state["holder"] or "unknown")
 
 
 def observed_exchange(control, attempt, document):

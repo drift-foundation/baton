@@ -1,0 +1,11 @@
+{
+  "candidate": "sha256:a1d4ba200543fed639864a9221e8bd46e6a947f236c11343e1470de17cb5ef8a",
+  "candidate_members_unchanged": 10,
+  "candidate_edit": false,
+  "n4a_join": false,
+  "builds": 0,
+  "provider_calls": 0,
+  "credential_reads": 0,
+  "review_scratch_retained": "/home/sl/src/baton/work/scratch/w385853-review-386038",
+  "focused_command_exited": true
+}

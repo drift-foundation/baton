@@ -1,0 +1,61 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_provider_home.WorkerInstructionDelivery",
+    "tests.tools.test_provider_selection.SelectedCase.test_d2_d3_implementation_turn_carries_role_label_and_exact_worker_instructions",
+    "tests.tools.test_provider_selection.SelectedCase.test_d4_delivery_is_in_no_candidate_frozen_output_or_custody",
+    "tests.tools.test_provider_selection.SelectedCase.test_d3_d4_restart_then_next_provider_turn_replaces_entry_and_binds_label",
+    "tests.tools.test_provider_selection.SelectedHandoffCase"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385853-impl/relocated",
+  "top_level_entries": [
+    "AGENTS.md",
+    "docs",
+    "v12",
+    "work"
+  ],
+  "declared_inputs": [
+    "AGENTS.md",
+    "docs/V12-WORKER-INSTRUCTIONS.md",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-analysis-1.json",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-verification-review-1.json",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+    "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/bootstrap_inputs.json",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/install_inputs.json",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-records.json",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-terminal.json",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/EXPECTED.json",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/fixture.iid",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/compose_lifecycle.py",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/verify_lifecycle.py",
+    "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/CAPABILITY.synthetic.json",
+    "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/ROLE-CONTRACT.proposed.json"
+  ],
+  "root_documents_present": {
+    "AGENTS.md": true,
+    "docs/V12-WORKER-INSTRUCTIONS.md": true
+  },
+  "docs_entries": [
+    "V12-WORKER-INSTRUCTIONS.md"
+  ],
+  "exit_status": 0,
+  "duration_seconds": 5.007892903056927,
+  "result_lines": [
+    "Ran 12 tests in 4.399s",
+    "",
+    "OK"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python"
+}

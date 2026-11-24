@@ -1,0 +1,36 @@
+{
+  "canonical_inputs_outside_scope": {
+    "AGENTS.md": "e9e3416d7a6c3dca4206c2379f6031fef79a92926a05ad64781e86c6d6aa8421",
+    "docs/V12-WORKER-INSTRUCTIONS.md": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+  },
+  "runs": {
+    "adjacent": {
+      "collected": 2404,
+      "duplicates": [],
+      "duration_seconds": 580.8114939620718,
+      "executed": 2404,
+      "exit_status": 0,
+      "final_source": "1dfc8c1bc63c19b52a69ecde1d29d9e2e30d1ed04adef95de3b85f5d1e1e78d6",
+      "nonpassing": {},
+      "passed": 2404,
+      "paths_differing_from_final": [],
+      "source_drift": false,
+      "tested_source": "1dfc8c1bc63c19b52a69ecde1d29d9e2e30d1ed04adef95de3b85f5d1e1e78d6",
+      "unaccounted": []
+    },
+    "focused": {
+      "collected": 411,
+      "duplicates": [],
+      "duration_seconds": 32.74274792301003,
+      "executed": 411,
+      "exit_status": 0,
+      "final_source": "1dfc8c1bc63c19b52a69ecde1d29d9e2e30d1ed04adef95de3b85f5d1e1e78d6",
+      "nonpassing": {},
+      "passed": 411,
+      "paths_differing_from_final": [],
+      "source_drift": false,
+      "tested_source": "1dfc8c1bc63c19b52a69ecde1d29d9e2e30d1ed04adef95de3b85f5d1e1e78d6",
+      "unaccounted": []
+    }
+  }
+}

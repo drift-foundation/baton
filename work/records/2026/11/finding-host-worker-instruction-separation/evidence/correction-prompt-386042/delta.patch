@@ -1,0 +1,331 @@
+--- a/v12/python/tests/tools/test_parallel_runner.py
++++ b/v12/python/tests/tools/test_parallel_runner.py
+@@ -1450,7 +1450,14 @@
+     def test_every_declared_input_names_its_consumers_and_is_not_a_whole_dossier(self):
+         for entry in CONSUMED_INPUTS:
+             self.assertTrue(entry["consumers"], entry["path"])
++            self.assertTrue((ROOT.parents[1] / entry["path"]).exists(), entry["path"])
++            self.assertFalse(entry["path"].startswith(("/", "v12/")) or ".." in entry["path"].split("/"), entry["path"])
++            if not entry["path"].startswith("work/"):
++                # W385853 review R1: TESTING.md sections 6 and 9 require every
++                # input outside `v12/` to be declared, not only Work records.
++                # A repository document is declared as the one exact FILE.
++                self.assertTrue((ROOT.parents[1] / entry["path"]).is_file(), f"{entry['path']} is not one exact file")
++                continue
+             self.assertTrue(entry["path"].startswith("work/records/20"), entry["path"])
+             self.assertGreaterEqual(entry["path"].count("/"), 5, f"{entry['path']} is a whole dossier, not the consumed file or import path")
+-            self.assertTrue((ROOT.parents[1] / entry["path"]).exists(), entry["path"])
+         self.assertEqual(len({entry["path"] for entry in CONSUMED_INPUTS}), len(CONSUMED_INPUTS), "declared twice")
+--- a/v12/python/tests/tools/test_provider_selection.py
++++ b/v12/python/tests/tools/test_provider_selection.py
+@@ -13,11 +13,13 @@
+ from baton_v12.worker_manager import launch, model_attribution, provider_home
+ from tests.job_manager import fixtures
+ from tests.manager import provider_fixtures as fake
++from tests.tools import test_native_handoffs as handoffs
+ from tests.tools import test_stage_execution as existing
+ from tools import single_worker
+ 
+ 
+-class SelectedCase(existing.ComposedOneJobCase):
++class SelectedBase(existing.ComposedOneJobCase):
++    """Selected-provider composition and helpers; no test of its own."""
+     def setUp(self):
+         super().setUp()
+         selected, value = fake.identities()
+@@ -106,6 +108,63 @@
+         attempt = self.only_attempt(composed, "implementation")
+         return job, control, composed, attempt
+ 
++    def turns(self):
++        return [argv for argv in self.invocations if argv != ["claude", "--version"]]
++
++    def built_prompts(self):
++        """Record what the unchanged prompt builders return."""
++        import claude_agent
++        built = []
++        patches = []
++        for name in ("_prompt", "_handoff_prompt", "_review_prompt", "_response_prompt"):
++            actual = getattr(claude_agent, name)
++            def recording(*args, _actual=actual, _name=name, **kwargs):
++                value = _actual(*args, **kwargs)
++                built.append((_name, value))
++                return value
++            patches.append(mock.patch.object(claude_agent, name, side_effect=recording))
++        for patch in patches:
++            patch.start()
++            self.addCleanup(patch.stop)
++        return built
++
++    def assert_labelled(self, argv, role, built, builder=None):
++        adapter = self.config["provider_contract"]["adapter"]
++        label = policy.context_label(adapter, role).decode()
++        prompt = argv[-1]
++        self.assertTrue(prompt.startswith(label + "\n"), prompt[:200])
++        original = prompt[len(label) + 1:]
++        self.assertIn(original, [value for _name, value in built])
++        if builder is not None:
++            # The named builder really ran and produced exactly this suffix.
++            self.assertIn((builder, original), built)
++        self.assertNotIn("Baton execution context", original)
++        self.assertEqual(argv, policy.argv(adapter, self.config["provider_contract"]["selection"], prompt))
++        other = "review" if role == "implementation" else "implementation"
++        self.assertNotIn("Assigned role: " + other, prompt)
++        return label
++
++    def fixed_slot(self, home):
++        """SIMULATED: a container has one fixed credential slot path; this
++        harness gives each attempt its own directory. Later turns are handed
++        the first attempt's slot path so the retained reference is the same
++        reference, as it is in a container. Nothing else changes."""
++        import provider_policy.home as worker_home
++        actual_prepare = worker_home.prepare
++        slot = os.readlink(home / ".claude/.credentials.json")
++        return mock.patch.object(worker_home, "prepare", side_effect=lambda path, **kw: actual_prepare(path, **dict(kw, delivered=slot)))
++
++    def assert_recorded(self, control, attempt, role):
++        account = model_attribution.assessment_of(control, attempt)
++        selected = model_attribution.selection_of(control, attempt)
++        self.assertEqual(selected["phase"], role)
++        self.assertEqual((account["outcome"], account["cause"]), ("matched", None))
++        self.assertEqual(account["context_label"], policy.context_record(selected["delivery"]["contract"]["adapter"], role))
++        self.assertIn("label reported: yes", model_attribution.diagnostic_of(control, attempt))
++        return account
++
++
++class SelectedCase(SelectedBase):
+     def test_13_positive_implementation_binds_frozen_result_and_checkpoint(self):
+         held = self.implemented()
+         account = model_attribution.assessment_of(held.control, held.attempt_id)
+@@ -282,39 +341,6 @@
+     # -- W385853 instruction delivery. The provider is simulated: these prove
+     # what Baton composed, placed, passed and bound, not that a vendor CLI
+     # loaded a file or that a model understood the label.
+-
+-    def turns(self):
+-        return [argv for argv in self.invocations if argv != ["claude", "--version"]]
+-
+-    def built_prompts(self):
+-        """Record what the unchanged prompt builders return."""
+-        import claude_agent
+-        built = []
+-        patches = []
+-        for name in ("_prompt", "_handoff_prompt", "_review_prompt", "_response_prompt"):
+-            actual = getattr(claude_agent, name)
+-            def recording(*args, _actual=actual, **kwargs):
+-                value = _actual(*args, **kwargs)
+-                built.append(value)
+-                return value
+-            patches.append(mock.patch.object(claude_agent, name, side_effect=recording))
+-        for patch in patches:
+-            patch.start()
+-            self.addCleanup(patch.stop)
+-        return built
+-
+-    def assert_labelled(self, argv, role, built):
+-        adapter = self.config["provider_contract"]["adapter"]
+-        label = policy.context_label(adapter, role).decode()
+-        prompt = argv[-1]
+-        self.assertTrue(prompt.startswith(label + "\n"), prompt[:200])
+-        original = prompt[len(label) + 1:]
+-        self.assertIn(original, built)
+-        self.assertNotIn("Baton execution context", original)
+-        self.assertEqual(argv, policy.argv(adapter, self.config["provider_contract"]["selection"], prompt))
+-        other = "review" if role == "implementation" else "implementation"
+-        self.assertNotIn("Assigned role: " + other, prompt)
+-        return label
+ 
+     def test_d2_d3_implementation_turn_carries_role_label_and_exact_worker_instructions(self):
+         built = self.built_prompts()
+@@ -378,14 +404,7 @@
+         # A provider or model altered the managed file and left its own state.
+         (home / ".claude/CLAUDE.md").write_bytes(b"simulated provider rewrite")
+         (home / ".claude/provider-own").write_bytes(b"simulated provider state")
+-        # SIMULATED: a container has one fixed credential slot path; this
+-        # harness gives each attempt its own directory. The second turn is
+-        # handed the first attempt's slot path so the retained reference is
+-        # the same reference, as it is in a container. Nothing else changes.
+-        import provider_policy.home as worker_home
+-        actual_prepare = worker_home.prepare
+-        slot = os.readlink(home / ".claude/.credentials.json")
+-        with mock.patch.object(worker_home, "prepare", side_effect=lambda path, **kw: actual_prepare(path, **dict(kw, delivered=slot))):
++        with self.fixed_slot(home):
+             self.assertEqual(self.turn(held.control, "implementation", second, self.mounted(held.composed, "implementation", second),
+                                        edits={"harness.py": "print('corrected')\n"}), 0)
+         correction = self.turns()[-1]
+@@ -592,6 +611,107 @@
+         self.assertEqual((home / "session-marker").read_bytes(), before)
+         selected = model_attribution.selection_of(control, second)
+         self.assertEqual(selected["delivery"]["home_identity"], first["home_identity"])
++
++    def test_d3_d4_restart_then_next_provider_turn_replaces_entry_and_binds_label(self):
++        # Review M386040 R2: the restart proof continues THROUGH the next
++        # provider turn and its ending, over freshly opened stores.
++        from baton_v12.job_manager import JobStore
++        from baton_v12.worker_manager import ControlStore
++        from tools import stage_execution
++        built = self.built_prompts()
++        held = self.reviewed("changes-requested")
++        sweep(held.job, held.composed, now=fixtures.NOW)
++        first = model_attribution.selection_of(held.control, held.attempt_id)["delivery"]
++        home = provider_home.location(self.config["provider_home_root"], first["home_identity"]) / "home"
++        held.composed.close()
++        held.job.close(); held.control.close()
++        job = JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"], incarnation="label-restart", clock=lambda: fixtures.NOW)
++        control = ControlStore.open(self.control_path, incarnation="label-restart", clock=lambda: fixtures.NOW)
++        self.addCleanup(job.close); self.addCleanup(control.close)
++        composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
++            engine_run=self.engine, credential_provider=lambda provider, reference: self.secret,
++            clock=lambda: fixtures.NOW, checkout=self.checkout)
++        self.addCleanup(composed.close); self._composed = composed
++        self.drive(job, composed, "implementation", "waiting", ticks=12)
++        second = next(one for one in self.worker_of(composed, "implementation").stage._prepared if one != held.attempt_id)
++        self.assertEqual(model_attribution.selection_of(control, second)["delivery"]["home_identity"], first["home_identity"])
++        (home / ".claude/CLAUDE.md").write_bytes(b"simulated provider rewrite before restart")
++        (home / ".claude/provider-own").write_bytes(b"simulated provider state")
++        before = len(self.turns())
++        with self.fixed_slot(home):
++            self.assertEqual(self.turn(control, "implementation", second, self.mounted(composed, "implementation", second),
++                                       edits={"harness.py": "print('after restart')\n"}), 0)
++        self.assertEqual(len(self.turns()), before + 1)
++        self.assert_labelled(self.turns()[-1], "implementation", built, builder="_prompt")
++        canonical = (Path(__file__).resolve().parents[4] / "docs/V12-WORKER-INSTRUCTIONS.md").read_bytes()
++        self.assertEqual(self.instructions_at_start[-1], canonical)
++        self.assertEqual((home / ".claude/CLAUDE.md").read_bytes(), canonical)
++        self.assertEqual((home / ".claude/provider-own").read_bytes(), b"simulated provider state")
++        self.assertEqual((home / "session-marker").read_bytes(), self.keep_marker)
++        self.assertEqual(self.environments[-1]["HOME"], self.environments[0]["HOME"])
++        for _ in range(6):
++            sweep(job, composed, now=fixtures.NOW)
++        self.assert_recorded(control, second, "implementation")
++        self.assertIsNotNone(model_attribution._read(control, "provider.attribution-ending", second)["checkpoint_id"])
++        for argv in self.invocations:
++            self.assertNotIn("--resume", argv)
++            self.assertNotIn("--session-id", argv)
++
++    def caller_prompt_turn(self, role):
++        """One `invoke_provider` call as the proved launch, optionally with
++        another launch role, and nothing after it: an invocation prepares its
++        private child roots exactly once, so this probe ends the turn there."""
++        import claude_agent
++        room = os.path.realpath(os.path.join(self.root, "caller-room"))
++        os.makedirs(room)
++        seen_by = {}
++        def calling(agent, seen, declared):
++            seen_by["launch_role"] = seen["role"]
++            try:
++                seen_by["answer"] = agent.invoke_provider(prompt="caller prompt, verbatim", room=room,
++                                                          seen=seen if role is None else dict(seen, role=role))
++            except claude_agent.TaskRefusal as refusal:
++                seen_by["refusal"] = refusal
++            raise claude_agent.TaskRefusal("the caller-prompt probe ends this turn")
++        job, control, composed, attempt = self.started()
++        with mock.patch.object(claude_agent.ClaudeAgent, "work", calling):
++            self.assertEqual(self.turn(control, "implementation", attempt, self.mounted(composed, "implementation", attempt)), 1)
++        self.assertEqual(seen_by["launch_role"], "implementation")
++        return seen_by
++
++    def test_d3_caller_prompt_turn_carries_the_label_of_the_proved_launch_role(self):
++        # Review M386040 R2, the `invoke_provider` row: under a selected
++        # provider policy a caller-supplied prompt is labelled with the role
++        # of the launch the caller proved, and is otherwise passed verbatim.
++        seen_by = self.caller_prompt_turn(None)
++        self.assertTrue(seen_by["answer"]["ok"], seen_by)
++        adapter = self.config["provider_contract"]["adapter"]
++        (caller,) = self.turns()
++        self.assertEqual(caller[-1], policy.context_label(adapter, "implementation").decode() + "\n" + "caller prompt, verbatim")
++        self.assertEqual(caller, policy.argv(adapter, self.config["provider_contract"]["selection"], caller[-1]))
++        # NOT ASSERTED, AND REPORTED: `invoke_provider` prepares the child
++        # home before it binds the caller's launch, so this entry point does
++        # not place the managed entry. No production caller launches under a
++        # labelled role (see the refusal proof below), so that is unreachable
++        # today; this test proves the label and argv of the row only.
++
++    def test_d3_caller_prompt_turn_refuses_the_integration_role_before_any_provider(self):
++        # The one production caller of `invoke_provider` is the integration
++        # workload, and `integration` is not a role the label vocabulary
++        # serves. Such a turn under a selected provider policy refuses before
++        # any provider process. This proves that refusal; it is NOT coverage
++        # of an integration delivery, which this slice does not provide.
++        import claude_agent
++        seen_by = self.caller_prompt_turn("integration")
++        self.assertNotIn("answer", seen_by)
++        self.assertEqual(str(seen_by["refusal"]), "the execution-context label cannot be delivered")
++        self.assertIsInstance(seen_by["refusal"].__cause__, __import__("provider_policy").PolicyRefusal)
++        self.assertEqual(self.invocations, [])
++        self.assertEqual(self.instructions_at_start, [])
++        worker = Path(claude_agent.__file__).parent
++        callers = sorted(path.name for path in worker.glob("*.py") if "invoke_provider(" in path.read_text() and path.name != "claude_agent.py")
++        self.assertEqual(callers, ["integration_workload.py"])
++        self.assertEqual(self.config["provider_contract"]["adapter"]["context_label"]["roles"], ["implementation", "review"])
+ 
+     def test_26_actual_argv_or_environment_drift_refuses_before_provider(self):
+         import claude_agent
+@@ -868,3 +988,51 @@
+             clock=lambda: fixtures.NOW, checkout=self.checkout)
+         self.addCleanup(composed.close); self._composed = composed
+         check()
++
++
++class SelectedHandoffCase(SelectedBase, handoffs.HandoffJobCase):
++    """Review M386040 R2: the native handoff rows under a selected provider
++    policy. Real composed owners and worker; the provider is the same
++    simulated seam. `HandoffJobCase` supplies the `/3` template Job and the
++    bootstrap-composed routing; `SelectedBase` supplies the selection."""
++    started = handoffs.HandoffJobCase.started
++
++    def test_d3_continuation_and_response_turns_carry_role_label_entry_and_record(self):
++        built = self.built_prompts()
++        canonical = (Path(__file__).resolve().parents[4] / "docs/V12-WORKER-INSTRUCTIONS.md").read_bytes()
++        held = self.yielded()                      # implementation stops at a clarification
++        self.assertEqual(len(self.turns()), 1)
++        self.assert_labelled(self.turns()[0], "implementation", built, builder="_handoff_prompt")
++        home = provider_home.location(self.config["provider_home_root"],
++            model_attribution.selection_of(held.control, held.attempt_id)["delivery"]["home_identity"]) / "home"
++        held = self.answered(held)                 # the reviewer's clarification response
++        self.assertEqual(len(self.turns()), 2)
++        self.assert_labelled(self.turns()[1], "review", built, builder="_response_prompt")
++        held = self.resumed(held)                  # the continuation attempt on the retained checkpoint
++        (home / ".claude/CLAUDE.md").write_bytes(b"simulated provider rewrite")
++        (home / ".claude/provider-own").write_bytes(b"simulated provider state")
++        with self.fixed_slot(home):
++            self.assertEqual(self.turn(held.control, "implementation", held.resumed, held.resumed_roots,
++                                       edits={"harness.py": "print('the finished harness')\n"}), 0)
++        self.assertEqual(len(self.turns()), 3)
++        continuation = self.turns()[2]
++        self.assert_labelled(continuation, "implementation", built, builder="_handoff_prompt")
++        self.assertIn(handoffs.ANSWER["body"], continuation[-1])
++        # Every turn started with the exact entry in place; the continuation
++        # reused the first attempt's home and kept provider-owned state.
++        self.assertEqual(self.instructions_at_start, [canonical] * 3)
++        self.assertEqual(self.environments[2]["HOME"], self.environments[0]["HOME"])
++        self.assertNotEqual(self.environments[1]["HOME"], self.environments[0]["HOME"])
++        self.assertEqual((home / ".claude/provider-own").read_bytes(), b"simulated provider state")
++        for _ in range(8):
++            sweep(held.job, held.composed, now=fixtures.NOW)
++        self.assert_recorded(held.control, held.attempt_id, "implementation")
++        self.assert_recorded(held.control, held.review, "review")
++        self.assert_recorded(held.control, held.resumed, "implementation")
++        labels = {attempt: model_attribution.assessment_of(held.control, attempt)["context_label"]["context_label_digest"]
++                  for attempt in (held.attempt_id, held.review, held.resumed)}
++        self.assertEqual(labels[held.attempt_id], labels[held.resumed])
++        self.assertNotEqual(labels[held.attempt_id], labels[held.review])
++        for argv in self.invocations:
++            self.assertNotIn("--resume", argv)
++            self.assertNotIn("--session-id", argv)
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -628,6 +628,13 @@
+ _ADMISSION_PLAN = ("work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/"
+                    "finding-template-adapter-admission-plan")
+ CONSUMED_INPUTS = (
++    # W385853: the canonical worker instructions the packaged delivery copy
++    # must equal byte for byte, and the host policy whose content must reach
++    # no composed provider channel. Repository documents, not Work records.
++    {"path": "docs/V12-WORKER-INSTRUCTIONS.md",
++     "consumers": ("tests.manager.test_provider_home", "tests.tools.test_provider_selection")},
++    {"path": "AGENTS.md",
++     "consumers": ("tests.tools.test_provider_selection",)},
+     # import paths and executed programs
+     # The two captured IMAGE CONTEXTS are consumed whole: `context/worker` is
+     # the fixtures' import path, `Dockerfile.fixture` is read, and every COPY

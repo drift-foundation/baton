@@ -755,6 +755,10 @@ class TheProviderArgvAndEnvironmentAreClosed(AdapterCase):
         for forbidden in ("/output", "output.json", "session", "assignment",
                           "worker-entry", "/run/baton"):
             self.assertNotIn(forbidden, prompt)
+        # W385853: a launch with no selected provider policy gets the
+        # builder's prompt byte for byte and no execution-context label.
+        self.assertEqual(prompt, claude_agent._prompt(TASK))
+        self.assertNotIn("Baton execution context", prompt)
 
     def test_the_environment_is_composed_and_never_inherited(self):
         """A credential variable in this process must not reach the child.

@@ -1450,7 +1450,14 @@ class TheDeclaredInputsCoverWhatTheTestsRead(unittest.TestCase):
     def test_every_declared_input_names_its_consumers_and_is_not_a_whole_dossier(self):
         for entry in CONSUMED_INPUTS:
             self.assertTrue(entry["consumers"], entry["path"])
+            self.assertTrue((ROOT.parents[1] / entry["path"]).exists(), entry["path"])
+            self.assertFalse(entry["path"].startswith(("/", "v12/")) or ".." in entry["path"].split("/"), entry["path"])
+            if not entry["path"].startswith("work/"):
+                # W385853 review R1: TESTING.md sections 6 and 9 require every
+                # input outside `v12/` to be declared, not only Work records.
+                # A repository document is declared as the one exact FILE.
+                self.assertTrue((ROOT.parents[1] / entry["path"]).is_file(), f"{entry['path']} is not one exact file")
+                continue
             self.assertTrue(entry["path"].startswith("work/records/20"), entry["path"])
             self.assertGreaterEqual(entry["path"].count("/"), 5, f"{entry['path']} is a whole dossier, not the consumed file or import path")
-            self.assertTrue((ROOT.parents[1] / entry["path"]).exists(), entry["path"])
         self.assertEqual(len({entry["path"] for entry in CONSUMED_INPUTS}), len(CONSUMED_INPUTS), "declared twice")

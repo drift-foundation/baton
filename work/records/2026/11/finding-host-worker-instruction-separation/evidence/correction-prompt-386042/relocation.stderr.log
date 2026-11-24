@@ -1,0 +1,17 @@
+test_changed_absent_empty_or_oversized_instructions_refuse (tests.manager.test_provider_home.WorkerInstructionDelivery.test_changed_absent_empty_or_oversized_instructions_refuse) ... ok
+test_earlier_adapter_shape_and_undeclared_realization_refuse (tests.manager.test_provider_home.WorkerInstructionDelivery.test_earlier_adapter_shape_and_undeclared_realization_refuse) ... ok
+test_label_names_role_instructions_and_what_does_not_apply (tests.manager.test_provider_home.WorkerInstructionDelivery.test_label_names_role_instructions_and_what_does_not_apply) ... ok
+test_label_refuses_unknown_role_changed_template_and_oversize (tests.manager.test_provider_home.WorkerInstructionDelivery.test_label_refuses_unknown_role_changed_template_and_oversize) ... ok
+test_managed_payloads_are_placed_replaced_and_leave_provider_state (tests.manager.test_provider_home.WorkerInstructionDelivery.test_managed_payloads_are_placed_replaced_and_leave_provider_state) ... ok
+test_only_one_instruction_selector_name_exists_in_the_tracked_tree (tests.manager.test_provider_home.WorkerInstructionDelivery.test_only_one_instruction_selector_name_exists_in_the_tracked_tree) ... ok
+test_packaged_copy_is_byte_identical_to_the_canonical_document (tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_is_byte_identical_to_the_canonical_document) ... ok
+test_packaged_copy_travels_as_package_data (tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_travels_as_package_data) ... ok
+test_d2_d3_implementation_turn_carries_role_label_and_exact_worker_instructions (tests.tools.test_provider_selection.SelectedCase.test_d2_d3_implementation_turn_carries_role_label_and_exact_worker_instructions) ... ok
+test_d4_delivery_is_in_no_candidate_frozen_output_or_custody (tests.tools.test_provider_selection.SelectedCase.test_d4_delivery_is_in_no_candidate_frozen_output_or_custody) ... ok
+test_d3_d4_restart_then_next_provider_turn_replaces_entry_and_binds_label (tests.tools.test_provider_selection.SelectedCase.test_d3_d4_restart_then_next_provider_turn_replaces_entry_and_binds_label) ... ok
+test_d3_continuation_and_response_turns_carry_role_label_entry_and_record (tests.tools.test_provider_selection.SelectedHandoffCase.test_d3_continuation_and_response_turns_carry_role_label_entry_and_record) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 4.399s
+
+OK

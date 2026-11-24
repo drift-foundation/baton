@@ -1,0 +1,5 @@
+no-label: exit 1 FAILED (failures=2)
+no-entry: exit 1 FAILED (failures=4)
+no-ending-check: exit 1 FAILED (failures=2)
+wrong-role: exit 1 FAILED (failures=2)
+copy-drift (one byte appended to the packaged copy): exit 1 FAILED (failures=1)

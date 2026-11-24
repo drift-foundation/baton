@@ -1,0 +1,87 @@
+{
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "candidate": "sha256:a1d4ba200543fed639864a9221e8bd46e6a947f236c11343e1470de17cb5ef8a",
+  "files": [
+    {
+      "after_bytes": 10126,
+      "after_mode": "0o664",
+      "after_sha256": "aee06f4c2d84cfeb1830071ed31d6bd098f093ad6d403deee615600b3cce8f9c",
+      "before_bytes": 7385,
+      "before_sha256": "716a5bed8aa3204667325b619aee53c27139100bc7fbbd03cdc15971255113c7",
+      "path": "v12/PROVIDER-SELECTION.md"
+    },
+    {
+      "after_bytes": 2384,
+      "after_mode": "0o664",
+      "after_sha256": "b3a2aaf84719bef5853e1b22ec921c51d6c5877d9cb98fd3328452b40c377952",
+      "before_bytes": 2342,
+      "before_sha256": "ac925c1f73ea3309dfd1d844978f24fc31c4d9dd9acd026f79edb275ce53ee38",
+      "path": "v12/python/pyproject.toml"
+    },
+    {
+      "after_bytes": 13587,
+      "after_mode": "0o664",
+      "after_sha256": "0521d378d59e3720190ffe0980111e2954ca3c07c4b16c6ae706db159b9d553b",
+      "before_bytes": 8176,
+      "before_sha256": "52b4b188018c37ead059b2e6597320830b409f4ee480ae6983310103891b1e74",
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py"
+    },
+    {
+      "added": true,
+      "after_bytes": 5646,
+      "after_mode": "0o664",
+      "after_sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b",
+      "before_bytes": null,
+      "before_sha256": null,
+      "path": "v12/python/src/baton_v12/provider_policy/worker_instructions.md"
+    },
+    {
+      "after_bytes": 9709,
+      "after_mode": "0o664",
+      "after_sha256": "358caf82f422968babc0dd1db700d50eb8dd3e9112adbdaf04928d37ad8971cd",
+      "before_bytes": 8087,
+      "before_sha256": "7e9070fffd5e4581fef51a4c2822762c44d4242cb9e09a32c1c8776efb78dc56",
+      "path": "v12/python/src/baton_v12/worker_manager/model_attribution.py"
+    },
+    {
+      "after_bytes": 261576,
+      "after_mode": "0o664",
+      "after_sha256": "4045271705f3079afe69d3248264f83b4a942ff86c7b5bc77d9425560794870b",
+      "before_bytes": 261312,
+      "before_sha256": "e4ce0078d6e58dd3d3e4fb02da595e589bb72312288e566d65fcb9b8e1cde4da",
+      "path": "v12/python/tests/manager/test_claude_agent.py"
+    },
+    {
+      "after_bytes": 29469,
+      "after_mode": "0o664",
+      "after_sha256": "947e08f0cfbf448c8edb8c97fbe44e852d8a12abc69e65de668634e08aca5043",
+      "before_bytes": 18109,
+      "before_sha256": "312347a3b83bf5211d9dcf3faee03e767c5ae5e9cffc85de632953f3ab47a255",
+      "path": "v12/python/tests/manager/test_provider_home.py"
+    },
+    {
+      "after_bytes": 56555,
+      "after_mode": "0o664",
+      "after_sha256": "8d3a52011eeb55bf3ec32d012b74b11be6c72bc648a9a0a98120c3c2e94f331b",
+      "before_bytes": 42292,
+      "before_sha256": "1a6789e78aa2e8a070840143c6d180d627b50025548f31141b45f3e44a20bf66",
+      "path": "v12/python/tests/tools/test_provider_selection.py"
+    },
+    {
+      "after_bytes": 30073,
+      "after_mode": "0o664",
+      "after_sha256": "d1aaa05f5df17e5981fec2691bfe35c6773f23f43d9b429da2e23838489e3281",
+      "before_bytes": 29994,
+      "before_sha256": "62517a7beee7f78bcbe95ed6f177d36d3fd839662d227e82b3d1c0f4f98cc0f6",
+      "path": "v12/python/tools/job_observation.py"
+    },
+    {
+      "after_bytes": 412974,
+      "after_mode": "0o664",
+      "after_sha256": "5c14e0af5647da6669ee3a0b861535d33688a131d5115115e5b73208234e40ef",
+      "before_bytes": 411612,
+      "before_sha256": "6cf404dfa60093b1d2f5a4d7073c3d0bddb7128897b5ff88ebd622aa08524eee",
+      "path": "v12/worker/claude_agent.py"
+    }
+  ]
+}

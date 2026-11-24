@@ -1,0 +1,24 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.tools.test_stage_execution.APRJobSettlesAtItsReviewAndSurvivesRestart.test_the_two_stage_job_completes_at_review_and_restart_observes"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "candidate_repository_head": "74969e9d105f25d03d252a68d2387e2132ed00eb",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 1,
+  "bound_seconds": 45,
+  "disk_root": "/home/sl/src/baton/work/scratch/w385853-review-386045/test-roots",
+  "TMPDIR": "/home/sl/src/baton/work/scratch/w385853-review-386045/test-roots",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2091404,
+  "pgid": 2091404
+}

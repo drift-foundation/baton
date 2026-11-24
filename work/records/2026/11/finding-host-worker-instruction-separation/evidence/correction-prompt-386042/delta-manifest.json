@@ -1,0 +1,45 @@
+{
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "files": [
+    {
+      "after_bytes": 81193,
+      "after_mode": "0o664",
+      "after_sha256": "5d5172e078c279283cfb49cb8922222d012d89a643e3ffb351d78309a2c73ba3",
+      "before_bytes": 80642,
+      "before_sha256": "81bb536118ad10f854d6f5e70be98d43782d54cc52598e6a9731aa05eb3e46e2",
+      "in_prior_candidate": false,
+      "path": "v12/python/tests/tools/test_parallel_runner.py"
+    },
+    {
+      "after_bytes": 67957,
+      "after_mode": "0o664",
+      "after_sha256": "75ab36c8790876eda984aec42a045d577224c886eba0e5f7cc772b9c572be82e",
+      "before_bytes": 56555,
+      "before_sha256": "8d3a52011eeb55bf3ec32d012b74b11be6c72bc648a9a0a98120c3c2e94f331b",
+      "in_prior_candidate": true,
+      "path": "v12/python/tests/tools/test_provider_selection.py"
+    },
+    {
+      "after_bytes": 112020,
+      "after_mode": "0o664",
+      "after_sha256": "4c44c7c871e8d0927de4a0d93ca59e800a8ce3add2670aa4d650deafc2ea2e47",
+      "before_bytes": 111560,
+      "before_sha256": "4619a597021d3c5fc3300ff2f150bc4baa248672b3739c5132ada30c28d0a66f",
+      "in_prior_candidate": false,
+      "path": "v12/python/tools/parallel_test.py"
+    }
+  ],
+  "from_candidate": "sha256:a1d4ba200543fed639864a9221e8bd46e6a947f236c11343e1470de17cb5ef8a",
+  "prior_paths_unchanged": [
+    "v12/PROVIDER-SELECTION.md",
+    "v12/python/pyproject.toml",
+    "v12/python/src/baton_v12/provider_policy/__init__.py",
+    "v12/python/src/baton_v12/provider_policy/worker_instructions.md",
+    "v12/python/src/baton_v12/worker_manager/model_attribution.py",
+    "v12/python/tests/manager/test_claude_agent.py",
+    "v12/python/tests/manager/test_provider_home.py",
+    "v12/python/tools/job_observation.py",
+    "v12/worker/claude_agent.py"
+  ],
+  "to_candidate": "sha256:6580545d6cb0c9673e9baf4dce3699b41813024654da1af5386e85dcbe59d440"
+}

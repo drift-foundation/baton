@@ -555,7 +555,8 @@ def _gate_text(gate):
 def _reason(stage, state):
     runtime = stage.get("runtime")
     attribution_hold = runtime.get("model_attribution_hold") if type(runtime) is dict else None
-    if attribution_hold in ("model-attribution-missing", "model-attribution-conflicting", "model-attribution-invalid"):
+    if attribution_hold in ("model-attribution-missing", "model-attribution-conflicting", "model-attribution-invalid",
+                            "context-label-missing", "context-label-mismatch"):
         return "held: " + attribution_hold + "; owner action needed"
     if state == "exceptional":
         exchange = stage.get("exchange")

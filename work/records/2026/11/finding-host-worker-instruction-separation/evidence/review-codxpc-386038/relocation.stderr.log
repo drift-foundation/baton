@@ -1,0 +1,22 @@
+test_packaged_copy_is_byte_identical_to_the_canonical_document (tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_is_byte_identical_to_the_canonical_document) ... ERROR
+
+======================================================================
+ERROR: test_packaged_copy_is_byte_identical_to_the_canonical_document (tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_is_byte_identical_to_the_canonical_document)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385853-review-386038/relocated-declared/v12/python/tests/manager/test_provider_home.py", line 270, in test_packaged_copy_is_byte_identical_to_the_canonical_document
+    canonical = (Path(__file__).resolve().parents[4] / "docs/V12-WORKER-INSTRUCTIONS.md").read_bytes()
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+    with self.open(mode='rb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385853-review-386038/relocated-declared/docs/V12-WORKER-INSTRUCTIONS.md'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

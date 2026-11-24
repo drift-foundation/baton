@@ -628,6 +628,13 @@ _TEAM_HIERARCHY = ("work/records/2026/08/finding-v12-isolated-agent-workers/find
 _ADMISSION_PLAN = ("work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/"
                    "finding-template-adapter-admission-plan")
 CONSUMED_INPUTS = (
+    # W385853: the canonical worker instructions the packaged delivery copy
+    # must equal byte for byte, and the host policy whose content must reach
+    # no composed provider channel. Repository documents, not Work records.
+    {"path": "docs/V12-WORKER-INSTRUCTIONS.md",
+     "consumers": ("tests.manager.test_provider_home", "tests.tools.test_provider_selection")},
+    {"path": "AGENTS.md",
+     "consumers": ("tests.tools.test_provider_selection",)},
     # import paths and executed programs
     # The two captured IMAGE CONTEXTS are consumed whole: `context/worker` is
     # the fixtures' import path, `Dockerfile.fixture` is read, and every COPY

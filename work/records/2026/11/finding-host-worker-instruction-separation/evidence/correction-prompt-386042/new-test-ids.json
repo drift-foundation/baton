@@ -1,0 +1,6 @@
+[
+ "tests.tools.test_provider_selection.SelectedCase.test_d3_caller_prompt_turn_carries_the_label_of_the_proved_launch_role",
+ "tests.tools.test_provider_selection.SelectedCase.test_d3_caller_prompt_turn_refuses_the_integration_role_before_any_provider",
+ "tests.tools.test_provider_selection.SelectedCase.test_d3_d4_restart_then_next_provider_turn_replaces_entry_and_binds_label",
+ "tests.tools.test_provider_selection.SelectedHandoffCase.test_d3_continuation_and_response_turns_carry_role_label_entry_and_record"
+]

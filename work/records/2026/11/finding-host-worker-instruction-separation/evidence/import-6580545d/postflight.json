@@ -1,0 +1,107 @@
+{
+  "candidate": "sha256:6580545d6cb0c9673e9baf4dce3699b41813024654da1af5386e85dcbe59d440",
+  "verified": [
+    {
+      "path": "v12/PROVIDER-SELECTION.md",
+      "existing": true,
+      "base_sha256": "716a5bed8aa3204667325b619aee53c27139100bc7fbbd03cdc15971255113c7",
+      "target_mode": "0o644",
+      "sha256": "aee06f4c2d84cfeb1830071ed31d6bd098f093ad6d403deee615600b3cce8f9c"
+    },
+    {
+      "path": "v12/python/pyproject.toml",
+      "existing": true,
+      "base_sha256": "ac925c1f73ea3309dfd1d844978f24fc31c4d9dd9acd026f79edb275ce53ee38",
+      "target_mode": "0o664",
+      "sha256": "b3a2aaf84719bef5853e1b22ec921c51d6c5877d9cb98fd3328452b40c377952"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py",
+      "existing": true,
+      "base_sha256": "52b4b188018c37ead059b2e6597320830b409f4ee480ae6983310103891b1e74",
+      "target_mode": "0o644",
+      "sha256": "0521d378d59e3720190ffe0980111e2954ca3c07c4b16c6ae706db159b9d553b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/worker_instructions.md",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/model_attribution.py",
+      "existing": true,
+      "base_sha256": "7e9070fffd5e4581fef51a4c2822762c44d4242cb9e09a32c1c8776efb78dc56",
+      "target_mode": "0o644",
+      "sha256": "358caf82f422968babc0dd1db700d50eb8dd3e9112adbdaf04928d37ad8971cd"
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "existing": true,
+      "base_sha256": "e4ce0078d6e58dd3d3e4fb02da595e589bb72312288e566d65fcb9b8e1cde4da",
+      "target_mode": "0o644",
+      "sha256": "4045271705f3079afe69d3248264f83b4a942ff86c7b5bc77d9425560794870b"
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_home.py",
+      "existing": true,
+      "base_sha256": "312347a3b83bf5211d9dcf3faee03e767c5ae5e9cffc85de632953f3ab47a255",
+      "target_mode": "0o644",
+      "sha256": "947e08f0cfbf448c8edb8c97fbe44e852d8a12abc69e65de668634e08aca5043"
+    },
+    {
+      "path": "v12/python/tests/tools/test_parallel_runner.py",
+      "existing": true,
+      "base_sha256": "81bb536118ad10f854d6f5e70be98d43782d54cc52598e6a9731aa05eb3e46e2",
+      "target_mode": "0o664",
+      "sha256": "5d5172e078c279283cfb49cb8922222d012d89a643e3ffb351d78309a2c73ba3"
+    },
+    {
+      "path": "v12/python/tests/tools/test_provider_selection.py",
+      "existing": true,
+      "base_sha256": "1a6789e78aa2e8a070840143c6d180d627b50025548f31141b45f3e44a20bf66",
+      "target_mode": "0o644",
+      "sha256": "75ab36c8790876eda984aec42a045d577224c886eba0e5f7cc772b9c572be82e"
+    },
+    {
+      "path": "v12/python/tools/job_observation.py",
+      "existing": true,
+      "base_sha256": "62517a7beee7f78bcbe95ed6f177d36d3fd839662d227e82b3d1c0f4f98cc0f6",
+      "target_mode": "0o664",
+      "sha256": "d1aaa05f5df17e5981fec2691bfe35c6773f23f43d9b429da2e23838489e3281"
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "existing": true,
+      "base_sha256": "4619a597021d3c5fc3300ff2f150bc4baa248672b3739c5132ada30c28d0a66f",
+      "target_mode": "0o644",
+      "sha256": "4c44c7c871e8d0927de4a0d93ca59e800a8ce3add2670aa4d650deafc2ea2e47"
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "existing": true,
+      "base_sha256": "6cf404dfa60093b1d2f5a4d7073c3d0bddb7128897b5ff88ebd622aa08524eee",
+      "target_mode": "0o644",
+      "sha256": "5c14e0af5647da6669ee3a0b861535d33688a131d5115115e5b73208234e40ef"
+    }
+  ],
+  "exact_bytes": true,
+  "existing_modes_preserved": true,
+  "v12_status_paths_after": [
+    "v12/DESIGN.md",
+    "v12/PROVIDER-SELECTION.md",
+    "v12/python/pyproject.toml",
+    "v12/python/src/baton_v12/provider_policy/__init__.py",
+    "v12/python/src/baton_v12/provider_policy/worker_instructions.md",
+    "v12/python/src/baton_v12/worker_manager/model_attribution.py",
+    "v12/python/tests/manager/test_claude_agent.py",
+    "v12/python/tests/manager/test_provider_home.py",
+    "v12/python/tests/tools/test_parallel_runner.py",
+    "v12/python/tests/tools/test_provider_selection.py",
+    "v12/python/tools/job_observation.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/worker/claude_agent.py"
+  ],
+  "unexpected_v12_paths": []
+}

@@ -1,0 +1,20 @@
+{
+  "collected": 12,
+  "executed": 12,
+  "passed": 12,
+  "outcomes": {
+    "tests.manager.test_provider_home.WorkerInstructionDelivery.test_changed_absent_empty_or_oversized_instructions_refuse": "ok",
+    "tests.manager.test_provider_home.WorkerInstructionDelivery.test_earlier_adapter_shape_and_undeclared_realization_refuse": "ok",
+    "tests.manager.test_provider_home.WorkerInstructionDelivery.test_label_names_role_instructions_and_what_does_not_apply": "ok",
+    "tests.manager.test_provider_home.WorkerInstructionDelivery.test_label_refuses_unknown_role_changed_template_and_oversize": "ok",
+    "tests.manager.test_provider_home.WorkerInstructionDelivery.test_managed_payloads_are_placed_replaced_and_leave_provider_state": "ok",
+    "tests.manager.test_provider_home.WorkerInstructionDelivery.test_only_one_instruction_selector_name_exists_in_the_tracked_tree": "ok",
+    "tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_is_byte_identical_to_the_canonical_document": "ok",
+    "tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_travels_as_package_data": "ok",
+    "tests.tools.test_provider_selection.SelectedCase.test_d2_d3_implementation_turn_carries_role_label_and_exact_worker_instructions": "ok",
+    "tests.tools.test_provider_selection.SelectedCase.test_d4_delivery_is_in_no_candidate_frozen_output_or_custody": "ok",
+    "tests.tools.test_provider_selection.SelectedCase.test_d3_d4_restart_then_next_provider_turn_replaces_entry_and_binds_label": "ok",
+    "tests.tools.test_provider_selection.SelectedHandoffCase.test_d3_continuation_and_response_turns_carry_role_label_entry_and_record": "ok"
+  },
+  "accounting": "explicit unittest ID reconciliation, not registry run"
+}

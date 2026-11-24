@@ -1,0 +1,30 @@
+{
+  "consumed_root_documents": [
+    {
+      "git": "tracked",
+      "input": "AGENTS.md",
+      "path": "AGENTS.md",
+      "sha256": "e9e3416d7a6c3dca4206c2379f6031fef79a92926a05ad64781e86c6d6aa8421"
+    },
+    {
+      "git": "tracked",
+      "input": "docs/V12-WORKER-INSTRUCTIONS.md",
+      "path": "docs/V12-WORKER-INSTRUCTIONS.md",
+      "sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+    }
+  ],
+  "equal": true,
+  "final_source": "c133a561401455ceb6b5c0de046423577d6545c67446e67f97d2ef661e1e53e4",
+  "focused": {
+    "collected": 503,
+    "duplicates": [],
+    "duration_seconds": 69.17592377995607,
+    "executed": 503,
+    "exit_status": 0,
+    "nonpassing": {},
+    "passed": 503,
+    "source_drift": false,
+    "unaccounted": []
+  },
+  "tested_source": "c133a561401455ceb6b5c0de046423577d6545c67446e67f97d2ef661e1e53e4"
+}

@@ -1,0 +1,28 @@
+{
+  "unchanged_content_digest": "c133a561401455ceb6b5c0de046423577d6545c67446e67f97d2ef661e1e53e4",
+  "consumed_root_documents": [
+    {
+      "git": "tracked",
+      "input": "AGENTS.md",
+      "path": "AGENTS.md",
+      "sha256": "e9e3416d7a6c3dca4206c2379f6031fef79a92926a05ad64781e86c6d6aa8421"
+    },
+    {
+      "git": "tracked",
+      "input": "docs/V12-WORKER-INSTRUCTIONS.md",
+      "path": "docs/V12-WORKER-INSTRUCTIONS.md",
+      "sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+    }
+  ],
+  "AGENTS.md": {
+    "content_digest_with_one_byte_appended": "327b949b0e636b5ec237fa70f66007a8070a6c02709bc5e44278e0ce459fe835",
+    "differs": true,
+    "restored_sha256": "e9e3416d7a6c3dca4206c2379f6031fef79a92926a05ad64781e86c6d6aa8421"
+  },
+  "docs/V12-WORKER-INSTRUCTIONS.md": {
+    "content_digest_with_one_byte_appended": "5dfa72ca4a493bceea1889d396e7952c2fc2da722bd70af1e979ea28dc2e48df",
+    "differs": true,
+    "restored_sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+  },
+  "after_restore_equals_unchanged": true
+}

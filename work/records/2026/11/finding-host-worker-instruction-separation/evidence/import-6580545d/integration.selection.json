@@ -1,0 +1,1 @@
+["tests.manager.test_claude_agent", "tests.manager.test_provider_home", "tests.manager.test_model_attribution", "tests.tools.test_provider_selection", "tests.job_manager.test_provider_attribution_recovery", "tests.tools.test_job_observation", "tests.tools.test_parallel_runner", "tests.tools.test_native_handoffs"]

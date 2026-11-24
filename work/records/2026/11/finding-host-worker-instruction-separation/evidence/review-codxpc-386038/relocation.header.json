@@ -1,0 +1,16 @@
+{
+  "command": [
+    "just",
+    "test-one",
+    "tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_is_byte_identical_to_the_canonical_document"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385853-review-386038/relocated-declared/v12",
+  "selection": "one newly added equality test",
+  "collected": 1,
+  "executed": 1,
+  "passed": 0,
+  "errors": 1,
+  "exit_status": 1,
+  "elapsed_seconds": 0.4241317870328203,
+  "purpose": "negative relocation reproduction using v12 plus declared inputs; expected failure confirms undeclared canonical document"
+}

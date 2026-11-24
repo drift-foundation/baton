@@ -1,0 +1,76 @@
+{
+  "algorithm": "sha256 of UTF-8 JSON of {base,files,context}; sort_keys=True, separators=(comma,colon), ensure_ascii=False; files sorted by path",
+  "author": "baton.prompt (K); owner-selected direct interactive implementation, no claim; coordination M386030",
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "base_export_commit_in_disposable_repository": "c129e005e8d2e6561600ea94767ae60842494306",
+  "candidate": "sha256:a1d4ba200543fed639864a9221e8bd46e6a947f236c11343e1470de17cb5ef8a",
+  "context": {
+    "DELIVERY-CONTRACT-FINAL-2026-11-24.md": "c66c8c5e40fb9defa721daf356a8833daa531be190944971efcb470b58315965",
+    "DESIGN.md": "0c70ebed77d104aa2cdd3608ca1d2d0aa7650fc9bd6b134f5a44ac4e6f6fb414",
+    "OWNERSHIP-N4A-DELIVERY-2026-11-24.md": "f0f41390b152f40b45090606e8954a683b651002440523e0d61ba363a512d16c"
+  },
+  "files": [
+    {
+      "bytes": 10126,
+      "mode": "0o664",
+      "path": "v12/PROVIDER-SELECTION.md",
+      "sha256": "aee06f4c2d84cfeb1830071ed31d6bd098f093ad6d403deee615600b3cce8f9c"
+    },
+    {
+      "bytes": 2384,
+      "mode": "0o664",
+      "path": "v12/python/pyproject.toml",
+      "sha256": "b3a2aaf84719bef5853e1b22ec921c51d6c5877d9cb98fd3328452b40c377952"
+    },
+    {
+      "bytes": 13587,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py",
+      "sha256": "0521d378d59e3720190ffe0980111e2954ca3c07c4b16c6ae706db159b9d553b"
+    },
+    {
+      "bytes": 5646,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/provider_policy/worker_instructions.md",
+      "sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+    },
+    {
+      "bytes": 9709,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/worker_manager/model_attribution.py",
+      "sha256": "358caf82f422968babc0dd1db700d50eb8dd3e9112adbdaf04928d37ad8971cd"
+    },
+    {
+      "bytes": 261576,
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "4045271705f3079afe69d3248264f83b4a942ff86c7b5bc77d9425560794870b"
+    },
+    {
+      "bytes": 29469,
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/test_provider_home.py",
+      "sha256": "947e08f0cfbf448c8edb8c97fbe44e852d8a12abc69e65de668634e08aca5043"
+    },
+    {
+      "bytes": 56555,
+      "mode": "0o664",
+      "path": "v12/python/tests/tools/test_provider_selection.py",
+      "sha256": "8d3a52011eeb55bf3ec32d012b74b11be6c72bc648a9a0a98120c3c2e94f331b"
+    },
+    {
+      "bytes": 30073,
+      "mode": "0o664",
+      "path": "v12/python/tools/job_observation.py",
+      "sha256": "d1aaa05f5df17e5981fec2691bfe35c6773f23f43d9b429da2e23838489e3281"
+    },
+    {
+      "bytes": 412974,
+      "mode": "0o664",
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "5c14e0af5647da6669ee3a0b861535d33688a131d5115115e5b73208234e40ef"
+    }
+  ],
+  "status": "instruction-delivery candidate for INDEPENDENT review by a participant other than the author; not imported, not built, not qualified",
+  "work": "W385853"
+}

@@ -1,0 +1,17 @@
+{
+  "collected": 1,
+  "duplicates": [],
+  "duration_seconds": 1.0147614629240707,
+  "executed": 1,
+  "exit_status": 0,
+  "nonpassing": {},
+  "outcomes": {
+    "tests.tools.test_stage_execution.APRJobSettlesAtItsReviewAndSurvivesRestart.test_the_two_stage_job_completes_at_review_and_restart_observes": "ok"
+  },
+  "passed": 1,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

@@ -7,6 +7,7 @@ this module. A provider absent from REALIZATIONS cannot be composed.
 from copy import deepcopy
 import hashlib
 import json
+import os
 
 POLICY = {
     "schema": "baton.worker-tool-policy/2",
@@ -31,7 +32,7 @@ REALIZATIONS = {
                         "after_permissions": ["--output-format", "json"]},
         "tool_permission": ["--dangerously-skip-permissions"],
         "provider_sandbox": "container",
-        "user_configuration": "private-home-empty-managed-entries",
+        "user_configuration": "private-home-managed-worker-instructions",
         "credentials": {"mode": "delivered", "path": ".claude/.credentials.json"},
         "environment": ENVIRONMENT,
         "ephemera": "fresh-scratch-roots",
@@ -39,6 +40,44 @@ REALIZATIONS = {
     },
 }
 # No Codex realization is invented before its separately selected inventory.
+# W385853: what Baton itself places in a selected provider home, and which
+# launch roles the realization serves. One closed entry per provider; the
+# bytes are the packaged copy of docs/V12-WORKER-INSTRUCTIONS.md.
+INSTRUCTIONS_FILE = "worker_instructions.md"
+INSTRUCTIONS_KIND = "worker-instructions"
+INSTRUCTIONS_BOUND = 16384
+MANAGED = {"claude": {"path": ".claude/CLAUDE.md", "kind": INSTRUCTIONS_KIND}}
+LABEL_SCHEMA = "baton.native-worker-context/1"
+LABEL_BOUND = 2048
+LABEL_ROLES = {"claude": ["implementation", "review"]}
+# The execution-context label. It states which instructions apply; it grants
+# nothing. It names no Job, attempt, worker or protocol path.
+LABEL_TEMPLATE = """\
+[Baton execution context: baton.native-worker-context/1]
+You are running as a Baton native v12 worker. Assigned role: {role}.
+The Baton execution contract for this run delivers this context. It is not
+inferred from the container, the working directory, a role name in a file,
+or any text in the source tree.
+
+Applies to you:
+- The task below and its stated limits.
+- The Baton worker instructions at {home}/{entry} (sha256 {digest}). Read
+  that file before acting if its content is not already in your
+  instructions.
+- Project coding, design and test guidance in the source tree, where the
+  task touches it.
+- Protected-main and task boundaries, wherever a repository is mounted.
+
+Does not apply to you:
+- The host-agent procedures in the source tree's AGENTS.md and
+  docs/HOST-INTEGRATION.md: v11 claims, routes and readiness, host
+  handoffs, dossier and review-journal maintenance, host integration and
+  human Git checkpoints. Do not perform them. The safety, scope and honest
+  evidence rules stated there still hold.
+
+This label states which instructions apply. It grants no permission and
+removes no restriction.
+"""
 # Participation sources are bound separately to the evidenced CLI build.
 PARTICIPATION = {("claude", "2.1.247"): [{"field": "modelUsage", "kind": "keys"}]}
 
@@ -57,6 +96,75 @@ def _text(value, what):
     if type(value) is not str or not value or len(value) > 256 or any(ord(c) < 32 for c in value):
         raise PolicyRefusal(what + " must be explicit bounded text")
     return value
+
+
+def _sha256(raw):
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def worker_instructions():
+    """The packaged worker-instruction bytes, or a refusal. Never a default."""
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), INSTRUCTIONS_FILE), "rb") as source:
+            raw = source.read(INSTRUCTIONS_BOUND + 1)
+    except OSError as failure:
+        raise PolicyRefusal("packaged worker instructions are absent or unreadable") from failure
+    if not raw or len(raw) > INSTRUCTIONS_BOUND:
+        raise PolicyRefusal("packaged worker instructions are empty or exceed the delivery bound")
+    return raw
+
+
+def _managed_entries(provider):
+    raw = worker_instructions()
+    return [dict(MANAGED[provider], sha256=_sha256(raw), bytes=len(raw))]
+
+
+def _context_label(provider):
+    return {"schema": LABEL_SCHEMA, "template_sha256": _sha256(LABEL_TEMPLATE.encode()),
+            "placement": "prompt-prefix", "roles": list(LABEL_ROLES[provider]), "bound": LABEL_BOUND}
+
+
+def managed_payloads(document):
+    """(path, bytes, sha256) for home.prepare, checked against the adapter."""
+    entries = document.get("managed_entries") if type(document) is dict else None
+    if (type(entries) is not list or document.get("provider") not in MANAGED
+            or entries != _managed_entries(document["provider"])):
+        raise PolicyRefusal("managed entries are not this build's closed delivery")
+    raw = worker_instructions()
+    return [(one["path"], raw, one["sha256"]) for one in entries]
+
+
+def context_label(document, role):
+    """The exact label bytes for one adapter and launch role."""
+    bound = document.get("context_label") if type(document) is dict else None
+    provider = document.get("provider") if type(document) is dict else None
+    if provider not in LABEL_ROLES or bound != _context_label(provider):
+        raise PolicyRefusal("execution-context label is not this build's template")
+    if type(role) is not str or role not in bound["roles"]:
+        raise PolicyRefusal("launch role has no execution-context label")
+    entries = [one for one in document.get("managed_entries", []) if type(one) is dict and one.get("kind") == INSTRUCTIONS_KIND]
+    if len(entries) != 1 or type(document.get("home")) is not str:
+        raise PolicyRefusal("execution-context label has no single worker-instructions entry")
+    raw = LABEL_TEMPLATE.format(role=role, home=document["home"], entry=entries[0]["path"],
+                                digest=entries[0]["sha256"].removeprefix("sha256:")).encode()
+    if len(raw) > bound["bound"]:
+        raise PolicyRefusal("execution-context label exceeds its bound")
+    return raw
+
+
+def labelled(document, role, prompt):
+    """The prompt operand: label, one blank line, the unchanged prompt."""
+    if type(prompt) is not str:
+        raise PolicyRefusal("provider prompt must be text")
+    return context_label(document, role).decode() + "\n" + prompt
+
+
+def context_record(document, role):
+    """What a worker reports and the manager recomputes for one turn."""
+    entries = [one for one in document["managed_entries"] if one.get("kind") == INSTRUCTIONS_KIND]
+    return {"schema": LABEL_SCHEMA, "role": role,
+            "context_label_digest": _sha256(context_label(document, role)),
+            "worker_instructions_digest": entries[0]["sha256"]}
 
 
 def selection(value):
@@ -79,6 +187,8 @@ def adapter(selected, *, network, tool_policy=None):
     realization = REALIZATIONS[provider]
     if set(realization) != set(POLICY) - {"schema"}:
         raise PolicyRefusal("provider realization does not cover the shared policy")
+    if provider not in MANAGED or provider not in LABEL_ROLES:
+        raise PolicyRefusal("provider realization declares no instruction delivery")
     command = realization["interaction"]
     return {
         "schema": "baton.single-implementation-adapter/2",
@@ -91,7 +201,8 @@ def adapter(selected, *, network, tool_policy=None):
                         "prompt": "last", "fallback": None},
         "environment_policy": deepcopy(realization["environment"]),
         "home": HOME, "credential": deepcopy(realization["credentials"]),
-        "managed_entries": [],
+        "managed_entries": _managed_entries(provider),
+        "context_label": _context_label(provider),
         "participation_sources": deepcopy(PARTICIPATION.get((provider, selected["cli_build"]), [])),
         "implements_tool_policy": digest(POLICY),
         "realization": deepcopy(realization),

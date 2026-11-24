@@ -1,0 +1,24 @@
+{
+  "candidate": "sha256:6580545d6cb0c9673e9baf4dce3699b41813024654da1af5386e85dcbe59d440",
+  "unchanged_candidate_files": 12,
+  "prior_411_ids_preserved": true,
+  "consumed_root_documents": [
+    {
+      "git": "tracked",
+      "input": "AGENTS.md",
+      "path": "AGENTS.md",
+      "sha256": "e9e3416d7a6c3dca4206c2379f6031fef79a92926a05ad64781e86c6d6aa8421"
+    },
+    {
+      "git": "tracked",
+      "input": "docs/V12-WORKER-INSTRUCTIONS.md",
+      "path": "docs/V12-WORKER-INSTRUCTIONS.md",
+      "sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+    }
+  ],
+  "provider_calls": 0,
+  "builds": 0,
+  "protected_git_mutations": 0,
+  "all_review_commands_exited": true,
+  "scratch_retained": "/home/sl/src/baton/work/scratch/w385853-review-386045"
+}

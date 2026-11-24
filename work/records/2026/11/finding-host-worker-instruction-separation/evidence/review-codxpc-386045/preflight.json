@@ -1,0 +1,12 @@
+{
+  "candidate": "sha256:6580545d6cb0c9673e9baf4dce3699b41813024654da1af5386e85dcbe59d440",
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "verified_paths": 12,
+  "delta": [
+    "v12/python/tests/tools/test_parallel_runner.py",
+    "v12/python/tests/tools/test_provider_selection.py",
+    "v12/python/tools/parallel_test.py"
+  ],
+  "unchanged_prior_paths": 9,
+  "repo": "/home/sl/src/baton/work/scratch/w385853-review-386045/repo"
+}
