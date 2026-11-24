@@ -1,0 +1,49 @@
+--- r4/option-a-setup.sh
++++ r5/option-a-setup.sh
+@@ -162,6 +162,12 @@
+   say "phase $phase ended with status $code"
+   exit "$code"
+ }
++op_recorded() {  # FILE -> success only for a readable record of exactly "pid start-tick", both numbers
++  local pid tick rest
++  read -r pid tick rest < "$1" 2>/dev/null || return 1
++  case "$pid:$tick:$rest" in *[!0-9:]*|:*|*::*) return 1;; esac
++  [ -z "$rest" ]
++}
+ op_alive() {  # FILE holding "pid start-tick" -> success while THAT process (pid AND start time) has not ended
+   local pid tick now
+   read -r pid tick < "$1" 2>/dev/null || return 1
+@@ -181,7 +187,10 @@
+   [ -z "$before" ] || fail "the instance stack is already running ($(echo $before)); this phase starts and stops its own and will not stop another's"
+   token="${RUN:-run}-$$-$(date +%s%N)"
+   rm -f "$PREFIX.stack-start-op" "$PREFIX.stack-start-op-done" "$PREFIX.stack-started"
+-  echo "$token" > "$PREFIX.stack-start-intent"
++  # THE ONE STEP THIS INVOCATION CAN VOUCH FOR: between these two assignments an intent may exist and no command
++  # has been forked. The second is made BEFORE the fork, so "intent-only" is never true of a forked command.
++  STACK_START_STAGE=intent-only; echo "$token" > "$PREFIX.stack-start-intent"
++  STACK_START_STAGE=launched
+   # The recorded process outlives a signal sent to this run's whole group: it handles it and stays until the
+   # start command, which `timeout` runs in a group of its own, has ended.
+   ( trap : TERM INT HUP; me="$BASHPID"; echo "$me $(awk '{print $22}' "/proc/$me/stat")" > "$PREFIX.stack-start-op"
+@@ -206,9 +215,19 @@
+   token="$(head -1 "$PREFIX.stack-start-intent")"
+   # 1. THE START COMMAND MUST HAVE ENDED. It records its own process before it asks for anything; a moment is
+   #    allowed for a child forked just before an interruption to write that record. Its own bound is 310 s.
++  #    ONLY POSITIVE EVIDENCE ENDS THIS STEP: the completion record; or the command's own record with that
++  #    process positively ended; or THIS invocation knowing it wrote the intent and never forked. An intent with
++  #    no readable record of its command proves nothing about a command that may yet act -- waiting is not
++  #    proof -- so it stays UNRESOLVED, retained, and no new start is made over it.
+   if [ ! -e "$PREFIX.stack-start-op-done" ]; then
+-    end=$(( $(date +%s) + 3 )); until [ -s "$PREFIX.stack-start-op" ] || [ "$(date +%s)" -ge "$end" ]; do sleep 0.2; done
+-    if [ -s "$PREFIX.stack-start-op" ]; then
++    if [ "${STACK_START_STAGE:-}" = intent-only ]; then
++      echo never-launched > "$PREFIX.stack-start-op-done"
++    else
++      end=$(( $(date +%s) + 3 )); until op_recorded "$PREFIX.stack-start-op" || [ "$(date +%s)" -ge "$end" ]; do sleep 0.2; done
++      if ! op_recorded "$PREFIX.stack-start-op"; then
++        say "UNRESOLVED: the start intent has no readable record of its start command ($PREFIX.stack-start-op), so it is not known to have ended or never begun; nothing was reconciled; intent retained at $PREFIX.stack-start-intent"
++        UNRESOLVED=1; return 0
++      fi
+       end=$(( $(date +%s) + 330 )); while op_alive "$PREFIX.stack-start-op" && [ "$(date +%s)" -lt "$end" ]; do sleep 0.2; done
+       if op_alive "$PREFIX.stack-start-op"; then
+         say "UNRESOLVED: this run's start command ($(cat "$PREFIX.stack-start-op")) has not ended; nothing is stopped under a start in flight; intent retained at $PREFIX.stack-start-intent"

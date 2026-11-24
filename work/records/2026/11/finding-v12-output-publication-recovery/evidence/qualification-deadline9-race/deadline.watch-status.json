@@ -1,0 +1,116 @@
+{
+  "admission": {
+    "admitted_at": "2026-11-24T08:22:12.506Z",
+    "input_digest": "sha256:1b015d044522a6438fd213a4cac7b3c6e31d3a15b2af549573a4b4846e0e12b2",
+    "job_id": "publication-option-a-20261124T062254Z-1632328-deadline-9-D1",
+    "state": "admitted"
+  },
+  "decision": {
+    "decided_at": "2026-11-24T08:22:10.215Z",
+    "decision_id": "option-a-20261124T062254Z-1632328-deadline-9-D1",
+    "disposition": "approved",
+    "owner": "baton.slaw"
+  },
+  "gate": {
+    "bindings": [
+      {
+        "name": "decision",
+        "present": true
+      },
+      {
+        "name": "admission",
+        "present": true
+      },
+      {
+        "name": "staged-input",
+        "present": true
+      },
+      {
+        "name": "adoption",
+        "present": false
+      },
+      {
+        "name": "custody",
+        "present": false
+      },
+      {
+        "name": "intake",
+        "present": false
+      },
+      {
+        "name": "reviewer-servability",
+        "present": false
+      }
+    ],
+    "candidate": {
+      "attempt_id": "attempt-a3b42fff628a5814c67a2eeb18d608591bd3664e7bbff1c11441a1579662c1d8",
+      "base": "560eaa895236ae28bcf204f308b82679f32abbbd",
+      "changed_paths": [
+        "big.txt"
+      ],
+      "head": "f8d4d8088222a85b100d59ff9221d560e778f204",
+      "participant": "baton.claude-native",
+      "principal": "principal:baton.claude-native"
+    },
+    "decision_id": "option-a-20261124T062254Z-1632328-deadline-9-D1",
+    "job_id": "publication-option-a-20261124T062254Z-1632328-deadline-9-D1",
+    "open": false,
+    "prerequisites": [],
+    "prior_job_id": "job-w385695-qualify-20261124T062254Z-1632328-deadline-9-1",
+    "reason": "publication-custody-handoff-unavailable",
+    "runnable": false,
+    "stage_id": "publication-option-a-20261124T062254Z-1632328-deadline-9-D1/review"
+  },
+  "observed_at": "2026-11-24T08:22:24.010Z",
+  "original": {
+    "attempt_id": "attempt-a3b42fff628a5814c67a2eeb18d608591bd3664e7bbff1c11441a1579662c1d8",
+    "episode": 1,
+    "job_id": "job-w385695-qualify-20261124T062254Z-1632328-deadline-9-1",
+    "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-deadline-9-1/implementation",
+    "state": "failed at output publication; unchanged by any recovery",
+    "work_id": "c68ea98b-W1"
+  },
+  "owner_item": null,
+  "publication_attempt": {
+    "attempt_id": "attempt-841193ebd1da70aee600b38c6e07180760f77124cc06aa3d8e84b1b42689b438",
+    "recorded": {
+      "cleanup": "pending",
+      "execution_runtime": "running"
+    },
+    "runtime_knowledge": "recorded: the Worker Manager's own journal; read the attempt for it"
+  },
+  "recovery": {
+    "custody": false,
+    "decision_id": "option-a-20261124T062254Z-1632328-deadline-9-D1",
+    "detail": "nothing is runnable for review: the exact publication custody and candidate handoff REC-9 requires are not both present",
+    "ended": null,
+    "handed_off": false,
+    "job_id": "publication-option-a-20261124T062254Z-1632328-deadline-9-D1",
+    "launched": true,
+    "original_job": "failed; unchanged by this recovery",
+    "outcome": null,
+    "owed": "publish",
+    "owner_item": null,
+    "prior_job_id": "job-w385695-qualify-20261124T062254Z-1632328-deadline-9-1",
+    "publication_deadline": {
+      "deadline_at": "2026-11-24T08:37:18.168Z",
+      "origin": "2026-11-24T08:22:18.168Z",
+      "reached": false,
+      "restart_resets": false
+    },
+    "published": false,
+    "review": "blocked",
+    "review_item": null,
+    "review_stage": null,
+    "runtime_knowledge": "recorded: the Worker Manager's own journal; read the attempt for it",
+    "settled": false,
+    "staged": true,
+    "uncertain": false
+  },
+  "review": {
+    "state": "blocked: no publication custody and hand-off yet",
+    "verdict": null
+  },
+  "review_item": null,
+  "schema": "baton.v12.output-publication-status/1"
+}

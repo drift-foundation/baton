@@ -1,0 +1,18 @@
+[
+  {
+    "constraints": {
+      "allowed_media_types": [
+        "application/octet-stream",
+        "text/plain"
+      ],
+      "link_policy": "forbid",
+      "max_bytes": 1048576,
+      "max_entries": 100,
+      "validator_digest": null
+    },
+    "name": "proposal",
+    "path": "proposal",
+    "required": true,
+    "type": "git-change-proposal"
+  }
+]

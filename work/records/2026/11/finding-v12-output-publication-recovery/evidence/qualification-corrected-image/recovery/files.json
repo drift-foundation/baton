@@ -1,0 +1,8 @@
+{
+  "recovery/bootstrap-inputs.json": "795240e0e7dc59caedb78d951869ba6bbfcbe05f7241be6dee77befedaa85f64",
+  "recovery/installed-task.json": "cd54150326936199325186d747b9fcbfb4f20d5ff66ee2a5830c03070b29339f",
+  "recovery/owner-failures.py": "74dc17f7e4163cc61788ab5fcc8654fb6ea7ed0aaf21b6ca70486269afc52642",
+  "recovery/owner-setup.py": "728e4fbb7064318693ba8178c0badbd7c581d2a75cd9733fb0888ee533f2d2cc",
+  "recovery/runtime-manifest.json": "bc8bbed563cd2b9f849b1ea212209551c0b53111bad2cf96a97da769eee58561",
+  "recovery/owner-bootstrap.py": "fef07942d9988e1f17ebed0a5d6c187ad79ab2e656503553cddafbb2626f7cdf"
+}

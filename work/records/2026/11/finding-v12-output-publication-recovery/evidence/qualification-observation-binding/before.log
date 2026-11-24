@@ -1,0 +1,68 @@
+test_read_only_status_binds_publication_to_its_own_input (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_read_only_status_binds_publication_to_its_own_input) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                597424d442d864eb57a0f849e1e442b327dda848 established from line_declared_base
+configuration /var/tmp/baton-695-preflight/v12-w71917-zsfctywe/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-695-preflight/v12-w71917-zsfctywe/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-695-preflight/v12-w71917-zsfctywe/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-695-preflight/v12-w71917-zsfctywe/publication-instance/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-695-preflight/v12-w71917-zsfctywe/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a", "publication-C1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-695-preflight/v12-w71917-zsfctywe/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-695-preflight/v12-w71917-zsfctywe/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-695-preflight/v12-w71917-zsfctywe/publication-instance/deployment.json"
+ERROR
+
+======================================================================
+ERROR: test_read_only_status_binds_publication_to_its_own_input (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_read_only_status_binds_publication_to_its_own_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 5902, in test_read_only_status_binds_publication_to_its_own_input
+    states = projection.stage_states(self.jobs, observed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 757, in stage_states
+    observed=(delegation.observation_of(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, owned["attempt"], owned["job"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in observation_of
+    check_binding(operations, stage, job)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 325, in check_binding
+    operation_id = operations.canonical_operation("admit", stage["offer_id"])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StageObservation' object has no attribute 'canonical_operation'
+
+----------------------------------------------------------------------
+Ran 1 test in 1.103s
+
+FAILED (errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

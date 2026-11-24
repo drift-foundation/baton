@@ -185,3 +185,26 @@ Evidence (doubles only): reviewer `probe-cleanup-cuts.py` 3/3 and `probe-driver-
 Disclosure: two earlier matrix runs were discarded (one stalled and was edited while running; one had two wrong expectations of mine); the retained log is the third, and the second is kept in the packet.
 
 Open: token ownership is not proved against an installed bundle (it fails to "not established", never to a wrong stop); the rerun-after-SIGKILL path is not exercised; every engine phase, the fixture build and the in-image CLI check remain unexecuted; operator install and host facts as before.
+
+### Checkpoint K-12 — C5 script cleanup R1/R2 (review 2026-11-24T05-49-33Z, M385949/M385951), returned for independent review
+
+Author: baton.prompt (K), owner-selected interactive continuation, no claim. Packet `evidence/correction-K-385951/` (30 entries; `packet.sha256` sha256 `8ef13de9db43b69ec7c4f14cf978913a67e569a1a47957f82671655166195af7`). **No source change and no source test rerun**; `source-unchanged.json` records the 50-path check against manifest `162152b4…`. The driver is unchanged.
+
+- R1: a retained start or pause intent is reconciled only on positive evidence about its command (completion record; readable own record and that process positively ended; or, for a start, the same invocation knowing it never forked). A missing or unreadable record is `UNRESOLVED`, the intent is retained, and no new start or freeze is made over it. A positively settled pause is filed.
+- R2: a failed image removal sets the unresolved flag, so `cleanup` exits nonzero; `images.owned` is kept and nothing is forced.
+
+Evidence (doubles only): reviewer `probe-restart.py` 3/3 with the packet path changed only; new `probe-cleanup-r5.py` 17/17; reviewer cleanup-cuts 3/3, driver-ownership 1/1, qualification-r3 4/4; `probe-cleanup-r4.py` 10/10 after its fixtures were given the completion record they implied; nine affected dry-run scenarios 9/9. The 40-scenario matrix was not repeated.
+
+Open: unchanged from K-11; every engine phase, the fixture build and the in-image CLI check remain unexecuted.
+
+## 2026-11-24T08:08:06.397363+00:00 — coordinator direct reviewer correction
+
+Implemented per-attempt disk verification copy, honest missing-supervisor-result classification, and recovery failure observation/owner-item delivery over frozen unable. Evidence: evidence/qualification-review8-correction/REPORT.md. 437 affected tests passed before final status-order adjustment; 28 connected tests passed on final bytes (overlapping coverage). Engine-only old/corrected storage probes retained. Candidate source copies and 56-path identity retained. No live Job, protected Git mutation, or instance update. Next: owner refresh command in PLAN, then fresh scripted gate; deadline gate and checkpoint still pending.
+
+## 2026-11-24T08:18:50.003629+00:00 — coordinator completion reader correction
+
+Corrected recovery review status to use composed ending settlement plus frozen result and positive cleanup, instead of episode retirement alone. Retained recovery-9 reads completed/accepted without mutation. 28 connected tests passed; final null-attempt guard passed the ordinary-review case separately. Evidence and source: evidence/qualification-review9-status/. Prepared owner-finish.py and /tmp/baton-w385695-finish-recovery.py for packaging plus retained readback only; no rerun. Deadline gate and checkpoint remain pending.
+
+## 2026-11-24T08:37:57.326081+00:00 — owner-approved combined deadline qualification passed
+
+Owner answered yes to the explicit combined-proof selection. Host-clock coverage: 30 passed, 11.326s. Exact publication image real-container probe: 3s absolute deadline, blocked child ended and group positively gone in 5.013s including termination grace, same-deadline replay started no child, container removed. Evidence: evidence/qualification-short-deadline/QUALIFICATION.md and engine-fy4g2v0h/. Production profile stays at 900s. This supersedes the earlier continuous installed-stack deadline qualification requirement for this delivery, without claiming that run passed. Positive installed recovery-9 and packaged readback already passed. No Git mutation, live model or new Job.

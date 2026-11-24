@@ -4907,6 +4907,9 @@ class TheReviewersRequiredVerificationIsSupervisedAndBounded(
         self.addCleanup(setattr, claude_agent, "COMMAND_SUPERVISOR", held)
         self.root = tempfile.mkdtemp(dir=os.environ.get("TMPDIR"))
         self.addCleanup(__import__("shutil").rmtree, self.root, True)
+        held = claude_agent.REVIEW_DISK_ROOT
+        claude_agent.REVIEW_DISK_ROOT = self.root
+        self.addCleanup(setattr, claude_agent, "REVIEW_DISK_ROOT", held)
         self.source = os.path.join(self.root, "source")
         os.makedirs(self.source)
         with open(os.path.join(self.source, "kept.txt"), "w") as out:
@@ -4940,6 +4943,33 @@ class TheReviewersRequiredVerificationIsSupervisedAndBounded(
                          ("passed", 0, 900, True))
         # IT WROTE INTO ITS PRIVATE COPY, never into the reviewed tree.
         self.assertEqual(os.listdir(self.source), ["kept.txt"])
+
+    def test_verification_copy_uses_disk_and_leaves_private_tmpfs_small(self):
+        seen = self.checked("open('disk-copy', 'w').write('yes')")
+        self.assertEqual(seen["outcome"], "passed")
+        import pathlib
+        self.assertEqual(len(list(pathlib.Path(self.root).glob(
+            "review-verification-*/tree/disk-copy"))), 1)
+        self.assertFalse(list(pathlib.Path(self.root).glob(
+            "scratch-*/review-verification*/tree")))
+
+    def test_copy_failure_is_reported_without_launching_verification(self):
+        from unittest import mock
+        with mock.patch.object(self.module.shutil, "copytree",
+                               side_effect=OSError(28, "No space")), \
+                mock.patch.object(self.module.subprocess, "Popen") as launch:
+            seen = self.checked("pass")
+        self.assertEqual((seen["outcome"], seen["preparation_failure"]),
+                         ("not-run", "copy-failed"))
+        launch.assert_not_called()
+
+    def test_missing_supervisor_completion_is_unknown_not_timeout(self):
+        from unittest import mock
+        with mock.patch.object(self.agent, "_ran_provider", return_value=(1, b"", False)):
+            answer, account = self.provided("pass")
+        self.assertIsNone(account["provider"])
+        self.assertEqual(answer["failure_reason"], self.module.UNCLASSIFIED)
+        self.assertIn("completion record", answer["why"])
 
     def test_a_failing_command_is_failed_and_never_passed(self):
         seen = self.checked("raise SystemExit(3)")
@@ -5892,6 +5922,90 @@ class TheConnectedRecoveryFromARealPooledProducer(
         self.authority_path = self.places["authority_store"]
         self.config["authority_store"] = self.authority_path
 
+    def test_read_only_status_binds_publication_to_its_own_input(self):
+        from tools import job_manager, stage_execution
+
+        _, recovery, _ = self.published()
+        observed = stage_execution.observation_from(
+            self.composed_document(), self.jobs, self.control,
+            checkout=self.checkout)
+        states = projection.stage_states(
+            self.jobs, job_manager._Observing(self.control, observed))
+        self.assertIn(documents.stage_id(recovery, "publication"), states)
+        self.review_running(recovery)
+        states = projection.stage_states(
+            self.jobs, job_manager._Observing(self.control, observed))
+        self.assertEqual(states[documents.stage_id(recovery, "publication")]["state"],
+                         "completed")
+        # The fake engine has started the reviewer, but no provider command
+        # has answered yet: the durable exchange still reports waiting.
+        self.assertEqual(states[documents.stage_id(recovery, "review")]["state"],
+                         "waiting")
+
+    def production_preflight_document(self):
+        # Keep the publication worker exactly as the installer emits it.
+        # Provider workers name a registry; preflight must not open it yet.
+        self.created()
+        document = self.composed_document()
+        for worker in document["workers"]:
+            if worker["role"] != "publication":
+                worker["deployment"]["credential_sources"] = os.path.join(
+                    self.root, "not-opened-until-activation.json")
+        return document
+
+    def production_preflight(self, document):
+        from tools import stage_execution
+
+        jobs, control = self.stores("production-preflight")
+        composed = stage_execution.operations_from(
+            document, jobs, control, engine_run=self.quiescing(),
+            clock=lambda: self.now, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        return composed
+
+    def test_production_preflight_needs_no_publication_credentials(self):
+        from unittest.mock import patch
+        from tools import single_worker
+
+        document = self.production_preflight_document()
+        publisher = next(w for w in document["workers"]
+                         if w["role"] == "publication")["deployment"]
+        self.assertEqual(publisher["credential_slots"], [])
+        self.assertIsNone(publisher["credential_sources"])
+        with patch.object(single_worker, "UserCredentialSources",
+                          wraps=single_worker.UserCredentialSources) as sources:
+            composed = self.production_preflight(document)
+        self.assertEqual(sources.call_count, 3)
+        self.assertEqual({w["role"] for w in composed.workers},
+                         {"implementation", "review", "integration", "publication"})
+
+    def test_publication_pool_can_be_observed_without_serving_capabilities(self):
+        from unittest.mock import patch
+        from tools import single_worker, stage_execution
+
+        document = self.production_preflight_document()
+        self.production_preflight(document).close()
+        jobs, control = self.stores("publication-observation")
+        with patch.object(single_worker, "worker_preflight",
+                          side_effect=AssertionError("observation cannot serve")), \
+                patch.object(single_worker, "UserCredentialSources",
+                             side_effect=AssertionError("observation cannot resolve credentials")):
+            observed = stage_execution.observation_from(
+                document, jobs, control, checkout=self.checkout)
+        self.assertEqual(set(observed.readers),
+                         {w["worker_id"] for w in document["workers"]})
+        self.assertIsNone(observed.observe_exchange(
+            {"attempt_id": "not-allocated"}))
+
+    def test_production_preflight_still_requires_provider_registry(self):
+        document = self.production_preflight_document()
+        implementation = next(w for w in document["workers"]
+                              if w["role"] == "implementation")
+        implementation["deployment"]["credential_sources"] = None
+        with self.assertRaises(ContractRefusal) as caught:
+            self.production_preflight(document)
+        self.assertIn("credential_sources registry path", str(caught.exception))
+
     # -- the installed commands -----------------------------------------------
 
     def cli(self, *argv, clocked=True):
@@ -5965,6 +6079,7 @@ class TheConnectedRecoveryFromARealPooledProducer(
                 (claude_agent, "INPUT_ROOT", roots["inputs"]),
                 (claude_agent, "OUTPUT_ROOT", roots["workspace"]),
                 (claude_agent, "CREDENTIAL_ROOT", credentials),
+                (claude_agent, "REVIEW_DISK_ROOT", self.root),
                 # THE IMAGE'S SUPERVISOR, AT ITS SOURCE. The image copies this
                 # exact file to `/opt/baton`; nothing else about it is doubled.
                 (claude_agent, "COMMAND_SUPERVISOR", SUPERVISOR)):
@@ -6205,6 +6320,7 @@ class TheConnectedRecoveryFromARealPooledProducer(
                 (claude_agent, "INPUT_ROOT", roots["inputs"]),
                 (claude_agent, "OUTPUT_ROOT", roots["workspace"]),
                 (claude_agent, "CREDENTIAL_ROOT", credentials),
+                (claude_agent, "REVIEW_DISK_ROOT", self.root),
                 # THE IMAGE'S SUPERVISOR, AT ITS SOURCE. The image copies this
                 # exact file to `/opt/baton`; nothing else about it is doubled.
                 (claude_agent, "COMMAND_SUPERVISOR", SUPERVISOR)):
@@ -6414,6 +6530,21 @@ class TheConnectedRecoveryFromARealPooledProducer(
         self.assertEqual(submission.job_of(self.jobs, job_id), original)
         # THE STATUS COMMAND REPORTS THE REVIEW AS ITS OWN STATEMENT.
         status = self.status()
+        self.assertEqual(status["review"]["state"], "completed")
+        self.assertIsNone(status["review"]["ended_without_verdict"])
+        from unittest import mock
+        from baton_v12.job_manager import ending
+        from baton_v12 import worker_manager
+
+        # A normal completed episode need not have been retired/replaced.
+        history = episodes.episodes_of(self.jobs, stage["stage_id"])
+        self.assertIsNone(history[-1]["ended_state"])
+        with mock.patch.object(ending, "ending_of", return_value=None):
+            self.assertEqual(self.status()["review"]["state"], "in-progress")
+        runtime = worker_manager.attempt_runtime_of(self.control, stage["attempt_id"])
+        with mock.patch.object(worker_manager, "attempt_runtime_of",
+                               return_value=dict(runtime, cleanup="pending")):
+            self.assertEqual(self.status()["review"]["state"], "in-progress")
         self.assertEqual(status["review"]["reviewer"], "baton.reviewer")
         self.assertEqual(status["review"]["verdict"]["disposition"],
                          "accepted")
@@ -6497,6 +6628,17 @@ class TheConnectedRecoveryFromARealPooledProducer(
         self.assertEqual(frozen["disposition"], "unable")
         self.assertIn("outcome timed-out",
                       self.reviewer_prompts[0])
+        self.assertEqual(len(self.engine.starts), 2)
+        item = publication_execution.review_item_of(self.jobs, recovery)
+        self.assertIsNotNone(item)
+        self.assertEqual(item["outcome"], "review-failed")
+        self.assertFalse(item["automatic_retry"])
+        self.assertIn("returned unable", item["cause"])
+        self.assertEqual(self.status()["review"]["state"], "exceptional")
+        self.restarted(same_engine=True)
+        for _ in range(3):
+            manager.sweep(self.jobs, self.operations, now=self.now)
+        self.assertEqual(publication_execution.review_item_of(self.jobs, recovery), item)
         self.assertEqual(len(self.engine.starts), 2)
 
     def test_an_acceptance_without_the_workers_own_passed_check_is_held(self):

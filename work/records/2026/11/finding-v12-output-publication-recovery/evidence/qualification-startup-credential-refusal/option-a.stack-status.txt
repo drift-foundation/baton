@@ -1,0 +1,7 @@
+Jobs: unknown (snapshot absent)
+Services:
+manager    absent
+publisher  absent
+snapshot   absent (the publisher has not written one yet)
+jobs       absent
+runtime   unknown: no snapshot was ever published under /home/sl/baton-instances/qualify-w385695-560eaa89-1/state, so what is still executing was NOT resolved here

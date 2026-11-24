@@ -1,0 +1,8 @@
+{
+  "state": "completed",
+  "verdict": "accepted",
+  "candidate_is_the_approved_original": true,
+  "containers_remaining": false,
+  "execution_repeated": false,
+  "scope": "packaged readback of retained recovery-9; deadline gate separate"
+}

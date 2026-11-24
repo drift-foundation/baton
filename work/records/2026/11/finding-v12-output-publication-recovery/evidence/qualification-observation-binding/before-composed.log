@@ -1,0 +1,70 @@
+test_read_only_status_binds_publication_to_its_own_input (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_read_only_status_binds_publication_to_its_own_input) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                28824b96e1a7182a58b39d2a992c46f5180996e6 established from line_declared_base
+configuration /var/tmp/baton-695-preflight/v12-w71917-rkd83_qy/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-695-preflight/v12-w71917-rkd83_qy/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-695-preflight/v12-w71917-rkd83_qy/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-695-preflight/v12-w71917-rkd83_qy/publication-instance/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/baton-695-preflight/v12-w71917-rkd83_qy/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a", "publication-C1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-695-preflight/v12-w71917-rkd83_qy/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-695-preflight/v12-w71917-rkd83_qy/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-695-preflight/v12-w71917-rkd83_qy/publication-instance/deployment.json"
+ERROR
+
+======================================================================
+ERROR: test_read_only_status_binds_publication_to_its_own_input (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_read_only_status_binds_publication_to_its_own_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 5902, in test_read_only_status_binds_publication_to_its_own_input
+    states = projection.stage_states(
+        self.jobs, job_manager._Observing(self.control, observed))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 757, in stage_states
+    observed=(delegation.observation_of(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, owned["attempt"], owned["job"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in observation_of
+    check_binding(operations, stage, job)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 339, in check_binding
+    raise ContractRefusal(
+    ...<6 lines>...
+        f"would project this store's Job beside somebody else's offer")
+baton_v12.contracts.errors.ContractRefusal: the Worker Manager journalled 'offer.issue:offer-3c72a44c6509c19f5475f514b1ce58702fae4aba3… for another intent -- it names input_digest 'sha256:bd6604bb94fecdb331d2ec99018fbf627886a5bb53718c424625… rather than 'sha256:dd1569dec31a992649243ebfc15a87597bd3905de18a21c056a8… -- and stage 'publication-C1/publication' of this store cannot adopt it. One derived operation id naming two intents is a shadow account of an act rather than a restart to reconcile, and adopting it would project this store's Job beside somebody else's offer
+
+----------------------------------------------------------------------
+Ran 1 test in 1.099s
+
+FAILED (errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

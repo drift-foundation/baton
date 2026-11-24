@@ -1,0 +1,31 @@
+serving initialization complete: incarnation='v12-stack-1650798-1795502947738759594' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-11-24T06:53:09.861Z",
+  "recovered": null,
+  "observed": 3,
+  "replaced": [],
+  "acts": [],
+  "started": [],
+  "spoken": [],
+  "refreshed": [
+    {
+      "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-3-1/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-32bf57553317dfe846a4b2f55d62ad274b11209a7311218f925de0b07e6b4298",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-3-1/review",
+      "episode": 1,
+      "attempt_id": "attempt-9253660c49efa8bce3edb7f3339424e97aaad0a689c11a2f5c43d14f39d87cfe",
+      "state": "not-asked"
+    }
+  ],
+  "reclaimed": {
+    "reclaimed": [],
+    "refused": [],
+    "resumes_after": null,
+    "unresolved": [],
+    "unresolved_resumes_after": "attempt-32bf57553317dfe846a4b2f55d62ad274b11209a7311218f925de0b07e6b4298"
+  }
+}

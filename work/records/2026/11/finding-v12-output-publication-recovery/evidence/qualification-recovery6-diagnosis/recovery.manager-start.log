@@ -1,0 +1,14 @@
+refused: every process is running and acknowledged, but no valid, freshly observed status snapshot was published within 60s, so this stack has not been shown to compose its observation. The publisher's log says:
+    Traceback (most recent call last):
+      File "stack_command.py", line 347, in <module>
+      File "stack_command.py", line 343, in main
+      File "stack_command.py", line 82, in _manager
+      File "tools/job_manager.py", line 1565, in main
+      File "tools/job_manager.py", line 987, in _status
+      File "baton_v12/job_manager/projection.py", line 1059, in status
+      File "baton_v12/job_manager/projection.py", line 757, in stage_states
+      File "baton_v12/job_manager/delegation.py", line 399, in observation_of
+      File "baton_v12/job_manager/delegation.py", line 339, in check_binding
+    baton_v12.contracts.errors.ContractRefusal: the Worker Manager journalled 'offer.issue:offer-e6400c2477e10ea7d997c5cfcc240715df26e08e2… for another intent -- it names input_digest 'sha256:e500d4d3a344ad3e2c2fbd12f84815cdf0c03de3c10bae638390… rather than 'sha256:f4512445e59f104186872216434e9e43ac68ed099f922f39d8f2… -- and stage 'publication-option-a-20261124T062254Z-1632328-recovery-6-D1… of this store cannot adopt it. One derived operation id naming two intents is a shadow account of an act rather than a restart to reconcile, and adopting it would project this store's Job beside somebody else's offer
+    [PYI-1675857:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+error: Recipe `start` failed on line 28 with exit code 2

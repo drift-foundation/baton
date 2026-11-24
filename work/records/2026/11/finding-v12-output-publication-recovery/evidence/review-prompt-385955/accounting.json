@@ -1,0 +1,40 @@
+[
+  {
+    "name": "restart",
+    "argv": [
+      "/home/sl/.local/state/baton-v12-venv/bin/python",
+      "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-prompt-385955/probe-restart.py"
+    ],
+    "exit": 0,
+    "seconds": 5.968299494939856
+  },
+  {
+    "name": "cleanup-r5",
+    "argv": [
+      "/home/sl/.local/state/baton-v12-venv/bin/python",
+      "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385951/probes/probe-cleanup-r5.py"
+    ],
+    "exit": 0,
+    "seconds": 55.01438599196263
+  },
+  {
+    "name": "qualify-syntax",
+    "argv": [
+      "bash",
+      "-n",
+      "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385951/qualify-w385695.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.001547374064102769
+  },
+  {
+    "name": "setup-syntax",
+    "argv": [
+      "bash",
+      "-n",
+      "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385951/option-a-setup.sh"
+    ],
+    "exit": 0,
+    "seconds": 0.001228902954608202
+  }
+]

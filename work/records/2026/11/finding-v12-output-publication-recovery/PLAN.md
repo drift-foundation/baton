@@ -201,3 +201,129 @@ Accepted source162152b4 remains unchanged and accepted;34 preparation and81 orig
 ## Current — accepted source imported; human checkpoint pending
 
 Owner requested wrap-up; coordinator separated source milestone from C5 script fixes. Exact50-path manifest162152b4 imported with zero preflight refusals and final hash/mode verification; required host integration run414/414 passes (137.745s). Evidence/import-162152b4/ holds results and selective checkpoint files. K continues only M385951 scripts. Human commit pending: Implement owner-approved retained publication recovery. No Git mutation by coordinator. Build/engine/installed qualification remains separately selected and Job stays open.
+
+
+## Human checkpoint observed — 560eaa89
+
+Slawomir committed560eaa895236ae28bcf204f308b82679f32abbbd (Implement owner-approved retained publication recovery). Coordinator verified all50 committed source blobs against accepted manifest162152b4 and confirmed the R1 DESIGN pin is committed. Human checkpoint obligation for source milestone is complete. K continues C5 script cleanup; preparation review and separately selected package/image/installed qualification remain. Unrelated DESIGN changes remain outside this checkpoint.
+
+
+## Current — C5 preparation accepted by interactive review
+
+Owner-selected coordinator review review-2026-11-24T06-20-54Z.md accepts M385955 preparation;20 focused tests pass plus2 shell syntax checks, no source rerun. Accepted source560eaa89 remains unchanged. Next executable milestone: owner-run packaging gate via evidence/review-prompt-385955/owner-packaging.py (/tmp copy prepared); source preflight passed. Image/installed qualification remains separately selected and unperformed; Job stays open. K correction work is complete for this packet.
+
+
+## Packaging passed — 560eaa89
+
+Owner ran the prepared packaging gate; evidence/packaging-owner-20261124T062124Z records exit0,24/24 passes,22.872s wall, accepted source manifest162152b4 on560eaa89. Next recommended owner action: images phase of evidence/review-prompt-385955/owner-images.py (/tmp copy prepared). It verifies source and exact accepted preparation before building/checking five images; no existing instance or live model. Actual image qualification remains pending execution/result.
+
+
+## Current — image qualification resumes with explicit provider base
+
+Owner run built reference817283c3/provider0ad2c553 and failed before integration because preparation passed an unresolved FROM operand to worker_image. Coordinator preparation-only correction evidence/qualification-base-fix-385958/ resolves exactly FROM to recorded provider digest in retained recipe copies; two fake-engine exact-function checks and shell syntax pass. Existing source unchanged. /tmp/baton-w385695-images.py images-resume verifies recorded tags, reuses completed builds and builds only missing images, then runs existing image assertions. No image build executed by coordinator. Initial incorrect test double and correction disclosed in focused-checks.json.
+
+
+## Owner-selected interactive startup correction
+
+Owner instructed coordinator to proceed directly after installed publication-worker credential preflight refusal. Scope: single_worker.worker_preflight and focused pooled recovery regressions, tools-pure/job_manager groups. No credential workaround. Preserve installed Jobs and images; prepare supported runtime update after source verification. W385830 shared-file edits remain held.
+
+
+## Startup correction verified
+
+Direct owner-selected correction complete: two paths, 454/454 focused tests pass in 151.341s. Evidence/qualification-startup-credential-refusal/RESULT.md and correction.patch identify bytes and limitations. Next: owner-run /tmp/baton-w385695-rebuild.py, then fresh qualification destination using existing images. Runtime replacement in place is unsupported; preserve original instance. No rebuild or instance mutation performed by coordinator.
+
+
+## Current — observation correction and independent qualification scenarios
+
+Read-only observation now admits the same worker roles as serving. Three new/extended regression checks plus three existing observation tests pass. Packaging pending via /tmp/baton-w385695-rebuild-r2.py. Prepare independent instances for recovery and deadline scenarios; do not repeat the same-Work two-Job setup. Preserve r2 and all existing images. See evidence/qualification-observation-refusal/RESULT.md.
+
+
+## Current — safe dummy and fail-fast qualification ready
+
+Root cause established; no additional runtime rebuild required for the fixture correction. Owner runs /tmp/baton-w385695-safe-qualification.py recovery. It uses prior qualified runtime/images, fresh independent instance, unique dummy credential and fail-fast setup loop. New preparation diagnostics remain source-only and require future checkpoint/packaging; 172 focused tests pass. Prior instances and evidence retained.
+
+
+## Current — recovery-5 inherited-link correction, 2026-11-24
+
+Owner selected direct coordinator correction. Git-aware correspondence now accepts only unchanged reference entries, without weakening ordinary import. Three selected modules: 362/362 passed, zero skips. Supported source inspection of the same retained recovery-5 original is eligible with no holds. Evidence: evidence/qualification-inherited-links/RESULT.md, source.json, corrected-source.json, ledger.json, before/after inspection. Next executable milestone: owner source-pinned packaging via /tmp/baton-w385695-rebuild-links.py, then qualify the rebuilt installed runtime; no image rebuild required. Old wrapper remains pinned to older bytes and must not be reused. No recovery admitted; no source acceptance or native qualification inferred from this correction. Human checkpoint pending.
+
+
+## Current — rebuilt bundle ready for installed qualification, 2026-11-24
+
+Owner packaging evidence packaging-owner-20261124T072032Z: exit 0, 24 tests passed. Prepared evidence/qualification-inherited-links-run/ pins the new 82-file runtime, corrected 56-path source manifest and existing images. Next command: python3 /tmp/baton-w385695-links-qualification.py recovery. Fresh recovery-6; independent deadline-6 remains unexecuted. Preparation checks passed, nothing installed or launched by the coordinator. This command stops at producer settlement and recovery preflight, before recovery admission.
+
+
+## Current — installed preflight passed, recovery gate next
+
+Owner recovery-6 run completed producer overflow, positive settlement and removal. Installed inspection reports eligible=true, output.exceeded=true, output.fits_corrective=true; preflight passed at 2026-11-24T07:23:20Z. Prepared `/tmp/baton-w385695-run-recovery.py` (durable evidence/qualification-inherited-links-run/owner-recovery.py), checked without admission or launch. It runs the previously selected scripted recovery gate through publication, custody and ordinary review, with existing exact-runtime checks and owned cleanup. Deadline qualification remains separate and unexecuted. No recovery result is claimed yet.
+
+
+## Current — recovery status binding fixed; reviewer qualification selection corrected
+
+Source correction tested: 273/273 passed, zero skips, 130.126s. Evidence/qualification-observation-binding/ contains source, reproduction, status of retained recovery-6, log and ledger. No live changes. Next owner command: python3 /tmp/baton-w385695-rebuild-status.py. Then prepare a fresh qualification using existing /3 (same 1 MiB ceiling, correct reviewer output union) and this rebuilt host runtime. Images do not change. Previous run is retained; no full qualification acceptance or closure yet.
+
+
+## Current — recovery-7 combined qualification prepared
+
+Owner packaging gate packaging-owner-20261124T073402Z: 24 passed, exit 0. evidence/qualification-status-review-run/ pins that bundle and existing images, selects /3 for both worker composition and Job creation, checks role output union before creation. Next owner command: python3 /tmp/baton-w385695-status-review.py recovery. This continues automatically from producer settlement/preflight into the selected publication/custody/review gate, without an extra messenger step. No execution performed during preparation. Deadline qualification still separate.
+
+
+## Current — resume review of recovery-7, no rebuild
+
+Evidence/qualification-runtime-posture/ corrects fixture assertions only. Publisher is already destroyed after custody; same recovery is handed off. Next owner command: python3 /tmp/baton-w385695-resume-review.py. It preserves the original capture and resumes manager processing on the existing decision without a new approval/create/publication. Checks pass; execution not performed. Review/live probe and separate deadline qualification remain open.
+
+
+## Current — review-7 retired; cleanup confirmed
+
+Reviewer claim settlement expired while the gate's assertion failure had the manager stopped. No reviewer verdict; restarting does not revive it. Coordinator stopped manager1686751/publisher1686752 through the supported instance command after interrupted wrapper left them live; exact-authority Docker inventory is empty. evidence/qualification-interrupted-review/ retains diagnosis and prepared fail-fast/interrupt-wait corrections. No new execution or product change. Next qualification must not reuse this terminal review attempt or reset its deadline; retain publication/custody proof.
+
+
+## Current — fresh recovery-8 prepared
+
+Next: python3 /tmp/baton-w385695-complete-recovery.py recovery. evidence/qualification-complete-run/ reuses the current bundle/images, keeps /3 output declarations, includes corrected runtime posture and fail-fast review checks, and uses the tested interrupt wrapper for the recovery phase. Preparation --check and syntax checks passed; no execution. recovery-7 remains retired and preserved. Complete recovery success and deadline gate are still owed before closure.
+
+
+## Current — recovery-8 retained unable outcome, services stopped
+
+Evidence/qualification-review8-unable/ preserves terminal, adapter report, exact exited container state and successful mount probe. Review ran approximately1.5s and answered unable: unfinished supervised command, verification not-run; reported timeout is not one-hour exhaustion. Recovery status remains in-progress, so terminal-state poll cannot end. Next bounded milestone: diagnose supervisor ending plus missing unable settlement/projection; test those paths before another owner run. Manager/publisher stopped by correct interrupt cleanup; exited reviewer retained. No restart/rebuild/retry selected here.
+
+## 2026-11-24T08:07:05.802871+00:00 — current executable milestone supersedes recovery-8 wait
+
+Complete focused correction verification, then owner refresh of the pinned host bundle and provider/fixture images using `python3 /tmp/baton-w385695-refresh-review.py`. Durable script: evidence/qualification-review8-correction/owner-refresh.py. It runs packaging and credential-free image checks only; no Job or live model. Then bind those exact built identities into a fresh bounded scripted recovery gate. Preserve recovery-8 and its exited reviewer. Recovery gate, independent deadline gate, and human Git checkpoint remain pending; no W385695 closure or native acceptance claimed.
+
+## 2026-11-24T08:10:10.893419+00:00 — refreshed runtime and images passed; next recovery gate
+
+Owner packaging passed 24 tests (14.707 s), evidence packaging-owner-20261124T080853Z. Refresh /home/sl/baton-qualification/w385695-review-refresh-20261124T080916Z verifies provider eff9a5e9… and fixture 84b37a82… plus the built-image disk-copy gate. Next command: `python3 /tmp/baton-w385695-qualified-review.py recovery`. Durable packet evidence/qualification-disk-review-run/ pins the current 82-file runtime and exact images into fresh recovery-9. Preflight check and script syntax checks pass; no installation or execution performed here. The script emits a 30-second wait heartbeat and fails on exceptional review. Recovery-8 remains untouched. Deadline gate, human checkpoint and closure remain pending.
+
+## 2026-11-24T08:18:25.171265+00:00 — next milestone: package/read back existing successful recovery
+
+Supersedes fresh recovery launch: recovery-9 is already executed, accepted and cleaned up. Do not repeat implementation/publication/review. Run `python3 /tmp/baton-w385695-finish-recovery.py` to package the host completion-reader fix and perform read-only assertions against retained recovery-9. No image rebuild, instance replacement, service start or Job launch. Durable script: evidence/qualification-review9-status/owner-finish.py. Deadline qualification and human Git checkpoint remain pending.
+
+## 2026-11-24T08:20:22.273430+00:00 — packaged recovery readback passed; deadline gate next
+
+Owner packaging: 24 tests OK in 14.560 s, evidence packaging-owner-20261124T081919Z. Packaged readback qualification-review9-status/packaged-readback-20261124T081941Z passed: completed, exact candidate accepted, no remaining containers, no execution repeated.
+
+Next selected gate: `python3 /tmp/baton-w385695-deadline.py`. Durable packet evidence/qualification-deadline-final/ pins the current 82-file runtime and already qualified images into independent deadline-9. Preflight and syntax checks passed without installation. This intentionally pauses its own deterministic publisher until the existing real 900-second deadline, then proves expiry, cleanup, unchanged original, owner notification and no retry. Approximately 15 minutes plus setup/cleanup is expected, with 30-second wait reports. No live model or image rebuild. Successful recovery-9 is untouched. Human checkpoint/closure follow qualification; no full-suite claim.
+
+## 2026-11-24T08:33:41.241361+00:00 — deadline-9 qualification race, not a deadline proof
+
+Publisher container c0117a8f… ran from 08:22:23.374299131Z to 08:22:23.606530597Z (232 ms), exited 0, and was already exited in the watcher's captured inspect. Docker refused the later pause as not running. The watcher recorded pause-unacknowledged and pause-op-done, but the parent waited the full 600-second observation allowance before failing. Cleanup stopped services and the selected container is absent. No deadline qualification is claimed; successful recovery-9 remains accepted and retained. Evidence: evidence/qualification-deadline9-race/.
+
+Owner approved short, explicitly selected limits for future deadline tests; full-duration runs only when duration matters. The current product profile pins 900 seconds, so no installed limit has been silently changed. A deterministic way to hold the publisher before adoption plus an explicitly selected short test limit is needed before another engine attempt. The prepared fail-fast script stops immediately on an acknowledged failed pause; it alone does not fix the pause race and is not a launch packet.
+
+Current milestone: replace the racing deadline harness with deterministic preparation and a short selected test budget. Do not rerun deadline-9 or regenerate the successful recovery proof. No new production profile selected.
+
+## 2026-11-24T08:36:42.310913+00:00 — short deadline alternative prepared
+
+Production profile has no short override. Do not silently modify it. Prepared alternative: existing deterministic host-clock tests (30 passed in 11.326s) plus exact publication image supervisor under a real three-second deadline, with a deliberately blocked child and same-deadline replay refusing another launch. /tmp/baton-w385695-short-deadline.py; durable evidence/qualification-short-deadline/owner-probe.py, --check passed. No engine probe executed yet. Explicit question pending: may this combined proof replace the single continuous installed-stack deadline gate? This is an acceptance-evidence choice, not a production profile change. No new Job or live model required.
+
+## 2026-11-24T08:37:57.326081+00:00 — owner-approved combined deadline qualification passed
+
+Owner answered yes to the explicit combined-proof selection. Host-clock coverage: 30 passed, 11.326s. Exact publication image real-container probe: 3s absolute deadline, blocked child ended and group positively gone in 5.013s including termination grace, same-deadline replay started no child, container removed. Evidence: evidence/qualification-short-deadline/QUALIFICATION.md and engine-fy4g2v0h/. Production profile stays at 900s. This supersedes the earlier continuous installed-stack deadline qualification requirement for this delivery, without claiming that run passed. Positive installed recovery-9 and packaged readback already passed. No Git mutation, live model or new Job.
+
+Current milestone: human Git checkpoint of the verified qualification corrections, then canonical closure. No further recovery or deadline execution is owed under the approved evidence selection. Full suite remains a separate owner-selected checkpoint.
+
+
+## 2026-11-24 — prepared human qualification checkpoint
+
+Exact scoped checkpoint script and summary: evidence/final-checkpoint-20261124/. It checks the base, source identity, file hashes and empty index before staging only its enumerated paths when run by Slawomir. Other dossiers and the unrelated DESIGN edit are excluded. No Git mutation performed during preparation. Canonical closure follows observation of the human commit.

@@ -1,0 +1,16 @@
+{
+  "refresh": "/home/sl/baton-qualification/w385695-review-refresh-20261124T080916Z",
+  "images": {
+    "provider": {
+      "tag": "baton-v12-provider:w385695-review-20261124t080916z",
+      "id": "sha256:eff9a5e9d515af54cb087a0d20541b32cd955cb84fdc986c4648ece15ecbe984"
+    },
+    "fixture": {
+      "tag": "baton-v12-fixture:w385695-review-20261124t080916z",
+      "id": "sha256:84b37a82090093d627f711d2c51d761885b59fe037cee20babee8e3442fce44a"
+    }
+  },
+  "runtime_files": 82,
+  "source": "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/qualification-review8-correction/corrected-source.json",
+  "changes": "Exact refreshed runtime/provider/fixture identities; independent recovery-9 and deadline-9 destinations; 30-second status heartbeat. No install or launch."
+}

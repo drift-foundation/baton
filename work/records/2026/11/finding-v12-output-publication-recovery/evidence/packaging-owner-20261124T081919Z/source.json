@@ -1,0 +1,5 @@
+{
+  "head": "560eaa895236ae28bcf204f308b82679f32abbbd",
+  "manifest_sha256": "a86c3299f36b9d7d95509197d4bfeec26216ca90d62e94deb5b39ef3592ee1d0",
+  "scope": "build and packaging gate only"
+}

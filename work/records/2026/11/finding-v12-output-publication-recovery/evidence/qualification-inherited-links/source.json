@@ -1,0 +1,14 @@
+{
+  "head": "560eaa895236ae28bcf204f308b82679f32abbbd",
+  "manifest_sha256": "cc80c5b82d01d8676999b45a79448609dc1ff2f3ed7979e2bc6194e57021e6f9",
+  "changed_paths_this_correction": [
+    "v12/python/src/baton_v12/integration/git_profile.py",
+    "v12/python/tools/publication_ports.py",
+    "v12/python/tests/job_manager/test_publication_recovery_admission.py"
+  ],
+  "groups": [
+    "integration",
+    "job_manager"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python"
+}

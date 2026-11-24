@@ -1,0 +1,62 @@
+test_publication_pool_can_be_observed_without_serving_capabilities (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_publication_pool_can_be_observed_without_serving_capabilities) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                1a21db08deaf8101be6728b2bf471f68e112bc6a established from line_declared_base
+configuration /var/tmp/baton-695-preflight/v12-w71917-r5yh_qnb/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-695-preflight/v12-w71917-r5yh_qnb/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-695-preflight/v12-w71917-r5yh_qnb/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-695-preflight/v12-w71917-r5yh_qnb/publication-instance/deployment.json"
+ERROR
+
+======================================================================
+ERROR: test_publication_pool_can_be_observed_without_serving_capabilities (tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer.test_publication_pool_can_be_observed_without_serving_capabilities)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 5942, in test_publication_pool_can_be_observed_without_serving_capabilities
+    observed = stage_execution.observation_from(
+        document, jobs, control, checkout=self.checkout)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 8214, in observation_from
+    return StageObservation(held_configuration(document, checkout=checkout),
+                            document["workers"], job_store, control_store)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 8163, in __init__
+    self.readers[one["worker_id"]] = single_worker._Observation(
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        raw[one["worker_id"]], control_store, job_store=job_store,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        roles=ROLES)
+        ^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 4437, in __init__
+    self.group = configured_workspace_group(control_store)
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 767, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5123, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+----------------------------------------------------------------------
+Ran 1 test in 0.119s
+
+FAILED (errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

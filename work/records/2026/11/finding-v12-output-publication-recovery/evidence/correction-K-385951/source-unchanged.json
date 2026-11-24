@@ -1,0 +1,26 @@
+{
+ "base": "6079ad78345aa87b7148db302d48fb9b1867f940",
+ "candidate_manifest_sha256": "162152b462b8ab0907a43b5dd41f85e8c7c2a6218053b6a93bbf9edc1762a8dd",
+ "correction-K-385937_entries_differing": [],
+ "correction-K-385944_entries_differing": [],
+ "paths": 50,
+ "paths_differing_from_manifest": [],
+ "scratch_head": "6d6a4fc8fb1defceeacfaaf97927ffc867fa1ef9",
+ "scratch_status_lines": 0,
+ "scripts": {
+  "cli-in-image-driver.py": {
+   "reviewed_r4_sha256": "b3a722ef406bb81ed0e84cadf2c0a4983dc3fe92a61532b9992d9a4217a1370d",
+   "this_r5_sha256": "b3a722ef406bb81ed0e84cadf2c0a4983dc3fe92a61532b9992d9a4217a1370d"
+  },
+  "option-a-setup.sh": {
+   "reviewed_r4_sha256": "976476acd42b6328265680d64f4868f9511c086875318bac340c37b4e8f2dc86",
+   "this_r5_sha256": "d6aed7b5103e0efe33b883aad5457b82a147cb27c05cf2223fe09538e9f0a233"
+  },
+  "qualify-w385695.sh": {
+   "reviewed_r4_sha256": "d8c579d3e9b0122581ce445aeabf02ac5e59a5edcbbaeba0e5911ede1f5da591",
+   "this_r5_sha256": "622d776c619dfb3757d7d7e76e9325f4b6bf33de06d9410555b948477301200d"
+  }
+ },
+ "statement": "the accepted source candidate is unchanged; this packet carries qualification scripts and their evidence only",
+ "work": "W385695"
+}

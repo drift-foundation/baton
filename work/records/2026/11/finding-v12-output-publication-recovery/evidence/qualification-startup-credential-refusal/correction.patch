@@ -1,0 +1,72 @@
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index 527de540..d88c6f77 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -5892,6 +5892,52 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         self.authority_path = self.places["authority_store"]
+         self.config["authority_store"] = self.authority_path
+ 
++    def production_preflight_document(self):
++        # Keep the publication worker exactly as the installer emits it.
++        # Provider workers name a registry; preflight must not open it yet.
++        self.created()
++        document = self.composed_document()
++        for worker in document["workers"]:
++            if worker["role"] != "publication":
++                worker["deployment"]["credential_sources"] = os.path.join(
++                    self.root, "not-opened-until-activation.json")
++        return document
++
++    def production_preflight(self, document):
++        from tools import stage_execution
++
++        jobs, control = self.stores("production-preflight")
++        composed = stage_execution.operations_from(
++            document, jobs, control, engine_run=self.quiescing(),
++            clock=lambda: self.now, checkout=self.checkout)
++        self.addCleanup(composed.close)
++        return composed
++
++    def test_production_preflight_needs_no_publication_credentials(self):
++        from unittest.mock import patch
++        from tools import single_worker
++
++        document = self.production_preflight_document()
++        publisher = next(w for w in document["workers"]
++                         if w["role"] == "publication")["deployment"]
++        self.assertEqual(publisher["credential_slots"], [])
++        self.assertIsNone(publisher["credential_sources"])
++        with patch.object(single_worker, "UserCredentialSources",
++                          wraps=single_worker.UserCredentialSources) as sources:
++            composed = self.production_preflight(document)
++        self.assertEqual(sources.call_count, 3)
++        self.assertEqual({w["role"] for w in composed.workers},
++                         {"implementation", "review", "integration", "publication"})
++
++    def test_production_preflight_still_requires_provider_registry(self):
++        document = self.production_preflight_document()
++        implementation = next(w for w in document["workers"]
++                              if w["role"] == "implementation")
++        implementation["deployment"]["credential_sources"] = None
++        with self.assertRaises(ContractRefusal) as caught:
++            self.production_preflight(document)
++        self.assertIn("credential_sources registry path", str(caught.exception))
++
+     # -- the installed commands -----------------------------------------------
+ 
+     def cli(self, *argv, clocked=True):
+diff --git a/v12/python/tools/single_worker.py b/v12/python/tools/single_worker.py
+index 7389eea7..6fc7d2ce 100644
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -3989,7 +3989,9 @@ def worker_preflight(given, control_store, *, credential_provider=None,
+     """
+     _context_preflight(given, control_store)
+     provider = credential_provider
+-    if provider is None:
++    # Publication is deterministic and its validated configuration forbids
++    # credential slots. Do not construct a provider for that role.
++    if provider is None and given["launch_role"] != PUBLICATION_ROLE:
+         if given["credential_sources"] is None:
+             _refuse("the production credential provider requires an absolute "
+                     "credential_sources registry path", category="refused",

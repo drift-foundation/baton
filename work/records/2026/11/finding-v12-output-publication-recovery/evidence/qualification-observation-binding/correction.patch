@@ -1,0 +1,118 @@
+diff --git a/v12/python/src/baton_v12/job_manager/projection.py b/v12/python/src/baton_v12/job_manager/projection.py
+index 1a37169a..281be361 100644
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -738,6 +738,8 @@ def stage_states(store, operations, stages=None, snapshot=None):
+     # OBSERVATION. A caller that holds this store's own transaction gets a
+     # refusal rather than three external reads taken under it; see
+     # `_observing_outside_a_boundary`.
++    from . import publication_recovery
++
+     _observing_outside_a_boundary(store, "a stage-state derivation")
+     snapshot = (snapshot if snapshot is not None
+                 else materialized(store, stages))
+@@ -755,7 +757,8 @@ def stage_states(store, operations, stages=None, snapshot=None):
+                 owned["stage"]["job_id"], []),
+             control=snapshot["controls"].get(owned["stage"]["job_id"]),
+             observed=(delegation.observation_of(
+-                operations, owned["attempt"], owned["job"])
++                operations, owned["attempt"],
++                publication_recovery.stage_job(store, owned["stage"], owned["job"]))
+                 if live is not None else delegation.unobserved()))
+         held[stage_id]["state"] = _observed_state(held[stage_id])
+         if held[stage_id]["state"] is None and live is not None \
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index 527de540..a8e5cecc 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -5892,6 +5892,90 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         self.authority_path = self.places["authority_store"]
+         self.config["authority_store"] = self.authority_path
+ 
++    def test_read_only_status_binds_publication_to_its_own_input(self):
++        from tools import job_manager, stage_execution
++
++        _, recovery, _ = self.published()
++        observed = stage_execution.observation_from(
++            self.composed_document(), self.jobs, self.control,
++            checkout=self.checkout)
++        states = projection.stage_states(
++            self.jobs, job_manager._Observing(self.control, observed))
++        self.assertIn(documents.stage_id(recovery, "publication"), states)
++        self.review_running(recovery)
++        states = projection.stage_states(
++            self.jobs, job_manager._Observing(self.control, observed))
++        self.assertEqual(states[documents.stage_id(recovery, "publication")]["state"],
++                         "completed")
++        # The fake engine has started the reviewer, but no provider command
++        # has answered yet: the durable exchange still reports waiting.
++        self.assertEqual(states[documents.stage_id(recovery, "review")]["state"],
++                         "waiting")
++
++    def production_preflight_document(self):
++        # Keep the publication worker exactly as the installer emits it.
++        # Provider workers name a registry; preflight must not open it yet.
++        self.created()
++        document = self.composed_document()
++        for worker in document["workers"]:
++            if worker["role"] != "publication":
++                worker["deployment"]["credential_sources"] = os.path.join(
++                    self.root, "not-opened-until-activation.json")
++        return document
++
++    def production_preflight(self, document):
++        from tools import stage_execution
++
++        jobs, control = self.stores("production-preflight")
++        composed = stage_execution.operations_from(
++            document, jobs, control, engine_run=self.quiescing(),
++            clock=lambda: self.now, checkout=self.checkout)
++        self.addCleanup(composed.close)
++        return composed
++
++    def test_production_preflight_needs_no_publication_credentials(self):
++        from unittest.mock import patch
++        from tools import single_worker
++
++        document = self.production_preflight_document()
++        publisher = next(w for w in document["workers"]
++                         if w["role"] == "publication")["deployment"]
++        self.assertEqual(publisher["credential_slots"], [])
++        self.assertIsNone(publisher["credential_sources"])
++        with patch.object(single_worker, "UserCredentialSources",
++                          wraps=single_worker.UserCredentialSources) as sources:
++            composed = self.production_preflight(document)
++        self.assertEqual(sources.call_count, 3)
++        self.assertEqual({w["role"] for w in composed.workers},
++                         {"implementation", "review", "integration", "publication"})
++
++    def test_publication_pool_can_be_observed_without_serving_capabilities(self):
++        from unittest.mock import patch
++        from tools import single_worker, stage_execution
++
++        document = self.production_preflight_document()
++        self.production_preflight(document).close()
++        jobs, control = self.stores("publication-observation")
++        with patch.object(single_worker, "worker_preflight",
++                          side_effect=AssertionError("observation cannot serve")), \
++                patch.object(single_worker, "UserCredentialSources",
++                             side_effect=AssertionError("observation cannot resolve credentials")):
++            observed = stage_execution.observation_from(
++                document, jobs, control, checkout=self.checkout)
++        self.assertEqual(set(observed.readers),
++                         {w["worker_id"] for w in document["workers"]})
++        self.assertIsNone(observed.observe_exchange(
++            {"attempt_id": "not-allocated"}))
++
++    def test_production_preflight_still_requires_provider_registry(self):
++        document = self.production_preflight_document()
++        implementation = next(w for w in document["workers"]
++                              if w["role"] == "implementation")
++        implementation["deployment"]["credential_sources"] = None
++        with self.assertRaises(ContractRefusal) as caught:
++            self.production_preflight(document)
++        self.assertIn("credential_sources registry path", str(caught.exception))
++
+     # -- the installed commands -----------------------------------------------
+ 
+     def cli(self, *argv, clocked=True):

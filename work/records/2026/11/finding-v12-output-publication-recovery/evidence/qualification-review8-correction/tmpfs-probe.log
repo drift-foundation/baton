@@ -1,0 +1,1 @@
+{"check": {"argv": ["/bin/true"], "seconds_bound": 30, "outcome": "not-run", "status": null, "seconds": null, "descendants_gone": null}, "copy_errors": ["[('/tmp/source/big', '/tmp/tmp_zy7wvpb/review-verification/tree/big', \"[Errno 28] No space left on device: '/tmp/source/big' -> '/tmp/tmp_zy7wvpb/review-verification/tree/big'\")]"], "free": 0}

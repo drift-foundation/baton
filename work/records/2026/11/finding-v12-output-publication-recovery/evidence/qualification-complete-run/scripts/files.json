@@ -1,0 +1,8 @@
+{
+  "cli-in-image-driver.py": "b3a722ef406bb81ed0e84cadf2c0a4983dc3fe92a61532b9992d9a4217a1370d",
+  "harness/cli-prefix/stub.py": "dc66719be784543e647102831cb842772722aacff5252e1a2443ac8169972097",
+  "option-a-setup.sh": "4153cad235926d14a484987be8e09f1c8a85e0b4cf2f0d96caba79286203da42",
+  "qualify-w385695.sh": "cae466319b5307c8283714ceab239b54a6d499bba8b82c99b57a01b754eadcb6",
+  "run-phase.py": "24e2a8abe65aa8f2d7f622fcca5183dc09bc1760620f6b3aac1f1bee265d0df8",
+  "verify-publisher.py": "5e7031e44772cbf322703e2b36e0818a51fbec8ca2d49a80e2d962ce463a6304"
+}

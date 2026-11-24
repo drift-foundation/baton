@@ -1,0 +1,11 @@
+test_failed_inspection_is_reported_as_unresolved (__main__.Cleanup.test_failed_inspection_is_reported_as_unresolved) ... ok
+test_qualification_signal_after_start_effect_is_cleaned (__main__.Cleanup.test_qualification_signal_after_start_effect_is_cleaned) ... ok
+test_setup_signal_after_start_effect_is_cleaned (__main__.Cleanup.test_setup_signal_after_start_effect_is_cleaned) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.877s
+
+OK
+UNKNOWN_INSPECT {"exit": 0, "stdout": "UNRESOLVED: the pause intent has no readable record of its request (/home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpipjtr0qx/deadline.pause-op), so the request is not known to have ended or never begun; the selected container may yet be paused; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpipjtr0qx/deadline.pause-intent\nUNRESOLVED: the pause state of selected-container could not be read (see /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpipjtr0qx/deadline.cleanup.log); it was NOT unpaused blind; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpipjtr0qx/deadline.pause-intent\n"}
+START_CUT {"script": "qualify", "exit": 143, "created": true, "stopped": true, "stdout": "UNRESOLVED: the instance stack was asked to stop and is not positively stopped (see /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpcnl0n9kf/deadline.cleanup.log, /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpcnl0n9kf/deadline.stack-status.txt); intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpcnl0n9kf/deadline.stack-start-intent\nphase deadline leaves UNRESOLVED cleanup; what is retained is named above\nphase deadline ended with status 143\n"}
+START_CUT {"script": "setup", "exit": 143, "created": true, "stopped": true, "stdout": "UNRESOLVED: the instance stack was asked to stop and is not positively stopped (see /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpv3sonldh/deadline.cleanup.log, /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpv3sonldh/deadline.stack-status.txt); intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpv3sonldh/deadline.stack-start-intent\nphase deadline leaves UNRESOLVED cleanup; what is retained is named above\nphase deadline ended with status 143\n"}

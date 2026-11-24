@@ -1,0 +1,9 @@
+test_added_link_is_refused (tests.job_manager.test_publication_recovery_admission.CorrespondencePreservesUnchangedGitReferences.test_added_link_is_refused) ... ok
+test_changed_link_is_refused (tests.job_manager.test_publication_recovery_admission.CorrespondencePreservesUnchangedGitReferences.test_changed_link_is_refused) ... ok
+test_deleted_link_is_refused (tests.job_manager.test_publication_recovery_admission.CorrespondencePreservesUnchangedGitReferences.test_deleted_link_is_refused) ... ok
+test_inherited_link_is_not_a_change_and_import_stays_strict (tests.job_manager.test_publication_recovery_admission.CorrespondencePreservesUnchangedGitReferences.test_inherited_link_is_not_a_change_and_import_stays_strict) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.085s
+
+OK

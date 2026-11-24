@@ -1,0 +1,10 @@
+{
+  "provider": {
+    "tag": "baton-v12-provider:w385695-review-20261124t080916z",
+    "id": "sha256:eff9a5e9d515af54cb087a0d20541b32cd955cb84fdc986c4648ece15ecbe984"
+  },
+  "fixture": {
+    "tag": "baton-v12-fixture:w385695-review-20261124t080916z",
+    "id": "sha256:84b37a82090093d627f711d2c51d761885b59fe037cee20babee8e3442fce44a"
+  }
+}

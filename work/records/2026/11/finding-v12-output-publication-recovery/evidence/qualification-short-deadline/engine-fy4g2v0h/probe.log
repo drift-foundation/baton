@@ -1,0 +1,22 @@
+{
+  "scope": "real-container worker supervisor only; host expiry/owner-item proof separate",
+  "deadline_seconds": 3,
+  "elapsed_seconds": 5.013021866092458,
+  "first": {
+    "status": null,
+    "timed_out": true,
+    "started": true,
+    "group_gone": true,
+    "started_at": 1795509426.4657254,
+    "ended_at": 1795509431.4787052
+  },
+  "same_deadline_again": {
+    "status": null,
+    "timed_out": true,
+    "started": false,
+    "group_gone": true,
+    "started_at": 1795509431.4787679,
+    "ended_at": 1795509431.4787679
+  },
+  "publication_entry_sha256": "7136bc7a779520d68f814d58ebf3bb18aa158d905cfeaec002b7a01aaecfdd2b"
+}

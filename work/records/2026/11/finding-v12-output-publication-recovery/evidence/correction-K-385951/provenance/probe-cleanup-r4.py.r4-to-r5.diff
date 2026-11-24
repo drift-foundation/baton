@@ -1,0 +1,21 @@
+--- r4/probes/probe-cleanup-r4.py
++++ r5/probes/probe-cleanup-r4.py
+@@ -6,6 +6,9 @@
+ Pause (C5.2): for every combination of what the engine answers to the first inspection, to the unpause and to
+ the read-back, the script's words and whether it released, left alone, or retained as UNRESOLVED.
+ Outcome: a phase whose own steps succeeded and whose cleanup is unresolved does not exit 0.
++Revision 5: every retained state here carries the request's completion record (`.pause-op-done`), which is
++what these cases always meant -- a pause whose request is known to have ended. A retained intent with NO record
++of its request is a different state and is asked in probe-cleanup-r5.py.
+ Driver (C5.3): of two same-named processes, only the one carrying the run's token is selected and ended.
+ """
+ import importlib.util, json, os, subprocess, sys, tempfile, unittest
+@@ -37,7 +40,7 @@
+ '''
+ 
+ 
+-def cleanup(inspect, ps="empty", unpause="ok", files=(".pause-intent", ".paused"), code=143, through_finish=False):
++def cleanup(inspect, ps="empty", unpause="ok", files=(".pause-intent", ".paused", ".pause-op-done"), code=143, through_finish=False):
+     with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as d:
+         root = Path(d)
+         for name in files:

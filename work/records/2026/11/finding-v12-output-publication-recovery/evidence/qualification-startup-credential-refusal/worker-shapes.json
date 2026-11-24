@@ -1,0 +1,24 @@
+[
+  {
+    "worker_id": "qualify-impl",
+    "role": "implementation",
+    "credential_slots": [
+      "claude"
+    ],
+    "credential_sources_configured": true
+  },
+  {
+    "worker_id": "qualify-review",
+    "role": "review",
+    "credential_slots": [
+      "claude"
+    ],
+    "credential_sources_configured": true
+  },
+  {
+    "worker_id": "qualify-publisher",
+    "role": "publication",
+    "credential_slots": [],
+    "credential_sources_configured": false
+  }
+]

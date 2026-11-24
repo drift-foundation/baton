@@ -39,6 +39,16 @@ def document(**stage):
 
 class TheReportIsAPureProjection(unittest.TestCase):
 
+    def test_preparation_reason_survives_the_report_allowlist(self):
+        diagnostic = {"preparation_failure_message": {
+            "known": True, "value": "the input root is partial",
+            "source": "attempts.attempt_preparation_failure_of.failure.message"}}
+        row = attempt_diagnostics.report(json.dumps(document(
+            attempt_diagnostics=diagnostic)).encode())["rows"][0]
+        self.assertEqual(row["axes"]["preparation_failure_message"]["value"],
+                         "the input root is partial")
+        self.assertFalse(row["completeness"]["proves_cessation"])
+
     def test_it_reads_one_document_and_opens_NOTHING(self):
         held = attempt_diagnostics.report(json.dumps(document()).encode())
         self.assertEqual(held["schema"], attempt_diagnostics.SCHEMA)

@@ -1,0 +1,14 @@
+{
+  "head": "560eaa895236ae28bcf204f308b82679f32abbbd",
+  "groups": [
+    "manager-pure",
+    "tools-pure"
+  ],
+  "files": {
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py": "e1edf82163c3c9f3e92d6dee8d89e9c77b1dd5b68db6902c9b502b9ef80cd5b1",
+    "v12/python/tools/attempt_diagnostics.py": "0431a65f40700230883b5c112bf756d762b52f2a269e92577a56c05b4bcebc63",
+    "v12/python/tests/manager/test_attempt_failure_cause.py": "3fed400bf37192239d5d3bb9009c60208ed0c18b36db7ecf30e7b687c5a69d94",
+    "v12/python/tests/tools/test_attempt_diagnostics.py": "da35d26aad9fa9d6dbbab4fb45bcef97bf8ec7f46d8efe99320d8566d69bb087"
+  },
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python"
+}

@@ -1,0 +1,109 @@
+== recovery-ok: exit 0
+phase recovery complete
+cleanup: instance stack stopped (this run's: manager 1624923 publisher 1624924)
+phase recovery ended with status 0
+   engine effects: [('exec', 'c-rev')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== deadline-ok: exit 0
+phase deadline complete
+cleanup: c-pub positively no longer exists; nothing to release
+cleanup: instance stack stopped (this run's: manager 1625433 publisher 1625434)
+phase deadline ended with status 0
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== cleanup: exit 0
+cleanup: removed baton-v12-publication:w385695-RUN
+cleanup: baton-v12-provider:w385695-RUN now names sha256:someone-elses, not the sha256:prov this run built; left alone
+cleanup: baton-v12-qualification-fixture:w385695-RUN is already gone (the engine lists no such tag)
+cleanup: only tags recorded in images.owned were considered; no container was touched
+phase cleanup complete
+phase cleanup ended with status 0
+   engine effects: [('image', 'rm baton-v12-publication:w385695-RUN')]
+   unscoped container listings: 0
+   stack starts asked: 0; stops asked: 0
+   product status now: manager absent;publisher absent
+   start intent: 
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== q-term-while-start-in-flight: exit 143
+cleanup: instance stack stopped (this run's: manager 1626046 publisher 1626047)
+phase recovery ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== s-term-while-start-in-flight: exit 143
+cleanup: instance stack stopped (this run's: manager 1626283 publisher 1626284)
+phase failures ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: option-a.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== d-term-mid-freeze: exit 143
+cleanup: c-pub ended while it was being released (read back: positively absent)
+cleanup: instance stack stopped (this run's: manager 1626475 publisher 1626476)
+phase deadline ended with status 143
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== d-pause-reply-lost: exit 143
+cleanup: c-pub ended while it was being released (read back: positively absent)
+cleanup: instance stack stopped (this run's: manager 1626856 publisher 1626857)
+phase deadline ended with status 143
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== d-term-while-pause-in-flight: exit 143
+cleanup: c-pub ended while it was being released (read back: positively absent)
+cleanup: instance stack stopped (this run's: manager 1627242 publisher 1627243)
+phase deadline ended with status 143
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: SIGKILL to the watcher when evidence/deadline.pause-op appeared
+   harness: TERM to the script
+== d-watcher-killed-while-pause-in-flight: exit 143
+cleanup: c-pub ended while it was being released (read back: positively absent)
+cleanup: instance stack stopped (this run's: manager 1627675 publisher 1627676)
+phase deadline ended with status 143
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+######## 9 scenarios; 0 not as required

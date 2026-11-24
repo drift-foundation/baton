@@ -143,3 +143,81 @@ M385938 manifest162152b4: C2 source correction accepted in delta; C1/C3/C4 prese
 ## Preparation-only review E385948 — 2026-11-24
 
 Accepted source162152b4 remains unchanged and accepted;34 preparation and81 original source-packet entries independently verified. M385945 revision4 preparation remains changes-requested for two finite gaps: missing start/pause operation evidence must stay unresolved rather than treating a three-second missing receipt as cessation; image-removal failure must set unresolved/nonzero phase outcome. Exact review `review-2026-11-24T05-49-33Z.md`; evidence `evidence/review-385948/`. Prior startup signal, unknown pause readback and driver ownership corrections pass selected probes.17 collected/executed14 pass3 assertion failures,0 errors/skips/timeouts;72.292275s summed measured driver wall. Two failed cases are the same retained-start gap in both scripts; one is image-removal accounting. No source suite/broad matrix rerun or build/container/live/import. K retains edits; return baton.decide per M385947. Next milestone is only these cleanup corrections plus finite evidence and updated script hashes, preserving source acceptance and separately pending installed qualification. No new owner decision required.
+
+
+## Qualification invocation correction — M385958
+
+Owner image run built reference/provider then refused literal ${PROVIDER_BASE} for integration. Qualification had omitted the required recipe operand; tools.worker_image handles literal bases. Preparation now resolves only FROM in a retained recipe copy to this run exact recorded provider digest, leaving accepted product source unchanged. Explicit images resume verifies recorded tag identities before reuse and builds only missing images. Retained recipes record original/resolved hashes and selected base. This fixes qualification invocation; no recovery behavior change or automatic live deployment.
+
+
+## 2026-11-24 installed qualification: credential-free publication startup
+
+Confirmed shared preflight defect; see [diagnosis](evidence/qualification-startup-credential-refusal/DIAGNOSIS.md). Publication declares no credential slots, but production composition still demands a credential registry. Provider workers already have their qualification registry. Qualification is blocked before producer execution; no workaround selected.
+
+
+## 2026-11-24 installed observation and qualification identity defects
+
+StageObservation omitted publication from its allowed worker roles, preventing the snapshot needed by startup. Corrected to WORKER_ROLES; evidence/qualification-observation-refusal/ records reproduced refusal and passing delta tests. Also, the setup created both Jobs on the same derived Work; next qualification must isolate the two scenarios in separate instances instead of assuming unique Job IDs imply distinct Works. No store workaround or live mutation selected.
+
+
+## 2026-11-24 qualification r3 preparation failure
+
+The installed manager and publisher compose after the prior corrections, but the producer fails before runtime; its preparation-failure record exists, while supported diagnostics omit the explanation. The setup loop kept waiting for exchange-based settlement despite a terminal pre-runtime failure. Owner interrupted it; independent process/service/exact-container checks show no remaining execution. See evidence/qualification-preparation-failure-r3/DIAGNOSIS.md. No root cause guessed or direct store read performed.
+
+
+## 2026-11-24 r3 cause established through supported diagnostics
+
+Preparation failed with integrity/secret-leak: qualification dummy credential `{}` collided with ordinary persisted JSON text. This is fixture misuse, not a reason to weaken secret exclusion. New supported source diagnostic fields reveal the owner-recorded error safely. Evidence/preparation-diagnostics-correction/RESULT.md contains read-only diagnosis, 172 passing tests and five fixture checks. Corrected qualification uses a unique long dummy and stops polling on terminal preparation failure.
+
+
+## 2026-11-24 r4 reserved runtime label collision
+
+Qualification image metadata used the adapter-reserved baton.v12.* namespace. The created container could not be reconciled; the manager recorded preparation failure and services stopped while the container remained running. Its exact attempt/image/bind roots were verified and the selected fixture container stopped and retained. Correct only the fixture label to org.baton.qualification-fixture; see evidence/qualification-fixture-label-correction/DIAGNOSIS.md. No production guard weakened.
+
+
+## 2026-11-24 — inherited Git links block correspondence
+
+Owner selected direct coordinator correction ("proceed") after recovery-5 refused inspection. The link work/open/finding-acp-turn-remains-active-after-handoff is mode 120000 already in declared base 560eaa89. SourceCorrespondence calls the import profile whole-tree content inventory for both revisions, refusing even unchanged links. Correct the Git-aware correspondence reader to compare recorded object identities without following links; preserve strict ordinary-file import and refuse changed unsupported entries. No producer rerun or weaker custody rule is authorized by this correction. Affected groups: integration and job_manager.
+
+
+## 2026-11-24 — recovery-6 publication succeeds; observation and review defects
+
+See evidence/qualification-recovery6-diagnosis/DIAGNOSIS.md. Publication reached custody and handoff. Status binding uses the whole Job identity instead of the publication stage identity. Reviewer input declares only proposal; adapter refuses missing review outputs before any provider call. Exact leftover container is exited, not running. No retry or guard weakening.
+
+
+## 2026-11-24 — recovery-6 causes and selected correction
+
+Owner selected direct continuation. The readonly status path is missing publication_recovery.stage_job when binding the observed offer; regression reproduced the exact input-digest collision. Correction reuses the existing stage identity selector, leaving delegation checks strict. Source status of the same recovery-6 store now succeeds without changing it.
+
+Reviewer role-output-missing is qualification selection misuse, not a reason to relax the adapter: pool composition deliberately keeps legacy /1 proposal-only, while /3 publishes its existing optional union including findings/logs, still with the required 1 MiB proposal ceiling for this overflow scenario. Next qualification selects existing /3 for both provider workers and Job creation; no new template/profile or limit is introduced. Both adapter role-selection checks pass against those exact declared outputs. Previous run and evidence stay unchanged.
+
+
+## 2026-11-24 — recovery-7 qualification posture assertions corrected
+
+Publication reached custody and handoff. Gate asserted image USER rather than oci runtime UID/workspace group, and omitted runtime scratch/events/logs from writable-mount expectation. Corrected exact configuration/path checks and four refusal probes are retained in evidence/qualification-runtime-posture/. No product permission changed. Prepare same-decision manager resume rather than another producer run or instance.
+
+## 2026-11-24T08:07:05.802871+00:00 — recovery-8 reviewer failure, coordinator correction
+
+Owner selected direct correction before another qualification ("proceed"). The retained reviewer exited after about 1.5 s with `unable`; no real model was used. Manager log shows a held verdict read over that unable result, with a retained quiescent runtime. No claim of a completed review or automatic restart is made.
+
+The selected-image probe reproduces ENOSPC while the real adapter copies into a 32 MiB /tmp. The retained source is about 1.7 GiB. Required review verification now copies into the already delivered, per-attempt /scratch, keeping the input untouched and the small supervisor ledger in private memory. A 40 MiB container probe of the corrected adapter passed with >31 MiB of /tmp free. Missing supervisor completion is unknown, not inferred timeout.
+
+Recovery observation now recognizes a frozen unable/cancelled review as exceptional, and the existing owner-item path independently requires cessation and records remaining cleanup. This does not synthesize a verdict, change the frozen original, retire the retained runtime, or automatically retry. The generic held-review custody policy is unchanged.
+
+Evidence: evidence/qualification-review8-correction/. Affected logical group: job_manager (adapter and recovery orchestration tests). Existing recovery-8 is stopped with its exited reviewer retained and has now exceeded its deadline; it is not a passing qualification. Main Git untouched.
+
+## 2026-11-24T08:18:25.171265+00:00 — recovery-9 accepted; publication-status completion reader defect
+
+The installed scripted reviewer completed its required /bin/true verification and a supervised provider command, accepted the exact approved candidate at 08:12:38.884Z, and its runtime was removed. The qualification poll nevertheless read `in-progress` until the owner interrupted it; cleanup stopped both services without leftovers. The script's status 143 is an interrupt, not failed review evidence.
+
+Confirmed defect: publication_execution.review_stage_of used episode.ended_state alone. That field records episode retirement/replacement; ordinary composed completion lives in the paired ending settlement and runtime cleanup. The reader now requires that validated settlement, the completed frozen result and destroyed/settled runtime before reporting completed. A verdict alone or pending cleanup still cannot report completion. No store changes or new execution are required. Read-only source CLI against retained recovery-9 now reports completed/accepted, with no ended-without-verdict item. Retained reviewer read-only mount, verifier requirement, supervisor, and exact-candidate assertions all passed. Evidence: evidence/qualification-review9-status/.
+
+## 2026-11-24T08:33:41.241361+00:00 — deadline-9 qualification race, not a deadline proof
+
+Publisher container c0117a8f… ran from 08:22:23.374299131Z to 08:22:23.606530597Z (232 ms), exited 0, and was already exited in the watcher's captured inspect. Docker refused the later pause as not running. The watcher recorded pause-unacknowledged and pause-op-done, but the parent waited the full 600-second observation allowance before failing. Cleanup stopped services and the selected container is absent. No deadline qualification is claimed; successful recovery-9 remains accepted and retained. Evidence: evidence/qualification-deadline9-race/.
+
+Owner approved short, explicitly selected limits for future deadline tests; full-duration runs only when duration matters. The current product profile pins 900 seconds, so no installed limit has been silently changed. A deterministic way to hold the publisher before adoption plus an explicitly selected short test limit is needed before another engine attempt. The prepared fail-fast script stops immediately on an acknowledged failed pause; it alone does not fix the pause race and is not a launch packet.
+
+## 2026-11-24T08:37:57.326081+00:00 — owner-approved combined deadline qualification passed
+
+Owner answered yes to the explicit combined-proof selection. Host-clock coverage: 30 passed, 11.326s. Exact publication image real-container probe: 3s absolute deadline, blocked child ended and group positively gone in 5.013s including termination grace, same-deadline replay started no child, container removed. Evidence: evidence/qualification-short-deadline/QUALIFICATION.md and engine-fy4g2v0h/. Production profile stays at 900s. This supersedes the earlier continuous installed-stack deadline qualification requirement for this delivery, without claiming that run passed. Positive installed recovery-9 and packaged readback already passed. No Git mutation, live model or new Job.

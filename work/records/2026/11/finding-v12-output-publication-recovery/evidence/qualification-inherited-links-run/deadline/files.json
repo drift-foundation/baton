@@ -1,0 +1,8 @@
+{
+  "deadline/bootstrap-inputs.json": "4faa40af89027579e13f593986b315353b811e2b967fee6ad749605e940c48d9",
+  "deadline/installed-task.json": "cd54150326936199325186d747b9fcbfb4f20d5ff66ee2a5830c03070b29339f",
+  "deadline/owner-bootstrap.py": "bc3e7c9bd6d98df847299a43d8c4871f5a73fcfd718d6cb54feb0591e95e558c",
+  "deadline/owner-failures.py": "27e6fc81b9365bfcae1ab4cc4e6b8bd0f75f91da652f1c02fddca70a5ef560ce",
+  "deadline/owner-setup.py": "1983e53135e56d35868f5ca53e3b3342613b013ad167ab26757763f36fb8ff6a",
+  "deadline/runtime-manifest.json": "af904c2fbeffbda7485bc0560b24ab5204d5f0f4c1d69b6cf6d8fa16561bc94d"
+}

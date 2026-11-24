@@ -738,6 +738,8 @@ def stage_states(store, operations, stages=None, snapshot=None):
     # OBSERVATION. A caller that holds this store's own transaction gets a
     # refusal rather than three external reads taken under it; see
     # `_observing_outside_a_boundary`.
+    from . import publication_recovery
+
     _observing_outside_a_boundary(store, "a stage-state derivation")
     snapshot = (snapshot if snapshot is not None
                 else materialized(store, stages))
@@ -755,7 +757,8 @@ def stage_states(store, operations, stages=None, snapshot=None):
                 owned["stage"]["job_id"], []),
             control=snapshot["controls"].get(owned["stage"]["job_id"]),
             observed=(delegation.observation_of(
-                operations, owned["attempt"], owned["job"])
+                operations, owned["attempt"],
+                publication_recovery.stage_job(store, owned["stage"], owned["job"]))
                 if live is not None else delegation.unobserved()))
         held[stage_id]["state"] = _observed_state(held[stage_id])
         if held[stage_id]["state"] is None and live is not None \

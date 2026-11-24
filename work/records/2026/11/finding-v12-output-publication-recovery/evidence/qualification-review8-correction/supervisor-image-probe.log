@@ -1,0 +1,1 @@
+{"descendants_ended": 0, "descendants_gone": true, "label": "provider", "outcome": "exited", "schema": "baton.bounded-command/1", "seconds": 0.023, "seconds_bound": 5, "status": 0}{"label": "provider", "schema": "baton.bounded-command/1"}

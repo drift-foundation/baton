@@ -1,0 +1,22 @@
+{
+  "old_placeholder_refused": true,
+  "unique_placeholder_accepted": true,
+  "exact_wait_predicate": [
+    {
+      "state": "exceptional",
+      "preparation_failure": true,
+      "exit": 0
+    },
+    {
+      "state": "running",
+      "preparation_failure": false,
+      "exit": 1
+    },
+    {
+      "state": "exceptional",
+      "preparation_failure": false,
+      "exit": 1
+    }
+  ],
+  "earlier_harness_error": "Decoded API document omitted persisted JSON-text columns; corrected fixture represents encoded JSON fields. No product or expected guard changed."
+}

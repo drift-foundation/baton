@@ -1,0 +1,87 @@
+serving initialization complete: incarnation='v12-stack-1724493-1795507879813772630' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-11-24T08:11:45.961Z",
+  "recovered": null,
+  "observed": 3,
+  "replaced": [],
+  "acts": [],
+  "started": [],
+  "spoken": [],
+  "refreshed": [
+    {
+      "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-9-1/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-0df37eec00cd03d9074f74e466c82212579c03be512bea64bb0096a541e86d5d",
+      "state": "quiescent"
+    },
+    {
+      "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-9-1/review",
+      "episode": 1,
+      "attempt_id": "attempt-da1c4b00d23f986f260e2bfa4165ba50085be0e052dba810e6426a46710b3e68",
+      "state": "not-asked"
+    }
+  ],
+  "reclaimed": {
+    "reclaimed": [],
+    "refused": [],
+    "resumes_after": null,
+    "unresolved": [],
+    "unresolved_resumes_after": "attempt-0df37eec00cd03d9074f74e466c82212579c03be512bea64bb0096a541e86d5d"
+  }
+}
+serving initialization complete: incarnation='v12-stack-1726170-1795507926641456597' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-11-24T08:16:13.024Z",
+  "recovered": null,
+  "observed": 9,
+  "replaced": [],
+  "acts": [],
+  "started": [],
+  "spoken": [
+    {
+      "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-9-1/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-0df37eec00cd03d9074f74e466c82212579c03be512bea64bb0096a541e86d5d",
+      "act": "dispatch",
+      "outcome": "deferred",
+      "detail": {
+        "category": "refused",
+        "code": "precondition",
+        "message": "attempt 'attempt-0df37eec00cd03d9074f74e466c82212579c03be512bea64bb0096a541e86d5d' has no exchange delivery to publish a command into; a command nothing mounts is a file no container will ever read"
+      }
+    }
+  ],
+  "refreshed": [
+    {
+      "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-9-1/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-0df37eec00cd03d9074f74e466c82212579c03be512bea64bb0096a541e86d5d",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-9-1/review",
+      "episode": 1,
+      "attempt_id": "attempt-da1c4b00d23f986f260e2bfa4165ba50085be0e052dba810e6426a46710b3e68",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "publication-option-a-20261124T062254Z-1632328-recovery-9-D1/publication",
+      "episode": 1,
+      "attempt_id": "attempt-b7011ee282e134074e417324f0032d93fcf772547346e9faffefc357e2b6fe9b",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "publication-option-a-20261124T062254Z-1632328-recovery-9-D1/review",
+      "episode": 1,
+      "attempt_id": "attempt-565d478ad6c68b2758bd6f3b5c809b1b5c7de890f137b6e2c520e8453b91308b",
+      "state": "not-asked"
+    }
+  ],
+  "reclaimed": {
+    "reclaimed": [],
+    "refused": [],
+    "resumes_after": null,
+    "unresolved": [],
+    "unresolved_resumes_after": "attempt-b7011ee282e134074e417324f0032d93fcf772547346e9faffefc357e2b6fe9b"
+  }
+}

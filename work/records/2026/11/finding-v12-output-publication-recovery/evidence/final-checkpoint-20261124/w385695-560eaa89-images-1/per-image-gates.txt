@@ -1,0 +1,12 @@
+PER-IMAGE ACCEPTANCE. Each rebuilt image is accepted by the engine gates that already consume it, run from
+/home/sl/src/baton/v12/python with the identity recorded in images.owned selected. These are separately selected runs.
+  reference       sha256:817283c39ee423e1adae1a8461e95c601ea39eee95f0aeabb2a4520be623a87f
+      BATON_V12_LIFECYCLE_IMAGE=<id> BATON_V12_WORKER_ENTRY_IMAGE=<id> just test-group manager-engine
+  provider        sha256:0ad2c553865ebb6a95c6014686f61dd97e69f0bee617af005a2ace8f83ab89e7
+      the dogfood engine gates in manager-engine (tests.manager.test_dogfood_image) build and ask this recipe's artefact
+  integration     sha256:0c4dfe0844c83876c594940e0d3fcd3b87e9b6b1bff611e85b2d158ab68ce611
+      tests.manager.test_integration_image (manager-engine)
+  reconciliation  sha256:a36a9466d7a3da3aa659d325d7e81c35c640914a0d2b49ce2743acadb0bb08a4
+      the reconciliation image gate in manager-engine
+  publication     sha256:43482aa6d8777fc02a0a64ba20ea3a830a7b84a93ec584b25bbc7a3f527bf215
+      this script's 'recovery' and 'deadline' phases, with this identity as the deployment's publication worker image

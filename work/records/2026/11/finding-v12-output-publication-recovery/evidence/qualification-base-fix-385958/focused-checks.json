@@ -1,0 +1,15 @@
+{
+  "checks": [
+    {
+      "recipe": "integration",
+      "exit": 0,
+      "exact_FROM_only": true
+    },
+    {
+      "recipe": "reconciliation",
+      "exit": 0,
+      "exact_FROM_only": true
+    }
+  ],
+  "note": "Initial local double incorrectly refused post-build inspection as well as absent-tag preflight; corrected double, no engine run."
+}

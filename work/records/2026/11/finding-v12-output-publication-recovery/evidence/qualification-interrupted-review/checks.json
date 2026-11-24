@@ -1,0 +1,22 @@
+[
+  {
+    "state": "settlement-expired",
+    "exit": 1,
+    "output": "review ended without the requested result: settlement-expired; retained status: /unused.status.json\n"
+  },
+  {
+    "state": "claim-refused",
+    "exit": 1,
+    "output": "review ended without the requested result: claim-refused; retained status: /unused.status.json\n"
+  },
+  {
+    "state": "completed",
+    "exit": 0,
+    "output": "ok   review.state = \"completed\"\n"
+  },
+  {
+    "interrupt_waited_for_cleanup": true,
+    "exit": 143,
+    "output": "Interrupted; waiting for owned cleanup. Do not close this terminal.\n"
+  }
+]

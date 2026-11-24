@@ -585,6 +585,43 @@ class TheComposedCause(AttemptCase):
         super().setUp()
         self.recorded()
 
+    def test_preparation_reason_is_attributable_and_does_not_claim_cessation(self):
+        from baton_v12.worker_manager import attempts
+
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        with self.assertRaises(ContractRefusal):
+            attempts.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT,
+                refusal=ContractRefusal("integrity", "path", "the input root is partial"))
+        before = self.store._connection.total_changes
+        composed = failure_cause.attempt_failure_cause_of(self.store, ATTEMPT)
+        for name, value in (("kind", "refusal"), ("category", "integrity"),
+                            ("code", "path"), ("message", "the input root is partial")):
+            self.assertEqual(failure_cause.decode(composed["preparation_failure_" + name]),
+                             (True, value))
+        self.assertIsNone(composed["cause"])
+        self.assertEqual(before, self.store._connection.total_changes)
+
+    def test_preparation_text_is_rechecked_against_live_secrets(self):
+        from baton_v12.contracts import remember_secret, forget_secret
+
+        remember_secret(SECRET)
+        try:
+            held = failure_cause._preparation_fact(
+                {"failure": {"message": "error " + SECRET}}, "message")
+            self.assertFalse(failure_cause.decode(held)[0])
+            self.assertNotIn(SECRET, repr(held))
+        finally:
+            forget_secret(SECRET)
+
+    def test_missing_and_oversized_preparation_text_stay_unknown(self):
+        self.assertFalse(failure_cause.decode(
+            failure_cause._preparation_fact(None, "message"))[0])
+        self.assertFalse(failure_cause.decode(failure_cause._preparation_fact(
+            {"failure": {"message": "x" * (failure_cause.FIELD_BOUND + 1)}}, "message"))[0])
+
     def test_an_UNKNOWN_historical_attempt_NAMES_the_absent_records(self):
         composed = failure_cause.attempt_failure_cause_of(self.store, ATTEMPT)
         self.assertIsNone(composed["cause"])

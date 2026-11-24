@@ -1,0 +1,127 @@
+diff --git a/v12/python/src/baton_v12/worker_manager/failure_cause.py b/v12/python/src/baton_v12/worker_manager/failure_cause.py
+index f7289a27..b62832e2 100644
+--- a/v12/python/src/baton_v12/worker_manager/failure_cause.py
++++ b/v12/python/src/baton_v12/worker_manager/failure_cause.py
+@@ -82,7 +82,7 @@ import os
+ import stat
+ from urllib.parse import unquote, urlsplit
+ 
+-from ..contracts import ContractRefusal, digest, digest_of_bytes
++from ..contracts import ContractRefusal, check_no_durable_secret, digest, digest_of_bytes
+ from ..contracts.errors import name_value
+ from . import attempts as _attempts
+ from . import boundaries, documents, manifests, output, schema, tokens
+@@ -1161,6 +1161,18 @@ def _known(value, source):
+             f"one this manager can own, and it is reported unknown rather "
+             f"than shortened into a different identity")
+     return {"known": True, "value": value, "source": source}
++def _preparation_fact(record, member):
++    # Read only the owner's typed failure, never the whole journal document.
++    value = (record or {}).get("failure", {}).get(member)
++    if not isinstance(value, str):
++        return _unknown("no preparation failure " + member + " was recorded")
++    try:
++        check_no_durable_secret(value, what="a preparation diagnostic")
++    except ContractRefusal:
++        return _unknown("the preparation diagnostic is withheld by the secret boundary")
++    return _known(value, "attempts.attempt_preparation_failure_of.failure." + member)
++
++
+ def _members_of(held, names, missing, zeroable=()):
+     """A whole axis flattened into WRAPPED SCALARS, member by member.
+ 
+@@ -1793,6 +1805,10 @@ def attempt_failure_cause_of(store, attempt_id):
+         "preparation_failure_recorded": _known(
+             preparation is not None,
+             "attempts.attempt_preparation_failure_of"),
++        "preparation_failure_kind": _preparation_fact(preparation, "kind"),
++        "preparation_failure_category": _preparation_fact(preparation, "category"),
++        "preparation_failure_code": _preparation_fact(preparation, "code"),
++        "preparation_failure_message": _preparation_fact(preparation, "message"),
+         "preparation_failure_runtime_id": (
+             _known(preparation.get("runtime_id"),
+                    "attempts.attempt_preparation_failure_of")
+diff --git a/v12/python/tests/manager/test_attempt_failure_cause.py b/v12/python/tests/manager/test_attempt_failure_cause.py
+index b4c99ade..fe047067 100644
+--- a/v12/python/tests/manager/test_attempt_failure_cause.py
++++ b/v12/python/tests/manager/test_attempt_failure_cause.py
+@@ -585,6 +585,43 @@ class TheComposedCause(AttemptCase):
+         super().setUp()
+         self.recorded()
+ 
++    def test_preparation_reason_is_attributable_and_does_not_claim_cessation(self):
++        from baton_v12.worker_manager import attempts
++
++        self.claimed()
++        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
++                            expect=self.expect())
++        with self.assertRaises(ContractRefusal):
++            attempts.refuse_runtime_preparation(
++                self.store, attempt_id=ATTEMPT,
++                refusal=ContractRefusal("integrity", "path", "the input root is partial"))
++        before = self.store._connection.total_changes
++        composed = failure_cause.attempt_failure_cause_of(self.store, ATTEMPT)
++        for name, value in (("kind", "refusal"), ("category", "integrity"),
++                            ("code", "path"), ("message", "the input root is partial")):
++            self.assertEqual(failure_cause.decode(composed["preparation_failure_" + name]),
++                             (True, value))
++        self.assertIsNone(composed["cause"])
++        self.assertEqual(before, self.store._connection.total_changes)
++
++    def test_preparation_text_is_rechecked_against_live_secrets(self):
++        from baton_v12.contracts import remember_secret, forget_secret
++
++        remember_secret(SECRET)
++        try:
++            held = failure_cause._preparation_fact(
++                {"failure": {"message": "error " + SECRET}}, "message")
++            self.assertFalse(failure_cause.decode(held)[0])
++            self.assertNotIn(SECRET, repr(held))
++        finally:
++            forget_secret(SECRET)
++
++    def test_missing_and_oversized_preparation_text_stay_unknown(self):
++        self.assertFalse(failure_cause.decode(
++            failure_cause._preparation_fact(None, "message"))[0])
++        self.assertFalse(failure_cause.decode(failure_cause._preparation_fact(
++            {"failure": {"message": "x" * (failure_cause.FIELD_BOUND + 1)}}, "message"))[0])
++
+     def test_an_UNKNOWN_historical_attempt_NAMES_the_absent_records(self):
+         composed = failure_cause.attempt_failure_cause_of(self.store, ATTEMPT)
+         self.assertIsNone(composed["cause"])
+diff --git a/v12/python/tests/tools/test_attempt_diagnostics.py b/v12/python/tests/tools/test_attempt_diagnostics.py
+index 35dc8243..03690748 100644
+--- a/v12/python/tests/tools/test_attempt_diagnostics.py
++++ b/v12/python/tests/tools/test_attempt_diagnostics.py
+@@ -39,6 +39,16 @@ def document(**stage):
+ 
+ class TheReportIsAPureProjection(unittest.TestCase):
+ 
++    def test_preparation_reason_survives_the_report_allowlist(self):
++        diagnostic = {"preparation_failure_message": {
++            "known": True, "value": "the input root is partial",
++            "source": "attempts.attempt_preparation_failure_of.failure.message"}}
++        row = attempt_diagnostics.report(json.dumps(document(
++            attempt_diagnostics=diagnostic)).encode())["rows"][0]
++        self.assertEqual(row["axes"]["preparation_failure_message"]["value"],
++                         "the input root is partial")
++        self.assertFalse(row["completeness"]["proves_cessation"])
++
+     def test_it_reads_one_document_and_opens_NOTHING(self):
+         held = attempt_diagnostics.report(json.dumps(document()).encode())
+         self.assertEqual(held["schema"], attempt_diagnostics.SCHEMA)
+diff --git a/v12/python/tools/attempt_diagnostics.py b/v12/python/tools/attempt_diagnostics.py
+index 741cb2ed..83abb7df 100644
+--- a/v12/python/tools/attempt_diagnostics.py
++++ b/v12/python/tools/attempt_diagnostics.py
+@@ -160,6 +160,10 @@ AXIS_MEMBERS = (
+     ("start_failure_recorded", (bool,)),
+     ("start_failure_runtime_id", (str,)),
+     ("preparation_failure_recorded", (bool,)),
++    ("preparation_failure_kind", (str,)),
++    ("preparation_failure_category", (str,)),
++    ("preparation_failure_code", (str,)),
++    ("preparation_failure_message", (str,)),
+     ("preparation_failure_runtime_id", (str,)),
+ )
+ WORKSPACE_MEMBERS = (

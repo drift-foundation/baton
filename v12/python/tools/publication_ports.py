@@ -328,8 +328,8 @@ class SourceCorrespondence:
                                            "the retained candidate")
             vectors.append(git_profile.verify_vector(repository,
                                                      request["candidate"]))
-            before = self._profile.content(repository, request["base"])
-            after = self._profile.content(repository, request["candidate"])
+            before, after = self._profile.corresponding_content(
+                repository, request["base"], request["candidate"])
             vectors.append(git_profile.tree_entries_vector(
                 repository, request["candidate"]))
         finally:

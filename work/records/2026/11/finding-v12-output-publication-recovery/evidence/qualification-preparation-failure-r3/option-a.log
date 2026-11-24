@@ -1,0 +1,11 @@
+2026-11-24T06:48:58Z ok   compose-implementation
+2026-11-24T06:48:58Z ok   compose-review
+2026-11-24T06:48:59Z ok   compose-publication
+2026-11-24T06:49:06Z ok   repeat
+2026-11-24T06:49:06Z workers: three workers admitted; both provider roles run the labelled fixture image
+2026-11-24T06:49:06Z phase workers complete
+2026-11-24T06:49:06Z phase workers ended with status 0
+2026-11-24T06:49:07Z ok   create-1
+2026-11-24T06:49:07Z jobs: job-w385695-qualify-20261124T062254Z-1632328-recovery-3-1, one independent original under baton.v12.job-template.implementation-review/1
+2026-11-24T06:49:07Z phase jobs complete
+2026-11-24T06:49:07Z phase jobs ended with status 0

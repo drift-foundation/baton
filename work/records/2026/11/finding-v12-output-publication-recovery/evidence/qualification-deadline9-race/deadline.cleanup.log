@@ -1,0 +1,6 @@
+error: no such object: c0117a8f5508afdeedd8b89ed532bb659301613f0ca68f90daa79f793d2a24df
+stopped: manager pid 1737389
+stopped: publisher pid 1737390
+runtime   4 open episode(s), 3 with a recorded runtime, observed 5.1s ago
+          stopping a supervisor does not stop a runtime, and this is the last RECORDED answer rather than a fresh one
+stores and evidence retained under the configured paths

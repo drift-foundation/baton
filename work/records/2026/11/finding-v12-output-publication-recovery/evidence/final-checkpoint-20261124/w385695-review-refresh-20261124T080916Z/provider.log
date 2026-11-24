@@ -1,0 +1,23 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  411.1kB
+Step 1/5 : FROM sha256:0ad2c553865ebb6a95c6014686f61dd97e69f0bee617af005a2ace8f83ab89e7
+ ---> 0ad2c553865e
+Step 2/5 : USER 0:0
+ ---> Running in a9526794ee03
+ ---> Removed intermediate container a9526794ee03
+ ---> c07d22e5c855
+Step 3/5 : COPY --chown=0:0 claude_agent.py /opt/baton/claude_agent.py
+ ---> 38d48b3fffba
+Step 4/5 : RUN chmod 0444 /opt/baton/claude_agent.py
+ ---> Running in 4ea299d0f714
+ ---> Removed intermediate container 4ea299d0f714
+ ---> 12e7e5545a2f
+Step 5/5 : USER 65532:65532
+ ---> Running in 324849ba7a41
+ ---> Removed intermediate container 324849ba7a41
+ ---> eff9a5e9d515
+Successfully built eff9a5e9d515
+Successfully tagged baton-v12-provider:w385695-review-20261124t080916z

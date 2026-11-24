@@ -1,0 +1,217 @@
+{
+  "Id": "3964e1aba83ecbc3c801a185e99af68f9c0a5601775b96c9a98dd212d1ce38b5",
+  "Created": "2026-11-24T08:37:06.335136956Z",
+  "Path": "python3",
+  "Args": [
+    "/probe.py"
+  ],
+  "State": {
+    "Status": "exited",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 0,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-11-24T08:37:06.352190135Z",
+    "FinishedAt": "2026-11-24T08:37:11.483894443Z"
+  },
+  "Image": "sha256:43482aa6d8777fc02a0a64ba20ea3a830a7b84a93ec584b25bbc7a3f527bf215",
+  "ResolvConfPath": "/var/lib/docker/containers/3964e1aba83ecbc3c801a185e99af68f9c0a5601775b96c9a98dd212d1ce38b5/resolv.conf",
+  "HostnamePath": "/var/lib/docker/containers/3964e1aba83ecbc3c801a185e99af68f9c0a5601775b96c9a98dd212d1ce38b5/hostname",
+  "HostsPath": "/var/lib/docker/containers/3964e1aba83ecbc3c801a185e99af68f9c0a5601775b96c9a98dd212d1ce38b5/hosts",
+  "LogPath": "/var/lib/docker/containers/3964e1aba83ecbc3c801a185e99af68f9c0a5601775b96c9a98dd212d1ce38b5/3964e1aba83ecbc3c801a185e99af68f9c0a5601775b96c9a98dd212d1ce38b5-json.log",
+  "Name": "/baton-695-deadline-7849a59e3d3b4898b64856c8bb17d10e",
+  "RestartCount": 0,
+  "Driver": "overlay2",
+  "Platform": "linux",
+  "MountLabel": "",
+  "ProcessLabel": "",
+  "AppArmorProfile": "docker-default",
+  "ExecIDs": null,
+  "HostConfig": {
+    "Binds": null,
+    "ContainerIDFile": "",
+    "LogConfig": {
+      "Type": "json-file",
+      "Config": {}
+    },
+    "NetworkMode": "none",
+    "PortBindings": {},
+    "RestartPolicy": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    },
+    "AutoRemove": false,
+    "VolumeDriver": "",
+    "VolumesFrom": null,
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "CapAdd": null,
+    "CapDrop": [
+      "ALL"
+    ],
+    "CgroupnsMode": "private",
+    "Dns": null,
+    "DnsOptions": [],
+    "DnsSearch": [],
+    "ExtraHosts": null,
+    "GroupAdd": null,
+    "IpcMode": "private",
+    "Cgroup": "",
+    "Links": null,
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyRootfs": true,
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Tmpfs": {
+      "/tmp": "rw,noexec,nosuid,nodev,size=32m,mode=1777"
+    },
+    "UTSMode": "",
+    "UsernsMode": "",
+    "ShmSize": 67108864,
+    "Runtime": "runc",
+    "Isolation": "",
+    "CpuShares": 0,
+    "Memory": 0,
+    "NanoCpus": 0,
+    "CgroupParent": "",
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": [],
+    "BlkioDeviceReadBps": [],
+    "BlkioDeviceWriteBps": [],
+    "BlkioDeviceReadIOps": [],
+    "BlkioDeviceWriteIOps": [],
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "Devices": [],
+    "DeviceCgroupRules": null,
+    "DeviceRequests": null,
+    "MemoryReservation": 0,
+    "MemorySwap": 0,
+    "MemorySwappiness": null,
+    "OomKillDisable": null,
+    "PidsLimit": null,
+    "Ulimits": [],
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "IOMaximumIOps": 0,
+    "IOMaximumBandwidth": 0,
+    "Mounts": [
+      {
+        "Type": "bind",
+        "Source": "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/qualification-short-deadline/probe.py",
+        "Target": "/probe.py",
+        "ReadOnly": true
+      }
+    ],
+    "MaskedPaths": [
+      "/proc/acpi",
+      "/proc/asound",
+      "/proc/interrupts",
+      "/proc/kcore",
+      "/proc/keys",
+      "/proc/latency_stats",
+      "/proc/sched_debug",
+      "/proc/scsi",
+      "/proc/timer_list",
+      "/proc/timer_stats",
+      "/sys/devices/virtual/powercap",
+      "/sys/firmware"
+    ],
+    "ReadonlyPaths": [
+      "/proc/bus",
+      "/proc/fs",
+      "/proc/irq",
+      "/proc/sys",
+      "/proc/sysrq-trigger"
+    ]
+  },
+  "GraphDriver": {
+    "Data": {
+      "ID": "3964e1aba83ecbc3c801a185e99af68f9c0a5601775b96c9a98dd212d1ce38b5",
+      "LowerDir": "/var/lib/docker/overlay2/1b2368921235e8741d79949bfe713c1398df61096376709fd74a91c89a125e10-init/diff:/var/lib/docker/overlay2/64a1f27c5a421df82c909cdf6c653b5e5c02a18d5541c2df394ef64e6bdb3701/diff:/var/lib/docker/overlay2/1e80119112c1accd47b999b204901af67ce0aa12c49fea239ac366fe904ca3f8/diff:/var/lib/docker/overlay2/a42132a2825a18163edb6800ae9525da70444d37ea375807efad001494c6ebf4/diff:/var/lib/docker/overlay2/4ba903fefeefb6c99574fe114146fb0f753fdde4ce5117244c61d054f1662732/diff:/var/lib/docker/overlay2/84e5f06357cddcdbe5911f934ec1d446f09277a3598ca84ac0ed4d6d36019ab3/diff:/var/lib/docker/overlay2/4f6f847c94304e66907ee0f78d3a4c8eab141e10f3ad2d596f97f3a53b4c9d90/diff:/var/lib/docker/overlay2/ec79aabdb7cff88b56536b3483d704fb9a343448eb1892dfc0ba1362ea4dbbc3/diff",
+      "MergedDir": "/var/lib/docker/overlay2/1b2368921235e8741d79949bfe713c1398df61096376709fd74a91c89a125e10/merged",
+      "UpperDir": "/var/lib/docker/overlay2/1b2368921235e8741d79949bfe713c1398df61096376709fd74a91c89a125e10/diff",
+      "WorkDir": "/var/lib/docker/overlay2/1b2368921235e8741d79949bfe713c1398df61096376709fd74a91c89a125e10/work"
+    },
+    "Name": "overlay2"
+  },
+  "Mounts": [
+    {
+      "Type": "bind",
+      "Source": "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/qualification-short-deadline/probe.py",
+      "Destination": "/probe.py",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    }
+  ],
+  "Config": {
+    "Hostname": "3964e1aba83e",
+    "Domainname": "",
+    "User": "65532:65532",
+    "AttachStdin": false,
+    "AttachStdout": true,
+    "AttachStderr": true,
+    "Tty": false,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Env": [
+      "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+      "PYTHON_VERSION=3.13.15",
+      "PYTHON_SHA256=1e66a7945a48390ee4c2a4268a0e4185884059a13c4aab6d148aa208deea4a76",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "PYTHONUNBUFFERED=1",
+      "PYTHONPATH=/opt/baton",
+      "PYTHONHASHSEED=0"
+    ],
+    "Cmd": [
+      "/probe.py"
+    ],
+    "Image": "sha256:43482aa6d8777fc02a0a64ba20ea3a830a7b84a93ec584b25bbc7a3f527bf215",
+    "Volumes": null,
+    "WorkingDir": "",
+    "Entrypoint": [
+      "python3"
+    ],
+    "Labels": {}
+  },
+  "NetworkSettings": {
+    "SandboxID": "",
+    "SandboxKey": "",
+    "Ports": {},
+    "Networks": {
+      "none": {
+        "IPAMConfig": null,
+        "Links": null,
+        "Aliases": null,
+        "DriverOpts": null,
+        "GwPriority": 0,
+        "NetworkID": "d98eb99a3242fbe1d6807607f8725950ed2563566801d6528722a30b1ea89d93",
+        "EndpointID": "",
+        "Gateway": "",
+        "IPAddress": "",
+        "MacAddress": "",
+        "IPPrefixLen": 0,
+        "IPv6Gateway": "",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "DNSNames": null
+      }
+    }
+  }
+}

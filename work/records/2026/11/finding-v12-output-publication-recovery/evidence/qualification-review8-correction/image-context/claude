@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+"""QUALIFICATION FIXTURE, NOT A PROVIDER: a scripted program standing where the CLI stands. No model."""
+import json, os, subprocess, sys
+if os.path.exists(".git"):
+    open("big.txt", "w").write("x" * (1048576 + 4096))   # an implementer whose output is over its ceiling
+else:
+    recovery = json.load(open("/input/recovery-review.json"))
+    prefix = os.environ.get("CLAUDE_CODE_SHELL_PREFIX")
+    ran = subprocess.run([prefix, "true"]).returncode if prefix else None   # one command through the supervisor
+    json.dump({"schema": "baton.review-report/1", "verdict": "accepted",
+               "findings": f"Scripted qualification review; one supervised command exited {ran}.",
+               "recovery_digest": recovery["handoff_digest"]}, open("review-report.json", "w"))
+print(json.dumps({"type": "result", "subtype": "success", "is_error": False, "result": "scripted"}))

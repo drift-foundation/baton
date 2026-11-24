@@ -160,6 +160,10 @@ AXIS_MEMBERS = (
     ("start_failure_recorded", (bool,)),
     ("start_failure_runtime_id", (str,)),
     ("preparation_failure_recorded", (bool,)),
+    ("preparation_failure_kind", (str,)),
+    ("preparation_failure_category", (str,)),
+    ("preparation_failure_code", (str,)),
+    ("preparation_failure_message", (str,)),
     ("preparation_failure_runtime_id", (str,)),
 )
 WORKSPACE_MEMBERS = (

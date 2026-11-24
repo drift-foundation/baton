@@ -1,0 +1,23 @@
+2026-11-24T07:48:23Z ok   frozen = true
+2026-11-24T07:48:23Z ok   implementation and review workers run the labelled fixture image; the publication worker runs this run's publication image
+2026-11-24T07:48:25Z ok   eligible = true
+2026-11-24T07:48:25Z ok   output.exceeded = true
+2026-11-24T07:48:25Z ok   output.fits_corrective = true
+2026-11-24T07:48:25Z preflight: every checked prerequisite holds
+2026-11-24T07:48:25Z phase preflight complete
+2026-11-24T07:48:25Z phase preflight ended with status 0
+2026-11-24T07:48:26Z ok   frozen = true
+2026-11-24T07:48:26Z ok   implementation and review workers run the labelled fixture image; the publication worker runs this run's publication image
+2026-11-24T07:48:28Z ok   eligible = true
+2026-11-24T07:48:28Z ok   output.exceeded = true
+2026-11-24T07:48:28Z ok   output.fits_corrective = true
+2026-11-24T07:48:31Z ok   eligible = true
+2026-11-24T07:48:36Z ok   admitted = true
+2026-11-24T07:48:56Z ok   recovery.handed_off = true
+2026-11-24T07:48:56Z ok   recovery.outcome = "published"
+2026-11-24T07:48:56Z ok   publication_attempt.recorded.execution_runtime = "destroyed"
+2026-11-24T07:48:56Z ok   publisher container of attempt-8a97c03eb4ce769ad2cf015318fd80f867aa98a4b4c7aa81c6a0452f0e292e59 is gone after custody
+2026-11-24T07:56:36Z cleanup: instance stack stopped (this run's: manager 1695437 publisher 1695438)
+2026-11-24T07:56:37Z UNRESOLVED: selected containers remain; see /home/sl/baton-qualification/w385695-recovery-8/recovery.leftover-containers.txt
+2026-11-24T07:56:37Z phase recovery leaves UNRESOLVED cleanup; what is retained is named above
+2026-11-24T07:56:37Z phase recovery ended with status 143

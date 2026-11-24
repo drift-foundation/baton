@@ -1,0 +1,11 @@
+test_image_remove_failure_cannot_report_success (__main__.Restart.test_image_remove_failure_cannot_report_success) ... ok
+test_qualification_retained_start_without_operation_receipt_stays_unresolved (__main__.Restart.test_qualification_retained_start_without_operation_receipt_stays_unresolved) ... ok
+test_setup_retained_start_without_operation_receipt_stays_unresolved (__main__.Restart.test_setup_retained_start_without_operation_receipt_stays_unresolved) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.511s
+
+OK
+IMAGE_REMOVE_FAILURE {"exit": 1, "stdout": "UNRESOLVED: owned-tag could not be removed (in use?); it stays recorded in images.owned as sha256:owned and is not forced; see /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmphv_5b0su/cleanup.cleanup.log\ncleanup: only tags recorded in images.owned were considered; no container was touched\n"}
+MISSING_OP_RESTART {"script": "qualify-w385695.sh", "exit": 0, "retained": true, "marked_reconciled": false, "late_effect": true, "stdout": "UNRESOLVED: the start intent has no readable record of its start command (/home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpgswj51gk/phase.stack-start-op), so it is not known to have ended or never begun; nothing was reconciled; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmpgswj51gk/phase.stack-start-intent\nunresolved=[1]\n"}
+MISSING_OP_RESTART {"script": "option-a-setup.sh", "exit": 0, "retained": true, "marked_reconciled": false, "late_effect": true, "stdout": "UNRESOLVED: the start intent has no readable record of its start command (/home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmp_a3zvt6x/phase.stack-start-op), so it is not known to have ended or never begun; nothing was reconciled; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/tmp/tmp_a3zvt6x/phase.stack-start-intent\nunresolved=[1]\n"}

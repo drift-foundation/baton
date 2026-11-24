@@ -82,7 +82,7 @@ import os
 import stat
 from urllib.parse import unquote, urlsplit
 
-from ..contracts import ContractRefusal, digest, digest_of_bytes
+from ..contracts import ContractRefusal, check_no_durable_secret, digest, digest_of_bytes
 from ..contracts.errors import name_value
 from . import attempts as _attempts
 from . import boundaries, documents, manifests, output, schema, tokens
@@ -1161,6 +1161,18 @@ def _known(value, source):
             f"one this manager can own, and it is reported unknown rather "
             f"than shortened into a different identity")
     return {"known": True, "value": value, "source": source}
+def _preparation_fact(record, member):
+    # Read only the owner's typed failure, never the whole journal document.
+    value = (record or {}).get("failure", {}).get(member)
+    if not isinstance(value, str):
+        return _unknown("no preparation failure " + member + " was recorded")
+    try:
+        check_no_durable_secret(value, what="a preparation diagnostic")
+    except ContractRefusal:
+        return _unknown("the preparation diagnostic is withheld by the secret boundary")
+    return _known(value, "attempts.attempt_preparation_failure_of.failure." + member)
+
+
 def _members_of(held, names, missing, zeroable=()):
     """A whole axis flattened into WRAPPED SCALARS, member by member.
 
@@ -1793,6 +1805,10 @@ def attempt_failure_cause_of(store, attempt_id):
         "preparation_failure_recorded": _known(
             preparation is not None,
             "attempts.attempt_preparation_failure_of"),
+        "preparation_failure_kind": _preparation_fact(preparation, "kind"),
+        "preparation_failure_category": _preparation_fact(preparation, "category"),
+        "preparation_failure_code": _preparation_fact(preparation, "code"),
+        "preparation_failure_message": _preparation_fact(preparation, "message"),
         "preparation_failure_runtime_id": (
             _known(preparation.get("runtime_id"),
                    "attempts.attempt_preparation_failure_of")

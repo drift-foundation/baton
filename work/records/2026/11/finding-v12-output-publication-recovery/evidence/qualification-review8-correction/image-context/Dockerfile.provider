@@ -1,0 +1,5 @@
+FROM sha256:0ad2c553865ebb6a95c6014686f61dd97e69f0bee617af005a2ace8f83ab89e7
+USER 0:0
+COPY --chown=0:0 claude_agent.py /opt/baton/claude_agent.py
+RUN chmod 0444 /opt/baton/claude_agent.py
+USER 65532:65532

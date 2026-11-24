@@ -1,0 +1,11 @@
+{
+  "schema": "baton.dogfood-task/2",
+  "task_id": "w385695-scripted-qualification",
+  "declared_base": "560eaa895236ae28bcf204f308b82679f32abbbd",
+  "source_profile": "git-line",
+  "source_root": "source",
+  "instructions": "Deterministic W385695 publication-recovery qualification. The labelled scripted CLI creates an oversized proposal; no live model is selected.",
+  "verification": [
+    "/bin/true"
+  ]
+}

@@ -1,0 +1,28 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  411.1kB
+Step 1/7 : ARG PROVIDER_BASE
+Step 2/7 : FROM ${PROVIDER_BASE}
+ ---> eff9a5e9d515
+Step 3/7 : USER 0:0
+ ---> Running in a99875696677
+ ---> Removed intermediate container a99875696677
+ ---> 5d90f7642663
+Step 4/7 : COPY --chown=0:0 claude /usr/local/bin/claude
+ ---> 29ee883ae7e6
+Step 5/7 : RUN chmod 0555 /usr/local/bin/claude
+ ---> Running in 73181c22a149
+ ---> Removed intermediate container 73181c22a149
+ ---> c8ffbfaaa13d
+Step 6/7 : LABEL org.baton.qualification-fixture="scripted-provider"
+ ---> Running in 9de6c0b5be0d
+ ---> Removed intermediate container 9de6c0b5be0d
+ ---> 201e58fbc16b
+Step 7/7 : USER 65532:65532
+ ---> Running in 94c380920586
+ ---> Removed intermediate container 94c380920586
+ ---> 84b37a820900
+Successfully built 84b37a820900
+Successfully tagged baton-v12-fixture:w385695-review-20261124t080916z

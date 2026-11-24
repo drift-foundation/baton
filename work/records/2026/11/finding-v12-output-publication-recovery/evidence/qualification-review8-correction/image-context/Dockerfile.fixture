@@ -1,0 +1,7 @@
+ARG PROVIDER_BASE
+FROM ${PROVIDER_BASE}
+USER 0:0
+COPY --chown=0:0 claude /usr/local/bin/claude
+RUN chmod 0555 /usr/local/bin/claude
+LABEL org.baton.qualification-fixture="scripted-provider"
+USER 65532:65532

@@ -1,0 +1,18 @@
+[
+  {
+    "probe": "root-user",
+    "refused": true
+  },
+  {
+    "probe": "wrong-group",
+    "refused": true
+  },
+  {
+    "probe": "writable-input",
+    "refused": true
+  },
+  {
+    "probe": "foreign-scratch",
+    "refused": true
+  }
+]

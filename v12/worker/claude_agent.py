@@ -205,6 +205,8 @@ VCS_METADATA = ".git"
 # The private scratch root. `/tmp` is the adapter's tmpfs: `rw,noexec,nosuid,
 # nodev,size=64m`, private to this container and gone when it ends.
 PRIVATE_ROOT = "/tmp"
+# Manager-delivered per-attempt disk capacity; never the provider home.
+REVIEW_DISK_ROOT = "/scratch"
 
 # -- the provider ------------------------------------------------------------
 
@@ -4539,9 +4541,14 @@ class ClaudeAgent:
                 # AND THIS ADAPTER'S OWN CLOCK: a provider whose supervisor
                 # answered after the one invocation deadline is a timeout,
                 # whatever that record says.
-                if ended is None or ended["outcome"] == "timed-out" \
-                        or time.monotonic() > supervised["deadline"]:
+                if time.monotonic() > supervised["deadline"] or (
+                        ended is not None and ended["outcome"] == "timed-out"):
                     raise subprocess.TimeoutExpired(argv, seconds)
+                if ended is None:
+                    return {"ok": False, "status": status,
+                            "failure_reason": UNCLASSIFIED, **bound,
+                            "why": "the provider supervisor returned without "
+                                   "a completion record; its ending is unknown"}
         except subprocess.TimeoutExpired:
             return {"ok": False, "status": None,
                     "failure_reason": PROVIDER_TIMED_OUT, **bound,
@@ -5514,9 +5521,16 @@ class ClaudeAgent:
         if record["seconds_bound"] < 1:
             return dict(record, outcome="not-run")
         _supervisor_ready()
-        copy = os.path.join(self._new_directory(scratch,
-                                                REVIEWER_VERIFICATION_ROOM),
-                            "tree")
+        # A source tree can exceed the private tmpfs by orders of magnitude.
+        # Keep its writable verification copy on the existing per-attempt
+        # disk mount. Do not fall back to memory or the read-only input.
+        import stat
+        root = os.lstat(REVIEW_DISK_ROOT)
+        if not stat.S_ISDIR(root.st_mode) or root.st_uid != os.geteuid():
+            raise TaskRefusal("review verification requires its owned disk scratch directory")
+        room = tempfile.mkdtemp(prefix=REVIEWER_VERIFICATION_ROOM + "-",
+                                dir=REVIEW_DISK_ROOT)
+        copy = os.path.join(room, "tree")
         ledger = self._new_directory(scratch, REVIEWER_VERIFICATION_ROOM
                                      + "-ledger")
         # THE COPY IS WAITED FOR ONLY UNTIL THE DEADLINE. It runs beside this
@@ -5537,8 +5551,10 @@ class ClaudeAgent:
         ending = deadline - COMMAND_END_GRACE_SECONDS
         remaining = ending - time.monotonic()
         if copying.is_alive() or failed or remaining <= 0:
+            reason = "copy-failed" if failed else "copy-deadline"
             return dict(record, seconds_bound=max(0, min(
-                limit, math.ceil(remaining))), outcome="not-run")
+                limit, math.ceil(remaining))), outcome="not-run",
+                        preparation_failure=reason)
         record["seconds_bound"] = min(limit, math.ceil(remaining))
         began = time.monotonic()
         try:

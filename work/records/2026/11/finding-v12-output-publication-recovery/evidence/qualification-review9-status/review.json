@@ -1,0 +1,34 @@
+{
+ "commands": {
+  "descendants_gone": true,
+  "supervised": 1,
+  "timed_out": 0,
+  "unfinished": 0
+ },
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "seconds_bound_source": "job-default",
+  "status": 0
+ },
+ "report_bytes": 63,
+ "reviewed": {
+  "base": "560eaa895236ae28bcf204f308b82679f32abbbd",
+  "head": "6b1976c0d8d8c915245f619eff5ca86c8c34c8f8",
+  "tree": "d2825ebf18dab09329ad6319ba3c42a5248fd2bb"
+ },
+ "schema": "baton.review-log/1",
+ "task_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-9-1",
+ "verdict": "accepted",
+ "verdict_withheld": null,
+ "verification": {
+  "argv": [
+   "/bin/true"
+  ],
+  "descendants_gone": true,
+  "outcome": "passed",
+  "seconds": 0.064,
+  "seconds_bound": 900,
+  "status": 0
+ }
+}

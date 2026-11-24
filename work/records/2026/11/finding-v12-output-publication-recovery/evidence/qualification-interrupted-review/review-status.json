@@ -1,0 +1,127 @@
+{
+  "admission": {
+    "admitted_at": "2026-11-24T07:36:44.210Z",
+    "input_digest": "sha256:cdec82da361c57ad9bc1c455e6444e7284a0f48a31585820f22bfd4356d7f9c4",
+    "job_id": "publication-option-a-20261124T062254Z-1632328-recovery-7-D1",
+    "state": "admitted"
+  },
+  "decision": {
+    "decided_at": "2026-11-24T07:36:41.912Z",
+    "decision_id": "option-a-20261124T062254Z-1632328-recovery-7-D1",
+    "disposition": "approved",
+    "owner": "baton.slaw"
+  },
+  "gate": {
+    "bindings": [
+      {
+        "name": "decision",
+        "present": true
+      },
+      {
+        "name": "admission",
+        "present": true
+      },
+      {
+        "name": "staged-input",
+        "present": true
+      },
+      {
+        "name": "adoption",
+        "present": true
+      },
+      {
+        "name": "custody",
+        "present": true
+      },
+      {
+        "name": "intake",
+        "present": true
+      },
+      {
+        "name": "reviewer-servability",
+        "present": true
+      }
+    ],
+    "candidate": {
+      "attempt_id": "attempt-a02294ec44c7696912e37e7ec86a3a764cfe83af9b56d74c8e22fa0a2a5654f7",
+      "base": "560eaa895236ae28bcf204f308b82679f32abbbd",
+      "changed_paths": [
+        "big.txt"
+      ],
+      "head": "a0157afc9de9d2541af38b371a6ce7223ec83314",
+      "participant": "baton.claude-native",
+      "principal": "principal:baton.claude-native"
+    },
+    "decision_id": "option-a-20261124T062254Z-1632328-recovery-7-D1",
+    "job_id": "publication-option-a-20261124T062254Z-1632328-recovery-7-D1",
+    "open": true,
+    "prerequisites": [],
+    "prior_job_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-7-1",
+    "reason": "publication-custody-handoff-validated",
+    "runnable": true,
+    "stage_id": "publication-option-a-20261124T062254Z-1632328-recovery-7-D1/review"
+  },
+  "observed_at": "2026-11-24T07:43:02.067Z",
+  "original": {
+    "attempt_id": "attempt-a02294ec44c7696912e37e7ec86a3a764cfe83af9b56d74c8e22fa0a2a5654f7",
+    "episode": 1,
+    "job_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-7-1",
+    "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-7-1/implementation",
+    "state": "failed at output publication; unchanged by any recovery",
+    "work_id": "1d32b2f4-W1"
+  },
+  "owner_item": null,
+  "publication_attempt": {
+    "attempt_id": "attempt-912f09a6f60ff2e1e21cf5c96cafebe1997a41d097f5d2ddcafabd45da3c8c03",
+    "recorded": {
+      "cleanup": "retained",
+      "execution_runtime": "destroyed"
+    },
+    "runtime_knowledge": "recorded: the Worker Manager's own journal; read the attempt for it"
+  },
+  "recovery": {
+    "custody": true,
+    "decision_id": "option-a-20261124T062254Z-1632328-recovery-7-D1",
+    "detail": "the published candidate is in custody and the review gate is open; the independent reviewer's own required verification is owed to the review contract and nothing here has judged it",
+    "ended": null,
+    "handed_off": true,
+    "job_id": "publication-option-a-20261124T062254Z-1632328-recovery-7-D1",
+    "launched": true,
+    "original_job": "failed; unchanged by this recovery",
+    "outcome": "published",
+    "owed": null,
+    "owner_item": null,
+    "prior_job_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-7-1",
+    "publication_deadline": {
+      "deadline_at": "2026-11-24T07:51:49.859Z",
+      "origin": "2026-11-24T07:36:49.859Z",
+      "reached": false,
+      "restart_resets": false
+    },
+    "published": true,
+    "review": "ended: settlement-expired",
+    "review_item": null,
+    "review_stage": {
+      "attempt_id": "attempt-2748b1ded5d737a36519a322b1bcb4187cd10dc25c491dfb46b11221c0eb72be",
+      "ended": null,
+      "episode": 1,
+      "stage_id": "publication-option-a-20261124T062254Z-1632328-recovery-7-D1/review",
+      "state": "settlement-expired"
+    },
+    "runtime_knowledge": "recorded: the Worker Manager's own journal; read the attempt for it",
+    "settled": false,
+    "staged": true,
+    "uncertain": false
+  },
+  "review": {
+    "attempt_id": "attempt-2748b1ded5d737a36519a322b1bcb4187cd10dc25c491dfb46b11221c0eb72be",
+    "ended_without_verdict": null,
+    "episode": 1,
+    "reviewer": null,
+    "stage_id": "publication-option-a-20261124T062254Z-1632328-recovery-7-D1/review",
+    "state": "settlement-expired",
+    "verdict": null
+  },
+  "review_item": null,
+  "schema": "baton.v12.output-publication-status/1"
+}

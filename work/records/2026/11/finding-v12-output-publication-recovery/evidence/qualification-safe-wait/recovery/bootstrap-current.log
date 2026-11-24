@@ -1,0 +1,23 @@
+repositories  2 prepared under /home/sl/baton-instances/qualify-w385695-recovery-4/repo: target, workspace
+authority 223624a1...    generated for this instance
+routing               reviewer baton.reviewer-native, decisions to baton.slaw
+job   none; no Work, grant or placeholder was created
+configuration /home/sl/baton-instances/qualify-w385695-recovery-4/deployment.json
+capacity      {"job_affinity": {}, "jobs": 0, "note": "this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created", "schema": "baton.v12.stage-execution-deployment/2", "targets": [], "workers_by_role": {"implementation": [], "integration": [], "review": []}}
+no Job was submitted and nothing was executed
+instance      /home/sl/baton-instances/qualify-w385695-recovery-4/instance.json
+install       /home/sl/baton-instances/qualify-w385695-recovery-4/install-inputs.json
+runtime       82 files, digest c73ce118b328c1a0...
+copied        29 directories, 82 files, 0 symlinks, each owned
+stores        /home/sl/baton-instances/qualify-w385695-recovery-4/db
+repository    /home/sl/baton-instances/qualify-w385695-recovery-4/repo
+justfile      /home/sl/baton-instances/qualify-w385695-recovery-4/justfile
+
+The deployment is operated from the destination, and needs nothing else:
+
+    cd /home/sl/baton-instances/qualify-w385695-recovery-4 && just status
+    just --justfile /home/sl/baton-instances/qualify-w385695-recovery-4/justfile start        # from anywhere
+
+or the command directly, which is the same program:
+
+    /home/sl/baton-instances/qualify-w385695-recovery-4/distro/baton-v12-stack status --instance /home/sl/baton-instances/qualify-w385695-recovery-4/instance.json

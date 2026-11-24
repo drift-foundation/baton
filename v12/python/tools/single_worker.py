@@ -3989,7 +3989,9 @@ def worker_preflight(given, control_store, *, credential_provider=None,
     """
     _context_preflight(given, control_store)
     provider = credential_provider
-    if provider is None:
+    # Publication is deterministic and its validated configuration forbids
+    # credential slots. Do not construct a provider for that role.
+    if provider is None and given["launch_role"] != PUBLICATION_ROLE:
         if given["credential_sources"] is None:
             _refuse("the production credential provider requires an absolute "
                     "credential_sources registry path", category="refused",

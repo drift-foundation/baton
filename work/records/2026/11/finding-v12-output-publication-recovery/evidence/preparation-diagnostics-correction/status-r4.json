@@ -1,0 +1,505 @@
+{
+  "schema": "baton.v12.job-status/9",
+  "observed_at": "2026-11-24T07:03:54.807Z",
+  "incarnation": "qualification-diagnosis-r4",
+  "canonical": true,
+  "jobs": [
+    {
+      "job_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1",
+      "submission_id": "sub-job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1",
+      "input_digest": "sha256:bc768a8418b12fc65bb9a38e64437e8e7a7db6062f41f1877ab165569bec8d65",
+      "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+      "test_scope": [],
+      "terminal_policy": "report-and-hold",
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {},
+        "boundaries": {
+          "host_verification": {
+            "seconds": 300,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 1800,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "compatibility",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1/implementation",
+          "job_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1",
+          "kind": "implementation",
+          "state": "exceptional",
+          "work_id": "223624a1-W1",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:7ebfb4132771de921b18644ae3a45ab57be826b8729391ceb6dd8608373dc050",
+          "episode": 1,
+          "offer_id": "offer-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+          "attempt_id": "attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+          "episodes": [
+            {
+              "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1/implementation",
+              "episode": 1,
+              "offer_id": "offer-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+              "attempt_id": "attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+              "opened_at": "2026-11-24T07:03:19.267Z",
+              "incarnation": "option-a-20261124T062254Z-1632328-recovery-4",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+            "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1/implementation",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "qualify-impl",
+            "lane": "implementation",
+            "participant": "baton.claude-native",
+            "canonical_principal": "principal:baton.claude-native",
+            "preferred_worker_id": null,
+            "selection_outcome": "initial",
+            "allocation_state": "released",
+            "reserved_at": "2026-11-24T07:03:19.866Z",
+            "recovery_required_at": null,
+            "released_at": "2026-11-24T07:03:30.191Z",
+            "release_reason": "launch-failed-before-runtime",
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:935dfc0350f47dbf4d70f0ef0c1d136732787effd4376b0db612291fd3da8bff",
+            "worker_profile_name": "claude-fresh-implementation",
+            "worker_profile_digest": "sha256:7ebfb4132771de921b18644ae3a45ab57be826b8729391ceb6dd8608373dc050"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+              "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1/implementation",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "qualify-impl",
+              "lane": "implementation",
+              "participant": "baton.claude-native",
+              "canonical_principal": "principal:baton.claude-native",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "released",
+              "reserved_at": "2026-11-24T07:03:19.866Z",
+              "recovery_required_at": null,
+              "released_at": "2026-11-24T07:03:30.191Z",
+              "release_reason": "launch-failed-before-runtime",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:935dfc0350f47dbf4d70f0ef0c1d136732787effd4376b0db612291fd3da8bff",
+              "worker_profile_name": "claude-fresh-implementation",
+              "worker_profile_digest": "sha256:7ebfb4132771de921b18644ae3a45ab57be826b8729391ceb6dd8608373dc050"
+            }
+          ],
+          "gates": [],
+          "receipts": [
+            {
+              "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1/implementation",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+              "state": "performed",
+              "recorded_at": "2026-11-24T07:03:19.871Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-11-24T07:05:19.870Z",
+                  "issued_at": "2026-11-24T07:03:19.870Z",
+                  "offer_id": "offer-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+                  "participant": "baton.claude-native",
+                  "runtime_attempt_id": "attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+                  "verifier": "sha256:9f6481604baf92df974bb8da3e3d9517536bd1c40ede63dad3d55e6d0d8e45d4",
+                  "work_id": "223624a1-W1"
+                },
+                "settled_at": "2026-11-24T07:03:19.870Z"
+              }
+            },
+            {
+              "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1/implementation",
+              "episode": 1,
+              "act": "claim",
+              "operation_id": "offer.settle:offer-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+              "state": "performed",
+              "recorded_at": "2026-11-24T07:03:24.905Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "assignment": {
+                    "generation": 1,
+                    "participant": "baton.claude-native",
+                    "work_ref": {
+                      "authority_uuid": "223624a15b40491f9d7ae1038e723e1e",
+                      "work_id": "223624a1-W1"
+                    }
+                  },
+                  "claim_event": 1,
+                  "decision": {
+                    "effective_scope": "scope:deployment",
+                    "endpoint": "baton.claude-native",
+                    "grant": "direct",
+                    "policy_generation": 19,
+                    "principal": "principal:baton.claude-native",
+                    "role": "impl"
+                  },
+                  "offer_id": "offer-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+                  "state": "claimed"
+                },
+                "settled_at": "2026-11-24T07:03:24.904Z"
+              }
+            }
+          ],
+          "deferral": null,
+          "runtime": {
+            "runtime_id": null,
+            "execution_runtime": "start-requested",
+            "assignment": {
+              "work_ref": {
+                "authority_uuid": "223624a15b40491f9d7ae1038e723e1e",
+                "work_id": "223624a1-W1"
+              },
+              "participant": "baton.claude-native",
+              "generation": 1
+            },
+            "activity": {
+              "attempt_id": "attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+              "bytes_observed": null,
+              "observed_at": null
+            }
+          },
+          "exchange": null,
+          "artifacts": null,
+          "attempt_diagnostics": {
+            "schema": "baton.v12.attempt-failure-cause/1",
+            "attempt_id": "attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+            "cause": null,
+            "unknown": null,
+            "absent_records": [
+              "attempt.cessation-*:expiry-reclaim",
+              "attempt.cessation-*:settlement",
+              "attempt.cessation-*:cancellation",
+              "resource-token.revoked:workspace:66306:2800680:1",
+              "runtime.start-failed"
+            ],
+            "worker_declaration": {
+              "disposition": {
+                "known": false,
+                "value": null,
+                "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+              },
+              "result_id": {
+                "known": false,
+                "value": null,
+                "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+              },
+              "frozen_at": {
+                "known": false,
+                "value": null,
+                "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+              },
+              "declared_ending": {
+                "known": false,
+                "value": null,
+                "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+              },
+              "failure_reason": {
+                "known": false,
+                "value": null,
+                "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+              },
+              "seconds_bound": {
+                "known": false,
+                "value": null,
+                "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+              },
+              "seconds_bound_source": {
+                "known": false,
+                "value": null,
+                "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+              },
+              "verification_attempted": {
+                "known": false,
+                "value": null,
+                "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+              },
+              "verification_status": {
+                "known": false,
+                "value": null,
+                "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+              }
+            },
+            "start_failure_recorded": {
+              "known": true,
+              "value": false,
+              "source": "attempts.attempt_start_failure_of"
+            },
+            "start_failure_runtime_id": {
+              "known": false,
+              "value": null,
+              "why": "this manager recorded no failed start naming a runtime for this attempt"
+            },
+            "preparation_failure_recorded": {
+              "known": true,
+              "value": true,
+              "source": "attempts.attempt_preparation_failure_of"
+            },
+            "preparation_failure_kind": {
+              "known": true,
+              "value": "refusal",
+              "source": "attempts.attempt_preparation_failure_of.failure.kind"
+            },
+            "preparation_failure_category": {
+              "known": true,
+              "value": "integrity",
+              "source": "attempts.attempt_preparation_failure_of.failure.category"
+            },
+            "preparation_failure_code": {
+              "known": true,
+              "value": "schema",
+              "source": "attempts.attempt_preparation_failure_of.failure.code"
+            },
+            "preparation_failure_message": {
+              "known": true,
+              "value": "a listed runtime's baton.v12.* labels are baton.v12.adapter_digest, baton.v12.authority_uuid, baton.v12.effective_scope, baton.v12.generation, baton.v12.participant, baton.v12.policy_digest, baton.v12.principal, baton.v12.profile_digest, baton.v12.qualification-fixture, baton.v12.runtime_attempt_id, baton.v12.work_id; this adapter reconciles on the whole label set and no other member of its own namespace",
+              "source": "attempts.attempt_preparation_failure_of.failure.message"
+            },
+            "preparation_failure_runtime_id": {
+              "known": false,
+              "value": null,
+              "why": "this manager recorded no failed preparation naming a runtime for this attempt"
+            },
+            "revocation": {
+              "known": false,
+              "value": null,
+              "why": "no revocation is journalled for this attempt's governed generation"
+            },
+            "revoked_expired_at": {
+              "known": false,
+              "value": null,
+              "why": "no revocation is journalled for this attempt's governed generation"
+            },
+            "revoked_container": {
+              "known": false,
+              "value": null,
+              "why": "no revocation naming a bound container is journalled for this generation"
+            },
+            "revoked_owner": {
+              "known": false,
+              "value": null,
+              "why": "no revocation naming an owner is journalled for this generation"
+            },
+            "completion": {
+              "known": false,
+              "value": null,
+              "why": "this generation's resource token has not been returned"
+            },
+            "domain": {
+              "known": true,
+              "value": "workspace:66306:2800680",
+              "source": "tokens.domain_of"
+            },
+            "generation": {
+              "known": true,
+              "value": 1,
+              "source": "tokens.generation_of"
+            },
+            "token": {
+              "owner": {
+                "known": true,
+                "value": "7315f733125255eabf3edfa682ac70ac91aadb0169475faba4946b9616c93ef7",
+                "source": "tokens.token_of"
+              },
+              "container": {
+                "known": true,
+                "value": "4c0d4d7d9bc31f381876dc6ec78bc3003ff88b9026fb6d5626385f34f0f37a7a",
+                "source": "tokens.token_of"
+              },
+              "expires_at": {
+                "known": true,
+                "value": "2026-11-24T09:05:29.789Z",
+                "source": "tokens.token_of"
+              },
+              "acquired_expires_at": {
+                "known": true,
+                "value": "2026-11-24T09:05:29.789Z",
+                "source": "tokens.token_of"
+              },
+              "renewed_at": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's governed generation records no renewed_at"
+              },
+              "renewals": {
+                "known": true,
+                "value": 0,
+                "source": "tokens.token_of"
+              },
+              "renewals_remaining": {
+                "known": true,
+                "value": 4,
+                "source": "tokens.token_of"
+              },
+              "expired": {
+                "known": true,
+                "value": false,
+                "source": "tokens.token_of"
+              },
+              "expiry_judged_at": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's governed generation records no expiry_judged_at"
+              },
+              "returned": {
+                "known": true,
+                "value": false,
+                "source": "tokens.token_of"
+              },
+              "activating": {
+                "known": true,
+                "value": false,
+                "source": "tokens.token_of"
+              },
+              "launch": {
+                "known": true,
+                "value": "runtime.start:4f35b94741e8743f7efb42c4b2ff27c0acf21ba9cdb8f58615ff6fa613f5a918",
+                "source": "tokens.token_of"
+              }
+            },
+            "renewal_limit": {
+              "known": true,
+              "value": 4,
+              "source": "tokens.RENEWAL_LIMIT"
+            },
+            "lifetime_seconds": {
+              "known": true,
+              "value": 900,
+              "source": "tokens.LIFETIME_SECONDS"
+            },
+            "execution": {
+              "execution_runtime": {
+                "known": true,
+                "value": "start-requested",
+                "source": "attempts"
+              },
+              "cleanup": {
+                "known": true,
+                "value": "pending",
+                "source": "attempts"
+              },
+              "observed_at": {
+                "known": true,
+                "value": "2026-11-24T07:03:29.788Z",
+                "source": "attempts"
+              },
+              "runtime_id": {
+                "known": false,
+                "value": null,
+                "why": "no runtime is attached to this attempt"
+              },
+              "token_bound_runtime_id": {
+                "known": true,
+                "value": "4c0d4d7d9bc31f381876dc6ec78bc3003ff88b9026fb6d5626385f34f0f37a7a",
+                "source": "tokens.token_of"
+              },
+              "activity_bytes": {
+                "known": false,
+                "value": null,
+                "why": "no session stream has been observed"
+              },
+              "activity_at": {
+                "known": false,
+                "value": null,
+                "why": "no session stream has been observed"
+              }
+            },
+            "workspace_object": {
+              "device": {
+                "known": true,
+                "value": 66306,
+                "source": "attempts"
+              },
+              "inode": {
+                "known": true,
+                "value": 2800680,
+                "source": "attempts"
+              },
+              "is_a_locator": false,
+              "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+            }
+          },
+          "diagnostic_degradation": null
+        },
+        {
+          "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1/review",
+          "job_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1",
+          "kind": "review",
+          "state": "blocked",
+          "work_id": "223624a1-W1",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:7ebfb4132771de921b18644ae3a45ab57be826b8729391ceb6dd8608373dc050",
+          "episode": 1,
+          "offer_id": "offer-5eb4334166c2fde2f2b9fbaa7d89a96a68bd874466cfe622e6d116a88d032bbc",
+          "attempt_id": "attempt-5eb4334166c2fde2f2b9fbaa7d89a96a68bd874466cfe622e6d116a88d032bbc",
+          "episodes": [
+            {
+              "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1/review",
+              "episode": 1,
+              "offer_id": "offer-5eb4334166c2fde2f2b9fbaa7d89a96a68bd874466cfe622e6d116a88d032bbc",
+              "attempt_id": "attempt-5eb4334166c2fde2f2b9fbaa7d89a96a68bd874466cfe622e6d116a88d032bbc",
+              "opened_at": "2026-11-24T07:03:19.267Z",
+              "incarnation": "option-a-20261124T062254Z-1632328-recovery-4",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [
+            {
+              "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-4-1/implementation",
+              "state": "exceptional",
+              "open": false
+            }
+          ],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null,
+          "attempt_diagnostics": null,
+          "diagnostic_degradation": null
+        }
+      ],
+      "cancellation": null,
+      "control": null,
+      "created_at": "2026-11-24T07:03:19.267Z"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"input": {"regular": true, "reviewer_verification": {"command_seconds": 900, "required": true}, "handoff_digest": "sha256:7ad9579d1936e54875cb3d89eed2dbaaebda8f485f5a72d099b133d4dc740f20"}, "write": "refused:EROFS", "supervisor": {"executable": true, "writable": false}}

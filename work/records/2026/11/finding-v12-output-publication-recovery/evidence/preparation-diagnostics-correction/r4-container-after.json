@@ -1,0 +1,359 @@
+{
+  "Id": "4c0d4d7d9bc31f381876dc6ec78bc3003ff88b9026fb6d5626385f34f0f37a7a",
+  "Created": "2026-11-24T07:03:29.808600924Z",
+  "Path": "python3",
+  "Args": [
+    "/opt/baton/dogfood_entry.py"
+  ],
+  "State": {
+    "Status": "exited",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 0,
+    "ExitCode": 143,
+    "Error": "",
+    "StartedAt": "2026-11-24T07:03:30.094022068Z",
+    "FinishedAt": "2026-11-24T07:04:31.45604465Z"
+  },
+  "Image": "sha256:9d013c79effbf566643c24e7bf41c4fc53575b788bb734a885f6be3278a35eef",
+  "ResolvConfPath": "/var/lib/docker/containers/4c0d4d7d9bc31f381876dc6ec78bc3003ff88b9026fb6d5626385f34f0f37a7a/resolv.conf",
+  "HostnamePath": "/var/lib/docker/containers/4c0d4d7d9bc31f381876dc6ec78bc3003ff88b9026fb6d5626385f34f0f37a7a/hostname",
+  "HostsPath": "/var/lib/docker/containers/4c0d4d7d9bc31f381876dc6ec78bc3003ff88b9026fb6d5626385f34f0f37a7a/hosts",
+  "LogPath": "/var/lib/docker/containers/4c0d4d7d9bc31f381876dc6ec78bc3003ff88b9026fb6d5626385f34f0f37a7a/4c0d4d7d9bc31f381876dc6ec78bc3003ff88b9026fb6d5626385f34f0f37a7a-json.log",
+  "Name": "/baton-runtime.start-4f35b94741e8743f7efb42c4b2ff27c0acf21ba9cdb8f58615ff6fa613f5a918",
+  "RestartCount": 0,
+  "Driver": "overlay2",
+  "Platform": "linux",
+  "MountLabel": "",
+  "ProcessLabel": "",
+  "AppArmorProfile": "docker-default",
+  "ExecIDs": null,
+  "HostConfig": {
+    "Binds": null,
+    "ContainerIDFile": "",
+    "LogConfig": {
+      "Type": "json-file",
+      "Config": {}
+    },
+    "NetworkMode": "none",
+    "PortBindings": {},
+    "RestartPolicy": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    },
+    "AutoRemove": false,
+    "VolumeDriver": "",
+    "VolumesFrom": null,
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "CapAdd": null,
+    "CapDrop": [
+      "ALL"
+    ],
+    "CgroupnsMode": "private",
+    "Dns": null,
+    "DnsOptions": [],
+    "DnsSearch": [],
+    "ExtraHosts": null,
+    "GroupAdd": [
+      "1001"
+    ],
+    "IpcMode": "private",
+    "Cgroup": "",
+    "Links": null,
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyRootfs": true,
+    "SecurityOpt": [
+      "no-new-privileges",
+      "label=disable"
+    ],
+    "Tmpfs": {
+      "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+      "/run/baton-verifier/cache": "rw,noexec,nosuid,nodev,size=4m,uid=1000,gid=1001,mode=0700",
+      "/run/baton-verifier/home": "rw,noexec,nosuid,nodev,size=4m,uid=1000,gid=1001,mode=0700",
+      "/run/baton-verifier/pycache": "rw,noexec,nosuid,nodev,size=8m,uid=1000,gid=1001,mode=0700",
+      "/run/baton-verifier/tmp": "rw,noexec,nosuid,nodev,size=16m,uid=1000,gid=1001,mode=0700",
+      "/run/baton/logs": "rw,noexec,nosuid,nodev,size=16m",
+      "/tmp": "rw,noexec,nosuid,nodev,size=32m"
+    },
+    "UTSMode": "",
+    "UsernsMode": "",
+    "ShmSize": 67108864,
+    "Runtime": "runc",
+    "Isolation": "",
+    "CpuShares": 0,
+    "Memory": 2147483648,
+    "NanoCpus": 2000000000,
+    "CgroupParent": "",
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": [],
+    "BlkioDeviceReadBps": [],
+    "BlkioDeviceWriteBps": [],
+    "BlkioDeviceReadIOps": [],
+    "BlkioDeviceWriteIOps": [],
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "Devices": [],
+    "DeviceCgroupRules": null,
+    "DeviceRequests": null,
+    "MemoryReservation": 0,
+    "MemorySwap": 4294967296,
+    "MemorySwappiness": null,
+    "OomKillDisable": null,
+    "PidsLimit": 512,
+    "Ulimits": [],
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "IOMaximumIOps": 0,
+    "IOMaximumBandwidth": 0,
+    "Mounts": [
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/workspaces/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/inputs",
+        "Target": "/input",
+        "ReadOnly": true
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/workspaces/.baton-review-lines/line-13d684866366b81ecf5b460a0c3bebe9c5741e0be2482b7fe49edd0f638123a8/checkout",
+        "Target": "/output"
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/credentials/credentials/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/claude",
+        "Target": "/run/baton/credentials/claude",
+        "ReadOnly": true
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/launch.json",
+        "Target": "/run/baton/launch.json",
+        "ReadOnly": true
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/verifier-layout/verifier-layout.json",
+        "Target": "/run/baton/verifier-layout.json",
+        "ReadOnly": true
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/command",
+        "Target": "/run/baton/exchange/command",
+        "ReadOnly": true
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/events",
+        "Target": "/run/baton/exchange/events"
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/logs/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+        "Target": "/run/baton/attempt-logs"
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/workspaces/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/scratch",
+        "Target": "/scratch"
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/repo/source-qualify-impl",
+        "Target": "/input/source",
+        "ReadOnly": true
+      }
+    ],
+    "MaskedPaths": [
+      "/proc/acpi",
+      "/proc/asound",
+      "/proc/interrupts",
+      "/proc/kcore",
+      "/proc/keys",
+      "/proc/latency_stats",
+      "/proc/sched_debug",
+      "/proc/scsi",
+      "/proc/timer_list",
+      "/proc/timer_stats",
+      "/sys/devices/virtual/powercap",
+      "/sys/firmware"
+    ],
+    "ReadonlyPaths": [
+      "/proc/bus",
+      "/proc/fs",
+      "/proc/irq",
+      "/proc/sys",
+      "/proc/sysrq-trigger"
+    ]
+  },
+  "GraphDriver": {
+    "Data": {
+      "ID": "4c0d4d7d9bc31f381876dc6ec78bc3003ff88b9026fb6d5626385f34f0f37a7a",
+      "LowerDir": "/var/lib/docker/overlay2/0d15389df5741a2baf24e90e38e5603f9c4721976dc0489cc55198dd2fd634b5-init/diff:/var/lib/docker/overlay2/912f08949135be9b18dff5cbce155894c8c068b9efbc3fa74bebf49e5afaa434/diff:/var/lib/docker/overlay2/2467d7fd2680a25f2df44577da3220c62ec9ed5632fba35b4be01c6af3381d1f/diff:/var/lib/docker/overlay2/79e095bc2ce6134f1bb25bc8f1739df1f739d3bd11177c5bd8ed6faffb630ff8/diff:/var/lib/docker/overlay2/0c199152e5a0e0a5d3c8a6874ed8e986902401f59adb9bd1095312abd41a60ce/diff:/var/lib/docker/overlay2/80628c3a096997661b9f2ba4f2fc95ba075c948ffa8ca41ac2b0afec2de899e1/diff:/var/lib/docker/overlay2/4ac54f1410da6f4b22e8d00ed5561b09fec7a869e7d3eb8e951b70858eca39c0/diff:/var/lib/docker/overlay2/37240068574e31bdfbc022cef1da9659329f7f541df5b8f92dc96185670d0cf7/diff:/var/lib/docker/overlay2/f9435409e4b3c58579fc76d66c23d22c1a2d73e4ceb8c77cc48ae8aac46dd57e/diff:/var/lib/docker/overlay2/496b2b141cdd1897d80f07f37e20394a8075e839d81ce232ee1207e2df22249a/diff:/var/lib/docker/overlay2/0058bce0b39d717ea9449320de07c2321542d8d1be4370cd35b8f0452d22061f/diff:/var/lib/docker/overlay2/fd4ca4fbeddb1a5917a1dfcff2f517d665e3d07573250206da984cdb9d0e7aa8/diff:/var/lib/docker/overlay2/90ebe06675fa9e473318c4e998c59b5fd29bd70771fb6f9adf1b9218e3b1ff2e/diff:/var/lib/docker/overlay2/8cdc17e13a75599dddee06a9dab0e742a7fb46a09453c407603aeddc70037360/diff:/var/lib/docker/overlay2/c3fa8d5747a7db6ae1c1a25d5382bdac5b280820ea74ad6f197a4786770c8aa1/diff:/var/lib/docker/overlay2/cad1fc57edaa1d14899ca0d1da16df5377679ae42b9000ac14812d3772f0574b/diff:/var/lib/docker/overlay2/b36cfe3f6d130f1f7019afd07a3d050864a4a64ffbf4384a1a13bb2aaca135b0/diff:/var/lib/docker/overlay2/b8eb880ddd53ef5c4f7b9b4a2c0bba1e72609c10650b5865fbcb36ea92a844a4/diff:/var/lib/docker/overlay2/5fc5b0f7a0fd59bb48aa9cf432df9ce8a9af16e0b6c50911573bb4c8796e786b/diff:/var/lib/docker/overlay2/00e9e5ef85a9a36d6f1253a083693cc94715db0b2ec7f02919bffb0401ede4cc/diff:/var/lib/docker/overlay2/8108d8074799de71e77c0f6029a09f26871ec2896a8fb44ebef8f35e845a5aad/diff:/var/lib/docker/overlay2/bfee542e94d18ea54304fbe7bb7ec599dec5428e03d20083251c6bf872f9d42a/diff:/var/lib/docker/overlay2/a5ac5b94c69ca5987980769ebf3365794ea85b85882f908a5a41d693e82d8c87/diff:/var/lib/docker/overlay2/b4e113dd9e9b7d3f1517fb5693a05430d1e688110d163a6b2ea51b4d723f806c/diff",
+      "MergedDir": "/var/lib/docker/overlay2/0d15389df5741a2baf24e90e38e5603f9c4721976dc0489cc55198dd2fd634b5/merged",
+      "UpperDir": "/var/lib/docker/overlay2/0d15389df5741a2baf24e90e38e5603f9c4721976dc0489cc55198dd2fd634b5/diff",
+      "WorkDir": "/var/lib/docker/overlay2/0d15389df5741a2baf24e90e38e5603f9c4721976dc0489cc55198dd2fd634b5/work"
+    },
+    "Name": "overlay2"
+  },
+  "Mounts": [
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/workspaces/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/scratch",
+      "Destination": "/scratch",
+      "Mode": "",
+      "RW": true,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/credentials/credentials/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/claude",
+      "Destination": "/run/baton/credentials/claude",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/repo/source-qualify-impl",
+      "Destination": "/input/source",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/workspaces/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/inputs",
+      "Destination": "/input",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/workspaces/.baton-review-lines/line-13d684866366b81ecf5b460a0c3bebe9c5741e0be2482b7fe49edd0f638123a8/checkout",
+      "Destination": "/output",
+      "Mode": "",
+      "RW": true,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/launch.json",
+      "Destination": "/run/baton/launch.json",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/verifier-layout/verifier-layout.json",
+      "Destination": "/run/baton/verifier-layout.json",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/command",
+      "Destination": "/run/baton/exchange/command",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795/events",
+      "Destination": "/run/baton/exchange/events",
+      "Mode": "",
+      "RW": true,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/home/sl/baton-instances/qualify-w385695-recovery-4/state/launch/logs/attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+      "Destination": "/run/baton/attempt-logs",
+      "Mode": "",
+      "RW": true,
+      "Propagation": "rprivate"
+    }
+  ],
+  "Config": {
+    "Hostname": "4c0d4d7d9bc3",
+    "Domainname": "",
+    "User": "1000:1001",
+    "AttachStdin": true,
+    "AttachStdout": true,
+    "AttachStderr": true,
+    "Tty": false,
+    "OpenStdin": true,
+    "StdinOnce": true,
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "NODE_VERSION=22.23.2",
+      "YARN_VERSION=1.22.22",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "PYTHONUNBUFFERED=1",
+      "PYTHONPATH=/opt/baton",
+      "PYTHONHASHSEED=0",
+      "NODE_NO_WARNINGS=1"
+    ],
+    "Cmd": null,
+    "Image": "sha256:9d013c79effbf566643c24e7bf41c4fc53575b788bb734a885f6be3278a35eef",
+    "Volumes": null,
+    "WorkingDir": "",
+    "Entrypoint": [
+      "python3",
+      "/opt/baton/dogfood_entry.py"
+    ],
+    "Labels": {
+      "baton.v12.adapter_digest": "sha256:3b5530e8b8197ff998be1b8f666b014d4a4a76a0117cd3b3c1a04f87316a4eab",
+      "baton.v12.authority_uuid": "223624a15b40491f9d7ae1038e723e1e",
+      "baton.v12.effective_scope": "scope:deployment",
+      "baton.v12.generation": "1",
+      "baton.v12.participant": "baton.claude-native",
+      "baton.v12.policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+      "baton.v12.principal": "principal:baton.claude-native",
+      "baton.v12.profile_digest": "sha256:7ebfb4132771de921b18644ae3a45ab57be826b8729391ceb6dd8608373dc050",
+      "baton.v12.qualification-fixture": "scripted-provider",
+      "baton.v12.runtime_attempt_id": "attempt-1e282d81ecc56fca605ee145a1584cbe2a39a518ecad25ae5a56baa56ebcd795",
+      "baton.v12.work_id": "223624a1-W1"
+    }
+  },
+  "NetworkSettings": {
+    "SandboxID": "",
+    "SandboxKey": "",
+    "Ports": {},
+    "Networks": {
+      "none": {
+        "IPAMConfig": null,
+        "Links": null,
+        "Aliases": null,
+        "DriverOpts": null,
+        "GwPriority": 0,
+        "NetworkID": "d98eb99a3242fbe1d6807607f8725950ed2563566801d6528722a30b1ea89d93",
+        "EndpointID": "",
+        "Gateway": "",
+        "IPAddress": "",
+        "MacAddress": "",
+        "IPPrefixLen": 0,
+        "IPv6Gateway": "",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "DNSNames": null
+      }
+    }
+  }
+}

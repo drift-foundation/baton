@@ -1772,3 +1772,83 @@ class TheBuildHoldsTheOwnerSelectionsItClaimsTo(unittest.TestCase):
         self.assertEqual(admitted["review"], "blocked")
         self.assertEqual(admitted["offers"], 0)
         self.assertIn("NOTHING HAS BEEN PUBLISHED", admitted["detail"])
+
+
+class CorrespondencePreservesUnchangedGitReferences(unittest.TestCase):
+    """Real private Git objects, with no checkout of link targets by the port."""
+
+    def setUp(self):
+        import pathlib
+        import subprocess
+
+        self.subprocess = subprocess
+        self.temporary = tempfile.TemporaryDirectory(
+            prefix="publication-links-", dir=disk_roots.disk_backed_root())
+        self.addCleanup(self.temporary.cleanup)
+        self.root = pathlib.Path(self.temporary.name)
+        self.repo = self.root / "source"
+        self.repo.mkdir()
+        self.git("init", "-q")
+        self.git("config", "user.email", "fixture@example.invalid")
+        self.git("config", "user.name", "Fixture")
+        (self.repo / "ordinary.txt").write_text("base\n")
+        (self.repo / "inherited-link").symlink_to("/nonexistent/outside-target")
+        self.git("add", ".")
+        self.git("commit", "-qm", "base")
+        self.base = self.git("rev-parse", "HEAD").strip()
+        (self.repo / "ordinary.txt").write_text("candidate\n")
+        self.scratch = self.root / "scratch"
+        self.scratch.mkdir()
+
+    def git(self, *args):
+        return self.subprocess.check_output(
+            ["git", "-C", str(self.repo), *args], text=True)
+
+    def runner(self, argv, input=None):
+        result = self.subprocess.run(argv, input=input, text=True,
+                                     capture_output=True, timeout=30)
+        return {"returncode": result.returncode, "stdout": result.stdout,
+                "stderr": result.stderr}
+
+    def correspond(self):
+        from tools.publication_ports import SourceCorrespondence
+
+        self.git("add", "-A")
+        self.git("commit", "-qm", "candidate")
+        head = self.git("rev-parse", "HEAD").strip()
+        self.git("bundle", "create", str(self.root / "objects.bundle"), "--all")
+        port = SourceCorrespondence({"root": str(self.root)},
+                                    engine=self.runner, scratch=str(self.scratch))
+        return port.correspondence_of({"root": str(self.root),
+            "entries": ["objects.bundle"], "base": self.base,
+            "candidate": head})
+
+    def test_inherited_link_is_not_a_change_and_import_stays_strict(self):
+        result = self.correspond()
+        self.assertEqual(result["changed_paths"], ["ordinary.txt"])
+        self.assertEqual(os.readlink(self.repo / "inherited-link"),
+                         "/nonexistent/outside-target")
+        with self.assertRaisesRegex(git_profile.IntegrationProfileRefusal,
+                                    "symbolic link"):
+            git_profile.GitIntegrationProfile(self.runner).content(
+                str(self.repo), result["candidate"])
+        self.assertEqual(list(self.scratch.iterdir()), [])
+
+    def test_changed_link_is_refused(self):
+        (self.repo / "inherited-link").unlink()
+        (self.repo / "inherited-link").symlink_to("/another/target")
+        with self.assertRaisesRegex(git_profile.IntegrationProfileRefusal,
+                                    "only unchanged references"):
+            self.correspond()
+
+    def test_added_link_is_refused(self):
+        (self.repo / "new-link").symlink_to("/another/target")
+        with self.assertRaisesRegex(git_profile.IntegrationProfileRefusal,
+                                    "only unchanged references"):
+            self.correspond()
+
+    def test_deleted_link_is_refused(self):
+        (self.repo / "inherited-link").unlink()
+        with self.assertRaisesRegex(git_profile.IntegrationProfileRefusal,
+                                    "only unchanged references"):
+            self.correspond()

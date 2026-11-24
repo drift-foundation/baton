@@ -1,0 +1,17 @@
+{
+  "head": "560eaa895236ae28bcf204f308b82679f32abbbd",
+  "groups": [
+    "job_manager",
+    "tools-pure"
+  ],
+  "paths": {
+    "v12/python/tools/single_worker.py": "8708a2ab248bf2c57aeb8162e3b228e1716e81e8b727caa28b591acf3c6a999c",
+    "v12/python/tests/job_manager/test_publication_recovery_execution.py": "0a55e0d9e54f2a8a898d6490bd82879a18dd7e111c0f1926bcfaa72942d611c8"
+  },
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "selected_modules": [
+    "tests.job_manager.test_publication_recovery_execution",
+    "tests.tools.test_single_worker"
+  ],
+  "engine": "fake only; no engine or provider operation performed"
+}

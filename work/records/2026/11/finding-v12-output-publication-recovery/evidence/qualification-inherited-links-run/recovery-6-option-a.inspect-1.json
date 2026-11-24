@@ -1,0 +1,283 @@
+{
+  "admissions": [],
+  "authorization": {
+    "effective_scope": "scope:deployment",
+    "endpoint": "baton.slaw",
+    "grant": "direct",
+    "holds": true,
+    "policy_generation": 19,
+    "principal": "principal:baton.slaw",
+    "role": "approve",
+    "work_id": "10ecce19-W1",
+    "work_scope": "scope:deployment"
+  },
+  "cessation": {
+    "absent_records": [
+      "attempt.cessation-*:expiry-reclaim",
+      "attempt.cessation-*:settlement",
+      "attempt.cessation-*:cancellation",
+      "resource-token.revoked:workspace:66306:2801368:1",
+      "runtime.start-failed",
+      "runtime.preparation-failed"
+    ],
+    "answer": "unknown",
+    "declaration": {
+      "declared_ending": {
+        "known": false,
+        "value": null,
+        "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+      },
+      "disposition": {
+        "known": false,
+        "value": null,
+        "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+      },
+      "failure_reason": {
+        "known": false,
+        "value": null,
+        "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+      },
+      "frozen_at": {
+        "known": false,
+        "value": null,
+        "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+      },
+      "result_id": {
+        "known": false,
+        "value": null,
+        "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+      },
+      "seconds_bound": {
+        "known": false,
+        "value": null,
+        "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+      },
+      "seconds_bound_source": {
+        "known": false,
+        "value": null,
+        "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+      },
+      "verification_attempted": {
+        "known": false,
+        "value": null,
+        "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+      },
+      "verification_status": {
+        "known": false,
+        "value": null,
+        "why": "this attempt froze no result, so this manager sealed no worker declaration about how its turn ended"
+      }
+    }
+  },
+  "correspondence": {
+    "base": "560eaa895236ae28bcf204f308b82679f32abbbd",
+    "base_tree": "87e4c836cbb587a1941976c3c6037d6db1cf1f35",
+    "candidate": "67ff00e91f1b9b03df297b651c5ec72354b4c7e3",
+    "candidate_tree": "d2825ebf18dab09329ad6319ba3c42a5248fd2bb",
+    "changed_paths": [
+      "big.txt"
+    ],
+    "owner": "the deployment's source-aware consumer in confinement"
+  },
+  "decisions": [],
+  "declaration": {
+    "descriptor": "baton.v12.development-role-contract.native-handoff.proposal100m/1",
+    "digest": "sha256:cf29ab07e507089520ba0c165b0661df0054f17fe35b986b4cf63c9ac713792e",
+    "output": {
+      "constraints": {
+        "allowed_media_types": [
+          "application/octet-stream",
+          "text/plain"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 104857600,
+        "max_entries": 100,
+        "validator_digest": null
+      },
+      "name": "proposal",
+      "path": "proposal",
+      "required": false,
+      "type": "git-change-proposal"
+    },
+    "template": "baton.v12.job-template.implementation-review/4"
+  },
+  "eligible": true,
+  "exclusion": {
+    "attempt-ef251954a1b2b928c83e7d180241ce4d4d12d2f51f692aa47ee6bcb528183e36": {
+      "basis": "the host's own record",
+      "ceased": true,
+      "cleanup": "retained",
+      "resource": "returned",
+      "runtime": "destroyed"
+    }
+  },
+  "fence": null,
+  "holds": [],
+  "job": {
+    "ended_at": null,
+    "ended_state": null,
+    "input_digest": "sha256:f4512445e59f104186872216434e9e43ac68ed099f922f39d8f2f93abbcf767b",
+    "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+    "published_result": null,
+    "submission_id": "sub-job-w385695-qualify-20261124T062254Z-1632328-recovery-6-1",
+    "task_declared_base": "560eaa895236ae28bcf204f308b82679f32abbbd",
+    "task_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-6-1",
+    "terminal_policy": "report-and-hold"
+  },
+  "output": {
+    "completion_envelope": false,
+    "entry_count": 4,
+    "exceeded": true,
+    "fits_corrective": true,
+    "paths": [
+      "change.patch",
+      "objects.bundle",
+      "result.json",
+      "verification.txt"
+    ],
+    "root_identity": "66306:2801368",
+    "total_bytes": 1055514,
+    "tree_digest": "sha256:1b4948eacccad4a0ee3707827c447ca224baf50203393e3927813db7bf5678b8"
+  },
+  "producer": {
+    "argv": [
+      "/bin/true"
+    ],
+    "attributed_to": "role-adapter",
+    "base": "560eaa895236ae28bcf204f308b82679f32abbbd",
+    "changed_paths": [
+      "big.txt"
+    ],
+    "context": {
+      "argv": [
+        "/bin/true"
+      ],
+      "base": "560eaa895236ae28bcf204f308b82679f32abbbd",
+      "entry_head": "560eaa895236ae28bcf204f308b82679f32abbbd",
+      "schema": "baton.dogfood-proposal/2",
+      "seconds_bound": 3600,
+      "seconds_bound_source": "job-default",
+      "status": 0,
+      "task_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-6-1"
+    },
+    "context_digest": "sha256:741627723037332c81e3efaf8413ac7735c3f72a05702086ffaf74a645438b0a",
+    "declared_ending": "candidate",
+    "entry_head": "560eaa895236ae28bcf204f308b82679f32abbbd",
+    "head": "67ff00e91f1b9b03df297b651c5ec72354b4c7e3",
+    "independent_acceptance": false,
+    "qualification": "producer-evidence",
+    "result_digest": "sha256:2fb4d20c3b3fbd4ae0994dc6d460c591e02055b7f866e318cd2f51efc73dc9e2",
+    "reuse": "the recovery pipeline does not repeat this producer verifier; the substantive reviewer still owes its own required verification and investigation, including tests, under the selected command and invocation limits",
+    "schema": "baton.dogfood-proposal/2",
+    "source": "result.json measured in the original output",
+    "status": 0,
+    "task_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-6-1",
+    "verification_account": 539
+  },
+  "profile": {
+    "automatic_continuations": 0,
+    "automatic_corrections": 0,
+    "automatic_retries": 0,
+    "digest": "sha256:9e7b23b34d7465ce7876449adcc0a851eada360adae9a16bd2c7e0a378503d1b",
+    "each_stage_origin": "stage_admission",
+    "each_stage_seconds": 4800,
+    "enforced_by": "output-publication-review/1",
+    "overall_job_includes_queue": true,
+    "overall_job_origin": "accepted_admission",
+    "overall_job_seconds": 9960,
+    "profile": "output-publication-review/1",
+    "publication_stage_origin": "stage_admission",
+    "publication_stage_restart_resets": false,
+    "publication_stage_seconds": 900,
+    "review_provider_invocation_covers_tests": true,
+    "review_provider_invocation_origin": "invocation_start",
+    "review_provider_invocation_seconds": 3600,
+    "scope": "per-admission",
+    "units": "seconds",
+    "verification_command_applies_to": "each_reviewer_command",
+    "verification_command_origin": "command_start",
+    "verification_command_seconds": 900
+  },
+  "provenance": {
+    "link_policy": "forbid",
+    "max_bytes": 16384,
+    "max_entries": 1,
+    "name": "recovery-provenance",
+    "regular_files_only": true
+  },
+  "reviewer": {
+    "each_command_seconds": 900,
+    "excluded_principals": "the original implementation principal and the publication principal",
+    "independent_verification": "required",
+    "investigation_and_tests": "required",
+    "invocation_seconds": 3600,
+    "producer_evidence": "qualified and reused, never acceptance"
+  },
+  "schema": "baton.v12.output-publication-recovery/1",
+  "selection_digest": "sha256:8d22086c2d8a5cfc7c07a4b12e94212ef44ce2656e5f1b4b3552b62197e51026",
+  "selector": {
+    "attempt_id": "attempt-ef251954a1b2b928c83e7d180241ce4d4d12d2f51f692aa47ee6bcb528183e36",
+    "authority_uuid": "10ecce1915f74e0389261caa00ff96b1",
+    "effective_scope": "scope:deployment",
+    "episode": 1,
+    "generation": 1,
+    "job_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-6-1",
+    "participant": "baton.claude-native",
+    "principal": "principal:baton.claude-native",
+    "stage_id": "job-w385695-qualify-20261124T062254Z-1632328-recovery-6-1/implementation",
+    "work_id": "10ecce19-W1"
+  },
+  "source_commands": [
+    [
+      "git",
+      "init",
+      "--bare",
+      "--quiet",
+      "/home/sl/baton-instances/qualify-w385695-recovery-6/publication-correspondence-tnyr1jec/objects.git"
+    ],
+    [
+      "git",
+      "-C",
+      "/home/sl/baton-instances/qualify-w385695-recovery-6/publication-correspondence-tnyr1jec/objects.git",
+      "fetch",
+      "--no-tags",
+      "--no-write-fetch-head",
+      "/home/sl/baton-instances/qualify-w385695-recovery-6/repo/source-qualify-impl",
+      "560eaa895236ae28bcf204f308b82679f32abbbd"
+    ],
+    [
+      "git",
+      "-C",
+      "/home/sl/baton-instances/qualify-w385695-recovery-6/publication-correspondence-tnyr1jec/objects.git",
+      "fetch",
+      "--no-tags",
+      "--no-write-fetch-head",
+      "/home/sl/baton-instances/qualify-w385695-recovery-6/state/workspaces/.baton-review-lines/line-6548b71a28d7a93226daa99d001d003d517ba398b318f3e64add8174e36f3261/checkout/proposal/objects.bundle",
+      "67ff00e91f1b9b03df297b651c5ec72354b4c7e3"
+    ],
+    [
+      "git",
+      "-C",
+      "/home/sl/baton-instances/qualify-w385695-recovery-6/publication-correspondence-tnyr1jec/objects.git",
+      "rev-parse",
+      "--verify",
+      "67ff00e91f1b9b03df297b651c5ec72354b4c7e3^{commit}"
+    ],
+    [
+      "git",
+      "-C",
+      "/home/sl/baton-instances/qualify-w385695-recovery-6/publication-correspondence-tnyr1jec/objects.git",
+      "ls-tree",
+      "-r",
+      "-z",
+      "--full-tree",
+      "67ff00e91f1b9b03df297b651c5ec72354b4c7e3"
+    ]
+  ],
+  "stages": [
+    [
+      "publication",
+      "review"
+    ]
+  ]
+}

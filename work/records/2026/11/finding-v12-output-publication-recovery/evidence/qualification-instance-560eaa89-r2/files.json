@@ -1,0 +1,8 @@
+{
+  "owner-bootstrap.py": "7181c1c0d5abacfc681d573e603a581b860abd8b7ac8360a3e2ac95ada658a3c",
+  "owner-setup.py": "711c06488907ec918ef6f9528bc8fbd3189c9a1f27d7137514343d5fa553de86",
+  "owner-failures.py": "1ca0dd7a2b1f6617211c7935b73b4bf8743f35243eea8c34621a5121db23169c",
+  "bootstrap-inputs.json": "27a4b62545db56a2ff39acca570b1b254421e282d42f2ac9266b0411ffd8d6c4",
+  "installed-task.json": "cd54150326936199325186d747b9fcbfb4f20d5ff66ee2a5830c03070b29339f",
+  "runtime-manifest.json": "8bba3a391cd798cfed0b4f910feb4b6f3308b15d8f51becc46bfd1b0bf958fd0"
+}

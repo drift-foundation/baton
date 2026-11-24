@@ -2533,7 +2533,7 @@ def _delivered(store, held, ended, settled, intent, at):
 # -- 10b. the review this recovery released ----------------------------------
 
 def review_stage_of(store, held, at=None, *, control=None):
-    """WHERE THE RECOVERY'S REVIEW STAGE STANDS, from this store's own rows.
+    """Where recovery review stands, from episodes and owned frozen results.
 
     A READ. `state` is one of: `not-started` (no episode was ever opened),
     `in-progress` (an episode is open), or the terminal state its last episode
@@ -2549,6 +2549,33 @@ def review_stage_of(store, held, at=None, *, control=None):
     state = ("not-started" if last is None else
              "in-progress" if last["ended_state"] is None else
              last["ended_state"])
+    frozen = (None if control is None or last is None
+              or last["attempt_id"] is None else
+              frozen_output_of(control, last["attempt_id"]))
+    failed_result = (frozen is not None
+                     and frozen["disposition"] in ("unable", "cancelled"))
+    if state == "in-progress" and failed_result:
+        # A frozen failure ended execution without a verdict. Keep its
+        # custody and runtime retention; the owner-item act independently
+        # requires cessation and names any remaining cleanup.
+        state = "exceptional"
+    if state == "in-progress" and control is not None and last is not None \
+            and last["attempt_id"] is not None:
+        from . import ending as composed_ending
+        from ..worker_manager import attempt_runtime_of
+
+        finished = composed_ending.ending_of(store, stage_id, last["episode"])
+        runtime = attempt_runtime_of(control, last["attempt_id"])
+        if (finished is not None and finished["settlement"] is not None
+                and frozen is not None and frozen["disposition"] == "completed"
+                and runtime is not None
+                and runtime["execution_runtime"] == "destroyed"
+                and runtime["cleanup"] in ("complete", "retained")):
+            # Episode ended_state records retirement/replacement, not ordinary
+            # completion. A composed review finishes through its paired ending
+            # settlement and positive cleanup, just as the normal projection
+            # requires. A verdict alone cannot finish an unsettled ending.
+            state = "completed"
     at = store._now() if at is None else at
     own = cancellation.fenced(store._connection, held["job_id"])
     closed = job_control.closed_of(store, held["job_id"], at, any_stage=True)
@@ -2569,7 +2596,10 @@ def review_stage_of(store, held, at=None, *, control=None):
     if state == "exceptional":
         ended = closure or {
             "outcome": "review-failed",
-            "cause": "the review stage ended exceptionally with no verdict"}
+            "cause": ("the reviewer returned " + frozen["disposition"]
+                      + "; its frozen result contains no completed review"
+                      if failed_result else
+                      "the review stage ended exceptionally with no verdict")}
     elif state in ("not-started", "in-progress") and closure is not None:
         # CLOSED BY THIS RECOVERY'S OWN CONTROL. An open episode is not
         # reopened by anything after the fence; whether its reviewer has

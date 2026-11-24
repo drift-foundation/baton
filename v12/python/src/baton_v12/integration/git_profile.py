@@ -355,6 +355,26 @@ class GitIntegrationProfile:
         not own, and discovering that while writing the target would be one
         boundary too late.
         """
+        return self._content(repository, revision)
+
+    def corresponding_content(self, repository, base, candidate):
+        """Compare Git objects, allowing only unchanged reference entries.
+
+        This reads tree objects; it never checks out or follows a symlink or
+        submodule. Ordinary import still uses the strict content() inventory.
+        """
+        before = self._content(repository, base, references=True)
+        after = self._content(repository, candidate, references=True)
+        for path in sorted(set(before) | set(after)):
+            if before.get(path) == after.get(path):
+                continue
+            for entry in (before.get(path), after.get(path)):
+                if entry is not None and entry["mode"] not in _CONTENT_MODES:
+                    _refuse(f"the changed result carries {_NAMED_MODES[entry['mode']]} "
+                            f"at {path!r}; correspondence permits only unchanged references")
+        return before, after
+
+    def _content(self, repository, revision, *, references=False):
         text = self._run(tree_entries_vector(repository, revision),
                          "result content inventory")
         held = {}
@@ -366,11 +386,13 @@ class GitIntegrationProfile:
             if len(fields) != 3 or not path:
                 _refuse("Git returned a tree entry this profile cannot read")
             mode, kind, oid = fields
-            if mode in _NAMED_MODES:
+            if mode in _NAMED_MODES and not references:
                 _refuse(f"the prepared result carries {_NAMED_MODES[mode]} at "
                         f"{path!r}; this import owns ordinary file content and "
                         f"refuses a path kind it cannot apply")
-            if kind != "blob" or mode not in _CONTENT_MODES:
+            reference = references and ((mode == "120000" and kind == "blob")
+                                        or (mode == "160000" and kind == "commit"))
+            if not reference and (kind != "blob" or mode not in _CONTENT_MODES):
                 _refuse(f"the prepared result carries an unsupported entry at "
                         f"{path!r}")
             if path.startswith("/") or ".." in path.split("/") or path in held:

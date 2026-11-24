@@ -1,0 +1,150 @@
+diff --git a/v12/python/src/baton_v12/integration/git_profile.py b/v12/python/src/baton_v12/integration/git_profile.py
+index 6304c8a2..837576ed 100644
+--- a/v12/python/src/baton_v12/integration/git_profile.py
++++ b/v12/python/src/baton_v12/integration/git_profile.py
+@@ -355,6 +355,26 @@ class GitIntegrationProfile:
+         not own, and discovering that while writing the target would be one
+         boundary too late.
+         """
++        return self._content(repository, revision)
++
++    def corresponding_content(self, repository, base, candidate):
++        """Compare Git objects, allowing only unchanged reference entries.
++
++        This reads tree objects; it never checks out or follows a symlink or
++        submodule. Ordinary import still uses the strict content() inventory.
++        """
++        before = self._content(repository, base, references=True)
++        after = self._content(repository, candidate, references=True)
++        for path in sorted(set(before) | set(after)):
++            if before.get(path) == after.get(path):
++                continue
++            for entry in (before.get(path), after.get(path)):
++                if entry is not None and entry["mode"] not in _CONTENT_MODES:
++                    _refuse(f"the changed result carries {_NAMED_MODES[entry['mode']]} "
++                            f"at {path!r}; correspondence permits only unchanged references")
++        return before, after
++
++    def _content(self, repository, revision, *, references=False):
+         text = self._run(tree_entries_vector(repository, revision),
+                          "result content inventory")
+         held = {}
+@@ -366,11 +386,13 @@ class GitIntegrationProfile:
+             if len(fields) != 3 or not path:
+                 _refuse("Git returned a tree entry this profile cannot read")
+             mode, kind, oid = fields
+-            if mode in _NAMED_MODES:
++            if mode in _NAMED_MODES and not references:
+                 _refuse(f"the prepared result carries {_NAMED_MODES[mode]} at "
+                         f"{path!r}; this import owns ordinary file content and "
+                         f"refuses a path kind it cannot apply")
+-            if kind != "blob" or mode not in _CONTENT_MODES:
++            reference = references and ((mode == "120000" and kind == "blob")
++                                        or (mode == "160000" and kind == "commit"))
++            if not reference and (kind != "blob" or mode not in _CONTENT_MODES):
+                 _refuse(f"the prepared result carries an unsupported entry at "
+                         f"{path!r}")
+             if path.startswith("/") or ".." in path.split("/") or path in held:
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_admission.py b/v12/python/tests/job_manager/test_publication_recovery_admission.py
+index 8ee0ec2b..3f909c72 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_admission.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_admission.py
+@@ -1772,3 +1772,83 @@ class TheBuildHoldsTheOwnerSelectionsItClaimsTo(unittest.TestCase):
+         self.assertEqual(admitted["review"], "blocked")
+         self.assertEqual(admitted["offers"], 0)
+         self.assertIn("NOTHING HAS BEEN PUBLISHED", admitted["detail"])
++
++
++class CorrespondencePreservesUnchangedGitReferences(unittest.TestCase):
++    """Real private Git objects, with no checkout of link targets by the port."""
++
++    def setUp(self):
++        import pathlib
++        import subprocess
++
++        self.subprocess = subprocess
++        self.temporary = tempfile.TemporaryDirectory(
++            prefix="publication-links-", dir=disk_roots.disk_backed_root())
++        self.addCleanup(self.temporary.cleanup)
++        self.root = pathlib.Path(self.temporary.name)
++        self.repo = self.root / "source"
++        self.repo.mkdir()
++        self.git("init", "-q")
++        self.git("config", "user.email", "fixture@example.invalid")
++        self.git("config", "user.name", "Fixture")
++        (self.repo / "ordinary.txt").write_text("base\n")
++        (self.repo / "inherited-link").symlink_to("/nonexistent/outside-target")
++        self.git("add", ".")
++        self.git("commit", "-qm", "base")
++        self.base = self.git("rev-parse", "HEAD").strip()
++        (self.repo / "ordinary.txt").write_text("candidate\n")
++        self.scratch = self.root / "scratch"
++        self.scratch.mkdir()
++
++    def git(self, *args):
++        return self.subprocess.check_output(
++            ["git", "-C", str(self.repo), *args], text=True)
++
++    def runner(self, argv, input=None):
++        result = self.subprocess.run(argv, input=input, text=True,
++                                     capture_output=True, timeout=30)
++        return {"returncode": result.returncode, "stdout": result.stdout,
++                "stderr": result.stderr}
++
++    def correspond(self):
++        from tools.publication_ports import SourceCorrespondence
++
++        self.git("add", "-A")
++        self.git("commit", "-qm", "candidate")
++        head = self.git("rev-parse", "HEAD").strip()
++        self.git("bundle", "create", str(self.root / "objects.bundle"), "--all")
++        port = SourceCorrespondence({"root": str(self.root)},
++                                    engine=self.runner, scratch=str(self.scratch))
++        return port.correspondence_of({"root": str(self.root),
++            "entries": ["objects.bundle"], "base": self.base,
++            "candidate": head})
++
++    def test_inherited_link_is_not_a_change_and_import_stays_strict(self):
++        result = self.correspond()
++        self.assertEqual(result["changed_paths"], ["ordinary.txt"])
++        self.assertEqual(os.readlink(self.repo / "inherited-link"),
++                         "/nonexistent/outside-target")
++        with self.assertRaisesRegex(git_profile.IntegrationProfileRefusal,
++                                    "symbolic link"):
++            git_profile.GitIntegrationProfile(self.runner).content(
++                str(self.repo), result["candidate"])
++        self.assertEqual(list(self.scratch.iterdir()), [])
++
++    def test_changed_link_is_refused(self):
++        (self.repo / "inherited-link").unlink()
++        (self.repo / "inherited-link").symlink_to("/another/target")
++        with self.assertRaisesRegex(git_profile.IntegrationProfileRefusal,
++                                    "only unchanged references"):
++            self.correspond()
++
++    def test_added_link_is_refused(self):
++        (self.repo / "new-link").symlink_to("/another/target")
++        with self.assertRaisesRegex(git_profile.IntegrationProfileRefusal,
++                                    "only unchanged references"):
++            self.correspond()
++
++    def test_deleted_link_is_refused(self):
++        (self.repo / "inherited-link").unlink()
++        with self.assertRaisesRegex(git_profile.IntegrationProfileRefusal,
++                                    "only unchanged references"):
++            self.correspond()
+diff --git a/v12/python/tools/publication_ports.py b/v12/python/tools/publication_ports.py
+index 961c30a3..9d807074 100644
+--- a/v12/python/tools/publication_ports.py
++++ b/v12/python/tools/publication_ports.py
+@@ -328,8 +328,8 @@ class SourceCorrespondence:
+                                            "the retained candidate")
+             vectors.append(git_profile.verify_vector(repository,
+                                                      request["candidate"]))
+-            before = self._profile.content(repository, request["base"])
+-            after = self._profile.content(repository, request["candidate"])
++            before, after = self._profile.corresponding_content(
++                repository, request["base"], request["candidate"])
+             vectors.append(git_profile.tree_entries_vector(
+                 repository, request["candidate"]))
+         finally:

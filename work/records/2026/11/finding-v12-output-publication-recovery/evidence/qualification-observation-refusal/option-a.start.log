@@ -1,0 +1,14 @@
+refused: every process is running and acknowledged, but no valid, freshly observed status snapshot was published within 60s, so this stack has not been shown to compose its observation. The publisher's log says:
+      File "stack_command.py", line 82, in _manager
+      File "tools/job_manager.py", line 1565, in main
+      File "tools/job_manager.py", line 985, in _status
+      File "tools/job_manager.py", line 1087, in _observation_from
+      File "tools/stage_execution.py", line 8220, in observing_factory
+      File "tools/stage_execution.py", line 8214, in observation_from
+      File "tools/stage_execution.py", line 8163, in __init__
+      File "tools/single_worker.py", line 4365, in __init__
+      File "tools/single_worker.py", line 399, in _held
+      File "tools/single_worker.py", line 179, in _refuse
+    baton_v12.contracts.errors.ContractRefusal: this deployment launches implementation or review or integration and this configuration names 'publication'
+    [PYI-1648767:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+error: Recipe `start` failed on line 28 with exit code 2

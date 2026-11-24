@@ -8162,7 +8162,7 @@ class StageObservation:
         for one in given["workers"]:
             self.readers[one["worker_id"]] = single_worker._Observation(
                 raw[one["worker_id"]], control_store, job_store=job_store,
-                roles=ROLES)
+                roles=WORKER_ROLES)
 
     def observe_exchange(self, stage):
         """The durable exchange of whichever worker holds this stage.

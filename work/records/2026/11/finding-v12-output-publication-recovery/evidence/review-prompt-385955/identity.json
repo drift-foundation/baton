@@ -1,0 +1,5 @@
+{
+  "packet_index": "8ef13de9db43b69ec7c4f14cf978913a67e569a1a47957f82671655166195af7",
+  "entries": 30,
+  "probe_adaptation": "target packet and include new op_recorded helper; assertions unchanged"
+}

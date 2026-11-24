@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "just",
+    "--justfile",
+    "/home/sl/src/baton/v12/justfile",
+    "test-packaging"
+  ],
+  "exit_status": 0,
+  "seconds": 22.611574238049798,
+  "scratch": "/var/tmp/baton-695-package-m7ztu4pc"
+}

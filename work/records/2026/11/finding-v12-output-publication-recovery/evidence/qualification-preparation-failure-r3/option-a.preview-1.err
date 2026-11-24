@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "stack_command.py", line 347, in <module>
+  File "stack_command.py", line 343, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 1299, in main
+  File "tools/stopped_settlement.py", line 299, in main
+  File "tools/stopped_settlement.py", line 263, in execute
+  File "tools/stopped_settlement.py", line 24, in _refuse
+baton_v12.contracts.errors.ContractRefusal: settlement has no validated retained exchange delivery
+[PYI-1651642:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
